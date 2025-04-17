@@ -49,8 +49,8 @@ module.exports = {
                 inverse: '#ffffff'
               },
               primary: {
-                default: '#1B84FF',
-                active: '#056EE9',
+                default: '#D62E38',
+                active: '#70181D',
                 light: '#EFF6FF',
                 clarity: 'rgba(27, 132, 255, 0.20)',
                 inverse: '#ffffff'
