@@ -24,8 +24,7 @@ const Login = () => {
     login
   } = useAuthContext();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = '/auth/2fa';
   const [showPassword, setShowPassword] = useState(false);
   const {
     currentLayout
@@ -43,11 +42,7 @@ const Login = () => {
           throw new Error('JWTProvider is required for this form.');
         }
         await login(values.email, values.password);
-        if (values.remember) {
           localStorage.setItem('email', values.email);
-        } else {
-          localStorage.removeItem('email');
-        }
         navigate(from, {
           replace: true
         });
@@ -118,10 +113,10 @@ const Login = () => {
         <span className="checkbox-label">Remember me</span>
       </label> */}
       <div className="flex items-center justify-between gap-1">
-        <Link to={currentLayout?.name === 'auth-branded' ? '/auth/reset-password' : '/auth/classic/reset-password'} className="text-2sm link shrink-0 underline hover:no-underline">
+        <Link to={'/auth/otp-login'} className="text-2sm link shrink-0 underline hover:no-underline">
         Login with OTP instead
           </Link>
-          <Link to={currentLayout?.name === 'auth-branded' ? '/auth/reset-password' : '/auth/classic/reset-password'} className="text-2sm link shrink-0 underline hover:no-underline">
+          <Link to={'/auth/reset-password'} className="text-2sm link shrink-0 underline hover:no-underline">
             Forgot Password?
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router';
-import { Login, ResetPassword, ResetPasswordChange, ResetPasswordChanged, ResetPasswordCheckEmail, ResetPasswordEnterEmail, Signup, TwoFactorAuth } from './pages/jwt';
+import { Login, ResetPassword, ResetPasswordChange, ResetPasswordChanged, ResetPasswordCheckEmail, ResetPasswordEnterEmail, Signup, TwoFactorAuth, OtpLogin} from './pages/jwt';
 import { AuthBrandedLayout } from '@/layouts/auth-branded';
 import { AuthLayout } from '@/layouts/auth';
 import { CheckEmail } from '@/auth/pages/jwt';
@@ -10,6 +10,7 @@ const AuthPage = () => <Routes>
       <Route path="/signup" element={<Signup />} />
       <Route path="/2fa" element={<TwoFactorAuth />} />
       <Route path="/check-email" element={<CheckEmail />} />
+      <Route path="/otp-login" element={<OtpLogin />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/reset-password/enter-email" element={<ResetPasswordEnterEmail />} />
       <Route path="/reset-password/check-email" element={<ResetPasswordCheckEmail />} />

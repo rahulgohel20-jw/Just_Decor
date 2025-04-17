@@ -90,6 +90,7 @@ const AuthProvider = ({
     return await axios.get(GET_USER_URL);
   };
   const logout = () => {
+    localStorage.removeItem('phone');
     saveAuth(undefined);
     setCurrentUser(undefined);
   };
