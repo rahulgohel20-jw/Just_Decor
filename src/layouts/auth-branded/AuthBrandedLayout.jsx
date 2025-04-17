@@ -19,27 +19,23 @@ const Layout = () => {
       </style>
 
       <div className="grid lg:grid-cols-2 grow">
-        <div className="flex justify-center items-center p-8 lg:p-10 order-2 lg:order-1">
-          <Outlet />
-        </div>
-
-        <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-1 lg:order-2 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
+        <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-2 lg:order-1 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
           <div className="flex flex-col p-8 lg:p-16 gap-4">
             <Link to="/">
               <img src={toAbsoluteUrl('/media/app/mini-logo.svg')} className="h-[28px] max-w-none" alt="" />
             </Link>
-
             <div className="flex flex-col gap-3">
-              <h3 className="text-2xl font-semibold text-gray-900">Secure Access Portal</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">Welcome to Just Wedding</h3>
               <div className="text-base font-medium text-gray-600">
-                A robust authentication gateway ensuring
-                <br /> secure&nbsp;
-                <span className="text-gray-900 font-semibold">efficient user access</span>
-                &nbsp;to the Metronic
-                <br /> Dashboard interface.
+              It has survived not only five centuries, but also the <br />
+              leap <span className="text-gray-900 font-semibold">into electronic typesetting</span>, remaining<br />
+               essentially unchanged.
               </div>
             </div>
           </div>
+        </div>
+        <div className="flex justify-center items-center p-8 lg:p-10 order-1 lg:order-2">
+          <Outlet />
         </div>
       </div>
     </Fragment>;
