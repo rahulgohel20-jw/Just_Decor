@@ -58,7 +58,7 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
   return <div className="card max-w-[390px] w-full">
-    <form className="card-body flex flex-col gap-2 p-7" onSubmit={formik.handleSubmit} noValidate>
+    <form className="card-body flex flex-col gap-2 p-5 md:p-7" onSubmit={formik.handleSubmit} noValidate>
       <div className="mb-2.5">
         <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">Sign in</h3>
         <span className="text-sm text-gray-600">Hey, Enter your details below to sign in and access your account securely and easily.</span>
