@@ -59,45 +59,38 @@ const ResetPassword = () => {
     }
   });
   return <div className="card max-w-[370px] w-full">
-      <form className="card-body flex flex-col gap-5 p-10" noValidate onSubmit={formik.handleSubmit}>
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900">Your Email</h3>
-          <span className="text-2sm text-gray-600 font-medium">
-            Enter your email to reset password
-          </span>
-        </div>
-
-        {hasErrors && <Alert variant="danger">{formik.status}</Alert>}
-
-        {hasErrors === false && <Alert variant="success">
-            Password reset link sent. Please check your email to proceed
-          </Alert>}
-
-        <div className="flex flex-col gap-1">
-          <label className="form-label text-gray-900">Email</label>
-          <label className="input">
-            <input type="email" placeholder="email@email.com" autoComplete="off" {...formik.getFieldProps('email')} className={clsx('form-control bg-transparent', {
+    <form className="card-body flex flex-col gap-2 p-7" noValidate onSubmit={formik.handleSubmit}>
+      <div className="mb-2.5">
+        <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">Forgot Password?</h3>
+        <span className="text-sm text-gray-600">Don't worry! It happens. Please enter the email address associated with your account</span>
+      </div>
+      {hasErrors && <Alert variant="danger">{formik.status}</Alert>}
+      {hasErrors === false && <Alert variant="success">
+        Password reset link sent. Please check your email to proceed
+      </Alert>}
+      <div className="flex flex-col">
+        <label className="form-label text-gray-900">Email Address</label>
+        <label className="input">
+          <input type="email" placeholder="Enter email address" autoComplete="off" {...formik.getFieldProps('email')} className={clsx('form-control bg-transparent', {
             'is-invalid': formik.touched.email && formik.errors.email
           }, {
             'is-valid': formik.touched.email && !formik.errors.email
           })} />
-          </label>
-          {formik.touched.email && formik.errors.email && <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.email}
-            </span>}
-        </div>
-
-        <div className="flex flex-col gap-5 items-stretch">
-          <button type="submit" className="btn btn-primary flex justify-center grow" disabled={loading || formik.isSubmitting}>
-            {loading ? 'Please wait...' : 'Continue'}
-          </button>
-
-          <Link to={currentLayout?.name === 'auth-branded' ? '/auth/login' : '/auth/classic/login'} className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary">
-            <KeenIcon icon="black-left" />
-            Back to Login
-          </Link>
-        </div>
-      </form>
-    </div>;
+        </label>
+        {formik.touched.email && formik.errors.email && <span role="alert" className="text-danger text-xs mt-1">
+          {formik.errors.email}
+        </span>}
+      </div>
+      <div className="flex flex-col gap-4 items-stretch mt-3">
+        <button type="submit" className="btn btn-primary flex justify-center grow" disabled={loading || formik.isSubmitting}>
+          {loading ? 'Please wait...' : 'Submit'}
+        </button>
+        <Link to={currentLayout?.name === 'auth-branded' ? '/auth/login' : '/auth/classic/login'} className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary">
+          <KeenIcon icon="black-left" />
+          Back to Login
+        </Link>
+      </div>
+    </form>
+  </div>;
 };
 export { ResetPassword };
