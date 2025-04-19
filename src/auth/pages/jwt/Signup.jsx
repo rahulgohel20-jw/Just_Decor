@@ -157,17 +157,15 @@ const Signup = () => {
                 />
               </svg>
             </button>
-
             {/* Phone Number Input */}
             <input
               type="tel"
-              className="flex-1 px-3 py-2 input text-sm focus:outline-none rounded-none border-none"
+              className="flex-1 px-3 py-2 input text-sm rounded-none border-none"
               placeholder="Phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
-
           {/* Dropdown Menu */}
           {dropdownOpen && (
             <div className="absolute z-20 bg-white border border-gray-200 rounded-md shadow-lg mt-2 w-48 max-h-60 overflow-y-auto">
