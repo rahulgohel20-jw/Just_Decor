@@ -12,6 +12,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Contacts",
+        path: "/contacts",
       },
       {
         title: "Companies",
