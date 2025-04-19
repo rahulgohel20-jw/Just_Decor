@@ -112,7 +112,7 @@ const OtpLogin = () => {
             }
             className="text-2sm link hover:underline no-underline"
           >
-            Sign up
+            Sign Up
           </Link>
         </div>
       </form>

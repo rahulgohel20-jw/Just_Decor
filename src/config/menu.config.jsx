@@ -5,10 +5,10 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Leads",
-    icon: "element-11",
+    icon: "ki-filled ki-abstract-18",
     children: [
       {
-        title: "Lead",
+        title: "Overview",
       },
       {
         title: "Contacts",
@@ -26,14 +26,14 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Links",
-    icon: "element-11",
+    icon: "ki-filled ki-disconnect",
   },
   {
     title: "Team",
-    icon: "element-11",
+    icon: "ki-filled ki-users",
     children: [
       {
-        title: "Teams",
+        title: "Overview",
       },
       {
         title: "User Role",
@@ -45,7 +45,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Settings",
-    icon: "element-11",
+    icon: "ki-filled ki-setting-2",
     children: [
       {
         title: "General",
@@ -63,7 +63,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Support",
-    icon: "element-11",
+    icon: "ki-filled ki-support",
     children: [
       { title: "Events" },
       { title: "Tutorials" },
@@ -75,7 +75,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Billing",
-    icon: "element-11",
+    icon: "ki-filled ki-cheque",
     children: [
       {
         title: "Billing",

@@ -64,7 +64,7 @@ const TwoFactorAuth = () => {
   });
 
   return (
-    <div className="card max-w-[380px] w-full">
+    <div className="card max-w-[370px] w-full">
       <form
         className="card-body flex items-start flex-col gap-2 p-7"
         onSubmit={formik.handleSubmit}
@@ -82,9 +82,10 @@ const TwoFactorAuth = () => {
         <div className="mb-2.5">
           <h3 class="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
           <div className="flex flex-col">
-            <span className="text-sm text-gray-600">Please enter the one time password to verify your account. <br /> <br />
+            <span className="text-sm text-gray-600">Please enter the one time password to verify your account.</span>
+            <span className="text-sm text-gray-600 mt-2">
               A code has been sent to
-               <span className="text-sm text-gray-900 ms-1">
+               <span className="ms-1">
                 {localStorage.getItem("phone")
                   ? localStorage.getItem("phone")
                   : localStorage.getItem("email")}

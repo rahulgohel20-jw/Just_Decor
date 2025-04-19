@@ -99,7 +99,7 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
   return (
-    <div className="card max-w-[400px] w-full">
+    <div className="card max-w-[460px] w-full">
       <form
         className="card-body flex flex-col gap-2 p-5 md:p-7"
         noValidate
@@ -107,7 +107,7 @@ const Signup = () => {
       >
         <div className="mb-2.5">
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
-            Sign up
+            Sign Up
           </h3>
           <span className="text-sm text-gray-600">
             Please fill in all the information required to create your account
@@ -125,6 +125,20 @@ const Signup = () => {
             <label className="form-label text-gray-900">Last Name</label>
             <label className="input">
               <input placeholder="Last name" type="text" />
+            </label>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          <div class="flex flex-col">
+            <label className="form-label text-gray-900">City</label>
+            <label className="input">
+              <input placeholder="First name" type="text" />
+            </label>
+          </div>
+          <div class="flex flex-col">
+            <label className="form-label text-gray-900">Company</label>
+            <label className="input">
+              <input placeholder="Enter company name" type="text" />
             </label>
           </div>
         </div>

@@ -66,7 +66,7 @@ const Login = () => {
       >
         <div className="mb-2.5">
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">
-            Sign in
+            Sign In
           </h3>
           <span className="text-sm text-gray-600">
             Hey, Enter your details below to sign in and access your account
@@ -180,7 +180,7 @@ const Login = () => {
             }
             className="text-2sm link hover:underline no-underline"
           >
-            Sign up
+            Sign Up
           </Link>
         </div>
       </form>
