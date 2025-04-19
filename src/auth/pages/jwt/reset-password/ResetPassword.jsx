@@ -59,7 +59,7 @@ const ResetPassword = () => {
     }
   });
   return <div className="card max-w-[370px] w-full">
-    <form className="card-body flex flex-col gap-2 p-7" noValidate onSubmit={formik.handleSubmit}>
+    <form className="card-body flex flex-col gap-2 p-5 md:p-7" noValidate onSubmit={formik.handleSubmit}>
       <div className="mb-2.5">
         <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">Forgot Password?</h3>
         <span className="text-sm text-gray-600">Don't worry! It happens. Please enter the email address associated with your account</span>

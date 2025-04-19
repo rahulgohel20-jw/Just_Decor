@@ -53,7 +53,7 @@ const OtpLogin = () => {
   return (
     <div className="card max-w-[390px] w-full">
       <form
-        className="card-body flex flex-col gap-2 p-7"
+        className="card-body flex flex-col gap-2 p-5 md:p-7"
         onSubmit={formik.handleSubmit}
         noValidate
       >

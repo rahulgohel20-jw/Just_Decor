@@ -101,7 +101,7 @@ const Signup = () => {
   return (
     <div className="card max-w-[400px] w-full">
       <form
-        className="card-body flex flex-col gap-2 p-7"
+        className="card-body flex flex-col gap-2 p-5 md:p-7"
         noValidate
         onSubmit={formik.handleSubmit}
       >
@@ -129,6 +129,7 @@ const Signup = () => {
           </div>
         </div>
         <div className="relative max-w-md w-full">
+          <label className="form-label text-gray-900">Phone Number</label>
           <div className="flex border border-gray-300 rounded-md overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
             {/* Country Selector Button */}
             <button
@@ -160,7 +161,7 @@ const Signup = () => {
             {/* Phone Number Input */}
             <input
               type="tel"
-              className="flex-1 px-3 py-2 input text-sm focus:outline-none"
+              className="flex-1 px-3 py-2 input text-sm focus:outline-none rounded-none border-none"
               placeholder="Phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -219,7 +220,7 @@ const Signup = () => {
           <label className="input">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter Password"
+              placeholder="Create password"
               autoComplete="off"
               {...formik.getFieldProps("password")}
               className={clsx(
@@ -260,7 +261,7 @@ const Signup = () => {
           <label className="input">
             <input
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="Re-enter Password"
+              placeholder="Confirm Password"
               autoComplete="off"
               {...formik.getFieldProps("changepassword")}
               className={clsx(
@@ -308,7 +309,7 @@ const Signup = () => {
           className="btn btn-primary flex justify-center grow mt-2"
           disabled={loading || formik.isSubmitting}
         >
-          {loading ? "Please wait..." : "Sign UP"}
+          {loading ? "Please wait..." : "Sign Up"}
         </button>
         <div className="flex items-center gap-2 my-3">
           <span className="border-t border-gray-200 w-full"></span>

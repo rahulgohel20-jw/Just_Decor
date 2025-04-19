@@ -7,42 +7,39 @@ const Layout = () => {
   // Applying body classes to manage the background color in dark mode
   useBodyClasses('dark:bg-coal-500');
   return <Fragment>
-      <style>
-        {`
+    <style>
+      {`
           .branded-bg {
-            background-image: url('${toAbsoluteUrl('/media/images/2600x1600/1.png')}');
+            background-image: url('${toAbsoluteUrl('/images/account_img.jpg')}');
           }
           .dark .branded-bg {
-            background-image: url('${toAbsoluteUrl('/media/images/2600x1600/1-dark.png')}');
+            background-image: url('${toAbsoluteUrl('/images/account_img.jpg')}');
           }
         `}
-      </style>
-
-      <div className="grid lg:grid-cols-2 grow">
-        <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-2 lg:order-1 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
-          <div className="flex flex-col p-8 lg:p-16 gap-4">
-            <Link to="/">
-              <img src={toAbsoluteUrl('/images/monogram.svg')} className="h-[28px] max-w-none" alt="" />
-            </Link>
-            <div className="flex flex-col gap-3">
-              <h3 className="text-2xl font-semibold text-gray-900">Welcome to Just Wedding</h3>
-              <div className="text-base font-medium text-gray-600">
-              It has survived not only five centuries, but also the <br />
-              leap <span className="text-gray-900 font-semibold">into electronic typesetting</span>, remaining<br />
-               essentially unchanged.
-              </div>
-            </div>
+    </style>
+    <div className="grid lg:grid-cols-2 grow">
+      <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-2 lg:order-1 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
+        <div className="flex flex-col p-8 lg:p-16 gap-4 text-center">
+          <Link to="/" className='m-auto'>
+            <img src={toAbsoluteUrl('/images/monogram.svg')} className="h-[28px] max-w-none" alt="" />
+          </Link>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-xl font-semibold text-white">Welcome to Just Wedding</h3>
+            <div className="text-sm text-white opacity-90"> It has survived not only five centuries, but also the leap <span className="font-bold">into electronic</span><br className='hidden md:inline' /><span className="font-bold">typesetting</span>,  remaining essentially unchanged.</div>
           </div>
         </div>
-        <div className="flex justify-center items-center p-8 lg:p-10 order-1 lg:order-2">
-          <Outlet />
-        </div>
       </div>
-    </Fragment>;
+      <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-1 lg:order-2">
+        <Link to="/" className='ms-auto me-auto mt-auto mb-5 lg:hidden'>
+            <img src={toAbsoluteUrl('/images/monogram.svg')} className="h-[28px] max-w-none" alt="" />
+          </Link>
+        <Outlet />
+      </div>
+    </div>
+  </Fragment>;
 };
-
 // AuthBrandedLayout component that wraps the Layout component with AuthBrandedLayoutProvider
 const AuthBrandedLayout = () => <AuthBrandedLayoutProvider>
-    <Layout />
-  </AuthBrandedLayoutProvider>;
+  <Layout />
+</AuthBrandedLayoutProvider>;
 export { AuthBrandedLayout };
