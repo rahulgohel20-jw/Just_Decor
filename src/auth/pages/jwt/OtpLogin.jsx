@@ -35,7 +35,7 @@ const OtpLogin = () => {
           throw new Error("JWTProvider is required for this form.");
         }
         // await login(values.phone);
-          localStorage.setItem("phone", values.phone);
+        localStorage.setItem("phone", values.phone);
         navigate(from, {
           replace: true,
         });
@@ -53,23 +53,17 @@ const OtpLogin = () => {
   return (
     <div className="card max-w-[390px] w-full">
       <form
-        className="card-body flex flex-col gap-2 p-10"
+        className="card-body flex flex-col gap-2 p-7"
         onSubmit={formik.handleSubmit}
         noValidate
       >
         <div className="mb-2.5">
-          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">
-            Login with OTP instead
-          </h3>
-          <span className="text-2sm text-gray-600 me-1.5">
-            Enter your phone number to receive an OTP code for account
-            verification.
+          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">Login with OTP instead</h3>
+          <span className="text-sm text-gray-600">Enter your phone number to receive an OTP code for accountverification.
           </span>
         </div>
-
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
-
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col">
           <label className="form-label text-gray-900">Phone Number</label>
           <label className="input">
             <input
@@ -87,22 +81,19 @@ const OtpLogin = () => {
             </span>
           )}
         </div>
-
         <div className="flex items-center justify-between gap-1">
-          <Link to={"/auth/login"} className="text-2sm link shrink-0">
+          <Link to={"/auth/login"} className="text-2sm link shrink-0 hover:underline no-underline">
             Login with Email instead
           </Link>
         </div>
-
         <button
           type="submit"
-          className="btn btn-primary flex justify-center grow mt-2"
+          className="btn btn-primary flex justify-center grow mt-3"
           disabled={loading || formik.isSubmitting}
         >
-          {loading ? "Please wait..." : "Login to Your Account"}
+          {loading ? "Please wait..." : "Send your OTP"}
         </button>
-
-        <div className="flex items-center justify-center font-medium mt-2">
+        <div className="flex items-center justify-center font-medium mt-3">
           <span className="text-2sm text-gray-600 me-1.5">
             Don't have an account?
           </span>
@@ -112,7 +103,7 @@ const OtpLogin = () => {
                 ? "/auth/signup"
                 : "/auth/classic/signup"
             }
-            className="text-2sm link"
+            className="text-2sm link hover:underline no-underline"
           >
             Sign up
           </Link>

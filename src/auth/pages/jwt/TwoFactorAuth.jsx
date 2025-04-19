@@ -66,36 +66,32 @@ const TwoFactorAuth = () => {
   return (
     <div className="card max-w-[380px] w-full">
       <form
-        className="card-body flex flex-col gap-5 p-10"
+        className="card-body flex items-start flex-col gap-2 p-7"
         onSubmit={formik.handleSubmit}
       >
         <img
           src={toAbsoluteUrl("/media/illustrations/34.svg")}
-          className="dark:hidden h-20 mb-2"
+          className="dark:hidden h-12 mb-2"
           alt=""
         />
         <img
           src={toAbsoluteUrl("/media/illustrations/34-dark.svg")}
-          className="light:hidden h-20 mb-2"
+          className="light:hidden h-12 mb-2"
           alt=""
         />
-
-        <div className="text-center mb-2">
-          <h3 className="text-lg font-medium text-gray-900 mb-5">
-            Verify your phone
-          </h3>
+        <div className="mb-2.5">
+          <h3 class="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
           <div className="flex flex-col">
-            <span className="text-2sm text-gray-700 mb-1.5">
-              Enter the verification code we sent to
+            <span className="text-sm text-gray-600">Please enter the one time password to verify your account. <br /> <br />
+              A code has been sent to
+               <span className="text-sm text-gray-900 ms-1">
+                {localStorage.getItem("phone")
+                  ? localStorage.getItem("phone")
+                  : localStorage.getItem("email")}
+              </span>
             </span>
-            <a href="#" className="text-sm font-medium text-gray-900">
-              {localStorage.getItem("phone")
-                ? localStorage.getItem("phone")
-                : localStorage.getItem("email")}
-            </a>
           </div>
         </div>
-
         <div className="flex flex-wrap justify-center gap-2.5">
           {codeInputs.map((value, index) => (
             <input
@@ -115,31 +111,30 @@ const TwoFactorAuth = () => {
             </span>
           )}
         </div>
-
-        <div className="flex items-center justify-center mb-2">
+        <div className="flex items-center justify-center text-center w-full mt-2">
           <span className="text-xs text-gray-700 me-1.5">
-            Didn’t receive a code? (37s)
+            Didn't receive a code? (37s)
           </span>
-          <Link to="/auth/classic/login" className="text-xs link">
-            Resend
+          <Link to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"} className="text-xs link hover:underline no-underline">
+            Resend OTP
           </Link>
         </div>
-
         <button
           type="submit"
-          className="btn btn-primary flex justify-center grow"
+          className="btn btn-primary flex justify-center grow mt-3 w-full"
           disabled={loading}
         >
-          {loading ? "Loading..." : "Continue"}
+          {loading ? "Loading..." : "Verify & Proceed"}
         </button>
-
-        <Link
-          to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"}
-          className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary"
-        >
-          <KeenIcon icon="black-left" />
-          Back to Login
-        </Link>
+        <div className="text-center w-full">
+          <Link
+            to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"}
+            className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary mt-2"
+          >
+            <KeenIcon icon="black-left" />
+            Back to Login
+          </Link>
+        </div>
       </form>
     </div>
   );
