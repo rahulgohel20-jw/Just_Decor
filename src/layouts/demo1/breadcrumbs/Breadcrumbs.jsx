@@ -66,9 +66,47 @@ const Breadcrumbs = ({ items }) => {
   };
   const render = () => {
     return (
-      <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium mb-2.5 lg:mb-0">
-        <div>{items && items[items.length - 1].title}</div>
-        <div>{items && renderItems(items)}</div>
+      <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium">
+        <h1 class="text-xl font-medium leading-none text-gray-900">
+          {items && items[items.length - 1].title}
+        </h1>
+        <div className="sm:flex hidden flex flex-wrap items-center gap-1">
+          {items && renderItems(items)}
+
+          {/* <div class="dropdown" data-dropdown="true" data-dropdown-trigger="click">
+            <button class="dropdown-toggle btn btn-sm btn-light ms-1">Create new</button>
+            <div class="dropdown-content w-full max-w-56 py-2">
+              <div class="menu menu-default flex flex-col w-full">
+                <div class="menu-item">
+                  <a class="menu-link" href="#">
+                    <span class="menu-icon"><i class="ki-outline ki-badge"></i></span>
+                    <span class="menu-title">Menu item 1</span>
+                  </a>
+                </div>
+                <div class="menu-item">
+                  <a class="menu-link" href="#">
+                    <span class="menu-icon"><i class="ki-outline ki-profile-circle"></i></span>
+                    <span class="menu-title">Menu item 2</span>
+                  </a>
+                </div>
+                <div class="menu-item">
+                  <a class="menu-link" href="#">
+                    <span class="menu-icon"><i class="ki-outline ki-setting-2"></i></span>
+                    <span class="menu-title">Menu item 3</span>
+                    <span class="menu-badge"><span class="badge badge-sm badge-outline badge-pill badge-primary">New</span></span>
+                  </a>
+                </div>
+                <div class="menu-item">
+                  <a class="menu-link" href="#">
+                    <span class="menu-icon"><i class="ki-outline ki-message-programming"></i></span>
+                    <span class="menu-title">Menu item 4</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div> */}
+
+        </div>
       </div>
     );
   };

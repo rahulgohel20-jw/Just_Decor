@@ -14,14 +14,15 @@ const HeaderLogo = () => {
   const handleMegaMenuOpen = () => {
     setMobileMegaMenuOpen(true);
   };
-  return <div className="flex gap-1 lg:hidden items-center -ms-1">
+  return <div className="flex gap-2 lg:hidden items-center -ms-1">
       <Link to="/" className="shrink-0">
         <img src={toAbsoluteUrl('/media/app/mini-logo.svg')} className="max-h-[25px] w-full" alt="mini-logo" />
       </Link>
 
       <div className="flex items-center">
         <button type="button" className="btn btn-icon btn-light btn-clear btn-sm" onClick={handleSidebarOpen}>
-          <KeenIcon icon="menu" />
+          {/* <KeenIcon icon="menu" /> */}
+          <i class="ki-filled ki-burger-menu-6"></i>
         </button>
 
         {megaMenuEnabled && <button type="button" className="btn btn-icon btn-light btn-clear btn-sm" onClick={handleMegaMenuOpen}>

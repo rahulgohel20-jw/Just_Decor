@@ -5,7 +5,7 @@ import { Breadcrumbs } from '../';
 const Content = () => {
   const mobileMode = useResponsive('down', 'lg');
   return <div className="grow content pt-5" role="content">
-      {mobileMode && <Container>
+        {mobileMode && <Container>
           <Breadcrumbs />
         </Container>}
       <Outlet />

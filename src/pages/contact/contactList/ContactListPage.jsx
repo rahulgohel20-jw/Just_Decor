@@ -44,7 +44,11 @@ const ContactListPage = () => {
 
   return (
     <Fragment>
-      <Breadcrumbs items={[{ title: "Contact" }]} />
+      <div className="gap-2 pb-2 mb-3">
+      <Container>
+        <Breadcrumbs items={[{ title: "Contacts" }]} />
+        </Container>
+      </div>      
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -89,7 +93,7 @@ const ContactListPage = () => {
               className="btn btn-sm btn-primary"
               onClick={handleModalOpen}
             >
-              + Add Contacts
+              <i class="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>
         </div>
