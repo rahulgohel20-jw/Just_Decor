@@ -161,54 +161,56 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   return (
-    <CustomModal
-      open={isModalOpen}
-      onClose={handleModalClose}
-      title="Add Contact"
-      footer={[
-        <button
-          key="cancel"
-          className="btn btn-sm btn-secondary"
-          onClick={handleModalClose}
-        >
-          Cancel
-        </button>,
-        <button key="save" className="btn btn-sm btn-primary">
-          Save Contact
-        </button>,
-      ]}
-    >
-      <div
-        className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
-        data-tabs="true"
+    isModalOpen && (
+      <CustomModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        title="Add Contact"
+        footer={[
+          <button
+            key="cancel"
+            className="btn btn-sm btn-secondary"
+            onClick={handleModalClose}
+          >
+            Cancel
+          </button>,
+          <button key="save" className="btn btn-sm btn-primary">
+            Save Contact
+          </button>,
+        ]}
       >
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_1" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_1")}
+        <div
+          className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
+          data-tabs="true"
         >
-          Contact Details
-        </a>
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_2" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_2")}
-        >
-          Address Details
-        </a>
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_3" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_3")}
-        >
-          Social Profile
-        </a>
-      </div>
-      {renderTabContent()}
-    </CustomModal>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_1" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_1")}
+          >
+            Contact Details
+          </a>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_2" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_2")}
+          >
+            Address Details
+          </a>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_3" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_3")}
+          >
+            Social Profile
+          </a>
+        </div>
+        {renderTabContent()}
+      </CustomModal>
+    )
   );
 };
 export default AddContact;
