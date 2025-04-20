@@ -4,32 +4,65 @@ import { useLocation } from "react-router";
 import { KeenIcon } from "@/components";
 import { useMenuBreadcrumbs } from "@/components/menu";
 import { useMenus } from "@/providers";
-const Breadcrumbs = () => {
+import { Link } from "react-router-dom";
+const Breadcrumbs = ({ items }) => {
   const { pathname } = useLocation();
   const { getMenuConfig } = useMenus();
   const menuConfig = getMenuConfig("primary");
-  const items = useMenuBreadcrumbs(pathname, menuConfig);
   const renderItems = (items) => {
-    return items.map((item, index) => {
+    const dashboardItem = (
+      <Fragment key={`root-${0}`}>
+        <Link
+          to={"/"}
+          className={
+            "text-2sm link shrink-0 hover:underline no-underline text-gray-700"
+          }
+          key={`item-${0}`}
+        >
+          Dashboard
+        </Link>
+        <KeenIcon
+          icon="right"
+          className="text-gray-500 text-3xs"
+          key={`separator-${0}`}
+        />
+      </Fragment>
+    );
+    let data = items.map((item, index) => {
       const last = index === items.length - 1;
+      const key = index + 1;
+
       return (
-        <Fragment key={`root-${index}`}>
-          <span
-            className={clsx(item.active ? "text-gray-700" : "text-gray-700")}
-            key={`item-${index}`}
-          >
-            {item.title}
-          </span>
+        <Fragment key={`root-${key}`}>
+          {item.path ? (
+            <Link
+              to={item.path}
+              className={clsx(
+                "text-2sm link shrink-0 hover:underline no-underline"
+              )}
+              key={`item-${key}`}
+            >
+              {item.title}
+            </Link>
+          ) : (
+            <span
+              className={clsx("text-2sm shrink-0 no-underline text-gray-700")}
+              key={`item-${key}`}
+            >
+              {item.title}
+            </span>
+          )}
           {!last && (
             <KeenIcon
               icon="right"
               className="text-gray-500 text-3xs"
-              key={`separator-${index}`}
+              key={`separator-${key}`}
             />
           )}
         </Fragment>
       );
     });
+    return [dashboardItem, ...data];
   };
   const render = () => {
     return (
