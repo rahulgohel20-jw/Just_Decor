@@ -2,8 +2,8 @@ import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
 import { KeenIcon } from "@/components";
-import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import AddContact from "@/partials/modals/add-contact/AddContact";
 import { columns, defaultData } from "./constant";
 
 const ContactListPage = () => {
@@ -12,9 +12,7 @@ const ContactListPage = () => {
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+
   const responseFormate = () => {
     const data = defaultData.map((item) => {
       return {
@@ -57,9 +55,7 @@ const ContactListPage = () => {
         </div>
         <TableComponent columns={columns} data={tableData} />
       </Container>
-      <CustomModal open={isModalOpen} onClose={handleModalClose}>
-        <input type="text" placeholder="Enter your name" className="input" />
-      </CustomModal>
+      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
 };
