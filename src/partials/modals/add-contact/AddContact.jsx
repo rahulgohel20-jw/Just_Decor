@@ -1,19 +1,12 @@
 import { useState } from "react";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { KeenIcon } from "@/components";
+
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 
 const AddContact = ({ isModalOpen, setIsModalOpen }) => {
-  const [date, setDate] = useState(new Date(1984, 0, 20));
-
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -64,65 +57,14 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
               <div></div>
               <div>
                 <label className="form-label">Date of Birth</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      id="date"
-                      className={cn(
-                        "input data-[state=open]:border-primary",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <KeenIcon icon="calendar" className="-ms-0.5" />
-                      {date ? (
-                        format(date, "LLL dd, y")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="single"
-                      defaultMonth={date}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={1}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
               </div>
               <div>
                 <label className="form-label">Date of Anniversary</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      id="date"
-                      className={cn(
-                        "input data-[state=open]:border-primary",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <KeenIcon icon="calendar" className="-ms-0.5" />
-                      {date ? (
-                        format(date, "LLL dd, y")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="single"
-                      defaultMonth={date}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={1}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker
+                  date={dateOfAnniversary}
+                  setDate={setDateOfAnniversary}
+                />
               </div>
             </div>
           </div>
@@ -219,42 +161,61 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   return (
-    <CustomModal
-      open={isModalOpen}
-      onClose={handleModalClose}
-      title="Add Contact"
-    >
-      <div
-        className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
-        data-tabs="true"
+    isModalOpen && (
+      <CustomModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        title="Add Contact"
+        footer={[
+          <button
+            key="cancel"
+            className="btn btn-sm btn-secondary"
+            onClick={handleModalClose}
+            title="Cancel"
+          >
+            Cancel
+          </button>,
+          <button
+            key="save"
+            className="btn btn-sm btn-primary"
+            title="Save Contact"
+          >
+            Save Contact
+          </button>,
+        ]}
       >
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_1" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_1")}
+        <div
+          className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
+          data-tabs="true"
         >
-          Contact Details
-        </a>
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_2" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_2")}
-        >
-          Address Details
-        </a>
-        <a
-          className={`btn btn-clear w-full flex justify-center ${
-            activeTab === "tab_3" ? "active" : ""
-          }`}
-          onClick={() => setActiveTab("tab_3")}
-        >
-          Social Profile
-        </a>
-      </div>
-      {renderTabContent()}
-    </CustomModal>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_1" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_1")}
+          >
+            Contact Details
+          </a>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_2" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_2")}
+          >
+            Address Details
+          </a>
+          <a
+            className={`btn btn-clear w-full flex justify-center ${
+              activeTab === "tab_3" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("tab_3")}
+          >
+            Social Profile
+          </a>
+        </div>
+        {renderTabContent()}
+      </CustomModal>
+    )
   );
 };
 export default AddContact;
