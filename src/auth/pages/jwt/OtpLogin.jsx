@@ -58,8 +58,12 @@ const OtpLogin = () => {
         noValidate
       >
         <div className="mb-2.5">
-          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">Login with OTP instead</h3>
-          <span className="text-sm text-gray-600">Enter your phone number to receive an OTP code for accountverification.
+          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
+            Login with OTP instead
+          </h3>
+          <span className="text-sm text-gray-600">
+            Enter your phone number to receive an OTP code for
+            accountverification.
           </span>
         </div>
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
@@ -82,7 +86,10 @@ const OtpLogin = () => {
           )}
         </div>
         <div className="flex items-center justify-between gap-1">
-          <Link to={"/auth/login"} className="text-2sm link shrink-0 hover:underline no-underline">
+          <Link
+            to={"/auth/login"}
+            className="text-2sm link shrink-0 hover:underline no-underline"
+          >
             Login with Email instead
           </Link>
         </div>
@@ -105,7 +112,7 @@ const OtpLogin = () => {
             }
             className="text-2sm link hover:underline no-underline"
           >
-            Sign up
+            Sign Up
           </Link>
         </div>
       </form>
