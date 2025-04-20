@@ -44,7 +44,7 @@ const ContactListPage = () => {
 
   return (
     <Fragment>
-      <Breadcrumbs />
+      <Breadcrumbs items={[{ title: "Contact" }]} />
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
