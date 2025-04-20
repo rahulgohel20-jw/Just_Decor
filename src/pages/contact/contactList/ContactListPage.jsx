@@ -17,36 +17,21 @@ const ContactListPage = () => {
     const data = defaultData.map((item) => {
       return {
         ...item,
-        action: (
-          <div className="flex items-center justify-center gap-1">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-gray-600"
-              title="Edit"
-              onClick={handleModalOpen}
-            >
-              <i className="ki-filled ki-notepad-edit"></i>
-            </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear text-danger"
-              title="Delete"
-            >
-              <i className="ki-filled ki-trash"></i>
-            </button>
-          </div>
-        ),
+        handleModalOpen: handleModalOpen,
       };
     });
     return data;
   };
+
   const [tableData, setTableData] = useState(responseFormate());
 
   return (
     <Fragment>
       <div className="gap-2 pb-2 mb-3">
-      <Container>
-        <Breadcrumbs items={[{ title: "Contacts" }]} />
+        <Container>
+          <Breadcrumbs items={[{ title: "Contacts" }]} />
         </Container>
-      </div>      
+      </div>
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -91,11 +76,11 @@ const ContactListPage = () => {
               className="btn btn-sm btn-primary"
               onClick={handleModalOpen}
             >
-              <i class="ki-filled ki-plus"></i> Add Contacts
+              <i className="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>
         </div>
-        <TableComponent columns={columns} data={tableData} />
+        <TableComponent columns={columns} data={tableData} paginationSize={5} />
       </Container>
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
