@@ -3,6 +3,7 @@ import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
 import { KeenIcon } from "@/components";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { columns, defaultData } from "./constant";
 
 const ContactListPage = () => {
@@ -43,6 +44,7 @@ const ContactListPage = () => {
 
   return (
     <Fragment>
+      <Breadcrumbs />
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
