@@ -165,6 +165,18 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
       open={isModalOpen}
       onClose={handleModalClose}
       title="Add Contact"
+      footer={[
+        <button
+          key="cancel"
+          className="btn btn-sm btn-secondary"
+          onClick={handleModalClose}
+        >
+          Cancel
+        </button>,
+        <button key="save" className="btn btn-sm btn-primary">
+          Save Contact
+        </button>,
+      ]}
     >
       <div
         className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
