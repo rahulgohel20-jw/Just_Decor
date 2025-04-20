@@ -653,8 +653,8 @@ module.exports = {
               body: "0.5rem",
             },
             DEFAULT: {
-              head: "0.625rem",
-              body: "0.75rem",
+              head: "0.75rem",
+              body: "0.35rem",
             },
             lg: {
               head: "0.825rem",

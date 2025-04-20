@@ -80,7 +80,7 @@ const TwoFactorAuth = () => {
           alt=""
         />
         <div className="mb-2.5">
-          <h3 class="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
+          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
           <div className="flex flex-col">
             <span className="text-sm text-gray-600">Please enter the one time password to verify your account.</span>
             <span className="text-sm text-gray-600 mt-2">
