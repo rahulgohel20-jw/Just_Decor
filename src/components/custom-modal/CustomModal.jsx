@@ -16,13 +16,13 @@ const CustomModal = ({ open, onClose, children, title }) => {
         <DialogHeader className="p-4">
           <DialogTitle>Add Contact</DialogTitle>
         </DialogHeader>
-        <DialogBody className="p-4 scrollable-y h-[560px] max-h-[95%]">
+        <DialogBody className="p-4">
           {children}
         </DialogBody>
         <DialogFooter className="p-4">
           <div className="flex justify-between w-full">
             <button className="btn btn-sm btn-secondary">Cancel</button>
-            <button className="btn btn-sm btn-primary">+ Add Contact</button>
+            <button className="btn btn-sm btn-primary">Save Contact</button>
           </div>
         </DialogFooter>
       </DialogContent>
