@@ -72,11 +72,8 @@ const ContactListPage = () => {
             />
           </div> */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={handleModalOpen}
-            >
-              <i className="ki-filled ki-plus"></i> Add Contacts
+            <button className="btn btn-sm btn-primary" onClick={handleModalOpen} title="Add Contacts">
+              <i class="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>
         </div>
