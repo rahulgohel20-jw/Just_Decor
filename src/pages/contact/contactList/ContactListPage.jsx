@@ -304,20 +304,10 @@ const ContactListPage = () => {
           </div>
         </div>
 
-        <h3 className="text-sm font-medium text-gray-900 mb-2">
+        <h3 className="text-sm font-medium text-gray-900">
           Custom Fields
           <button className="w-5 h-5 bg-primary rounded-full text-white ms-1" title="Add Custom Fields"><i className="ki-filled ki-plus text-2xs"></i></button>
         </h3>
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="flex flex-col">
-             
-            </div>
-            <div className="flex flex-col">
-            
-            </div>
-          </div>
-        </div>
       </CustomModal>
     </Fragment>
   );
