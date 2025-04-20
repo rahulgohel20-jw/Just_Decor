@@ -20,7 +20,7 @@ const Header = () => {
     }
   }, [headerSticky]);
   return <header className={clsx('header fixed top-0 z-10 start-0 end-0 flex items-stretch shrink-0 bg-[--tw-page-bg] dark:bg-[--tw-page-bg-dark] shadow-sm', headerSticky && 'shadow-sm')}>
-      <Container className="flex justify-end items-stretch lg:gap-4">
+      <Container className="flex lg:justify-end justify-between items-stretch lg:gap-4">
         <HeaderLogo />
         {/* {pathname.includes('/account') ? <Breadcrumbs /> : <MegaMenu />} */}
         <HeaderTopbar />
