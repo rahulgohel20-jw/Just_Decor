@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 
 const TableComponent = ({ columns, data, isLoading }) => {
   return (
-    <div class="grid">
-      <div class="card min-w-full">
+    <div className="grid">
+      <div className="card min-w-full">
         <div className="card-table scrollable-x-auto">
-          <table className="table align-middle text-gray-700 font-medium text-sm">
+          <table className="table table-border align-middle text-gray-700 font-medium text-sm">
             <thead>
               <tr className="fw-bold fs-6 text-gray-800 border-bottom-2 border-gray-200">
                 {columns.map((column) => (
@@ -37,7 +37,7 @@ const TableComponent = ({ columns, data, isLoading }) => {
                 </tr>
               )}
             </tbody>
-          </table>
+          </table>                           
         </div>
       </div>
     </div>
