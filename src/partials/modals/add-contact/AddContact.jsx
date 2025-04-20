@@ -171,10 +171,15 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
             key="cancel"
             className="btn btn-sm btn-secondary"
             onClick={handleModalClose}
+            title="Cancel"
           >
             Cancel
           </button>,
-          <button key="save" className="btn btn-sm btn-primary">
+          <button
+            key="save"
+            className="btn btn-sm btn-primary"
+            title="Save Contact"
+          >
             Save Contact
           </button>,
         ]}
