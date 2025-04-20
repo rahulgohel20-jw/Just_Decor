@@ -43,8 +43,8 @@ const ContactListPage = () => {
   return (
     <Fragment>
       <div className="gap-2 pb-2 mb-3">
-      <Container>
-        <Breadcrumbs items={[{ title: "Contacts" }]} />
+        <Container>
+          <Breadcrumbs items={[{ title: "Contacts" }]} />
         </Container>
       </div>      
       <Container>
@@ -87,10 +87,7 @@ const ContactListPage = () => {
             />
           </div> */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={handleModalOpen}
-            >
+            <button className="btn btn-sm btn-primary" onClick={handleModalOpen} title="Add Contacts">
               <i class="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>

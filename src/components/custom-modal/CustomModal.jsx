@@ -20,8 +20,8 @@ const CustomModal = ({ open, onClose, children, title }) => {
         </DialogBody>
         <DialogFooter className="p-4">
           <div className="flex justify-between w-full">
-            <button className="btn btn-sm btn-secondary">Cancel</button>
-            <button className="btn btn-sm btn-primary">Save Contact</button>
+            <button className="btn btn-sm btn-secondary" title="Cancel">Cancel</button>
+            <button className="btn btn-sm btn-primary" title="Save Contact">Save Contact</button>
           </div>
         </DialogFooter>
       </DialogContent>

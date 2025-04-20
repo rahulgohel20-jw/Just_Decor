@@ -18,6 +18,7 @@ const Breadcrumbs = ({ items }) => {
             "text-2sm link shrink-0 hover:underline no-underline text-gray-700"
           }
           key={`item-${0}`}
+          title="Dashboard"
         >
           Dashboard
         </Link>
@@ -31,7 +32,6 @@ const Breadcrumbs = ({ items }) => {
     let data = items.map((item, index) => {
       const last = index === items.length - 1;
       const key = index + 1;
-
       return (
         <Fragment key={`root-${key}`}>
           {item.path ? (
@@ -41,6 +41,7 @@ const Breadcrumbs = ({ items }) => {
                 "text-2sm link shrink-0 hover:underline no-underline"
               )}
               key={`item-${key}`}
+              title={item.title}
             >
               {item.title}
             </Link>
