@@ -87,13 +87,13 @@ const Signup = () => {
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
-          <div class="flex flex-col">
+          <div className="flex flex-col">
             <label className="form-label text-gray-900">First Name</label>
             <label className="input">
               <input placeholder="First name" type="text" />
             </label>
           </div>
-          <div class="flex flex-col">
+          <div className="flex flex-col">
             <label className="form-label text-gray-900">Last Name</label>
             <label className="input">
               <input placeholder="Last name" type="text" />
@@ -101,13 +101,13 @@ const Signup = () => {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
-          <div class="flex flex-col">
+          <div className="flex flex-col">
             <label className="form-label text-gray-900">City</label>
             <label className="input">
               <input placeholder="First name" type="text" />
             </label>
           </div>
-          <div class="flex flex-col">
+          <div className="flex flex-col">
             <label className="form-label text-gray-900">Company</label>
             <label className="input">
               <input placeholder="Enter company name" type="text" />
