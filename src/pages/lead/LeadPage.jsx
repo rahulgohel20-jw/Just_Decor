@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
 import { columns, defaultData } from "./constant";
 
-const ContactListPage = () => {
+const LeadPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = () => {
@@ -29,7 +29,7 @@ const ContactListPage = () => {
     <Fragment>
       <div className="gap-2 pb-2 mb-3">
         <Container>
-          <Breadcrumbs items={[{ title: "Contacts" }]} />
+          <Breadcrumbs items={[{ title: "Lead" }]} />
         </Container>
       </div>
       <Container>
@@ -72,7 +72,11 @@ const ContactListPage = () => {
             />
           </div> */}
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-sm btn-primary" onClick={handleModalOpen} title="Add Contacts">
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={handleModalOpen}
+              title="Add Contacts"
+            >
               <i class="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>
@@ -83,4 +87,4 @@ const ContactListPage = () => {
     </Fragment>
   );
 };
-export { ContactListPage };
+export { LeadPage };
