@@ -80,7 +80,8 @@ import {
   AuthenticationAccountDeactivatedPage,
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
-import { ContactListPage } from "@/pages/contact/contactList/contactListPAge";
+import { ContactListPage } from "@/pages/contact/contactListPAge";
+import { LeadPage } from "@/pages/lead";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -89,6 +90,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/" element={<DefaultPage />} />
           <Route path="/contacts" element={<ContactListPage />} />
+          <Route path="/lead" element={<LeadPage />} />
 
           {/* Theme routes */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
