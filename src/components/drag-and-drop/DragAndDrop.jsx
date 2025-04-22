@@ -1,0 +1,193 @@
+import React, { useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const SortableItem = ({ task }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: task.id });
+
+  const style = {
+    transform: transform
+      ? `translate(${transform.x}px, ${transform.y}px)`
+      : "none",
+    transition,
+    touchAction: "manipulation",
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[240px]"
+    >
+      <div className="font-medium">{task.company_name}</div>
+      <div className="text-sm text-gray-500">Mobile: {task.mobile}</div>
+      <div className="text-sm text-gray-500">Company: {task.compony}</div>
+    </div>
+  );
+};
+
+const SortableColumn = ({ column }) => {
+  const { setNodeRef, attributes, listeners } = useSortable({ id: column.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      className="border rounded p-3 w-64 transition-all duration-200 bg-white min-w-[220px]"
+      id={column.id}
+    >
+      <h3 className="font-bold mb-2">{column.name}</h3>
+      <div className="min-h-[20px]">
+        <SortableContext
+          items={[column.id, ...column.children.map((task) => task.id)]}
+          strategy={rectSortingStrategy}
+        >
+          {column.children.map((task) => (
+            <SortableItem key={task.id} task={task} />
+          ))}
+        </SortableContext>
+      </div>
+    </div>
+  );
+};
+
+export const DragAndDrop = ({ columns, setColumns }) => {
+  const [activeTask, setActiveTask] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const findColumnByTaskId = (taskId) => {
+    return columns.find((col) =>
+      col.children.some((task) => task.id === taskId)
+    );
+  };
+
+  const findColumnById = (id) => {
+    return columns.find(
+      (col) => col.id === id || col.children.some((task) => task.id === id)
+    );
+  };
+
+  const handleDragStart = (event) => {
+    const { active } = event;
+    const task = columns
+      .flatMap((col) => col.children)
+      .find((task) => task.id === active.id);
+    setActiveTask(task);
+  };
+
+  const handleDragOver = (event) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const activeCol = findColumnByTaskId(active.id);
+    if (!activeCol) return;
+
+    const overCol = findColumnById(over.id);
+    if (!overCol) return;
+
+    const activeIndex = activeCol.children.findIndex((i) => i.id === active.id);
+    const task = activeCol.children[activeIndex];
+
+    // Handle intra-column reordering
+    if (activeCol.id === overCol.id) {
+      const overIndex = overCol.children.findIndex((i) => i.id === over.id);
+      if (overIndex !== -1 && activeIndex !== overIndex) {
+        const newChildren = arrayMove(
+          activeCol.children,
+          activeIndex,
+          overIndex
+        );
+        const updatedCols = columns.map((col) =>
+          col.id === activeCol.id ? { ...col, children: newChildren } : col
+        );
+        setColumns(updatedCols);
+      }
+      return;
+    }
+
+    // Handle inter-column dragging
+    const newActiveChildren = [...activeCol.children];
+    newActiveChildren.splice(activeIndex, 1);
+
+    const newOverChildren = [...overCol.children, task];
+
+    const updatedCols = columns.map((col) => {
+      if (col.id === activeCol.id) {
+        return { ...col, children: newActiveChildren };
+      }
+      if (col.id === overCol.id) {
+        return { ...col, children: newOverChildren };
+      }
+      return col;
+    });
+
+    setColumns(updatedCols);
+  };
+
+  const handleDragEnd = () => {
+    setActiveTask(null);
+  };
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex gap-4">
+        {columns.map((column) => (
+          <SortableColumn key={column.id} column={column} />
+        ))}
+      </div>
+      <DragOverlay>
+        {activeTask ? (
+          <div
+            className="border rounded p-2 bg-gray-100"
+            style={{
+              width: "256px",
+              transform: "none",
+              opacity: 0.9,
+              zIndex: 1000,
+              pointerEvents: "none",
+            }}
+          >
+            <div className="font-medium">{activeTask.company_name}</div>
+            <div className="text-sm text-gray-500">
+              Mobile: {activeTask.mobile}
+            </div>
+            <div className="text-sm text-gray-500">
+              Company: {activeTask.compony}
+            </div>
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+};
