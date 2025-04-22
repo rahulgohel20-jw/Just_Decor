@@ -1,29 +1,16 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
-import { TableComponent } from "@/components/table/TableComponent";
-import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
-import { columns, defaultData } from "./constant";
+import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
+import { defaultData } from "./constant";
 
 const LeadPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [columns, setColumns] = useState(defaultData);
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
-
-  const [tableData, setTableData] = useState(responseFormate());
 
   return (
     <Fragment>
@@ -61,27 +48,17 @@ const LeadPage = () => {
               </button>
             </div>
           </div>
-          {/* <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-            <span className="px-3 bg-gray-100">
-              <KeenIcon icon="magnifier" className="text-gray-700 text-xl" />
-            </span>
-            <input
-              className="px-4 py-2 focus:outline-none"
-              placeholder="Example input"
-              type="text"
-            />
-          </div> */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-sm btn-primary"
               onClick={handleModalOpen}
-              title="Add Contacts"
+              title="Add Lead"
             >
-              <i class="ki-filled ki-plus"></i> Add Contacts
+              <i className="ki-filled ki-plus"></i> Add Lead
             </button>
           </div>
         </div>
-        <TableComponent columns={columns} data={tableData} paginationSize={5} />
+        <DragAndDrop columns={columns} setColumns={setColumns} />
       </Container>
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
