@@ -20,6 +20,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Companies",
+        path: "/company"
       },
       {
         title: "Follow-Up",
