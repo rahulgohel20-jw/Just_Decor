@@ -50,7 +50,6 @@ const CompanyListPage = () => {
                 <option value="2">Sur Name</option>
                 <option value="3">City</option>
                 <option value="4">State</option>
-
               </select>
             </div>
             {/* <div className="filItems">
@@ -84,7 +83,11 @@ const CompanyListPage = () => {
             </button>
           </div>
         </div>
-        <TableComponent columns={columns} data={tableData} paginationSize={5} />
+        <TableComponent
+          columns={columns}
+          data={tableData}
+          paginationSize={10}
+        />
       </Container>
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
