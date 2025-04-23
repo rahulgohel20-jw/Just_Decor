@@ -29,7 +29,7 @@ const CompanyListPage = () => {
     <Fragment>
       <div className="gap-2 pb-2 mb-3">
         <Container>
-          <Breadcrumbs items={[{ title: "Company" }]} />
+          <Breadcrumbs items={[{ title: "Companies" }]} />
         </Container>
       </div>
       <Container>

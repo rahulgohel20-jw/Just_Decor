@@ -123,6 +123,8 @@ const DropdownUser = ({ menuItemRef }) => {
             </MenuLink>
           </MenuItem>
 
+          <MenuSeparator />
+          
           {/* language */}
           <DropdownUserLanguages menuItemRef={menuItemRef} />
                 
