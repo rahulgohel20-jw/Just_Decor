@@ -123,8 +123,6 @@ const DropdownUser = ({ menuItemRef }) => {
             </MenuLink>
           </MenuItem>
 
-          <MenuSeparator /> 
-
           {/* language */}
           <DropdownUserLanguages menuItemRef={menuItemRef} />
                 
@@ -292,7 +290,7 @@ const DropdownUser = ({ menuItemRef }) => {
         </div>
 
         <div className="menu-item mb-0.5">
-          <div className="menu-link">
+          <div className="menu-link" onClick={logout}>
             <span className="menu-icon">
               <i class="ki-filled ki-exit-left"></i>
             </span>
@@ -301,12 +299,6 @@ const DropdownUser = ({ menuItemRef }) => {
             </span>
           </div>
         </div>
-
-        {/* <div className="menu-item px-4 py-1.5">
-          <a onClick={logout} className="btn btn-sm btn-light justify-center">
-            <FormattedMessage id="USER.MENU.LOGOUT" />
-          </a>
-        </div> */}
 
         <MenuSeparator />
         <div className="flex items-center gap-2 px-4.5 my-2">
@@ -318,6 +310,13 @@ const DropdownUser = ({ menuItemRef }) => {
             <img className="h-5" src={toAbsoluteUrl("/media/brand-logos/android.svg")} alt="Android app" /> Android
           </a>
         </div>
+        {/* <MenuSeparator />  */}
+
+        {/* <div className="menu-item px-4 py-1.5">
+          <a onClick={logout} className="btn btn-sm btn-light justify-center">
+            <FormattedMessage id="USER.MENU.LOGOUT" />
+          </a>
+        </div> */}
 
       </div>
     );

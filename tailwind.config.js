@@ -114,10 +114,10 @@ module.exports = {
                 inverse: "#ffffff",
               },
               primary: {
-                default: "#006AE6",
-                active: "#107EFF",
-                light: "#172331",
-                clarity: "rgba(0, 106, 230, 0.20)",
+                default: "#B81C2C",
+                active: "#9E1A27",
+                light: "#F9E9EA",
+                clarity: "rgba(223, 67, 53, 0.20)",
                 inverse: "#ffffff",
               },
               success: {
