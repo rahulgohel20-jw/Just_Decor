@@ -3,7 +3,10 @@ import { KeenIcon } from "@/components/keenicons";
 import { toAbsoluteUrl } from "@/utils";
 import { Menu, MenuItem, MenuToggle } from "@/components";
 import { DropdownUser } from "@/partials/dropdowns/user";
-import { DropdownNotifications } from "@/partials/dropdowns/notifications";
+import {
+  DropdownNotifications,
+  DropdownMails,
+} from "@/partials/dropdowns/notifications";
 import { DropdownApps } from "@/partials/dropdowns/apps";
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
@@ -54,12 +57,12 @@ const HeaderTopbar = () => {
           <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary dropdown-open:bg-primary-light dropdown-open:text-primary text-gray-500">
             <KeenIcon icon="ki-filled ki-whatsapp" />
           </MenuToggle>
-          {DropdownNotifications({
-            menuTtemRef: itemNotificationsRef,
+          {DropdownChat({
+            menuTtemRef: itemChatRef,
           })}
         </MenuItem>
       </Menu>
-      
+
       {/* Mail */}
       <Menu>
         <MenuItem
@@ -81,7 +84,7 @@ const HeaderTopbar = () => {
           <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary dropdown-open:bg-primary-light dropdown-open:text-primary text-gray-500">
             <KeenIcon icon="ki-filled ki-sms" />
           </MenuToggle>
-          {DropdownNotifications({
+          {DropdownMails({
             menuTtemRef: itemNotificationsRef,
           })}
         </MenuItem>
@@ -113,7 +116,7 @@ const HeaderTopbar = () => {
           })}
         </MenuItem>
       </Menu>
-      
+
       {/* user profile */}
       <Menu>
         <MenuItem

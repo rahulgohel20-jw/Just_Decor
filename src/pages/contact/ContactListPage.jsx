@@ -77,11 +77,15 @@ const ContactListPage = () => {
               onClick={handleModalOpen}
               title="Add Contacts"
             >
-              <i class="ki-filled ki-plus"></i> Add Contacts
+              <i className="ki-filled ki-plus"></i> Add Contacts
             </button>
           </div>
         </div>
-        <TableComponent columns={columns} data={tableData} paginationSize={5} />
+        <TableComponent
+          columns={columns}
+          data={tableData}
+          paginationSize={10}
+        />
       </Container>
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
