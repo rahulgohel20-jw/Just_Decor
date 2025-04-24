@@ -8,3 +8,5 @@
 
 /* Shadcn UI */
 @import "shadcn.ui";
+
+.dnd-active .cursor-grab { cursor: none; }

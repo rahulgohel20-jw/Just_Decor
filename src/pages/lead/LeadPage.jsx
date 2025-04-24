@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
@@ -6,12 +6,56 @@ import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { defaultData } from "./constant";
 
 const LeadPage = () => {
+  const scrollRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [columns, setColumns] = useState(defaultData);
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: -scrollRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: scrollRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+  const [dndActive, setDndActive] = useState(false);
 
+  const onPointerDown = (e) => {
+    isDragging.current = true;
+    if (dndActive) return;
+    // support touch or mouse
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    startX.current = clientX;
+    scrollStart.current = scrollRef.current.scrollLeft;
+    // prevent native text/image drag
+    scrollRef.current.classList.add("cursor-grabbing");
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging.current) return;
+    if (dndActive) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx = clientX - startX.current;
+    scrollRef.current.scrollLeft = scrollStart.current - dx;
+  };
+
+  const onPointerUp = () => {
+    isDragging.current = false;
+    scrollRef.current.classList.remove("cursor-grabbing");
+  };
   return (
     <Fragment>
       <div className="gap-2 pb-2 mb-3">
@@ -58,7 +102,40 @@ const LeadPage = () => {
             </button>
           </div>
         </div>
-        <DragAndDrop columns={columns} setColumns={setColumns} />
+
+        <div className="w-full">
+          <div className="flex justify-between items-center px-4 pt-4">
+            <button
+              onClick={scrollLeft}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Previous
+            </button>
+            <button
+              onClick={scrollRight}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Next
+            </button>
+          </div>
+          <div
+            ref={scrollRef}
+            className={`${dndActive ? "dnd-active" : ""} overflow-x-auto flex space-x-4 px-4 cursor-grab`}
+            onMouseDown={onPointerDown}
+            onMouseMove={onPointerMove}
+            onMouseUp={onPointerUp}
+            onMouseLeave={onPointerUp}
+            onTouchStart={onPointerDown}
+            onTouchMove={onPointerMove}
+            onTouchEnd={onPointerUp}
+          >
+            <DragAndDrop
+              columns={columns}
+              setColumns={setColumns}
+              setDndActive={setDndActive}
+            />
+          </div>
+        </div>
       </Container>
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>

@@ -13,11 +13,17 @@ import {
   rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Task } from "./Task";
 
 const SortableItem = ({ task }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
 
   const style = {
     transform: transform
@@ -25,6 +31,7 @@ const SortableItem = ({ task }) => {
       : "none",
     transition,
     touchAction: "manipulation",
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
@@ -33,11 +40,9 @@ const SortableItem = ({ task }) => {
       {...attributes}
       {...listeners}
       style={style}
-      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[240px]"
+      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[100%]"
     >
-      <div className="font-medium">{task.company_name}</div>
-      <div className="text-sm text-gray-500">Mobile: {task.mobile}</div>
-      <div className="text-sm text-gray-500">Company: {task.compony}</div>
+      <Task item={task} index={task.id} dropdown={true} />
     </div>
   );
 };
@@ -50,7 +55,7 @@ const SortableColumn = ({ column }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="border rounded p-3 w-64 transition-all duration-200 bg-white min-w-[220px]"
+      className="border rounded p-3 w-64 transition-all duration-200 bg-white min-w-[20%]"
       id={column.id}
     >
       <h3 className="font-bold mb-2">{column.name}</h3>
@@ -68,13 +73,14 @@ const SortableColumn = ({ column }) => {
   );
 };
 
-export const DragAndDrop = ({ columns, setColumns }) => {
+export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
   const [activeTask, setActiveTask] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        delay: 200,
+        tolerance: 5,
       },
     })
   );
@@ -157,9 +163,16 @@ export const DragAndDrop = ({ columns, setColumns }) => {
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
+      onDragStart={(event) => {
+        handleDragStart(event);
+        setDndActive(true);
+      }}
+      onDragEnd={(event) => {
+        handleDragEnd(event);
+        setDndActive(false);
+      }}
+      onDragCancel={() => setDndActive(false)}
       onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
     >
       <div className="flex gap-4">
         {columns.map((column) => (
@@ -171,20 +184,14 @@ export const DragAndDrop = ({ columns, setColumns }) => {
           <div
             className="border rounded p-2 bg-gray-100"
             style={{
-              width: "256px",
+              width: "90%",
               transform: "none",
               opacity: 0.9,
               zIndex: 1000,
               pointerEvents: "none",
             }}
           >
-            <div className="font-medium">{activeTask.company_name}</div>
-            <div className="text-sm text-gray-500">
-              Mobile: {activeTask.mobile}
-            </div>
-            <div className="text-sm text-gray-500">
-              Company: {activeTask.compony}
-            </div>
+            <Task item={activeTask} index={0} />
           </div>
         ) : null}
       </DragOverlay>
