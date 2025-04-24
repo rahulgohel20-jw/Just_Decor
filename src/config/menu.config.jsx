@@ -86,7 +86,7 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-cheque",
     children: [
       {
-        title: "Billing",
+        title: "Overview",
       },
       {
         title: "Wallet Logs",

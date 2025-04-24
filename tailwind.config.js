@@ -413,7 +413,7 @@ module.exports = {
         md: "768px",
         lg: "1024px",
         xl: "1280px",
-        "2xl": "1536px",
+        "2xl": "1440px",
       },
       //begin: Shadcn UI Animations
       keyframes: {
@@ -520,7 +520,7 @@ module.exports = {
               DEFAULT: theme("spacing")["6"],
               xl: theme("spacing")["7.5"],
             },
-            "max-width": theme("screens.xl"),
+            "max-width": theme("screens.2xl"),
           },
           fluid: {
             px: {
