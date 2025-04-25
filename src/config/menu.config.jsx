@@ -27,6 +27,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Products",
+        path: "/product",
       },
     ],
   },
