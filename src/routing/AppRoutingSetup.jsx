@@ -83,6 +83,7 @@ import {
 import { LeadPage } from "@/pages/lead";
 import { CompanyListPage } from "@/pages/company";
 import { ContactDetail,ContactListPage } from "@/pages/contact";
+import { LinkList } from "@/pages/link";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -94,6 +95,7 @@ const AppRoutingSetup = () => {
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/company" element={<CompanyListPage/>}></Route>
+          <Route path="/links" element={<LinkList/>}></Route>
           {/* Theme routes */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
