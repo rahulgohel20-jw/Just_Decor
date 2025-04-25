@@ -33,6 +33,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Links",
     icon: "ki-filled ki-disconnect",
+    path: "/links"
   },
   {
     title: "Team",
