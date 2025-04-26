@@ -132,8 +132,8 @@ const SidebarMenu = () => {
   };
   const buildMenuArrow = () => {
     return <MenuArrow className={clsx('text-gray-400 w-[20px] shrink-0 justify-end ms-1', rightOffset)}>
-        <KeenIcon icon="plus" className="text-2xs menu-item-show:hidden" />
-        <KeenIcon icon="minus" className="text-2xs hidden menu-item-show:inline-flex" />
+        <KeenIcon icon="plus" className="text-sm menu-item-show:hidden" />
+        <KeenIcon icon="minus" className="text-sm hidden menu-item-show:inline-flex" />
       </MenuArrow>;
   };
   const buildMenuBullet = () => {
