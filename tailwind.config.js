@@ -40,6 +40,7 @@ module.exports = {
             },
           },
           contextual: {
+            // light theme
             light: {
               brand: {
                 default: "#FF6F1E",
@@ -105,6 +106,7 @@ module.exports = {
                 inverse: "#4B5675",
               },
             },
+            // dark theme
             dark: {
               brand: {
                 default: "#D74E00",

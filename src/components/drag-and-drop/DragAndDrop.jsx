@@ -13,7 +13,7 @@ import {
   rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { Task } from "./Task";
+import { CSS } from "@dnd-kit/utilities";
 
 const SortableItem = ({ task }) => {
   const {
@@ -40,11 +40,27 @@ const SortableItem = ({ task }) => {
       {...attributes}
       {...listeners}
       style={style}
-      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[100%]"
+      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[240px]"
     >
       <Task item={task} index={task.id} dropdown={true} />
     </div>
   );
+    return <Fragment>
+        <style>
+          {`
+            .channel-stats-bg {
+              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3.png')}');
+            }
+            .dark .channel-stats-bg {
+              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3-dark.png')}');
+            }
+          `}
+        </style>
+  
+        {items.map((item, index) => {
+        return renderItem(item, index);
+      })}
+      </Fragment>;
 };
 
 const SortableColumn = ({ column }) => {
