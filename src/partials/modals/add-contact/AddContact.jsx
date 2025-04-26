@@ -169,7 +169,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
         footer={[
           <button
             key="cancel"
-            className="btn btn-sm btn-secondary"
+            className="btn btn-secondary"
             onClick={handleModalClose}
             title="Cancel"
           >
@@ -177,7 +177,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
           <button
             key="save"
-            className="btn btn-sm btn-primary"
+            className="btn btn-primary"
             title="Save Contact"
           >
             Save Contact

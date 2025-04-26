@@ -27,19 +27,21 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Products",
+        path: "/product",
       },
     ],
   },
   {
     title: "Links",
     icon: "ki-filled ki-disconnect",
+    path: "/links"
   },
   {
     title: "Team",
     icon: "ki-filled ki-users",
     children: [
       {
-        title: "Overview",
+        title: "Seals Team",
       },
       {
         title: "User Role",
@@ -84,7 +86,7 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-cheque",
     children: [
       {
-        title: "Billing",
+        title: "Overview",
       },
       {
         title: "Wallet Logs",

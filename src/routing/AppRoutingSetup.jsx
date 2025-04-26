@@ -80,9 +80,12 @@ import {
   AuthenticationAccountDeactivatedPage,
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
-import { ContactListPage } from "@/pages/contact/contactListPAge";
 import { LeadPage } from "@/pages/lead";
-import { CompanyDetails, CompanyListPage } from "../pages/company";
+import { ContactDetail,ContactListPage } from "@/pages/contact";
+import { LinkList } from "@/pages/link";
+import { CompanyListPage } from "@/pages/company";
+import { ProductListPage } from "@/pages/product";
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -90,10 +93,14 @@ const AppRoutingSetup = () => {
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<DefaultPage />} />
+          <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/company" element={<CompanyListPage/>}></Route>
           <Route path="/companydetails" element={<CompanyDetails/>}></Route>
+          <Route path="/links" element={<LinkList/>}></Route>
+          <Route path="/product" element={<ProductListPage />}></Route>
+
           {/* Theme routes */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
