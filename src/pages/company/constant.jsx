@@ -1,10 +1,13 @@
 import { DataGridColumnHeader } from "@/components";
+import { Link } from "react-router-dom";
 export const columns = [
     {
         accessorKey: "company_name",
+        
         header: ({ column }) => (
             <DataGridColumnHeader title="Company Name" column={column} />
         ),
+        
     },
     {
         accessorKey: "address",
@@ -29,7 +32,16 @@ export const columns = [
         header: "Action",
         cell: ({ cell }) => {
             return (
+            
                 <div className="flex items-center justify-center gap-1">
+                    <Link to="/companydetails"><button
+                        className="btn btn-sm btn-icon btn-clear text-blue-600"
+                        title="View"
+                        
+                    >
+                        <i className="ki-filled ki-eye"></i>
+                    </button></Link>
+                    
                     <button
                         className="btn btn-sm btn-icon btn-clear text-gray-600"
                         title="Edit"
