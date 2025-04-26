@@ -13,7 +13,11 @@ import {
   rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { toAbsoluteUrl } from '@/utils/Assets';
+import { Fragment } from 'react';
+import { Task } from "./Task";
+import { toAbsoluteUrl } from '@/utils/Assets';
+import { Fragment } from 'react';
 
 const SortableItem = ({ task }) => {
   const {
@@ -40,7 +44,7 @@ const SortableItem = ({ task }) => {
       {...attributes}
       {...listeners}
       style={style}
-      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[240px]"
+      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[100%]"
     >
       <Task item={task} index={task.id} dropdown={true} />
     </div>

@@ -1,7 +1,6 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
-import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-company/AddCompany";
 import { columns, defaultData } from "./constant";
@@ -27,12 +26,12 @@ const CompanyListPage = () => {
 
   return (
     <Fragment>
-      <div className="gap-2 pb-2 mb-3">
-        <Container>
-          <Breadcrumbs items={[{ title: "Companies" }]} />
-        </Container>
-      </div>
       <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Companies" }]} />
+        </div>
+        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
@@ -83,12 +82,14 @@ const CompanyListPage = () => {
             </button>
           </div>
         </div>
+        {/* TableComponent */}
         <TableComponent
           columns={columns}
           data={tableData}
           paginationSize={10}
         />
       </Container>
+      {/* AddContact */}
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );

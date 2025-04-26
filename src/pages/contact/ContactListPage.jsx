@@ -27,12 +27,12 @@ const ContactListPage = () => {
 
   return (
     <Fragment>
-      <div className="gap-2 pb-2 mb-3">
-        <Container>
-          <Breadcrumbs items={[{ title: "Contacts" }]} />
-        </Container>
-      </div>
       <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Contacts" }]} />
+        </div>
+        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
@@ -81,12 +81,14 @@ const ContactListPage = () => {
             </button>
           </div>
         </div>
+        {/* TableComponent */}
         <TableComponent
           columns={columns}
           data={tableData}
           paginationSize={10}
         />
       </Container>
+      {/* AddContact */}
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );

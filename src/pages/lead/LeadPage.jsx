@@ -58,12 +58,12 @@ const LeadPage = () => {
   };
   return (
     <Fragment>
-      <div className="gap-2 pb-2 mb-3">
-        <Container>
-          <Breadcrumbs items={[{ title: "Lead" }]} />
-        </Container>
-      </div>
       <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Lead" }]} />
+        </div>
+        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
@@ -102,7 +102,7 @@ const LeadPage = () => {
             </button>
           </div>
         </div>
-
+        {/* Lead Cards */}
         <div className="w-full">
           <div className="flex justify-between items-center px-4 pt-4">
             <button
@@ -137,6 +137,7 @@ const LeadPage = () => {
           </div>
         </div>
       </Container>
+      {/* AddContact */}
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
