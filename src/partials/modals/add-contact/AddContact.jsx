@@ -185,7 +185,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
         ]}
       >
         <div
-          className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
+          className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
           data-tabs="true"
         >
           <a

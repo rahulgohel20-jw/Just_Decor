@@ -72,7 +72,7 @@ const LinkList = () => {
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-search-list"></i></a>
+                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
@@ -86,7 +86,7 @@ const LinkList = () => {
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-search-list"></i></a>
+                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
@@ -100,7 +100,7 @@ const LinkList = () => {
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-search-list"></i></a>
+                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
@@ -114,7 +114,7 @@ const LinkList = () => {
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-search-list"></i></a>
+                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
                         <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
