@@ -1,52 +1,60 @@
 import { DataGridColumnHeader } from "@/components";
+import { Link } from 'react-router-dom';
 export const columns = [
-    {
-        accessorKey: "product_name",
-        header: ({ column }) => (
-            <DataGridColumnHeader title="Product Name" column={column} />
-        ),
+  {
+    accessorKey: "product_name",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Product Name" column={column} />
+    ),
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Category" column={column} />
+    ),
+  },
+  {
+    accessorKey: "price",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Price" column={column} />
+    ),
+  },
+  {
+    accessorKey: "unit",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Unit" column={column} />
+    ),
+  },
+  {
+    accessorKey: "action",
+    header: "Action",
+    cell: ({ cell }) => {
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <Link
+            to={`/product/detail/`}
+            className="btn btn-sm btn-icon btn-clear text-primary"
+            title="Preview"
+          >
+            <i className="ki-filled ki-eye"></i>
+          </Link>
+          <button
+            className="btn btn-sm btn-icon btn-clear text-gray-600"
+            title="Edit"
+            onClick={() => cell.row.original.handleModalOpen()}
+          >
+            <i className="ki-filled ki-notepad-edit"></i>
+          </button>
+          <button
+            className="btn btn-sm btn-icon btn-clear text-danger"
+            title="Delete"
+          >
+            <i className="ki-filled ki-trash"></i>
+          </button>
+        </div>
+      );
     },
-    {
-        accessorKey: "category",
-        header: ({ column }) => (
-            <DataGridColumnHeader title="Category" column={column} />
-        ),
-    },
-    {
-        accessorKey: "price",
-        header: ({ column }) => (
-            <DataGridColumnHeader title="Price" column={column} />
-        ),
-    },
-    {
-        accessorKey: "unit",
-        header: ({ column }) => (
-            <DataGridColumnHeader title="Unit" column={column} />
-        ),
-    },
-    {
-        accessorKey: "action",
-        header: "Action",
-        cell: ({ cell }) => {
-            return (
-                <div className="flex items-center justify-center gap-1">
-                    <button
-                        className="btn btn-sm btn-icon btn-clear text-gray-600"
-                        title="Edit"
-                        onClick={() => cell.row.original.handleModalOpen()}
-                    >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                    </button>
-                    <button
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                    >
-                        <i className="ki-filled ki-trash"></i>
-                    </button>
-                </div>
-            );
-        },
-    },
+  },
 ];
 export const defaultData = [
   
