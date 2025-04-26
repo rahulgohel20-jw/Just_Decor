@@ -176,7 +176,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
         footer={[
           <button
             key="cancel"
-            className="btn btn-sm btn-secondary"
+            className="btn btn-secondary"
             onClick={handleModalClose}
             title="Cancel"
           >
@@ -184,7 +184,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
           <button
             key="save"
-            className="btn btn-sm btn-primary"
+            className="btn btn-primary"
             title="Save Contact"
           >
             Save Product
