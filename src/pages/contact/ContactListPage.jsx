@@ -1,13 +1,25 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
-import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
+import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
 
 const ContactListPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleEdit = (data) => {
+    console.log(data);
+
+    setEditData(data);
+    setIsModalOpen(true);
+  };
+
+  const removeContact = () => {
+    console.log("Contact removed");
+  };
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -17,7 +29,30 @@ const ContactListPage = () => {
     const data = defaultData.map((item) => {
       return {
         ...item,
-        handleModalOpen: handleModalOpen,
+        action: (
+          <div className="flex items-center justify-center gap-1">
+            <button
+              className="btn btn-sm btn-icon btn-clear text-gray-600"
+              title="Edit"
+              onClick={() => handleEdit(item)}
+            >
+              <i className="ki-filled ki-notepad-edit"></i>
+            </button>
+            <button
+              className="btn btn-sm btn-icon btn-clear text-danger"
+              title="Delete"
+            >
+              <Confirmation
+                trigger={<i className="ki-filled ki-trash"></i>}
+                content="Do you really want to delete?"
+                yesText="Proceed"
+                noText="Dismiss"
+                onConfirm={() => console.log("User confirmed")}
+                onCancel={() => console.log("User cancelled")}
+              ></Confirmation>
+            </button>
+          </div>
+        ),
       };
     });
     return data;
@@ -44,10 +79,21 @@ const ContactListPage = () => {
               />
             </div>
             <div className="filItems">
-              <select className="select w-28">
-                <option value="1">First Name</option>
-                <option value="2">Last Name</option>
-                <option value="2">Sur Name</option>
+              <select className="select select-sm w-[170px]">
+                <option value="">Select Contact Tag</option>
+                <option value="1">Tag 1</option>
+                <option value="2">Tag 2</option>
+                <option value="3">Tag 3</option>
+                <option value="4">Tag 4</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <select className="select select-sm w-[170px]">
+                <option value="">Select Companies</option>
+                <option value="1">Company 1</option>
+                <option value="2">Company 2</option>
+                <option value="3">Company 3</option>
+                <option value="4">Company 4</option>
               </select>
             </div>
             <div className="filItems">
@@ -55,22 +101,8 @@ const ContactListPage = () => {
                 <i className="ki-filled ki-folder-down"></i> Export
               </button>
             </div>
-            <div className="filItems">
-              <button className="btn btn-light" title="Filter">
-                <i className="ki-filled ki-setting-4"></i> Filter
-              </button>
-            </div>
+
           </div>
-          {/* <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-            <span className="px-3 bg-gray-100">
-              <KeenIcon icon="magnifier" className="text-gray-700 text-xl" />
-            </span>
-            <input
-              className="px-4 py-2 focus:outline-none"
-              placeholder="Example input"
-              type="text"
-            />
-          </div> */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
@@ -88,8 +120,11 @@ const ContactListPage = () => {
           paginationSize={10}
         />
       </Container>
-      {/* AddContact */}
-      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <AddContact
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        editData={editData}
+      />
     </Fragment>
   );
 };

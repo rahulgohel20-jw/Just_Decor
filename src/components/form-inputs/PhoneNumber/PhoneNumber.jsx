@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const PhoneNumber = () => {
+const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
   const countries = [
     {
       name: "United States",
@@ -24,9 +24,13 @@ const PhoneNumber = () => {
 
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [phone, setPhone] = useState("");
 
+  const handleMobileChange = (e) => {
+    const { value, name } = e.target;
+    handleMultiInputChange({ [name]: value });
+  };
   const handleSelect = (country) => {
+    handleMultiInputChange({ country_code: country.code });
     setSelectedCountry(country);
     setDropdownOpen(false);
   };
@@ -65,8 +69,8 @@ const PhoneNumber = () => {
           type="tel"
           className="flex-1 px-3 py-2 input text-sm rounded-none border-none"
           placeholder="Phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          {...props}
+          onChange={handleMobileChange}
         />
       </div>
       {/* Dropdown Menu */}
