@@ -29,7 +29,7 @@ const LinkList = () => {
           </div>
         </div>
         {/* Tabs */}
-        <div className="btn-tabs btn-tabs-lg mb-5 w-full" data-tabs="true">
+        <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
           <a className="btn active" title="Sales">
             Sales
           </a>

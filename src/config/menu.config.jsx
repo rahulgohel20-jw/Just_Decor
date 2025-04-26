@@ -11,7 +11,7 @@ export const MENU_SIDEBAR = [
         title: "Overview",
       },
       {
-        title: "Lead",
+        title: "Leads",
         path: "/lead",
       },
       {

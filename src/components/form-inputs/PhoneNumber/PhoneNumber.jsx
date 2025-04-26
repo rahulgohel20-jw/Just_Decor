@@ -37,7 +37,7 @@ const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
   return (
     <div className="relative max-w-md w-full">
       <label className="form-label">Phone Number</label>
-      <div className="flex border border-gray-300 rounded-md overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
+      <div className="flex border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
         {/* Country Selector Button */}
         <button
           type="button"

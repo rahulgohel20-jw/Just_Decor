@@ -29,7 +29,7 @@ const ProductListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Product" }]} />
+          <Breadcrumbs items={[{ title: "Products" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">

@@ -79,7 +79,7 @@ const ContactListPage = () => {
               />
             </div>
             <div className="filItems">
-              <select className="select select-sm w-[170px]">
+              <select className="select w-[170px]">
                 <option value="">Select Contact Tag</option>
                 <option value="1">Tag 1</option>
                 <option value="2">Tag 2</option>
@@ -88,7 +88,7 @@ const ContactListPage = () => {
               </select>
             </div>
             <div className="filItems">
-              <select className="select select-sm w-[170px]">
+              <select className="select w-[170px]">
                 <option value="">Select Companies</option>
                 <option value="1">Company 1</option>
                 <option value="2">Company 2</option>
