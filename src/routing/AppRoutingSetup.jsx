@@ -85,6 +85,21 @@ import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
 import { ProductListPage } from "@/pages/product";
+import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
+import {
+  NotificationsSettingsPage,
+  GeneralSettingsPage,
+  CustomizeSettingsPage,
+} from "@/pages/setting";
+import { BillingOverviewPage, WalletLogsPage } from "@/pages/billing";
+import {
+  ApplicationPage,
+  TicketsPage,
+  TutorialsPage,
+  EventsPage,
+  RaiseTicketPage,
+  ProgressChecklistPage,
+} from "@/pages/support";
 
 const AppRoutingSetup = () => {
   return (
@@ -100,8 +115,35 @@ const AppRoutingSetup = () => {
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/links" element={<LinkList />}></Route>
           <Route path="/product" element={<ProductListPage />}></Route>
+          {/* Team routes */}
+          <Route path="/team/seals-team" element={<SalesTeamList />} />
+          <Route path="/team/user-role" element={<UserRoleList />} />
+          <Route path="/team/all-members" element={<MemberList />} />
+          {/* Settings routes */}
+          <Route path="/settings/general" element={<GeneralSettingsPage />} />
+          <Route
+            path="/settings/customize"
+            element={<CustomizeSettingsPage />}
+          />
+          <Route
+            path="/settings/notifications"
+            element={<NotificationsSettingsPage />}
+          />
+          {/* Support routes */}
+          <Route path="/support/events" element={<EventsPage />} />
+          <Route path="/support/tutorials" element={<TutorialsPage />} />
+          <Route path="/support/tickets" element={<TicketsPage />} />
+          <Route path="/support/application" element={<ApplicationPage />} />
+          <Route
+            path="/support/progress-checklist"
+            element={<ProgressChecklistPage />}
+          />
+          <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
+          {/* Billing routes */}
+          <Route path="/billing/overview" element={<BillingOverviewPage />} />
+          <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
 
-          {/* Theme routes */}
+          {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
             path="/public-profile/profiles/default"
