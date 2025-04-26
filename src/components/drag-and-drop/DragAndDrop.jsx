@@ -16,8 +16,6 @@ import {
 import { toAbsoluteUrl } from '@/utils/Assets';
 import { Fragment } from 'react';
 import { Task } from "./Task";
-import { toAbsoluteUrl } from '@/utils/Assets';
-import { Fragment } from 'react';
 
 const SortableItem = ({ task }) => {
   const {
