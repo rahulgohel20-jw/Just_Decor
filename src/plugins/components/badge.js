@@ -9,14 +9,14 @@ export default plugin(({ addComponents, theme }) => {
       "justify-content": "center",
       "line-height": "1",
       "border-radius": theme("custom.components.common.borderRadius.badge"),
-      padding: "0.5rem 0.5rem",
+      padding: "0.5rem 0.75rem",
       border: "1px solid transparent",
       "font-weight": theme("fontWeight.medium"),
       "font-size": "0.6875rem",
       "&.badge-pill": {
         "border-radius": "1.875rem",
-        "padding-inline-start": "0.75rem", // Logical property for RTL/LTR
-        "padding-inline-end": "0.75rem", // Logical property for RTL/LTR
+        "padding-inline-start": "0.75", // Logical property for RTL/LTR
+        "padding-inline-end": "0.75", // Logical property for RTL/LTR
       },
     },
     ".badge-dot": {
@@ -31,25 +31,25 @@ export default plugin(({ addComponents, theme }) => {
     },
     ".badge-xs": {
       "font-size": "0.625rem",
-      padding: "0.1875rem 0.3125rem",
+      padding: "0.1875rem 0.5rem",
       "&.badge-pill": {
-        "padding-inline-start": "0.25rem", // Logical property for RTL/LTR
-        "padding-inline-end": "0.25rem", // Logical property for RTL/LTR
+        "padding-inline-start": "0.5rem", // Logical property for RTL/LTR
+        "padding-inline-end": "0.5rem", // Logical property for RTL/LTR
       },
     },
     ".badge-sm": {
-      padding: "0.3125rem 0.375rem",
+      padding: "0.3125rem 0.65rem",
       "&.badge-pill": {
-        "padding-inline-start": "0.375rem", // Logical property for RTL/LTR
-        "padding-inline-end": "0.375rem", // Logical property for RTL/LTR
+        "padding-inline-start": "0.65rem", // Logical property for RTL/LTR
+        "padding-inline-end": "0.65rem", // Logical property for RTL/LTR
       },
     },
     ".badge-lg": {
-      padding: "0.5625rem 0.6875rem",
+      padding: "0.5625rem 1rem",
       "font-size": "0.8125rem",
       "&.badge-pill": {
-        "padding-inline-start": "0.6875rem", // Logical property for RTL/LTR
-        "padding-inline-end": "0.6875rem", // Logical property for RTL/LTR
+        "padding-inline-start": "1rem", // Logical property for RTL/LTR
+        "padding-inline-end": "1rem", // Logical property for RTL/LTR
       },
     },
   });

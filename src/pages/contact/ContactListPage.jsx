@@ -79,21 +79,12 @@ const ContactListPage = () => {
               />
             </div>
             <div className="filItems">
-              <select className="select w-[170px]">
-                <option value="">Select Contact Tag</option>
-                <option value="1">Tag 1</option>
-                <option value="2">Tag 2</option>
-                <option value="3">Tag 3</option>
-                <option value="4">Tag 4</option>
-              </select>
-            </div>
-            <div className="filItems">
-              <select className="select w-[170px]">
-                <option value="">Select Companies</option>
-                <option value="1">Company 1</option>
-                <option value="2">Company 2</option>
-                <option value="3">Company 3</option>
-                <option value="4">Company 4</option>
+              <select className="select pe-7.5">
+                <option value="0">Please select</option>
+                <option value="1">First name</option>
+                <option value="2">Last name</option>
+                <option value="3">Email address</option>
+                <option value="4">City</option>
               </select>
             </div>
             <div className="filItems">
@@ -101,7 +92,11 @@ const ContactListPage = () => {
                 <i className="ki-filled ki-folder-down"></i> Export
               </button>
             </div>
-
+            <div className="filItems">
+              <button className="btn btn-light" title="Filter">
+                <i className="ki-filled ki-setting-4"></i> Filter
+              </button>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button

@@ -7,7 +7,6 @@ import {
   DropdownNotifications,
   DropdownMails,
 } from "@/partials/dropdowns/notifications";
-import { DropdownApps } from "@/partials/dropdowns/apps";
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";

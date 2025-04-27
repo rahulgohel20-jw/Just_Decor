@@ -85,10 +85,11 @@ const LeadPage = () => {
             </div>
             <div className="filItems">
               <select className="select pe-7.5">
-                <option value="0">Select Source</option>
-                <option value="1">Source one</option>
-                <option value="2">Source two</option>
-                <option value="2">Source three</option>
+                <option value="0">Select Lead</option>
+                <option value="1">Lead one</option>
+                <option value="2">Lead two</option>
+                <option value="3">Lead three</option>
+                <option value="4">Lead four</option>
               </select>
             </div>
             <div className="filItems">
@@ -103,15 +104,9 @@ const LeadPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div>
-              <div class="btn-tabs" data-tabs="true">
-                <a class="btn btn-icon active" data-tab-toggle="true" href="#">
-                  <i class="ki-filled ki-row-horizontal"></i>
-                </a>
-                <a class="btn btn-icon" data-tab-toggle="true" href="#">
-                  <i class="ki-filled ki-element-11"></i>
-                </a>
-              </div>
+            <div class="btn-tabs">
+              <button class="btn btn-icon active"><i class="ki-outline ki-element-11"></i></button>
+              <button class="btn btn-icon"><i class="ki-outline ki-row-horizontal"></i></button>
             </div>
             <button
               className="btn btn-primary"
@@ -127,7 +122,7 @@ const LeadPage = () => {
           <div className="flex justify-between items-end gap-2 mb-2">
             <div className="flex flex-wrap gap-2 mt-1">
               <Badge class="badge badge-outline badge-success text-xs" title="Type one">
-                <span className="flex items-center px-1">
+                <span className="flex items-center">
                   {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
                   <span className="flex flex-col">
                     <span>Total: <strong>3</strong></span>
@@ -136,7 +131,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge class="badge badge-outline badge-dark text-xs" title="Type one">
-                <span className="flex items-center px-1">
+                <span className="flex items-center">
                   {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
                   <span className="flex flex-col">
                     <span>Open: <strong>150</strong></span>
@@ -145,7 +140,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge class="badge badge-outline badge-info text-xs" title="Type one">
-                <span className="flex items-center px-1">
+                <span className="flex items-center">
                   {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
                   <span className="flex flex-col">
                     <span>Won: <strong>1</strong></span>
@@ -154,7 +149,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge class="badge badge-outline badge-danger text-xs" title="Type one">
-                <span className="flex items-center px-1">
+                <span className="flex items-center">
                   {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
                   <span className="flex flex-col">
                     <span>Lost: <strong>3</strong></span>

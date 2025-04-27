@@ -23,7 +23,7 @@ const LinkList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title=" Add Company">
+            <button className="btn btn-primary" title="Add Link">
               <i class="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
