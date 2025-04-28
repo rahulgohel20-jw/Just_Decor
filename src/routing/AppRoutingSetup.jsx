@@ -81,11 +81,10 @@ import {
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
 import { LeadPage } from "@/pages/lead";
-
+import { ProductListDetail, ProductListPage } from "../pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
-import { ProductListPage } from "@/pages/product";
 import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
 import {
   NotificationsSettingsPage,
@@ -121,7 +120,7 @@ const AppRoutingSetup = () => {
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/links" element={<LinkList />}></Route>
           <Route path="/product" element={<ProductListPage />}></Route>
-          {/* Team routes */}
+          <Route path="/product/detail" element={<ProductListDetail/>}></Route>
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
