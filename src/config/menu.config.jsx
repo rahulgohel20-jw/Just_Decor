@@ -27,19 +27,22 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Products",
+        path: "/product",
       },
     ],
   },
   {
     title: "Links",
     icon: "ki-filled ki-disconnect",
+    path: "/links"
   },
   {
     title: "Team",
     icon: "ki-filled ki-users",
     children: [
       {
-        title: "Overview",
+        title: "Sales Team",
+        path: "/salesperson",
       },
       {
         title: "User Role",
