@@ -2,7 +2,7 @@ import { DataGridColumnHeader } from "@/components";
 import { Link } from "react-router-dom";
 export const columns = [
     {
-        accessorKey: "User",
+        accessorKey: "user",
         
         header: ({ column }) => (
             <DataGridColumnHeader title="User" column={column} />
@@ -10,25 +10,25 @@ export const columns = [
         
     },
     {
-        accessorKey: "Mobile",
+        accessorKey: "mobile",
         header: ({ column }) => (
             <DataGridColumnHeader title="Mobile" column={column} />
         ),
     },
     {
-        accessorKey: "ReportTo",
+        accessorKey: "report_to",
         header: ({ column }) => (
             <DataGridColumnHeader title="Report to" column={column} />
         ),
     },
     {
-        accessorKey: "LeadAssigned",
+        accessorKey: "lead_assigned",
         header: ({ column }) => (
             <DataGridColumnHeader title="Lead Assigned" column={column} />
         ),
     },
     {
-        accessorKey: "Role",
+        accessorKey: "role",
         header: ({ column }) => (
             <DataGridColumnHeader title="Role" column={column} />
         ),
@@ -69,39 +69,39 @@ export const columns = [
 ];
 export const defaultData = [
     {
-    User: "John Doe",
-    Mobile: "9876543210",
-    ReportTo: "Sarah Connor",
-    LeadAssigned: "Marketing Campaign A",
-    Role: "Sales Executive"
+    user: "John Doe",
+    mobile: "9876543210",
+    report_to: "Sarah Connor",
+    lead_assigned: "Marketing Campaign A",
+    role: "Sales Executive"
   },
   {
-    User: "Emma Watson",
-    Mobile: "9123456780",
-    ReportTo: "John Smith",
-    LeadAssigned: "Product Inquiry",
-    Role: "Customer Support"
+    user: "Emma Watson",
+    mobile: "9123456780",
+    report_to: "John Smith",
+    lead_assigned: "Product Inquiry",
+    role: "Customer Support"
   },
   {
-    User: "Liam Brown",
-    Mobile: "9988776655",
-    ReportTo: "Michael Clark",
-    LeadAssigned: "Service Request",
-    Role: "Technician"
+    user: "Liam Brown",
+    mobile: "9988776655",
+    report_to: "Michael Clark",
+    lead_assigned: "Service Request",
+    role: "Technician"
   },
   {
-    User: "Sophia Green",
-    Mobile: "9012345678",
-    ReportTo: "Sarah Connor",
-    LeadAssigned: "Subscription Upgrade",
-    Role: "Account Manager"
+    user: "Sophia Green",
+    mobile: "9012345678",
+    report_to: "Sarah Connor",
+    lead_assigned: "Subscription Upgrade",
+    role: "Account Manager"
   },
   {
-    User: "William Black",
-    Mobile: "8899776655",
-    ReportTo: "John Smith",
-    LeadAssigned: "New Business Lead",
-    Role: "Business Development"
+    user: "William Black",
+    mobile: "8899776655",
+    report_to: "John Smith",
+    lead_assigned: "New Business Lead",
+    role: "Business Development"
   }
 ];
 

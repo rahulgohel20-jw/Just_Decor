@@ -101,7 +101,7 @@ import {
   RaiseTicketPage,
   ProgressChecklistPage,
 } from "@/pages/support";
-import { SalesPersonList } from "../pages/team/sales-team";
+import { SalesPersonList } from "@/pages/team/sales-team";
 
 const AppRoutingSetup = () => {
   return (

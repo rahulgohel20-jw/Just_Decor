@@ -58,7 +58,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Sales Person"
+        title="Add Member"
         footer={[
           
           <button
@@ -80,7 +80,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
             }`}
             onClick={() => setActiveTab("tab_1")}
           >
-            Sales Member 
+            Member Details 
           </a>
           
           

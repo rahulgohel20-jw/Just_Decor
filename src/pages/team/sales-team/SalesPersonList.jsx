@@ -39,7 +39,7 @@ const SalesPersonList = () => {
             <button
               className="btn btn-sm btn-primary"
               onClick={handleModalOpen}
-              title="Add Contacts"
+              title="Add Member"
             >
               <i class="ki-filled ki-plus"></i> Add Member
             </button>
