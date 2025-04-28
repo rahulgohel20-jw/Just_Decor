@@ -40,6 +40,7 @@ module.exports = {
             },
           },
           contextual: {
+            // light theme
             light: {
               brand: {
                 default: "#FF6F1E",
@@ -105,6 +106,7 @@ module.exports = {
                 inverse: "#4B5675",
               },
             },
+            // dark theme
             dark: {
               brand: {
                 default: "#D74E00",
@@ -114,10 +116,10 @@ module.exports = {
                 inverse: "#ffffff",
               },
               primary: {
-                default: "#006AE6",
-                active: "#107EFF",
-                light: "#172331",
-                clarity: "rgba(0, 106, 230, 0.20)",
+                default: "#B81C2C",
+                active: "#9E1A27",
+                light: "#F9E9EA",
+                clarity: "rgba(223, 67, 53, 0.20)",
                 inverse: "#ffffff",
               },
               success: {
@@ -413,7 +415,7 @@ module.exports = {
         md: "768px",
         lg: "1024px",
         xl: "1280px",
-        "2xl": "1536px",
+        "2xl": "1440px",
       },
       //begin: Shadcn UI Animations
       keyframes: {
@@ -520,7 +522,7 @@ module.exports = {
               DEFAULT: theme("spacing")["6"],
               xl: theme("spacing")["7.5"],
             },
-            "max-width": theme("screens.xl"),
+            "max-width": theme("screens.2xl"),
           },
           fluid: {
             px: {

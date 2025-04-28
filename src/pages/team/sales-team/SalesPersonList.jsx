@@ -4,7 +4,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { columns, defaultData } from "./constant";
-import AddSales from "../../partials/modals/add-sales/AddSales";
+import AddSales from "../../../partials/modals/add-sales/AddSales";
 
 const SalesPersonList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

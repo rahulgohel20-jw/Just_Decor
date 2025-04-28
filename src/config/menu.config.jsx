@@ -20,7 +20,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Companies",
-        path: "/company"
+        path: "/company",
       },
       {
         title: "Follow-Up",
@@ -34,21 +34,25 @@ export const MENU_SIDEBAR = [
   {
     title: "Links",
     icon: "ki-filled ki-disconnect",
-    path: "/links"
+    path: "/links",
   },
   {
     title: "Team",
     icon: "ki-filled ki-users",
     children: [
       {
+
         title: "Sales Team",
         path: "/salesperson",
+
       },
       {
         title: "User Role",
+        path: "team/user-role",
       },
       {
         title: "All Members",
+        path: "team/all-members",
       },
     ],
   },
@@ -58,15 +62,15 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "General",
+        path: "settings/general",
       },
       {
         title: "Customize",
-      },
-      {
-        title: "Customize",
+        path: "settings/customize",
       },
       {
         title: "Notifications",
+        path: "settings/notifications",
       },
     ],
   },
@@ -74,12 +78,12 @@ export const MENU_SIDEBAR = [
     title: "Support",
     icon: "ki-filled ki-support",
     children: [
-      { title: "Events" },
-      { title: "Tutorials" },
-      { title: "Tickets" },
-      { title: "Application" },
-      { title: "Progress Checklist" },
-      { title: "Raise Ticket" },
+      { title: "Events", path: "/support/events" },
+      { title: "Tutorials", path: "/support/tutorials" },
+      { title: "Tickets", path: "/support/tickets" },
+      { title: "Application", path: "/support/application" },
+      { title: "Progress Checklist", path: "/support/progress-checklist" },
+      { title: "Raise Ticket" , path: "/support/raise-ticket"},
     ],
   },
   {
@@ -87,10 +91,12 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-cheque",
     children: [
       {
-        title: "Billing",
+        title: "Overview",
+        path: "billing/overview",
       },
       {
         title: "Wallet Logs",
+        path: "billing/wallet-logs",
       },
     ],
   },

@@ -81,10 +81,28 @@ import {
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
 import { LeadPage } from "@/pages/lead";
-import { CompanyDetails, CompanyListPage } from "@/pages/company";
-import { ContactDetail, ContactListPage } from "../pages/contact";
-import { ProductListPage } from "../pages/product/ProductListPage";
-import { SalesPersonList } from "../pages/salesperson";
+
+import { ContactDetail, ContactListPage } from "@/pages/contact";
+import { LinkList } from "@/pages/link";
+import { CompanyListPage, CompanyDetails } from "@/pages/company";
+import { ProductListPage } from "@/pages/product";
+import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
+import {
+  NotificationsSettingsPage,
+  GeneralSettingsPage,
+  CustomizeSettingsPage,
+} from "@/pages/setting";
+import { BillingOverviewPage, WalletLogsPage } from "@/pages/billing";
+import {
+  ApplicationPage,
+  TicketsPage,
+  TutorialsPage,
+  EventsPage,
+  RaiseTicketPage,
+  ProgressChecklistPage,
+} from "@/pages/support";
+import { SalesPersonList } from "../pages/team/sales-team";
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -98,8 +116,41 @@ const AppRoutingSetup = () => {
           <Route path="/company" element={<CompanyListPage/>}></Route>
           <Route path="/companydetails" element={<CompanyDetails/>}></Route>
           <Route path="/product" element={<ProductListPage/>}></Route>
-          <Route path="/salesperson" element={<SalesPersonList/>}></Route>
           {/* Theme routes */}
+          <Route path="/company" element={<CompanyListPage />}></Route>
+          <Route path="/companydetails" element={<CompanyDetails />}></Route>
+          <Route path="/links" element={<LinkList />}></Route>
+          <Route path="/product" element={<ProductListPage />}></Route>
+          {/* Team routes */}
+          <Route path="/team/seals-team" element={<SalesTeamList />} />
+          <Route path="/team/user-role" element={<UserRoleList />} />
+          <Route path="/team/all-members" element={<MemberList />} />
+          <Route path="/salesperson" element={<SalesPersonList></SalesPersonList>}></Route>
+          {/* Settings routes */}
+          <Route path="/settings/general" element={<GeneralSettingsPage />} />
+          <Route
+            path="/settings/customize"
+            element={<CustomizeSettingsPage />}
+          />
+          <Route
+            path="/settings/notifications"
+            element={<NotificationsSettingsPage />}
+          />
+          {/* Support routes */}
+          <Route path="/support/events" element={<EventsPage />} />
+          <Route path="/support/tutorials" element={<TutorialsPage />} />
+          <Route path="/support/tickets" element={<TicketsPage />} />
+          <Route path="/support/application" element={<ApplicationPage />} />
+          <Route
+            path="/support/progress-checklist"
+            element={<ProgressChecklistPage />}
+          />
+          <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
+          {/* Billing routes */}
+          <Route path="/billing/overview" element={<BillingOverviewPage />} />
+          <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
+
+          {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
             path="/public-profile/profiles/default"
