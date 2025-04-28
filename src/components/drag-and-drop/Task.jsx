@@ -3,6 +3,7 @@ import {
   KeenIcon,
   MenuIcon,
   MenuItem,
+  MenuSeparator,
   MenuToggle,
   MenuLink,
   MenuSub,
@@ -14,10 +15,10 @@ const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
 
   return (
-    <div key={index} className="card p-5 lg:p-7.5 lg:pt-7">
+    <div key={index} className="card p-4 lg:p-5">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
-          <h2>{item.user_first_name}</h2>
+          <h2 className="font-semibold">{item.user_first_name}</h2>
           {dropdown && (
             <Menu className="items-stretch">
               <MenuItem
@@ -43,25 +44,17 @@ const Task = ({ item, dropdown, index }) => {
                   rootClassName="w-full max-w-[200px]"
                 >
                   <MenuItem>
-                    <MenuLink path="">
+                    <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="setting-3" />
+                        <KeenIcon icon="ki-filled ki-notepad-edit" />
                       </MenuIcon>
-                      <MenuTitle>Delete</MenuTitle>
+                      <MenuTitle>Edit</MenuTitle>
                     </MenuLink>
                   </MenuItem>
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="some-files" />
-                      </MenuIcon>
-                      <MenuTitle>Edit Lead</MenuTitle>
-                    </MenuLink>
-                  </MenuItem>
-                  <MenuItem>
-                    <MenuLink>
-                      <MenuIcon>
-                        <KeenIcon icon="cloud-change" />
+                        <KeenIcon icon="ki-filled ki-mouse-square" />
                       </MenuIcon>
                       <MenuTitle>Move To</MenuTitle>
                     </MenuLink>
@@ -69,7 +62,7 @@ const Task = ({ item, dropdown, index }) => {
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="dislike" />
+                        <KeenIcon icon="ki-filled ki-share" />
                       </MenuIcon>
                       <MenuTitle>Add Follow-up</MenuTitle>
                     </MenuLink>
@@ -77,7 +70,7 @@ const Task = ({ item, dropdown, index }) => {
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="dislike" />
+                        <KeenIcon icon="ki-filled ki-whatsapp" />
                       </MenuIcon>
                       <MenuTitle>Send Whatsapp</MenuTitle>
                     </MenuLink>
@@ -85,7 +78,7 @@ const Task = ({ item, dropdown, index }) => {
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="dislike" />
+                        <KeenIcon icon="ki-filled ki-sms" />
                       </MenuIcon>
                       <MenuTitle>Send Email</MenuTitle>
                     </MenuLink>
@@ -93,7 +86,7 @@ const Task = ({ item, dropdown, index }) => {
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="dislike" />
+                        <KeenIcon icon="ki-filled ki-note-2" />
                       </MenuIcon>
                       <MenuTitle>Add Notes</MenuTitle>
                     </MenuLink>
@@ -101,9 +94,18 @@ const Task = ({ item, dropdown, index }) => {
                   <MenuItem>
                     <MenuLink>
                       <MenuIcon>
-                        <KeenIcon icon="dislike" />
+                        <KeenIcon icon="ki-filled ki-copy" />
                       </MenuIcon>
                       <MenuTitle>Clone Lead</MenuTitle>
+                    </MenuLink>
+                  </MenuItem>
+                  <MenuSeparator />
+                  <MenuItem>
+                    <MenuLink path="">
+                      <MenuIcon>
+                        <KeenIcon icon="ki-filled ki-trash" />
+                      </MenuIcon>
+                      <MenuTitle>Delete</MenuTitle>
                     </MenuLink>
                   </MenuItem>
                 </MenuSub>
@@ -111,7 +113,6 @@ const Task = ({ item, dropdown, index }) => {
             </Menu>
           )}
         </div>
-
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <KeenIcon icon="user" className="text-lg" />

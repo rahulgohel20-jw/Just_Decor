@@ -23,13 +23,13 @@ const LinkList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title=" Add Company">
+            <button className="btn btn-primary" title="Add Link">
               <i class="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
         </div>
         {/* Tabs */}
-        <div className="btn-tabs btn-tabs-lg mb-5 w-full" data-tabs="true">
+        <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
           <a className="btn active" title="Sales">
             Sales
           </a>

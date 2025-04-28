@@ -42,7 +42,7 @@ const SortableItem = ({ task }) => {
       {...attributes}
       {...listeners}
       style={style}
-      className="border rounded p-2 mb-2 bg-gray-100 w-full box-border max-w-[100%]"
+      className="mb-4 w-full box-border max-w-[100%]"
     >
       <Task item={task} index={task.id} dropdown={true} />
     </div>
@@ -73,10 +73,16 @@ const SortableColumn = ({ column }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="border rounded p-3 w-64 transition-all duration-200 bg-white min-w-[20%]"
+      className="border rounded-lg p-3 bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
       id={column.id}
     >
-      <h3 className="font-bold mb-2">{column.name}</h3>
+      <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex flex-col">
+          <p className="text-sm font-semibold">{column.name}</p>
+          <small className="text-xs">123 leads <span className="text-success inline ms-1">&#8377;</span> 100/-</small>
+        </div>
+        <a href="#"><i class="ki-filled ki-dots-horizontal"></i></a>
+      </div>
       <div className="min-h-[20px]">
         <SortableContext
           items={[column.id, ...column.children.map((task) => task.id)]}

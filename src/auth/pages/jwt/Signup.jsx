@@ -135,8 +135,7 @@ const Signup = () => {
                 Type four
               </Badge>
           </div>
-        </div>
-        
+        </div>        
         <PhoneNumber />
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
