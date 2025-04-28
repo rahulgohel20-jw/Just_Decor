@@ -11,7 +11,7 @@ export const MENU_SIDEBAR = [
         title: "Overview",
       },
       {
-        title: "Lead",
+        title: "Leads",
         path: "/lead",
       },
       {
@@ -45,7 +45,7 @@ export const MENU_SIDEBAR = [
         path: "/team/seals-team",
       },
       {
-        title: "User Role",
+        title: "User Roles",
         path: "team/user-role",
       },
       {
