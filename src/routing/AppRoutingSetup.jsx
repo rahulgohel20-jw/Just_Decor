@@ -83,6 +83,7 @@ import {
 import { LeadPage } from "@/pages/lead";
 
 import { ProductListDetail, ProductListPage } from "@/pages/product";
+import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
