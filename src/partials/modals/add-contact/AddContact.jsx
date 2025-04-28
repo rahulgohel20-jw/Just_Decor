@@ -1,12 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
-
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 
-const AddContact = ({ isModalOpen, setIsModalOpen }) => {
+const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
+  const [formData, setFormData] = useState();
+
+  const handInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleMultiInputChange = (data) => {
+    setFormData({ ...formData, ...data });
+  }
+
+  const saveData = () => {
+    // Save data logic here
+   
+    setIsModalOpen(false);
+  }
+
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -43,6 +59,9 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
                   type="text"
                   className="input form-control-solid w-full"
                   placeholder="Enter first name"
+                  value={formData?.first_name}
+                  name="first_name"
+                  onChange={handInputChange}
                 />
               </div>
               <div>
@@ -53,7 +72,11 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
                   placeholder="Enter last name"
                 />
               </div>
-              <PhoneNumber />
+              <PhoneNumber
+                value={formData?.mobile}
+                name="mobile"
+                handleMultiInputChange={handleMultiInputChange}
+              />
               <div></div>
               <div>
                 <label className="form-label">Date of Birth</label>
@@ -160,6 +183,14 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
+  useEffect(() => {
+    if (isModalOpen) {
+      setFormData(editData);
+    } else {
+      setFormData(null);
+    }
+  }, [isModalOpen]);
+
   return (
     isModalOpen && (
       <CustomModal
@@ -169,7 +200,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
         footer={[
           <button
             key="cancel"
-            className="btn btn-sm btn-secondary"
+            className="btn btn-secondary"
             onClick={handleModalClose}
             title="Cancel"
           >
@@ -177,15 +208,16 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
           <button
             key="save"
-            className="btn btn-sm btn-primary"
+            className="btn btn-primary"
             title="Save Contact"
+            onClick={saveData}
           >
             Save Contact
           </button>,
         ]}
       >
         <div
-          className="btn-tabs tabs-lg flex justify-between mb-5 w-full"
+          className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
           data-tabs="true"
         >
           <a
@@ -213,7 +245,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen }) => {
             Social Profile
           </a>
         </div>
-        {renderTabContent()}
+        {renderTabContent(formData)}
       </CustomModal>
     )
   );

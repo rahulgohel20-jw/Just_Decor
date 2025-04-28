@@ -13,6 +13,8 @@ import {
   rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
+import { toAbsoluteUrl } from '@/utils/Assets';
+import { Fragment } from 'react';
 import { Task } from "./Task";
 
 const SortableItem = ({ task }) => {
@@ -45,6 +47,22 @@ const SortableItem = ({ task }) => {
       <Task item={task} index={task.id} dropdown={true} />
     </div>
   );
+    return <Fragment>
+        <style>
+          {`
+            .channel-stats-bg {
+              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3.png')}');
+            }
+            .dark .channel-stats-bg {
+              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3-dark.png')}');
+            }
+          `}
+        </style>
+  
+        {items.map((item, index) => {
+        return renderItem(item, index);
+      })}
+      </Fragment>;
 };
 
 const SortableColumn = ({ column }) => {

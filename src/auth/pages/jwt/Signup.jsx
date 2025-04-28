@@ -8,6 +8,7 @@ import { toAbsoluteUrl } from "@/utils";
 import { Alert, KeenIcon } from "@/components";
 import { useLayout } from "@/providers";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
+import { Badge } from '@/components/ui/badge';
 const initialValues = {
   email: "",
   password: "",
@@ -114,6 +115,28 @@ const Signup = () => {
             </label>
           </div>
         </div>
+        <div className="flex flex-col">
+            <label className="form-label text-gray-900">Type</label>
+            <div className="flex flex-wrap gap-1 mt-1">
+              <Badge class="badge badge-pill badge-success cursor-pointer text-xs" title="Type one">
+                <span class="badge badge-dot size-2 me-1.5 bg-white"></span>
+                Type one
+              </Badge>
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type two">
+                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Type two
+              </Badge>
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type three">
+                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Type three
+              </Badge>
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type four">
+                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Type four
+              </Badge>
+          </div>
+        </div>
+        
         <PhoneNumber />
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
