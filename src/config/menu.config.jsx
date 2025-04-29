@@ -41,8 +41,10 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-users",
     children: [
       {
-        title: "Seals Team",
-        path: "/team/seals-team",
+
+        title: "Sales Team",
+        path: "/salesperson",
+
       },
       {
         title: "User Roles",
