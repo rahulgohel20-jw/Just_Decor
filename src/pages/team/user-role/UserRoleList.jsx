@@ -1,14 +1,15 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
+import { useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import  AddRole  from "@/partials/modals/add-role/AddRole";
+ import  AddRole  from "@/partials/modals/add-role/AddRole";
 
 const UserRoleList = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-      const handleModalOpen = () => {
-      setIsModalOpen(true);
-    };
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <Fragment>
@@ -30,8 +31,12 @@ const UserRoleList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Role" onClick={handleModalOpen}>
-              <i class="ki-filled ki-plus"></i> Add Role
+            <button
+              className="btn btn-primary"
+              title="Add Role"
+              onClick={handleModalOpen}
+            >
+              <i className="ki-filled ki-plus"></i> Add Role
             </button>
           </div>
         </div>

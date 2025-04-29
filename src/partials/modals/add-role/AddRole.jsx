@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
 const permissions = [
@@ -15,6 +16,11 @@ const permissions = [
 const AddRole = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
+  };
+
+  const handleAddRole = () => {
+    console.log("Add Role button clicked");
+    // Add your logic for adding a role here
   };
   const [activeTab, setActiveTab] = useState("pages");
 //   const [selectedFeature, setSelectedFeature] = useState("basic");
@@ -50,13 +56,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-          <button
-                className="btn btn-sm bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                onClick={handleAddRole}
-                title="Add Role"
-              >
-                +
-              </button>
+         
             </div>
           </div>
           
@@ -167,5 +167,10 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
     )
   );
 };
+AddRole.propTypes = {
+  isModalOpen: PropTypes.bool.isRequired,
+  setIsModalOpen: PropTypes.func.isRequired,
+};
 
 export default AddRole;
+
