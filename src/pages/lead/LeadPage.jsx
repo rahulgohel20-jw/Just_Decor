@@ -165,7 +165,7 @@ const LeadPage = () => {
         {/* Lead Cards */}
         <div className="w-full">
           <div className="flex justify-between items-end gap-2 mb-2">
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap gap-2">
               <Badge
                 class="badge badge-outline badge-success text-xs"
                 title="Type one"

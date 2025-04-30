@@ -11,6 +11,7 @@ export default plugin(({ addComponents, theme }) => {
     ".form-label": {
       display: "flex",
       width: "100%",
+      marginBottom: "2px",
       color: "var(--tw-gray-900)",
       "font-weight": theme("fontWeight.medium"),
       "font-size": theme("fontSize.2sm"),
