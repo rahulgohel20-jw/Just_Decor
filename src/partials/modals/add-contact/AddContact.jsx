@@ -33,7 +33,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
       case "tab_1":
         return (
           <div id="tab_1" className="tab-content active">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div>
                 <label className="form-label ">Select Role</label>
                 <select
@@ -53,6 +53,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   placeholder="Enter email"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div>
                 <label className="form-label ">First Name</label>
                 <input
@@ -72,30 +74,31 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   placeholder="Enter last name"
                 />
               </div>
-              <PhoneNumber
-                value={formData?.mobile}
-                name="mobile"
-                handleMultiInputChange={handleMultiInputChange}
-              />
-              <div></div>
-              <div>
-                <label className="form-label">Date of Birth</label>
-                <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
-              </div>
-              <div>
-                <label className="form-label">Date of Anniversary</label>
-                <DatePicker
-                  date={dateOfAnniversary}
-                  setDate={setDateOfAnniversary}
-                />
-              </div>
             </div>
+            <PhoneNumber
+              value={formData?.mobile}
+              name="mobile"
+              handleMultiInputChange={handleMultiInputChange}
+            />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div>
+                  <label className="form-label">Date of Birth</label>
+                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                </div>
+                <div>
+                  <label className="form-label">Date of Anniversary</label>
+                  <DatePicker
+                    date={dateOfAnniversary}
+                    setDate={setDateOfAnniversary}
+                  />
+                </div>
+              </div>
           </div>
         );
       case "tab_2":
         return (
           <div id="tab_2" className="tab-content">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div>
                 <label className="form-label ">State</label>
                 <input
@@ -134,7 +137,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
       case "tab_3":
         return (
           <div id="tab_3" className="tab-content">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div>
                 <label className="form-label ">Linkedin</label>
                 <input

@@ -30,7 +30,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
         ]}
       >       
-       <div className="grid grid-cols-2 gap-6">
+       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label ">Company Name</label>
             <input
@@ -65,7 +65,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
         </div>
        <hr />
-       <div className="grid grid-cols-2 gap-6">
+       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label ">Country</label>
             <input

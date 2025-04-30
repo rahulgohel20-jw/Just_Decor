@@ -43,138 +43,126 @@ const UserRoleList = () => {
                 <tr>
                   <td>Manager</td>
                   <td>All leads</td>
-                  <td>2 <a href="#" title="View users"><i class="ki-filled ki-eye text-md"></i></a></td>
+                  <td><span className="text-primary cursor-pointer" title="View users">2</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Seles Person</td>
                   <td>All leads</td>
-                  <td>1 <a href="#" title="View users"><i class="ki-filled ki-eye text-md"></i></a></td>
+                  <td><span className="text-primary cursor-pointer" title="View users">1</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Other</td>
                   <td>Only assigned eads</td>
-                  <td>0</td>
+                  <td><span className="text-primary cursor-pointer" title="View users">0</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Manager</td>
                   <td>Only assigned eads</td>
-                  <td>2 <a href="#" title="View users"><i class="ki-filled ki-eye text-md"></i></a></td>
+                  <td><span className="text-primary cursor-pointer" title="View users">2</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Seles Person</td>
                   <td>Only assigned eads</td>
-                  <td>1 <a href="#" title="View users"><i class="ki-filled ki-eye text-md"></i></a></td>
+                  <td><span className="text-primary cursor-pointer" title="View users">1</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Other</td>
                   <td>All leads</td>
-                  <td>0</td>
+                  <td><span className="text-primary cursor-pointer" title="View users">0</span></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
                         <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
                         <i class="ki-filled ki-trash"></i>
-                      </a>
+                      </button>
                     </div>
                   </td>
                 </tr>

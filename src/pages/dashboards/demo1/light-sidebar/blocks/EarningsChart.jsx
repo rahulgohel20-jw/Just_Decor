@@ -100,11 +100,11 @@ const EarningsChart = () => {
         });
         const formattedNumber = formatter.format(number);
         return `
-          <div class="flex flex-col gap-2 p-3.5">
-            <div class="font-medium text-2sm text-gray-600">${monthName}, 2024 Sales</div>
-            <div class="flex items-center gap-1.5">
-              <div class="font-semibold text-md text-gray-900">${formattedNumber}</div>
-              <span class="badge badge-outline badge-success badge-xs">+24%</span>
+          <div className="flex flex-col gap-2 p-3.5">
+            <div className="font-medium text-2sm text-gray-600">${monthName}, 2024 Sales</div>
+            <div className="flex items-center gap-1.5">
+              <div className="font-semibold text-md text-gray-900">${formattedNumber}</div>
+              <span className="badge badge-outline badge-success badge-xs">+24%</span>
             </div>
           </div>
           `;
