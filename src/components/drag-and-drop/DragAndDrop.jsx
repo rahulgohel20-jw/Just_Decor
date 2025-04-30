@@ -81,7 +81,7 @@ const SortableColumn = ({ column }) => {
           <p className="text-sm font-semibold">{column.name}</p>
           <small className="text-xs">123 leads <span className="text-success inline ms-1">&#8377;</span> 100/-</small>
         </div>
-        <a href="#"><i class="ki-filled ki-dots-horizontal"></i></a>
+        <a href="#"><i className="ki-filled ki-dots-horizontal"></i></a>
       </div>
       <div className="min-h-[20px]">
         <SortableContext

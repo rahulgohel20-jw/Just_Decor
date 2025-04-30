@@ -35,7 +35,7 @@ const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
     setDropdownOpen(false);
   };
   return (
-    <div className="relative max-w-md w-full">
+    <div className="relative w-full">
       <label className="form-label">Phone Number</label>
       <div className="flex border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
         {/* Country Selector Button */}

@@ -31,17 +31,9 @@ const ContactListPage = () => {
         ...item,
         action: (
           <div className="flex items-center justify-center gap-1">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-gray-600"
-              title="Edit"
-              onClick={() => handleEdit(item)}
-            >
-              <i className="ki-filled ki-notepad-edit"></i>
-            </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear text-danger"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
+            <button className="btn btn-sm btn-icon btn-clear" title="Edit" onClick={() => handleEdit(item)}><i className="ki-filled ki-notepad-edit"></i></button>
+            <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"

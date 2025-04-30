@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { defaultData } from "./constant";
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 
 const LeadPage = () => {
   const scrollRef = useRef(null);
@@ -99,14 +99,18 @@ const LeadPage = () => {
             </div>
             <div className="filItems">
               <button className="btn btn-light" title="Refresh">
-                <i class="ki-filled ki-arrows-circle"></i>
+                <i className="ki-filled ki-arrows-circle"></i>
               </button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div class="btn-tabs">
-              <button class="btn btn-icon active"><i class="ki-outline ki-element-11"></i></button>
-              <button class="btn btn-icon"><i class="ki-outline ki-row-horizontal"></i></button>
+            <div className="btn-tabs">
+              <button className="btn btn-icon active">
+                <i className="ki-outline ki-element-11"></i>
+              </button>
+              <button className="btn btn-icon">
+                <i className="ki-outline ki-row-horizontal"></i>
+              </button>
             </div>
             <button
               className="btn btn-primary"
@@ -117,53 +121,128 @@ const LeadPage = () => {
             </button>
           </div>
         </div>
+
+        {/* amount */}
+        {/* <div className="card mb-3">
+          <div className="card-body">
+            <div className="flex lg:px-10 py-1.5 gap-2">
+              <div className="grid grid-cols-1 place-content-center flex-1 gap-1 text-center">
+                <span className="text-success text-sm">Total 3</span>
+                <span className="text-success text-2xl lg:text-2.5xl leading-none font-semibold ">
+                  &#8377;22,000
+                </span>
+                <span className="text-success text-sm">Total amount</span>
+              </div>
+              <span className="[&amp;:not(:last-child)]:border-e border-e-gray-300 my-1"></span>
+              <div className="grid grid-cols-1 place-content-center flex-1 gap-1 text-center">
+                <span className="text-gray-700 text-sm">Open 150</span>
+                <span className="text-gray-700 text-2xl lg:text-2.5xl leading-none font-semibold">
+                  &#8377;0
+                </span>
+                <span className="text-gray-700 text-sm">Open amount</span>
+              </div>
+              <span className="[&amp;:not(:last-child)]:border-e border-e-gray-300 my-1"></span>
+              <div className="grid grid-cols-1 place-content-center flex-1 gap-1 text-center">
+                <span className="text-info text-sm">Won 1</span>
+                <span className="text-info text-2xl lg:text-2.5xl leading-none font-semibold">
+                  &#8377;0
+                </span>
+                <span className="text-info text-sm">Won amount</span>
+              </div>
+              <span className="[&amp;:not(:last-child)]:border-e border-e-gray-300 my-1"></span>
+              <div className="grid grid-cols-1 place-content-center flex-1 gap-1 text-center">
+                <span className="text-danger text-sm">Lost 3</span>
+                <span className="text-danger text-2xl lg:text-2.5xl leading-none font-semibold">
+                  &#8377;0
+                </span>
+                <span className="text-danger text-sm">Lost amount</span>
+              </div>
+              <span className="[&amp;:not(:last-child)]:border-e border-e-gray-300 my-1"></span>
+            </div>
+          </div>
+        </div> */}
+
         {/* Lead Cards */}
         <div className="w-full">
           <div className="flex justify-between items-end gap-2 mb-2">
             <div className="flex flex-wrap gap-2 mt-1">
-              <Badge class="badge badge-outline badge-success text-xs" title="Type one">
+              <Badge
+                class="badge badge-outline badge-success text-xs"
+                title="Type one"
+              >
                 <span className="flex items-center">
-                  {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
                   <span className="flex flex-col">
-                    <span>Total: <strong>3</strong></span>
-                    <span>Amount: <strong>&#8377;22,000/-</strong></span>
+                    <span>
+                      Total: <strong>3</strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;22,000/-</strong>
+                    </span>
                   </span>
                 </span>
               </Badge>
-              <Badge class="badge badge-outline badge-dark text-xs" title="Type one">
+              <Badge
+                class="badge badge-outline badge-dark text-xs"
+                title="Type one"
+              >
                 <span className="flex items-center">
-                  {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
                   <span className="flex flex-col">
-                    <span>Open: <strong>150</strong></span>
-                    <span>Amount: <strong>&#8377;0/-</strong></span>
+                    <span>
+                      Open: <strong>150</strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
                   </span>
                 </span>
               </Badge>
-              <Badge class="badge badge-outline badge-info text-xs" title="Type one">
+              <Badge
+                class="badge badge-outline badge-info text-xs"
+                title="Type one"
+              >
                 <span className="flex items-center">
-                  {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
                   <span className="flex flex-col">
-                    <span>Won: <strong>1</strong></span>
-                    <span>Amount: <strong>&#8377;22.000/-</strong></span>
+                    <span>
+                      Won: <strong>1</strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;22.000/-</strong>
+                    </span>
                   </span>
                 </span>
               </Badge>
-              <Badge class="badge badge-outline badge-danger text-xs" title="Type one">
+              <Badge
+                class="badge badge-outline badge-danger text-xs"
+                title="Type one"
+              >
                 <span className="flex items-center">
-                  {/* <i class="ki-filled ki-chart-line-up text-sm me-1"></i> */}
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
                   <span className="flex flex-col">
-                    <span>Lost: <strong>3</strong></span>
-                    <span>Amount: <strong>&#8377;0/-</strong></span>
+                    <span>
+                      Lost: <strong>3</strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
                   </span>
                 </span>
               </Badge>
             </div>
             <div className="flex justify-end items-center gap-2">
-              <button onClick={scrollLeft} className="btn btn-light btn-sm px-3">
-                <i class="ki-filled ki-arrow-left"></i> Prev
+              <button
+                onClick={scrollLeft}
+                className="btn btn-light btn-sm px-3"
+              >
+                <i className="ki-filled ki-arrow-left"></i> Prev
               </button>
-              <button onClick={scrollRight} className="btn btn-light btn-sm px-3">
-                Next <i class="ki-filled ki-arrow-right"></i>
+              <button
+                onClick={scrollRight}
+                className="btn btn-light btn-sm px-3"
+              >
+                Next <i className="ki-filled ki-arrow-right"></i>
               </button>
             </div>
           </div>

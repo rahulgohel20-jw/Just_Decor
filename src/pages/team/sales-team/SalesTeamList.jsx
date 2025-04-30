@@ -33,7 +33,7 @@ const SalesTeamList = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button className="btn btn-primary" title="Add Member">
-              <i class="ki-filled ki-plus"></i> Add Member
+              <i className="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>
@@ -56,7 +56,7 @@ const SalesTeamList = () => {
                     <div className="flex items-center gap-2.5 py-1">
                         <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
                         <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
+                            <div div href="#" className="text-sm cursor-pointer font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</div>
                             <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
                         </div>
                     </div>
@@ -64,23 +64,12 @@ const SalesTeamList = () => {
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
                   <td>5</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Sels Person">Sels Person</Badge></td>
+                  <td><Badge className="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Sels Person">Sels Person</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
+                      <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete" ><i className="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -89,7 +78,7 @@ const SalesTeamList = () => {
                     <div className="flex items-center gap-2.5 py-1">
                         <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
                         <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
+                            <div href="#" className="text-sm cursor-pointer font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</div>
                             <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
                         </div>
                     </div>
@@ -97,23 +86,12 @@ const SalesTeamList = () => {
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
                   <td>5</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Manager">Manager</Badge></td>
+                  <td><Badge className="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Manager">Manager</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
+                      <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete" ><i className="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -122,7 +100,7 @@ const SalesTeamList = () => {
                     <div className="flex items-center gap-2.5 py-1">
                         <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
                         <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
+                            <div href="#" className="text-sm cursor-pointer font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</div>
                             <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
                         </div>
                     </div>
@@ -130,23 +108,12 @@ const SalesTeamList = () => {
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
                   <td>5</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Sels Person">Sels Person</Badge></td>
+                  <td><Badge className="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Sels Person">Sels Person</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
+                      <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete" ><i className="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -155,7 +122,7 @@ const SalesTeamList = () => {
                     <div className="flex items-center gap-2.5 py-1">
                         <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
                         <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
+                            <div href="#" className="text-sm cursor-pointer font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</div>
                             <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
                         </div>
                     </div>
@@ -163,23 +130,12 @@ const SalesTeamList = () => {
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
                   <td>5</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Manager">Manager</Badge></td>
+                  <td><Badge className="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Manager">Manager</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
+                      <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
+                      <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete" ><i className="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>

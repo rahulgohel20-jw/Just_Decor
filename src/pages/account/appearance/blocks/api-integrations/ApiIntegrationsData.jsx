@@ -23,7 +23,7 @@ const ApiIntegrationsData = [{
   integration: 'CRM Connector',
   apiKey: 'p6qM7rS8tK9BnHjCcR',
   dailyCalls: '8,000',
-  actions: '<div class="switch switch-sm"><input type="checkbox" name="param" value="1"></div>'
+  actions: '<div className="switch switch-sm"><input type="checkbox" name="param" value="1"></div>'
 }, {
   integration: 'Inventory Manager',
   apiKey: 'u1vP2wF3xJ4KlYnIlM',
