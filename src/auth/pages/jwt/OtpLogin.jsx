@@ -68,8 +68,9 @@ const OtpLogin = () => {
         </div>
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Phone Number</label>
-          <label className="input">
+          <label className="form-label">Phone Number</label>
+          <div class="input">
+            <i class="ki-filled ki-phone"></i>
             <input
               placeholder="Enter phone number"
               autoComplete="off"
@@ -78,7 +79,7 @@ const OtpLogin = () => {
                 "is-invalid": formik.touched.phone && formik.errors.phone,
               })}
             />
-          </label>
+          </div>
           {formik.touched.phone && formik.errors.phone && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.phone}
