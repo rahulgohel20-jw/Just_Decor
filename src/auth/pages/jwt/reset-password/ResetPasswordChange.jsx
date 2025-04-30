@@ -85,7 +85,7 @@ const ResetPasswordChange = () => {
         </div>
         {hasErrors && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">New Password</label>
+          <label className="form-label">New Password</label>
           <label className="input">
             <input
               type={showNewPassword ? "text" : "password"}

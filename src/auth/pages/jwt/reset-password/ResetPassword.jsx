@@ -81,8 +81,9 @@ const ResetPassword = () => {
           </Alert>
         )}
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Email Address</label>
-          <label className="input">
+          <label className="form-label">Email Address</label>
+          <div class="input">
+            <i class="ki-filled ki-sms"></i>
             <input
               type="email"
               placeholder="Enter email address"
@@ -98,7 +99,7 @@ const ResetPassword = () => {
                 }
               )}
             />
-          </label>
+          </div>
           {formik.touched.email && formik.errors.email && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.email}
