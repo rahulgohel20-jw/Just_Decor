@@ -16,7 +16,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
           <div id="tab_1" className="tab-content active">
             <div className="grid grid-cols-1 gap-6">
               <div className="filItems">
-              <select className="select select-sm w-full" placeholder="Select Team Member">
+              <select className="select select-lg w-full" placeholder="Select Team Member">
                 <option value="1">Henry Mark </option>
                 <option value="2">Garix Fen</option>
                 <option value="2">John Mep</option>
@@ -24,7 +24,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
               </select>
             </div>
               <div className="filItems">
-              <select className="select select-sm w-full" placeholder="User Role">
+              <select className="select select-lg w-full" placeholder="User Role">
                 <option value="1">Sales Person </option>
                 <option value="2">Manager</option>
                 
@@ -32,7 +32,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
               </select>
             </div>
               <div className="filItems">
-              <select className="select select-sm w-full" placeholder="Select Manager Name">
+              <select className="select select-lg w-full" placeholder="Select Manager Name">
                 <option value="1">Manan Gandhi </option>
                 <option value="2">Ken Jark</option>
                 

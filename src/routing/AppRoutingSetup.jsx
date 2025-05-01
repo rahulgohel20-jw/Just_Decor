@@ -83,7 +83,6 @@ import {
 import { LeadPage } from "@/pages/lead";
 
 import { ProductListDetail, ProductListPage } from "@/pages/product";
-import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
@@ -102,7 +101,6 @@ import {
   RaiseTicketPage,
   ProgressChecklistPage,
 } from "@/pages/support";
-import { SalesPersonList } from "@/pages/team/sales-team";
 
 const AppRoutingSetup = () => {
   return (
@@ -126,7 +124,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
-          <Route path="/salesperson" element={<SalesPersonList></SalesPersonList>}></Route>
+          
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route

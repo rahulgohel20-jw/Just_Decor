@@ -1,8 +1,39 @@
-import { Fragment } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import AddLink from "../../partials/modals/add-link/AddLink";
+import { defaultData } from "../company/constant";
 
 const LinkList = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleModalOpen = () => {
+      setIsModalOpen(true);
+    };
+    
+  const [copySuccess, setCopySuccess] = useState('');
+
+  const handleCopy = async (e) => {
+    const text = e.target.getAttribute('data-copy');
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(`Copied: "${text}"`);
+      alert(`Copied: "${text}"`);
+    } catch (err) {
+      setCopySuccess('Failed to copy!');
+    }
+  };
+    const responseFormate = () => {
+      const data = defaultData.map((item) => {
+        return {
+          ...item,
+          handleModalOpen: handleModalOpen,
+        };
+      });
+      return data;
+    };
+  
+    const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -23,7 +54,7 @@ const LinkList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Link">
+            <button className="btn btn-primary"  onClick={handleModalOpen} title="Add Link">
               <i class="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
@@ -68,56 +99,60 @@ const LinkList = () => {
                 <tr>
                   <td>Sample name</td>
                   <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  <td> <a href="#"  title="https://www.google.com">https://www.google.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
+                        <button  className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear"  onClick={handleModalOpen} title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear" data-copy="https://www.google.com" onClick={handleCopy}  title="Make a copy"><i class="ki-filled ki-copy"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Sample name</td>
                   <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  <td> <a href="#"  title="https://www.google.com">https://www.facebook.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
+                        <button  className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear"  onClick={handleModalOpen} title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear" data-copy="https://www.facebook.com" onClick={handleCopy}  title="Make a copy"><i class="ki-filled ki-copy"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Sample name</td>
                   <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  <td> <a href="#"  title="https://www.google.com">https://www.gmail.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
+                        <button  className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear"  onClick={handleModalOpen} title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear" data-copy="https://www.gmail.com" onClick={handleCopy}  title="Make a copy"><i class="ki-filled ki-copy"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>Sample name</td>
                   <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  <td> <a href="#"  title="https://www.google.com">https://www.yaahoo.com <i class="ki-filled ki-arrow-up-right ms-1"></i></a></td>
+                  
                   <td>sampleimg.jpg</td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Edit"><i class="ki-filled ki-notepad-edit"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i class="ki-filled ki-copy"></i></a>
-                        <a href="#" className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></a>
+                        <button  className="btn btn-sm btn-icon btn-clear" title="View"><i class="ki-filled ki-eye"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear"  onClick={handleModalOpen} title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear" data-copy="https://www.yaahoo.com" onClick={handleCopy}  title="Make a copy"><i class="ki-filled ki-copy"></i></button>
+                        <button  className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i class="ki-filled ki-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -126,6 +161,7 @@ const LinkList = () => {
           </div>
         </div>
       </Container>
+      <AddLink isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
 };

@@ -43,7 +43,7 @@ export const MENU_SIDEBAR = [
       {
 
         title: "Sales Team",
-        path: "/salesperson",
+        path: "/team/seals-team",
 
       },
       {
