@@ -112,7 +112,7 @@ const AppRoutingSetup = () => {
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/company" element={<CompanyListPage />}></Route>
-          <Route path="/companydetails" element={<CompanyDetails />}></Route>
+          <Route path="/companydetail" element={<CompanyDetails/>}></Route>
           <Route path="/links" element={<LinkList />}></Route>
           <Route path="/product" element={<ProductListPage />}></Route>
           <Route path="/product/detail" element={<ProductListDetail/>}></Route>
