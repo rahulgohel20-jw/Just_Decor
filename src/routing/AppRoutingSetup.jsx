@@ -101,6 +101,7 @@ import {
   RaiseTicketPage,
   ProgressChecklistPage,
 } from "@/pages/support";
+import { FollowUpListPage } from "@/pages/follow-up";
 
 const AppRoutingSetup = () => {
   return (
@@ -113,7 +114,9 @@ const AppRoutingSetup = () => {
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/company" element={<CompanyListPage/>}></Route>
+
           <Route path="/companydetails" element={<CompanyDetails/>}></Route>
+          <Route path="/followup" element={<FollowUpListPage/>}></Route>
           <Route path="/product" element={<ProductListPage/>}></Route>
           {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>
