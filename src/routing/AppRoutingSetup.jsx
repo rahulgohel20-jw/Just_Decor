@@ -119,6 +119,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
+     
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route

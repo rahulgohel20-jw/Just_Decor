@@ -11,6 +11,15 @@ const UserRoleList = () => {
     setIsModalOpen(true);
   };
 
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleEditClick = (data) => {
+    setEditData(data);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
   return (
     <Fragment>
       <Container>
@@ -34,7 +43,11 @@ const UserRoleList = () => {
             <button
               className="btn btn-primary"
               title="Add Role"
-              onClick={handleModalOpen}
+              onClick={() => {
+                setIsEditMode(false);
+                setEditData(null);
+                handleModalOpen();
+              }}
             >
               <i className="ki-filled ki-plus"></i> Add Role
             </button>
@@ -58,69 +71,23 @@ const UserRoleList = () => {
                   <td>
                     2{" "}
                     <a href="#" title="View users">
-                      <i class="ki-filled ki-eye text-md"></i>
+                      <i className="ki-filled ki-eye text-md"></i>
                     </a>
                   </td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Seles Person</td>
-                  <td>All leads</td>
-                  <td>
-                    1{" "}
-                    <a href="#" title="View users">
-                      <i class="ki-filled ki-eye text-md"></i>
-                    </a>
-                  </td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Other</td>
-                  <td>Only assigned eads</td>
-                  <td>0</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
+                        onClick={() =>
+                          handleEditClick({
+                            role: "Manager",
+                            access: "All leads",
+                          })
+                        }
                       >
                         <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
+                      </button>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
@@ -131,9 +98,12 @@ const UserRoleList = () => {
                     </div>
                   </td>
                 </tr>
+                {/* Repeat similar rows for other roles */}
+              </tbody>
+              <tbody>
                 <tr>
                   <td>Manager</td>
-                  <td>Only assigned eads</td>
+                  <td>All leads</td>
                   <td>
                     2{" "}
                     <a href="#" title="View users">
@@ -142,13 +112,18 @@ const UserRoleList = () => {
                   </td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
+                        onClick={() =>
+                          handleEditClick({
+                            role: "Manager",
+                            access: "All leads",
+                          })
+                        }
                       >
                         <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
+                      </button>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
@@ -159,63 +134,54 @@ const UserRoleList = () => {
                     </div>
                   </td>
                 </tr>
+                {/* Repeat similar rows for other roles */}
+              </tbody>
+              <tbody>
                 <tr>
-                  <td>Seles Person</td>
-                  <td>Only assigned eads</td>
+                  <td>Manager</td>
+                  <td>All leads</td>
                   <td>
-                    1{" "}
+                    2{" "}
                     <a href="#" title="View users">
-                      <i class="ki-filled ki-eye text-md"></i>
+                      <i className="ki-filled ki-eye text-md"></i>
                     </a>
                   </td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
+                        onClick={() =>
+                          handleEditClick({
+                            role: "Manager",
+                            access: "All leads",
+                          })
+                        }
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
+                        <i className="ki-filled ki-notepad-edit"></i>
+                      </button>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <td>Other</td>
-                  <td>All leads</td>
-                  <td>0</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
+                {/* Repeat similar rows for other roles */}
               </tbody>
             </table>
           </div>
         </div>
       </Container>
-      <AddRole isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <AddRole
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isEditMode={isEditMode}
+        editData={editData}
+      />
     </Fragment>
   );
 };

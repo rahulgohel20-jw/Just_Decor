@@ -30,7 +30,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Company"
+        title="Add Role"
         footer={[
           <button
             key="cancel"
@@ -41,7 +41,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             Cancel
           </button>,
           <button key="save" className="btn btn-primary" title="Save Contact">
-            Save Company
+            Save Role
           </button>,
         ]}
       >
