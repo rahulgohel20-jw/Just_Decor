@@ -26,12 +26,12 @@ const SalesPersonList = () => {
 
   return (
     <Fragment>
-      <div className="gap-2 pb-2 mb-3">
-        <Container>
-          <Breadcrumbs items={[{ title: "Sales Team" }]} />
-        </Container>
-      </div>
       <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Sales Team" }]} />
+        </div>
+        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">

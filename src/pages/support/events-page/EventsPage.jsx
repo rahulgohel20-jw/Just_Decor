@@ -17,10 +17,6 @@ const EventsPage = () => {
               <h1 className="text-center p-10">Events content here</h1>
           </div>
         </div>
-
-
-
-
         </Container>
     </Fragment>
   );
