@@ -81,7 +81,8 @@ import {
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
 import { LeadPage } from "@/pages/lead";
-import { ProductListDetail, ProductListPage } from "../pages/product";
+
+import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
@@ -100,6 +101,7 @@ import {
   RaiseTicketPage,
   ProgressChecklistPage,
 } from "@/pages/support";
+import { SalesPersonList } from "@/pages/team/sales-team";
 
 const AppRoutingSetup = () => {
   return (
@@ -108,9 +110,13 @@ const AppRoutingSetup = () => {
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<DefaultPage />} />
-          <Route path="/contacts/details" element={<ContactDetail />} />
+          <Route path="/contacts/details" element={<ContactDetail/>} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
+          <Route path="/company" element={<CompanyListPage/>}></Route>
+          <Route path="/companydetails" element={<CompanyDetails/>}></Route>
+          <Route path="/product" element={<ProductListPage/>}></Route>
+          {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetail" element={<CompanyDetails/>}></Route>
           <Route path="/links" element={<LinkList />}></Route>
@@ -119,7 +125,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
-     
+          <Route path="/salesperson" element={<SalesPersonList></SalesPersonList>}></Route>
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route

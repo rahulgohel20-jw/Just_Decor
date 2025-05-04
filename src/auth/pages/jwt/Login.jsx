@@ -73,19 +73,20 @@ const Login = () => {
             securely and easily.
           </span>
         </div>
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+        {formik.status && <Alert variant="danger">{formik.status}</Alert>}       
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Email Address</label>
-          <label className="input">
+          <label className="form-label">Email Address</label>
+          <div class="input">
+            <i class="ki-filled ki-sms"></i>
             <input
-              placeholder="Enter username"
-              autoComplete="off"
-              {...formik.getFieldProps("email")}
-              className={clsx("form-control", {
-                "is-invalid": formik.touched.email && formik.errors.email,
-              })}
-            />
-          </label>
+                placeholder="Enter username"
+                autoComplete="off"
+                {...formik.getFieldProps("email")}
+                className={clsx("form-control", {
+                  "is-invalid": formik.touched.email && formik.errors.email,
+                })}
+              />
+          </div>
           {formik.touched.email && formik.errors.email && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.email}
@@ -93,8 +94,9 @@ const Login = () => {
           )}
         </div>
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Password</label>
-          <label className="input">
+          <label className="form-label">Password</label>
+          <div class="input">
+            <i class="ki-filled ki-lock-2"></i>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Enter Password"
@@ -118,7 +120,7 @@ const Login = () => {
                 })}
               />
             </button>
-          </label>
+          </div>
           {formik.touched.password && formik.errors.password && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.password}

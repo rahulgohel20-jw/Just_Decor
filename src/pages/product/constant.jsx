@@ -33,13 +33,13 @@ export const columns = [
         <div className="flex items-center justify-center gap-1">
           <Link
             to={`/product/detail/`}
-            className="btn btn-sm btn-icon btn-clear text-primary"
+            className="btn btn-sm btn-icon btn-clear"
             title="Preview"
           >
             <i className="ki-filled ki-eye"></i>
           </Link>
           <button
-            className="btn btn-sm btn-icon btn-clear text-gray-600"
+            className="btn btn-sm btn-icon btn-clear"
             title="Edit"
             onClick={() => cell.row.original.handleModalOpen()}
           >

@@ -64,7 +64,7 @@ const ProductListPage = () => {
               onClick={handleModalOpen}
               title="Add Contacts"
             >
-              <i class="ki-filled ki-plus"></i> Add Product
+              <i className="ki-filled ki-plus"></i> Add Product
             </button>
           </div>
         </div>

@@ -23,7 +23,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
       case "tab_1":
         return (
           <div id="tab_1" className="tab-content active">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-26">
               <div>
                 <label className="form-label">Product Name</label>
                 <input
@@ -75,11 +75,10 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
               <div>
                 <label className="form-label">Description</label>
                 <textarea
-                  className="input form-control-solid w-full"
+                  className="textarea form-control-solid w-full"
                   placeholder="Description"
                 />
               </div>
-
               {/* Image Upload Field */}
                {/* <div>
                 <label className="form-label">Custom Field</label>
@@ -100,8 +99,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
                       className="w-12 h-12 rounded object-cover border"
                     />
                   )}
-                </div> */}
-              
+                </div> */}              
             </div>
           </div>
         );
@@ -109,7 +107,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
       case "tab_2":
         return (
           <div id="tab_2" className="tab-content">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div>
                 <label className="form-label">Country</label>
                 <input

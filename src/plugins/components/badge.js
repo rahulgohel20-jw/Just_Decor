@@ -15,8 +15,8 @@ export default plugin(({ addComponents, theme }) => {
       "font-size": "0.6875rem",
       "&.badge-pill": {
         "border-radius": "1.875rem",
-        "padding-inline-start": "0.75", // Logical property for RTL/LTR
-        "padding-inline-end": "0.75", // Logical property for RTL/LTR
+        "padding-inline-start": "0.75rem", // Logical property for RTL/LTR
+        "padding-inline-end": "0.75rem", // Logical property for RTL/LTR
       },
     },
     ".badge-dot": {

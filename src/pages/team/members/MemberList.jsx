@@ -43,7 +43,7 @@ const MemberList = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button className="btn btn-primary" title="Add Member">
-              <i class="ki-filled ki-plus"></i> Add Member
+              <i className="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>
@@ -75,27 +75,24 @@ const MemberList = () => {
                   <td><Badge class="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Team Member">Team Member</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
+                      <button
+                        className="btn btn-sm btn-icon btn-clear text-success"
                         title="Add to Seals team"
                       >
-                        <i class="ki-filled ki-plus-squared text-success"></i>
-                      </a>
-                      <a
-                        href="#"
+                        <i className="ki-filled ki-plus-squared"></i>
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
+                        <i className="ki-filled ki-notepad-edit"></i>
+                      </button>
+                      <button
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
-                      </a>
+                        <i className="ki-filled ki-trash"></i>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -116,24 +113,24 @@ const MemberList = () => {
                     <div className="flex items-center justify-center gap-1">
                       <a
                         href="#"
-                        className="btn btn-sm btn-icon btn-clear"
+                        className="btn btn-sm btn-icon btn-clear text-success"
                         title="Add to Seals team"
                       >
-                        <i class="ki-filled ki-plus-squared text-success"></i>
+                        <i className="ki-filled ki-plus-squared"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
+                        <i className="ki-filled ki-notepad-edit"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>
@@ -155,24 +152,24 @@ const MemberList = () => {
                     <div className="flex items-center justify-center gap-1">
                       <a
                         href="#"
-                        className="btn btn-sm btn-icon btn-clear"
+                        className="btn btn-sm btn-icon btn-clear text-success"
                         title="Add to Seals team"
                       >
-                        <i class="ki-filled ki-plus-squared text-success"></i>
+                        <i className="ki-filled ki-plus-squared"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
+                        <i className="ki-filled ki-notepad-edit"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>
@@ -194,24 +191,24 @@ const MemberList = () => {
                     <div className="flex items-center justify-center gap-1">
                       <a
                         href="#"
-                        className="btn btn-sm btn-icon btn-clear"
+                        className="btn btn-sm btn-icon btn-clear text-success"
                         title="Add to Seals team"
                       >
-                        <i class="ki-filled ki-plus-squared text-success"></i>
+                        <i className="ki-filled ki-plus-squared"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
+                        <i className="ki-filled ki-notepad-edit"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>
@@ -228,7 +225,7 @@ const MemberList = () => {
                   </td>
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
-                  <td><Badge class="badge badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
+                  <td><Badge class="badge badge-sm badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
                       <a
@@ -236,14 +233,14 @@ const MemberList = () => {
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
+                        <i className="ki-filled ki-notepad-edit"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>
@@ -260,7 +257,7 @@ const MemberList = () => {
                   </td>
                   <td>+ 91 99887766</td>
                   <td>Esther Howard</td>
-                  <td><Badge class="badge badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
+                  <td><Badge class="badge badge-sm badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
                       <a
@@ -268,14 +265,14 @@ const MemberList = () => {
                         className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                       >
-                        <i class="ki-filled ki-notepad-edit"></i>
+                        <i className="ki-filled ki-notepad-edit"></i>
                       </a>
                       <a
                         href="#"
                         className="btn btn-sm btn-icon btn-clear text-danger"
                         title="Delete"
                       >
-                        <i class="ki-filled ki-trash"></i>
+                        <i className="ki-filled ki-trash"></i>
                       </a>
                     </div>
                   </td>

@@ -34,16 +34,9 @@ export const columns = [
             return (
             
                 <div className="flex items-center justify-center gap-1">
-                    <Link to="/companydetails"><button
-                        className="btn btn-sm btn-icon btn-clear text-blue-600"
-                        title="View"
-                        
-                    >
-                        <i className="ki-filled ki-eye"></i>
-                    </button></Link>
-                    
+                    <Link to="/companydetails"><button className="btn btn-sm btn-icon btn-clear" title="View" ><i className="ki-filled ki-eye"></i></button></Link>                    
                     <button
-                        className="btn btn-sm btn-icon btn-clear text-gray-600"
+                        className="btn btn-sm btn-icon btn-clear"
                         title="Edit"
                         onClick={() => cell.row.original.handleModalOpen()}
                     >

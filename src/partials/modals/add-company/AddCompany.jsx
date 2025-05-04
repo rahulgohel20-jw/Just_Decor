@@ -30,9 +30,9 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
         ]}
       >       
-       <div className="grid grid-cols-2 gap-6">
+       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
-            <label className="form-label ">Company Name</label>
+            <label className="form-label">Company Name</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -40,7 +40,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Tax No</label>
+            <label className="form-label">Tax No</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -48,7 +48,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Company Code</label>
+            <label className="form-label">Company Code</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -56,7 +56,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Website</label>
+            <label className="form-label">Website</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -65,9 +65,9 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
         </div>
        <hr />
-       <div className="grid grid-cols-2 gap-6">
+       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
-            <label className="form-label ">Country</label>
+            <label className="form-label">Country</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -75,7 +75,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">State</label>
+            <label className="form-label">State</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -83,7 +83,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">City</label>
+            <label className="form-label">City</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -91,7 +91,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Pincode</label>
+            <label className="form-label">Pincode</label>
             <input
               type="tel"
               className="input form-control-solid w-full"
@@ -99,7 +99,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Billing Address</label>
+            <label className="form-label">Billing Address</label>
             <input
               type="text"
               className="input form-control-solid w-full"
@@ -107,7 +107,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div>
-            <label className="form-label ">Shipping Address</label>
+            <label className="form-label">Shipping Address</label>
             <input
               type="text"
               className="input form-control-solid w-full"

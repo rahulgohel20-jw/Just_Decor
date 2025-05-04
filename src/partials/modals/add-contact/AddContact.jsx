@@ -32,148 +32,180 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
-          <div id="tab_1" className="tab-content active">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="form-label ">Select Role</label>
-                <select
-                  className="input form-select-solid w-full"
-                  data-control="select2"
-                  data-placeholder="Company name"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
+          <div id="tab_1" className="tab-content mb-2 active">
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Select Role</label>
+                  <select className="select pe-7.5"
+                    data-control="select2"
+                    data-placeholder="Company name"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Email</label>
+                  <div class="input">
+                    {/* <i class="ki-filled ki-sms"></i> */}
+                    <input
+                      type="text"
+                      placeholder="Enter email"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="form-label ">Email</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter email"
-                />
-              </div>
-              <div>
-                <label className="form-label ">First Name</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter first name"
-                  value={formData?.first_name}
-                  name="first_name"
-                  onChange={handInputChange}
-                />
-              </div>
-              <div>
-                <label className="form-label ">Last Name</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter last name"
-                />
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">First Name</label>
+                  <div class="input">
+                    {/* <i class="ki-filled ki-user"></i> */}
+                    <input
+                      type="text"
+                      placeholder="Enter first name"
+                      value={formData?.first_name}
+                      name="first_name"
+                      onChange={handInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Last Name</label>
+                  <div class="input">
+                    {/* <i class="ki-filled ki-user"></i> */}
+                    <input
+                      type="text"
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                </div>
               </div>
               <PhoneNumber
                 value={formData?.mobile}
                 name="mobile"
                 handleMultiInputChange={handleMultiInputChange}
               />
-              <div></div>
-              <div>
-                <label className="form-label">Date of Birth</label>
-                <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
-              </div>
-              <div>
-                <label className="form-label">Date of Anniversary</label>
-                <DatePicker
-                  date={dateOfAnniversary}
-                  setDate={setDateOfAnniversary}
-                />
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Date of Birth</label>
+                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Date of Anniversary</label>
+                  <DatePicker
+                    date={dateOfAnniversary}
+                    setDate={setDateOfAnniversary}
+                  />
+                </div>
               </div>
             </div>
           </div>
         );
       case "tab_2":
         return (
-          <div id="tab_2" className="tab-content">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="form-label ">State</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="State"
-                />
+          <div id="tab_2" className="tab-content mb-2">
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">State</label>
+                  <div class="input">
+                    {/* <i class="ki-filled ki-bank"></i> */}
+                    <input
+                      type="text"
+                      placeholder="State"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">City</label>
+                  <div class="input">
+                    {/* <i class="ki-filled ki-pointers"></i> */}
+                    <input
+                      type="text"
+                      placeholder="City"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="form-label ">City</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="City"
-                />
-              </div>
-              <div>
-                <label className="form-label ">Pincode</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Pincode"
-                />
-              </div>
-              <div>
-                <label className="form-label ">Address</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Address"
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-x-4">
+                  <div className="flex flex-col">
+                    <label className="form-label">Pincode</label>
+                    <div class="input">
+                      {/* <i class="ki-filled ki-geolocation"></i> */}
+                      <input
+                        type="text"
+                        placeholder="Pincode"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="form-label">Address</label>
+                    <div class="input">
+                      {/* <i class="ki-filled ki-geolocation"></i> */}
+                      <input
+                        type="text"
+                        placeholder="Address"
+                      />
+                    </div>
+                  </div>
+                </div>
             </div>
           </div>
         );
       case "tab_3":
         return (
-          <div id="tab_3" className="tab-content">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="form-label ">Linkedin</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter valid URL starting with https://"
-                />
+          <div id="tab_3" className="tab-content mb-2">
+            <div className="flex flex-col gap-y-2">
+              <div className="flex flex-col">
+                <label className="form-label">Linkedin</label>
+                <div class="input">
+                  {/* <i class="ki-filled ki-linkedin"></i> */}
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="form-label ">Twitter</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter valid URL starting with https://"
-                />
+              <div className="flex flex-col">
+                <label className="form-label">Twitter</label>
+                <div class="input">
+                  {/* <i class="ki-filled ki-twitter"></i> */}
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="form-label ">Youtube</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter valid URL starting with https://"
-                />
+              <div className="flex flex-col">
+                <label className="form-label">Youtube</label>
+                <div class="input">
+                  {/* <i class="ki-filled ki-youtube"></i> */}
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="form-label ">Facebook</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter valid URL starting with https://"
-                />
+              <div className="flex flex-col">
+                <label className="form-label">Facebook</label>
+                <div class="input">
+                  {/* <i class="ki-filled ki-facebook"></i> */}
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="form-label ">Instagram</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter valid URL starting with https://"
-                />
+              <div className="flex flex-col">
+                <label className="form-label">Instagram</label>
+                <div class="input">
+                  {/* <i class="ki-filled ki-instagram"></i> */}
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
               </div>
             </div>
           </div>
