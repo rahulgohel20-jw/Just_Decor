@@ -85,7 +85,7 @@ const DropdownUser = ({ menuItemRef }) => {
           <MenuItem>
             <MenuLink path="">
               <MenuIcon>
-                <i class="ki-filled ki-ki-filled ki-abstract-18"></i>
+                <i className="ki-filled ki-ki-filled ki-abstract-18"></i>
               </MenuIcon>
               <MenuTitle>My Leads</MenuTitle>
             </MenuLink>
@@ -117,7 +117,7 @@ const DropdownUser = ({ menuItemRef }) => {
           <MenuItem>
             <MenuLink path="">
               <MenuIcon>
-                <i class="ki-filled ki-calendar"></i>
+                <i className="ki-filled ki-calendar"></i>
               </MenuIcon>
               <MenuTitle>Activity</MenuTitle>
             </MenuLink>
@@ -294,7 +294,7 @@ const DropdownUser = ({ menuItemRef }) => {
         <div className="menu-item mb-0.5">
           <div className="menu-link" onClick={logout}>
             <span className="menu-icon">
-              <i class="ki-filled ki-exit-left"></i>
+              <i className="ki-filled ki-exit-left"></i>
             </span>
             <span className="menu-title">
               <FormattedMessage id="USER.MENU.LOGOUT" />

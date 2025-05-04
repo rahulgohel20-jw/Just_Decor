@@ -37,10 +37,10 @@ export function Confirmation({
   const id = open ? "confirmation-popover" : undefined;
 
   return (
-    <div>
-      <div aria-describedby={id} onClick={openPopover} style={{ display: "inline-block", cursor: "pointer" }}>
+    <>
+      <span aria-describedby={id} onClick={openPopover} style={{cursor: "pointer" }}>
         {trigger}
-      </div>
+      </span>
 
       <Popover
         id={id}
@@ -75,6 +75,6 @@ export function Confirmation({
           </Button>
         </Stack>
       </Popover>
-    </div>
+    </>
   );
 }

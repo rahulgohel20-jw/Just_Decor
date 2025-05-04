@@ -17,7 +17,7 @@ const DataGridInner = () => {
         [&>[data-pagination]]:py-3
       `, props.layout?.classes?.root)}>
       {props.toolbar && props.toolbar}
-      <div className={cn('relative w-full scrollable-x-auto border rounded-md', props.layout?.classes?.container)} data-container>
+      <div className={cn('relative w-full scrollable-x-auto rounded-md', props.layout?.classes?.container)} data-container>
         <DataGridTable />
         {loading && <DataGridLoader />}
       </div>

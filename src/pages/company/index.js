@@ -1,2 +1,2 @@
 export * from "./CompanyListPage";
-export * from "./CompanyDetails"
+export * from "./CompanyDetails";

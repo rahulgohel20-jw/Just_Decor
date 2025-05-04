@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddContact from "@/partials/modals/add-contact/AddContact";
 import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
+import { Link } from "react-router-dom";
 
 const ContactListPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +32,13 @@ const ContactListPage = () => {
         ...item,
         action: (
           <div className="flex items-center justify-center gap-1">
+            <Link
+              to={`/contacts/details`}
+              className="btn btn-sm btn-icon btn-clear text-primary"
+              title="Preview"
+            >
+              <i className="ki-filled ki-eye"></i>
+            </Link>
             <button
               className="btn btn-sm btn-icon btn-clear text-gray-600"
               title="Edit"

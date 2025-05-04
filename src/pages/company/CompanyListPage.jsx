@@ -58,7 +58,7 @@ const CompanyListPage = () => {
               onClick={handleModalOpen}
               title=" Add Company"
             >
-              <i class="ki-filled ki-plus"></i> Add Company
+              <i className="ki-filled ki-plus"></i> Add Company
             </button>
           </div>
         </div>

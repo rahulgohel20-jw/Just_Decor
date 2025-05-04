@@ -18,7 +18,7 @@ const CustomModal = ({ open, onClose, children, title, footer }) => {
         <DialogBody className="p-4">{children}</DialogBody>
         {footer && (
           <DialogFooter className="p-4">
-            <div className="flex justify-between w-full">
+            <div className="flex justify-end gap-2 w-full">
               {footer.map((item, index) => {
                 return item;
               })}

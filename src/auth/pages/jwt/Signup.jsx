@@ -89,58 +89,63 @@ const Signup = () => {
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           <div className="flex flex-col">
-            <label className="form-label text-gray-900">First Name</label>
+            <label className="form-label">First Name</label>
             <label className="input">
+            <i class="ki-filled ki-user"></i>
               <input placeholder="First name" type="text" />
             </label>
           </div>
           <div className="flex flex-col">
-            <label className="form-label text-gray-900">Last Name</label>
+            <label className="form-label">Last Name</label>
             <label className="input">
+                <i class="ki-filled ki-user"></i>
               <input placeholder="Last name" type="text" />
             </label>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           <div className="flex flex-col">
-            <label className="form-label text-gray-900">City</label>
+            <label className="form-label">City</label>
             <label className="input">
-              <input placeholder="First name" type="text" />
+              <i class="ki-filled ki-pointers"></i>
+              <input placeholder="Enter city" type="text" />
             </label>
           </div>
           <div className="flex flex-col">
-            <label className="form-label text-gray-900">Company</label>
-            <label className="input">
-              <input placeholder="Enter company name" type="text" />
-            </label>
+            <label className="form-label">Company</label>
+            <div class="input">
+              <i class="ki-filled ki-bank"></i>
+              <input placeholder="Enter company" type="text" />
+            </div>
           </div>
         </div>
         <div className="flex flex-col">
-            <label className="form-label text-gray-900">Type</label>
+            <label className="form-label">Type</label>
             <div className="flex flex-wrap gap-1 mt-1">
-              <Badge class="badge badge-pill badge-success cursor-pointer text-xs" title="Type one">
-                <span class="badge badge-dot size-2 me-1.5 bg-white"></span>
-                Type one
+              <Badge class="badge badge-pill badge-success cursor-pointer text-xs" title="Banquet">
+                <span className="badge badge-dot size-2 me-1.5 bg-white"></span>
+                Banquet
               </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type two">
-                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Type two
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Catering">
+                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Catering
               </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type three">
-                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Type three
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Wedding Planner">
+                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Wedding Planner
               </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Type four">
-                {/* <span class="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Type four
+              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Decoration">
+                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
+                Decoration
               </Badge>
           </div>
         </div>        
         <PhoneNumber />
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Email Address</label>
-          <label className="input">
+          <label className="form-label">Email Address</label>
+          <div class="input">
+            <i class="ki-filled ki-sms"></i>
             <input
               placeholder="Email address"
               type="email"
@@ -156,7 +161,7 @@ const Signup = () => {
                 }
               )}
             />
-          </label>
+          </div>
           {formik.touched.email && formik.errors.email && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.email}
@@ -164,8 +169,9 @@ const Signup = () => {
           )}
         </div>
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Password</label>
-          <label className="input">
+          <label className="form-label">Password</label>
+          <div class="input">
+            <i class="ki-filled ki-lock-2"></i>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create password"
@@ -197,7 +203,7 @@ const Signup = () => {
                 })}
               />
             </button>
-          </label>
+          </div>
           {formik.touched.password && formik.errors.password && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.password}
@@ -205,11 +211,12 @@ const Signup = () => {
           )}
         </div>
         <div className="flex flex-col">
-          <label className="form-label text-gray-900">Confirm Password</label>
-          <label className="input">
+          <label className="form-label">Confirm Password</label>
+          <div class="input">
+            <i class="ki-filled ki-lock-2"></i>
             <input
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm Password"
+              placeholder="Confirm password"
               autoComplete="off"
               {...formik.getFieldProps("changepassword")}
               className={clsx(
@@ -240,7 +247,7 @@ const Signup = () => {
                 })}
               />
             </button>
-          </label>
+          </div>
           {formik.touched.changepassword && formik.errors.changepassword && (
             <span role="alert" className="text-danger text-xs mt-1">
               {formik.errors.changepassword}
