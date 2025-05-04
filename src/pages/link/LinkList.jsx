@@ -1,8 +1,31 @@
-import { Fragment } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
+import { TableComponent } from "@/components/table/TableComponent";
+
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import AddLink from "../../partials/modals/add-link/AddLink";
+import { columns, defaultData } from "./constant";
 
 const LinkList = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleModalOpen = () => {
+      setIsModalOpen(true);
+    };
+    
+
+  
+    const responseFormate = () => {
+      const data = defaultData.map((item) => {
+        return {
+          ...item,
+          handleModalOpen: handleModalOpen,
+        };
+      });
+      return data;
+    };
+  
+    const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -23,109 +46,42 @@ const LinkList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Link">
-              <i className="ki-filled ki-plus"></i> Add Link
+            <button className="btn btn-primary"  onClick={handleModalOpen} title="Add Link">
+              <i class="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
         </div>
         {/* Tabs */}
         <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
-          <a className="btn active" title="Sales">
+          <button className="btn active" title="Sales">
             Sales
-          </a>
-          <a className="btn" title="Marketing">
+          </button>
+          <button className="btn" title="Marketing">
             Marketing
-          </a>
-          <a className="btn" title="Customer Support">
+          </button>
+          <button className="btn" title="Customer Support">
             Customer Support
-          </a>
-          <a className="btn" title="HR/Admin">
+          </button>
+          <button className="btn" title="HR/Admin">
             HR/Admin
-          </a>
-          <a className="btn" title="General">
+          </button>
+          <button className="btn" title="General">
             General
-          </a>
-          <a className="btn" title="Automation">
+          </button>
+          <button className="btn" title="Automation">
             Automation
-          </a>
-          <a className="btn" title="Operation">
+          </button>
+          <button className="btn" title="Operation">
             Operation
-          </a>
+          </button>
         </div>
-        <div className="card min-w-full">
-          <div className="card-table">
-            <table className="table table-border align-middle text-gray-700 font-medium text-sm">
-              <thead>
-                <tr>
-                  <th>Link name</th>
-                  <th>Discription</th>
-                  <th>URL</th>
-                  <th>Attachment</th>
-                  <th className="text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Sample name</td>
-                  <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i className="ki-filled ki-arrow-up-right ms-1"></i></a></td>
-                  <td>sampleimg.jpg</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                        <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i className="ki-filled ki-copy"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i className="ki-filled ki-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Sample name</td>
-                  <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i className="ki-filled ki-arrow-up-right ms-1"></i></a></td>
-                  <td>sampleimg.jpg</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                        <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i className="ki-filled ki-copy"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i className="ki-filled ki-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Sample name</td>
-                  <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i className="ki-filled ki-arrow-up-right ms-1"></i></a></td>
-                  <td>sampleimg.jpg</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                        <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i className="ki-filled ki-copy"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i className="ki-filled ki-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Sample name</td>
-                  <td>Lorem Ipsum is simply dummy text of the printing and typesetting industry</td>
-                  <td> <a href="#" title="https://www.google.com">https://www.google.com <i className="ki-filled ki-arrow-up-right ms-1"></i></a></td>
-                  <td>sampleimg.jpg</td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                        <button className="btn btn-sm btn-icon btn-clear" title="View"><i className="ki-filled ki-eye"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Edit"><i className="ki-filled ki-notepad-edit"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear" title="Make a copy"><i className="ki-filled ki-copy"></i></button>
-                        <button className="btn btn-sm btn-icon btn-clear text-danger" title="Delete"><i className="ki-filled ki-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TableComponent
+                  columns={columns}
+                  data={tableData}
+                  paginationSize={10}
+                />
       </Container>
+      <AddLink isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
 };

@@ -1,10 +1,30 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Badge } from '@/components/ui/badge';
 import { toAbsoluteUrl } from "@/utils";
+import AddSales from "@/partials/modals/add-sales/AddSales";
+import { defaultData } from "./constant";
+
 
 const SalesTeamList = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleModalOpen = () => {
+      setIsModalOpen(true);
+    };
+  
+    const responseFormate = () => {
+      const data = defaultData.map((item) => {
+        return {
+          ...item,
+          handleModalOpen: handleModalOpen,
+        };
+      });
+      return data;
+    };
+  
+    const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -32,8 +52,8 @@ const SalesTeamList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Member">
-              <i className="ki-filled ki-plus"></i> Add Member
+            <button className="btn btn-primary" onClick={handleModalOpen} title="Add Member">
+              <i class="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>
@@ -144,6 +164,8 @@ const SalesTeamList = () => {
           </div>
         </div>
       </Container>
+            <AddSales isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+
     </Fragment>
   );
 };

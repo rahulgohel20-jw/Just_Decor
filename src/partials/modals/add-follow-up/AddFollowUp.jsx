@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
-const AddSales = ({ isModalOpen, setIsModalOpen }) => {
+const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
   
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -90,4 +90,4 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
     )
   );
 };
-export default AddSales;
+export default AddFollowUp;

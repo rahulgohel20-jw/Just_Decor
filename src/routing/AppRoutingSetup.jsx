@@ -101,7 +101,7 @@ import {
   RaiseTicketPage,
   ProgressChecklistPage,
 } from "@/pages/support";
-import { SalesPersonList } from "@/pages/team/sales-team";
+import { FollowUpListPage } from "@/pages/follow-up";
 
 const AppRoutingSetup = () => {
   return (
@@ -114,7 +114,9 @@ const AppRoutingSetup = () => {
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/company" element={<CompanyListPage/>}></Route>
+
           <Route path="/companydetails" element={<CompanyDetails/>}></Route>
+          <Route path="/followup" element={<FollowUpListPage/>}></Route>
           <Route path="/product" element={<ProductListPage/>}></Route>
           {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>
@@ -125,7 +127,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
-          <Route path="/salesperson" element={<SalesPersonList></SalesPersonList>}></Route>
+          
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route

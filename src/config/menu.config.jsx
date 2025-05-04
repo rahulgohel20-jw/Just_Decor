@@ -24,6 +24,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Follow-Up",
+        path:"/followup",
       },
       {
         title: "Products",
@@ -43,7 +44,7 @@ export const MENU_SIDEBAR = [
       {
 
         title: "Sales Team",
-        path: "/salesperson",
+        path: "/team/seals-team",
 
       },
       {
