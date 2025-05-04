@@ -19,31 +19,24 @@ const TutorialsPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search tutorials"
+                placeholder="Search tutorial"
                 type="text"
               />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button
-                className="btn btn-primary"
-                title="Add Tutorial"
-              >
-                <i class="ki-filled ki-plus"></i> Add Tutorial
+            <button className="btn btn-primary" title="Add Tutorial">
+              <i class="ki-filled ki-plus"></i> Add Tutorial
             </button>
           </div>
         </div>
 
         <div className="card min-w-full">
           <div className="card-table">
-              <h1 className="text-center p-10">Tutorials content here</h1>
+            <h1 className="text-center p-10">Tutorials content here</h1>
           </div>
         </div>
-
-
-
-
-        </Container>
+      </Container>
     </Fragment>
   );
 };
