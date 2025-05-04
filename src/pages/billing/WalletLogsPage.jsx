@@ -3,6 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { toAbsoluteUrl } from "@/utils";
+import { FeaturesHighlight } from "../public-profile/profiles/creator/blocks";
 
 const WalletLogsPage = () => {
   return (
@@ -19,6 +20,37 @@ const WalletLogsPage = () => {
         </div>
 
 
+
+          {/* <div className="col-span-2">
+            <div className="flex flex-col gap-5 lg:gap-7.5">
+              <FeaturesHighlight
+                image={
+                  <Fragment>
+                    <img
+                      src={toAbsoluteUrl("/media/illustrations/18.svg")}
+                      className="dark:hidden max-h-[200px]"
+                      alt=""
+                    />
+                    <img
+                      src={toAbsoluteUrl("/media/illustrations/18-dark.svg")}
+                      className="light:hidden max-h-[200px]"
+                      alt=""
+                    />
+                  </Fragment>
+                }
+                title="Automate Tasks"
+                description="Delegate Tasks and get them completed without manual followups"
+                more={{
+                  title: "Get Started",
+                  url: "/network/get-started",
+                }}
+                features={[
+                  ["Time-Saving", "Easy Revamp"],
+                  ["Budget-Friendly", "Fresh Look"],
+                ]}
+              />
+            </div>
+          </div> */}
 
 
         </Container>
