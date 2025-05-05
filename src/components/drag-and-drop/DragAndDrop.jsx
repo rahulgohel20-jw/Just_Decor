@@ -47,22 +47,6 @@ const SortableItem = ({ task }) => {
       <Task item={task} index={task.id} dropdown={true} />
     </div>
   );
-    return <Fragment>
-        <style>
-          {`
-            .channel-stats-bg {
-              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3.png')}');
-            }
-            .dark .channel-stats-bg {
-              background-image: url('${toAbsoluteUrl('/media/images/2600x1600/bg-3-dark.png')}');
-            }
-          `}
-        </style>
-  
-        {items.map((item, index) => {
-        return renderItem(item, index);
-      })}
-      </Fragment>;
 };
 
 const SortableColumn = ({ column }) => {
@@ -76,7 +60,7 @@ const SortableColumn = ({ column }) => {
       className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
       id={column.id}
     >
-      <div className="flex items-center justify-between border-b rounded-t-lg w-full bg-white py-3 px-3.5">
+      <div className="flex items-center justify-between border-b rounded-t-lg w-full light:bg-white dark:bg-coal-600 py-3 px-3.5">
         <div className="flex flex-col">
           <p className="text-sm font-semibold text-gray-900">{column.name}</p>
           <small className="text-xs">123 leads <span className="font-semibold text-success">&#8377;100/-</span></small>
@@ -84,6 +68,14 @@ const SortableColumn = ({ column }) => {
         <button className="btn btn-sm btn-icon btn-light btn-clear"><i className="ki-filled ki-dots-horizontal"></i></button>
       </div>
       <div className="min-h-[20px] p-3">
+
+        {/* No data available */}
+        <div className="p-4 flex flex-col items-center">
+          <img src={toAbsoluteUrl(`/images/empty_icn.svg`)} className="dark:hidden max-h-[120px]" alt="" />
+          <img src={toAbsoluteUrl(`/images/empty_icn_dark.svg`)} className="light:hidden max-h-[120px]" alt="" />
+          <p class="text-sm text-gray-900 opacity-50 mt-3">No data available!</p>
+        </div>
+        
         <SortableContext
           items={[column.id, ...column.children.map((task) => task.id)]}
           strategy={rectSortingStrategy}

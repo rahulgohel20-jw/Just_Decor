@@ -121,19 +121,19 @@ const Task = ({ item, dropdown, index }) => {
           </div>
         </div>
         <hr/>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="user" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600 mb-0.5">User:</span>
+                <span className="text-xs text-gray-600">User:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.user_full_name}</p>
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="bill" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600 mb-0.5">Amount:</span>
+                <span className="text-xs text-gray-600">Amount:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.amount}</p>
               </div>
             </div>
@@ -142,14 +142,14 @@ const Task = ({ item, dropdown, index }) => {
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="calendar" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600 mb-0.5">Close date:</span>
+                <span className="text-xs text-gray-600">Close date:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.close_date}</p>
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="user-tick" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600 mb-0.5">Assigned to:</span>
+                <span className="text-xs text-gray-600">Assigned to:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.assign_to}</p>
               </div>
             </div>
