@@ -73,17 +73,17 @@ const SortableColumn = ({ column }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="border rounded-lg p-3 bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
+      className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
       id={column.id}
     >
-      <div className="flex items-center justify-between w-full mb-3">
+      <div className="flex items-center justify-between border-b rounded-t-lg w-full bg-white py-3 px-3.5">
         <div className="flex flex-col">
-          <p className="text-sm font-semibold">{column.name}</p>
-          <small className="text-xs">123 leads <span className="text-success inline ms-1">&#8377;</span> 100/-</small>
+          <p className="text-sm font-semibold text-gray-900">{column.name}</p>
+          <small className="text-xs">123 leads <span className="font-semibold text-success">&#8377;100/-</span></small>
         </div>
-        <a href="#"><i className="ki-filled ki-dots-horizontal"></i></a>
+        <button className="btn btn-sm btn-icon btn-light btn-clear"><i className="ki-filled ki-dots-horizontal"></i></button>
       </div>
-      <div className="min-h-[20px]">
+      <div className="min-h-[20px] p-3">
         <SortableContext
           items={[column.id, ...column.children.map((task) => task.id)]}
           strategy={rectSortingStrategy}

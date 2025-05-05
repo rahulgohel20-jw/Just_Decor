@@ -34,8 +34,8 @@ const ContactListPage = () => {
           <div className="flex items-center justify-center gap-1">
             <Link
               to={`/contacts/details`}
-              className="btn btn-sm btn-icon btn-clear text-primary"
-              title="Preview"
+              className="btn btn-sm btn-icon btn-clear"
+              title="View"
             >
               <i className="ki-filled ki-eye"></i>
             </Link>
@@ -82,7 +82,7 @@ const ContactListPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search here"
+                placeholder="Search contact"
                 type="text"
               />
             </div>

@@ -34,7 +34,7 @@ export const columns = [
           <Link
             to={`/product/detail/`}
             className="btn btn-sm btn-icon btn-clear"
-            title="Preview"
+            title="View"
           >
             <i className="ki-filled ki-eye"></i>
           </Link>
