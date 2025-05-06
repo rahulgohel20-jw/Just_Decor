@@ -11,7 +11,7 @@ import {
   MenuTitle,
   Menu,
 } from "@/components";
-import { LeadContext } from "@/pages/lead";
+import LeadContext from "@/pages/lead/LeadContext";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
