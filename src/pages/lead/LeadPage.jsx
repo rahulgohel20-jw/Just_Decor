@@ -3,15 +3,17 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddLead from "@/partials/modals/add-lead/AddLead";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
-import { defaultData } from "./constant";
 import { Badge } from "@/components/ui/badge";
-import LeadContext from "./LeadContext";
 import AddLeadNote from "@/partials/modals/add-lead-note/AddLeadNote";
+import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
+import { defaultData } from "./constant";
+import LeadContext from "./LeadContext";
 
 const LeadPage = () => {
   const scrollRef = useRef(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
   const [columns, setColumns] = useState(defaultData);
   const handleModalOpen = () => {
     setIsLeadModalOpen(true);
@@ -264,6 +266,7 @@ const LeadPage = () => {
               value={{
                 setIsLeadModalOpen,
                 setIsNoteModalOpen,
+                setIsFollowUpModalOpen,
               }}
             >
               <DragAndDrop
@@ -284,6 +287,10 @@ const LeadPage = () => {
       <AddLeadNote
         isModalOpen={isNoteModalOpen}
         setIsModalOpen={setIsNoteModalOpen}
+      />
+      <AddFollowUp
+        isModalOpen={isFollowUpModalOpen}
+        setIsModalOpen={setIsFollowUpModalOpen}
       />
     </Fragment>
   );

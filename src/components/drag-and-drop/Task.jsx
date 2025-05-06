@@ -15,7 +15,8 @@ import LeadContext from "@/pages/lead/LeadContext";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
-  const { setIsLeadModalOpen, setIsNoteModalOpen } = useContext(LeadContext);
+  const { setIsLeadModalOpen, setIsNoteModalOpen, setIsFollowUpModalOpen } =
+    useContext(LeadContext);
 
   return (
     <div key={index} className="card p-3 lg:p-4">
@@ -74,7 +75,7 @@ const Task = ({ item, dropdown, index }) => {
                         <MenuTitle>Move To</MenuTitle>
                       </MenuLink>
                     </MenuItem>
-                    <MenuItem>
+                    <MenuItem onClick={() => setIsFollowUpModalOpen(true)}>
                       <MenuLink>
                         <MenuIcon>
                           <KeenIcon icon="ki-filled ki-share" />
