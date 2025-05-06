@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { useLanguage } from "@/i18n";
 import {
   KeenIcon,
@@ -10,21 +11,29 @@ import {
   MenuTitle,
   Menu,
 } from "@/components";
-import { Badge } from '@/components/ui/badge';
+import { LeadContext } from "@/pages/lead";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
+  const { setIsLeadModalOpen } = useContext(LeadContext);
 
   return (
     <div key={index} className="card p-3 lg:p-4">
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col">
-            <h2 className="font-semibold text-gray-900 leading-none mb-0.5">{item.user_first_name}</h2>
+            <h2 className="font-semibold text-gray-900 leading-none mb-0.5">
+              {item.user_first_name}
+            </h2>
             <small className="text-2xs text-gray-600 mt-0.5">19 days ago</small>
           </div>
           <div className="flex items-center">
-            <button className="btn btn-sm btn-icon btn-light btn-clear" title="View"><i class="ki-filled ki-eye"></i></button>
+            <button
+              className="btn btn-sm btn-icon btn-light btn-clear"
+              title="View"
+            >
+              <i class="ki-filled ki-eye"></i>
+            </button>
             {dropdown && (
               <Menu className="items-stretch">
                 <MenuItem
@@ -49,7 +58,7 @@ const Task = ({ item, dropdown, index }) => {
                     className="menu-default"
                     rootClassName="w-full max-w-[200px]"
                   >
-                    <MenuItem>
+                    <MenuItem onClick={() => setIsLeadModalOpen(true)}>
                       <MenuLink>
                         <MenuIcon>
                           <KeenIcon icon="ki-filled ki-notepad-edit" />
@@ -120,21 +129,25 @@ const Task = ({ item, dropdown, index }) => {
             )}
           </div>
         </div>
-        <hr/>
-        <div className="flex flex-col gap-3">
+        <hr />
+        <div className="flex flex-col gap-2">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="user" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600">User:</span>
-                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.user_full_name}</p>
+                <span className="text-xs text-gray-600 mb-0.5">User:</span>
+                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                  {item.user_full_name}
+                </p>
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="bill" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600">Amount:</span>
-                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.amount}</p>
+                <span className="text-xs text-gray-600 mb-0.5">Amount:</span>
+                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                  {item.amount}
+                </p>
               </div>
             </div>
           </div>
@@ -142,23 +155,41 @@ const Task = ({ item, dropdown, index }) => {
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="calendar" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600">Close date:</span>
-                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.close_date}</p>
+                <span className="text-xs text-gray-600 mb-0.5">
+                  Close date:
+                </span>
+                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                  {item.close_date}
+                </p>
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
               <KeenIcon icon="user-tick" className="text-lg" />
               <div className="flex flex-col">
-                <span className="text-xs text-gray-600">Assigned to:</span>
-                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">{item.assign_to}</p>
+                <span className="text-xs text-gray-600 mb-0.5">
+                  Assigned to:
+                </span>
+                <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                  {item.assign_to}
+                </p>
               </div>
             </div>
           </div>
         </div>
-        <hr/>
+        <hr />
         <div className="flex items-center justify-start gap-2">
-          <div className="badge badge-sm badge-pill badge-secondary text-xs" title="Stage">Cold Lead</div>
-          <div className="badge badge-sm badge-pill badge-secondary text-xs" title="Lead 179">L-179</div>
+          <div
+            className="badge badge-sm badge-pill badge-secondary text-xs"
+            title="Stage"
+          >
+            Cold Lead
+          </div>
+          <div
+            className="badge badge-sm badge-pill badge-secondary text-xs"
+            title="Lead 179"
+          >
+            L-179
+          </div>
         </div>
         {/* <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">

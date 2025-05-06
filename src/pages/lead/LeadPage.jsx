@@ -1,17 +1,18 @@
 import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddContact from "@/partials/modals/add-contact/AddContact";
+import AddLead from "@/partials/modals/add-lead/AddLead";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { defaultData } from "./constant";
 import { Badge } from "@/components/ui/badge";
+import LeadContext from "./LeadContext";
 
 const LeadPage = () => {
   const scrollRef = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [columns, setColumns] = useState(defaultData);
   const handleModalOpen = () => {
-    setIsModalOpen(true);
+    setIsLeadModalOpen(true);
   };
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -257,16 +258,23 @@ const LeadPage = () => {
             onTouchMove={onPointerMove}
             onTouchEnd={onPointerUp}
           >
-            <DragAndDrop
-              columns={columns}
-              setColumns={setColumns}
-              setDndActive={setDndActive}
-            />
+            <LeadContext.Provider
+              value={{ isLeadModalOpen, setIsLeadModalOpen }}
+            >
+              <DragAndDrop
+                columns={columns}
+                setColumns={setColumns}
+                setDndActive={setDndActive}
+              />
+            </LeadContext.Provider>
           </div>
         </div>
       </Container>
-      {/* AddContact */}
-      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      {/* AddLead */}
+      <AddLead
+        isModalOpen={isLeadModalOpen}
+        setIsModalOpen={setIsLeadModalOpen}
+      />
     </Fragment>
   );
 };
