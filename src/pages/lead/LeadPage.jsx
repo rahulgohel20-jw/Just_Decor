@@ -6,10 +6,12 @@ import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { defaultData } from "./constant";
 import { Badge } from "@/components/ui/badge";
 import LeadContext from "./LeadContext";
+import AddLeadNote from "@/partials/modals/add-lead-note/AddLeadNote";
 
 const LeadPage = () => {
   const scrollRef = useRef(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [columns, setColumns] = useState(defaultData);
   const handleModalOpen = () => {
     setIsLeadModalOpen(true);
@@ -259,7 +261,10 @@ const LeadPage = () => {
             onTouchEnd={onPointerUp}
           >
             <LeadContext.Provider
-              value={{ isLeadModalOpen, setIsLeadModalOpen }}
+              value={{
+                setIsLeadModalOpen,
+                setIsNoteModalOpen,
+              }}
             >
               <DragAndDrop
                 columns={columns}
@@ -274,6 +279,11 @@ const LeadPage = () => {
       <AddLead
         isModalOpen={isLeadModalOpen}
         setIsModalOpen={setIsLeadModalOpen}
+      />
+      {/* AddLeadNote */}
+      <AddLeadNote
+        isModalOpen={isNoteModalOpen}
+        setIsModalOpen={setIsNoteModalOpen}
       />
     </Fragment>
   );

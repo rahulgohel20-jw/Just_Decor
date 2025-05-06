@@ -15,7 +15,7 @@ import LeadContext from "@/pages/lead/LeadContext";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
-  const { setIsLeadModalOpen } = useContext(LeadContext);
+  const { setIsLeadModalOpen, setIsNoteModalOpen } = useContext(LeadContext);
 
   return (
     <div key={index} className="card p-3 lg:p-4">
@@ -98,7 +98,7 @@ const Task = ({ item, dropdown, index }) => {
                         <MenuTitle>Send Email</MenuTitle>
                       </MenuLink>
                     </MenuItem>
-                    <MenuItem>
+                    <MenuItem onClick={() => setIsNoteModalOpen(true)}>
                       <MenuLink>
                         <MenuIcon>
                           <KeenIcon icon="ki-filled ki-note-2" />
