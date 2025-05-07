@@ -13,8 +13,8 @@ import {
   rectSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { toAbsoluteUrl } from '@/utils/Assets';
-import { Fragment } from 'react';
+import { toAbsoluteUrl } from "@/utils/Assets";
+import { Fragment } from "react";
 import { Task } from "./Task";
 
 const SortableItem = ({ task }) => {
@@ -63,27 +63,43 @@ const SortableColumn = ({ column }) => {
       <div className="flex items-center justify-between border-b rounded-t-lg w-full light:bg-white dark:bg-coal-600 py-2 px-3">
         <div className="flex flex-col">
           <p className="text-sm font-semibold text-gray-900">{column.name}</p>
-          <small className="text-xs">123 leads <span className="font-semibold text-success">&#8377;100/-</span></small>
+          <small className="text-xs">
+            123 leads{" "}
+            <span className="font-semibold text-success">&#8377;100/-</span>
+          </small>
         </div>
-        <button className="btn btn-sm btn-icon btn-light btn-clear"><i className="ki-filled ki-dots-horizontal"></i></button>
+        <button className="btn btn-sm btn-icon btn-light btn-clear">
+          <i className="ki-filled ki-dots-horizontal"></i>
+        </button>
       </div>
-      <div className="min-h-[20px] p-3 max-h-[660px] overflow-x-auto remove-scrollbar">
-
-        {/* No data available */}
-        <div className="p-4 flex flex-col items-center">
-          <img src={toAbsoluteUrl(`/images/empty_icn.svg`)} className="dark:hidden max-h-[120px]" alt="" />
-          <img src={toAbsoluteUrl(`/images/empty_icn_dark.svg`)} className="light:hidden max-h-[120px]" alt="" />
-          <p class="text-sm text-gray-900 opacity-50 mt-3">No data available!</p>
-        </div>
-        
-        <SortableContext
-          items={[column.id, ...column.children.map((task) => task.id)]}
-          strategy={rectSortingStrategy}
-        >
-          {column.children.map((task) => (
-            <SortableItem key={task.id} task={task} />
-          ))}
-        </SortableContext>
+      <div className="min-h-[20px] p-3">
+        {column.children.length > 0 ? (
+          <SortableContext
+            items={[column.id, ...column.children.map((task) => task.id)]}
+            strategy={rectSortingStrategy}
+          >
+            {column.children.map((task) => (
+              <SortableItem key={task.id} task={task} />
+            ))}
+          </SortableContext>
+        ) : (
+          <div className="p-4 flex flex-col items-center">
+            {/* No data available */}
+            <img
+              src={toAbsoluteUrl(`/images/empty_icn.svg`)}
+              className="dark:hidden max-h-[120px]"
+              alt=""
+            />
+            <img
+              src={toAbsoluteUrl(`/images/empty_icn_dark.svg`)}
+              className="light:hidden max-h-[120px]"
+              alt=""
+            />
+            <p class="text-sm text-gray-900 opacity-50 mt-3">
+              No data available!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
