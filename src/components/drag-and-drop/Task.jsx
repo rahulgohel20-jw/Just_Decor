@@ -19,7 +19,7 @@ const Task = ({ item, dropdown, index }) => {
     useContext(LeadContext);
 
   return (
-    <div key={index} className="card p-3 lg:p-4">
+    <div key={index} className="card p-2 lg:p-3 shadow-none">
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col">
@@ -134,7 +134,7 @@ const Task = ({ item, dropdown, index }) => {
         <div className="flex flex-col gap-2">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <div className="col-span-1 flex items-center gap-3">
-              <KeenIcon icon="user" className="text-lg" />
+              <KeenIcon icon="user" />
               <div className="flex flex-col">
                 <span className="text-xs text-gray-600 mb-0.5">User:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
@@ -143,7 +143,7 @@ const Task = ({ item, dropdown, index }) => {
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
-              <KeenIcon icon="bill" className="text-lg" />
+              <KeenIcon icon="bill" />
               <div className="flex flex-col">
                 <span className="text-xs text-gray-600 mb-0.5">Amount:</span>
                 <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
@@ -154,7 +154,7 @@ const Task = ({ item, dropdown, index }) => {
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <div className="col-span-1 flex items-center gap-3">
-              <KeenIcon icon="calendar" className="text-lg" />
+              <KeenIcon icon="calendar" />
               <div className="flex flex-col">
                 <span className="text-xs text-gray-600 mb-0.5">
                   Close date:
@@ -165,7 +165,7 @@ const Task = ({ item, dropdown, index }) => {
               </div>
             </div>
             <div className="col-span-1 flex items-center gap-3">
-              <KeenIcon icon="user-tick" className="text-lg" />
+              <KeenIcon icon="user-tick" />
               <div className="flex flex-col">
                 <span className="text-xs text-gray-600 mb-0.5">
                   Assigned to:
@@ -194,19 +194,19 @@ const Task = ({ item, dropdown, index }) => {
         </div>
         {/* <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <KeenIcon icon="user" className="text-lg" />
+            <KeenIcon icon="user" />
             <span>{item.user_full_name}</span>
           </div>
           <div className="flex items-center gap-2">
-            <KeenIcon icon="bill" className="text-lg" />
+            <KeenIcon icon="bill" />
             <span>Amount: {item.amount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <KeenIcon icon="calendar" className="text-lg" />
+            <KeenIcon icon="calendar" />
             <span>Close Date: {item.close_date}</span>
           </div>
           <div className="flex items-center gap-2">
-            <KeenIcon icon="user-tick" className="text-lg" />
+            <KeenIcon icon="user-tick" />
             <span>Assigned To: {item.assign_to}</span>
           </div>
         </div>

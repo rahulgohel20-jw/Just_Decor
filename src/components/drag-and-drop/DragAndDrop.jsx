@@ -42,7 +42,7 @@ const SortableItem = ({ task }) => {
       {...attributes}
       {...listeners}
       style={style}
-      className="mb-4 w-full box-border max-w-[100%]"
+      className="mb-2 w-full box-border max-w-[100%]"
     >
       <Task item={task} index={task.id} dropdown={true} />
     </div>
@@ -60,7 +60,7 @@ const SortableColumn = ({ column }) => {
       className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
       id={column.id}
     >
-      <div className="flex items-center justify-between border-b rounded-t-lg w-full light:bg-white dark:bg-coal-600 py-3 px-3.5">
+      <div className="flex items-center justify-between border-b rounded-t-lg w-full light:bg-white dark:bg-coal-600 py-2 px-3">
         <div className="flex flex-col">
           <p className="text-sm font-semibold text-gray-900">{column.name}</p>
           <small className="text-xs">
