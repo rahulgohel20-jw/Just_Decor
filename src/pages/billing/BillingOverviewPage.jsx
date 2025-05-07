@@ -24,7 +24,7 @@ const BillingOverviewPage = () => {
           <Breadcrumbs items={[{ title: "Overview" }]} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4">
           <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
