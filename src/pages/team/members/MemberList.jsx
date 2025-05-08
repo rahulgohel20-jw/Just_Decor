@@ -1,10 +1,30 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Badge } from '@/components/ui/badge';
-import { toAbsoluteUrl } from "@/utils";
+import { TableComponent } from "@/components/table/TableComponent";
+
+
+import AddMember from "@/partials/modals/add-member/AddMember";
+import { columns, defaultData } from "./constant";
 
 const MemberList = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleModalOpen = () => {
+      setIsModalOpen(true);
+    };
+  
+    const responseFormate = () => {
+      const data = defaultData.map((item) => {
+        return {
+          ...item,
+          handleModalOpen: handleModalOpen,
+        };
+      });
+      return data;
+    };
+  
+    const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -42,246 +62,20 @@ const MemberList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Member">
+            <button className="btn btn-primary" onClick={handleModalOpen} title="Add Member">
+              
               <i className="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>
-        <div className="card min-w-full">
-          <div className="card-table">
-            <table className="table table-border align-middle text-gray-700 font-medium text-sm">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Mobile</th>
-                  <th>Reports to</th>
-                  <th>Role</th>
-                  <th className="text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Team Member">Team Member</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        className="btn btn-sm btn-icon btn-clear text-success"
-                        title="Add to Seals team"
-                      >
-                        <i className="ki-filled ki-plus-squared"></i>
-                      </button>
-                      <button
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </button>
-                      <button
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Manager">Manager</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-success"
-                        title="Add to Seals team"
-                      >
-                        <i className="ki-filled ki-plus-squared"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-info badge-outline text-xs" title="Team Member">Team Member</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-success"
-                        title="Add to Seals team"
-                      >
-                        <i className="ki-filled ki-plus-squared"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-warning badge-outline text-xs" title="Manager">Manager</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-success"
-                        title="Add to Seals team"
-                      >
-                        <i className="ki-filled ki-plus-squared"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="flex items-center gap-2.5 py-1">
-                        <img className="size-9 rounded-full shrink-0" src={toAbsoluteUrl("/images/user_img.jpg")} alt="" />
-                        <div className="flex flex-col">
-                            <a href="#" className="text-sm font-semibold text-gray-900 hover:text-primary-active">Ragnar Lothbrok</a>
-                            <span className="text-2sm font-normal text-gray-500">ragnar.lothbrok@gmail.com</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td>+ 91 99887766</td>
-                  <td>Esther Howard</td>
-                  <td><Badge class="badge badge-sm badge-pill badge-success badge-outline text-xs" title="Admin">Admin</Badge></td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TableComponent
+                  columns={columns}
+                  data={tableData}
+                  paginationSize={10}
+                />
       </Container>
+      <AddMember isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+
     </Fragment>
   );
 };

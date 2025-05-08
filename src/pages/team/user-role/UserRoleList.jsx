@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
  import  AddRole  from "@/partials/modals/add-role/AddRole";
+ import { TableComponent } from "@/components/table/TableComponent";
+import { columns, defaultData } from "./constant";
 
 const UserRoleList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +22,17 @@ const UserRoleList = () => {
     setIsModalOpen(true);
   };
 
+  const responseFormate = () => {
+        const data = defaultData.map((item) => {
+          return {
+            ...item,
+            handleModalOpen: handleModalOpen,
+          };
+        });
+        return data;
+      };
+
+  const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -53,128 +66,11 @@ const UserRoleList = () => {
             </button>
           </div>
         </div>
-        <div className="card min-w-full">
-          <div className="card-table">
-            <table className="table table-border align-middle text-gray-700 font-medium text-sm">
-              <thead>
-                <tr>
-                  <th>Role</th>
-                  <th>Access</th>
-                  <th>Users</th>
-                  <th className="text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Manager</td>
-                  <td>All leads</td>
-                  <td>
-                    2{" "}
-                    <a href="#" title="View users">
-                      <i className="ki-filled ki-eye text-md"></i>
-                    </a>
-                  </td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                        onClick={() =>
-                          handleEditClick({
-                            role: "Manager",
-                            access: "All leads",
-                          })
-                        }
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </button>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                {/* Repeat similar rows for other roles */}
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Manager</td>
-                  <td>All leads</td>
-                  <td>
-                    2{" "}
-                    <a href="#" title="View users">
-                      <i className="ki-filled ki-eye text-md"></i>
-                    </a>
-                  </td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                        onClick={() =>
-                          handleEditClick({
-                            role: "Manager",
-                            access: "All leads",
-                          })
-                        }
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </button>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                {/* Repeat similar rows for other roles */}
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Manager</td>
-                  <td>All leads</td>
-                  <td>
-                    2{" "}
-                    <a href="#" title="View users">
-                      <i className="ki-filled ki-eye text-md"></i>
-                    </a>
-                  </td>
-                  <td>
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        className="btn btn-sm btn-icon btn-clear"
-                        title="Edit"
-                        onClick={() =>
-                          handleEditClick({
-                            role: "Manager",
-                            access: "All leads",
-                          })
-                        }
-                      >
-                        <i className="ki-filled ki-notepad-edit"></i>
-                      </button>
-                      <a
-                        href="#"
-                        className="btn btn-sm btn-icon btn-clear text-danger"
-                        title="Delete"
-                      >
-                        <i className="ki-filled ki-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                {/* Repeat similar rows for other roles */}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TableComponent
+          columns={columns}
+          data={tableData}
+          paginationSize={10}
+        />
       </Container>
       <AddRole
         isModalOpen={isModalOpen}
