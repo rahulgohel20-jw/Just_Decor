@@ -4,6 +4,7 @@ import { KeenIcon } from "@/components";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Confirmation } from "@/components/confirmation/confirmation";
+import  AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
 
 const FollowUpListPage = () => {
     const image = <div className="flex items-center justify-center rounded-full border-2 border-success-clarity size-[100px] shrink-0 bg-light">
@@ -19,8 +20,8 @@ const FollowUpListPage = () => {
     setIsModalOpen(true);
   };
 
-  const removeFollowUp = () => {
-    console.log("Follow-up removed");
+  const removeContact = () => {
+    console.log("Contact removed");
   };
 
   const handleModalOpen = () => {
@@ -228,7 +229,11 @@ const FollowUpListPage = () => {
         {/* TableComponent */}
         
       </Container>
-      
+      <AddFollowUp
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        editData={editData}
+      />
     </Fragment>
   );
 };
