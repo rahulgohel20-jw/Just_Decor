@@ -2,21 +2,16 @@ import clsx from "clsx";
 import { Fragment } from "react";
 import { useLocation } from "react-router";
 import { KeenIcon } from "@/components";
-import { useMenuBreadcrumbs } from "@/components/menu";
 import { useMenus } from "@/providers";
 import { Link } from "react-router-dom";
 const Breadcrumbs = ({ items }) => {
-  const { pathname } = useLocation();
   const { getMenuConfig } = useMenus();
-  const menuConfig = getMenuConfig("primary");
   const renderItems = (items) => {
     const dashboardItem = (
       <Fragment key={`root-${0}`}>
         <Link
           to={"/"}
-          className={
-            "text-2sm link shrink-0 hover:underline no-underline text-gray-700"
-          }
+          className={"text-2sm link shrink-0 hover:underline no-underline"}
           key={`item-${0}`}
           title="Dashboard"
         >

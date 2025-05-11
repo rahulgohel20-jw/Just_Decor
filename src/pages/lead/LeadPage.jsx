@@ -172,7 +172,7 @@ const LeadPage = () => {
           <div className="flex justify-between items-end gap-2 mb-2">
             <div className="flex flex-wrap gap-2">
               <Badge
-                class="badge badge-outline badge-success text-xs"
+                className="badge badge-outline badge-success text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
