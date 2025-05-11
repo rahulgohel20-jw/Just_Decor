@@ -1,9 +1,9 @@
 import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddLead from "@/partials/modals/add-lead/AddLead";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { Badge } from "@/components/ui/badge";
+import AddLead from "@/partials/modals/add-lead/AddLead";
 import AddLeadNote from "@/partials/modals/add-lead-note/AddLeadNote";
 import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
 import { defaultData } from "./constant";
@@ -289,8 +289,6 @@ const LeadPage = () => {
         setIsModalOpen={setIsNoteModalOpen}
       />
       {/* AddFollowUp */}
-      {console.log(isFollowUpModalOpen)}
-
       <AddFollowUp
         isModalOpen={isFollowUpModalOpen}
         setIsModalOpen={setIsFollowUpModalOpen}
