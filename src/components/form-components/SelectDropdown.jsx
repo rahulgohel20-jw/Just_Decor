@@ -53,10 +53,13 @@ const SelectDropdown = ({
 
   const renderSelectedValues = (selected) => {
     if (isLoading) return "Loading...";
+
+    // When nothing is selected, display placeholder
     if (!selected || (Array.isArray(selected) && selected.length === 0)) {
       return placeholder;
     }
 
+    // Render selected values as chips for multiple selection
     if (multiple) {
       return (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -88,14 +91,15 @@ const SelectDropdown = ({
       <InputLabel>{label}</InputLabel>
       <Select
         multiple={multiple}
-        value={value}
+        value={value || (multiple ? [] : "")}
         onChange={onChange}
         label={label}
         renderValue={renderSelectedValues}
-        className="select text-white border border-gray-700 rounded-lg p-2 pr-10" // Tailwind styling
+        displayEmpty
+        className="select text-white border border-gray-700 rounded-lg p-2 pr-10"
         MenuProps={{
           PaperProps: {
-            className: "bg-gray-800", // Custom background for the menu
+            className: "bg-gray-800",
           },
         }}
         IconComponent={() => (

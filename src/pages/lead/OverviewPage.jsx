@@ -2,7 +2,10 @@ import { Fragment } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
-import CompanyDropdown from "@/components/dropdowns/CompanyDropdown";
+import SalesPersonDropdown from "../../components/dropdowns/SalesPersonDropdown";
+import PipLineDropdown from "../../components/dropdowns/PiplineDropdown";
+import CompanyDropdown from "../../components/dropdowns/CompanyDropdown";
+import SourceDropdown from "../../components/dropdowns/SourceDropdown";
 
 const OverviewPage = () => {
   return (
@@ -16,30 +19,16 @@ const OverviewPage = () => {
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Lead</option>
-                <option value="1">Lead one</option>
-                <option value="2">Lead two</option>
-                <option value="3">Lead three</option>
-                <option value="4">Lead four</option>
-              </select>
+              <PipLineDropdown />
             </div>
             <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Lead</option>
-                <option value="1">Lead one</option>
-                <option value="2">Lead two</option>
-                <option value="3">Lead three</option>
-                <option value="4">Lead four</option>
-              </select>
+              <SourceDropdown />
+            </div>
+            <div className="filItems">
+              <SalesPersonDropdown />
             </div>
             <div className="filItems">
               <CompanyDropdown />
-            </div>
-            <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Company</option>
-              </select>
             </div>
             <div className="filItems">
               <button className="btn btn-light" title="Refresh">

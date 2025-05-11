@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 
-const CompanyDropdown = () => {
+const PipLineDropdown = () => {
   const [selectedCompanies, setSelectedCompanies] = useState([]);
 
   const handleChange = (event) => {
@@ -22,4 +22,4 @@ const CompanyDropdown = () => {
   );
 };
 
-export default CompanyDropdown;
+export default PipLineDropdown;
