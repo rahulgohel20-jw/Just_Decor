@@ -80,7 +80,7 @@ import {
   AuthenticationAccountDeactivatedPage,
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
-import { LeadPage, LeadDetailPage } from "@/pages/lead";
+import { LeadPage, LeadDetailPage, OverviewPage } from "@/pages/lead";
 import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
@@ -113,8 +113,9 @@ const AppRoutingSetup = () => {
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/lead/details" element={<LeadDetailPage />} />
-          <Route path="/company" element={<CompanyListPage />}></Route>
+          <Route path="/overview" element={<OverviewPage />} />
 
+          <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/followup" element={<FollowUpListPage />}></Route>
           {/* Theme routes */}

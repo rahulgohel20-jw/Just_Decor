@@ -9,6 +9,7 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Overview",
+        path: "/overview",
       },
       {
         title: "Leads",
@@ -24,7 +25,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Follow-Up",
-        path:"/followup",
+        path: "/followup",
       },
       {
         title: "Products",
@@ -42,10 +43,8 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-users",
     children: [
       {
-
         title: "Sales Team",
         path: "/team/seals-team",
-
       },
       {
         title: "User Roles",
@@ -84,7 +83,7 @@ export const MENU_SIDEBAR = [
       { title: "Tickets", path: "/support/tickets" },
       { title: "Application", path: "/support/application" },
       { title: "Progress Checklist", path: "/support/progress-checklist" },
-      { title: "Raise Ticket" , path: "/support/raise-ticket"},
+      { title: "Raise Ticket", path: "/support/raise-ticket" },
     ],
   },
   {
