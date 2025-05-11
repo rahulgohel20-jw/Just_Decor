@@ -1,9 +1,9 @@
 import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddLead from "@/partials/modals/add-lead/AddLead";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { Badge } from "@/components/ui/badge";
+import AddLead from "@/partials/modals/add-lead/AddLead";
 import AddLeadNote from "@/partials/modals/add-lead-note/AddLeadNote";
 import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
 import { defaultData } from "./constant";
@@ -172,7 +172,7 @@ const LeadPage = () => {
           <div className="flex justify-between items-end gap-2 mb-2">
             <div className="flex flex-wrap gap-2">
               <Badge
-                class="badge badge-outline badge-success text-xs"
+                className="badge badge-outline badge-success text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -188,7 +188,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-dark text-xs"
+                className="badge badge-outline badge-dark text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -204,7 +204,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-info text-xs"
+                className="badge badge-outline badge-info text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -220,7 +220,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-danger text-xs"
+                className="badge badge-outline badge-danger text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -288,6 +288,7 @@ const LeadPage = () => {
         isModalOpen={isNoteModalOpen}
         setIsModalOpen={setIsNoteModalOpen}
       />
+      {/* AddFollowUp */}
       <AddFollowUp
         isModalOpen={isFollowUpModalOpen}
         setIsModalOpen={setIsFollowUpModalOpen}

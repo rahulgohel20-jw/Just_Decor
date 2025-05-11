@@ -12,6 +12,7 @@ import {
   Menu,
 } from "@/components";
 import LeadContext from "@/pages/lead/LeadContext";
+import { Link } from "react-router-dom";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
@@ -29,12 +30,14 @@ const Task = ({ item, dropdown, index }) => {
             <small className="text-2xs text-gray-600 mt-0.5">19 days ago</small>
           </div>
           <div className="flex items-center">
-            <button
-              className="btn btn-sm btn-icon btn-light btn-clear"
-              title="View"
-            >
-              <i class="ki-filled ki-eye"></i>
-            </button>
+            <Link to="/lead/details">
+              <button
+                className="btn btn-sm btn-icon btn-light btn-clear"
+                title="View"
+              >
+                <i class="ki-filled ki-eye"></i>
+              </button>
+            </Link>
             {dropdown && (
               <Menu className="items-stretch">
                 <MenuItem

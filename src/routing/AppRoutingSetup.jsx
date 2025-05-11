@@ -80,8 +80,7 @@ import {
   AuthenticationAccountDeactivatedPage,
   AuthenticationGetStartedPage,
 } from "@/pages/authentication";
-import { LeadPage } from "@/pages/lead";
-
+import { LeadPage, LeadDetailPage, OverviewPage } from "@/pages/lead";
 import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
@@ -110,24 +109,25 @@ const AppRoutingSetup = () => {
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<DefaultPage />} />
-          <Route path="/contacts/details" element={<ContactDetail/>} />
+          <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
-          <Route path="/company" element={<CompanyListPage/>}></Route>
+          <Route path="/lead/details" element={<LeadDetailPage />} />
+          <Route path="/overview" element={<OverviewPage />} />
 
-          <Route path="/companydetails" element={<CompanyDetails/>}></Route>
-          <Route path="/followup" element={<FollowUpListPage/>}></Route>
-          <Route path="/product" element={<ProductListPage/>}></Route>
+          <Route path="/company" element={<CompanyListPage />}></Route>
+          <Route path="/companydetails" element={<CompanyDetails />}></Route>
+          <Route path="/followup" element={<FollowUpListPage />}></Route>
           {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>
-          <Route path="/companydetail" element={<CompanyDetails/>}></Route>
+          <Route path="/companydetail" element={<CompanyDetails />}></Route>
           <Route path="/links" element={<LinkList />}></Route>
           <Route path="/product" element={<ProductListPage />}></Route>
-          <Route path="/product/detail" element={<ProductListDetail/>}></Route>
+          <Route path="/product/detail" element={<ProductListDetail />}></Route>
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
-          
+
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route
