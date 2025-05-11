@@ -78,7 +78,7 @@ const Task = ({ item, dropdown, index }) => {
                         <MenuTitle>Move To</MenuTitle>
                       </MenuLink>
                     </MenuItem>
-                    <MenuItem onClick={() => setIsFollowUpModalOpens(true)}>
+                    <MenuItem onClick={() => setIsFollowUpModalOpen(true)}>
                       <MenuLink>
                         <MenuIcon>
                           <KeenIcon icon="ki-filled ki-share" />

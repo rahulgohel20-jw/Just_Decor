@@ -288,6 +288,9 @@ const LeadPage = () => {
         isModalOpen={isNoteModalOpen}
         setIsModalOpen={setIsNoteModalOpen}
       />
+      {/* AddFollowUp */}
+      {console.log(isFollowUpModalOpen)}
+
       <AddFollowUp
         isModalOpen={isFollowUpModalOpen}
         setIsModalOpen={setIsFollowUpModalOpen}
