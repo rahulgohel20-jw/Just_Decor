@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
+import CompanyDropdown from "@/components/dropdowns/CompanyDropdown";
 
 const OverviewPage = () => {
   return (
@@ -16,10 +17,11 @@ const OverviewPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems">
               <select className="select pe-7.5">
-                <option value="0">Select Pipeline</option>
-                <option value="1">Pipeline one</option>
-                <option value="2">Pipeline two</option>
-                <option value="2">Pipeline three</option>
+                <option value="0">Select Lead</option>
+                <option value="1">Lead one</option>
+                <option value="2">Lead two</option>
+                <option value="3">Lead three</option>
+                <option value="4">Lead four</option>
               </select>
             </div>
             <div className="filItems">
@@ -32,23 +34,7 @@ const OverviewPage = () => {
               </select>
             </div>
             <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Sales Person</option>
-              </select>
-            </div>
-            <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Lead</option>
-                <option value="1">Lead one</option>
-                <option value="2">Lead two</option>
-                <option value="3">Lead three</option>
-                <option value="4">Lead four</option>
-              </select>
-            </div>
-            <div className="filItems">
-              <select className="select pe-7.5">
-                <option value="0">Select Company</option>
-              </select>
+              <CompanyDropdown />
             </div>
             <div className="filItems">
               <select className="select pe-7.5">
@@ -89,7 +75,7 @@ const OverviewPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-dark text-xs"
+                className="badge badge-outline badge-dark text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -105,7 +91,7 @@ const OverviewPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-info text-xs"
+                className="badge badge-outline badge-info text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -121,7 +107,7 @@ const OverviewPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-danger text-xs"
+                className="badge badge-outline badge-danger text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">

@@ -188,7 +188,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-dark text-xs"
+                className="badge badge-outline badge-dark text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -204,7 +204,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-info text-xs"
+                className="badge badge-outline badge-info text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
@@ -220,7 +220,7 @@ const LeadPage = () => {
                 </span>
               </Badge>
               <Badge
-                class="badge badge-outline badge-danger text-xs"
+                className="badge badge-outline badge-danger text-xs"
                 title="Type one"
               >
                 <span className="flex items-center">
