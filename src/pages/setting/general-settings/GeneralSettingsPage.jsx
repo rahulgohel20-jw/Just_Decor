@@ -1,23 +1,176 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+ import  AddRole  from "@/partials/modals/add-role/AddRole";
+
 import { Badge } from "@/components/ui/badge";
 import { toAbsoluteUrl } from "@/utils";
 
 const GeneralSettingsPage = () => {
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  // Sample roles data (you can replace this with dynamic data from an API)
+  const roles = ["Manager", "SalesPerson", "test"];
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "General" }]} />
+          <Breadcrumbs items={[{ title: "General Setting" }]} />
         </div>
         <div className="card min-w-full">
           <div className="card-table">
-              <h1 className="text-center p-10">General content here</h1>
+          <div className=" mx-auto  rounded-lg  p-4">
+          
+          <ul>
+            <button className="w-full" onClick={() => setIsRoleModalOpen(true)}>
+
+            <li className="flex items-center justify-between py-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2-2 .896-2 2 .896 2 2 2zm0 2c-1.104 0-2 .896-2 2v3h4v-3c0-1.104-.896-2-2-2zm7-5h-2v2h2v-2zm-2 4h2v2h-2v-2zm0 4h2v2h-2v-2zm-10-8H5v2h2v-2zm-2 4h2v2h-2v-2zm0 4h2v2h-2v-2z"></path>
+                </svg>
+                <span className="text-gray-700">Role and Permissions</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </li>
+            </button>
+            <button className="w-full">
+            <li className="flex items-center justify-between py-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.9 1.999A4 4 0 003 15z"></path>
+                </svg>
+                <span className="text-gray-700">Bulk Data Import</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </li>
+
+            </button>
+            <button className="w-full">
+
+            <li className="flex items-center justify-between py-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span className="text-gray-700">Export Leads</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </li>
+            </button>
+          </ul>
+        </div>
           </div>
         </div>
 
+
+
+        {isRoleModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+              {/* Modal Header */}
+              <div className="bg-red-700 text-white px-4 py-2 rounded-t-lg">
+                <h3 className=" text-lg font-semibold">ROLES</h3>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-4">
+                {/* Add Role Button */}
+                <button className="mb-4 bg-red-700 bg-green-500 text-white px-4 py-2 rounded-lg flex items-center" onClick={() => {
+                
+                handleModalOpen();
+              }}>
+                  <svg
+                    className="w-5 h-5 mr-2 "
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Role
+                </button>
+
+                {/* Roles List */}
+                <ul>
+                  {roles.map((role, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between py-2 border-b border-gray-200"
+                    >
+                      <span className="text-gray-700">{role}</span>
+                      <div className="flex items-center space-x-2">
+                        {/* Edit Icon */}
+                        <button>
+                          <svg
+                            className="w-5 h-5 text-blue-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"
+                            ></path>
+                          </svg>
+                        </button>
+                        {/* Delete Icon */}
+                        <button>
+                          <svg
+                            className="w-5 h-5 text-red-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1m6-1a1 1 0 011-1v1m-6 4v6m4-6v6"
+                            ></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Modal Footer (Optional Close Button) */}
+              <div className="p-4 flex justify-end">
+                <button
+                  onClick={() => setIsRoleModalOpen(false)}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         
@@ -370,6 +523,11 @@ const GeneralSettingsPage = () => {
 
 
       </Container>
+      <AddRole
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        
+      />
     </Fragment>
   );
 };
