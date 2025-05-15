@@ -13,7 +13,7 @@ const TabComponent = ({ tabs }) => {
         {tabs.map((tab) => (
           <a
             key={tab.id}
-            className={`btn btn-clear justify-center px-4 whitespace-nowrap ${
+            className={`btn btn-clear justify-center px-4 whitespace-nowrap w-full ${
               activeTab === tab.id ? "active" : ""
             }`}
             onClick={() => setActiveTab(tab.id)}
@@ -24,7 +24,7 @@ const TabComponent = ({ tabs }) => {
       </div>
 
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className="tab-content p-3">
         {currentTab?.children ?? (
           <div className="text-center text-gray-400">No content</div>
         )}
