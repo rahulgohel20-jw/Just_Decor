@@ -19,7 +19,7 @@ const RaiseTicketPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Raise Ticket Checklist" }]} />
+          <Breadcrumbs items={[{ title: "Raise Tickets" }]} />
         </div>
 
         {/* Simulate sidebar raise ticket button */}

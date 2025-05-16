@@ -83,32 +83,28 @@ const TutorialsPage = () => {
           </div>
         </div>
 
-        <div className="card min-w-full">
-          <div className="card-table">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-              {tutorials.map((tutorial, index) => (
-                <a
-                  key={index}
-                  href={tutorial.youtubeLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block p-6 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 transition"
-                >
-                  <img
-                    src={tutorial.image}
-                    alt={tutorial.title}
-                    className="w-full h-32 object-cover mx-auto mb-4 rounded"
-                  />
-                  <h3 className="text-lg font-semibold mb-2 text-center">
-                    {tutorial.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 text-center">
-                    {tutorial.desc}
-                  </p>
-                </a>
-              ))}
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {tutorials.map((tutorial, index) => (
+            <a
+              key={index}
+              href={tutorial.youtubeLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block p-6 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 transition"
+            >
+              <img
+                src={tutorial.image}
+                alt={tutorial.title}
+                className="w-full h-32 object-cover mx-auto mb-4 rounded"
+              />
+              <h3 className="text-lg font-semibold mb-2 text-center">
+                {tutorial.title}
+              </h3>
+              <p className="text-sm text-gray-600 text-center">
+                {tutorial.desc}
+              </p>
+            </a>
+          ))}
         </div>
       </Container>
     </Fragment>

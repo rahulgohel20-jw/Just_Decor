@@ -55,11 +55,7 @@ const CustomizeSettingsPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Customize" }]} />
         </div>
-        <div className="card min-w-full">
-          <div className="card-table">
-            <TabComponent tabs={tabs} />
-          </div>
-        </div>
+        <TabComponent tabs={tabs} />
       </Container>
     </Fragment>
   );

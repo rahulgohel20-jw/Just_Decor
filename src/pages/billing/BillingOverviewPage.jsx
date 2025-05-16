@@ -11,7 +11,7 @@ const BillingOverviewPage = () => {
       <style>
         {`
           .user-access-bg {
-            background-image: url('${toAbsoluteUrl("/images/bg_015.png")}');
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
           }
           .dark .user-access-bg {
             background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
