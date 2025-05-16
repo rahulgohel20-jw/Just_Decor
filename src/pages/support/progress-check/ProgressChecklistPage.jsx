@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { CheckSquare, Square } from "lucide-react";
+import { Fragment } from "react";
+import { Container } from "@/components/container";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 
 const checklistItems = [
   "Create role and permission. Go to the settings > Click on Role and Permission > Add Role",
@@ -29,9 +32,7 @@ export const ProgressChecklistPage = () => {
 
   const toggleComplete = (index) => {
     setCompletedItems((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index)
-        : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
@@ -40,46 +41,52 @@ export const ProgressChecklistPage = () => {
   );
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">
-          Your Progress: {completedItems.length} / {checklistItems.length}
-        </h2>
-        <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-          {progressPercent}%
+    <Fragment>
+      <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Progress Checklist" }]} />
         </div>
-      </div>
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">
+            Your Progress: {completedItems.length} / {checklistItems.length}
+          </h2>
+          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            {progressPercent}%
+          </div>
+        </div>
 
-      {/* Checklist */}
-      <div className="bg-white border rounded-lg shadow-sm">
-        {checklistItems.map((item, index) => {
-          const isDone = completedItems.includes(index);
-          return (
-            <div
-              key={index}
-              className={`flex items-start justify-between px-4 py-3 border-b hover:bg-gray-50 cursor-pointer transition`}
-              onClick={() => toggleComplete(index)}
-            >
-              <div className="flex items-start gap-3">
-                {isDone ? (
-                  <CheckSquare className="text-red-600 mt-1" size={20} />
-                ) : (
-                  <Square className="text-gray-400 mt-1" size={20} />
-                )}
-                <span
-                  className={`text-sm ${
-                    isDone ? "line-through text-gray-500" : ""
-                  }`}
-                >
-                  {index + 1}. {item}
-                </span>
+        {/* Checklist */}
+        <div className="bg-white border rounded-lg shadow-sm">
+          {checklistItems.map((item, index) => {
+            const isDone = completedItems.includes(index);
+            return (
+              <div
+                key={index}
+                className={`flex items-start justify-between px-4 py-3 border-b hover:bg-gray-50 cursor-pointer transition`}
+                onClick={() => toggleComplete(index)}
+              >
+                <div className="flex items-start gap-3">
+                  {isDone ? (
+                    <CheckSquare className="text-red-600 mt-1" size={20} />
+                  ) : (
+                    <Square className="text-gray-400 mt-1" size={20} />
+                  )}
+                  <span
+                    className={`text-sm ${
+                      isDone ? "line-through text-gray-500" : ""
+                    }`}
+                  >
+                    {index + 1}. {item}
+                  </span>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+            );
+          })}
+        </div>
+      </Container>
+    </Fragment>
   );
 };
 
