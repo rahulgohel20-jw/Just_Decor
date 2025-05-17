@@ -37,31 +37,31 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
       case "tab_1":
         return (
           <div id="tab_1" className="tab-content mb-2 active">
-            <div className="flex flex-col gap-y-2">
-              <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col gap-y-2 gap-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
-                  <div className="flex flex-col">
-                    <label className="form-label">Lead Title</label>
-                    <div class="input">
-                      {/* <i class="ki-filled ki-sms"></i> */}
-                      <input type="text" placeholder="Lead title" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">Lead close date</label>
-                    <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                  <label className="form-label">Lead Title</label>
+                  <div class="input">
+                    <i class="ki-filled ki-autobrightness"></i>
+                    <input
+                      class="h-full"
+                      type="text"
+                      placeholder="Lead title"
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <label className="form-label">Description</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
-                  <Textarea />
+                  <label className="form-label">Lead close date</label>
+                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-4">
+              <div className="flex flex-col">
+                <label className="form-label">Description</label>
+                <Textarea />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Contact</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -72,7 +72,6 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Assigned To</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -81,11 +80,8 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                     <option value="">Select Assigned</option>
                   </select>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Source</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -94,12 +90,15 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                     <option value="">Select Source</option>
                   </select>
                 </div>
-
                 <div className="flex flex-col">
                   <label className="form-label">Estimate Amount</label>
                   <div class="input">
-                    {/* <i class="ki-filled ki-sms"></i> */}
-                    <input type="text" placeholder="Estimate Amount" />
+                    <i class="ki-filled ki-tag"></i>
+                    <input
+                      class="h-full"
+                      type="text"
+                      placeholder="Estimate Amount"
+                    />
                   </div>
                 </div>
               </div>

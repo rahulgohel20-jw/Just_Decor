@@ -48,74 +48,166 @@ const FollowUpListPage = () => {
   ];
   const renderItem = (item, index) => {
     return (
-      <div
-        key={index}
-        className="flex items-center justify-between border border-gray-200 rounded-xl gap-2 px-4 py-4 bg-secondary-clarity"
-      >
-        <div className="flex flex-col">
-          <div className="flex flex-row">
-            <span className="text-sm font-medium hover:text-primary-active mb-px">
-              Status:{item.status}
-            </span>
-            <span className="text-sm font-medium hover:text-primary-active ms-2 mb-px">
-              Type:{item.type}
-            </span>
-          </div>
-          <div className="ms-2 flex flex-row">
-            <span className="text-sm font-medium hover:text-primary-active mb-px">
-              {item.date_of_followup}
-            </span>
-          </div>
-          <div className="ms-2 flex flex-row">
-            <span className="text-sm font-medium hover:text-primary-active mb-px">
-              <KeenIcon icon="user" />
-              {item.name}
-            </span>
-            <span className="text-sm font-medium text-gray ms-2 hover:text-primary-active mb-px">
-              <KeenIcon icon="call" />
-              {item.mobile}
-            </span>
+      <>
+        <div class="flex flex-col gap-5 lg:gap-7.5">
+          <div class="card min-w-full">
+            <div class="kt-card p-5">
+              <div class="flex flex-wrap justify-between items-center gap-7">
+                <div class="flex flex-wrap items-center gap-5">
+                  {/* <img alt="" class="rounded-md max-h-20 max-w-full shrink-0" src="/static/metronic/tailwind/dist/assets/media/images/600x400/21.jpg"> */}
+                  <div class="grid grid-col gap-1">
+                    <a
+                      class="text-lg font-semibold text-mono hover:text-primary mb-px"
+                      href="#"
+                    >
+                      Urban Dreams
+                    </a>
+                    <span class="text-sm font-medium ">
+                      Cloud storage and file sharing
+                    </span>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-5 lg:gap-7.5">
+                  <div class="flex items-center gap-1.5">
+                    <img
+                      src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
+                      className="w-10 shrink-0"
+                      alt=""
+                    />
+                    <a
+                      class="text-sm font-medium  hover:text-primary mb-px"
+                      href="#"
+                    >
+                      Cody Fisher
+                    </a>
+                  </div>
+                  <div
+                    className="badge badge-sm badge-pill badge-secondary text-xs"
+                    title="Stage"
+                  >
+                    Cold Lead
+                  </div>
+                  <span className="badge badge-outline shrink-0">
+                    79 connections
+                  </span>
+                  <span class="kt-badge kt-badge-primary kt-badge-outline">
+                    In Progress
+                  </span>
+                  <div class="flex gap-1 items-center w-20 justify-end">
+                    <i class="ki-filled ki-heart text-base text-muted-foreground"></i>
+                    <span class="text-sm font-medium  py-2">24</span>
+                    <span class="text-sm font-medium ">Likes</span>
+                  </div>
+                  <div class="flex gap-1 items-center w-28 justify-end">
+                    <i class="ki-filled ki-messages text-base text-muted-foreground"></i>
+                    <span class="text-sm font-medium  py-2">5</span>
+                    <span class="text-sm font-medium ">Comments</span>
+                  </div>
+                  <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
+                    <i class="ki-filled ki-dots-vertical text-lg"></i>
+                  </button>
+
+                  <div className="flex gap-1">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-light"
+                      title="Edit"
+                    >
+                      <KeenIcon icon="notepad-edit" />
+                    </button>
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-light"
+                      title="Close"
+                    >
+                      <KeenIcon icon="check-circle" />
+                    </button>
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-light"
+                      title="Remark"
+                    >
+                      <i class="ki-filled ki-tab-tablet"></i>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-danger"
+                      title="Delete"
+                    >
+                      <KeenIcon icon="trash" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex items-center rounded-circle gap-3.5">
-          <img
-            src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
-            className="w-10 shrink-0"
-            alt=""
-          />
+
+        <div
+          key={index}
+          className="flex items-center justify-between border border-gray-200 rounded-xl gap-2 px-4 py-4 bg-secondary-clarity"
+        >
           <div className="flex flex-col">
-            <a
-              href="#"
-              className="text-sm font-medium text-gray-900 hover:text-primary-active mb-px"
-            >
-              {item.name}
-            </a>
-            <span className="text-2sm text-gray-700">{item.email}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-5"></div>
-        <div className="flex items-center gap-5">
-          {item.label && (
-            <span className="badge badge-sm badge-success badge-outline">
-              Primary
-            </span>
-          )}
-          <div className="flex gap-0.5">
-            <div className="btn btn-sm btn-icon btn-clear btn-light">
-              <KeenIcon icon="notepad-edit" />
+            <div className="flex flex-row">
+              <span className="text-sm font-medium hover:text-primary-active mb-px">
+                Status:{item.status}
+              </span>
+              <span className="text-sm font-medium hover:text-primary-active ms-2 mb-px">
+                Type:{item.type}
+              </span>
             </div>
-            <div className="btn btn-sm btn-icon btn-clear btn-light">
-              <KeenIcon icon="check-circle" />
+            <div className="ms-2 flex flex-row">
+              <span className="text-sm font-medium hover:text-primary-active mb-px">
+                {item.date_of_followup}
+              </span>
             </div>
-            <div className="btn btn-sm btn-icon btn-clear btn-danger">
-              <KeenIcon icon="trash" />
-            </div>
-            <div className="btn btn-sm btn-icon btn-clear btn-info">
-              <i class="ki-outline ki-bookmark fs-2x"></i>
+            <div className="ms-2 flex flex-row">
+              <span className="text-sm font-medium hover:text-primary-active mb-px">
+                <KeenIcon icon="user" />
+                {item.name}
+              </span>
+              <span className="text-sm font-medium text-gray ms-2 hover:text-primary-active mb-px">
+                <KeenIcon icon="call" />
+                {item.mobile}
+              </span>
             </div>
           </div>
+          <div className="flex items-center rounded-circle gap-3.5">
+            <img
+              src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
+              className="w-10 shrink-0"
+              alt=""
+            />
+            <div className="flex flex-col">
+              <a
+                href="#"
+                className="text-sm font-medium text-gray-900 hover:text-primary-active mb-px"
+              >
+                {item.name}
+              </a>
+              <span className="text-2sm text-gray-700">{item.email}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-5"></div>
+          <div className="flex items-center gap-5">
+            {item.label && (
+              <span className="badge badge-sm badge-success badge-outline">
+                Primary
+              </span>
+            )}
+            <div className="flex gap-0.5">
+              <div className="btn btn-sm btn-icon btn-clear btn-light">
+                <KeenIcon icon="notepad-edit" />
+              </div>
+              <div className="btn btn-sm btn-icon btn-clear btn-light">
+                <KeenIcon icon="check-circle" />
+              </div>
+              <div className="btn btn-sm btn-icon btn-clear btn-danger">
+                <KeenIcon icon="trash" />
+              </div>
+              <div className="btn btn-sm btn-icon btn-clear btn-info">
+                <i class="ki-outline ki-bookmark fs-2x"></i>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   };
 
@@ -172,7 +264,11 @@ const FollowUpListPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Follow-Up" onClick={handleModalOpen}>
+            <button
+              className="btn btn-primary"
+              title="Add Follow-Up"
+              onClick={handleModalOpen}
+            >
               <i className="ki-filled ki-plus"></i> Add Follow-Up
             </button>
           </div>

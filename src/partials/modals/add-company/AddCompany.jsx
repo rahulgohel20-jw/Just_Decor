@@ -33,89 +33,115 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label">Company Name</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Company Name"
-            />
+            <div class="input">
+              <i class="ki-filled ki-user"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Company Name"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Tax No</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Tax No"
-            />
+            <div class="input">
+              <i class="ki-filled ki-cheque"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Tax No"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Company Code</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Company Code"
-            />
+            <div class="input">
+              <i class="ki-filled ki-user"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Company Code"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Website</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Enter URL"
-            />
+            <div class="input">
+              <i class="ki-filled ki-dribbble"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Enter URL"
+              />
+            </div>
           </div>
-        </div>
-       <hr />
-       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label">Country</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Country"
-            />
+            <div class="input">
+              <i class="ki-filled ki-bank"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Country"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">State</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="State"
-            />
+            <div class="input">
+              <i class="ki-filled ki-bank"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="State"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">City</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="City"
-            />
+            <div class="input">
+              <i class="ki-filled ki-pointers"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="City"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Pincode</label>
-            <input
-              type="tel"
-              className="input form-control-solid w-full"
-              placeholder="Pincode"
-            />
+            <div class="input">
+              <i class="ki-filled ki-geolocation"></i>
+              <input
+                class="h-full"
+                type="tel"
+                placeholder="Pincode"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Billing Address</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Billing Address"
-            />
+            <div class="input">
+              <i class="ki-filled ki-geolocation"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Billing Address"
+              />
+            </div>
           </div>
           <div>
             <label className="form-label">Shipping Address</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Shipping Address"
-            />
+            <div class="input">
+              <i class="ki-filled ki-geolocation"></i>
+              <input
+                class="h-full"
+                type="text"
+                placeholder="Shipping Address"
+              />
+            </div>
           </div>
-        </div>
-       
+        </div>       
       </CustomModal>
     )
   );
