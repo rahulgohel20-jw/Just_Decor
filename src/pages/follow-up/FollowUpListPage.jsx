@@ -49,33 +49,33 @@ const FollowUpListPage = () => {
   const renderItem = (item, index) => {
     return (
       <>
-        <div class="flex flex-col gap-5 lg:gap-7.5">
-          <div class="card min-w-full">
-            <div class="kt-card p-5">
-              <div class="flex flex-wrap justify-between items-center gap-7">
-                <div class="flex flex-wrap items-center gap-5">
-                  {/* <img alt="" class="rounded-md max-h-20 max-w-full shrink-0" src="/static/metronic/tailwind/dist/assets/media/images/600x400/21.jpg"> */}
-                  <div class="grid grid-col gap-1">
+        <div className="flex flex-col gap-5 lg:gap-7.5">
+          <div className="card min-w-full">
+            <div className="kt-card p-5">
+              <div className="flex flex-wrap justify-between items-center gap-7">
+                <div className="flex flex-wrap items-center gap-5">
+                  {/* <img alt="" className="rounded-md max-h-20 max-w-full shrink-0" src="/static/metronic/tailwind/dist/assets/media/images/600x400/21.jpg"> */}
+                  <div className="grid grid-col gap-1">
                     <a
-                      class="text-lg font-semibold text-mono hover:text-primary mb-px"
+                      className="text-lg font-semibold text-mono hover:text-primary mb-px"
                       href="#"
                     >
                       Urban Dreams
                     </a>
-                    <span class="text-sm font-medium ">
+                    <span className="text-sm font-medium ">
                       Cloud storage and file sharing
                     </span>
                   </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-5 lg:gap-7.5">
-                  <div class="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-5 lg:gap-7.5">
+                  <div className="flex items-center gap-1.5">
                     <img
                       src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
                       className="w-10 shrink-0"
                       alt=""
                     />
                     <a
-                      class="text-sm font-medium  hover:text-primary mb-px"
+                      className="text-sm font-medium  hover:text-primary mb-px"
                       href="#"
                     >
                       Cody Fisher
@@ -90,21 +90,21 @@ const FollowUpListPage = () => {
                   <span className="badge badge-outline shrink-0">
                     79 connections
                   </span>
-                  <span class="kt-badge kt-badge-primary kt-badge-outline">
+                  <span className="kt-badge kt-badge-primary kt-badge-outline">
                     In Progress
                   </span>
-                  <div class="flex gap-1 items-center w-20 justify-end">
-                    <i class="ki-filled ki-heart text-base text-muted-foreground"></i>
-                    <span class="text-sm font-medium  py-2">24</span>
-                    <span class="text-sm font-medium ">Likes</span>
+                  <div className="flex gap-1 items-center w-20 justify-end">
+                    <i className="ki-filled ki-heart text-base text-muted-foreground"></i>
+                    <span className="text-sm font-medium  py-2">24</span>
+                    <span className="text-sm font-medium ">Likes</span>
                   </div>
-                  <div class="flex gap-1 items-center w-28 justify-end">
-                    <i class="ki-filled ki-messages text-base text-muted-foreground"></i>
-                    <span class="text-sm font-medium  py-2">5</span>
-                    <span class="text-sm font-medium ">Comments</span>
+                  <div className="flex gap-1 items-center w-28 justify-end">
+                    <i className="ki-filled ki-messages text-base text-muted-foreground"></i>
+                    <span className="text-sm font-medium  py-2">5</span>
+                    <span className="text-sm font-medium ">Comments</span>
                   </div>
-                  <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
-                    <i class="ki-filled ki-dots-vertical text-lg"></i>
+                  <button className="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
+                    <i className="ki-filled ki-dots-vertical text-lg"></i>
                   </button>
 
                   <div className="flex gap-1">
@@ -124,7 +124,7 @@ const FollowUpListPage = () => {
                       className="btn btn-sm btn-icon btn-clear btn-light"
                       title="Remark"
                     >
-                      <i class="ki-filled ki-tab-tablet"></i>
+                      <i className="ki-filled ki-tab-tablet"></i>
                     </button>
                     <button
                       className="btn btn-sm btn-icon btn-clear btn-danger"
@@ -202,7 +202,7 @@ const FollowUpListPage = () => {
                 <KeenIcon icon="trash" />
               </div>
               <div className="btn btn-sm btn-icon btn-clear btn-info">
-                <i class="ki-outline ki-bookmark fs-2x"></i>
+                <i className="ki-outline ki-bookmark fs-2x"></i>
               </div>
             </div>
           </div>

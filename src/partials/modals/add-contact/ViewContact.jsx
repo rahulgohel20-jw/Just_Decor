@@ -217,7 +217,7 @@ const ViewContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         ]}
       >
         <div
-          className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
+          className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
           data-tabs="true"
         >
           <a

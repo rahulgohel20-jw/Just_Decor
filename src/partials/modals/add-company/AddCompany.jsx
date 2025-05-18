@@ -33,10 +33,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label">Company Name</label>
-            <div class="input">
-              <i class="ki-filled ki-user"></i>
+            <div className="input">
+              <i className="ki-filled ki-user"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Company Name"
               />
@@ -44,10 +44,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Tax No</label>
-            <div class="input">
-              <i class="ki-filled ki-cheque"></i>
+            <div className="input">
+              <i className="ki-filled ki-cheque"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Tax No"
               />
@@ -55,10 +55,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Company Code</label>
-            <div class="input">
-              <i class="ki-filled ki-user"></i>
+            <div className="input">
+              <i className="ki-filled ki-user"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Company Code"
               />
@@ -66,10 +66,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Website</label>
-            <div class="input">
-              <i class="ki-filled ki-dribbble"></i>
+            <div className="input">
+              <i className="ki-filled ki-dribbble"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Enter URL"
               />
@@ -77,10 +77,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Country</label>
-            <div class="input">
-              <i class="ki-filled ki-bank"></i>
+            <div className="input">
+              <i className="ki-filled ki-bank"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Country"
               />
@@ -88,10 +88,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">State</label>
-            <div class="input">
-              <i class="ki-filled ki-bank"></i>
+            <div className="input">
+              <i className="ki-filled ki-bank"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="State"
               />
@@ -99,10 +99,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">City</label>
-            <div class="input">
-              <i class="ki-filled ki-pointers"></i>
+            <div className="input">
+              <i className="ki-filled ki-pointers"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="City"
               />
@@ -110,10 +110,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Pincode</label>
-            <div class="input">
-              <i class="ki-filled ki-geolocation"></i>
+            <div className="input">
+              <i className="ki-filled ki-geolocation"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="tel"
                 placeholder="Pincode"
               />
@@ -121,10 +121,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Billing Address</label>
-            <div class="input">
-              <i class="ki-filled ki-geolocation"></i>
+            <div className="input">
+              <i className="ki-filled ki-geolocation"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Billing Address"
               />
@@ -132,10 +132,10 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div>
             <label className="form-label">Shipping Address</label>
-            <div class="input">
-              <i class="ki-filled ki-geolocation"></i>
+            <div className="input">
+              <i className="ki-filled ki-geolocation"></i>
               <input
-                class="h-full"
+                className="h-full"
                 type="text"
                 placeholder="Shipping Address"
               />

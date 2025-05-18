@@ -82,8 +82,8 @@ const ResetPassword = () => {
         )}
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>
-          <div class="input">
-            <i class="ki-filled ki-sms"></i>
+          <div className="input">
+            <i className="ki-filled ki-sms"></i>
             <input
               type="email"
               placeholder="Enter email address"

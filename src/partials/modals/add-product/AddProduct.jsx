@@ -23,83 +23,78 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
       case "tab_1":
         return (
           <div id="tab_1" className="tab-content active">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-26">
-              <div>
-                <label className="form-label">Product Name</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Product Name"
-                />
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Product Name</label>
+                  <div className="input">
+                    <i className="ki-filled ki-bookmark"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Product Name"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">HSN Code</label>
+                  <div className="input">
+                    <i className="ki-filled ki-bill"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="HSN Code"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Category</label>
+                  <div className="input">
+                    <i className="ki-filled ki-lots-shopping"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Category"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Units</label>
+                  <div className="input">
+                    <i className="ki-filled ki-dropbox"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Enter Units"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Price</label>
+                  <div className="input">
+                    <i className="ki-filled ki-dollar"></i>
+                    <input className="h-full" type="text" placeholder="Price" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Max-Discount</label>
+                  <div className="input">
+                    <i className="ki-filled ki-discount"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Max-Discount"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="form-label">HSN Code</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="HSN Code"
-                />
-              </div>
-              <div>
-                <label className="form-label">Category</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Category"
-                />
-              </div>
-              <div>
-                <label className="form-label">Units</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Enter Units"
-                />
-              </div>
-              <div>
-                <label className="form-label">Price</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Price"
-                />
-              </div>
-              <div>
-                <label className="form-label">Max-Discount</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Max-Discount"
-                />
-              </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">Description</label>
                 <textarea
-                  className="textarea form-control-solid w-full"
+                  className="textarea h-full"
                   placeholder="Description"
                 />
               </div>
-              {/* Image Upload Field */}
-               {/* <div>
-                <label className="form-label">Custom Field</label>
-                <div className="flex items-center gap-4 mt-2">
-                  <label className="cursor-pointer w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center border border-dashed border-gray-400 hover:bg-gray-200">
-                    📷
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                  </label>
-                  {imagePreview && (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-12 h-12 rounded object-cover border"
-                    />
-                  )}
-                </div> */}              
             </div>
           </div>
         );
@@ -107,54 +102,56 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
       case "tab_2":
         return (
           <div id="tab_2" className="tab-content">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div>
+            <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+              <div className="flex flex-col">
                 <label className="form-label">Country</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Country"
-                />
+                <div className="input">
+                  <i class="ki-filled ki-airplane"></i>
+                  <input className="h-full" type="text" placeholder="Country" />
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">State</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="State"
-                />
+                <div className="input">
+                  <i className="ki-filled ki-bank"></i>
+                  <input className="h-full" type="text" placeholder="State" />
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">City</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="City"
-                />
+                <div className="input">
+                  <i className="ki-filled ki-pointers"></i>
+                  <input className="h-full" type="text" placeholder="City" />
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">Pincode</label>
-                <input
-                  type="tel"
-                  className="input form-control-solid w-full"
-                  placeholder="Pincode"
-                />
+                <div className="input">
+                  <i className="ki-filled ki-geolocation"></i>
+                  <input className="h-full" type="text" placeholder="Pincode" />
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">Billing Address</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Billing Address"
-                />
+                <div className="input">
+                  <i className="ki-filled ki-geolocation"></i>
+                  <input
+                    className="h-full"
+                    type="text"
+                    placeholder="Billing Address"
+                  />
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="form-label">Shipping Address</label>
-                <input
-                  type="text"
-                  className="input form-control-solid w-full"
-                  placeholder="Shipping Address"
-                />
+                <div className="input">
+                  <i className="ki-filled ki-geolocation"></i>
+                  <input
+                    className="h-full"
+                    type="text"
+                    placeholder="Shipping Address"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -180,17 +177,13 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
           >
             Cancel
           </button>,
-          <button
-            key="save"
-            className="btn btn-primary"
-            title="Save Contact"
-          >
+          <button key="save" className="btn btn-primary" title="Save Contact">
             Save Product
           </button>,
         ]}
       >
         <div
-          className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
+          className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
           data-tabs="true"
         >
           <a

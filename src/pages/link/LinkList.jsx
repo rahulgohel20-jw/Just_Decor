@@ -47,7 +47,7 @@ const LinkList = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button className="btn btn-primary"  onClick={handleModalOpen} title="Add Link">
-              <i class="ki-filled ki-plus"></i> Add Link
+              <i className="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
         </div>
