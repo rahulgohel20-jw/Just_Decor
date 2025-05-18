@@ -35,7 +35,7 @@ const Task = ({ item, dropdown, index }) => {
                 className="btn btn-sm btn-icon btn-light btn-clear"
                 title="View"
               >
-                <i class="ki-filled ki-eye"></i>
+                <i className="ki-filled ki-eye"></i>
               </button>
             </Link>
             {dropdown && (

@@ -95,7 +95,7 @@ const SortableColumn = ({ column }) => {
               className="light:hidden max-h-[120px]"
               alt=""
             />
-            <p class="text-sm text-gray-900 opacity-50 mt-3">
+            <p className="text-sm text-gray-900 opacity-50 mt-3">
               No data available!
             </p>
           </div>

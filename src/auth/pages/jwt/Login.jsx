@@ -76,8 +76,8 @@ const Login = () => {
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}       
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>
-          <div class="input">
-            <i class="ki-filled ki-sms"></i>
+          <div className="input">
+            <i className="ki-filled ki-sms"></i>
             <input
                 placeholder="Enter username"
                 autoComplete="off"
@@ -95,8 +95,8 @@ const Login = () => {
         </div>
         <div className="flex flex-col">
           <label className="form-label">Password</label>
-          <div class="input">
-            <i class="ki-filled ki-lock-2"></i>
+          <div className="input">
+            <i className="ki-filled ki-lock-2"></i>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Enter Password"
