@@ -46,19 +46,19 @@ const ContactListPage = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
+            {/* <button
               className="btn btn-sm btn-icon btn-clear text-danger"
               title="Delete"
-            >
-              <Confirmation
-                trigger={<i className="ki-filled ki-trash"></i>}
-                content="Do you really want to delete?"
-                yesText="Proceed"
-                noText="Dismiss"
-                onConfirm={() => console.log("User confirmed")}
-                onCancel={() => console.log("User cancelled")}
-              ></Confirmation>
-            </button>
+            > */}
+            <Confirmation
+              trigger={<i className="ki-filled ki-trash"></i>}
+              content="Do you really want to delete?"
+              yesText="Proceed"
+              noText="Dismiss"
+              onConfirm={() => console.log("User confirmed")}
+              onCancel={() => console.log("User cancelled")}
+            ></Confirmation>
+            {/* </button> */}
           </div>
         ),
       };

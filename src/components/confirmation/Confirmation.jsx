@@ -38,9 +38,15 @@ export function Confirmation({
 
   return (
     <>
-      <span aria-describedby={id} onClick={openPopover} style={{cursor: "pointer" }}>
+      <button
+        className="btn btn-sm btn-icon btn-clear text-danger"
+        title="Delete"
+        aria-describedby={id}
+        onClick={openPopover}
+        style={{ cursor: "pointer" }}
+      >
         {trigger}
-      </span>
+      </button>
 
       <Popover
         id={id}
@@ -67,10 +73,20 @@ export function Confirmation({
         </Stack>
 
         <Stack direction="row" spacing={1} justifyContent="flex-end">
-          <Button size="small" variant="outlined" color="inherit" onClick={handleCancel}>
+          <Button
+            size="small"
+            variant="outlined"
+            color="inherit"
+            onClick={handleCancel}
+          >
             {noText}
           </Button>
-          <Button size="small" variant="contained" color="primary" onClick={handleConfirm}>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={handleConfirm}
+          >
             {yesText}
           </Button>
         </Stack>
