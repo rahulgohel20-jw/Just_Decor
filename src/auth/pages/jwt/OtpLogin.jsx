@@ -69,8 +69,8 @@ const OtpLogin = () => {
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
           <label className="form-label">Phone Number</label>
-          <div class="input">
-            <i class="ki-filled ki-phone"></i>
+          <div className="input">
+            <i className="ki-filled ki-phone"></i>
             <input
               placeholder="Enter phone number"
               autoComplete="off"

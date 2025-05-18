@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
+import { Linkedin } from "lucide-react";
 
 const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
@@ -47,9 +48,10 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Email</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-sms"></i> */}
+                  <div className="input">
+                    <i className="ki-filled ki-sms"></i>
                     <input
+                      className="h-full"
                       type="text"
                       placeholder="Enter email"
                     />
@@ -59,9 +61,10 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">First Name</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-user"></i> */}
+                  <div className="input">
+                    <i className="ki-filled ki-user"></i>
                     <input
+                      className="h-full"
                       type="text"
                       placeholder="Enter first name"
                       value={formData?.first_name}
@@ -72,9 +75,10 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Last Name</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-user"></i> */}
+                  <div className="input">
+                    <i className="ki-filled ki-user"></i>
                     <input
+                      className="h-full"
                       type="text"
                       placeholder="Enter last name"
                     />
@@ -109,8 +113,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">State</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-bank"></i> */}
+                  <div className="input">
+                    <i className="ki-filled ki-bank"></i>
                     <input
                       type="text"
                       placeholder="State"
@@ -119,8 +123,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">City</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-pointers"></i> */}
+                  <div className="input">
+                    <i className="ki-filled ki-pointers"></i>
                     <input
                       type="text"
                       placeholder="City"
@@ -131,8 +135,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               <div className="grid grid-cols-2 gap-x-4">
                   <div className="flex flex-col">
                     <label className="form-label">Pincode</label>
-                    <div class="input">
-                      {/* <i class="ki-filled ki-geolocation"></i> */}
+                    <div className="input">
+                      <i className="ki-filled ki-geolocation"></i>
                       <input
                         type="text"
                         placeholder="Pincode"
@@ -141,8 +145,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   </div>
                   <div className="flex flex-col">
                     <label className="form-label">Address</label>
-                    <div class="input">
-                      {/* <i class="ki-filled ki-geolocation"></i> */}
+                    <div className="input">
+                      <i className="ki-filled ki-geolocation"></i>
                       <input
                         type="text"
                         placeholder="Address"
@@ -159,8 +163,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-col">
                 <label className="form-label">Linkedin</label>
-                <div class="input">
-                  {/* <i class="ki-filled ki-linkedin"></i> */}
+                <div className="input">
+                  <Linkedin className="size-4"/>
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -169,8 +173,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Twitter</label>
-                <div class="input">
-                  {/* <i class="ki-filled ki-twitter"></i> */}
+                <div className="input">
+                  <i className="ki-filled ki-twitter"></i>
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -179,8 +183,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Youtube</label>
-                <div class="input">
-                  {/* <i class="ki-filled ki-youtube"></i> */}
+                <div className="input">
+                  <i className="ki-filled ki-youtube"></i>
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -189,8 +193,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Facebook</label>
-                <div class="input">
-                  {/* <i class="ki-filled ki-facebook"></i> */}
+                <div className="input">
+                  <i className="ki-filled ki-facebook"></i>
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -199,8 +203,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Instagram</label>
-                <div class="input">
-                  {/* <i class="ki-filled ki-instagram"></i> */}
+                <div className="input">
+                  <i className="ki-filled ki-instagram"></i>
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -249,7 +253,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         ]}
       >
         <div
-          className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
+          className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
           data-tabs="true"
         >
           <a

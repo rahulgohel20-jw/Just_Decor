@@ -37,31 +37,31 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
       case "tab_1":
         return (
           <div id="tab_1" className="tab-content mb-2 active">
-            <div className="flex flex-col gap-y-2">
-              <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col gap-y-2 gap-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
-                  <div className="flex flex-col">
-                    <label className="form-label">Lead Title</label>
-                    <div class="input">
-                      {/* <i class="ki-filled ki-sms"></i> */}
-                      <input type="text" placeholder="Lead title" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">Lead close date</label>
-                    <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                  <label className="form-label">Lead Title</label>
+                  <div className="input">
+                    <i className="ki-filled ki-autobrightness"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Lead title"
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <label className="form-label">Description</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
-                  <Textarea />
+                  <label className="form-label">Lead close date</label>
+                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-4">
+              <div className="flex flex-col">
+                <label className="form-label">Description</label>
+                <Textarea />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Contact</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -72,7 +72,6 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Assigned To</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -81,11 +80,8 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                     <option value="">Select Assigned</option>
                   </select>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Source</label>
-                  {/* <i class="ki-filled ki-sms"></i> */}
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -94,12 +90,15 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                     <option value="">Select Source</option>
                   </select>
                 </div>
-
                 <div className="flex flex-col">
                   <label className="form-label">Estimate Amount</label>
-                  <div class="input">
-                    {/* <i class="ki-filled ki-sms"></i> */}
-                    <input type="text" placeholder="Estimate Amount" />
+                  <div className="input">
+                    <i className="ki-filled ki-tag"></i>
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Estimate Amount"
+                    />
                   </div>
                 </div>
               </div>
@@ -111,18 +110,22 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
 
         return (
           <div id="tab_2" className="tab-content mb-2">
-            <button
-              className="btn btn-primary mb-5"
-              onClick={() => setIsProductModalOpen(true)}
-            >
-              Add new product
-            </button>
+            <div className="text-end mb-2 mt-4">
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => setIsProductModalOpen(true)}
+                title="New Product"
+              >
+                <i className="text-sm ki-filled ki-plus"></i> New Product
+              </button>
+            </div>
+
             {formData &&
               formData.product_data.map((product, index) => {
                 return (
                   <div className="flex flex-col gap-y-2 mb-2" key={index}>
-                    <div className="grid grid-cols-12 gap-x-4 items-end">
-                      <div className="col-span-5 flex flex-col">
+                    <div className="flex items-end gap-3">
+                      <div className="w-full flex flex-col">
                         <label className="form-label">Product</label>
                         <select
                           className="select pe-7.5"
@@ -140,10 +143,12 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                           <option value="">Select Product</option>
                         </select>
                       </div>
-                      <div className="col-span-5 flex flex-col">
+                      <div className="w-full flex flex-col">
                         <label className="form-label">Quantity</label>
                         <div className="input">
+                          <i className="ki-filled ki-bookmark"></i>
                           <input
+                            className="h-full"
                             type="number"
                             placeholder="Quantity"
                             value={product.quantity}
@@ -157,10 +162,10 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                           />
                         </div>
                       </div>
-                      <div className="col-span-2 flex justify-end">
+                      <div className="flex">
                         {index === 0 ? (
                           <button
-                            className="btn btn-primary"
+                            className="btn btn-success w-10 p-0 inline-flex items-center justify-center rounded-full"
                             onClick={() => {
                               const newProductData = [...formData.product_data];
                               newProductData.push({
@@ -171,12 +176,13 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                                 product_data: newProductData,
                               });
                             }}
+                            title="Add"
                           >
-                            Add
+                            <i className="ki-filled ki-plus"></i>
                           </button>
                         ) : (
                           <button
-                            className="btn btn-danger"
+                            className="btn btn-danger w-10 p-0 inline-flex items-center justify-center rounded-full"
                             onClick={() => {
                               const newProductData = [...formData.product_data];
                               newProductData.splice(index, 1);
@@ -184,8 +190,9 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                                 product_data: newProductData,
                               });
                             }}
+                            title="Remove"
                           >
-                            Remove
+                            <i className="ki-filled ki-cross"></i>
                           </button>
                         )}
                       </div>
@@ -241,7 +248,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           ]}
         >
           <div
-            className="btn-tabs btn-tabs-lg flex justify-between mb-5 w-full"
+            className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
             data-tabs="true"
           >
             <a

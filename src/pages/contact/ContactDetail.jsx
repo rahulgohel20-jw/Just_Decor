@@ -44,9 +44,7 @@ const ContactDetail = () => {
           </div>
           <div className="text-xs text-gray-500">{item.username}</div>
         </div>
-
         <div className="text-sm text-gray-500 w-10 text-center">0</div>
-
         {/* Center Section */}
         <div className="flex items-center gap-3 w-1/3">
           <div className="text-xs text-gray-500">
@@ -54,19 +52,16 @@ const ContactDetail = () => {
             <div>Created At: {item.created}</div>
             <div>Updated At: {item.updated}</div>
           </div>
-
           <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
             {item.initials}
           </div>
         </div>
-
         {/* Tag */}
         <div>
           <span className="text-xs font-medium bg-orange-100 text-orange-600 px-3 py-1 rounded-full">
             New Inquiry
           </span>
         </div>
-
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button type="button">
@@ -100,7 +95,6 @@ const ContactDetail = () => {
           </NavbarActions>
         </Navbar>
       </Container>
-
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
           {/* Left - Contact Info */}
@@ -161,7 +155,6 @@ const ContactDetail = () => {
             </div>
           </div>
         </div>
-
         {/* Company Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5 mt-10">
           <div className="col-span-1">
@@ -172,7 +165,6 @@ const ContactDetail = () => {
               <i className="ki-filled ki-user me-2"></i>
               <b>Company Name:</b> <span>John Ferki</span>
             </div>
-
             {/* Tag Section */}
             <div className="mt-5">
               <button
@@ -181,7 +173,6 @@ const ContactDetail = () => {
               >
                 <i className="ki-filled ki-plus" />
               </button>
-
               {isTagOpen && (
                 <div className="mt-3">
                   <input
@@ -200,7 +191,6 @@ const ContactDetail = () => {
           </div>
         </div>
       </Container>
-
       <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );

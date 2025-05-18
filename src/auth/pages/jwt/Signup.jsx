@@ -91,14 +91,14 @@ const Signup = () => {
           <div className="flex flex-col">
             <label className="form-label">First Name</label>
             <label className="input">
-            <i class="ki-filled ki-user"></i>
+            <i className="ki-filled ki-user"></i>
               <input placeholder="First name" type="text" />
             </label>
           </div>
           <div className="flex flex-col">
             <label className="form-label">Last Name</label>
             <label className="input">
-                <i class="ki-filled ki-user"></i>
+                <i className="ki-filled ki-user"></i>
               <input placeholder="Last name" type="text" />
             </label>
           </div>
@@ -107,14 +107,14 @@ const Signup = () => {
           <div className="flex flex-col">
             <label className="form-label">City</label>
             <label className="input">
-              <i class="ki-filled ki-pointers"></i>
+              <i className="ki-filled ki-pointers"></i>
               <input placeholder="Enter city" type="text" />
             </label>
           </div>
           <div className="flex flex-col">
             <label className="form-label">Company</label>
-            <div class="input">
-              <i class="ki-filled ki-bank"></i>
+            <div className="input">
+              <i className="ki-filled ki-bank"></i>
               <input placeholder="Enter company" type="text" />
             </div>
           </div>
@@ -144,8 +144,8 @@ const Signup = () => {
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>
-          <div class="input">
-            <i class="ki-filled ki-sms"></i>
+          <div className="input">
+            <i className="ki-filled ki-sms"></i>
             <input
               placeholder="Email address"
               type="email"
@@ -170,8 +170,8 @@ const Signup = () => {
         </div>
         <div className="flex flex-col">
           <label className="form-label">Password</label>
-          <div class="input">
-            <i class="ki-filled ki-lock-2"></i>
+          <div className="input">
+            <i className="ki-filled ki-lock-2"></i>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create password"
@@ -212,8 +212,8 @@ const Signup = () => {
         </div>
         <div className="flex flex-col">
           <label className="form-label">Confirm Password</label>
-          <div class="input">
-            <i class="ki-filled ki-lock-2"></i>
+          <div className="input">
+            <i className="ki-filled ki-lock-2"></i>
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm password"

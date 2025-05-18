@@ -31,7 +31,7 @@ const BillingOverviewPage = () => {
                 stroke="stroke-success-clarity"
                 fill="fill-success-light"
                 size="size-[50px]"
-                badge={<i class="ki-filled ki-wallet text-xl text-success"></i>}
+                badge={<i className="ki-filled ki-wallet text-xl text-success"></i>}
               />
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center flex-wrap gap-2.5">
@@ -88,7 +88,7 @@ const BillingOverviewPage = () => {
                 className="btn btn-sm btn-success shrink-0"
                 title="Connect"
               >
-                <i class="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
+                <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
               </button>
             </div>
           </div>
@@ -112,105 +112,105 @@ const BillingOverviewPage = () => {
                     className="btn btn-sm btn-primary shrink-0"
                     title="Add Users"
                   >
-                    <i class="ki-filled ki-ki-filled ki-user"></i>Add Users
+                    <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         5 Users
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Subscribers
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         Feb 26, 2026
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         1,999/user
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Per year
                       </span>
                     </div>
                   </div>
                 </div>
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <h4 className="font-semibold text-gray-900">Features:</h4>
-                  <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                  <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Unlimited Tasks Team Performance Report
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Links Management for Your Team
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Email Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         WhatsApp Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Mobile Apps
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Repeated Tasks
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         File Uploads
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Tasks with Voice Notes
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Task Wise Reminders
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Save more than 4 hours per day per employee
                       </span>
                     </div>
@@ -236,105 +236,105 @@ const BillingOverviewPage = () => {
                     className="btn btn-sm btn-primary shrink-0"
                     title="Add Users"
                   >
-                    <i class="ki-filled ki-ki-filled ki-user"></i>Add Users
+                    <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         5 Users
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Subscribers
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         Feb 26, 2026
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         1,999/user
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Per year
                       </span>
                     </div>
                   </div>
                 </div>
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <h4 className="font-semibold text-gray-900">Features:</h4>
-                  <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                  <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Unlimited Tasks Team Performance Report
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Links Management for Your Team
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Email Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         WhatsApp Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Mobile Apps
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Repeated Tasks
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         File Uploads
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Tasks with Voice Notes
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Task Wise Reminders
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Save more than 4 hours per day per employee
                       </span>
                     </div>
@@ -360,105 +360,105 @@ const BillingOverviewPage = () => {
                     className="btn btn-sm btn-primary shrink-0"
                     title="Add Users"
                   >
-                    <i class="ki-filled ki-ki-filled ki-user"></i>Add Users
+                    <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         5 Users
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Subscribers
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         Feb 26, 2026
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         1,999/user
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Per year
                       </span>
                     </div>
                   </div>
                 </div>
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <h4 className="font-semibold text-gray-900">Features:</h4>
-                  <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                  <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Unlimited Tasks Team Performance Report
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Links Management for Your Team
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Email Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         WhatsApp Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Mobile Apps
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Repeated Tasks
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         File Uploads
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Tasks with Voice Notes
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Task Wise Reminders
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Save more than 4 hours per day per employee
                       </span>
                     </div>
@@ -484,105 +484,105 @@ const BillingOverviewPage = () => {
                     className="btn btn-sm btn-primary shrink-0"
                     title="Add Users"
                   >
-                    <i class="ki-filled ki-ki-filled ki-user"></i>Add Users
+                    <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         5 Users
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Subscribers
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         Feb 26, 2026
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">
                         1,999/user
                       </span>
-                      <span class="text-2sm text-2sm text-gray-700">
+                      <span className="text-2sm text-2sm text-gray-700">
                       Per year
                       </span>
                     </div>
                   </div>
                 </div>
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <h4 className="font-semibold text-gray-900">Features:</h4>
-                  <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                  <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Unlimited Tasks Team Performance Report
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Links Management for Your Team
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Email Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         WhatsApp Notifications
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Mobile Apps
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Repeated Tasks
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         File Uploads
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Delegate Tasks with Voice Notes
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Task Wise Reminders
                       </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">
                         Save more than 4 hours per day per employee
                       </span>
                     </div>
@@ -611,74 +611,74 @@ const BillingOverviewPage = () => {
                     Coming soon
                   </button>
                 </div>
-                {/* <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
-                      <span class="text-2sm text-2sm text-gray-700">Subscribers</span>
+                {/* <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
+                      <span className="text-2sm text-2sm text-gray-700">Subscribers</span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
-                      <span class="text-2sm text-2sm text-gray-700">Renews on</span>
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
+                      <span className="text-2sm text-2sm text-gray-700">Renews on</span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>
-                      <span class="text-2sm text-2sm text-gray-700">Per year</span>
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>
+                      <span className="text-2sm text-2sm text-gray-700">Per year</span>
                     </div>
                   </div>
                 </div> */}
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <p className="text-sm text-gray-400 font-light text-center py-3">
                     Feature is not available
                   </p>
-                  {/* <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Delegate Unlimited Tasks Team Performance Report</span>
+                  {/* <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Delegate Unlimited Tasks Team Performance Report</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Links Management for Your Team</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Links Management for Your Team</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Email Notifications</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Email Notifications</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">WhatsApp Notifications</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">WhatsApp Notifications</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Mobile Apps</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Mobile Apps</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Repeated Tasks</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Repeated Tasks</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">File Uploads</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">File Uploads</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Delegate Tasks with Voice Notes</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Delegate Tasks with Voice Notes</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Task Wise Reminders</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Task Wise Reminders</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Save more than 4 hours per day per employee</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Save more than 4 hours per day per employee</span>
                     </div>
                   </div> */}
                 </div>
@@ -706,74 +706,74 @@ const BillingOverviewPage = () => {
                     Coming soon
                   </button>
                 </div>
-                {/* <div class="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-users text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
-                      <span class="text-2sm text-2sm text-gray-700">Subscribers</span>
+                {/* <div className="flex items-center flex-wrap gap-1 lg:gap-2">
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-users text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
+                      <span className="text-2sm text-2sm text-gray-700">Subscribers</span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <i class="ki-filled ki-timer text-xl"></i>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
-                      <span class="text-2sm text-2sm text-gray-700">Renews on</span>
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <i className="ki-filled ki-timer text-xl"></i>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
+                      <span className="text-2sm text-2sm text-gray-700">Renews on</span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
-                    <span class="text-xl">&#8377;</span>
-                    <div class="flex flex-col">
-                      <span class="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>
-                      <span class="text-2sm text-2sm text-gray-700">Per year</span>
+                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                    <span className="text-xl">&#8377;</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>
+                      <span className="text-2sm text-2sm text-gray-700">Per year</span>
                     </div>
                   </div>
                 </div> */}
                 <hr />
-                <div class="grid md:grid-cols-1 gap-2">
+                <div className="grid md:grid-cols-1 gap-2">
                   <p className="text-sm text-gray-400 font-light text-center py-3">
                     Feature is not available
                   </p>
-                  {/* <div class="grid md:grid-cols-1 gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Delegate Unlimited Tasks Team Performance Report</span>
+                  {/* <div className="grid md:grid-cols-1 gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Delegate Unlimited Tasks Team Performance Report</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Links Management for Your Team</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Links Management for Your Team</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Email Notifications</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Email Notifications</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">WhatsApp Notifications</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">WhatsApp Notifications</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Mobile Apps</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Mobile Apps</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Repeated Tasks</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Repeated Tasks</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">File Uploads</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">File Uploads</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Delegate Tasks with Voice Notes</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Delegate Tasks with Voice Notes</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Task Wise Reminders</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Task Wise Reminders</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="ki-filled ki-check-circle text-base text-success"></i>
-                      <span class="text-sm text-gray-900 text-nowrap">Save more than 4 hours per day per employee</span>
+                    <div className="flex items-center gap-1.5">
+                      <i className="ki-filled ki-check-circle text-base text-success"></i>
+                      <span className="text-sm text-gray-900 text-nowrap">Save more than 4 hours per day per employee</span>
                     </div>
                   </div> */}
                 </div>
