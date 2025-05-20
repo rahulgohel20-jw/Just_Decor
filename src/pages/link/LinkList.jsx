@@ -8,24 +8,22 @@ import { columns, defaultData } from "./constant";
 
 const LinkList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-    const handleModalOpen = () => {
-      setIsModalOpen(true);
-    };
-    
 
-  
-    const responseFormate = () => {
-      const data = defaultData.map((item) => {
-        return {
-          ...item,
-          handleModalOpen: handleModalOpen,
-        };
-      });
-      return data;
-    };
-  
-    const [tableData, setTableData] = useState(responseFormate());
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  const responseFormate = () => {
+    const data = defaultData.map((item) => {
+      return {
+        ...item,
+        handleModalOpen: handleModalOpen,
+      };
+    });
+    return data;
+  };
+
+  const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -46,7 +44,11 @@ const LinkList = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary"  onClick={handleModalOpen} title="Add Link">
+            <button
+              className="btn btn-primary"
+              onClick={handleModalOpen}
+              title="Add Link"
+            >
               <i className="ki-filled ki-plus"></i> Add Link
             </button>
           </div>
@@ -76,10 +78,10 @@ const LinkList = () => {
           </button>
         </div>
         <TableComponent
-                  columns={columns}
-                  data={tableData}
-                  paginationSize={10}
-                />
+          columns={columns}
+          data={tableData}
+          paginationSize={10}
+        />
       </Container>
       <AddLink isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>

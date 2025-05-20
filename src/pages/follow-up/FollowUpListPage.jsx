@@ -49,90 +49,199 @@ const FollowUpListPage = () => {
   const renderItem = (item, index) => {
     return (
       <>
-        <div className="flex flex-col gap-5 lg:gap-7.5">
+        <div className="flex flex-col gap-3 lg:gap-4">
           <div className="card min-w-full">
-            <div className="kt-card p-5">
-              <div className="flex flex-wrap justify-between items-center gap-7">
-                <div className="flex flex-wrap items-center gap-5">
-                  {/* <img alt="" className="rounded-md max-h-20 max-w-full shrink-0" src="/static/metronic/tailwind/dist/assets/media/images/600x400/21.jpg"> */}
-                  <div className="grid grid-col gap-1">
-                    <a
-                      className="text-lg font-semibold text-mono hover:text-primary mb-px"
-                      href="#"
-                    >
-                      Urban Dreams
-                    </a>
-                    <span className="text-sm font-medium ">
-                      Cloud storage and file sharing
-                    </span>
+            <div className="flex flex-col flex-1">
+              <div className="flex flex-wrap justify-between  items-center gap-7 p-4">                  
+                <div className="flex flex-wrap items-center gap-7 p-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <img src={toAbsoluteUrl(`/media/avatars/${item.logo}`)} className="rounded-md max-h-10 max-w-full shrink-0" alt=""/>
+                    <div className="grid grid-col">
+                      <p className="text-md font-medium text-gray-900" title={item.name}>{item.name}</p>
+                      <span className="text-sm" title={item.email}>{item.email}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                    <div className="flex flex-col">
+                      <div className="text-xs">Type</div>
+                      <div className="text-sm font-medium text-gray-900">{item.type}</div>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-xs">Reminder</div>
+                      <span className="text-sm font-medium text-gray-900">{item.date_of_followup}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-5 lg:gap-7.5">
-                  <div className="flex items-center gap-1.5">
-                    <img
-                      src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
-                      className="w-10 shrink-0"
-                      alt=""
-                    />
-                    <a
-                      className="text-sm font-medium  hover:text-primary mb-px"
-                      href="#"
-                    >
-                      Cody Fisher
-                    </a>
+                  <div className="flex items-center gap-1">
+                    <div className="text-xs">Status</div>
+                    <div class="badge badge-outline badge-secondary rounded-full badge-lg" title={item.status}>{item.status}</div>
                   </div>
-                  <div
-                    className="badge badge-sm badge-pill badge-secondary text-xs"
-                    title="Stage"
-                  >
-                    Cold Lead
-                  </div>
-                  <span className="badge badge-outline shrink-0">
-                    79 connections
-                  </span>
-                  <span className="kt-badge kt-badge-primary kt-badge-outline">
-                    In Progress
-                  </span>
-                  <div className="flex gap-1 items-center w-20 justify-end">
-                    <i className="ki-filled ki-heart text-base text-muted-foreground"></i>
-                    <span className="text-sm font-medium  py-2">24</span>
-                    <span className="text-sm font-medium ">Likes</span>
-                  </div>
-                  <div className="flex gap-1 items-center w-28 justify-end">
-                    <i className="ki-filled ki-messages text-base text-muted-foreground"></i>
-                    <span className="text-sm font-medium  py-2">5</span>
-                    <span className="text-sm font-medium ">Comments</span>
-                  </div>
-                  <button className="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
-                    <i className="ki-filled ki-dots-vertical text-lg"></i>
+              </div>
+              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <p className="text-md"><i class="ki-filled ki-user me-2"></i>{item.name}</p>
+                  <p className="text-md"><i class="ki-filled ki-ki-filled ki-sms me-2"></i>{item.email}</p>
+                  <p className="text-md"><i class="ki-filled ki-call me-2"></i>+91 98765 54321</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Edit">
+                    <KeenIcon icon="notepad-edit" />
                   </button>
-
-                  <div className="flex gap-1">
-                    <button
-                      className="btn btn-sm btn-icon btn-clear btn-light"
-                      title="Edit"
-                    >
-                      <KeenIcon icon="notepad-edit" />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-icon btn-clear btn-light"
-                      title="Close"
-                    >
-                      <KeenIcon icon="check-circle" />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-icon btn-clear btn-light"
-                      title="Remark"
-                    >
-                      <i className="ki-filled ki-tab-tablet"></i>
-                    </button>
-                    <button
-                      className="btn btn-sm btn-icon btn-clear btn-danger"
-                      title="Delete"
-                    >
-                      <KeenIcon icon="trash" />
-                    </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Close">
+                    <KeenIcon icon="check-circle" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Remark" >
+                    <i className="ki-filled ki-tab-tablet"></i>
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-danger" title="Delete">
+                    <KeenIcon icon="trash" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="card min-w-full">
+            <div className="flex flex-col flex-1">
+              <div className="flex flex-wrap justify-between  items-center gap-7 p-4">                  
+                <div className="flex flex-wrap items-center gap-7 p-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <img src={toAbsoluteUrl(`/media/avatars/${item.logo}`)} className="rounded-md max-h-10 max-w-full shrink-0" alt=""/>
+                    <div className="grid grid-col">
+                      <p className="text-md font-medium text-gray-900" title={item.name}>{item.name}</p>
+                      <span className="text-sm" title={item.email}>{item.email}</span>
+                    </div>
                   </div>
+                  <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                    <div className="flex flex-col">
+                      <div className="text-xs">Type</div>
+                      <div className="text-sm font-medium text-gray-900">{item.type}</div>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-xs">Reminder</div>
+                      <span className="text-sm font-medium text-gray-900">{item.date_of_followup}</span>
+                    </div>
+                  </div>
+                </div>
+                  <div className="flex items-center gap-1">
+                    <div className="text-xs">Status</div>
+                    <div class="badge badge-outline badge-success rounded-full badge-lg" title="Success">Success</div>
+                  </div>
+              </div>
+              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <p className="text-md"><i class="ki-filled ki-user me-2"></i>{item.name}</p>
+                  <p className="text-md"><i class="ki-filled ki-ki-filled ki-sms me-2"></i>{item.email}</p>
+                  <p className="text-md"><i class="ki-filled ki-call me-2"></i>+91 98765 54321</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Edit">
+                    <KeenIcon icon="notepad-edit" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Close">
+                    <KeenIcon icon="check-circle" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Remark" >
+                    <i className="ki-filled ki-tab-tablet"></i>
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-danger" title="Delete">
+                    <KeenIcon icon="trash" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="card min-w-full">
+            <div className="flex flex-col flex-1">
+              <div className="flex flex-wrap items-center gap-7 p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <img src={toAbsoluteUrl(`/media/avatars/${item.logo}`)} className="rounded-md max-h-10 max-w-full shrink-0" alt=""/>
+                  <div className="grid grid-col">
+                    <p className="text-md font-medium text-gray-900" title={item.name}>{item.name}</p>
+                    <span className="text-sm" title={item.email}>{item.email}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                  <div className="flex flex-col">
+                    <div className="text-xs">Status</div>
+                    <div className="text-sm font-medium text-gray-900">{item.status}</div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-xs">Type</div>
+                    <div className="text-sm font-medium text-gray-900">{item.type}</div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-xs">Reminder</div>
+                    <span className="text-sm font-medium text-gray-900">{item.date_of_followup}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <p className="text-md"><i class="ki-filled ki-user me-2"></i>{item.name}</p>
+                  <p className="text-md"><i class="ki-filled ki-ki-filled ki-sms me-2"></i>{item.email}</p>
+                  <p className="text-md"><i class="ki-filled ki-call me-2"></i>+91 98765 54321</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Edit">
+                    <KeenIcon icon="notepad-edit" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Close">
+                    <KeenIcon icon="check-circle" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Remark" >
+                    <i className="ki-filled ki-tab-tablet"></i>
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-danger" title="Delete">
+                    <KeenIcon icon="trash" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="card min-w-full">
+            <div className="flex flex-col flex-1">
+              <div className="flex flex-wrap items-center gap-7 p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <img src={toAbsoluteUrl(`/media/avatars/${item.logo}`)} className="rounded-md max-h-10 max-w-full shrink-0" alt=""/>
+                  <div className="grid grid-col">
+                    <p className="text-md font-medium text-gray-900" title={item.name}>{item.name}</p>
+                    <span className="text-sm" title={item.email}>{item.email}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                  <div className="flex flex-col">
+                    <div className="text-xs">Status</div>
+                    <div className="text-sm font-medium text-gray-900">{item.status}</div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-xs">Type</div>
+                    <div className="text-sm font-medium text-gray-900">{item.type}</div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-xs">Reminder</div>
+                    <span className="text-sm font-medium text-gray-900">{item.date_of_followup}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <p className="text-md"><i class="ki-filled ki-user me-2"></i>{item.name}</p>
+                  <p className="text-md"><i class="ki-filled ki-ki-filled ki-sms me-2"></i>{item.email}</p>
+                  <p className="text-md"><i class="ki-filled ki-call me-2"></i>+91 98765 54321</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Edit">
+                    <KeenIcon icon="notepad-edit" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Close">
+                    <KeenIcon icon="check-circle" />
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-light" title="Remark" >
+                    <i className="ki-filled ki-tab-tablet"></i>
+                  </button>
+                  <button className="btn btn-sm btn-icon btn-clear btn-danger" title="Delete">
+                    <KeenIcon icon="trash" />
+                  </button>
                 </div>
               </div>
             </div>

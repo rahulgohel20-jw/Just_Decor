@@ -57,7 +57,12 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Description</label>
-                <Textarea />
+                  <textarea
+                    rows={3}
+                    className="textarea h-full"
+                    placeholder="Description"
+                  />
+                {/* <Textarea /> */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
@@ -114,12 +119,12 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               <button
                 className="btn btn-sm btn-primary"
                 onClick={() => setIsProductModalOpen(true)}
-                title="New Product"
+                title="Add New Product"
               >
-                <i className="text-sm ki-filled ki-plus"></i> New Product
+                <i className="text-sm ki-filled ki-plus"></i> Add New Product
               </button>
             </div>
-
+          <div className="flex flex-col max-h-80 overflow-auto">
             {formData &&
               formData.product_data.map((product, index) => {
                 return (
@@ -200,6 +205,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                   </div>
                 );
               })}
+            </div>
           </div>
         );
     }
