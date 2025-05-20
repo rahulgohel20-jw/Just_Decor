@@ -3,12 +3,17 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
 import { Activity, Layers, Package, Users } from "lucide-react";
-import PipelineTab from "@/container/setting/Customize/PipelineTab/PipelineTab";
+import {
+  ProductTab,
+  PipelineTab,
+  LeadTab,
+  ContactTab,
+} from "@/container/setting";
 
 const CustomizeSettingsPage = () => {
   const tabs = [
     {
-      id: "pipline",
+      id: "pipeline",
       label: (
         <>
           <Activity className="text-primary" />
@@ -25,7 +30,7 @@ const CustomizeSettingsPage = () => {
           Lead
         </>
       ),
-      children: "Lead",
+      children: <LeadTab />,
     },
     {
       id: "contacts",
@@ -35,7 +40,7 @@ const CustomizeSettingsPage = () => {
           Contacts
         </>
       ),
-      children: "Contacts",
+      children: <ContactTab />,
     },
     {
       id: "product",
@@ -45,7 +50,7 @@ const CustomizeSettingsPage = () => {
           Products
         </>
       ),
-      children: "Products",
+      children: <ProductTab />,
     },
   ];
   return (

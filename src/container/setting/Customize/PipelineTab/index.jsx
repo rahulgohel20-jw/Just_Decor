@@ -52,7 +52,7 @@ const PipelineTab = () => {
         <div className="card p-3">
           <div className="flex justify-between items-center">
             <h4>Pipeline</h4>
-            <button className="btn btn-primary">
+            <button className="btn btn-primary  btn-sm">
               <Plus /> Pipeline
             </button>
           </div>
@@ -105,7 +105,7 @@ const PipelineTab = () => {
         <div className="card p-3">
           <div className="flex justify-between items-center">
             <h4>Lost Reason</h4>
-            <button className="btn btn-primary">
+            <button className="btn btn-primary  btn-sm">
               <Plus /> Reason
             </button>
           </div>
@@ -134,4 +134,4 @@ const PipelineTab = () => {
   );
 };
 
-export default PipelineTab;
+export { PipelineTab };
