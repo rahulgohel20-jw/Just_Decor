@@ -53,11 +53,9 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             </select>
           </div>
           <div className="flex flex-col">
-            <input
-              type="text"
-              className="input"
-              placeholder="Link Name"
-            />
+            <div className="input">
+              <input className="h-full" type="text" placeholder="Link Name" />
+            </div>
           </div>
           <div className="flex flex-col">
             <textarea
@@ -68,11 +66,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div className="flex flex-col">
-            <input
-              type="file"
-              className="input"
-              placeholder="URL"
-            />
+            <input className="input p-2.5" type="file" placeholder="URL" />
           </div>
         </div>
         {renderTabContent()}
