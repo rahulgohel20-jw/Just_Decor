@@ -1,31 +1,47 @@
-import React, { useState } from "react";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { IconButton, Typography } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import { X } from "lucide-react";
 
 const CustomModal = ({ open, onClose, children, title, footer }) => {
+  const handleClose = (event, reason) => {
+    if (reason !== "backdropClick") {
+      onClose();
+    }
+  };
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px] top-[10%] translate-y-0 [&>button]:top-8 [&>button]:end-7">
-        <DialogHeader className="p-4">
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        <DialogBody className="p-4">{children}</DialogBody>
-        {footer && (
-          <DialogFooter className="p-4">
-            <div className="flex justify-end gap-2 w-full">
-              {footer.map((item, index) => {
-                return item;
-              })}
-            </div>
-          </DialogFooter>
-        )}
-      </DialogContent>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      scroll={"body"}
+      aria-labelledby="scroll-dialog-title"
+      aria-describedby="scroll-dialog-description"
+      fullWidth={true}
+      maxWidth={"sm"}
+    >
+      <DialogTitle id="scroll-dialog-title">
+        <Typography variant="h6">{title}</Typography>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <X />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>{children}</DialogContent>
+      <DialogActions>
+        {footer.map((item, index) => {
+          return item;
+        })}
+      </DialogActions>
     </Dialog>
   );
 };
