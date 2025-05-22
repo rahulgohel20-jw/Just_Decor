@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { Input } from "@mui/base";
 
 const AddLink = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
@@ -66,7 +67,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div className="flex flex-col">
-            <input className="input p-2.5" type="file" placeholder="URL" />
+            <Input type="file" />
           </div>
         </div>
         {renderTabContent()}
