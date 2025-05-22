@@ -23,7 +23,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
     // Add your logic for adding a role here
   };
   const [activeTab, setActiveTab] = useState("pages");
-//   const [selectedFeature, setSelectedFeature] = useState("basic");
+  //   const [selectedFeature, setSelectedFeature] = useState("basic");
 
   return (
     isModalOpen && (
@@ -45,124 +45,115 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
           </button>,
         ]}
       >
-        <div className="grid grid-cols-1 gap-6">
-          {/* Define Role Input */}
-          <div>
+        <div className="flex flex-col gap-y-2">
+          <div className="flex flex-col">
             <label className="form-label">Define Role</label>
-            <input
-              type="text"
-              className="input form-control-solid"
-              placeholder="Define Role"
-            />
-          </div>
-          <div>
-         
+            <div className="input">
+              <input type="text" className="h-full" placeholder="Define Role" />
             </div>
           </div>
-          
-          {/* Lead Access */}
-          <div className=" relative">
-            <label className="form-label block mb-1">Lead Access</label>
+          <div className="flex flex-col">
+            <label className="form-label">Lead Access</label>
+            <select className="select pe-7.5" defaultValue="all">
+              <option value="all">All Leads</option>
+              <option value="assigned">Assigned Leads</option>
+              <option value="created">Leads</option>
+            </select>
+          </div>
+          <div className="flex flex-col">
+            {/* <div className=" relative">
+            <label className="form-label block mb-1"></label>
             <div className="relative">
-              <select
-                className="input form-control-solid w-full appearance-none pr-10"
-                defaultValue="all"
+              <i className="ki-filled absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+            </div>
+          </div> */}
+            {/* Tabs */}
+            <div className="flex border-b ">
+              <button
+                onClick={() => setActiveTab("pages")}
+                className={`px-4 py-2 text-sm font-medium ${
+                  activeTab === "pages"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-gray-500"
+                }`}
               >
-                <option value="all">All Leads</option>
-                <option value="assigned">Assigned Leads</option>
-                <option value="created">Leads</option>
-              </select>
-              <i className="ki-filled ki-down absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                Pages
+              </button>
+              <button
+                onClick={() => setActiveTab("features")}
+                className={`px-4 py-2 text-sm font-medium ${
+                  activeTab === "features"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-gray-500"
+                }`}
+              >
+                Features
+              </button>
             </div>
-          </div>
-          <hr />
-          {/* Tabs */}
-          <div className="flex border-b ">
-            <button
-              onClick={() => setActiveTab("pages")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "pages"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-gray-500"
-              }`}
-            >
-              Pages
-            </button>
-            <button
-              onClick={() => setActiveTab("features")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "features"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-gray-500"
-              }`}
-            >
-              Features
-            </button>
-          </div>
-          {/* Pages Table */}
-          {activeTab === "pages" && (
-            <div className="max-h-60 overflow-y-auto border rounded-md">
-              <table className="w-full table-auto text-sm text-left text-gray-700">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2">Pages</th>
-                    <th className="px-4 py-2">View</th>
-                    <th className="px-4 py-2">Edit</th>
-                    <th className="px-4 py-2">Delete</th>
-                    <th className="px-4 py-2">Add</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.map((page) => (
-                    <tr key={page} className="border-t">
-                      <td className="px-4 py-2">{page}</td>
-                      {["view", "edit", "delete", "add"].map((action) => (
-                        <td key={action} className="px-4 py-2 text-center">
-                          <input type="checkbox" className="form-checkbox" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Features Table */}
-          {activeTab === "features" && (
-            <div className="space-y-4 text-sm">
+            {/* Pages Table */}
+            {activeTab === "pages" && (
               <div className="max-h-60 overflow-y-auto border rounded-md">
-                <table className="w-full table-auto text-left text-gray-700">
+                <table className="w-full table-auto text-sm text-left text-gray-700">
                   <thead>
-                    <tr className="bg-white-500 text-gray">
-                      <th className="px-4 py-2">Features</th>
-                      <th className="px-4 py-2 text-center">
-                        Enable / Disable
-                      </th>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2">Pages</th>
+                      <th className="px-4 py-2">View</th>
+                      <th className="px-4 py-2">Edit</th>
+                      <th className="px-4 py-2">Delete</th>
+                      <th className="px-4 py-2">Add</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      "Send Whatsapp",
-                      "Bulk Upload",
-                      "Pipeline Template",
-                      "Send Quotation To Client",
-                      "All Quotation Page Access",
-                      "Quotation Setting Page Access",
-                    ].map((feature) => (
-                      <tr key={feature} className="border-t">
-                        <td className="px-4 py-2">{feature}</td>
-                        <td className="px-4 py-2 text-center">
-                          <input type="checkbox" className="form-checkbox" />
-                        </td>
+                    {permissions.map((page) => (
+                      <tr key={page} className="border-t">
+                        <td className="px-4 py-2">{page}</td>
+                        {["view", "edit", "delete", "add"].map((action) => (
+                          <td key={action} className="px-4 py-2 text-center">
+                            <input type="checkbox" className="form-checkbox" />
+                          </td>
+                        ))}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
-        
+            )}
+            {/* Features Table */}
+            {activeTab === "features" && (
+              <div className="space-y-4 text-sm">
+                <div className="max-h-60 overflow-y-auto border rounded-md">
+                  <table className="w-full table-auto text-left text-gray-700">
+                    <thead>
+                      <tr className="bg-white-500 text-gray">
+                        <th className="px-4 py-2">Features</th>
+                        <th className="px-4 py-2 text-center">
+                          Enable / Disable
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        "Send Whatsapp",
+                        "Bulk Upload",
+                        "Pipeline Template",
+                        "Send Quotation To Client",
+                        "All Quotation Page Access",
+                        "Quotation Setting Page Access",
+                      ].map((feature) => (
+                        <tr key={feature} className="border-t">
+                          <td className="px-4 py-2">{feature}</td>
+                          <td className="px-4 py-2 text-center">
+                            <input type="checkbox" className="form-checkbox" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </CustomModal>
     )
   );
@@ -173,4 +164,3 @@ AddRole.propTypes = {
 };
 
 export default AddRole;
-
