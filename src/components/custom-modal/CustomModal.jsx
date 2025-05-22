@@ -5,7 +5,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import { X } from "lucide-react";
 
-const CustomModal = ({ open, onClose, children, title, footer }) => {
+const CustomModal = ({ open, onClose, children, title, footer, width }) => {
   const handleClose = (event, reason) => {
     if (reason !== "backdropClick") {
       onClose();
@@ -18,8 +18,14 @@ const CustomModal = ({ open, onClose, children, title, footer }) => {
       scroll={"body"}
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
-      fullWidth={true}
-      maxWidth={"sm"}
+      fullWidth={!!width === false}
+      maxWidth={false}
+      PaperProps={{
+        sx: {
+          width: width || "600px",
+          maxWidth: "100%",
+        },
+      }}
     >
       <DialogTitle id="scroll-dialog-title">
         <Typography variant="h6">{title}</Typography>
