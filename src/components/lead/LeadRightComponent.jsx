@@ -1,6 +1,8 @@
 import { useState } from "react";
 import TabComponent from "../tab/TabComponent";
 import NoteTab from "./NoteTab/NoteTab";
+import TimeLineTab from "./TimeLineTab/TimeLineTab";
+import StageTimeLineTab from "./StageTimeLineTab/StageTimeLineTab";
 
 const LeadRightComponent = () => {
   const [activeTab, setActiveTab] = useState("tab_1");
@@ -9,7 +11,7 @@ const LeadRightComponent = () => {
     {
       id: "timeline",
       label: "Timeline",
-      children: "Timeline",
+      children: <TimeLineTab />,
     },
     {
       id: "notes",
@@ -24,7 +26,7 @@ const LeadRightComponent = () => {
     {
       id: "stage_timeline",
       label: "Stage Timeline",
-      children: "Stage Timeline",
+      children: <StageTimeLineTab />,
     },
     {
       id: "emails",
