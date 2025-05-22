@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { Checkbox } from "@mui/material";
 
 const permissions = [
   "Dashboard",
@@ -60,21 +61,14 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
               <option value="created">Leads</option>
             </select>
           </div>
-          <div className="flex flex-col">
-            {/* <div className=" relative">
-            <label className="form-label block mb-1"></label>
-            <div className="relative">
-              <i className="ki-filled absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
-            </div>
-          </div> */}
-            {/* Tabs */}
-            <div className="flex border-b ">
+          <div className="flex flex-col border mt-2">
+            <div className="flex border-b pt-3 mb-3 bg-gray-200">
               <button
                 onClick={() => setActiveTab("pages")}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeTab === "pages"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-gray-500"
+                    ? "border-b-2 border-primary text-primary font-bold"
+                    : "text-gray-700 border-b-2 border-gray-200"
                 }`}
               >
                 Pages
@@ -83,33 +77,32 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                 onClick={() => setActiveTab("features")}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeTab === "features"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-gray-500"
+                    ? "border-b-2 border-primary text-primary font-bold"
+                    : "text-gray-700 border-b-2 border-gray-200"
                 }`}
               >
                 Features
               </button>
             </div>
-            {/* Pages Table */}
             {activeTab === "pages" && (
-              <div className="max-h-60 overflow-y-auto border rounded-md">
-                <table className="w-full table-auto text-sm text-left text-gray-700">
+              <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
+                <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
                   <thead>
-                    <tr className="bg-gray-100">
-                      <th className="px-4 py-2">Pages</th>
-                      <th className="px-4 py-2">View</th>
-                      <th className="px-4 py-2">Edit</th>
-                      <th className="px-4 py-2">Delete</th>
-                      <th className="px-4 py-2">Add</th>
+                    <tr className="border-b bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Pages</th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">View</th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Edit</th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Delete</th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Add</th>
                     </tr>
                   </thead>
                   <tbody>
                     {permissions.map((page) => (
                       <tr key={page} className="border-t">
-                        <td className="px-4 py-2">{page}</td>
+                        <td className="p-2">{page}</td>
                         {["view", "edit", "delete", "add"].map((action) => (
-                          <td key={action} className="px-4 py-2 text-center">
-                            <input type="checkbox" className="form-checkbox" />
+                          <td key={action} className="p-2 text-center">
+                            <Checkbox />
                           </td>
                         ))}
                       </tr>
@@ -120,13 +113,12 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             )}
             {/* Features Table */}
             {activeTab === "features" && (
-              <div className="space-y-4 text-sm">
-                <div className="max-h-60 overflow-y-auto border rounded-md">
-                  <table className="w-full table-auto text-left text-gray-700">
+                <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
+                  <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
                     <thead>
-                      <tr className="bg-white-500 text-gray">
-                        <th className="px-4 py-2">Features</th>
-                        <th className="px-4 py-2 text-center">
+                      <tr className="border-b bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
+                        <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Features</th>
+                        <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
                           Enable / Disable
                         </th>
                       </tr>
@@ -141,16 +133,15 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                         "Quotation Setting Page Access",
                       ].map((feature) => (
                         <tr key={feature} className="border-t">
-                          <td className="px-4 py-2">{feature}</td>
-                          <td className="px-4 py-2 text-center">
-                            <input type="checkbox" className="form-checkbox" />
+                          <td className="p-2">{feature}</td>
+                          <td className="p-2 text-center">
+                            <Checkbox />
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              </div>
             )}
           </div>
         </div>
