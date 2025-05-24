@@ -35,74 +35,127 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
             Add Member
           </button>,
         ]}
-      >       
-       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-          <div>
+      >
+        
+
+
+
+      <div className="flex flex-col gap-y-2">
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
             <label className="form-label">First Name</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="First Name"
-            />
-          </div>
-          <div>
-            <label className="form-label">Last Name</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Last Name"
-            />
-          </div>
-          <div>
-            <label className="form-label">Country</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="Country"
-            />
-          </div>
-          <div>
-            <label className="form-label">WhatsApp No</label>
-            <input
-              type="text"
-              className="input form-control-solid w-full"
-              placeholder="WhatsApp No"
-            />
-          </div>
-        </div>
-       <hr />
-       <div className="grid grid-cols-2 gap-x-4 gap-y-2 my-2">
-          
-          <div className="filItems">
-            <label className="form-label">Role</label>
-              <select className="select select-md w-full" placeholder="Select Team Member">
-                <option value="Team Member">Team Member </option>
-                <option value="Manager">Manager</option>
-                <option value="Admin">Admin</option>
-                
-              </select>
+            <div className="input">
+              <i className="ki-filled ki-user"></i>
+              <input
+                type="text"
+                className="h-full"
+                placeholder="First name"
+              />
             </div>
-          <div>
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              className="input form-control-solid w-full"
-              placeholder="Email Address"
-            />
           </div>
-          <div>
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="input form-control-solid w-full"
-              placeholder="Password"
-            />
+          <div className="flex flex-col">
+            <label className="form-label">Last Name</label>
+            <div className="input">
+              <i className="ki-filled ki-user"></i>
+              <input
+                type="text"
+                className="h-full"
+                placeholder="Last name"
+              />
+            </div>
           </div>
-          
         </div>
-        <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <label className="text-black">Task Access</label>
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">Country</label>
+            <div className="input">
+              <i class="ki-filled ki-flag"></i>
+              <input
+                type="text"
+                className="h-full"
+                placeholder="Country"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">WhatsApp No</label>
+            <div className="input">
+              <i class="ki-filled ki-whatsapp"></i>
+              <input
+                type="text"
+                className="h-full"
+                placeholder="WhatsApp no"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <label className="form-label">Role</label>
+          <select className="select pe-7.5">
+            <option value="0">Select Team Member</option>
+            <option value="Team Member">Team Member</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>                
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">Email Address</label>
+            <div className="input">
+              <i class="ki-filled ki-sms"></i>
+              <input
+                type="email"
+                className="h-full"
+                placeholder="Email address"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">Password</label>
+            <div className="input">
+              <i class="ki-filled ki-lock"></i>
+              <input
+                type="password"
+                className="h-full"
+                placeholder="Password no"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <label className="form-label">Task Access</label>
+          <label className="switch switch-lg">
+            <input 
+            type="checkbox" 
+            value="1" 
+            name="check" 
+            defaultChecked 
+            readOnly 
+            checked={taskAccess}
+            onChange={() => setTaskAccess(!taskAccess)}
+            />
+          </label>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <label className="form-label">Leave & Attendance Access</label>
+          <label className="switch switch-lg">
+            <input 
+            type="checkbox" 
+            value="1" 
+            name="check" 
+            defaultChecked 
+            readOnly 
+            checked={leaveAccess}
+            onChange={() => setLeaveAccess(!leaveAccess)}
+            />
+          </label>
+        </div>
+      </div>
+      
+        
+
+        {/* 
+        <label className="text-black">LTask Access</label>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
@@ -117,9 +170,7 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
             }`}
           ></div>
         </label>
-      </div>
 
-      <div className="flex items-center justify-between">
         <label className="text-black">Leave & Attendance Access</label>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -134,10 +185,8 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
               leaveAccess ? "translate-x-5" : ""
             }`}
           ></div>
-        </label>
-      </div>
-    </div>
-       
+        </label> */}
+
       </CustomModal>
     )
   );

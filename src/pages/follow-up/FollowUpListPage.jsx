@@ -150,10 +150,10 @@ const FollowUpListPage = () => {
           </div>
         </div>
 
-        <div
+        {/* <div
           key={index}
           className="flex items-center justify-between border border-gray-200 rounded-xl gap-2 px-4 py-4 bg-secondary-clarity"
-        >
+          >
           <div className="flex flex-col">
             <div className="flex flex-row">
               <span className="text-sm font-medium hover:text-primary-active mb-px">
@@ -217,7 +217,8 @@ const FollowUpListPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
+        
       </>
     );
   };
