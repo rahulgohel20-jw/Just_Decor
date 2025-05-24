@@ -41,9 +41,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
           >
             Cancel
           </button>,
-          <button key="save" className="btn btn-primary" title="Save Contact">
-            Save Role
-          </button>,
+          <button key="save" className="btn btn-primary" title="Save Role">Save Role</button>,
         ]}
       >
         <div className="flex flex-col gap-y-2">
@@ -88,7 +86,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
               <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
                 <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
                   <thead>
-                    <tr className="border-b bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
+                    <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
                       <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Pages</th>
                       <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">View</th>
                       <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Edit</th>
@@ -116,7 +114,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                 <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
                   <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
                     <thead>
-                      <tr className="border-b bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
+                      <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
                         <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Features</th>
                         <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
                           Enable / Disable
