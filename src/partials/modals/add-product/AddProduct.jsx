@@ -106,7 +106,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
               <div className="flex flex-col">
                 <label className="form-label">Country</label>
                 <div className="input">
-                  <i class="ki-filled ki-airplane"></i>
+                  <i className="ki-filled ki-airplane"></i>
                   <input className="h-full" type="text" placeholder="Country" />
                 </div>
               </div>
