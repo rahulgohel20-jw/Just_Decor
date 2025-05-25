@@ -12,73 +12,74 @@ import CardList from "@/components/card-list/CardList";
 import { useState } from "react";
 
 const ExportLead = () => {
-    const [timeRange, setTimeRange] = useState("This Month");
-    const [pipeline, setPipeline] = useState("");
-    const [assignedTo, setAssignedTo] = useState("");
+  const [timeRange, setTimeRange] = useState("This Month");
+  const [pipeline, setPipeline] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
 
-    const handleExport = () => {
-      alert("Leads exported!");
-    };
+  const handleExport = () => {
+    alert("Leads exported!");
+  };
 
-    return (
-      <div className="container-fluid bg-white p-6 rounded-lg">
-        {/* Modal Header */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold">Export Leads</h2>
-        </div>
-
-        {/* Dropdowns in a single row */}
-        <div className="flex space-x-4 mb-6">
-          {/* Time Range Dropdown */}
-          <div className="flex-1">
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="w-full border border-red-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-900 text-gray-700"
-            >
-              <option value="This Month">This Month</option>
-              <option value="Last Month">Last Month</option>
-              <option value="This Year">This Year</option>
-            </select>
+  return (
+    <>
+      <div className="grid grid-cols-9 gap-3 lg:gap-4 mt-5">
+        <div className="col-span-3 col-start-4">
+          <div className="card min-w-full py-5 px-6">
+            <h2 className="text-lg font-semibold mb-3">Export Leads</h2>
+            <div className="flex flex-col gap-y-3">
+              <div className="flex flex-col">
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  className="select pe-7.5"
+                >
+                  <option value="0">Select Month</option>
+                  <option value="This Month">This Month</option>
+                  <option value="Last Month">Last Month</option>
+                  <option value="This Year">This Year</option>
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <select
+                  value={pipeline}
+                  onChange={(e) => setPipeline(e.target.value)}
+                  className="select pe-7.5"
+                  disabled
+                >
+                  <option value="0">Select Pipeline</option>
+                  <option value="Pipeline 1">Pipeline 1</option>
+                  <option value="Pipeline 2">Pipeline 2</option>
+                  <option value="Pipeline 3">Pipeline 3</option>
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <select
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                  className="select pe-7.5"
+                  disabled
+                >
+                  <option value="0">Select User</option>
+                  <option value="User 1">User 1</option>
+                  <option value="User 2">User 2</option>
+                  <option value="User 3">User 3</option>
+                </select>
+              </div>
+              <div className="text-center">
+                <button
+                  onClick={handleExport}
+                  className="btn btn-primary justify-center w-full"
+                  title="Export Leads"
+                >
+                  <i className="ki-filled ki-file-down"></i>
+                  Export Leads
+                </button>
+              </div>
+            </div>
           </div>
-
-          {/* Pipeline Dropdown */}
-          <div className="flex-1">
-            <select
-              value={pipeline}
-              onChange={(e) => setPipeline(e.target.value)}
-              className="w-full border border-red-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-900 text-gray-500"
-            >
-              <option value="" disabled>Select pipeline</option>
-              <option value="Pipeline 1">Pipeline 1</option>
-              <option value="Pipeline 2">Pipeline 2</option>
-            </select>
-          </div>
-
-          {/* Assigned To Dropdown */}
-          <div className="flex-1">
-            <select
-              value={assignedTo}
-              onChange={(e) => setAssignedTo(e.target.value)}
-              className="w-full border border-red-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-900 text-gray-500"
-            >
-              <option value="" disabled>Assigned to</option>
-              <option value="User 1">User 1</option>
-              <option value="User 2">User 2</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Export Button */}
-        <div className="flex justify-center">
-          <button
-            onClick={handleExport}
-            className="bg-red-800 text-white px-4 py-2 rounded w-50 hover:bg-red-900 transition-colors duration-300"
-          >
-            Export Leads
-          </button>
         </div>
       </div>
-    );
-  };
+    </>
+  );
+};
 export { ExportLead };
