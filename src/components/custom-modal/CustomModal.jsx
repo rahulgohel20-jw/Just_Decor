@@ -1,11 +1,13 @@
 import { IconButton, Typography } from "@mui/material";
+import { X } from "lucide-react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import { X } from "lucide-react";
+import useStyle from "./style";
 
 const CustomModal = ({ open, onClose, children, title, footer, width }) => {
+  const classes = useStyle();
   const handleClose = (event, reason) => {
     if (reason !== "backdropClick") {
       onClose();
@@ -13,6 +15,7 @@ const CustomModal = ({ open, onClose, children, title, footer, width }) => {
   };
   return (
     <Dialog
+      className={classes.container}
       open={open}
       onClose={handleClose}
       scroll={"body"}
