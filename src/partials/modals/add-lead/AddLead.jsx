@@ -263,6 +263,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               }`}
               onClick={() => setActiveTab("tab_1")}
             >
+              <i class="ki-filled ki-autobrightness"></i>
               Lead Details
             </a>
             <a
@@ -271,6 +272,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               }`}
               onClick={() => setActiveTab("tab_2")}
             >
+              <i class="ki-filled ki-bookmark"></i>
               Product Details
             </a>
           </div>

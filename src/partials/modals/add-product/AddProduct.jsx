@@ -190,12 +190,14 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
             className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_1" ? "active" : ""}`}
             onClick={() => setActiveTab("tab_1")}
           >
+            <i class="ki-filled ki-bookmark"></i>
             Product Details
           </a>
           <a
             className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_2" ? "active" : ""}`}
             onClick={() => setActiveTab("tab_2")}
           >
+            <i class="ki-filled ki-geolocation-home"></i>
             Address Details
           </a>
         </div>
