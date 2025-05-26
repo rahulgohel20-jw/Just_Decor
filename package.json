@@ -25,6 +25,7 @@
     "@formatjs/intl-relativetimeformat": "^11.4.4",
     "@mui/base": "5.0.0-beta.40",
     "@mui/material": "^6.1.6",
+    "@mui/styles": "^6.4.11",
     "@mui/utils": "^6.1.6",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
