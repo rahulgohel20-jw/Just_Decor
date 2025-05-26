@@ -1,3 +1,4 @@
+import { useState } from "react"; // Add this
 import { IconButton, Typography } from "@mui/material";
 import { X } from "lucide-react";
 import Dialog from "@mui/material/Dialog";
@@ -8,14 +9,19 @@ import useStyle from "./style";
 
 const CustomModal = ({ open, onClose, children, title, footer, width }) => {
   const classes = useStyle();
+  const [shake, setShake] = useState(false);
+
   const handleClose = (event, reason) => {
-    if (reason !== "backdropClick") {
-      onClose();
+    if (reason === "backdropClick") {
+      setShake(true);
+      setTimeout(() => setShake(false), 300); // Clear after animation
+      return;
     }
+    onClose();
   };
   return (
     <Dialog
-      className={classes.container}
+      className={`${classes.customModal} ${shake ? classes.shake : ""}`}
       open={open}
       onClose={handleClose}
       scroll={"body"}
