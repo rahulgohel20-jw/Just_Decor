@@ -56,24 +56,31 @@ const LinkList = () => {
         {/* Tabs */}
         <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
           <button className="btn active" title="Sales">
+            <i class="ki-filled ki-chart-line"></i>
             Sales
           </button>
           <button className="btn" title="Marketing">
+            <i class="ki-filled ki-dollar"></i>
             Marketing
           </button>
           <button className="btn" title="Customer Support">
+            <i class="ki-filled ki-support"></i>
             Customer Support
           </button>
           <button className="btn" title="HR/Admin">
+            <i class="ki-filled ki-user-tick"></i>
             HR/Admin
           </button>
           <button className="btn" title="General">
+            <i class="ki-filled ki-share"></i>
             General
           </button>
           <button className="btn" title="Automation">
+            <i class="ki-filled ki-scan-barcode"></i>
             Automation
           </button>
           <button className="btn" title="Operation">
+            <i class="ki-filled ki-technology-4"></i>
             Operation
           </button>
         </div>

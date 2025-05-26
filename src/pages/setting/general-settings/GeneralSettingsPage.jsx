@@ -25,7 +25,7 @@ const GeneralSettingsPage = () => {
         <>
           {/* <User className="text-primary" /> */}
           <i className="ki-filled ki-security-user"></i>
-          Role And Permission
+          Role & Permission
         </>
       ),
       children: <RoleAndPermission />,

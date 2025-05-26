@@ -56,7 +56,7 @@ const SalesPersonList = () => {
                 onClick={handleModalOpen}
                 title="Add Member"
               >
-                <i className="ki-filled ki-plus"></i> Add Member
+                <i className="ki-filled ki-plus"></i> Add Membero
             </button>
           </div>
         </div>
