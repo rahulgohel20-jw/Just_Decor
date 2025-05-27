@@ -241,7 +241,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           onClose={handleModalClose}
           title="Add Lead"
           footer={[
-            <div className="flex justify-between">
+            <div className="flex justify-between" key={"footer-buttons"}>
               <button
                 key="cancel"
                 className="btn btn-secondary"
@@ -271,7 +271,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               }`}
               onClick={() => setActiveTab("tab_1")}
             >
-              <i class="ki-filled ki-autobrightness"></i>
+              <i className="ki-filled ki-autobrightness"></i>
               Lead Details
             </a>
             <a
@@ -280,7 +280,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               }`}
               onClick={() => setActiveTab("tab_2")}
             >
-              <i class="ki-filled ki-bookmark"></i>
+              <i className="ki-filled ki-bookmark"></i>
               Product Details
             </a>
           </div>
