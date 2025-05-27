@@ -57,11 +57,11 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="flex flex-col">
                 <label className="form-label">Description</label>
-                  <textarea
-                    rows={3}
-                    className="textarea h-full"
-                    placeholder="Description"
-                  />
+                <textarea
+                  rows={3}
+                  className="textarea h-full"
+                  placeholder="Description"
+                />
                 {/* <Textarea /> */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
@@ -124,87 +124,93 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                 <i className="text-sm ki-filled ki-plus"></i> Add New Product
               </button>
             </div>
-          <div className="flex flex-col max-h-80 overflow-auto">
-            {formData &&
-              formData.product_data.map((product, index) => {
-                return (
-                  <div className="flex flex-col gap-y-2 mb-2" key={index}>
-                    <div className="flex items-end gap-3">
-                      <div className="w-full flex flex-col">
-                        <label className="form-label">Product</label>
-                        <select
-                          className="select pe-7.5"
-                          data-control="select2"
-                          data-placeholder="Product"
-                          value={product.productId}
-                          onChange={(e) => {
-                            const newProductData = [...formData.product_data];
-                            newProductData[index].productId = e.target.value;
-                            handleMultiInputChange({
-                              product_data: newProductData,
-                            });
-                          }}
-                        >
-                          <option value="">Select Product</option>
-                        </select>
-                      </div>
-                      <div className="w-full flex flex-col">
-                        <label className="form-label">Quantity</label>
-                        <div className="input">
-                          <i className="ki-filled ki-bookmark"></i>
-                          <input
-                            className="h-full"
-                            type="number"
-                            placeholder="Quantity"
-                            value={product.quantity}
+            <div className="flex flex-col max-h-80 overflow-auto">
+              {formData &&
+                formData.product_data.map((product, index) => {
+                  return (
+                    <div className="flex flex-col gap-y-2 mb-2" key={index}>
+                      <div className="flex items-end gap-3">
+                        <div className="w-full flex flex-col">
+                          <label className="form-label">Product</label>
+                          <select
+                            className="select pe-7.5"
+                            data-control="select2"
+                            data-placeholder="Product"
+                            value={product.productId}
                             onChange={(e) => {
                               const newProductData = [...formData.product_data];
-                              newProductData[index].quantity = e.target.value;
+                              newProductData[index].productId = e.target.value;
                               handleMultiInputChange({
                                 product_data: newProductData,
                               });
                             }}
-                          />
+                          >
+                            <option value="">Select Product</option>
+                          </select>
+                        </div>
+                        <div className="w-full flex flex-col">
+                          <label className="form-label">Quantity</label>
+                          <div className="input">
+                            <i className="ki-filled ki-bookmark"></i>
+                            <input
+                              className="h-full"
+                              type="number"
+                              placeholder="Quantity"
+                              value={product.quantity}
+                              onChange={(e) => {
+                                const newProductData = [
+                                  ...formData.product_data,
+                                ];
+                                newProductData[index].quantity = e.target.value;
+                                handleMultiInputChange({
+                                  product_data: newProductData,
+                                });
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex">
+                          {index === 0 ? (
+                            <button
+                              className="btn btn-success w-10 p-0 inline-flex items-center justify-center rounded-full"
+                              onClick={() => {
+                                const newProductData = [
+                                  ...formData.product_data,
+                                ];
+                                newProductData.push({
+                                  productId: "",
+                                  quantity: "",
+                                });
+                                handleMultiInputChange({
+                                  product_data: newProductData,
+                                });
+                              }}
+                              title="Add"
+                            >
+                              <i className="ki-filled ki-plus"></i>
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-danger w-10 p-0 inline-flex items-center justify-center rounded-full"
+                              onClick={() => {
+                                const newProductData = [
+                                  ...formData.product_data,
+                                ];
+                                newProductData.splice(index, 1);
+                                handleMultiInputChange({
+                                  product_data: newProductData,
+                                });
+                              }}
+                              title="Remove"
+                            >
+                              <i className="ki-filled ki-cross"></i>
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <div className="flex">
-                        {index === 0 ? (
-                          <button
-                            className="btn btn-success w-10 p-0 inline-flex items-center justify-center rounded-full"
-                            onClick={() => {
-                              const newProductData = [...formData.product_data];
-                              newProductData.push({
-                                productId: "",
-                                quantity: "",
-                              });
-                              handleMultiInputChange({
-                                product_data: newProductData,
-                              });
-                            }}
-                            title="Add"
-                          >
-                            <i className="ki-filled ki-plus"></i>
-                          </button>
-                        ) : (
-                          <button
-                            className="btn btn-danger w-10 p-0 inline-flex items-center justify-center rounded-full"
-                            onClick={() => {
-                              const newProductData = [...formData.product_data];
-                              newProductData.splice(index, 1);
-                              handleMultiInputChange({
-                                product_data: newProductData,
-                              });
-                            }}
-                            title="Remove"
-                          >
-                            <i className="ki-filled ki-cross"></i>
-                          </button>
-                        )}
-                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
         );
@@ -235,22 +241,24 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           onClose={handleModalClose}
           title="Add Lead"
           footer={[
-            <button
-              key="cancel"
-              className="btn btn-secondary"
-              onClick={handleModalClose}
-              title="Cancel"
-            >
-              Cancel
-            </button>,
-            <button
-              key="save"
-              className="btn btn-primary"
-              title="Save Lead"
-              onClick={saveData}
-            >
-              Save Lead
-            </button>,
+            <div className="flex justify-between">
+              <button
+                key="cancel"
+                className="btn btn-secondary"
+                onClick={handleModalClose}
+                title="Cancel"
+              >
+                Cancel
+              </button>
+              <button
+                key="save"
+                className="btn btn-primary"
+                title="Save Lead"
+                onClick={saveData}
+              >
+                Save Lead
+              </button>
+            </div>,
           ]}
         >
           <div

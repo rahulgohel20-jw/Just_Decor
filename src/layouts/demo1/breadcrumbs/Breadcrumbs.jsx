@@ -16,6 +16,7 @@ import AddLead from "@/partials/modals/add-lead/AddLead";
 import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
 import AddContact from "@/partials/modals/add-contact/AddContact";
 import AddCompany from "@/partials/modals/add-company/AddCompany";
+import { Dropdown, Space } from "antd";
 
 const Breadcrumbs = ({ items }) => {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
@@ -78,77 +79,48 @@ const Breadcrumbs = ({ items }) => {
     return [dashboardItem, ...data];
   };
 
+  const menuItems = [
+    {
+      label: <div onClick={() => setIsLeadModalOpen(true)}>Lead</div>,
+      key: "0",
+    },
+    {
+      label: <div onClick={() => setIsFollowUpModalOpen(true)}>Follow Up</div>,
+      key: "1",
+    },
+    {
+      label: <div onClick={() => setIsContactModalOpen(true)}>Contact</div>,
+      key: "2",
+    },
+    {
+      label: <div onClick={() => setIsCompanyModalOpen(true)}>Company</div>,
+      key: "3",
+    },
+  ];
   return (
     <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium">
       <h1 className="text-xl font-medium leading-none text-gray-900">
         {items && items[items.length - 1].title}
       </h1>
       <div className="flex items-center">
-        <div className="sm:flex hidden flex flex-wrap items-center gap-1">
+        <div className="sm:flex hidden flex flex-wrap items-center gap-1 me-1">
           {items && renderItems(items)}
         </div>
         {/* Menu Dropdown */}
-        <Menu className="items-stretch">
-          <MenuItem
-            toggle="dropdown"
-            trigger="click"
-            dropdownProps={{
-              placement: "bottom-start",
-              modifiers: [
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, -10],
-                  },
-                },
-              ],
-            }}
-          >
-            <MenuToggle className="btn btn-sm btn-icon">
+        <Dropdown
+          menu={{ items: menuItems }}
+          className="ms-1"
+          trigger={["click"]}
+        >
+          <a onClick={(e) => e.preventDefault()}>
+            <Space>
               <button className="btn btn-sm btn-secondary">
                 <Plus />
                 Create New
               </button>
-            </MenuToggle>
-            <MenuSub
-              className="menu-default"
-              rootClassName="w-full max-w-[200px]"
-            >
-              <MenuItem onClick={() => setIsLeadModalOpen(true)}>
-                <MenuLink>
-                  <MenuIcon>
-                    <Filter />
-                  </MenuIcon>
-                  <MenuTitle>Lead</MenuTitle>
-                </MenuLink>
-              </MenuItem>
-              <MenuItem onClick={() => setIsFollowUpModalOpen(true)}>
-                <MenuLink>
-                  <MenuIcon>
-                    <Contact />
-                  </MenuIcon>
-                  <MenuTitle>Follow Up</MenuTitle>
-                </MenuLink>
-              </MenuItem>
-              <MenuItem onClick={() => setIsContactModalOpen(true)}>
-                <MenuLink>
-                  <MenuIcon>
-                    <UserPlus />
-                  </MenuIcon>
-                  <MenuTitle>Contact</MenuTitle>
-                </MenuLink>
-              </MenuItem>
-              <MenuItem onClick={() => setIsCompanyModalOpen(true)}>
-                <MenuLink>
-                  <MenuIcon>
-                    <Building2 />
-                  </MenuIcon>
-                  <MenuTitle>Company</MenuTitle>
-                </MenuLink>
-              </MenuItem>
-            </MenuSub>
-          </MenuItem>
-        </Menu>
+            </Space>
+          </a>
+        </Dropdown>
         {/* End Menu Dropdown */}
       </div>
       <AddLead
