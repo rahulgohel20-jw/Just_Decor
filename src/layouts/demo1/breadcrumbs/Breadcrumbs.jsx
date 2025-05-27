@@ -1,11 +1,28 @@
 import clsx from "clsx";
-import { Fragment } from "react";
-import { useLocation } from "react-router";
-import { KeenIcon } from "@/components";
-import { useMenus } from "@/providers";
+import { Fragment, useState } from "react";
+import { Building2, Contact, Filter, Plus, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  KeenIcon,
+  MenuItem,
+  MenuToggle,
+  MenuLink,
+  MenuSub,
+  MenuTitle,
+  MenuIcon,
+  Menu,
+} from "@/components";
+import AddLead from "@/partials/modals/add-lead/AddLead";
+import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
+import AddContact from "@/partials/modals/add-contact/AddContact";
+import AddCompany from "@/partials/modals/add-company/AddCompany";
+
 const Breadcrumbs = ({ items }) => {
-  const { getMenuConfig } = useMenus();
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+
   const renderItems = (items) => {
     const dashboardItem = (
       <Fragment key={`root-${0}`}>
@@ -60,51 +77,97 @@ const Breadcrumbs = ({ items }) => {
     });
     return [dashboardItem, ...data];
   };
-  const render = () => {
-    return (
-      <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium">
-        <h1 className="text-xl font-medium leading-none text-gray-900">
-          {items && items[items.length - 1].title}
-        </h1>
+
+  return (
+    <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium">
+      <h1 className="text-xl font-medium leading-none text-gray-900">
+        {items && items[items.length - 1].title}
+      </h1>
+      <div className="flex items-center">
         <div className="sm:flex hidden flex flex-wrap items-center gap-1">
           {items && renderItems(items)}
-
-          {/* <div className="dropdown" data-dropdown="true" data-dropdown-trigger="click">
-            <button className="dropdown-toggle btn btn-sm btn-light ms-1">Create new</button>
-            <div className="dropdown-content w-full max-w-56 py-2">
-              <div className="menu menu-default flex flex-col w-full">
-                <div className="menu-item">
-                  <a className="menu-link" href="#">
-                    <span className="menu-icon"><i className="ki-outline ki-badge"></i></span>
-                    <span className="menu-title">Menu item 1</span>
-                  </a>
-                </div>
-                <div className="menu-item">
-                  <a className="menu-link" href="#">
-                    <span className="menu-icon"><i className="ki-outline ki-profile-circle"></i></span>
-                    <span className="menu-title">Menu item 2</span>
-                  </a>
-                </div>
-                <div className="menu-item">
-                  <a className="menu-link" href="#">
-                    <span className="menu-icon"><i className="ki-outline ki-setting-2"></i></span>
-                    <span className="menu-title">Menu item 3</span>
-                    <span className="menu-badge"><span className="badge badge-sm badge-outline badge-pill badge-primary">New</span></span>
-                  </a>
-                </div>
-                <div className="menu-item">
-                  <a className="menu-link" href="#">
-                    <span className="menu-icon"><i className="ki-outline ki-message-programming"></i></span>
-                    <span className="menu-title">Menu item 4</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
+        {/* Menu Dropdown */}
+        <Menu className="items-stretch">
+          <MenuItem
+            toggle="dropdown"
+            trigger="click"
+            dropdownProps={{
+              placement: "bottom-start",
+              modifiers: [
+                {
+                  name: "offset",
+                  options: {
+                    offset: [0, -10],
+                  },
+                },
+              ],
+            }}
+          >
+            <MenuToggle className="btn btn-sm btn-icon">
+              <button className="btn btn-sm btn-secondary">
+                <Plus />
+                Create New
+              </button>
+            </MenuToggle>
+            <MenuSub
+              className="menu-default"
+              rootClassName="w-full max-w-[200px]"
+            >
+              <MenuItem onClick={() => setIsLeadModalOpen(true)}>
+                <MenuLink>
+                  <MenuIcon>
+                    <Filter />
+                  </MenuIcon>
+                  <MenuTitle>Lead</MenuTitle>
+                </MenuLink>
+              </MenuItem>
+              <MenuItem onClick={() => setIsFollowUpModalOpen(true)}>
+                <MenuLink>
+                  <MenuIcon>
+                    <Contact />
+                  </MenuIcon>
+                  <MenuTitle>Follow Up</MenuTitle>
+                </MenuLink>
+              </MenuItem>
+              <MenuItem onClick={() => setIsContactModalOpen(true)}>
+                <MenuLink>
+                  <MenuIcon>
+                    <UserPlus />
+                  </MenuIcon>
+                  <MenuTitle>Contact</MenuTitle>
+                </MenuLink>
+              </MenuItem>
+              <MenuItem onClick={() => setIsCompanyModalOpen(true)}>
+                <MenuLink>
+                  <MenuIcon>
+                    <Building2 />
+                  </MenuIcon>
+                  <MenuTitle>Company</MenuTitle>
+                </MenuLink>
+              </MenuItem>
+            </MenuSub>
+          </MenuItem>
+        </Menu>
+        {/* End Menu Dropdown */}
       </div>
-    );
-  };
-  return render();
+      <AddLead
+        isModalOpen={isLeadModalOpen}
+        setIsModalOpen={setIsLeadModalOpen}
+      />
+      <AddFollowUp
+        isModalOpen={isFollowUpModalOpen}
+        setIsModalOpen={setIsFollowUpModalOpen}
+      />
+      <AddContact
+        isModalOpen={isContactModalOpen}
+        setIsModalOpen={setIsContactModalOpen}
+      />
+      <AddCompany
+        isModalOpen={isCompanyModalOpen}
+        setIsModalOpen={setIsCompanyModalOpen}
+      />
+    </div>
+  );
 };
 export { Breadcrumbs };
