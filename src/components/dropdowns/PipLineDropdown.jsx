@@ -4,20 +4,20 @@ import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 const PipLineDropdown = () => {
   const [selectedCompanies, setSelectedCompanies] = useState([]);
 
-  const handleChange = (event) => {
-    setSelectedCompanies(event.target.value);
+  const handleChange = ({ target: { value } }) => {
+    setSelectedCompanies(value);
   };
 
   return (
     <SelectDropdown
       value={selectedCompanies}
       onChange={handleChange}
-      options={[
+      staticOptions={[
         { label: "Company A", value: "companyA" },
         { label: "Company B", value: "companyB" },
         { label: "Company C", value: "companyC" },
       ]}
-      multiple={true}
+      mode="multiple"
     />
   );
 };

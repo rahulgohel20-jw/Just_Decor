@@ -1,31 +1,23 @@
-import React, { useState, useEffect } from "react";
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Checkbox,
-  ListItemText,
-  CircularProgress,
-  Chip,
-  Box,
-} from "@mui/material";
-import { KeenIcon } from "@/components";
+import { useState, useEffect } from "react";
+import { Select, Tooltip } from "antd";
+import { InputLabel } from "@mui/material";
 
 const SelectDropdown = ({
-  label,
-  value,
-  onChange,
   apiUrl = null,
-  options: staticOptions = [],
-  multiple = false,
-  optionLabelKey = "label",
-  optionValueKey = "value",
-  placeholder = "Select...",
+  staticOptions = [],
+  label,
+  ...rest
 }) => {
   const [options, setOptions] = useState(staticOptions);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleChange = (value) => {
+    console.log(value);
+
+    rest.onChange &&
+      rest.onChange({ target: { name: rest.name, value: value } });
+  };
 
   useEffect(() => {
     if (apiUrl) {
@@ -46,99 +38,22 @@ const SelectDropdown = ({
     }
   }, [apiUrl]);
 
-  const handleRemove = (valueToRemove) => {
-    const newValue = value.filter((val) => val !== valueToRemove);
-    onChange({ target: { value: newValue } });
-  };
-
-  const renderSelectedValues = (selected) => {
-    if (isLoading) return "Loading...";
-
-    // When nothing is selected, display placeholder
-    if (!selected || (Array.isArray(selected) && selected.length === 0)) {
-      return placeholder;
+  useEffect(() => {
+    if (staticOptions.length > 0) {
+      setOptions(staticOptions);
     }
-
-    // Render selected values as chips for multiple selection
-    if (multiple) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-          {selected.map((val) => {
-            const match = options.find((opt) => opt[optionValueKey] === val);
-            return (
-              match && (
-                <Chip
-                  key={val}
-                  label={match[optionLabelKey]}
-                  onDelete={() => handleRemove(val)}
-                  deleteIcon={<KeenIcon icon="close" />}
-                  size="small"
-                  className="bg-gray-800 text-white rounded-lg px-2 py-1"
-                />
-              )
-            );
-          })}
-        </Box>
-      );
-    } else {
-      const match = options.find((opt) => opt[optionValueKey] === selected);
-      return match ? match[optionLabelKey] : placeholder;
-    }
-  };
+  }, [staticOptions]);
 
   return (
-    <FormControl fullWidth>
-      <InputLabel>{label}</InputLabel>
+    <div>
+      {label && <InputLabel>{label}</InputLabel>}
       <Select
-        multiple={multiple}
-        value={value || (multiple ? [] : "")}
-        onChange={onChange}
-        label={label}
-        renderValue={renderSelectedValues}
-        displayEmpty
-        className="select text-white border border-gray-700 rounded-lg p-2 pr-10"
-        MenuProps={{
-          PaperProps: {
-            className: "bg-gray-800",
-          },
-        }}
-        IconComponent={() => (
-          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <svg
-              className="w-5 h-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </span>
-        )}
-      >
-        {isLoading ? (
-          <MenuItem disabled>
-            <CircularProgress size={20} />
-          </MenuItem>
-        ) : error ? (
-          <MenuItem disabled>{error.message}</MenuItem>
-        ) : (
-          options.map((opt) => (
-            <MenuItem key={opt[optionValueKey]} value={opt[optionValueKey]}>
-              {multiple && (
-                <Checkbox checked={value.includes(opt[optionValueKey])} />
-              )}
-              <ListItemText primary={opt[optionLabelKey]} />
-            </MenuItem>
-          ))
-        )}
-      </Select>
-    </FormControl>
+        {...rest}
+        style={{ width: "100%" }}
+        onChange={handleChange}
+        options={options}
+      />
+    </div>
   );
 };
 
