@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
-const CustomModal = ({ open, onClose, children, title, width, ...rest }) => {
+const CustomModal = ({ open, onClose, children, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
   const modalRef = useRef(null);
@@ -31,23 +31,23 @@ const CustomModal = ({ open, onClose, children, title, width, ...rest }) => {
     };
   }, [open]);
   return (
-      <Modal
-        maskClosable={false} //  disables closing on backdrop click
-        keyboard={false} //disables closing on Esc
-        title={title}
-        closable={{ "aria-label": "Custom Close Button" }}
-        open={open}
-        onCancel={handleClose}
-        modalRender={(modal) => (
-          <div ref={modalRef} className={shake ? classes.shake : ""}>
-            {modal}
-          </div>
-        )}
-        {...rest}
-      >
-        {children}
-        {/* <div className="flex justify-end modal-footer"></div> */}
-      </Modal>
+    <Modal
+      maskClosable={false} //  disables closing on backdrop click
+      keyboard={false} //disables closing on Esc
+      title={title}
+      closable={{ "aria-label": "Custom Close Button" }}
+      open={open}
+      onCancel={handleClose}
+      modalRender={(modal) => (
+        <div ref={modalRef} className={shake ? classes.shake : ""}>
+          {modal}
+        </div>
+      )}
+      {...rest}
+    >
+      {children}
+      {/* <div className="flex justify-end modal-footer"></div> */}
+    </Modal>
   );
 };
 export { CustomModal };
