@@ -61,7 +61,7 @@ const items = [{
             <div className="btn btn-sm btn-icon btn-clear btn-info">
               <KeenIcon icon="notepad-edit" />
             </div>
-            <div className="btn btn-sm btn-icon btn-clear btn-danger">
+            <div className="btn btn-sm btn-icon btn-clear btn-light">
               <KeenIcon icon="trash" />
             </div>
           </div>

@@ -23,7 +23,7 @@ const StageTimeLineTab = () => {
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
             <button
-              className="btn btn-sm btn-icon btn-clear text-danger"
+              className="btn btn-sm btn-icon btn-clear"
               title="Delete"
             >
               <Confirmation

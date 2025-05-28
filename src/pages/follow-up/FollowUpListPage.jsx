@@ -49,10 +49,20 @@ const FollowUpListPage = () => {
   const renderItem = (item, index) => {
     return (
       <>
+      <style>
+        {`
+          .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+          }
+          .dark .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+          }
+        `}
+      </style>
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="card min-w-full">
             <div className="flex flex-col flex-1">
-              <div className="flex flex-wrap justify-between items-center gap-7 p-4">
+              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
                 <div className="flex flex-wrap items-center gap-7">
                   <div className="flex flex-wrap items-center gap-3">
                     <img
@@ -96,7 +106,7 @@ const FollowUpListPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+              <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-4">
                   <p className="text-md">
                     <i className="ki-filled ki-user me-2"></i>
@@ -131,7 +141,7 @@ const FollowUpListPage = () => {
                     <i className="ki-filled ki-tab-tablet"></i>
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-danger"
+                    className="btn btn-sm btn-icon btn-clear btn-light"
                     title="Delete"
                   >
                     <KeenIcon icon="trash" />
@@ -142,7 +152,7 @@ const FollowUpListPage = () => {
           </div>
           <div className="card min-w-full">
             <div className="flex flex-col flex-1">
-              <div className="flex flex-wrap justify-between items-center gap-7 p-4">
+              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
                 <div className="flex flex-wrap items-center gap-7">
                   <div className="flex flex-wrap items-center gap-3">
                     <img
@@ -186,7 +196,7 @@ const FollowUpListPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap justify-between items-center bg-gray-100 border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+              <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-4">
                   <p className="text-md">
                     <i className="ki-filled ki-user me-2"></i>
@@ -221,7 +231,7 @@ const FollowUpListPage = () => {
                     <i className="ki-filled ki-tab-tablet"></i>
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-danger"
+                    className="btn btn-sm btn-icon btn-clear btn-light"
                     title="Delete"
                   >
                     <KeenIcon icon="trash" />
@@ -291,7 +301,7 @@ const FollowUpListPage = () => {
               <div className="btn btn-sm btn-icon btn-clear btn-light">
                 <KeenIcon icon="check-circle" />
               </div>
-              <div className="btn btn-sm btn-icon btn-clear btn-danger">
+              <div className="btn btn-sm btn-icon btn-clear btn-light">
                 <KeenIcon icon="trash" />
               </div>
               <div className="btn btn-sm btn-icon btn-clear btn-info">

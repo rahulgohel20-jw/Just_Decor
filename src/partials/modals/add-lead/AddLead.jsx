@@ -36,7 +36,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
-          <div id="tab_1" className="tab-content mb-2 active">
+          <div id="tab_1" className="tab-content active">
             <div className="flex flex-col gap-y-2 gap-x-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
@@ -58,11 +58,10 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               <div className="flex flex-col">
                 <label className="form-label">Description</label>
                 <textarea
-                  rows={3}
                   className="textarea h-full"
                   placeholder="Description"
+                  rows={3}
                 />
-                {/* <Textarea /> */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
@@ -169,10 +168,10 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                             />
                           </div>
                         </div>
-                        <div className="flex">
+                        <div className="flex mb-1">
                           {index === 0 ? (
                             <button
-                              className="btn btn-success w-10 p-0 inline-flex items-center justify-center rounded-full"
+                              className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full"
                               onClick={() => {
                                 const newProductData = [
                                   ...formData.product_data,
@@ -191,7 +190,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                             </button>
                           ) : (
                             <button
-                              className="btn btn-danger w-10 p-0 inline-flex items-center justify-center rounded-full"
+                              className="btn btn-danger w-8 h-8 p-0 inline-flex items-center justify-center rounded-full"
                               onClick={() => {
                                 const newProductData = [
                                   ...formData.product_data,

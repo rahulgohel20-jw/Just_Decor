@@ -27,17 +27,19 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add Link"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button key="save" className="btn btn-primary" title="Save Link">
-            Save Link
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button key="save" className="btn btn-primary" title="Save Link">
+              Save Link
+            </button>
+          </div>,
         ]}
       >
         <div className="flex flex-col gap-y-2">

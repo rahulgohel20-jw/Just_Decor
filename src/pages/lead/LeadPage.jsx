@@ -122,7 +122,7 @@ const LeadPage = () => {
               onClick={handleModalOpen}
               title="Add Lead"
             >
-              <i className="ki-filled ki-plus"></i> Add Lead
+              <i className="ki-filled ki-plus"></i>Add Lead
             </button>
           </div>
         </div>

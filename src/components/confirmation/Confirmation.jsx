@@ -39,7 +39,7 @@ export function Confirmation({
   return (
     <>
       <button
-        className="btn btn-sm btn-icon btn-clear text-danger"
+        className="btn btn-sm btn-icon btn-clear"
         title="Delete"
         aria-describedby={id}
         onClick={openPopover}

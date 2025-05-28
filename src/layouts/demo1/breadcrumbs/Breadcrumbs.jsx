@@ -102,20 +102,19 @@ const Breadcrumbs = ({ items }) => {
       <h1 className="text-xl font-medium leading-none text-gray-900">
         {items && items[items.length - 1].title}
       </h1>
-      <div className="flex items-center">
-        <div className="sm:flex hidden flex flex-wrap items-center gap-1 me-1">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="sm:flex hidden flex flex-wrap items-center gap-1">
           {items && renderItems(items)}
         </div>
         {/* Menu Dropdown */}
         <Dropdown
           menu={{ items: menuItems }}
-          className="ms-1"
           trigger={["click"]}
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>
-              <button className="btn btn-sm btn-secondary">
-                <Plus />
+              <button className="btn btn-sm btn-success" title="Create New">
+                <i className="ki-filled ki-plus"></i>
                 Create New
               </button>
             </Space>
