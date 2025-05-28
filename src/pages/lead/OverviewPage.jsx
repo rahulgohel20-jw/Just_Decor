@@ -35,15 +35,17 @@ const OverviewPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <PipLineDropdown />
-            <SourceDropdown />
-            <SalesPersonDropdown />
-            <CompanyDropdown />
+        <div className="filters flex flex-wrap items-center gap-2 mb-3">
+          <div className="filItems"><PipLineDropdown /></div>
+          <div className="filItems"><SourceDropdown /></div>
+          <div className="filItems"><SalesPersonDropdown /></div>
+          <div className="filItems"><CompanyDropdown /></div>
+          <div className="filItems">
             <button className="btn btn-light" title="Refresh">
               <i className="ki-filled ki-arrows-circle"></i>
             </button>
+          </div>
+          <div className="filItems">
             <button className="btn btn-light" title="Custom Report">
               Custom Report
             </button>
@@ -51,14 +53,14 @@ const OverviewPage = () => {
         </div>
 
         {/* Lead Summary Badges */}
-        <div className="w-full mb-4">
+        {/* <div className="w-full mb-4">
           <div className="flex justify-between items-end gap-2 mb-2">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2"> */}
               {/* Your existing badge elements remain unchanged */}
               {/* ... */}
-            </div>
+            {/* </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Sales Report Tabs */}
         <div className="btn-tabs btn-tabs-lg mb-3 w-full">

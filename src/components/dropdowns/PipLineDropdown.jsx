@@ -9,16 +9,18 @@ const PipLineDropdown = () => {
   };
 
   return (
-    <SelectDropdown
-      value={selectedCompanies}
-      onChange={handleChange}
-      staticOptions={[
-        { label: "Company A", value: "companyA" },
-        { label: "Company B", value: "companyB" },
-        { label: "Company C", value: "companyC" },
-      ]}
-      mode="multiple"
-    />
+    <>
+      <SelectDropdown
+        value={selectedCompanies}
+        onChange={handleChange}
+        staticOptions={[
+          { label: "Company A", value: "companyA" },
+          { label: "Company B", value: "companyB" },
+          { label: "Company C", value: "companyC" },
+        ]}
+        mode="multiple"
+      />
+    </>
   );
 };
 
