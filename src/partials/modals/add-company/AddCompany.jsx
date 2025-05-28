@@ -13,24 +13,22 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add Company"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button
-            key="save"
-            className="btn btn-primary"
-            title="Save Contact"
-          >
-            Save Company
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button key="save" className="btn btn-primary" title="Save Contact">
+              Save Company
+            </button>
+          </div>,
         ]}
-      >       
-       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+      >
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
             <label className="form-label">Company Name</label>
             <div className="input">
@@ -46,11 +44,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             <label className="form-label">Tax No</label>
             <div className="input">
               <i className="ki-filled ki-cheque"></i>
-              <input
-                className="h-full"
-                type="text"
-                placeholder="Tax No"
-              />
+              <input className="h-full" type="text" placeholder="Tax No" />
             </div>
           </div>
           <div>
@@ -68,55 +62,35 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             <label className="form-label">Website</label>
             <div className="input">
               <i className="ki-filled ki-dribbble"></i>
-              <input
-                className="h-full"
-                type="text"
-                placeholder="Enter URL"
-              />
+              <input className="h-full" type="text" placeholder="Enter URL" />
             </div>
           </div>
           <div>
             <label className="form-label">Country</label>
             <div className="input">
               <i className="ki-filled ki-bank"></i>
-              <input
-                className="h-full"
-                type="text"
-                placeholder="Country"
-              />
+              <input className="h-full" type="text" placeholder="Country" />
             </div>
           </div>
           <div>
             <label className="form-label">State</label>
             <div className="input">
               <i className="ki-filled ki-bank"></i>
-              <input
-                className="h-full"
-                type="text"
-                placeholder="State"
-              />
+              <input className="h-full" type="text" placeholder="State" />
             </div>
           </div>
           <div>
             <label className="form-label">City</label>
             <div className="input">
               <i className="ki-filled ki-pointers"></i>
-              <input
-                className="h-full"
-                type="text"
-                placeholder="City"
-              />
+              <input className="h-full" type="text" placeholder="City" />
             </div>
           </div>
           <div>
             <label className="form-label">Pincode</label>
             <div className="input">
               <i className="ki-filled ki-geolocation"></i>
-              <input
-                className="h-full"
-                type="tel"
-                placeholder="Pincode"
-              />
+              <input className="h-full" type="tel" placeholder="Pincode" />
             </div>
           </div>
           <div>
@@ -141,7 +115,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
               />
             </div>
           </div>
-        </div>       
+        </div>
       </CustomModal>
     )
   );

@@ -16,13 +16,13 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
 
   const handleMultiInputChange = (data) => {
     setFormData({ ...formData, ...data });
-  }
+  };
 
   const saveData = () => {
     // Save data logic here
-   
+
     setIsModalOpen(false);
-  }
+  };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -33,12 +33,13 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
-          <div id="tab_1" className="tab-content mb-2 active">
+          <div id="tab_1" className="tab-content active">
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Select Role</label>
-                  <select className="select pe-7.5"
+                  <select
+                    className="select pe-7.5"
                     data-control="select2"
                     data-placeholder="Company name"
                   >
@@ -115,45 +116,33 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   <label className="form-label">State</label>
                   <div className="input">
                     <i className="ki-filled ki-bank"></i>
-                    <input
-                      type="text"
-                      placeholder="State"
-                    />
+                    <input type="text" placeholder="State" />
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">City</label>
                   <div className="input">
                     <i className="ki-filled ki-pointers"></i>
-                    <input
-                      type="text"
-                      placeholder="City"
-                    />
+                    <input type="text" placeholder="City" />
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-x-4">
-                  <div className="flex flex-col">
-                    <label className="form-label">Pincode</label>
-                    <div className="input">
-                      <i className="ki-filled ki-geolocation"></i>
-                      <input
-                        type="text"
-                        placeholder="Pincode"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">Address</label>
-                    <div className="input">
-                      <i className="ki-filled ki-geolocation"></i>
-                      <input
-                        type="text"
-                        placeholder="Address"
-                      />
-                    </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Pincode</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Pincode" />
                   </div>
                 </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Address</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Address" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -164,7 +153,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
               <div className="flex flex-col">
                 <label className="form-label">Linkedin</label>
                 <div className="input">
-                  <Linkedin className="size-4"/>
+                  <Linkedin className="size-4" />
                   <input
                     type="text"
                     placeholder="Enter valid URL starting with https://"
@@ -234,22 +223,24 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         onClose={handleModalClose}
         title="Add Contact"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button
-            key="save"
-            className="btn btn-primary"
-            title="Save Contact"
-            onClick={saveData}
-          >
-            Save Contact
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button
+              key="save"
+              className="btn btn-primary"
+              title="Save Contact"
+              onClick={saveData}
+            >
+              Save Contact
+            </button>
+          </div>,
         ]}
       >
         <div

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { Textarea } from "../../../components/ui/textarea";
 
 const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
@@ -93,6 +94,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
                 <textarea
                   className="textarea h-full"
                   placeholder="Description"
+                  rows={3}
                 />
               </div>
             </div>
@@ -169,17 +171,19 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add Product"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button key="save" className="btn btn-primary" title="Save Contact">
-            Save Product
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button key="save" className="btn btn-primary" title="Save Product">
+              Save Product
+            </button>
+          </div>,
         ]}
       >
         <div

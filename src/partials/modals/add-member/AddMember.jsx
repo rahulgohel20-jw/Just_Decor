@@ -16,17 +16,19 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add New Team Member"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button key="save" className="btn btn-primary" title="Add Member">
-            Add Member
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button key="save" className="btn btn-primary" title="Save Member">
+              Save Member
+            </button>
+          </div>,
         ]}
       >
         <div className="flex flex-col gap-y-2">

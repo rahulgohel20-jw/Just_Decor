@@ -60,8 +60,11 @@ const AddLeadNote = ({ isModalOpen, setIsModalOpen, editData }) => {
             <div className="grid">
               <div className="flex flex-col">
                 <label className="form-label">Description</label>
-                {/* <i className="ki-filled ki-sms"></i> */}
-                <Textarea />
+                <textarea
+                  className="textarea h-full"
+                  placeholder="Description"
+                  rows={3}
+                />
               </div>
             </div>
           </div>

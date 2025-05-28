@@ -33,15 +33,19 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add Role"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button key="save" className="btn btn-primary" title="Save Role">Save Role</button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button key="save" className="btn btn-primary" title="Save Role">
+              Save Role
+            </button>
+          </div>,
         ]}
       >
         <div className="flex flex-col gap-y-2">
@@ -90,11 +94,21 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                 <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
                   <thead>
                     <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Pages</th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">View</th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Edit</th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Delete</th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">Add</th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">
+                        Pages
+                      </th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
+                        View
+                      </th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
+                        Edit
+                      </th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
+                        Delete
+                      </th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
+                        Add
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -114,35 +128,37 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             )}
             {/* Features Table */}
             {activeTab === "features" && (
-                <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
-                  <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
-                    <thead>
-                      <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
-                        <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">Features</th>
-                        <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                          Enable / Disable
-                        </th>
+              <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
+                <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
+                  <thead>
+                    <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">
+                        Features
+                      </th>
+                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
+                        Enable / Disable
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      "Send Whatsapp",
+                      "Bulk Upload",
+                      "Pipeline Template",
+                      "Send Quotation To Client",
+                      "All Quotation Page Access",
+                      "Quotation Setting Page Access",
+                    ].map((feature) => (
+                      <tr key={feature} className="border-t">
+                        <td className="p-2">{feature}</td>
+                        <td className="p-2 text-center">
+                          <Checkbox />
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        "Send Whatsapp",
-                        "Bulk Upload",
-                        "Pipeline Template",
-                        "Send Quotation To Client",
-                        "All Quotation Page Access",
-                        "Quotation Setting Page Access",
-                      ].map((feature) => (
-                        <tr key={feature} className="border-t">
-                          <td className="p-2">{feature}</td>
-                          <td className="p-2 text-center">
-                            <Checkbox />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

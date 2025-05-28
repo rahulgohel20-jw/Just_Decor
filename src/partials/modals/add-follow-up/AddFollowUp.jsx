@@ -45,23 +45,24 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Follow Up"
-        className="max-w-[400px]"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button
-            key="add"
-            className="btn btn btn-primary w-50 "
-            title="Save Follow Up"
-          >
-            Save Follow Up
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button
+              key="add"
+              className="btn btn btn-primary w-50 "
+              title="Save Follow Up"
+            >
+              Save Follow Up
+            </button>
+          </div>,
         ]}
       >
         <div className="flex flex-col gap-y-3">
@@ -183,9 +184,9 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
                       </div>
                     </div>
                     {index === 0 ? (
-                      <div className="flex">
+                      <div className="flex mb-1">
                         <button
-                          className="btn btn-success w-10 p-0 inline-flex items-center justify-center rounded-full"
+                          className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full"
                           title="Add Reminder"
                           onClick={handleAddReminder}
                         >
@@ -195,7 +196,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
                     ) : (
                       <div className="flex">
                         <button
-                          className="btn btn-danger w-10 p-0 inline-flex items-center justify-center rounded-full"
+                          className="btn btn-danger w-8 h-8 p-0 inline-flex items-center justify-center rounded-full"
                           title="Remove Reminder"
                           onClick={() => handleRemoveReminder(index)}
                         >

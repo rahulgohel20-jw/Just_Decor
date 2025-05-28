@@ -15,13 +15,13 @@ const ViewContact = ({ isModalOpen, setIsModalOpen, editData }) => {
 
   const handleMultiInputChange = (data) => {
     setFormData({ ...formData, ...data });
-  }
+  };
 
   const saveData = () => {
     // Save data logic here
-   
+
     setIsModalOpen(false);
-  }
+  };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -198,22 +198,24 @@ const ViewContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         onClose={handleModalClose}
         title="Add Contact"
         footer={[
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>,
-          <button
-            key="save"
-            className="btn btn-primary"
-            title="Save Contact"
-            onClick={saveData}
-          >
-            Save Contact
-          </button>,
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-secondary"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button
+              key="save"
+              className="btn btn-primary"
+              title="Save Contact"
+              onClick={saveData}
+            >
+              Save Contact
+            </button>
+          </div>,
         ]}
       >
         <div

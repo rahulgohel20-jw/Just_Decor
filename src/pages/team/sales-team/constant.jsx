@@ -57,7 +57,7 @@ export const columns = [
                         <i className="ki-filled ki-notepad-edit"></i>
                     </button>
                     <button
-                        className="btn btn-sm btn-icon btn-clear text-danger"
+                        className="btn btn-sm btn-icon btn-clear"
                         title="Delete"
                     >
                         <i className="ki-filled ki-trash"></i>
