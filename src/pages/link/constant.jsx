@@ -1,5 +1,4 @@
 import { DataGridColumnHeader } from "@/components";
-import { Link } from 'react-router-dom';
 export const columns = [
   {
     accessorKey: "link_name",
