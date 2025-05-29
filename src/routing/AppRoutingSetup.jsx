@@ -90,6 +90,7 @@ import {
   NotificationsSettingsPage,
   GeneralSettingsPage,
   CustomizeSettingsPage,
+  ChannelSettingsPage,
 } from "@/pages/setting";
 import { BillingOverviewPage, WalletLogsPage } from "@/pages/billing";
 import {
@@ -101,6 +102,7 @@ import {
   ProgressChecklistPage,
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
+import { Dashboard } from "@/pages/dashboard";
 
 const AppRoutingSetup = () => {
   return (
@@ -108,7 +110,7 @@ const AppRoutingSetup = () => {
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
           {/* project routs */}
-          <Route path="/" element={<DefaultPage />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
@@ -134,6 +136,7 @@ const AppRoutingSetup = () => {
             path="/settings/customize"
             element={<CustomizeSettingsPage />}
           />
+          <Route path="/settings/channel" element={<ChannelSettingsPage />} />
           <Route
             path="/settings/notifications"
             element={<NotificationsSettingsPage />}

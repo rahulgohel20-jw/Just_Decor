@@ -2,6 +2,7 @@ export const MENU_SIDEBAR = [
   {
     title: "MyApp",
     icon: "element-11",
+    path: "/",
   },
   {
     title: "Leads",
@@ -67,6 +68,10 @@ export const MENU_SIDEBAR = [
       {
         title: "Customize",
         path: "settings/customize",
+      },
+      {
+        title: "Channels",
+        path: "settings/channel",
       },
       {
         title: "Notifications",
