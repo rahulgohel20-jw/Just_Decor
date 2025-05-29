@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { Select, Tooltip } from "antd";
 import { InputLabel } from "@mui/material";
+import useStyles from "./SelectDropdownStyle";
 
 const SelectDropdown = ({
   apiUrl = null,
   staticOptions = [],
   label,
+  placeholder = "Select an option",
   ...rest
 }) => {
+  const classes = useStyles();
   const [options, setOptions] = useState(staticOptions);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,9 +52,10 @@ const SelectDropdown = ({
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         {...rest}
-        style={{ width: "100%" }}
+        className={`${classes.select}`}
         onChange={handleChange}
         options={options}
+        placeholder={placeholder}
       />
     </div>
   );
