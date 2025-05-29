@@ -52,7 +52,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
           <div className="flex flex-col">
             <label className="form-label">Define Role</label>
             <div className="input">
-              <i class="ki-filled ki-user"></i>
+              <i className="ki-filled ki-user"></i>
               <input type="text" className="h-full" placeholder="Define Role" />
             </div>
           </div>
@@ -74,7 +74,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                     : "text-gray-700 border-b-2 border-gray-200"
                 }`}
               >
-                <i class="ki-filled ki-notepad-bookmark me-2"></i>
+                <i className="ki-filled ki-notepad-bookmark me-2"></i>
                 Pages
               </button>
               <button
@@ -85,7 +85,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
                     : "text-gray-700 border-b-2 border-gray-200"
                 }`}
               >
-                <i class="ki-filled ki-text-circle me-2"></i>
+                <i className="ki-filled ki-text-circle me-2"></i>
                 Features
               </button>
             </div>

@@ -16,7 +16,7 @@ const CustomizeSettingsPage = () => {
       id: "pipeline",
       label: (
         <>
-          <Activity className="text-primary" />
+          <i className="ki-filled ki-chart-line"></i>
           Pipeline
         </>
       ),
@@ -26,7 +26,7 @@ const CustomizeSettingsPage = () => {
       id: "lead",
       label: (
         <>
-          <Layers className="text-primary" />
+          <i className="ki-filled ki-abstract-26"></i>
           Lead
         </>
       ),
@@ -36,7 +36,7 @@ const CustomizeSettingsPage = () => {
       id: "contacts",
       label: (
         <>
-          <Users className="text-primary" />
+          <i className="ki-filled ki-address-book"></i>
           Contacts
         </>
       ),
@@ -46,7 +46,7 @@ const CustomizeSettingsPage = () => {
       id: "product",
       label: (
         <>
-          <Package className="text-primary" />
+          <i className="ki-filled ki-bookmark"></i>
           Products
         </>
       ),

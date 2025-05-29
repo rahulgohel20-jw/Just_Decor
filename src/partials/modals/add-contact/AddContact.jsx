@@ -253,7 +253,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             }`}
             onClick={() => setActiveTab("tab_1")}
           >
-            <i class="ki-filled ki-book-open"></i>
+            <i className="ki-filled ki-book-open"></i>
             Contact Details
           </a>
           <a
@@ -262,7 +262,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             }`}
             onClick={() => setActiveTab("tab_2")}
           >
-            <i class="ki-filled ki-geolocation-home"></i>
+            <i className="ki-filled ki-geolocation-home"></i>
             Address Details
           </a>
           <a
@@ -271,7 +271,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             }`}
             onClick={() => setActiveTab("tab_3")}
           >
-            <i class="ki-filled ki-user-square"></i>
+            <i className="ki-filled ki-user-square"></i>
             Social Profile
           </a>
         </div>

@@ -1,4 +1,4 @@
-import { toAbsoluteUrl } from '@/utils';
+import { toAbsoluteUrl } from "@/utils";
 import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
 const PipelineTab = () => {
@@ -14,6 +14,10 @@ const PipelineTab = () => {
     {
       id: 3,
       name: "Pipeline 3",
+    },
+    {
+      id: 4,
+      name: "Pipeline 4",
     },
   ];
 
@@ -45,98 +49,76 @@ const PipelineTab = () => {
       id: 3,
       name: "Lost Reason 3",
     },
+    {
+      id: 4,
+      name: "Lost Reason 4",
+    },
   ];
   return (
     <>
       <div className="pipeline-tab">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">              
-              <h3 className="text-mono text-lg font-semibold text-gray-800 leading-6 mb-1">Pipeline for Personal Satisfaction</h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5">Track goals, progress, and achievements for growth.</span>
-              <button className="btn btn-sm btn-success" title="Pipeline"><i class="ki-filled ki-plus"></i>Pipeline</button>
-            </div>
-            <div className="card-content bg-white dark:bg-dark border-t pt-5 pb-7 px-1.5 h-full">
-              <div className="flex justify-center">
-                <img src={toAbsoluteUrl('/media/illustrations/3.svg')} className="dark:hidden max-h-[100px]" alt="image" />
-                <img src={toAbsoluteUrl('/media/illustrations/3-dark.svg')} className="light:hidden max-h-[100px]" alt="image" />
-              </div>
-              <p class="text-sm text-gray-400 font-light text-center py-3">Pipeline is not available</p>             
-            </div>
-          </div>
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">              
-              <h3 className="text-mono text-lg font-semibold text-gray-800 leading-6 mb-1">Pipeline Template for Personal Satisfaction</h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5">Clear steps to achieve goals and fulfillment.</span>
-              <button className="btn btn-sm btn-success" title="Template"><i class="ki-filled ki-plus"></i>Template</button>
-            </div>
-            <div className="card-content bg-white dark:bg-dark border-t pt-5 pb-7 px-1.5 h-full">
-              <div className="flex justify-center">
-                <img src={toAbsoluteUrl('/media/illustrations/3.svg')} className="dark:hidden max-h-[100px]" alt="image" />
-                <img src={toAbsoluteUrl('/media/illustrations/3-dark.svg')} className="light:hidden max-h-[100px]" alt="image" />
-              </div>
-              <p class="text-sm text-gray-400 font-light text-center py-3">Pipeline is not available</p>             
-            </div>
-          </div>
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">              
-              <h3 className="text-mono text-lg font-semibold text-gray-800 leading-6 mb-1">Lost Reason for Personal Satisfaction</h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5">Tracks reasons for lost opportunities to improve outcomes.</span>
-              <button className="btn btn-sm btn-success" title="Reason"><i class="ki-filled ki-plus"></i>Reason</button>
-            </div>
-            <div className="card-content bg-white dark:bg-dark border-t pt-5 pb-7 px-1.5 h-full">
-              <div className="flex justify-center">
-                <img src={toAbsoluteUrl('/media/illustrations/3.svg')} className="dark:hidden max-h-[100px]" alt="image" />
-                <img src={toAbsoluteUrl('/media/illustrations/3-dark.svg')} className="light:hidden max-h-[100px]" alt="image" />
-              </div>
-              <p class="text-sm text-gray-400 font-light text-center py-3">Pipeline is not available</p>             
-            </div>
-          </div>
-        </div>
-
-        <hr className="my-10" />
-
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="card p-3">
-            <div className="flex justify-between items-center gap-2">
-              <h4 className="text-base text-base leading-none font-semibold text-gray-800">
-                Pipeline
-              </h4>
-              <button className="btn btn-sm btn-primary">
-                <i className="ki-filled ki-plus"></i> Pipeline
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Pipeline for Personal Satisfaction
+              </h3>
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Track goals, progress, and achievements for growth.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Pipeline">
+                <i className="ki-filled ki-plus"></i>Pipeline
               </button>
             </div>
-            <hr className="text-gray-500 text-sm mt-3" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                {pipeLine.map((item, index) => {
-                  return (
-                    <CardList
-                      key={index}
-                      leftContent={item.name}
-                      rightContent={
-                        <>
-                          <CopyPlus size={18} className="text-success" />
-                          <Logs size={18} className="text-success" />
-                          <Pen size={18} className="text-success" />
-                          <Trash size={18} className="text-danger" />
-                        </>
-                      }
-                    />
-                  );
-                })}
-              </div>
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              {pipeLine.map((item, index) => {
+                return (
+                  <CardList
+                    key={index}
+                    leftContent={item.name}
+                    rightContent={
+                      <>
+                        <button type="button" title="Copy"><i className="ki-filled ki-copy"></i></button>
+                        <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
+                      </>
+                    }
+                  />
+                );
+              })}
             </div>
           </div>
-          <div className="card p-3">
-            <div className="flex justify-between items-center">
-              <h4>Pipeline Template</h4>
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Pipeline Template for Personal Satisfaction
+              </h3>
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Clear steps to achieve goals and fulfillment.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Template">
+                <i className="ki-filled ki-plus"></i>Template
+              </button>
             </div>
-            <hr className="text-gray-500 text-sm mt-2" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                {pipelineTemplate.map((item, index) => {
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              <div className="flex flex-col py-5">
+                <div className="flex justify-center">
+                  <img
+                    src={toAbsoluteUrl("/media/illustrations/3.svg")}
+                    className="dark:hidden max-h-[100px]"
+                    alt="image"
+                  />
+                  <img
+                    src={toAbsoluteUrl("/media/illustrations/3-dark.svg")}
+                    className="light:hidden max-h-[100px]"
+                    alt="image"
+                  />
+                </div>
+                <p class="text-sm text-gray-400 font-light text-center py-3">
+                  Template is not available
+                </p>
+              </div>
+              {pipelineTemplate.map((item, index) => {
                   return (
                     <CardList
                       key={index}
@@ -150,19 +132,21 @@ const PipelineTab = () => {
                     />
                   );
                 })}
-              </div>
             </div>
           </div>
-          <div className="card p-3">
-            <div className="flex justify-between items-center">
-              <h4>Lost Reason</h4>
-              <button className="btn btn-primary  btn-sm">
-                <Plus /> Reason
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Lost Reason for Personal Satisfaction
+              </h3>
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Tracks reasons for lost opportunities to improve outcomes.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Reason">
+                <i className="ki-filled ki-plus"></i>Reason
               </button>
             </div>
-            <hr className="text-gray-500 text-sm mt-2" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
                 {lostReason.map((item, index) => {
                   return (
                     <CardList
@@ -170,14 +154,13 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <Pen size={18} className="text-success" />
-                          <Trash size={18} className="text-danger" />
+                          <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                          <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
                         </>
                       }
                     />
                   );
                 })}
-              </div>
             </div>
           </div>
         </div>
