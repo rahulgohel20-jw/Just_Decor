@@ -1,6 +1,6 @@
+import { toAbsoluteUrl } from "@/utils";
 import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
-
 const PipelineTab = () => {
   const pipeLine = [
     {
@@ -14,6 +14,10 @@ const PipelineTab = () => {
     {
       id: 3,
       name: "Pipeline 3",
+    },
+    {
+      id: 4,
+      name: "Pipeline 4",
     },
   ];
 
@@ -45,111 +49,76 @@ const PipelineTab = () => {
       id: 3,
       name: "Lost Reason 3",
     },
+    {
+      id: 4,
+      name: "Lost Reason 4",
+    },
   ];
   return (
     <>
       <div className="pipeline-tab">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="card rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="card-header">
-              <h3 className="card-title">
-                Calendar Accounts
-                <span class="text-secondary-foreground font-medium text-sm">
-                  1/5
-                </span>
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Pipeline for Personal Satisfaction
               </h3>
-              <button className="btn kt-btn-outline">
-                <i class="ki-filled ki-calendar-remove"></i>
-                Add New
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Track goals, progress, and achievements for growth.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Pipeline">
+                <i className="ki-filled ki-plus"></i>Pipeline
               </button>
             </div>
-            <div className="card-content">
-              <div class="grid gap-2.5">
-                <div class="flex items-center justify-between flex-wrap border border-border rounded-xl gap-2 px-3.5 py-2.5">
-                  <div class="flex items-center flex-wrap gap-3.5">
-                    <div class="flex flex-col">
-                      <a
-                        class="text-sm font-medium text-mono hover:text-primary mb-px"
-                        href="#"
-                      >
-                        Google
-                      </a>
-                      <a
-                        class="text-sm text-secondary-foreground hover:text-primary"
-                        href="#"
-                      >
-                        jasontt@studio.co
-                      </a>
-                    </div>
-                  </div>
-                  <div className="btn kt-btn-icon kt-btn-ghost">
-                    <i class="ki-filled ki-trash"></i>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between flex-wrap border border-border rounded-xl gap-2 px-3.5 py-2.5">
-                  <div class="flex items-center flex-wrap gap-3.5">
-                    <div class="flex flex-col">
-                      <a
-                        class="text-sm font-medium text-mono hover:text-primary mb-px"
-                        href="#"
-                      >
-                        Monday
-                      </a>
-                      <a
-                        class="text-sm text-secondary-foreground hover:text-primary"
-                        href="#"
-                      >
-                        jasontatum@keenthemes.com
-                      </a>
-                    </div>
-                  </div>
-                  <div className="btn kt-btn-icon kt-btn-ghost">
-                    <i class="ki-filled ki-trash"></i>
-                  </div>
-                </div>
-              </div>
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              {pipeLine.map((item, index) => {
+                return (
+                  <CardList
+                    key={index}
+                    leftContent={item.name}
+                    rightContent={
+                      <>
+                        <button type="button" title="Copy"><i className="ki-filled ki-copy"></i></button>
+                        <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                        <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
+                      </>
+                    }
+                  />
+                );
+              })}
             </div>
           </div>
-
-          <div className="card p-3">
-            <div className="flex justify-between items-center gap-2">
-              <h4 className="text-base text-base leading-none font-semibold text-gray-800">
-                Pipeline
-              </h4>
-              <button className="btn btn-sm btn-primary">
-                <i className="ki-filled ki-plus"></i> Pipeline
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Pipeline Template for Personal Satisfaction
+              </h3>
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Clear steps to achieve goals and fulfillment.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Template">
+                <i className="ki-filled ki-plus"></i>Template
               </button>
             </div>
-            <hr className="text-gray-500 text-sm mt-3" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                {pipeLine.map((item, index) => {
-                  return (
-                    <CardList
-                      key={index}
-                      leftContent={item.name}
-                      rightContent={
-                        <>
-                          <CopyPlus size={18} className="text-success" />
-                          <Logs size={18} className="text-success" />
-                          <Pen size={18} className="text-success" />
-                          <Trash size={18} className="text-danger" />
-                        </>
-                      }
-                    />
-                  );
-                })}
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              <div className="flex flex-col py-5">
+                <div className="flex justify-center">
+                  <img
+                    src={toAbsoluteUrl("/media/illustrations/3.svg")}
+                    className="dark:hidden max-h-[100px]"
+                    alt="image"
+                  />
+                  <img
+                    src={toAbsoluteUrl("/media/illustrations/3-dark.svg")}
+                    className="light:hidden max-h-[100px]"
+                    alt="image"
+                  />
+                </div>
+                <p class="text-sm text-gray-400 font-light text-center py-3">
+                  Template is not available
+                </p>
               </div>
-            </div>
-          </div>
-          <div className="card p-3">
-            <div className="flex justify-between items-center">
-              <h4>Pipeline Template</h4>
-            </div>
-            <hr className="text-gray-500 text-sm mt-2" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                {pipelineTemplate.map((item, index) => {
+              {pipelineTemplate.map((item, index) => {
                   return (
                     <CardList
                       key={index}
@@ -163,19 +132,21 @@ const PipelineTab = () => {
                     />
                   );
                 })}
-              </div>
             </div>
           </div>
-          <div className="card p-3">
-            <div className="flex justify-between items-center">
-              <h4>Lost Reason</h4>
-              <button className="btn btn-primary  btn-sm">
-                <Plus /> Reason
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+                Lost Reason for Personal Satisfaction
+              </h3>
+              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+                Tracks reasons for lost opportunities to improve outcomes.
+              </span>
+              <button className="btn btn-sm btn-success" title="Add Reason">
+                <i className="ki-filled ki-plus"></i>Reason
               </button>
             </div>
-            <hr className="text-gray-500 text-sm mt-2" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
                 {lostReason.map((item, index) => {
                   return (
                     <CardList
@@ -183,14 +154,13 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <Pen size={18} className="text-success" />
-                          <Trash size={18} className="text-danger" />
+                          <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
+                          <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
                         </>
                       }
                     />
                   );
                 })}
-              </div>
             </div>
           </div>
         </div>
