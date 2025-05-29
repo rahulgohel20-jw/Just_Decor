@@ -1,6 +1,7 @@
 import { toAbsoluteUrl } from "@/utils";
 import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
+import EmptyData from "@/components/ui/emptyData";
 const PipelineTab = () => {
   const pipeLine = [
     {
@@ -71,21 +72,31 @@ const PipelineTab = () => {
               </button>
             </div>
             <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
-              {pipeLine.map((item, index) => {
-                return (
-                  <CardList
-                    key={index}
-                    leftContent={item.name}
-                    rightContent={
-                      <>
-                        <button type="button" title="Copy"><i className="ki-filled ki-copy"></i></button>
-                        <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
-                        <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
-                      </>
-                    }
-                  />
-                );
-              })}
+              {pipeLine && pipeLine.length > 0 ? (
+                pipeLine.map((item, index) => {
+                  return (
+                    <CardList
+                      key={index}
+                      leftContent={item.name}
+                      rightContent={
+                        <>
+                          <button type="button" title="Copy">
+                            <i className="ki-filled ki-copy"></i>
+                          </button>
+                          <button type="button" title="Edit">
+                            <i class="ki-filled ki-notepad-edit"></i>
+                          </button>
+                          <button type="button" title="Delete">
+                            <i class="ki-filled ki-trash"></i>
+                          </button>
+                        </>
+                      }
+                    />
+                  );
+                })
+              ) : (
+                <EmptyData />
+              )}
             </div>
           </div>
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
@@ -101,24 +112,8 @@ const PipelineTab = () => {
               </button>
             </div>
             <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
-              <div className="flex flex-col py-5">
-                <div className="flex justify-center">
-                  <img
-                    src={toAbsoluteUrl("/media/illustrations/3.svg")}
-                    className="dark:hidden max-h-[100px]"
-                    alt="image"
-                  />
-                  <img
-                    src={toAbsoluteUrl("/media/illustrations/3-dark.svg")}
-                    className="light:hidden max-h-[100px]"
-                    alt="image"
-                  />
-                </div>
-                <p class="text-sm text-gray-400 font-light text-center py-3">
-                  Template is not available
-                </p>
-              </div>
-              {pipelineTemplate.map((item, index) => {
+              {pipelineTemplate && pipelineTemplate.length > 0 ? (
+                pipelineTemplate.map((item, index) => {
                   return (
                     <CardList
                       key={index}
@@ -131,7 +126,10 @@ const PipelineTab = () => {
                       }
                     />
                   );
-                })}
+                })
+              ) : (
+                <EmptyData />
+              )}
             </div>
           </div>
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
@@ -147,20 +145,28 @@ const PipelineTab = () => {
               </button>
             </div>
             <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
-                {lostReason.map((item, index) => {
+              {lostReason && lostReason.length ? (
+                lostReason.map((item, index) => {
                   return (
                     <CardList
                       key={index}
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <button type="button" title="Edit"><i class="ki-filled ki-notepad-edit"></i></button>
-                          <button type="button" title="Delete"><i class="ki-filled ki-trash"></i></button>
+                          <button type="button" title="Edit">
+                            <i class="ki-filled ki-notepad-edit"></i>
+                          </button>
+                          <button type="button" title="Delete">
+                            <i class="ki-filled ki-trash"></i>
+                          </button>
                         </>
                       }
                     />
                   );
-                })}
+                })
+              ) : (
+                <EmptyData />
+              )}
             </div>
           </div>
         </div>
