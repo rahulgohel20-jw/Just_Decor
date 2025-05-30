@@ -51,7 +51,7 @@ const EmailTab = () => {
                         className="btn btn-sm btn-primary"
                         title="Disconnect"
                       >
-                        DisConnect
+                        Disconnect
                       </button>
                     </div>
                   );
