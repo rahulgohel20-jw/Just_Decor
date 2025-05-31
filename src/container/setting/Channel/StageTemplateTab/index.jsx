@@ -1,7 +1,7 @@
 import EmptyData from "@/components/ui/emptyData";
 import { toAbsoluteUrl } from "@/utils";
 
-const EmailTemplateTab = () => {
+const StageTemplateTab = () => {
   const emailTemplate = [
     {
       id: 1,
@@ -88,4 +88,4 @@ const EmailTemplateTab = () => {
   );
 };
 
-export { EmailTemplateTab };
+export { StageTemplateTab };

@@ -5,6 +5,9 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
 import { EmailTab } from "@/container/setting/Channel/EmailTab";
 import { EmailTemplateTab } from "@/container/setting/Channel/EmailTemplateTab";
+import { WhatsAppTab } from "@/container/setting/Channel/WhatsAppTab";
+import { WhatsAppTemplateTab } from "@/container/setting/Channel/WhatsAppTemplateTab";
+import { StageTemplateTab } from "@/container/setting/Channel/StageTemplateTab";
 
 const ChannelSettingsPage = () => {
   const [emailNotification, setEmailNotification] = useState(false);
@@ -43,7 +46,7 @@ const ChannelSettingsPage = () => {
           WhatsApp
         </>
       ),
-      children: <EmailTab />,
+      children: <WhatsAppTab />,
     },
     {
       id: "whatsapp_template",
@@ -53,7 +56,7 @@ const ChannelSettingsPage = () => {
           WhatsApp Template
         </>
       ),
-      children: <EmailTab />,
+      children: <WhatsAppTemplateTab />,
     },
     {
       id: "stage_template",
@@ -63,7 +66,7 @@ const ChannelSettingsPage = () => {
           Stage Template
         </>
       ),
-      children: <EmailTab />,
+      children: <StageTemplateTab />,
     },
   ];
 
