@@ -69,7 +69,7 @@ const ResetPassword = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
             Forgot Password?
           </h3>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-700">
             Don't worry! It happens. Please enter the email address associated
             with your account
           </span>

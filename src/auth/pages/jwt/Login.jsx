@@ -68,7 +68,7 @@ const Login = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">
             Sign In
           </h3>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-700">
             Hey, Enter your details below to sign in and access your account
             securely and easily.
           </span>
@@ -134,7 +134,7 @@ const Login = () => {
                 ? "/auth/otp-login"
                 : "/auth/classic/reset-password"
             }
-            className="text-2sm link shrink-0 hover:underline no-underline"
+            className="text-sm link shrink-0 hover:underline no-underline"
           >
             Login with OTP instead
           </Link>
@@ -144,7 +144,7 @@ const Login = () => {
                 ? "/auth/reset-password"
                 : "/auth/classic/reset-password"
             }
-            className="text-2sm link shrink-0 hover:underline no-underline"
+            className="text-sm link shrink-0 hover:underline no-underline"
           >
             Forgot Password?
           </Link>
@@ -170,8 +170,8 @@ const Login = () => {
           />
           Sign up with Google
         </a>
-        <div className="flex items-center justify-center font-medium mt-3">
-          <span className="text-2sm text-gray-600 me-1.5">
+        <div className="flex items-center justify-center mt-3">
+          <span className="text-sm text-gray-700 me-1.5">
             Don't have an account?
           </span>
           <Link
@@ -180,7 +180,7 @@ const Login = () => {
                 ? "/auth/signup"
                 : "/auth/classic/signup"
             }
-            className="text-2sm link hover:underline no-underline"
+            className="text-2sm link hover:underline font-medium no-underline"
           >
             Sign Up
           </Link>

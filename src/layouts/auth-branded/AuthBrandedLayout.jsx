@@ -23,14 +23,14 @@ const Layout = () => {
           <div className="flex flex-col p-8 lg:p-16 gap-4 text-center">
             <Link to="/" className="m-auto">
               <img
-                src={toAbsoluteUrl("/images/monogram.svg")}
-                className="h-[28px] max-w-none"
+                src={toAbsoluteUrl("/images/monogram_white.svg")}
+                className="h-[42px] max-w-none"
                 alt=""
               />
             </Link>
             <div className="flex flex-col gap-3">
               <h3 className="text-xl font-semibold text-white">
-                Welcome to Just Wedding
+                Welcome to Just Catering Software
               </h3>
               <div className="text-sm text-white opacity-90">
                 It has survived not only five centuries, but also the leap{" "}
@@ -44,7 +44,7 @@ const Layout = () => {
         <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-1 lg:order-2">
           <Link to="/" className="ms-auto me-auto mt-auto mb-5 lg:hidden">
             <img
-              src={toAbsoluteUrl("/images/monogram.svg")}
+              src={toAbsoluteUrl("/images/monogram_white.svg")}
               className="h-[28px] max-w-none"
               alt=""
             />

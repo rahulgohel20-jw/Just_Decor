@@ -48,7 +48,7 @@ const SelectDropdown = ({
   }, [staticOptions]);
 
   return (
-    <div>
+    <div className={`${classes.formGrp} formGrpCommon`}>
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         {...rest}

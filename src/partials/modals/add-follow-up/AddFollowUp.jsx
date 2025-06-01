@@ -149,7 +149,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
                 Add Followup Reminders ({reminders.length})
               </h3>
             </div>
-            <div className="flex flex-col max-h-80 overflow-auto">
+            <div className="flex flex-col max-h-80 overflow-auto scrollable-y">
               {reminders.map((reminder, index) => (
                 <div className="flex flex-col gap-y-2 mb-2 " key={index}>
                   <div className="flex items-end gap-3">
