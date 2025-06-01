@@ -69,13 +69,13 @@ export const ProgressChecklistPage = () => {
               >
                 <div className="flex items-start gap-3">
                   {isDone ? (
-                    <CheckSquare className="text-red-600 mt-1" size={20} />
+                    <CheckSquare className="text-red-600" size={20} />
                   ) : (
-                    <Square className="text-gray-400 mt-1" size={20} />
+                    <Square className="text-gray-400" size={20} />
                   )}
                   <span
-                    className={`text-sm ${
-                      isDone ? "line-through text-gray-500" : ""
+                    className={`text-sm text-gray-700 ${
+                      isDone ? "line-through" : ""
                     }`}
                   >
                     {index + 1}. {item}
