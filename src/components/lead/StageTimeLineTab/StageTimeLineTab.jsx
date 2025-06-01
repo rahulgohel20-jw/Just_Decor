@@ -16,7 +16,7 @@ const StageTimeLineTab = () => {
         action: (
           <div className="flex items-center justify-center gap-1">
             <button
-              className="btn btn-sm btn-icon btn-clear text-gray-600"
+              className="btn btn-sm btn-icon btn-clear"
               title="Edit"
               onClick={() => handleEdit(item)}
             >

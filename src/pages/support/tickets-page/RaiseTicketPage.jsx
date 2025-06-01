@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import { Button } from "@mui/material";
 
 const RaiseTicketPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,8 +27,10 @@ const RaiseTicketPage = () => {
         <div className="text-center mb-6">
           <button
             onClick={openModal}
-            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition"
-          >
+            type="button"
+            className="btn btn-primary"
+            title="Raise a Ticket"
+            >
             Raise a Ticket
           </button>
         </div>

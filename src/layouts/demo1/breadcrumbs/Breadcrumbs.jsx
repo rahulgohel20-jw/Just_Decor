@@ -29,7 +29,7 @@ const Breadcrumbs = ({ items }) => {
       <Fragment key={`root-${0}`}>
         <Link
           to={"/"}
-          className={"text-2sm link shrink-0 hover:underline no-underline"}
+          className={"text-sm link shrink-0 hover:underline no-underline"}
           key={`item-${0}`}
           title="Dashboard"
         >
@@ -51,7 +51,7 @@ const Breadcrumbs = ({ items }) => {
             <Link
               to={item.path}
               className={clsx(
-                "text-2sm link shrink-0 hover:underline no-underline"
+                "text-sm link shrink-0 hover:underline no-underline"
               )}
               key={`item-${key}`}
               title={item.title}

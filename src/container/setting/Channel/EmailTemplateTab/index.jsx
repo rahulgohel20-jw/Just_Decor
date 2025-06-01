@@ -68,10 +68,10 @@ const EmailTemplateTab = () => {
                       </div>
                       <div className="flex flex-row items-center gap-2">
                         <button type="button" title="Edit">
-                          <i class="ki-filled ki-notepad-edit"></i>
+                          <i className="ki-filled ki-notepad-edit"></i>
                         </button>
                         <button type="button" title="Delete">
-                          <i class="ki-filled ki-trash"></i>
+                          <i className="ki-filled ki-trash"></i>
                         </button>
                       </div>
                     </div>

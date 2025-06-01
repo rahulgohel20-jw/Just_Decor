@@ -40,7 +40,7 @@ const ContactListPage = () => {
               <i className="ki-filled ki-eye"></i>
             </Link>
             <button
-              className="btn btn-sm btn-icon btn-clear text-gray-600"
+              className="btn btn-sm btn-icon btn-clear"
               title="Edit"
               onClick={() => handleEdit(item)}
             >

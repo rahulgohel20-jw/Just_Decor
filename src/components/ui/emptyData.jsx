@@ -12,7 +12,7 @@ const EmptyData = () => {
         alt="image"
       />
     </div>
-    <p class="text-sm text-gray-400 font-light text-center py-3">
+    <p className="text-sm text-gray-400 font-light text-center py-3">
       Template is not available
     </p>
   </div>;

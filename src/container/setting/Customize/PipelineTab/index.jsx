@@ -84,10 +84,10 @@ const PipelineTab = () => {
                             <i className="ki-filled ki-copy"></i>
                           </button>
                           <button type="button" title="Edit">
-                            <i class="ki-filled ki-notepad-edit"></i>
+                            <i className="ki-filled ki-notepad-edit"></i>
                           </button>
                           <button type="button" title="Delete">
-                            <i class="ki-filled ki-trash"></i>
+                            <i className="ki-filled ki-trash"></i>
                           </button>
                         </>
                       }
@@ -120,8 +120,12 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <Eye size={18} className="text-success" />
-                          <Copy size={18} className="text-success" />
+                          <button type="button" title="Copy">
+                            <i className="ki-filled ki-copy"></i>
+                          </button>
+                          <button type="button" title="Delete">
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
                         </>
                       }
                     />
@@ -154,10 +158,10 @@ const PipelineTab = () => {
                       rightContent={
                         <>
                           <button type="button" title="Edit">
-                            <i class="ki-filled ki-notepad-edit"></i>
+                            <i className="ki-filled ki-notepad-edit"></i>
                           </button>
                           <button type="button" title="Delete">
-                            <i class="ki-filled ki-trash"></i>
+                            <i className="ki-filled ki-trash"></i>
                           </button>
                         </>
                       }

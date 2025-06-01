@@ -61,7 +61,7 @@ const OtpLogin = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
             Login with OTP instead
           </h3>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-700">
             Enter your phone number to receive an OTP code for
             accountverification.
           </span>
@@ -89,7 +89,7 @@ const OtpLogin = () => {
         <div className="flex items-center justify-between gap-1">
           <Link
             to={"/auth/login"}
-            className="text-2sm link shrink-0 hover:underline no-underline"
+            className="text-sm link shrink-0 hover:underline no-underline"
           >
             Login with Email instead
           </Link>
@@ -101,8 +101,8 @@ const OtpLogin = () => {
         >
           {loading ? "Please wait..." : "Send your OTP"}
         </button>
-        <div className="flex items-center justify-center font-medium mt-3">
-          <span className="text-2sm text-gray-600 me-1.5">
+        <div className="flex items-center justify-center mt-3">
+          <span className="text-sm text-gray-700 me-1.5">
             Don't have an account?
           </span>
           <Link
@@ -111,7 +111,7 @@ const OtpLogin = () => {
                 ? "/auth/signup"
                 : "/auth/classic/signup"
             }
-            className="text-2sm link hover:underline no-underline"
+            className="text-2sm link hover:underline font-medium no-underline"
           >
             Sign Up
           </Link>

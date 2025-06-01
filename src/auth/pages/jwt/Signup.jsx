@@ -82,7 +82,7 @@ const Signup = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
             Sign Up
           </h3>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-700">
             Please fill in all the information required to create your account
             on JW.
           </span>
@@ -280,8 +280,8 @@ const Signup = () => {
           />
           Sign up with Google
         </a>
-        <div className="flex items-center justify-center font-medium mt-2">
-          <span className="text-2sm text-gray-600 me-1.5">
+        <div className="flex items-center justify-center mt-2">
+          <span className="text-sm text-gray-700 me-1.5">
             Already have on account?{" "}
           </span>
           <Link
@@ -290,7 +290,7 @@ const Signup = () => {
                 ? "/auth/login"
                 : "/auth/classic/login"
             }
-            className="text-2sm link hover:underline no-underline"
+            className="text-2sm link hover:underline font-medium no-underline"
           >
             Sign In
           </Link>
