@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
-import { Textarea } from "../../../components/ui/textarea";
-import SelectInput from "@mui/material/Select/SelectInput";
 import AddProduct from "../add-product/AddProduct";
 
 const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
@@ -239,6 +236,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           open={isModalOpen}
           onClose={handleModalClose}
           title="Add Lead"
+          width={700}
           footer={[
             <div className="flex justify-between" key={"footer-buttons"}>
               <button

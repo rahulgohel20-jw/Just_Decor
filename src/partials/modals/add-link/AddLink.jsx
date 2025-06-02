@@ -26,6 +26,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Link"
+        width={500}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
