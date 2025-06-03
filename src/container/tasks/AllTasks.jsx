@@ -109,7 +109,7 @@ const AllTasks = () => {
   return (
     <div className="all-tasks">
       <div className="flex justify-end">
-        <button className="btn btn-sm btn-success mb-4">
+        <button className="btn btn-sm btn-primary mb-4">
           <i className="ki-filled ki-plus me-2"></i>
           Add Task
         </button>

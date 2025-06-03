@@ -13,6 +13,10 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      backgroundImage: {
+        lightUserAccessBg: "url('/images/bg_01.png')",
+        darkUserAccessBg: "url('/images/bg_01_dark.png')",
+      },
       base: {
         colors: {
           gray: {
@@ -516,6 +520,7 @@ module.exports = {
             modal: theme("borderRadius.xl"),
           },
         },
+
         container: {
           fixed: {
             px: {

@@ -43,12 +43,12 @@ export const MENU_SIDEBAR = [
         path: "/tasks",
       },
       {
-        title: "Tasks Directory",
-        path: "/tasks-directory",
-      },
-      {
         title: "Tasks Templates",
         path: "/tasks-template",
+      },
+      {
+        title: "Tasks Directory",
+        path: "/tasks-directory",
       },
     ],
   },

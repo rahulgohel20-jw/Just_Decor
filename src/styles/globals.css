@@ -10,14 +10,22 @@
 @import "shadcn.ui";
 
 .dnd-active .cursor-grab {
-    cursor: none;
+  cursor: none;
 }
 
 .remove-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .remove-scrollbar::-webkit-scrollbar {
-    display: none;
+  display: none;
+}
+
+@layer utilities {
+  .bg-user-access {
+    @apply bg-lightUserAccessBg dark:bg-darkUserAccessBg bg-no-repeat;
+    background-position: right center;
+    background-size: 60%;
+  }
 }
