@@ -82,8 +82,8 @@ const TwoFactorAuth = () => {
         <div className="mb-2.5">
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
           <div className="flex flex-col">
-            <span className="text-sm text-gray-600">Please enter the one time password to verify your account.</span>
-            <span className="text-sm text-gray-600 mt-2">
+            <span className="text-sm text-gray-700">Please enter the one time password to verify your account.</span>
+            <span className="text-sm text-gray-700 mt-2">
               A code has been sent to
                <span className="ms-1">
                 {localStorage.getItem("phone")
@@ -113,10 +113,10 @@ const TwoFactorAuth = () => {
           )}
         </div>
         <div className="flex items-center justify-center text-center w-full mt-2">
-          <span className="text-xs text-gray-700 me-1.5">
+          <span className="text-sm text-gray-700 me-1.5">
             Didn't receive a code? (37s)
           </span>
-          <Link to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"} className="text-xs link hover:underline no-underline">
+          <Link to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"} className="text-sm link hover:underline no-underline">
             Resend OTP
           </Link>
         </div>

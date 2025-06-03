@@ -18,7 +18,7 @@ const Heading = ({
           <a href="#" className="text-md font-medium text-gray-900 hover:text-primary-active mb-1">
             {author}
           </a>
-          <time className="text-sm text-gray-600">{date}</time>
+          <time className="text-sm text-gray-700">{date}</time>
         </div>
       </div>
 

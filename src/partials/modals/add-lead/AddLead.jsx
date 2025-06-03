@@ -123,7 +123,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                 <i className="text-sm ki-filled ki-plus"></i> Add New Product
               </button>
             </div>
-            <div className="flex flex-col max-h-80 overflow-auto">
+            <div className="flex flex-col max-h-80 overflow-auto scrollable-y">
               {formData &&
                 formData.product_data.map((product, index) => {
                   return (
