@@ -10,44 +10,95 @@ const LeadRightComponent = () => {
   const tabs = [
     {
       id: "timeline",
-      label: "Timeline",
+      label:
+      (
+        <>
+          <i className="ki-filled ki-chart-line-up"></i>
+          Timeline
+        </>
+      ),
       children: <TimeLineTab />,
     },
     {
       id: "notes",
-      label: "Notes",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-notepad"></i>
+          Notes
+        </>
+      ),
       children: <NoteTab />,
     },
     {
       id: "followup",
-      label: "Follow Up",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-message-text-2"></i>
+          Follow Up
+        </>
+      ),
       children: "Follow Up",
     },
     {
       id: "stage_timeline",
-      label: "Stage Timeline",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-arrow-right-left"></i>
+          Stage Timelinep
+        </>
+      ),
       children: <StageTimeLineTab />,
     },
     {
       id: "emails",
-      label: "Emails",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-ki-filled ki-sms"></i>
+         Emails
+        </>
+      ),
       children: "Emails",
     },
     {
       id: "products",
-      label: "Products",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-bookmark"></i>
+         Products
+        </>
+      ),
       children: "Products",
     },
     {
       id: "Whatsapp",
-      label: "Whatsapp",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-ki-filled ki-whatsapp"></i>
+         Whatsapp
+        </>
+      ),
       children: "Whatsapp",
     },
-    { id: "Quotation", label: "Quotation", children: "Quotation" },
+    { id: "Quotation",
+      label:
+      (
+        <>
+        <i className="ki-filled ki-cheque"></i>
+         Quotation
+        </>
+      ),
+      children: "Quotation"
+    },
   ];
 
   return (
-    <div className="card p-2 lg:p-3 shadow-none">
+    <div className="p-4 lg:p-7 grow">
       <TabComponent tabs={tabs} />
     </div>
   );
