@@ -12,6 +12,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Company"
+        width={700}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button

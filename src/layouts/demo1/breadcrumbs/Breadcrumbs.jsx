@@ -81,19 +81,19 @@ const Breadcrumbs = ({ items }) => {
 
   const menuItems = [
     {
-      label: <div onClick={() => setIsLeadModalOpen(true)}>Lead</div>,
+      label: <div onClick={() => setIsLeadModalOpen(true)}><i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead</div>,
       key: "0",
     },
     {
-      label: <div onClick={() => setIsFollowUpModalOpen(true)}>Follow Up</div>,
+      label: <div onClick={() => setIsFollowUpModalOpen(true)}><i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up</div>,
       key: "1",
     },
     {
-      label: <div onClick={() => setIsContactModalOpen(true)}>Contact</div>,
+      label: <div onClick={() => setIsContactModalOpen(true)}><i className="ki-filled ki-user me-1.5"></i>Contact</div>,
       key: "2",
     },
     {
-      label: <div onClick={() => setIsCompanyModalOpen(true)}>Company</div>,
+      label: <div onClick={() => setIsCompanyModalOpen(true)}><i className="ki-filled ki-bank me-1.5"></i>Company</div>,
       key: "3",
     },
   ];
@@ -110,6 +110,7 @@ const Breadcrumbs = ({ items }) => {
         <Dropdown
           menu={{ items: menuItems }}
           trigger={["click"]}
+          // className="max-w-[370px] w-full"
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>

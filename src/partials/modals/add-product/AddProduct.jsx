@@ -170,6 +170,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Product"
+          width={650}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button

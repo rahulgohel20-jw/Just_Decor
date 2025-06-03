@@ -9,17 +9,17 @@ const SidebarHeader = forwardRef((props, ref) => {
   } = useDemo1Layout();
   const lightLogo = () => <Fragment>
       <Link to="/" className="dark:hidden">
-        <img src={toAbsoluteUrl('/images/logo.svg')} className="default-logo h-[40px] max-w-none" />
-        <img src={toAbsoluteUrl('/images/monogram.svg')} className="small-logo h-[34px] max-w-none" />
+        <img src={toAbsoluteUrl('/images/logo.svg')} className="default-logo h-[46px] max-w-none" />
+        <img src={toAbsoluteUrl('/images/monogram.svg')} className="small-logo h-[36px] max-w-none" />
       </Link>
       <Link to="/" className="hidden dark:block">
-        <img src={toAbsoluteUrl('/images/logo_white.svg')} className="default-logo h-[40px] max-w-none" />
-        <img src={toAbsoluteUrl('/images/monogram_white.svg')} className="small-logo h-[34px] max-w-none" />
+        <img src={toAbsoluteUrl('/images/logo_white.svg')} className="default-logo h-[46px] max-w-none" />
+        <img src={toAbsoluteUrl('/images/monogram_white.svg')} className="small-logo h-[36px] max-w-none" />
       </Link>
     </Fragment>;
   const darkLogo = () => <Link to="/">
-      <img src={toAbsoluteUrl('/images/logo_white.svg')} className="default-logo h-[40px] max-w-none" />
-      <img src={toAbsoluteUrl('/images/monogram_white.svg')} className="small-logo h-[34px] max-w-none" />
+      <img src={toAbsoluteUrl('/images/logo_white.svg')} className="default-logo h-[46px] max-w-none" />
+      <img src={toAbsoluteUrl('/images/monogram_white.svg')} className="small-logo h-[36px] max-w-none" />
     </Link>;
   return <div ref={ref} className="sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0">
       {layout.options.sidebar.theme === 'light' ? lightLogo() : darkLogo()}
