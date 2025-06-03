@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const TabComponent = ({ tabs }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || "");
   const currentTab = tabs.find((tab) => tab.id === activeTab);
   return (
     <>
-      <div
-        className="btn-tabs btn-tabs-lg mb-3 w-full"
-        data-tabs="true"
-      >
+      <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
         {tabs.map((tab) => (
           <a
             key={tab.id}

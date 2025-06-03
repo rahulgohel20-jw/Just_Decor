@@ -103,6 +103,11 @@ import {
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
 import { Dashboard } from "@/pages/dashboard";
+import {
+  TaskListPage,
+  TaskTemplatePage,
+  TaskDirectoryPage,
+} from "@/pages/tasks";
 
 const AppRoutingSetup = () => {
   return (
@@ -129,6 +134,14 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
+
+          {/* Tasks routes */}
+          <Route path="/tasks" element={<TaskListPage />}></Route>
+          <Route
+            path="/tasks-directory"
+            element={<TaskDirectoryPage />}
+          ></Route>
+          <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
 
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
