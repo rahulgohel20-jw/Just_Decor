@@ -53,13 +53,10 @@ const TimeLineTab = () => {
 
   return (
     <>
-      <div className="card-body">
+      <div className="my-4">
         <StageTimeLine />
-
         <ActivitiesInterview />
-
         <ActivitiesUpcomingContent />
-
         <ActivitiesBloggingConference
           image={
             <Fragment>
@@ -76,9 +73,7 @@ const TimeLineTab = () => {
             </Fragment>
           }
         />
-
         <ActivitiesFollowersMilestone />
-
         <ActivitiesAnniversary />
       </div>
     </>

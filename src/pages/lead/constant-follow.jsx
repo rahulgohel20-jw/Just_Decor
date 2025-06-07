@@ -1,4 +1,4 @@
-export const followUpTabs = ["Follow Up Report","Activity report" ," open Leads Aging", "Lost reson rport"]; // Add more tabs later if needed
+export const followUpTabs = ["Follow Up Report","Activity Report" ," Open Leads Aging", "Lost Reson Report"]; // Add more tabs later if needed
 
 export const followUpColumns = [
   { header: "Sales Person", accessorKey: "salesPerson", id: "salesPerson" },

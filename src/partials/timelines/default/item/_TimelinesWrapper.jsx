@@ -5,7 +5,6 @@ const TimelinesWrapper = ({ line, icon, children, removeSpace }) => {
       {line && (
         <div className="w-9 start-0 top-9 absolute bottom-0 rtl:-translate-x-1/2 translate-x-1/2 border-s border-s-gray-300"></div>
       )}
-
       <div className="flex items-center justify-center shrink-0 rounded-full bg-gray-100 border border-gray-300 size-9 text-gray-600">
         <KeenIcon icon={icon} className="text-base text-primary" />
       </div>
