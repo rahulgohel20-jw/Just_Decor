@@ -3,15 +3,6 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
 import {
-  Activity,
-  Database,
-  DatabaseIcon,
-  Layers,
-  Package,
-  User,
-  Users,
-} from "lucide-react";
-import {
   RoleAndPermission,
   BulkDataImport,
   ExportLead,
@@ -20,7 +11,7 @@ import {
 const GeneralSettingsPage = () => {
   const tabs = [
     {
-      id: "roleandpermission",
+      value: "roleandpermission",
       label: (
         <>
           {/* <User className="text-primary" /> */}
@@ -31,7 +22,7 @@ const GeneralSettingsPage = () => {
       children: <RoleAndPermission />,
     },
     {
-      id: "bulkdata",
+      value: "bulkdata",
       label: (
         <>
           {/* <DatabaseIcon className="text-primary" /> */}
@@ -42,7 +33,7 @@ const GeneralSettingsPage = () => {
       children: <BulkDataImport />,
     },
     {
-      id: "exportleads",
+      value: "exportleads",
       label: (
         <>
           {/* <Layers className="text-primary" /> */}

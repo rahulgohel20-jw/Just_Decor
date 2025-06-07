@@ -1,19 +1,10 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { TableComponent } from "@/components/table/TableComponent";
 import { Confirmation } from "@/components/confirmation/confirmation";
-import {
-  ActivitiesAnniversary,
-  ActivitiesBloggingConference,
-  ActivitiesFollowersMilestone,
-  ActivitiesInterview,
-  ActivitiesNewArticle,
-  ActivitiesUpcomingContent,
-} from "@/partials/activities/items";
-import { toAbsoluteUrl } from "@/utils";
-import StageTimeLine from "../TimeLineComponent/StageTimeLine";
+import { columns, defaultData } from "./constant";
 
-import { defaultData } from "./constant";
-
-const TimeLineTab = () => {
+const ProductsTab = () => {
   const handleEdit = (data) => {
     setEditData(data);
     setIsModalOpen(true);
@@ -53,31 +44,15 @@ const TimeLineTab = () => {
 
   return (
     <>
-      <div className="my-4">
-        <StageTimeLine />
-        <ActivitiesInterview />
-        <ActivitiesUpcomingContent />
-        <ActivitiesBloggingConference
-          image={
-            <Fragment>
-              <img
-                src={toAbsoluteUrl(`/media/illustrations/3.svg`)}
-                className="dark:hidden max-h-[160px]"
-                alt=""
-              />
-              <img
-                src={toAbsoluteUrl(`/media/illustrations/3-dark.svg`)}
-                className="light:hidden max-h-[160px]"
-                alt=""
-              />
-            </Fragment>
-          }
-        />
-        <ActivitiesFollowersMilestone />
-        <ActivitiesAnniversary />
+      <div className="flex flex-col mb-2">
+        <label className="form-label">Add Note</label>
+        <Textarea />
       </div>
+      <button className="btn btn-primary mb-5">Save</button>
+
+      <TableComponent columns={columns} data={tableData} paginationSize={10} />
     </>
   );
 };
 
-export default TimeLineTab;
+export default ProductsTab;

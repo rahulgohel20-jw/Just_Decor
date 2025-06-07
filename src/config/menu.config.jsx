@@ -35,6 +35,24 @@ export const MENU_SIDEBAR = [
     ],
   },
   {
+    title: "Tasks",
+    icon: "ki-filled ki-abstract-16",
+    children: [
+      {
+        title: "All Tasks",
+        path: "/tasks",
+      },
+      {
+        title: "Tasks Templates",
+        path: "/tasks-template",
+      },
+      {
+        title: "Tasks Directory",
+        path: "/tasks-directory",
+      },
+    ],
+  },
+  {
     title: "Links",
     icon: "ki-filled ki-disconnect",
     path: "/links",

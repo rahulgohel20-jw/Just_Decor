@@ -1,17 +1,21 @@
 import { useState } from "react";
 import TabComponent from "../tab/TabComponent";
-import NoteTab from "./NoteTab/NoteTab";
-import TimeLineTab from "./TimeLineTab/TimeLineTab";
-import StageTimeLineTab from "./StageTimeLineTab/StageTimeLineTab";
+import NoteTab from "./NoteTab";
+import TimeLineTab from "./TimeLineTab";
+import StageTimeLineTab from "./StageTimeLineTab";
+import FollowTab from "./NoteTab";
+import EmailTab from "./EmailTab";
+import QuotationTab from "./QuotationTab";
+import WhatsappTab from "./WhatsappTab";
+import ProductsTab from "./ProductsTab";
 
 const LeadRightComponent = () => {
   const [activeTab, setActiveTab] = useState("tab_1");
 
   const tabs = [
     {
-      id: "timeline",
-      label:
-      (
+      value: "timeline",
+      label: (
         <>
           <i className="ki-filled ki-chart-line-up"></i>
           Timeline
@@ -20,80 +24,74 @@ const LeadRightComponent = () => {
       children: <TimeLineTab />,
     },
     {
-      id: "notes",
-      label:
-      (
+      value: "notes",
+      label: (
         <>
-        <i className="ki-filled ki-notepad"></i>
+          <i className="ki-filled ki-notepad"></i>
           Notes
         </>
       ),
       children: <NoteTab />,
     },
     {
-      id: "followup",
-      label:
-      (
+      value: "followup",
+      label: (
         <>
-        <i className="ki-filled ki-message-text-2"></i>
+          <i className="ki-filled ki-message-text-2"></i>
           Follow Up
         </>
       ),
-      children: "Follow Up",
+      children: <FollowTab />,
     },
     {
-      id: "stage_timeline",
-      label:
-      (
+      value: "stage_timeline",
+      label: (
         <>
-        <i className="ki-filled ki-arrow-right-left"></i>
+          <i className="ki-filled ki-arrow-right-left"></i>
           Stage Timelinep
         </>
       ),
       children: <StageTimeLineTab />,
     },
     {
-      id: "emails",
-      label:
-      (
+      value: "emails",
+      label: (
         <>
-        <i className="ki-filled ki-ki-filled ki-sms"></i>
-         Emails
+          <i className="ki-filled ki-ki-filled ki-sms"></i>
+          Emails
         </>
       ),
-      children: "Emails",
+      children: <EmailTab />,
     },
     {
-      id: "products",
-      label:
-      (
+      value: "products",
+      label: (
         <>
-        <i className="ki-filled ki-bookmark"></i>
-         Products
+          <i className="ki-filled ki-bookmark"></i>
+          Products
         </>
       ),
-      children: "Products",
+      children: <ProductsTab />,
     },
     {
-      id: "Whatsapp",
-      label:
-      (
+      value: "Whatsapp",
+      label: (
         <>
-        <i className="ki-filled ki-ki-filled ki-whatsapp"></i>
-         Whatsapp
+          <i className="ki-filled ki-ki-filled ki-whatsapp"></i>
+          Whatsapp
         </>
       ),
-      children: "Whatsapp",
+      children: <WhatsappTab />,
     },
-    { id: "Quotation",
-      label:
-      (
+    {
+      value: "Quotation",
+      label: (
         <>
-        <i className="ki-filled ki-cheque"></i>
-         Quotation
+          <i className="ki-filled ki-cheque"></i>
+          Quotation
         </>
       ),
-      children: "Quotation"
+      children: <QuotationTab />,
     },
   ];
 

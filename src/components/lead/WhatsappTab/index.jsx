@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { TableComponent } from "@/components/table/TableComponent";
 import { Confirmation } from "@/components/confirmation/confirmation";
-import StageTimeLine from "../TimeLineComponent/StageTimeLine";
-import { defaultData } from "./constant";
+import { columns, defaultData } from "./constant";
 
-const StageTimeLineTab = () => {
+const WhatsappTab = () => {
   const handleEdit = (data) => {
     setEditData(data);
     setIsModalOpen(true);
@@ -22,10 +23,7 @@ const StageTimeLineTab = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"
@@ -46,15 +44,15 @@ const StageTimeLineTab = () => {
 
   return (
     <>
-      <div className="my-4">
-        <StageTimeLine />
-        <StageTimeLine />
-        <StageTimeLine />
-        <StageTimeLine />
-        <StageTimeLine />
+      <div className="flex flex-col mb-2">
+        <label className="form-label">Add Note</label>
+        <Textarea />
       </div>
+      <button className="btn btn-primary mb-5">Save</button>
+
+      <TableComponent columns={columns} data={tableData} paginationSize={10} />
     </>
   );
 };
 
-export default StageTimeLineTab;
+export default WhatsappTab;
