@@ -1,7 +1,7 @@
 const LeadLeftComponent = () => {
   return (
-    <div className="h-full lg:border-e lg:border-e-border shrink-0 p-4 lg:p-7 bg-muted/25">
-      <h6 className="font-semibold text-gray-900 mb-4">Lead Details</h6>
+    <div className="h-full lg:border-e lg:border-e-border shrink-0 p-4 lg:p-7 bg-muted/15">
+      <h6 className="font-bold text-gray-900 mb-4">Lead Details</h6>
       <div className="flex flex-col flex-wrap gap-1.5">
         <div className="flex items-center gap-2 mb-1">
           <div
@@ -47,7 +47,7 @@ const LeadLeftComponent = () => {
       </div>
 
       <hr className="border-t border-gray-200 my-5" />
-      <h6 className="font-semibold text-gray-900 mb-4">Contact Details</h6>
+      <h6 className="font-bold text-gray-900 mb-4">Contact Details</h6>
       <div className="flex flex-col flex-wrap gap-1.5">
         <div className="flex items-center gap-2">
           <i className="ki-filled ki-user text-success"></i>
@@ -64,7 +64,7 @@ const LeadLeftComponent = () => {
       </div>
 
       <hr className="border-t border-gray-200 my-5" />
-      <h6 className="font-semibold text-gray-900 mb-4">Company Details</h6>
+      <h6 className="font-bold text-gray-900 mb-4">Company Details</h6>
       <div className="flex flex-col flex-wrap gap-1.5">
         <div className="flex items-center gap-2">
           <i className="ki-filled ki-user text-success"></i>
@@ -85,7 +85,7 @@ const LeadLeftComponent = () => {
       </div>
 
       <hr className="border-t border-gray-200 my-5" />
-      <h6 className="font-semibold text-gray-900 mb-4 flex items-center justify-between">Tags <button className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full" title="Add Tags"><i className="ki-filled ki-plus"></i></button></h6>
+      <h6 className="font-bold text-gray-900 mb-4 flex items-center justify-between">Tags <button className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full" title="Add Tags"><i className="ki-filled ki-plus"></i></button></h6>
       <div className="flex flex-wrap gap-1.5">
           <button className="btn btn-light h-7 rounded-full px-3" title="Lead">Lead <span class="ki-filled ki-cross text-sm"></span></button>
           <button className="btn btn-light h-7 rounded-full px-3" title="Sample">Sample <span class="ki-filled ki-cross text-sm"></span></button>
