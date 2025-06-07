@@ -2,7 +2,6 @@ import { Fragment } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
-import { Activity, Layers, Package, Users } from "lucide-react";
 import {
   ProductTab,
   PipelineTab,
@@ -13,7 +12,7 @@ import {
 const CustomizeSettingsPage = () => {
   const tabs = [
     {
-      id: "pipeline",
+      value: "pipeline",
       label: (
         <>
           <i className="ki-filled ki-chart-line"></i>
@@ -23,7 +22,7 @@ const CustomizeSettingsPage = () => {
       children: <PipelineTab />,
     },
     {
-      id: "lead",
+      value: "lead",
       label: (
         <>
           <i className="ki-filled ki-abstract-26"></i>
@@ -33,7 +32,7 @@ const CustomizeSettingsPage = () => {
       children: <LeadTab />,
     },
     {
-      id: "contacts",
+      value: "contacts",
       label: (
         <>
           <i className="ki-filled ki-address-book"></i>
@@ -43,7 +42,7 @@ const CustomizeSettingsPage = () => {
       children: <ContactTab />,
     },
     {
-      id: "product",
+      value: "product",
       label: (
         <>
           <i className="ki-filled ki-bookmark"></i>

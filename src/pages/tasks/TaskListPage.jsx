@@ -7,17 +7,17 @@ import { AllTasks } from "@/container/tasks";
 const TaskListPage = () => {
   const tabs = [
     {
-      id: "all",
+      value: "all",
       label: "All Tasks",
       children: <AllTasks />,
     },
     {
-      id: "my",
+      value: "my",
       label: "My Tasks",
       children: <AllTasks />,
     },
     {
-      id: "assigned_by_me",
+      value: "assigned_by_me",
       label: "Assigned by Me",
       children: <AllTasks />,
     },

@@ -14,7 +14,7 @@ const LeadRightComponent = () => {
 
   const tabs = [
     {
-      id: "timeline",
+      value: "timeline",
       label: (
         <>
           <i className="ki-filled ki-chart-line-up"></i>
@@ -24,7 +24,7 @@ const LeadRightComponent = () => {
       children: <TimeLineTab />,
     },
     {
-      id: "notes",
+      value: "notes",
       label: (
         <>
           <i className="ki-filled ki-notepad"></i>
@@ -34,7 +34,7 @@ const LeadRightComponent = () => {
       children: <NoteTab />,
     },
     {
-      id: "followup",
+      value: "followup",
       label: (
         <>
           <i className="ki-filled ki-message-text-2"></i>
@@ -44,7 +44,7 @@ const LeadRightComponent = () => {
       children: <FollowTab />,
     },
     {
-      id: "stage_timeline",
+      value: "stage_timeline",
       label: (
         <>
           <i className="ki-filled ki-arrow-right-left"></i>
@@ -54,7 +54,7 @@ const LeadRightComponent = () => {
       children: <StageTimeLineTab />,
     },
     {
-      id: "emails",
+      value: "emails",
       label: (
         <>
           <i className="ki-filled ki-ki-filled ki-sms"></i>
@@ -64,7 +64,7 @@ const LeadRightComponent = () => {
       children: <EmailTab />,
     },
     {
-      id: "products",
+      value: "products",
       label: (
         <>
           <i className="ki-filled ki-bookmark"></i>
@@ -74,7 +74,7 @@ const LeadRightComponent = () => {
       children: <ProductsTab />,
     },
     {
-      id: "Whatsapp",
+      value: "Whatsapp",
       label: (
         <>
           <i className="ki-filled ki-ki-filled ki-whatsapp"></i>
@@ -84,7 +84,7 @@ const LeadRightComponent = () => {
       children: <WhatsappTab />,
     },
     {
-      id: "Quotation",
+      value: "Quotation",
       label: (
         <>
           <i className="ki-filled ki-cheque"></i>

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { ContactRound, Mail } from "lucide-react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
@@ -10,16 +10,9 @@ import { WhatsAppTemplateTab } from "@/container/setting/Channel/WhatsAppTemplat
 import { StageTemplateTab } from "@/container/setting/Channel/StageTemplateTab";
 
 const ChannelSettingsPage = () => {
-  const [emailNotification, setEmailNotification] = useState(false);
-  const [whatsappNotification, setWhatsappNotification] = useState(false);
-  const [reportTime, setReportTime] = useState("11:53 AM");
-  const handleSave = () => {
-    alert("Settings saved!");
-  };
-
   const tabs = [
     {
-      id: "email",
+      value: "email",
       label: (
         <>
           <Mail />
@@ -29,7 +22,7 @@ const ChannelSettingsPage = () => {
       children: <EmailTab />,
     },
     {
-      id: "email_template",
+      value: "email_template",
       label: (
         <>
           <Mail />
@@ -39,7 +32,7 @@ const ChannelSettingsPage = () => {
       children: <EmailTemplateTab />,
     },
     {
-      id: "whatsapp",
+      value: "whatsapp",
       label: (
         <>
           <ContactRound />
@@ -49,7 +42,7 @@ const ChannelSettingsPage = () => {
       children: <WhatsAppTab />,
     },
     {
-      id: "whatsapp_template",
+      value: "whatsapp_template",
       label: (
         <>
           <ContactRound />
@@ -59,7 +52,7 @@ const ChannelSettingsPage = () => {
       children: <WhatsAppTemplateTab />,
     },
     {
-      id: "stage_template",
+      value: "stage_template",
       label: (
         <>
           <Mail />

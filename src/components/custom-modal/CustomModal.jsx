@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
+import { X } from "lucide-react";
 const CustomModal = ({ open, onClose, children, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
@@ -34,11 +35,19 @@ const CustomModal = ({ open, onClose, children, title, ...rest }) => {
     <Modal
       maskClosable={false} //  disables closing on backdrop click
       keyboard={false} //disables closing on Esc
-      title={title}
-      closable={{ "aria-label": "Custom Close Button" }}
+      closable={false} // Disable default close button
+      title={
+        <div className="flex justify-between items-center">
+          <span>Title</span>
+          <button type="text" onClick={handleClose}>
+            <X />
+          </button>
+        </div>
+      }
       open={open}
       onCancel={handleClose}
       modalRender={(modal) => (
+        // for shake animation
         <div ref={modalRef} className={shake ? classes.shake : ""}>
           {modal}
         </div>
@@ -46,7 +55,6 @@ const CustomModal = ({ open, onClose, children, title, ...rest }) => {
       {...rest}
     >
       {children}
-      {/* <div className="flex justify-end modal-footer"></div> */}
     </Modal>
   );
 };

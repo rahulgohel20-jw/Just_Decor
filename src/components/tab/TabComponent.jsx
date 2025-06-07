@@ -1,30 +1,98 @@
-import { useState } from "react";
+import { Segmented } from "antd";
+import { useState, useEffect, useRef } from "react";
 
 const TabComponent = ({ tabs }) => {
-  const [activeTab, setActiveTab] = useState(tabs[0]?.id || "");
-  const currentTab = tabs.find((tab) => tab.id === activeTab);
+  const [activeTab, setActiveTab] = useState(tabs[0]?.value || "");
+  const [currentTab, setCurrentTab] = useState(tabs[0]);
+  const scrollRef = useRef(null);
+
+  const onChange = (newActiveKey) => {
+    setActiveTab(newActiveKey);
+    setCurrentTab(tabs.find((tab) => tab.value === newActiveKey));
+  };
+
+  useEffect(() => {
+    if (tabs?.length) {
+      setActiveTab(tabs[0].value);
+      setCurrentTab(tabs[0]);
+    }
+  }, [tabs]);
+
+  // Drag-to-scroll logic
+  useEffect(() => {
+    const slider = scrollRef.current;
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    const mouseDownHandler = (e) => {
+      isDown = true;
+      slider.classList.add("cursor-grabbing");
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    };
+
+    const mouseLeaveHandler = () => {
+      isDown = false;
+      slider.classList.remove("cursor-grabbing");
+    };
+
+    const mouseUpHandler = () => {
+      isDown = false;
+      slider.classList.remove("cursor-grabbing");
+    };
+
+    const mouseMoveHandler = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1; // speed factor
+      slider.scrollLeft = scrollLeft - walk;
+    };
+
+    slider.addEventListener("mousedown", mouseDownHandler);
+    slider.addEventListener("mouseleave", mouseLeaveHandler);
+    slider.addEventListener("mouseup", mouseUpHandler);
+    slider.addEventListener("mousemove", mouseMoveHandler);
+
+    return () => {
+      slider.removeEventListener("mousedown", mouseDownHandler);
+      slider.removeEventListener("mouseleave", mouseLeaveHandler);
+      slider.removeEventListener("mouseup", mouseUpHandler);
+      slider.removeEventListener("mousemove", mouseMoveHandler);
+    };
+  }, []);
+
   return (
-    <>
-      <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
-        {tabs.map((tab) => (
-          <a
-            key={tab.id}
-            className={`btn btn-clear whitespace-nowrap${
-              activeTab === tab.id ? " active" : ""
-            }`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </a>
-        ))}
+    <div className="w-full">
+      <div className="mb-4">
+        <div
+          ref={scrollRef}
+          className="flex gap-2 overflow-x-auto no-scrollbar cursor-grab select-none"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <Segmented
+            size="large"
+            value={activeTab}
+            onChange={onChange}
+            options={tabs.map((tab) => ({
+              label: (
+                <span className="text-sm whitespace-nowrap">{tab.label}</span>
+              ),
+              value: tab.value,
+            }))}
+          />
+        </div>
       </div>
-      {/* Tab Content */}
-      <div className="tab-content">
+
+      <div className="tab-content px-2 sm:px-4">
         {currentTab?.children ?? (
-          <div className="text-center text-gray-400">No content</div>
+          <div className="text-center text-gray-400 py-10">No content</div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
