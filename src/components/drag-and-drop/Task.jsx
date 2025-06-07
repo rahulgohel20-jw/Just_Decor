@@ -21,16 +21,6 @@ const Task = ({ item, dropdown, index }) => {
 
   return (
     <>
-      {/* <style>
-        {`
-          .user-access-bg {
-            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
-          }
-          .dark .user-access-bg {
-            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
-          }
-        `}
-      </style> */}
       <div
         key={index}
         className="card p-2 lg:p-3 shadow-none user-access-bg bg-[center_top_1.3rem] bg-no-repeat start-now-bg bg-[length:700px]"

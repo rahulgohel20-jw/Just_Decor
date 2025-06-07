@@ -1,21 +1,85 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
+import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
+ import { TableComponent } from "@/components/table/TableComponent";
+
 import { FeaturesHighlight } from "../public-profile/profiles/creator/blocks";
+import { columns, defaultData } from "./constant";
+import AddBalance from "../../partials/modals/add-balance/AddBalance";
 
 const WalletLogsPage = () => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+   const responseFormate = () => {
+          const data = defaultData.map((item) => {
+            return {
+              ...item,
+              handleModalOpen: handleModalOpen,
+            };
+          });
+          return data;
+        };
+
+  const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
+      <style>
+        {`
+          .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+          }
+          .dark .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+          }
+        `}
+      </style>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Wallet Logs" }]} />
         </div>
-        <div className="card min-w-full">
-          <div className="card-table">
-              <h1 className="text-center p-10">Wallet Logs content here</h1>
+        <div className="container-fluid mb-8">
+
+        <div className="w-fit flex  items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-175px_-85px] [background-position:-100px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
+            <div className="flex items-center gap-4">
+              <CommonHexagonBadge
+                stroke="stroke-success-clarity"
+                fill="fill-success-light"
+                size="size-[50px]"
+                badge={<i className="ki-filled ki-wallet text-xl text-success"></i>}
+              />
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center flex-wrap gap-2.5">
+                  <h3 className="text-xl font-semibold text-success">
+                    &#8377; 0.00
+                  </h3>
+                  
+                </div>
+                <div className="form-info text-gray-800 font-normal">
+                  Wallet Balance
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
+              <button
+                className="btn btn-sm btn-success shrink-0"
+                title="Recharge Now"
+                onClick={() => {
+                  
+                  handleModalOpen();
+                }}
+              >
+                &#8377; Recharge Now
+              </button>
+            </div>
           </div>
         </div>
 
@@ -52,7 +116,16 @@ const WalletLogsPage = () => {
             </div>
           </div> */}
 
-
+        <TableComponent
+                  columns={columns}
+                  data={tableData}
+                  paginationSize={10}
+                />
+        <AddBalance
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        
+      />
         </Container>
     </Fragment>
   );

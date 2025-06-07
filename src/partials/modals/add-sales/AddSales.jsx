@@ -57,8 +57,9 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Member"
+        width={500}
         footer={[
-          <button key="add" className="btn btn-primary" title="Add Member">Add Member</button>,
+          <button key="add" className="btn btn-primary" title="Save Member">Save Member</button>,
         ]}
       >
         <div className="flex flex-col gap-y-2">

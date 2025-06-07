@@ -222,6 +222,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Contact"
+        width={700}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button

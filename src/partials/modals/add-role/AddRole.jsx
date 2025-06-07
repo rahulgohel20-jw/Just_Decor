@@ -32,6 +32,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Role"
+        width={650}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button

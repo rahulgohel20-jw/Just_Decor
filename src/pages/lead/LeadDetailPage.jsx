@@ -38,51 +38,61 @@ const LeadDetailPage = () => {
   return (
     <Fragment>
       <Container>
-        <div className="flex items-center justify-end">
-          <button
-            type="button"
-            onClick={handleMoveTo}
-            className="btn btn-sm border border-dark ms-2"
-          >
-            <i className="ki-filled ki-notepad-edit text-info"></i> Move to
-          </button>
-          <button
-            type="button"
-            onClick={handleEditLead}
-            className="btn btn-sm border border-dark ms-2"
-          >
-            <i className="ki-filled ki-notepad-edit text-info"></i> Edit Lead
-          </button>
-          <button
-            type="button"
-            onClick={handleAddNote}
-            className="btn btn-sm border border-dark ms-2"
-          >
-            <i className="ki-filled ki-notepad-edit text-info"></i> Edit Notes
-          </button>
-          <button
-            type="button"
-            onClick={handleAddFollowUp}
-            className="btn btn-sm border border-dark ms-2"
-          >
-            <i className="ki-filled ki-notepad-edit text-info"></i> Add Follow
-            Up
-          </button>
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-1">
+            {leadTypes.map(({ id, name }, index) => (
+              <div className="filItems relative">
+                <button class="btn btn-sm btn-light" title={name} key={index}>
+                  {name}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <button
+                type="button"
+                onClick={handleMoveTo}
+                className="btn btn-light"
+                title="Move to"
+              >
+                <i className="ki-filled ki-arrows-loop"></i> Move to
+              </button>
+            </div>
+            <div className="filItems relative">
+              <button
+                type="button"
+                onClick={handleEditLead}
+                className="btn btn-light"
+                title="Edit Lead"
+              >
+                <i className="ki-filled ki-ki-filled ki-abstract-18 text-lg"></i>{" "}
+                Edit Lead
+              </button>
+            </div>
+            <div className="filItems relative">
+              <button
+                type="button"
+                onClick={handleAddNote}
+                className="btn btn-light"
+                title="Edit Notes"
+              >
+                <i className="ki-filled ki-notepad"></i> Edit Notes
+              </button>
+            </div>
+            <div className="filItems relative">
+              <button
+                type="button"
+                onClick={handleAddFollowUp}
+                className="btn btn-light"
+                title="Add Follow Up"
+              >
+                <i className="ki-filled ki-message-text-2"></i> Add Follow Up
+              </button>
+            </div>
+          </div>
         </div>
-        {leadTypes.map(({ id, name }, index) => (
-          <Badge
-            className="badge badge-outline text-xs ms-2"
-            title="Type one"
-            key={index}
-          >
-            {name}
-          </Badge>
-        ))}
-      </Container>
-      <hr className="border-t border-gray-200 my-5" />
-
-      <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 border rounded-lg">
           <div className="col-span-1">
             <LeadLeftComponent />
           </div>
@@ -91,18 +101,14 @@ const LeadDetailPage = () => {
           </div>
         </div>
       </Container>
-
-      {/* AddLead */}
       <AddLead
         isModalOpen={isLeadModalOpen}
         setIsModalOpen={setIsLeadModalOpen}
       />
-      {/* AddLeadNote */}
       <AddLeadNote
         isModalOpen={isNoteModalOpen}
         setIsModalOpen={setIsNoteModalOpen}
       />
-      {/* AddFollowUp */}
       <AddFollowUp
         isModalOpen={isFollowUpModalOpen}
         setIsModalOpen={setIsFollowUpModalOpen}
