@@ -23,10 +23,7 @@ const NoteTab = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"
@@ -47,12 +44,19 @@ const NoteTab = () => {
 
   return (
     <>
-      <div className="flex flex-col mb-2">
-        <label className="form-label">Add Note</label>
-        <Textarea />
+      <div className="grid grid-cols-9 gap-3 lg:gap-4 mb-5 mt-2">
+        <div className="col-span-7 col-start-2">
+          <div className="card min-w-full py-5 px-6">
+            <div className="flex flex-col">
+              <label className="form-label">Add Note</label>
+              <Textarea />
+            </div>
+            <div className="mt-3 text-end">
+              <button className="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button className="btn btn-primary mb-5">Save</button>
-
       <TableComponent columns={columns} data={tableData} paginationSize={10} />
     </>
   );

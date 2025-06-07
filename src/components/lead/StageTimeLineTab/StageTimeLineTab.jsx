@@ -46,7 +46,7 @@ const StageTimeLineTab = () => {
 
   return (
     <>
-      <div className="card-body">
+      <div className="my-4">
         <StageTimeLine />
         <StageTimeLine />
         <StageTimeLine />

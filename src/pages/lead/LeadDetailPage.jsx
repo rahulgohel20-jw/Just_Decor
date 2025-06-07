@@ -14,7 +14,7 @@ const LeadDetailPage = () => {
   const [isTagOpen, setIsTagOpen] = useState(false);
   const [searchTag, setSearchTag] = useState("");
   const leadTypes = [
-    { id: 1, name: "New Inquiry" },
+    // { id: 1, name: "New Inquiry" },
     { id: 2, name: "Follow Up" },
     { id: 3, name: "Closed" },
     { id: 4, name: "Lost" },
@@ -39,7 +39,8 @@ const LeadDetailPage = () => {
     <Fragment>
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button class="btn btn-sm btn-success" title="New Inquiry">New Inquiry</button>
             {leadTypes.map(({ id, name }, index) => (
               <div className="filItems relative">
                 <button class="btn btn-sm btn-light" title={name} key={index}>

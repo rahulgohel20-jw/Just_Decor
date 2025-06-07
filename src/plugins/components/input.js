@@ -26,7 +26,7 @@ export default plugin(({ addComponents, theme }) => {
         "border-color": "var(--tw-gray-400)",
       },
       "&:focus, &:has(input:focus)": {
-        "border-color": "var(--tw-primary)",
+        "border-color": "var(--tw-gray-500)",
         "box-shadow": "var(--tw-input-focus-box-shadow)",
         color: "var(--tw-gray-700)",
         "&::placeholder, input::placeholder": {

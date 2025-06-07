@@ -32,10 +32,7 @@ const TimeLineTab = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"
@@ -56,13 +53,10 @@ const TimeLineTab = () => {
 
   return (
     <>
-      <div className="card-body">
+      <div className="my-4">
         <StageTimeLine />
-
         <ActivitiesInterview />
-
         <ActivitiesUpcomingContent />
-
         <ActivitiesBloggingConference
           image={
             <Fragment>
@@ -79,9 +73,7 @@ const TimeLineTab = () => {
             </Fragment>
           }
         />
-
         <ActivitiesFollowersMilestone />
-
         <ActivitiesAnniversary />
       </div>
     </>
