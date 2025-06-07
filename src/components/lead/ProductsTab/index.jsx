@@ -4,7 +4,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
 
-const NoteTab = () => {
+const ProductsTab = () => {
   const handleEdit = (data) => {
     setEditData(data);
     setIsModalOpen(true);
@@ -23,10 +23,7 @@ const NoteTab = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"
@@ -58,4 +55,4 @@ const NoteTab = () => {
   );
 };
 
-export default NoteTab;
+export default ProductsTab;

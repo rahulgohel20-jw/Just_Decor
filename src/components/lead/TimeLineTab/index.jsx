@@ -9,7 +9,7 @@ import {
   ActivitiesUpcomingContent,
 } from "@/partials/activities/items";
 import { toAbsoluteUrl } from "@/utils";
-import StageTimeLine from "../TimeLineComponent/StageTimeLine";
+import StageTimeLine from "../TimeLineComponent";
 
 import { defaultData } from "./constant";
 
@@ -32,10 +32,7 @@ const TimeLineTab = () => {
             >
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <Confirmation
                 trigger={<i className="ki-filled ki-trash"></i>}
                 content="Do you really want to delete?"

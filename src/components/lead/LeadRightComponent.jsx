@@ -1,8 +1,13 @@
 import { useState } from "react";
 import TabComponent from "../tab/TabComponent";
-import NoteTab from "./NoteTab/NoteTab";
-import TimeLineTab from "./TimeLineTab/TimeLineTab";
-import StageTimeLineTab from "./StageTimeLineTab/StageTimeLineTab";
+import NoteTab from "./NoteTab";
+import TimeLineTab from "./TimeLineTab";
+import StageTimeLineTab from "./StageTimeLineTab";
+import FollowTab from "./NoteTab";
+import EmailTab from "./EmailTab";
+import QuotationTab from "./QuotationTab";
+import WhatsappTab from "./WhatsappTab";
+import ProductsTab from "./ProductsTab";
 
 const LeadRightComponent = () => {
   const [activeTab, setActiveTab] = useState("tab_1");
@@ -21,7 +26,7 @@ const LeadRightComponent = () => {
     {
       id: "followup",
       label: "Follow Up",
-      children: "Follow Up",
+      children: <FollowTab />,
     },
     {
       id: "stage_timeline",
@@ -31,19 +36,19 @@ const LeadRightComponent = () => {
     {
       id: "emails",
       label: "Emails",
-      children: "Emails",
+      children: <EmailTab />,
     },
     {
       id: "products",
       label: "Products",
-      children: "Products",
+      children: <ProductsTab />,
     },
     {
       id: "Whatsapp",
       label: "Whatsapp",
-      children: "Whatsapp",
+      children: <WhatsappTab />,
     },
-    { id: "Quotation", label: "Quotation", children: "Quotation" },
+    { id: "Quotation", label: "Quotation", children: <QuotationTab /> },
   ];
 
   return (
