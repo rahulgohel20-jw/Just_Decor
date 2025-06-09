@@ -46,7 +46,7 @@ const SalesPersonList = () => {
               <select className="select pe-7.5" placeholder="Roles">
                 <option value="Manager">Manager</option>
                 <option value="Sales Person">Sales Person</option>
-                <option value="Test">Test</option>                
+                <option value="Test">Test</option>
               </select>
             </div>
           </div>

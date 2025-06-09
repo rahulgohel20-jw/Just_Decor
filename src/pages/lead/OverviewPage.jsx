@@ -47,6 +47,7 @@ const OverviewPage = () => {
           </div>
           <div className="filItems">
             <button className="btn btn-light" title="Custom Report">
+              <i className="ki-filled ki-cheque"></i>
               Custom Report
             </button>
           </div>

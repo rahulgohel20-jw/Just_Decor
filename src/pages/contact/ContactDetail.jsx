@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { KeenIcon } from "@/components";
 import { Container } from "@/components/container";
 import AddContact from "@/partials/modals/add-contact/AddContact";
+import { CommonHexagonBadge } from "@/partials/common";
 import ViewContact from "../../partials/modals/add-contact/ViewContact";
 import { Navbar, NavbarActions } from "@/partials/navbar";
 import { PageMenu } from "@/pages/public-profile";
@@ -76,123 +77,223 @@ const ContactDetail = () => {
   };
 
   return (
-    <Fragment>
-      <Container>
-        <Navbar>
-          <PageMenu />
-          <NavbarActions>
-            <button
-              type="button"
-              onClick={handleModalOpen}
-              className="btn btn-sm border border-dark"
-            >
-              <i className="ki-filled ki-notepad-edit text-info"></i> Edit
-              Contact
-            </button>
-            <button type="button" className="btn btn-sm border border-dark">
-              <i className="ki-filled ki-trash text-danger"></i> Delete Contact
-            </button>
-          </NavbarActions>
-        </Navbar>
-      </Container>
-      <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
-          {/* Left - Contact Info */}
-          <div className="col-span-1">
-            <h6 className="fw-bold border-end">
-              <b>Contact Details</b>
-            </h6>
-            <div className="mt-5">
-              <i className="ki-filled ki-user me-2"></i>
-              <b>First Name:</b> <span>John</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-user me-2"></i>
-              <b>Last Name:</b> <span>Ferki</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-address-book me-2"></i>
-              <b>Phone No:</b> <span>08871555511</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-address-book me-2"></i>
-              <b>Email:</b> <span>Abc@gmail.com</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-ship me-2"></i>
-              <b>Date of Birth:</b> <span>----</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-ship me-2"></i>
-              <b>Date of Anniversary:</b> <span>----</span>
-            </div>
-            <div className="mt-3">
-              <i className="ki-filled ki-ship me-2"></i>
-              <b>Status:</b> <span>Active</span>
-            </div>
-          </div>
-
-          {/* Right - Leads Section */}
-          <div className="col-span-2 space-y-4">
-            <div className="flex justify-between items-center">
-              <p className="text-lg font-semibold">
-                Leads Related to this Contact
-              </p>
-              <div className="filItems relative">
-                <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 left-3 -translate-y-1/2"></i>
-                <input
-                  className="input input-sm pl-8"
-                  placeholder="Search here"
-                  type="text"
-                />
-              </div>
-            </div>
-
-            <div className="card grow">
-              <div className="card-body lg:pb-7.5 space-y-3">
-                {items.map((item, index) => renderItem(item, index))}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Company Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5 mt-10">
-          <div className="col-span-1">
-            <h6 className="fw-bold border-end">
-              <b>Company Details</b>
-            </h6>
-            <div className="mt-5">
-              <i className="ki-filled ki-user me-2"></i>
-              <b>Company Name:</b> <span>John Ferki</span>
-            </div>
-            {/* Tag Section */}
-            <div className="mt-5">
+    <>
+      <Fragment>
+        <Container>
+          {/* filters */}
+          <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* <PageMenu /> */}
               <button
-                className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600"
-                onClick={toggleTag}
+                type="button"
+                class="btn btn-sm btn-primary"
+                title="All Tasks"
               >
-                <i className="ki-filled ki-plus" />
+                All Tasks
               </button>
-              {isTagOpen && (
-                <div className="mt-3">
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-gray-100 text-sm focus:outline-none"
-                    placeholder="Search"
-                    value={searchTag}
-                    onChange={(e) => setSearchTag(e.target.value)}
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                title="Tasks Templates"
+              >
+                Tasks Templates
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                title="Tasks Directory"
+              >
+                Tasks Directory
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-light"
+                onClick={handleModalOpen}
+                title="Edit Contact"
+              >
+                <i className="ki-filled ki-notepad-edit text-info"></i> Edit
+                Contact
+              </button>
+              <button
+                type="button"
+                class="btn btn-light"
+                title="Delete Contact"
+              >
+                <i className="ki-filled ki-trash text-danger"></i> Delete
+                Contact
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 border rounded-lg">
+            {/* Left - Contact Info */}
+            <div className="col-span-1">
+              <div className="h-full lg:border-e lg:border-e-border shrink-0 p-4 lg:p-7 bg-muted/15">
+                <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
+                  Contact Details
+                  <CommonHexagonBadge
+                    stroke="stroke-success-clarity"
+                    fill="fill-success-light"
+                    size="size-[38px]"
+                    badge={
+                      <i className="ki-filled ki-book-open text-lg text-success"></i>
+                    }
                   />
-                  <div className="text-center text-gray-500 mt-2 text-sm">
-                    No Tags
+                </h6>
+                <div className="flex flex-col flex-wrap gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">First Name:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      John
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Last Name:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      Ferki
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Phone No:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      +91 98765 54321
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Email:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      example@gmail.com
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Date of Birth:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      DD/MM/YYYY
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">
+                      Date of Anniversary:
+                    </div>
+                    <div className="text-md font-medium text-gray-900">
+                      DD/MM/YYYY
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Status:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      <span className="badge badge-sm badge-success badge-outline">
+                        Active
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                <hr className="border-t border-gray-200 my-5" />
+                <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
+                  Company Details
+                  <CommonHexagonBadge
+                    stroke="stroke-success-clarity"
+                    fill="fill-success-light"
+                    size="size-[38px]"
+                    badge={
+                      <i className="ki-filled ki-bank text-lg text-success"></i>
+                    }
+                  />
+                </h6>
+                <div className="flex flex-col flex-wrap gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-700">Company Name:</div>
+                    <div className="text-md font-medium text-gray-900">
+                      John Ferki
+                    </div>
+                  </div>
+                </div>
+
+                <hr className="border-t border-gray-200 my-5" />
+                <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
+                  Tags
+                  <button
+                    onClick={toggleTag}
+                    className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full"
+                    title="Add Tag"
+                  >
+                    <i className="ki-filled ki-plus"></i>
+                  </button>
+                </h6>
+                {isTagOpen && (
+                  <div className="flex flex-col my-3">
+                    <div className="filItems relative">
+                      <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                      <input
+                        className="input pl-8"
+                        placeholder="Search here"
+                        type="text"
+                        value={searchTag}
+                        onChange={(e) => setSearchTag(e.target.value)}
+                      />
+                    </div>
+                    <div className="text-center text-gray-500 mt-2 text-sm">
+                      No Tags
+                    </div>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    className="btn btn-light h-7 rounded-full px-3"
+                    title="Lead"
+                  >
+                    Lead <span class="ki-filled ki-cross text-sm"></span>
+                  </button>
+                  <button
+                    className="btn btn-light h-7 rounded-full px-3"
+                    title="Sample"
+                  >
+                    Sample <span class="ki-filled ki-cross text-sm"></span>
+                  </button>
+                  <button
+                    className="btn btn-light h-7 rounded-full px-3"
+                    title="Demo"
+                  >
+                    Demo <span class="ki-filled ki-cross text-sm"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Leads Section */}
+            <div className="col-span-2 space-y-4">
+              <div className="cop-4 lg:p-7 grow">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <h4 class="font-semibold text-gray-900">
+                    Leads Related to this Contact
+                  </h4>
+                  <div className="filItems relative">
+                    <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                    <input
+                      className="input pl-8"
+                      placeholder="Search here"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div className="grow">
+                  <div className="lg:pb-7.5 space-y-3">
+                    {items.map((item, index) => renderItem(item, index))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </Container>
-      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-    </Fragment>
+          <AddContact
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+          />
+        </Container>
+      </Fragment>
+    </>
   );
 };
 

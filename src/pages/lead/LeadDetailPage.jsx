@@ -101,19 +101,19 @@ const LeadDetailPage = () => {
             <LeadRightComponent />
           </div>
         </div>
+        <AddLead
+          isModalOpen={isLeadModalOpen}
+          setIsModalOpen={setIsLeadModalOpen}
+        />
+        <AddLeadNote
+          isModalOpen={isNoteModalOpen}
+          setIsModalOpen={setIsNoteModalOpen}
+        />
+        <AddFollowUp
+          isModalOpen={isFollowUpModalOpen}
+          setIsModalOpen={setIsFollowUpModalOpen}
+        />
       </Container>
-      <AddLead
-        isModalOpen={isLeadModalOpen}
-        setIsModalOpen={setIsLeadModalOpen}
-      />
-      <AddLeadNote
-        isModalOpen={isNoteModalOpen}
-        setIsModalOpen={setIsNoteModalOpen}
-      />
-      <AddFollowUp
-        isModalOpen={isFollowUpModalOpen}
-        setIsModalOpen={setIsFollowUpModalOpen}
-      />
     </Fragment>
   );
 };
