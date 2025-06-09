@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { Input } from "@mui/base";
+import FileUploadComponent from "@/components/form-components/FileUploadComponent";
 
 const AddLink = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
@@ -70,7 +70,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             />
           </div>
           <div className="flex flex-col">
-            <Input type="file" />
+            <FileUploadComponent type="file" />
           </div>
         </div>
         {renderTabContent()}
