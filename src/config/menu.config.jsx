@@ -52,6 +52,26 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+
+  {
+    title:"leaves",
+    icon: "ki-filled ki-abstract-17",
+    children: [
+      {
+        title: "My Attendance",
+        path: "/myattendance",
+      },
+      {
+        title:"My Leaves",
+        path:"/myleave",
+
+      },
+      {
+        title:"Approval",
+        Path:"approval",
+      },
+    ]
+  },
   {
     title: "Links",
     icon: "ki-filled ki-disconnect",
