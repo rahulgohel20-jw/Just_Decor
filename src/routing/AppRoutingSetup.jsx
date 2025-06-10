@@ -108,6 +108,8 @@ import {
   TaskTemplatePage,
   TaskDirectoryPage,
 } from "@/pages/tasks";
+import Myattendance from "../pages/Leave/myattendance";
+import Approval from "../pages/Leave/Approval";
 
 const AppRoutingSetup = () => {
   return (
@@ -142,6 +144,13 @@ const AppRoutingSetup = () => {
             element={<TaskDirectoryPage />}
           ></Route>
           <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
+
+{/* leavs route */}
+<Route path="/myattendance" element={<Myattendance />}></Route>
+<Route path="/approval" element={<Approval/>}></Route>
+
+
+
 
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
