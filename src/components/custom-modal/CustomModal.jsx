@@ -16,6 +16,15 @@ const CustomModal = ({ open, onClose, children, title, ...rest }) => {
   };
   useEffect(() => {
     const handleClickOutside = (e) => {
+      const target = e.target;
+
+      // Check if clicked element is inside any AntD popup (class starts with 'ant-')
+      const isAntdPopup = [
+        ...document.querySelectorAll("[class^='ant-']"),
+      ].some((el) => el.contains(target));
+
+      if (isAntdPopup) return;
+
       if (open && modalRef.current && !modalRef.current.contains(e.target)) {
         // Clicked outside the modal content
         setShake(true);

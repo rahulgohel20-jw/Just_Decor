@@ -1,7 +1,10 @@
 import { toAbsoluteUrl } from "@/utils/Assets";
 import { KeenIcon } from "@/components";
+import AddTask from "@/partials/modals/add-task/AddTask";
+import { useState } from "react";
 
 const AllTasks = () => {
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const itemList = [
     {
       profile_image: "300-2.png",
@@ -109,12 +112,20 @@ const AllTasks = () => {
   return (
     <div className="all-tasks">
       <div className="flex justify-end">
-        <button className="btn btn-sm btn-primary mb-4">
+        <button
+          className="btn btn-sm btn-primary mb-4"
+          onClick={() => setIsTaskModalOpen(true)}
+        >
           <i className="ki-filled ki-plus me-2"></i>
           Add Task
         </button>
       </div>
       <div>{itemList.map((item) => renderItem(item))}</div>
+
+      <AddTask
+        isModalOpen={isTaskModalOpen}
+        setIsModalOpen={setIsTaskModalOpen}
+      />
     </div>
   );
 };
