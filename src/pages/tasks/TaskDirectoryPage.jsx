@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { Container } from "@/components/container";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 
 const TaskDirectoryPage = () => {
   const TaskDirectoryList = [
@@ -47,6 +48,22 @@ const TaskDirectoryPage = () => {
   return (
     <Fragment>
       <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Tasks Directory" }]} />
+        </div>
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+              <input
+                className="input pl-8"
+                placeholder="Search Directory"
+                type="text"
+              />
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {TaskDirectoryList.map((directory, index) => (
             <div key={index}>
