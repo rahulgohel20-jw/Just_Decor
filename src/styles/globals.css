@@ -52,3 +52,46 @@
 .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
   color: var(--tw-primary);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* segmentedTabs */
+.segmentedTabs {}
+
+.segmentedTabs .ant-segmented-group {
+  gap: 4px;
+}
+
+.segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label {
+  min-height: unset;
+  line-height: unset;
+  padding: 10px 14px;
+}
+
+.segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label>span {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.segmentedTabs .ant-segmented-group .ant-segmented-item:hover:not(.ant-segmented-item-selected):not(.ant-segmented-item-disabled)::after {
+  background-color: #fff;
+}
+
+/* /segmentedTabs */
