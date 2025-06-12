@@ -70,7 +70,7 @@ const TabComponent = ({ tabs }) => {
       <div className="mb-4">
         <div
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto no-scrollbar cursor-grab select-none"
+          className="segmentedTabs flex gap-2 overflow-x-auto no-scrollbar cursor-grab select-none"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           <Segmented
@@ -79,14 +79,13 @@ const TabComponent = ({ tabs }) => {
             onChange={onChange}
             options={tabs.map((tab) => ({
               label: (
-                <span className="text-sm whitespace-nowrap">{tab.label}</span>
+                <span className="text-sm font-normal whitespace-nowrap flex items-center gap-2">{tab.label}</span>
               ),
               value: tab.value,
             }))}
           />
         </div>
       </div>
-
       <div className="tab-content px-2 sm:px-4">
         {currentTab?.children ?? (
           <div className="text-center text-gray-400 py-10">No content</div>
