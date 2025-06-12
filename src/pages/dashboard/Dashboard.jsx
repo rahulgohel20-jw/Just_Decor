@@ -76,12 +76,18 @@ const Dashboard = () => {
         <div className="flex flex-col gap-2 p-5">
           <div className="flex gap-1">{item.icon}</div>
           <div className="flex flex-col gap-1.5">
-            <h4 className="text-lg font-semibold text-gray-900">{item.title}</h4>
-            <span className="text-sm font-normal text-gray-700">{item.desc}</span>
+            <h4 className="text-lg font-semibold text-gray-900">
+              {item.title}
+            </h4>
+            <span className="text-sm font-normal text-gray-700">
+              {item.desc}
+            </span>
           </div>
         </div>
         <div className="flex justify-center p-4 border-t">
-          <Link to={item.path} className="text-success">{item.linkText}</Link>
+          <Link to={item.path} className="text-success">
+            {item.linkText}
+          </Link>
         </div>
       </div>
     );
@@ -106,9 +112,8 @@ const Dashboard = () => {
                 return renderItem(item, index);
               })}
             </div>
-          </div>          
-          <div className="lg:col-span-1">
           </div>
+          <div className="lg:col-span-1"></div>
         </div>
       </Container>
     </Fragment>
