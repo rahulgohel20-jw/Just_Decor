@@ -76,7 +76,7 @@ const LeadTab = () => {
               Track goals, progress, and achievements for growth.
             </span>
             <div className="flex gap-2">
-              <button className="btn btn-sm btn-success" title="Add Lead">
+              <button className="btn btn-sm btn-success" title="Reorder Lead">
                 <ListOrdered /> Reorder
               </button>
               <button className="btn btn-sm btn-success" title="Add Lead">
@@ -110,8 +110,12 @@ const LeadTab = () => {
                     leftContent={leftContent}
                     rightContent={
                       <>
-                        <Pen size={18} className="text-success" />
-                        <Trash size={18} className="text-danger" />
+                        <button type="button" title="Edit">
+                          <i className="ki-filled ki-notepad-edit"></i>
+                        </button>
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
                       </>
                     }
                   />
@@ -143,7 +147,9 @@ const LeadTab = () => {
                     leftContent={item.name}
                     rightContent={
                       <>
-                        <Trash size={18} className="text-danger" />
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
                       </>
                     }
                   />
@@ -175,8 +181,12 @@ const LeadTab = () => {
                     leftContent={item.name}
                     rightContent={
                       <>
-                        <Pen size={18} className="text-success" />
-                        <Trash size={18} className="text-danger" />
+                        <button type="button" title="Edit">
+                          <i className="ki-filled ki-notepad-edit"></i>
+                        </button>
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
                       </>
                     }
                   />

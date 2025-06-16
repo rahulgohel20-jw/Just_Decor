@@ -42,23 +42,33 @@ const ContactTab = () => {
   ];
   return (
     <div className="pipeline-tab">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="card p-3">
-          <div className="flex justify-between items-center">
-            <h4>Contact Custom Fields</h4>
-            <div>
-              <button className="btn btn-sm btn-primary">
+      <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+            <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              Contact Custom Fields
+            </h3>
+            <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              Track goals, progress, and achievements for growth.
+            </span>
+            <div className="flex gap-2">
+              <button
+                className="btn btn-sm btn-success"
+                title="Reorder Contact Field"
+              >
                 <ListOrdered /> Reorder
               </button>
-              <button className="btn btn-sm btn-primary ms-2">
-                <Plus /> Field
+              <button
+                className="btn btn-sm btn-success"
+                title="Add Contact Field"
+              >
+                <i className="ki-filled ki-plus"></i>Contact Field
               </button>
             </div>
           </div>
-          <hr className="text-gray-500 text-sm mt-2" />
-          <div className="mt-3">
-            <div className="grid grid-cols-1 gap-2 lg:gap-3">
-              {pipeLine.map((item, index) => {
+          <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+            {pipeLine && pipeLine.length > 0 ? (
+              pipeLine.map((item, index) => {
                 let leftContent = (
                   <div className="flex flex-col">
                     {item.name}
@@ -82,43 +92,58 @@ const ContactTab = () => {
                     leftContent={leftContent}
                     rightContent={
                       <>
-                        <Pen size={18} className="text-success" />
-                        <Trash size={18} className="text-danger" />
+                        <button type="button" title="Edit">
+                          <i className="ki-filled ki-notepad-edit"></i>
+                        </button>
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
                       </>
                     }
                   />
                 );
-              })}
-            </div>
+              })
+            ) : (
+              <EmptyData />
+            )}
           </div>
         </div>
-        <div>
-          <div className="card p-3">
-            <div className="flex justify-between items-center">
-              <h4>Contact Tags</h4>
-              <button className="btn btn-primary btn-sm">
-                <Plus /> Contact Tags
-              </button>
-            </div>
-            <hr className="text-gray-500 text-sm mt-2" />
-            <div className="mt-3">
-              <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                {contactTags.map((item, index) => {
-                  return (
-                    <CardList
-                      key={index}
-                      leftContent={item.name}
-                      rightContent={
-                        <>
-                          <Pen size={18} className="text-success" />
-                          <Trash size={18} className="text-danger" />
-                        </>
-                      }
-                    />
-                  );
-                })}
-              </div>
-            </div>
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+            <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              Contact Tags
+            </h3>
+            <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              Track goals, progress, and achievements for growth.
+            </span>
+
+            <button className="btn btn-sm btn-success" title="Add Contact Tags">
+              <i className="ki-filled ki-plus"></i>Contact Tags
+            </button>
+          </div>
+          <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+            {pipeLine && pipeLine.length > 0 ? (
+              contactTags.map((item, index) => {
+                return (
+                  <CardList
+                    key={index}
+                    leftContent={item.name}
+                    rightContent={
+                      <>
+                        <button type="button" title="Edit">
+                          <i className="ki-filled ki-notepad-edit"></i>
+                        </button>
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
+                      </>
+                    }
+                  />
+                );
+              })
+            ) : (
+              <EmptyData />
+            )}
           </div>
         </div>
       </div>

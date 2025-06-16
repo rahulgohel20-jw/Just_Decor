@@ -2,7 +2,7 @@ import { ListOrdered, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
 
 const ProductTab = () => {
-  const pipeLine = [
+  const product = [
     {
       id: 1,
       name: "Field 1",
@@ -28,23 +28,25 @@ const ProductTab = () => {
 
   return (
     <div className="pipeline-tab">
-      <div className="grid grid-cols-1 gap-4">
-        <div className="card p-3">
-          <div className="flex justify-between items-center">
-            <h4>Product Custom Fields</h4>
-            <div>
-              <button className="btn btn-sm btn-primary">
-                <ListOrdered /> Reorder
-              </button>
-              <button className="btn btn-sm btn-primary ms-2">
-                <Plus /> Field
-              </button>
-            </div>
+      <div className="grid lg:grid-cols-1 md:grid-cols-1grid-cols-1 gap-4">
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+            <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              Product Custom Fields
+            </h3>
+            <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              Track goals, progress, and achievements for growth.
+            </span>
+            <button
+              className="btn btn-sm btn-success"
+              title="Add Product Field"
+            >
+              <i className="ki-filled ki-plus"></i>Product Field
+            </button>
           </div>
-          <hr className="text-gray-500 text-sm mt-2" />
-          <div className="mt-3">
-            <div className="grid grid-cols-1 gap-2 lg:gap-3">
-              {pipeLine.map((item, index) => {
+          <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+            {product && product.length > 0 ? (
+              product.map((item, index) => {
                 let leftContent = (
                   <div className="flex flex-col">
                     {item.name}
@@ -68,14 +70,20 @@ const ProductTab = () => {
                     leftContent={leftContent}
                     rightContent={
                       <>
-                        <Pen size={18} className="text-success" />
-                        <Trash size={18} className="text-danger" />
+                        <button type="button" title="Edit">
+                          <i className="ki-filled ki-notepad-edit"></i>
+                        </button>
+                        <button type="button" title="Delete">
+                          <i className="ki-filled ki-trash"></i>
+                        </button>
                       </>
                     }
                   />
                 );
-              })}
-            </div>
+              })
+            ) : (
+              <EmptyData />
+            )}
           </div>
         </div>
       </div>
