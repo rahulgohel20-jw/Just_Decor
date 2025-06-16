@@ -68,7 +68,15 @@ export const MENU_SIDEBAR = [
       },
       {
         title:"Approval",
-        Path:"approval",
+        path:"/approval",
+      },
+      {
+        title:"Holidays",
+        path:"/holiday",
+      },
+      {
+        title:"My Leaves",
+        path:"/myleaves",
       },
     ]
   },
