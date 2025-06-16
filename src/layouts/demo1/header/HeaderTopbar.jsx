@@ -10,12 +10,14 @@ import {
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";
+import CheckInModal from "@/partials/modals/CheckInModal";
 const HeaderTopbar = () => {
   const { isRTL } = useLanguage();
   const itemChatRef = useRef(null);
   const itemAppsRef = useRef(null);
   const itemUserRef = useRef(null);
   const itemNotificationsRef = useRef(null);
+  const [checkInModal, setCheckInModal] = useState(false);
   const handleShow = () => {
     window.dispatchEvent(new Event("resize"));
   };
@@ -26,6 +28,12 @@ const HeaderTopbar = () => {
   };
   return (
     <div className="flex items-center gap-2 lg:gap-3.5">
+      <button
+        onClick={() => setCheckInModal(true)}
+        className="btn btn-secondary hover:bg-primary-light hover:text-primary text-gray-700"
+      >
+        Check In
+      </button>
       <button
         onClick={handleOpen}
         className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-light hover:text-primary text-gray-500"
@@ -146,6 +154,10 @@ const HeaderTopbar = () => {
           })}
         </MenuItem>
       </Menu>
+      <CheckInModal
+        isModalOpen={checkInModal}
+        setIsModalOpen={setCheckInModal}
+      />
     </div>
   );
 };
