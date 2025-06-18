@@ -86,7 +86,7 @@ const TabComponent = ({ tabs }) => {
           />
         </div>
       </div>
-      <div className="tab-content px-2 sm:px-4">
+      <div className="tab-conten">
         {currentTab?.children ?? (
           <div className="text-center text-gray-400 py-10">No content</div>
         )}

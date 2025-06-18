@@ -73,7 +73,9 @@
 
 
 /* segmentedTabs */
-.segmentedTabs {}
+.segmentedTabs .ant-segmented {
+  width: 100%;
+}
 
 .segmentedTabs .ant-segmented-group {
   gap: 4px;

@@ -49,7 +49,14 @@ const NoteTab = () => {
           <div className="card min-w-full py-5 px-6">
             <div className="flex flex-col">
               <label className="form-label">Add Note</label>
-              <Textarea />
+              <div className="flex flex-col">
+                <textarea
+                  rows={4}
+                  type="text"
+                  className="textarea h-full"
+                  placeholder="Add note here"
+                />
+              </div>
             </div>
             <div className="mt-3 text-end">
               <button className="btn btn-primary">Save</button>

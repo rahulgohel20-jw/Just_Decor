@@ -39,18 +39,31 @@ const WhatsappTab = () => {
     });
     return data;
   };
-
   const [tableData, setTableData] = useState(responseFormate());
-
   return (
     <>
-      <div className="flex flex-col mb-2">
-        <label className="form-label">Add Note</label>
-        <Textarea />
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h4 class="font-semibold text-gray-900">Whatsapp</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="filItems">
+            <button className="btn btn-primary shrink-0" title="Send Whatsapp">
+              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Send Whatsapp
+            </button>
+          </div>
+          <div className="filItems">
+            <button className="btn btn-primary shrink-0" title="Whatsapp Web">
+              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Whatsapp Web
+            </button>
+          </div>
+        </div>
       </div>
-      <button className="btn btn-primary mb-5">Save</button>
-
-      <TableComponent columns={columns} data={tableData} paginationSize={10} />
+      <div className="flex flex-col mb-2">
+        <div className="p-4 flex flex-col items-center">
+          <p className="text-sm text-gray-900 opacity-50 mt-3">
+            No data available!
+          </p>
+        </div>
+      </div>
     </>
   );
 };
