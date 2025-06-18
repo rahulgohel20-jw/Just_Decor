@@ -27,54 +27,40 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
         onClose={handleModalClose}
         title="Add Balance"
         width={500}
-        footer={[
-          
-            
-           
-        ]}
-      >
-        
+        footer={[]}
+      >        
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Recharge Wallet</h2>
-        
+        <h2 className="text-xl font-bold text-gray-800">Recharge Wallet</h2>        
       </div>
-
       {/* Current Balance */}
       <div className="flex justify-between items-center mb-4">
         <span className="text-gray-600">Current Balance:</span>
         <span className="font-semibold text-gray-800">₹100</span>
       </div>
-
       {/* Recharge Amount Input */}
       <div className="mb-4">
         <label className="block text-gray-600 mb-2">Amount To Recharge</label>
         <input
           type="number"
-          value={5000}
-          
+          value={5000}          
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100"
           placeholder="Enter amount"
         />
       </div>
-
       {/* GST and Total */}
       <div className="flex justify-between items-center mb-2">
         <span className="text-gray-600">GST (18%)</span>
         <span className="font-semibold text-gray-800">₹12.55</span>
       </div>
-
       <div className="flex justify-between items-center mb-6">
         <span className="text-gray-600 font-semibold">TOTAL</span>
         <span className="font-semibold text-gray-800">₹55500</span>
       </div>
-
       {/* Recharge Now Button */}
       <button className="btn btn-primary w-full  text-white font-bold py-3 rounded-lg  flex justify-center items-center gap-2">
-        <span>Recharge Now</span>
-        
-      </button>
-   
+        <span>Recharge Now</span>        
+      </button>   
         {renderTabContent()}
       </CustomModal>
     )

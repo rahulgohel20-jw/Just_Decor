@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
 import { X } from "lucide-react";
-const CustomModal = ({ open, onClose, children, title, ...rest }) => {
+const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
   const modalRef = useRef(null);
@@ -46,10 +46,10 @@ const CustomModal = ({ open, onClose, children, title, ...rest }) => {
       keyboard={false} //disables closing on Esc
       closable={false} // Disable default close button
       title={
-        <div className="flex justify-between items-center">
-          <span>Title</span>
-          <button type="text" onClick={handleClose}>
-            <X />
+        <div className="flex justify-between items-center pb-2">
+          <span className="text-base font-medium">Modal Title</span>
+          <button type="text" onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <i className="ki-filled ki-cross text-xl"></i>
           </button>
         </div>
       }
@@ -61,6 +61,9 @@ const CustomModal = ({ open, onClose, children, title, ...rest }) => {
           {modal}
         </div>
       )}
+      footer={
+        <div className="pt-3">{footer}</div>
+      }
       {...rest}
     >
       {children}

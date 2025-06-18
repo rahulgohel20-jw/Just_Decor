@@ -3,7 +3,7 @@ import TabComponent from "../tab/TabComponent";
 import NoteTab from "./NoteTab";
 import TimeLineTab from "./TimeLineTab";
 import StageTimeLineTab from "./StageTimeLineTab";
-import FollowTab from "./NoteTab";
+import FollowTab from "./FollowTab";
 import EmailTab from "./EmailTab";
 import QuotationTab from "./QuotationTab";
 import WhatsappTab from "./WhatsappTab";
