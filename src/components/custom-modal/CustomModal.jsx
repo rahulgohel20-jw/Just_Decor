@@ -47,8 +47,12 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
       closable={false} // Disable default close button
       title={
         <div className="flex justify-between items-center pb-2">
-          <span className="text-base font-medium">Modal Title</span>
-          <button type="text" onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+          <span className="text-base font-medium">{title}</span>
+          <button
+            type="text"
+            onClick={handleClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <i className="ki-filled ki-cross text-xl"></i>
           </button>
         </div>
@@ -61,9 +65,7 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
           {modal}
         </div>
       )}
-      footer={
-        <div className="pt-3">{footer}</div>
-      }
+      footer={<div className="pt-3">{footer}</div>}
       {...rest}
     >
       {children}
