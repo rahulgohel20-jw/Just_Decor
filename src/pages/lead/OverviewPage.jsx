@@ -11,9 +11,6 @@ import LeadReportTab from "@/components/LeadOverview/LeadReportTab";
 import FollowUpReportTab from "@/components/LeadOverview/FollowUpReportTab";
 
 const OverviewPage = () => {
-  const [activeFollowUpTab, setActiveFollowUpTab] =
-    useState("Follow Up Report");
-
   const salesTabs = [
     {
       label: "Daily",
@@ -142,7 +139,7 @@ const OverviewPage = () => {
 
         {/* Follow Up Report Section */}
         <div className="mb-3 w-full">
-          <TabComponent tabs={leadTabs} />
+          <TabComponent tabs={followUpTabs} />
         </div>
       </Container>
     </Fragment>
