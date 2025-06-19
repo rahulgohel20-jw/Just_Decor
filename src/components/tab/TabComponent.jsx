@@ -1,7 +1,7 @@
 import { Segmented } from "antd";
 import { useState, useEffect, useRef } from "react";
 
-const TabComponent = ({ tabs }) => {
+const TabComponent = ({ tabs, onTabChange }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]?.value || "");
   const [currentTab, setCurrentTab] = useState(tabs[0]);
   const scrollRef = useRef(null);
@@ -79,7 +79,9 @@ const TabComponent = ({ tabs }) => {
             onChange={onChange}
             options={tabs.map((tab) => ({
               label: (
-                <span className="text-sm font-normal whitespace-nowrap flex items-center gap-2">{tab.label}</span>
+                <span className="text-sm font-normal whitespace-nowrap flex items-center gap-2">
+                  {tab.label}
+                </span>
               ),
               value: tab.value,
             }))}

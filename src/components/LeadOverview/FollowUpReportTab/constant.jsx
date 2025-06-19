@@ -1,5 +1,3 @@
-export const followUpTabs = ["Follow Up Report","Activity Report" ," Open Leads Aging", "Lost Reson Report"]; // Add more tabs later if needed
-
 export const followUpColumns = [
   { header: "Sales Person", accessorKey: "salesPerson", id: "salesPerson" },
   { header: "Total", accessorKey: "total", id: "total" },
@@ -11,7 +9,7 @@ export const followUpColumns = [
 ];
 
 export const followUpData = {
-  "Follow Up Report": [
+  follow_up: [
     {
       salesPerson: "Manan Gandhi",
       total: 1,
@@ -22,5 +20,4 @@ export const followUpData = {
       upcoming: 0,
     },
   ],
-  
 };

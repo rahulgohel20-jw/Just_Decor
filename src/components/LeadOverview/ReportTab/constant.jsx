@@ -1,4 +1,3 @@
-// constant-sales.jsx
 export const columns = [
   {
     id: "date",
@@ -16,10 +15,6 @@ export const columns = [
     accessorKey: "amount",
   },
 ];
-
-
-export const salesTabs = ["Daily", "Weekly", "Monthly", "Yearly"];
-
 export const salesData = {
   Daily: [
     { date: "1-May-25", won: 0, amount: 0 },
