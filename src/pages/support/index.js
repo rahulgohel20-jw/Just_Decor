@@ -2,6 +2,6 @@ export * from './progress-check/ProgressChecklistPage';
 export * from './application-page/ApplicationPage';
 export * from './tutorials-page/TutorialsPage';
 export * from './tickets-page/TicketsPage';
-export * from './tickets-page/RaiseTicketPage';
+export { RaiseTicketPage } from './tickets-page/RaiseTicketPage';
 export * from './events-page/EventsPage';
 
