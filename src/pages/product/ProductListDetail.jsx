@@ -105,44 +105,38 @@ const items = [{
             </h6>
             <div className="mt-5">
               <i className="ki-filled ki-user me-2"></i>
-              <b>Product name : </b>
+              <b>Product name: </b>
               <span>Test software</span>
             </div>
             <div className="mt-3">
               <i className="ki-filled ki-address-book me-2"></i>
-              <b>Price : </b>
+              <b>Price: </b>
               <span>--</span>
             </div>
             <div className="mt-3">
               <i className="ki-filled ki-address-book me-2"></i>
-              <b>Product Code : </b>
+              <b>Product Code: </b>
               <span>111</span>
             </div>
             <div className="mt-3">
               <i className="ki-filled ki-ship me-2"></i>
-              <b>Unit : </b>
+              <b>Unit: </b>
               <span>Nos</span>
             </div>
             <div className="mt-3">
               <i className="ki-filled ki-ship me-2"></i>
-              <b>Hsn Code : </b>
+              <b>Hsn Code: </b>
               <span>111</span>
             </div>
             <div className="mt-3">
               <i className="ki-filled ki-ship me-2"></i>
-              <b>Category Name : </b>
+              <b>Category Name: </b>
               <span>Software</span>
             </div>
           </div>
           <div className="col-span-2 text-center d-flex justify-content-center align-items-center">
             <div>
               <p>Leads Related to Company</p>
-            </div>
-            <div>
-              <div className="filItems relative">
-                
-               
-              </div>
             </div>
             <div>
               <div className="card grow">
