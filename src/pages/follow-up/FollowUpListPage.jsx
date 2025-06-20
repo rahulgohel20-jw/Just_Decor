@@ -319,7 +319,7 @@ const FollowUpListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Follow-Up" }]} />
+          <Breadcrumbs items={[{ title: "Follow Up" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -328,7 +328,7 @@ const FollowUpListPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search follow-up"
+                placeholder="Search Follow Up"
                 type="text"
               />
             </div>
@@ -369,10 +369,10 @@ const FollowUpListPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              title="Add Follow-Up"
+              title="Add Follow Up"
               onClick={handleModalOpen}
             >
-              <i className="ki-filled ki-plus"></i> Add Follow-Up
+              <i className="ki-filled ki-plus"></i> Add Follow Up
             </button>
           </div>
         </div>

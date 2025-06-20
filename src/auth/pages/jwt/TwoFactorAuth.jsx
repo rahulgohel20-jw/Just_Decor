@@ -100,7 +100,7 @@ const TwoFactorAuth = () => {
               id={`otp-input-${index}`}
               type="text"
               maxLength={1}
-              className="input focus:border-primary-clarity focus:ring focus:ring-primary-clarity size-10 shrink-0 px-0 text-center"
+              className="input text-base text-gray-900 focus:border-primary-clarity focus:ring focus:ring-primary-clarity size-10 shrink-0 px-0 text-center"
               value={value}
               onChange={(e) => handleInputChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}

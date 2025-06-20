@@ -67,7 +67,7 @@ const TabComponent = ({ tabs, onTabChange }) => {
 
   return (
     <div className="w-full">
-      <div className="mb-4">
+      <div className="mb-3">
         <div
           ref={scrollRef}
           className="segmentedTabs flex gap-2 overflow-x-auto no-scrollbar cursor-grab select-none"
