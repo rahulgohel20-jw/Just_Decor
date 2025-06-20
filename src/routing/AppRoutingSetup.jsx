@@ -108,10 +108,12 @@ import {
   TaskTemplatePage,
   TaskDirectoryPage,
 } from "@/pages/tasks";
-import Myattendance from "@/pages/Leave/myattendance";
-import Approval from "@/pages/Leave/Approval";
+
 import { Holiday } from "@/pages/Leave/holiday";
 import { MyLeaves } from "../pages/Leave/my-leaves";
+import {Approval} from "../pages/Leave/approval";
+
+import Allleave from "@/pages/Leave/all-leave/Allleave";
 
 
 const AppRoutingSetup = () => {
@@ -149,10 +151,10 @@ const AppRoutingSetup = () => {
           <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
 
 {/* leavs route */}
-<Route path="/myattendance" element={<Myattendance />}></Route>
 <Route path="/approval" element={<Approval/>}></Route>
 <Route path="/holiday" element={<Holiday/>}></Route>
 <Route path="/myleaves" element={<MyLeaves/>}></Route>
+<Route path="/allleave" element={<Allleave/>}></Route>
 
 
 
