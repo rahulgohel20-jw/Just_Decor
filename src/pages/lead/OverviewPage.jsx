@@ -1,4 +1,6 @@
+
 import { Fragment } from "react";
+
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SalesPersonDropdown from "@/components/dropdowns/SalesPersonDropdown";
@@ -107,6 +109,7 @@ const OverviewPage = () => {
           <div className="filItems">
             <SourceDropdown />
             {/* Filters */}
+
           </div>
           <div className="filItems">
             <SalesPersonDropdown />
@@ -126,11 +129,13 @@ const OverviewPage = () => {
             </button>
           </div>
         </div>
+
         <div className="mb-7 card min-w-full w-full">
           <div className="card-body px-5 pb-5 pt-4">
             <h4 className="font-semibold text-gray-900 mb-2">Sales Report</h4>
             <TabComponent tabs={salesTabs} />
           </div>
+
         </div>
         <div className="mb-7 card min-w-full w-full">
           <div className="card-body px-5 pb-5 pt-4">
@@ -138,6 +143,7 @@ const OverviewPage = () => {
             <TabComponent tabs={leadTabs} />
           </div>
         </div>
+
         <div className="mb-7 ">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="flex flex-col">
@@ -167,6 +173,7 @@ const OverviewPage = () => {
             </h4>
             <TabComponent tabs={followUpTabs} />
           </div>
+
         </div>
       </Container>
     </Fragment>
