@@ -45,7 +45,7 @@ const QuotationTab = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h4 class="font-semibold text-gray-900">Quotations</h4>
+        <h4 className="font-semibold text-gray-900">Quotations</h4>
         <div className="flex flex-wrap items-center gap-2">
           <div className="filItems">
             <button className="btn btn-primary shrink-0" title="Add Quotation">
