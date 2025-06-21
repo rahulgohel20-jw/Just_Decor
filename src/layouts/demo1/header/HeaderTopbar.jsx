@@ -30,8 +30,10 @@ const HeaderTopbar = () => {
     <div className="flex items-center gap-2 lg:gap-3.5">
       <button
         onClick={() => setCheckInModal(true)}
-        className="btn btn-secondary hover:bg-primary-light hover:text-primary text-gray-700"
+        className="btn btn-sm btn-success"
+        title="Check In"
       >
+        <i className="ki-filled ki-face-id me-0.5"></i>
         Check In
       </button>
       <button

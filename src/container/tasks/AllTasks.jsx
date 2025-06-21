@@ -25,13 +25,13 @@ const AllTasks = () => {
       <div key={item.id}>
         <style>
           {`
-                     .user-access-bg {
-                       background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
-                     }
-                     .dark .user-access-bg {
-                       background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
-                     }
-                   `}
+            .user-access-bg {
+              background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+            }
+            .dark .user-access-bg {
+              background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+            }
+          `}
         </style>
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="card min-w-full">

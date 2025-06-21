@@ -1,4 +1,6 @@
-import { Fragment,  } from "react";
+
+import { Fragment } from "react";
+
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SalesPersonDropdown from "@/components/dropdowns/SalesPersonDropdown";
@@ -107,7 +109,7 @@ const OverviewPage = () => {
           <div className="filItems">
             <SourceDropdown />
             {/* Filters */}
-            
+
           </div>
           <div className="filItems">
             <SalesPersonDropdown />
@@ -127,17 +129,51 @@ const OverviewPage = () => {
             </button>
           </div>
         </div>
-        {/* Sales Report Tabs */}
-        <div className="mb-3 w-full">
-          <TabComponent tabs={salesTabs} />
+
+        <div className="mb-7 card min-w-full w-full">
+          <div className="card-body px-5 pb-5 pt-4">
+            <h4 className="font-semibold text-gray-900 mb-2">Sales Report</h4>
+            <TabComponent tabs={salesTabs} />
+          </div>
+
         </div>
-        {/* Daily Leads Tabs */}
-        <div className="mb-3 w-full">
-          <TabComponent tabs={leadTabs} />
+        <div className="mb-7 card min-w-full w-full">
+          <div className="card-body px-5 pb-5 pt-4">
+            <h4 className="font-semibold text-gray-900 mb-2">Daily Leads</h4>
+            <TabComponent tabs={leadTabs} />
+          </div>
         </div>
-        {/* Follow Up Report Section */}
-        <div className="mb-3 w-full">
-          <TabComponent tabs={followUpTabs} />
+
+        <div className="mb-7 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="flex flex-col">
+            <div className="card min-w-full w-full">
+              <div className="card-body px-5 pb-5 pt-4">
+                <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
+                  Sales person chart is not available!
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="card min-w-full w-full">
+              <div className="card-body px-5 pb-5 pt-4">
+                <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
+                  Sales person chart is not available!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div className="card min-w-full w-full">
+          <div className="card-body px-5 pb-5 pt-4">
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Follow Up Report
+            </h4>
+            <TabComponent tabs={followUpTabs} />
+          </div>
+
         </div>
       </Container>
     </Fragment>

@@ -87,11 +87,11 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
             <textarea
               rows={4}
               className="textarea h-full"
-              placeholder="Follow-up Description"
+              placeholder="Follow Up Description"
             />
           </div>
           <div className="flex items-center justify-between mt-2">
-            <label className="form-label mb-0">Follow-up Type</label>
+            <label className="form-label mb-0">Follow Up Type</label>
             <div className="flex space-x-2">
               <button
                 onClick={() => handleFollowUpTypeChange("Call")}
@@ -156,7 +156,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
                   <div className="flex items-end gap-3">
                     <div className="w-full flex flex-col">
                       <label className="form-label">
-                        Reminder Follow-up Type
+                        Reminder Follow Up Type
                       </label>
                       <select
                         className="select pe-7.5"

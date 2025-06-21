@@ -89,7 +89,7 @@ const Task = ({ item, dropdown, index }) => {
                           <MenuIcon>
                             <KeenIcon icon="ki-filled ki-share" />
                           </MenuIcon>
-                          <MenuTitle>Add Follow-up</MenuTitle>
+                          <MenuTitle>Add Follow Up</MenuTitle>
                         </MenuLink>
                       </MenuItem>
                       <MenuItem>
