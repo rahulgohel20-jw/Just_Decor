@@ -101,15 +101,13 @@ const OverviewPage = () => {
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Overview" }]} />
-        </div>{" "}
+        </div>
         <div className="filters flex flex-wrap items-center gap-2 mb-3">
           <div className="filItems">
             <PipLineDropdown />
           </div>
           <div className="filItems">
             <SourceDropdown />
-            {/* Filters */}
-
           </div>
           <div className="filItems">
             <SalesPersonDropdown />
