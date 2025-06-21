@@ -92,21 +92,21 @@ const ContactDetail = () => {
               {/* <PageMenu /> */}
               <button
                 type="button"
-                class="btn btn-sm btn-success"
+                className="btn btn-sm btn-success"
                 title="All Tasks"
               >
                 All Tasks
               </button>
               <button
                 type="button"
-                class="btn btn-sm btn-light"
+                className="btn btn-sm btn-light"
                 title="Tasks Templates"
               >
                 Tasks Templates
               </button>
               <button
                 type="button"
-                class="btn btn-sm btn-light"
+                className="btn btn-sm btn-light"
                 title="Tasks Directory"
               >
                 Tasks Directory
@@ -115,7 +115,7 @@ const ContactDetail = () => {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                class="btn btn-light"
+                className="btn btn-light"
                 onClick={handleModalOpen}
                 title="Edit Contact"
               >
@@ -124,7 +124,7 @@ const ContactDetail = () => {
               </button>
               <button
                 type="button"
-                class="btn btn-light"
+                className="btn btn-light"
                 title="Delete Contact"
               >
                 <i className="ki-filled ki-trash text-danger"></i> Delete
@@ -258,19 +258,19 @@ const ContactDetail = () => {
                     className="btn btn-light h-7 rounded-full px-3"
                     title="Lead"
                   >
-                    Lead <span class="ki-filled ki-cross text-sm"></span>
+                    Lead <span className="ki-filled ki-cross text-sm"></span>
                   </button>
                   <button
                     className="btn btn-light h-7 rounded-full px-3"
                     title="Sample"
                   >
-                    Sample <span class="ki-filled ki-cross text-sm"></span>
+                    Sample <span className="ki-filled ki-cross text-sm"></span>
                   </button>
                   <button
                     className="btn btn-light h-7 rounded-full px-3"
                     title="Demo"
                   >
-                    Demo <span class="ki-filled ki-cross text-sm"></span>
+                    Demo <span className="ki-filled ki-cross text-sm"></span>
                   </button>
                 </div>
               </div>
@@ -280,7 +280,7 @@ const ContactDetail = () => {
               <div className="cop-4 lg:p-7 grow">
                 {/* Filter */}
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <h4 class="font-semibold text-gray-900">
+                  <h4 className="font-semibold text-gray-900">
                     Leads related to this contact
                   </h4>
                   <div className="flex flex-wrap items-center gap-2">
@@ -295,7 +295,7 @@ const ContactDetail = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 lg:gap-4">
+                <div className="flex flex-col gap-3 lg:gap-4 max-h-[600px] overflow-auto scrollable-y">
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
@@ -307,13 +307,10 @@ const ContactDetail = () => {
                               alt=""
                             />
                             <div className="grid grid-col">
-                              <p
-                                className="text-md font-medium text-gray-900"
-                                title=""
-                              >
+                              <p className="text-md font-medium text-gray-900">
                                 Company name
                               </p>
-                              <span className="text-sm" title="item.email">
+                              <span className="text-sm" title="User name">
                                 User name
                               </span>
                             </div>
@@ -389,13 +386,10 @@ const ContactDetail = () => {
                               alt=""
                             />
                             <div className="grid grid-col">
-                              <p
-                                className="text-md font-medium text-gray-900"
-                                title=""
-                              >
+                              <p className="text-md font-medium text-gray-900">
                                 Company name
                               </p>
-                              <span className="text-sm" title="item.email">
+                              <span className="text-sm" title="User name">
                                 User name
                               </span>
                             </div>
@@ -471,13 +465,563 @@ const ContactDetail = () => {
                               alt=""
                             />
                             <div className="grid grid-col">
-                              <p
-                                className="text-md font-medium text-gray-900"
-                                title=""
-                              >
+                              <p className="text-md font-medium text-gray-900">
                                 Company name
                               </p>
-                              <span className="text-sm" title="item.email">
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
                                 User name
                               </span>
                             </div>

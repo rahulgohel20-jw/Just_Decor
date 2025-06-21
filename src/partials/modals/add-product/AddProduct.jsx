@@ -73,7 +73,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
                 <div className="flex flex-col">
                   <label className="form-label">Price</label>
                   <div className="input">
-                    <i className="ki-filled ki-dollar"></i>
+                    <i className="ki-filled ki-price-tag"></i>
                     <input className="h-full" type="text" placeholder="Price" />
                   </div>
                 </div>
