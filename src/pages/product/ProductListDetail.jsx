@@ -156,7 +156,7 @@ const ProductListDetail = () => {
             {/* Left */}
             <div className="col-span-1">
               <div className="h-full lg:border-e lg:border-e-border shrink-0 p-4 lg:p-7 bg-muted/15">
-                <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
+                <h6 className="flex items-center justify-between font-bold text-gray-900 mb-3">
                   Product Details
                   <CommonHexagonBadge
                     stroke="stroke-success-clarity"
@@ -168,8 +168,13 @@ const ProductListDetail = () => {
                   />
                 </h6>
                 <div className="flex flex-col flex-wrap gap-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-gray-700">Product image</div>
+                  <div className="flex flex-col items-center justify-center gap-1 rounded-lg h-28 w-32 bg-gray-200 border mb-2">
+                    <img
+                      src={toAbsoluteUrl("/images/not_found2.svg")}
+                      className="max-h-16 max-w-full shrink-0"
+                      alt=""
+                    />
+                    <div className="text-2xs text-gray-500">No Product Image</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <i className="ki-filled ki-user text-success"></i>
@@ -286,25 +291,49 @@ const ProductListDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
                               <p className="text-md font-medium text-gray-900">
-                                Ragnar Lothbrok
+                                Gayatri Cat.
                               </p>
-                              <span
-                                className="text-sm"
-                                title="ragnar.lothbrok@gmail.com"
-                              >
-                                ragnar.lothbrok@gmail.com
+                              <span className="text-sm" title="User name">
+                                Umang Thakkar
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
                               </span>
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900">
-                          <i className="ki-filled ki-call me-2"></i>+91
-                          9988776655
+                        <div className="flex items-center gap-3">
+                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
+                          <div
+                            className="badge badge-outline badge-secondary rounded-full badge-lg"
+                            title="Client Demo"
+                          >
+                            Client Demo
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            dj
+                          </div>
+                          <p className="text-sm font-medium">Deep Jain</p>
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -315,9 +344,21 @@ const ProductListDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
                           </button>
                         </div>
                       </div>
@@ -330,25 +371,49 @@ const ProductListDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
                               <p className="text-md font-medium text-gray-900">
-                                Ragnar Lothbrok
+                                Gayatri Cat.
                               </p>
-                              <span
-                                className="text-sm"
-                                title="ragnar.lothbrok@gmail.com"
-                              >
-                                ragnar.lothbrok@gmail.com
+                              <span className="text-sm" title="User name">
+                                Umang Thakkar
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
                               </span>
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900">
-                          <i className="ki-filled ki-call me-2"></i>+91
-                          9988776655
+                        <div className="flex items-center gap-3">
+                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
+                          <div
+                            className="badge badge-outline badge-secondary rounded-full badge-lg"
+                            title="Client Demo"
+                          >
+                            Client Demo
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            dj
+                          </div>
+                          <p className="text-sm font-medium">Deep Jain</p>
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -359,9 +424,101 @@ const ProductListDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-full max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Gayatri Cat.
+                              </p>
+                              <span className="text-sm" title="User name">
+                                Umang Thakkar
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
+                          <div
+                            className="badge badge-outline badge-secondary rounded-full badge-lg"
+                            title="Client Demo"
+                          >
+                            Client Demo
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                            dj
+                          </div>
+                          <p className="text-sm font-medium">Deep Jain</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
                           </button>
                         </div>
                       </div>
