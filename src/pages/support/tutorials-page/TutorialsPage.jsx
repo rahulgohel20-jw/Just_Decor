@@ -77,9 +77,7 @@ const TutorialsPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Add Tutorial">
-              <i className="ki-filled ki-plus"></i> Add Tutorial
-            </button>
+           
           </div>
         </div>
 
