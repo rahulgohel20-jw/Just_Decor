@@ -110,10 +110,12 @@ import {
 } from "@/pages/tasks";
 
 import { Holiday } from "@/pages/Leave/holiday";
-import { MyLeaves } from "../pages/Leave/my-leaves";
-import {Approval} from "../pages/Leave/approval";
+import { MyLeaves } from "@/pages/Leave/my-leaves";
+import {Approval} from "@/pages/Leave/approval";
 import { Myattendance } from "../pages/Leave/my-attendance/Myattendance";
 import Allleave from "@/pages/Leave/all-leave/Allleave";
+import { AllAttendance } from "@/pages/Leave/all-attendance";
+import { LeaveType } from "@/pages/Leave/settings/leave-type/LeaveType";
 
 
 const AppRoutingSetup = () => {
@@ -155,9 +157,9 @@ const AppRoutingSetup = () => {
 <Route path="/holiday" element={<Holiday/>}></Route>
 <Route path="/myleaves" element={<MyLeaves/>}></Route>
 <Route path="/allleave" element={<Allleave/>}></Route>
+<Route path="allattendance" element={<AllAttendance/>}></Route>
+<Route path="leavetype" element={<LeaveType/>}></Route>
 <Route path ="/myattendance" element={<Myattendance/>}></Route>
-
-
 
 
           {/* Settings routes */}

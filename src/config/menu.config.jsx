@@ -81,6 +81,28 @@ export const MENU_SIDEBAR = [
 title:"All Leaves",
 path:"/allleave",
       },
+      {
+        title:"All Attendance",
+        path:"/allattendance",
+      },
+      {
+        title:"Setting",
+    icon: "ki-filled ki-setting-2",
+    children: [
+      {
+        title:"Leave Type",
+        path:"/leavetype",
+      },
+      {
+        title:"Attendance Settings",
+        path:"/attendancesettings",
+      },
+      {
+        title:"Office Settings",
+        path:"/officesettings",
+      },
+    ]
+      }
     ]
   },
   {
