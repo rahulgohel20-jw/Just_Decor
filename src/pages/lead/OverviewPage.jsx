@@ -1,4 +1,3 @@
-
 import { Fragment } from "react";
 
 import { Container } from "@/components/container";
@@ -7,6 +6,7 @@ import SalesPersonDropdown from "@/components/dropdowns/SalesPersonDropdown";
 import PipLineDropdown from "@/components/dropdowns/PiplineDropdown";
 import CompanyDropdown from "@/components/dropdowns/CompanyDropdown";
 import SourceDropdown from "@/components/dropdowns/SourceDropdown";
+import { Badge } from "@/components/ui/badge";
 import TabComponent from "@/components/tab/TabComponent";
 import ReportTab from "@/components/LeadOverview/ReportTab";
 import LeadReportTab from "@/components/LeadOverview/LeadReportTab";
@@ -101,15 +101,14 @@ const OverviewPage = () => {
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Overview" }]} />
-        </div>{" "}
+        </div>
+        {/* filters */}
         <div className="filters flex flex-wrap items-center gap-2 mb-3">
           <div className="filItems">
             <PipLineDropdown />
           </div>
           <div className="filItems">
             <SourceDropdown />
-            {/* Filters */}
-
           </div>
           <div className="filItems">
             <SalesPersonDropdown />
@@ -122,21 +121,104 @@ const OverviewPage = () => {
               <i className="ki-filled ki-arrows-circle"></i>
             </button>
           </div>
-          <div className="filItems">
-            <button className="btn btn-light" title="Custom Report">
-              <i className="ki-filled ki-cheque"></i>
-              Custom Report
-            </button>
+          <div className="filItems"></div>
+        </div>
+
+        {/* Lead Cards */}
+        <div className="w-full">
+          <div className="flex justify-between items-end gap-2 mb-2">
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                className="badge badge-outline badge-success text-xs"
+                title="Type one"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Total: <strong>0</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                    <span>
+                      <strong>&#8377;0/-</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-dark text-xs"
+                title="Type one"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Open: <strong>0</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                    <span>
+                      <strong>&#8377;0/-</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-info text-xs"
+                title="Type one"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Won: <strong>0</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                    <span>
+                      <strong>&#8377;0/-</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-danger text-xs"
+                title="Type one"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Lost: <strong>0</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                    <span>
+                      <strong>&#8377;0/-</strong>
+                      <span className="ms-1.5">(0%)</span>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+            </div>
+            <div className="flex justify-end items-center gap-2">
+              <button className="btn btn-primary" title="Custom Report">
+                <i className="ki-filled ki-cheque"></i>
+                Custom Report
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Sales Report */}
         <div className="mb-7 card min-w-full w-full">
           <div className="card-body px-5 pb-5 pt-4">
             <h4 className="font-semibold text-gray-900 mb-2">Sales Report</h4>
             <TabComponent tabs={salesTabs} />
           </div>
-
         </div>
+
+        {/* Daily Lead */}
         <div className="mb-7 card min-w-full w-full">
           <div className="card-body px-5 pb-5 pt-4">
             <h4 className="font-semibold text-gray-900 mb-2">Daily Leads</h4>
@@ -144,28 +226,31 @@ const OverviewPage = () => {
           </div>
         </div>
 
-        <div className="mb-7 ">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="flex flex-col">
-            <div className="card min-w-full w-full">
-              <div className="card-body px-5 pb-5 pt-4">
-                <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
-                  Sales person chart is not available!
-                </p>
+        {/* Chart */}
+        <div className="mb-7">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <div className="card min-w-full w-full">
+                <div className="card-body px-5 pb-5 pt-4">
+                  <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
+                    Sales person chart is not available!
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-col">
-            <div className="card min-w-full w-full">
-              <div className="card-body px-5 pb-5 pt-4">
-                <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
-                  Sales person chart is not available!
-                </p>
+            <div className="flex flex-col">
+              <div className="card min-w-full w-full">
+                <div className="card-body px-5 pb-5 pt-4">
+                  <p className="text-sm text-gray-900 opacity-50 p-7 text-center">
+                    Sales person chart is not available!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
+
+        {/* Follow Up Report */}
         <div className="card min-w-full w-full">
           <div className="card-body px-5 pb-5 pt-4">
             <h4 className="font-semibold text-gray-900 mb-2">
@@ -173,7 +258,6 @@ const OverviewPage = () => {
             </h4>
             <TabComponent tabs={followUpTabs} />
           </div>
-
         </div>
       </Container>
     </Fragment>

@@ -112,9 +112,9 @@ const LeadLeftComponent = () => {
       <hr className="border-t border-gray-200 my-5" />
       <h6 className="font-bold text-gray-900 mb-4 flex items-center justify-between">Tags <button className="btn btn-success w-8 h-8 p-0 inline-flex items-center justify-center rounded-full" title="Add Tag"><i className="ki-filled ki-plus"></i></button></h6>
       <div className="flex flex-wrap gap-1.5">
-          <button className="btn btn-light h-7 rounded-full px-3" title="Lead">Lead <span class="ki-filled ki-cross text-sm"></span></button>
-          <button className="btn btn-light h-7 rounded-full px-3" title="Sample">Sample <span class="ki-filled ki-cross text-sm"></span></button>
-          <button className="btn btn-light h-7 rounded-full px-3" title="Demo">Demo <span class="ki-filled ki-cross text-sm"></span></button>
+          <button className="btn btn-light h-7 rounded-full px-3" title="Lead">Lead <span className="ki-filled ki-cross text-sm"></span></button>
+          <button className="btn btn-light h-7 rounded-full px-3" title="Sample">Sample <span className="ki-filled ki-cross text-sm"></span></button>
+          <button className="btn btn-light h-7 rounded-full px-3" title="Demo">Demo <span className="ki-filled ki-cross text-sm"></span></button>
       </div>
     </div>
   );
