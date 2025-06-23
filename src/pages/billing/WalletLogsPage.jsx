@@ -46,9 +46,8 @@ const WalletLogsPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Wallet Logs" }]} />
         </div>
-        <div className="container-fluid mb-8">
-
-        <div className="w-fit flex  items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-175px_-85px] [background-position:-100px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3 lg:gap-4 mb-4">          
+          <div className="col-span-3 md:col-start-2 flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-success-clarity"
@@ -59,12 +58,14 @@ const WalletLogsPage = () => {
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center flex-wrap gap-2.5">
                   <h3 className="text-xl font-semibold text-success">
-                    &#8377; 0.00
+                    &#8377; 100.00
                   </h3>
-                  
+                  <span className="badge badge-sm badge-outline shrink-0">
+                    9 days left
+                  </span>
                 </div>
                 <div className="form-info text-gray-800 font-normal">
-                  Wallet Balance
+                  Current Balance
                 </div>
               </div>
             </div>
@@ -72,10 +73,7 @@ const WalletLogsPage = () => {
               <button
                 className="btn btn-sm btn-success shrink-0"
                 title="Recharge Now"
-                onClick={() => {
-                  
-                  handleModalOpen();
-                }}
+                onClick={() => {handleModalOpen();}}
               >
                 &#8377; Recharge Now
               </button>

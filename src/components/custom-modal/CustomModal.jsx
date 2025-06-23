@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
-import { X } from "lucide-react";
 const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
