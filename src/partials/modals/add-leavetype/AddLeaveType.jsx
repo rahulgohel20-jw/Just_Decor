@@ -48,7 +48,7 @@ const AddLeaveType = ({ isModalOpen, setIsModalOpen }) => {
       >
         <div className="">
          
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[500px] overflow-auto scrollable-y">
             <div>
               <label className="block text-gray-700">Leave Type</label>
               <input type="text" className="w-full p-2 border rounded" />

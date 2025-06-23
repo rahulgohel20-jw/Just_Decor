@@ -95,7 +95,7 @@ path:"/allleave",
       },
       {
         title:"Attendance Settings",
-        path:"/attendancesettings",
+        path:"/attendance-setting",
       },
       {
         title:"Office Settings",
