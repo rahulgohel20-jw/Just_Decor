@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
-const RegisterFace = ({ isModalOpen, setIsModalOpen }) => {
+const AddRegisterFace = ({ isModalOpen, setIsModalOpen }) => {
   const [images, setImages] = useState([]);
 
   const handleClose = () => setIsModalOpen(false);
@@ -22,7 +22,7 @@ const RegisterFace = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleClose}
-        title="Register My Face"
+        title="Register Face - Upload 3 Images of Employee"
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button className="btn btn-secondary" onClick={handleClose}>
@@ -36,27 +36,38 @@ const RegisterFace = ({ isModalOpen, setIsModalOpen }) => {
       >
         <div className="flex flex-col gap-y-4">
           {/* Upload Label */}
-          <label className="form-label">
-            Upload 3 Images Showing your Face Only:
-          </label>
+          
 
           {/* Upload Input */}
-          <div className="input flex items-center justify-between px-2 py-2 border border-gray-600 rounded-md">
-            <input
+          
+          
+            <select className="select pe-7.5" defaultValue="all">
+                <option disabled selected>Select User</option>
+              <option value="Manan Gandhi ">Manan Gandhi</option>
+              <option value="Kaushik">Kaushik</option>
+              <option value="Rahul">Rahul</option>
+              <option value="aarya">Aarya</option>
+              <option value="zainab">Zainab</option>
+            </select>
+            
+            
+          
+          <div className="input w-100 flex items-center justify-between px-2 py-2 border border-gray-600 rounded-md">
+          <label
+              htmlFor="face-upload"
+              className="cursor-pointer w-100  text-sm font-medium"
+            >
+            <i className="ki-filled ki-picture ms-2"></i>  Select Images 
+            </label>
+          <input
               type="file"
               multiple
               accept="image/*"
               onChange={handleImageChange}
-              className="hidden"
+              className="hidden w-100"
               id="face-upload"
             />
-           
-            <label
-              htmlFor="face-upload"
-              className="cursor-pointer text-sm font-medium"
-            >
-              <i className="ki-filled ki-picture me-1"></i> Select Images
-            </label>
+            
           </div>
 
           {/* Image Preview */}
@@ -85,4 +96,4 @@ const RegisterFace = ({ isModalOpen, setIsModalOpen }) => {
   );
 };
 
-export default RegisterFace;
+export default AddRegisterFace;
