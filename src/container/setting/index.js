@@ -11,3 +11,7 @@ export * from "./General_Setting/ExportLead";
 
 export * from "./AllAttendance/Attendance"
 export * from "./AllAttendance/Regularization"
+
+
+export * from "./AttendanceSetting/RegisterFace"
+export * from "./AttendanceSetting/Reminder"
