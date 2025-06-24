@@ -40,8 +40,7 @@ const AddHoliday = ({ isModalOpen, setIsModalOpen }) => {
                   placeholder="Holiday name"
                 />
               </div>
-            </div>
-            
+            </div>            
           </div>
           <div className="grid grid-cols-1 gap-x-4">
             <div className="flex flex-col">
@@ -54,13 +53,8 @@ const AddHoliday = ({ isModalOpen, setIsModalOpen }) => {
                   placeholder="Holiday name"
                 />
               </div>
-            </div>
-            
+            </div>            
           </div>
-          
-          
-          
-          
         </div>
 
         {/* 
@@ -80,6 +74,9 @@ const AddHoliday = ({ isModalOpen, setIsModalOpen }) => {
           ></div>
         </label>
 
+
+
+        
         <label className="text-black">Leave & Attendance Access</label>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
