@@ -15,3 +15,7 @@ export * from "./AllAttendance/Regularization"
 
 export * from "./AttendanceSetting/RegisterFace"
 export * from "./AttendanceSetting/Reminder"
+
+
+export * from "./OfficeSeeting/LoginLogoutTime"
+export * from "./OfficeSeeting/Location"

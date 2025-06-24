@@ -49,7 +49,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
           </div>,
         ]}
       >
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 max-h-[500px] overflow-auto scrollable-y">
           <div className="flex flex-col">
             <label className="form-label">Define Role</label>
             <div className="input">
