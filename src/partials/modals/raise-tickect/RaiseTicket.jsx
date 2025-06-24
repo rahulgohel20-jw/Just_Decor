@@ -123,7 +123,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
       open={isModalOpen}
       onClose={handleModalClose}
       title="Raise a Ticket"
-      width={700}
+      width={540}
       footer={[
         <div className="flex justify-between" key="footer-buttons">
           <button
@@ -138,9 +138,9 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
             key="submit"
             className="btn btn-primary"
             onClick={handleSubmit}
-            title="Submit Ticket"
+            title="Submit"
           >
-            Submit Ticket
+            Submit
           </button>
         </div>,
       ]}

@@ -25,8 +25,8 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Member">
-              Save Member
+            <button key="save" className="btn btn-primary" title="Save">
+              Save
             </button>
           </div>,
         ]}

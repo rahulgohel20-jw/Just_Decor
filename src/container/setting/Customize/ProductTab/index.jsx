@@ -31,10 +31,10 @@ const ProductTab = () => {
       <div className="grid lg:grid-cols-1 md:grid-cols-1grid-cols-1 gap-4">
         <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
           <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
-            <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
               Product Custom Fields
             </h3>
-            <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+            <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
               Track goals, progress, and achievements for growth.
             </span>
             <button

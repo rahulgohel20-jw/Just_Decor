@@ -75,10 +75,10 @@ module.exports = {
                 inverse: "#ffffff",
               },
               danger: {
-                default: "#F8285A",
-                active: "#D81A48",
-                light: "#FFEEF3",
-                clarity: "rgba(248, 40, 90, 0.20)",
+                default: "#BF2225",
+                active: "#991B1E",
+                light: "#F9E9E9",
+                clarity: "rgba(191, 34, 37, 0.20)",
                 inverse: "#ffffff",
               },
               warning: {

@@ -330,7 +330,7 @@ const ProductListDetail = () => {
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                         <div className="flex flex-wrap items-center">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
                             dj
                           </div>
                           <p className="text-sm font-medium">Deep Jain</p>
@@ -410,7 +410,7 @@ const ProductListDetail = () => {
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                         <div className="flex flex-wrap items-center">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
                             dj
                           </div>
                           <p className="text-sm font-medium">Deep Jain</p>
@@ -490,7 +490,7 @@ const ProductListDetail = () => {
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                         <div className="flex flex-wrap items-center">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-2xs font-bold uppercase flex items-center justify-center  me-2">
+                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
                             dj
                           </div>
                           <p className="text-sm font-medium">Deep Jain</p>

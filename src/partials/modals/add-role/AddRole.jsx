@@ -43,8 +43,8 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Role">
-              Save Role
+            <button key="save" className="btn btn-primary" title="Save">
+              Save
             </button>
           </div>,
         ]}

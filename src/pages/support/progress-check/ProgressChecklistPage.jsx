@@ -74,7 +74,7 @@ export const ProgressChecklistPage = () => {
                     <Square className="text-gray-400" size={20} />
                   )}
                   <span
-                    className={`text-sm text-gray-700 ${
+                    className={`text-sm text-gray-900 ${
                       isDone ? "line-through" : ""
                     }`}
                   >

@@ -37,8 +37,8 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Link">
-              Save Link
+            <button key="save" className="btn btn-primary" title="Save">
+              Save
             </button>
           </div>,
         ]}

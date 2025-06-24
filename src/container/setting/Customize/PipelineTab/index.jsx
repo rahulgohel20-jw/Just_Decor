@@ -61,10 +61,10 @@ const PipelineTab = () => {
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Pipeline for Personal Satisfaction
               </h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Track goals, progress, and achievements for growth.
               </span>
               <button className="btn btn-sm btn-success" title="Add Pipeline">
@@ -101,10 +101,10 @@ const PipelineTab = () => {
           </div>
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Pipeline Template for Personal Satisfaction
               </h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Clear steps to achieve goals and fulfillment.
               </span>
               <button className="btn btn-sm btn-success" title="Add Template">
@@ -138,10 +138,10 @@ const PipelineTab = () => {
           </div>
           <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Lost Reason for Personal Satisfaction
               </h3>
-              <span className="text-gray-600 text-sm text-center mb-4.5 text-center">
+              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Tracks reasons for lost opportunities to improve outcomes.
               </span>
               <button className="btn btn-sm btn-success" title="Add Reason">

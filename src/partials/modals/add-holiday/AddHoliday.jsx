@@ -22,7 +22,7 @@ const AddHoliday = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Member">
+            <button key="save" className="btn btn-primary" title="Add Holiday">
               Add Holiday
             </button>
           </div>,

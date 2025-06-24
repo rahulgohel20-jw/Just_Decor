@@ -78,18 +78,13 @@
 }
 
 .segmentedTabs .ant-segmented-group {
-  gap: 4px;
+  gap: 6px;
 }
 
 .segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label {
   min-height: unset;
   line-height: unset;
   padding: 10px 14px;
-}
-
-.segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label>span {
-  font-weight: 500;
-  font-size: 15px;
 }
 
 .segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label>span i {

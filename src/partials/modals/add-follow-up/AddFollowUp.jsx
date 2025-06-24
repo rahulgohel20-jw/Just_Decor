@@ -45,7 +45,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Follow Up"
-        width={600}
+        width={540}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -59,9 +59,9 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
             <button
               key="add"
               className="btn btn btn-primary w-50 "
-              title="Save Follow Up"
+              title="Save"
             >
-              Save Follow Up
+              Save
             </button>
           </div>,
         ]}

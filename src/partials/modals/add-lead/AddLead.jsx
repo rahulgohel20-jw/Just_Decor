@@ -236,7 +236,7 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           open={isModalOpen}
           onClose={handleModalClose}
           title="Add Lead"
-          width={700}
+          width={640}
           footer={[
             <div className="flex justify-between" key={"footer-buttons"}>
               <button
@@ -250,10 +250,10 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               <button
                 key="save"
                 className="btn btn-primary"
-                title="Save Lead"
+                title="Save"
                 onClick={saveData}
               >
-                Save Lead
+                Save
               </button>
             </div>,
           ]}

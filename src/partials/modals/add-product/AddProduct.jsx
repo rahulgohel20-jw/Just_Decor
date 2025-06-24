@@ -181,8 +181,8 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Product">
-              Save Product
+            <button key="save" className="btn btn-primary" title="Save">
+              Save
             </button>
           </div>,
         ]}
