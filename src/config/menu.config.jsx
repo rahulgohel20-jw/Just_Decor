@@ -99,7 +99,7 @@ path:"/allleave",
       },
       {
         title:"Office Settings",
-        path:"/officesettings",
+        path:"/officesetting",
       },
     ]
       }

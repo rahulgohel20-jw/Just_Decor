@@ -173,7 +173,7 @@ const CompanyDetails = () => {
                 </h6>
                 <div className="flex flex-col flex-wrap gap-1.5">
                   <div className="flex items-center gap-2">
-                    <i className="ki-filled ki-user text-success"></i>
+                    <i className="ki-filled ki-bank text-success"></i>
                     <div className="text-sm text-gray-700">Company Name:</div>
                     <div className="text-md font-medium text-gray-900">
                       John Ferki
