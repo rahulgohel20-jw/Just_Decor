@@ -59,7 +59,7 @@ export const MENU_SIDEBAR = [
     children: [
       {
       title:"Dashboard",
-      path:"/dashboard",
+      path:"/leave-dashboard",
       },
       {
         title: "My Attendance",

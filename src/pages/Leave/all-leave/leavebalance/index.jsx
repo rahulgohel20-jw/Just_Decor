@@ -8,19 +8,19 @@ const LeaveBalanceTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // Function to handle edit button click
+  
   const handleEdit = (userData) => {
     console.log("Edit clicked for user:", userData);
     setSelectedUser(userData);
     setIsModalOpen(true);
   };
 
-  // Add useEffect to debug modal state
+
   useEffect(() => {
     console.log("Modal state:", { isModalOpen, selectedUser });
   }, [isModalOpen, selectedUser]);
 
-  // Create columns with action buttons
+
   const columnsWithActions = [
     ...leaveBalanceColumns.filter(col => col.accessorKey !== "actions"),
     {

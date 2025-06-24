@@ -8,7 +8,7 @@ export const leaveBalanceData = [
   { name: "Priya Patel", cl: 12, el: 15, lwp: 6, sl: 12 },
 ];
 
-// Update columns to match the DataGrid component's expected format
+
 export const leaveBalanceColumns = [
   {
     accessorKey: "name",
