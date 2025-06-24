@@ -36,77 +36,28 @@ const Reminder = () => {
             
           </div>
           <div className="mb-4 flex justify-between items-center">
-            <span className="text-lg">Daily Attendance Report</span>
+            <span className="text-lg text-gray-700 font-bold">Daily Attendance Report</span>
             <button
               onClick={handleToggle}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isToggled ? 'bg-primary' : 'bg-gray-4  00'}`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isToggled ? 'bg-primary' : 'bg-gray-400  00'}`}
             >
               <span className="sr-only">Toggle Daily Attendance Report</span>
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-light transition-transform ${isToggled ? 'translate-x-6' : 'translate-x-0'}`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-light transition-transform ${isToggled ? 'translate-x-6' : 'translate-x-1'}`}
               />
             </button>
           </div>
-          <div className="mb-4 flex justify-between items-center">
-            <span className="text-lg">Daily Attendance Report Time</span>
-            <div className="flex items-center">
-              <button onClick={handleClockClick} className=" text-white rounded-full w-6 h-6 flex items-center justify-center mr-2">
-              <i className="ki-filled ki-time me-2 text-[22px] text-success"></i>
-                
-              </button>
-              <span className="text-primary">{selectedTime}</span>
-            </div>
-          </div>
-          {showTimeSetter && (
-            <div className="mt-2 p-2 bg-white border rounded shadow flex space-x-2">
-              <input
-                type="number"
-                defaultValue={4}
-                min={1}
-                max={12}
-                onChange={(e) => {
-                  const hours = parseInt(e.target.value, 10);
-                  if (hours >= 1 && hours <= 12) {
-                    updateTime(hours, parseInt(selectedTime.split(':')[1]), selectedTime.split(' ')[1]);
-                  }
-                }}
-                className="w-16 p-1 border rounded"
-              />
-              <span>:</span>
-              <input
-                type="number"
-                defaultValue={47}
-                min={0}
-                max={59}
-                onChange={(e) => {
-                  const minutes = parseInt(e.target.value, 10);
-                  if (minutes >= 0 && minutes <= 59) {
-                    updateTime(parseInt(selectedTime.split(':')[0]), minutes, selectedTime.split(' ')[1]);
-                  }
-                }}
-                className="w-16 p-1 border rounded"
-              />
-              <select
-                onChange={(e) => {
-                  const period = e.target.value;
-                  updateTime(parseInt(selectedTime.split(':')[0]), parseInt(selectedTime.split(':')[1]), period);
-                }}
-                className="p-1 border rounded"
-                defaultValue="PM"
-              >
-                <option value="AM">AM</option>
-                <option value="PM">PM</option>
-              </select>
-              <button
-                onClick={() => setShowTimeSetter(false)}
-                className="ml-2 bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
-              >
-                Set
-              </button>
-            </div>
-          )}
-          <div className="mb-4">
-            <label className="block text-gray-600">Timezone</label>
+          {isToggled?
+
+<div className="mb-4">
+<label className="block text-gray-700 text-md font-bold mb-2">Daily Attendance Report Time</label>
+<input type="time" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" defaultValue="15:54" />
+</div>
+          :<span className="font-bold text-red-700">* Active to set time</span>}
+          
+          
+          <div className="my-4">
+            <label className="block text-gray-700 font-bold">Timezone</label>
             <input
               type="text"
               
