@@ -5,14 +5,14 @@ import RaiseTicket from "@/partials/modals/raise-tickect/RaiseTicket";
 
 const RaiseTicketPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editData,] = useState(null);
+  const [editData] = useState(null);
 
   const handleModalOpen = () => {
     console.log("Opening modal");
     setIsModalOpen(true);
     console.log("Modal state set to:", true);
     console.log("isModalOpen after setting:", isModalOpen); // This will still show false due to React's state update timing
-    
+
     // Force a re-render to check if the component updates
     setTimeout(() => {
       console.log("isModalOpen after timeout:", isModalOpen);
@@ -26,17 +26,16 @@ const RaiseTicketPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Raise Tickets" }]} />
         </div>
-
-        {/* Page header with action buttons */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <h1 className="text-2xl font-bold">Support Tickets</h1>
+        {/* filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+            <p className="text-sm  font-semibold text-gray-900">Support Tickets</p>
           <button
             onClick={handleModalOpen}
             type="button"
             className="btn btn-primary"
             title="Raise a Ticket"
           >
-            <i className="ki-filled ki-plus me-1"></i>
+            <i className="ki-filled ki-plus"></i>
             Raise a Ticket
           </button>
         </div>
@@ -55,8 +54,8 @@ const RaiseTicketPage = () => {
         </div>
 
         {/* Raise Ticket Modal */}
-        <RaiseTicket 
-          isModalOpen={isModalOpen} 
+        <RaiseTicket
+          isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           editData={editData}
         />

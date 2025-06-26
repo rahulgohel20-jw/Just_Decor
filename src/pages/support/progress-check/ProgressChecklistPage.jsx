@@ -47,11 +47,9 @@ export const ProgressChecklistPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Progress Checklist" }]} />
         </div>
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">
-            Your Progress: {completedItems.length} / {checklistItems.length}
-          </h2>
+        {/* filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+            <p className="text-sm  font-semibold text-gray-900">Your Progress: {completedItems.length}/{checklistItems.length}</p>
           <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
             {progressPercent}%
           </div>

@@ -47,8 +47,8 @@ const CheckInModal = ({ isModalOpen, setIsModalOpen }) => {
       open={isModalOpen}
       onClose={handleModalClose}
       title="Check In"
-      width={640}
-      footer={[]}
+      width={460}
+      footer={null}
     >
       <CardContent className="flex flex-col items-center gap-4">
         {!imgSrc ? (

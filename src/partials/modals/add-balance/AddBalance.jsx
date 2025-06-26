@@ -26,6 +26,7 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         width={400}
+        header={null}
         footer={null}
       >
           <div className="flex flex-col">

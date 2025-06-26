@@ -64,7 +64,6 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
           {modal}
         </div>
       )}
-      // footer={footer ? <div className="pt-3">{footer}</div> : null}
       footer={footer ? <div className="pt-3">{footer}</div> : null}
       {...rest}
     >

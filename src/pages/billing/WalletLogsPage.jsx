@@ -80,8 +80,6 @@ const WalletLogsPage = () => {
             </div>
           </div>
         </div>
-
-
           {/* <div className="col-span-2">
             <div className="flex flex-col gap-5 lg:gap-7.5">
               <FeaturesHighlight
