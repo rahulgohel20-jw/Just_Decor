@@ -1,7 +1,7 @@
 import { React, Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Badge } from "@/components/ui/badge";
+import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
 
 const NotificationsSettingsPage = () => {
@@ -36,14 +36,24 @@ const NotificationsSettingsPage = () => {
             </div>
             <div class="flex flex-col rtl:[background-position:center_center] [background-position:center_center] bg-no-repeat bg-[length:650px] user-access-bg">
               <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex flex-col">
-                  <h3 class="text-base font-medium text-gray-900">
-                    New lead email notification to team
-                  </h3>
-                  <p class="text-sm text-gray-700">
-                    An email notification will be sent to the team whenever a
-                    new lead is added.
-                  </p>
+                <div class="flex items-center gap-4">
+                  <CommonHexagonBadge
+                    stroke="stroke-success-clarity"
+                    fill="fill-success-light"
+                    size="size-[50px]"
+                    badge={
+                      <i className="ki-filled ki-ki-filled ki-sms text-xl text-success"></i>
+                    }
+                  />
+                  <div class="flex flex-col">
+                    <h3 class="text-base font-medium text-gray-900">
+                      New lead email notification to team
+                    </h3>
+                    <p class="text-sm text-gray-700">
+                      An email notification will be sent to the team whenever a
+                      new lead is added.
+                    </p>
+                  </div>
                 </div>
                 <label className="switch switch-lg">
                   <input
@@ -58,14 +68,24 @@ const NotificationsSettingsPage = () => {
                 </label>
               </div>
               <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex flex-col">
-                  <h3 class="text-base font-medium text-gray-900">
-                    New lead whatsapp notification to team
-                  </h3>
-                  <p class="text-sm text-gray-700">
-                    Get instant WhatsApp alerts to the team whenever a new lead
-                    is generated.
-                  </p>
+                <div class="flex items-center gap-4">
+                  <CommonHexagonBadge
+                    stroke="stroke-success-clarity"
+                    fill="fill-success-light"
+                    size="size-[50px]"
+                    badge={
+                      <i className="ki-filled ki-ki-filled ki-whatsapp text-xl text-success"></i>
+                    }
+                  />
+                  <div class="flex flex-col">
+                    <h3 class="text-base font-medium text-gray-900">
+                      New lead whatsapp notification to team
+                    </h3>
+                    <p class="text-sm text-gray-700">
+                      Get instant WhatsApp alerts to the team whenever a new
+                      lead is generated.
+                    </p>
+                  </div>
                 </div>
                 <label className="switch switch-lg">
                   <input
@@ -82,13 +102,23 @@ const NotificationsSettingsPage = () => {
                 </label>
               </div>
               <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex flex-col">
-                  <h3 class="text-base font-medium text-gray-900">
-                    Set report time
-                  </h3>
-                  <p class="text-sm text-gray-700">
-                    Define report sending time as needed.
-                  </p>
+                <div class="flex items-center gap-4">
+                  <CommonHexagonBadge
+                    stroke="stroke-success-clarity"
+                    fill="fill-success-light"
+                    size="size-[50px]"
+                    badge={
+                      <i className="ki-filled ki-time text-xl text-success"></i>
+                    }
+                  />
+                  <div class="flex flex-col">
+                    <h3 class="text-base font-medium text-gray-900">
+                      Set report time
+                    </h3>
+                    <p class="text-sm text-gray-700">
+                      Define report sending time as needed.
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <div className="input">
