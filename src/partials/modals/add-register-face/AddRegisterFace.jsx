@@ -28,7 +28,7 @@ const AddRegisterFace = ({ isModalOpen, setIsModalOpen }) => {
             <button className="btn btn-secondary" onClick={handleClose}>
               Cancel
             </button>
-            <button className="btn btn-primary" onClick={handleClose}>
+            <button className="btn btn-success" onClick={handleClose}>
               Submit
             </button>
           </div>,

@@ -59,7 +59,7 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
         title="Add Member"
         width={500}
         footer={[
-          <button key="add" className="btn btn-primary" title="Save Member">Save Member</button>,
+          <button key="add" className="btn btn-primary" title="Save">Save</button>,
         ]}
       >
         <div className="flex flex-col gap-y-2">

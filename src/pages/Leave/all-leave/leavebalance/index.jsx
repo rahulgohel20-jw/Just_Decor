@@ -44,16 +44,13 @@ const LeaveBalanceTable = () => {
   ];
 
   return (
-    <div className="p-4">
+    <>
       <TableComponent 
         columns={columnsWithActions} 
         data={leaveBalanceData}
         paginationSize={10}
       />
-
-      {/* Update Leave Balance Modal */}
-      
-    </div>
+    </>
   );
 };
 

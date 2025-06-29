@@ -25,75 +25,78 @@ const BillingOverviewPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4">
-          <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
-            <div className="flex items-center gap-4">
-              <CommonHexagonBadge
-                stroke="stroke-success-clarity"
-                fill="fill-success-light"
-                size="size-[50px]"
-                badge={<i className="ki-filled ki-wallet text-xl text-success"></i>}
-              />
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center flex-wrap gap-2.5">
-                  <h3 className="text-xl font-semibold text-success">
-                    &#8377; 0.00
-                  </h3>
-                  <span className="badge badge-sm badge-outline shrink-0">
-                    16 days left
-                  </span>
-                </div>
-                <div className="form-info text-gray-800 font-normal">
-                  Wallet Balance
+          <div className="card min-w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
+            <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
+              <div className="flex items-center gap-4">
+                <CommonHexagonBadge
+                  stroke="stroke-success-clarity"
+                  fill="fill-success-light"
+                  size="size-[50px]"
+                  badge={<i className="ki-filled ki-wallet text-xl text-success"></i>}
+                />
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center flex-wrap gap-2.5">
+                    <h3 className="text-xl font-semibold text-success">
+                      &#8377; 0.00
+                    </h3>
+                    <span className="badge badge-sm badge-outline shrink-0">
+                      16 days left
+                    </span>
+                  </div>
+                  <div className="form-info text-gray-800 font-normal">
+                    Wallet Balance
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-              <button
-                className="btn btn-sm btn-success shrink-0"
-                title="Recharge Now"
-              >
-                &#8377; Recharge Now
-              </button>
+              <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
+                <button
+                  className="btn btn-sm btn-success shrink-0"
+                  title="Recharge Now"
+                >
+                  &#8377; Recharge Now
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
-            <div className="flex items-center gap-4">
-              <CommonHexagonBadge
-                stroke="stroke-success-clarity"
-                fill="fill-success-light"
-                size="size-[50px]"
-                badge={
-                  <KeenIcon
-                    icon="security-user"
-                    className="text-xl text-success text-brand"
-                  />
-                }
-              />
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center flex-wrap gap-2.5">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Contact Seles Team
-                  </h3>
-                  <span className="badge badge-sm badge-outline shrink-0">
-                    79 connections
-                  </span>
-                </div>
-                <div className="form-info text-gray-800 font-normal">
-                  Get personalized assistance for your business needs
+          <div className="card min-w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
+            <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
+              <div className="flex items-center gap-4">
+                <CommonHexagonBadge
+                  stroke="stroke-success-clarity"
+                  fill="fill-success-light"
+                  size="size-[50px]"
+                  badge={
+                    <KeenIcon
+                      icon="security-user"
+                      className="text-xl text-success text-brand"
+                    />
+                  }
+                />
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center flex-wrap gap-2.5">
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Contact Seles Team
+                    </h3>
+                    <span className="badge badge-sm badge-outline shrink-0">
+                      79 connections
+                    </span>
+                  </div>
+                  <div className="form-info text-gray-800 font-normal">
+                    Get personalized assistance for your business needs
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-              <button
-                className="btn btn-sm btn-success shrink-0"
-                title="Connect"
-              >
-                <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
-              </button>
+              <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
+                <button
+                  className="btn btn-sm btn-success shrink-0"
+                  title="Connect"
+                >
+                  <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4">
           <div className="card min-w-full">
             <div className="card-body p-5">

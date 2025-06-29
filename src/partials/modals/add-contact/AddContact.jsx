@@ -222,7 +222,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Contact"
-        width={700}
+        width={640}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -235,11 +235,11 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             </button>
             <button
               key="save"
-              className="btn btn-primary"
-              title="Save Contact"
+              className="btn btn-success"
+              title="Save"
               onClick={saveData}
             >
-              Save Contact
+              Save
             </button>
           </div>,
         ]}

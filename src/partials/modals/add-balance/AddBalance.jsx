@@ -25,18 +25,18 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Recharge Wallet"
         width={400}
+        header={null}
         footer={null}
       >
           <div className="flex flex-col">
-            <h4 class="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
+            <h4 className="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
             <div className="flex flex-col">
-              <div className="flex flex-col items-center bg-gray-200 rounded-t-lg border-t border-x py-3">
-                <h4 className="text-2xl font-semibold text-gray-900">&#8377;100</h4>
-                <span className="text-sm text-gray-700">Current Balance</span>
+              <div className="flex flex-col items-center bg-primary rounded-t-lg border-t py-3">
+                <h4 className="text-2xl font-semibold text-white">&#8377;100</h4>
+                <span className="text-sm text-white">Current Balance</span>
               </div>
-              <div className="flex flex-col bg-light border py-6 px-7 mb-5 rounded-b-lg">
+              <div className="flex flex-col bg-gray-200 border py-6 px-7 mb-5 rounded-b-lg">
                 <div className="flex flex-col mb-2">
                   <label className="form-label">Amount To Recharge</label>
                   <label className="input input-lg">
@@ -50,10 +50,11 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
                   </label>
                 </div>
                 <div className="flex flex-col mb-3">
-                  <div class="flex flex-wrap justify-end gap-1">
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 100">+100</span>
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 500">+500</span>
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 1000">+1,000</span>
+                  <div className="flex flex-wrap justify-center gap-1">
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 100">+100</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 500">+500</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 1000">+1,000</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 2000">+2,000</span>
                   </div>
                 </div>
                 <div className="flex flex-col mb-1">

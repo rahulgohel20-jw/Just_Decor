@@ -15,7 +15,7 @@ const ChannelSettingsPage = () => {
       value: "email",
       label: (
         <>
-          <Mail />
+          <i className="ki-filled ki-sms"></i>
           Email
         </>
       ),
@@ -25,7 +25,7 @@ const ChannelSettingsPage = () => {
       value: "email_template",
       label: (
         <>
-          <Mail />
+          <i className="ki-filled ki-directbox-default"></i>
           Email Template
         </>
       ),
@@ -35,7 +35,7 @@ const ChannelSettingsPage = () => {
       value: "whatsapp",
       label: (
         <>
-          <ContactRound />
+          <i className="ki-filled ki-whatsapp"></i>
           WhatsApp
         </>
       ),
@@ -45,7 +45,7 @@ const ChannelSettingsPage = () => {
       value: "whatsapp_template",
       label: (
         <>
-          <ContactRound />
+          <i className="ki-filled ki-scroll"></i>
           WhatsApp Template
         </>
       ),
@@ -55,7 +55,7 @@ const ChannelSettingsPage = () => {
       value: "stage_template",
       label: (
         <>
-          <Mail />
+          <i className="ki-filled ki-status"></i>
           Stage Template
         </>
       ),

@@ -43,7 +43,7 @@ const ExternalServicesManageApi = ({
           </div>
 
           <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 p-5 
-          rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
+          rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
             <div className="flex items-center gap-4">
               <CommonHexagonBadge stroke="stroke-brand-clarity" fill="fill-brand-light" size="size-[50px]" badge={<KeenIcon icon="security-user" className="text-xl text-brand" />} />
 

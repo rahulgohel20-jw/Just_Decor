@@ -25,7 +25,7 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Member">
+            <button key="save" className="btn btn-success" title="Apply">
               Apply
             </button>
           </div>,

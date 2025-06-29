@@ -37,9 +37,8 @@ const OfficeSetting = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Attendance Setting" }]} />
+          <Breadcrumbs items={[{ title: "Attendance Settings" }]} />
         </div>
-        
         <TabComponent tabs={tabs} />
       </Container>
     </Fragment>

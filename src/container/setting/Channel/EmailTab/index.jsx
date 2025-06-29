@@ -1,4 +1,5 @@
 import EmptyData from "@/components/ui/emptyData";
+import { toAbsoluteUrl } from "@/utils";
 
 const EmailTab = () => {
   const email = [
@@ -17,51 +18,74 @@ const EmailTab = () => {
   ];
   return (
     <>
-      <div className="pipeline-tab">
-        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-          <div className="flex flex-col items-end pt-3 pb-7.5 px-1.5">
-            <button className="btn btn-sm btn-success" title="Add Pipeline">
-              Connect Email
-            </button>
-          </div>
-          <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
-            <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
-              {email && email.length > 0 ? (
-                email.map((item, index) => {
-                  return (
-                    <div
-                      className="flex flex-row items-center justify-between p-3 bg-white dark:bg-dark border rounded-lg shadow-sm"
-                      key={index}
-                    >
-                      <div className="flex flex-column">
-                        <span className="text-gray-800 ">
-                          <small className="text-gray-700 me-2">
-                            Sending Email:
-                          </small>
-                          {item.email_id}
-                          <br />
-                          <small className="text-gray-700 me-2">
-                            Connected At:
-                          </small>
-                          {item.created_at}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        title="Disconnect"
-                      >
-                        Disconnect
-                      </button>
+      <style>
+        {`
+          .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+          }
+          .dark .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+          }
+        `}
+      </style>
+      {/* filters */}
+      <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
+        <button type="button" className="btn btn-primary" title="Connect Email">
+          <i className="ki-filled ki-sms"></i>
+          Connect Email
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          title="Connect Calendar"
+        >
+          <i className="ki-filled ki-calendar-2"></i>
+          Connect Calendar
+        </button>
+      </div>
+
+      <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
+        {email && email.length > 0 ? (
+          email.map((item, index) => {
+            return (
+              <div
+                className="card min-w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg"
+                key={index}
+              >
+                <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
+                  <div className="flex items-center gap-5">
+                    <div className="flex flex-col gap-1">
+                      <p className="form-info text-gray-700 font-normal">
+                        Sending email:
+                      </p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        {item.email_id}
+                      </h4>
                     </div>
-                  );
-                })
-              ) : (
-                <EmptyData />
-              )}
-            </div>
-          </div>
-        </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="form-info text-gray-700 font-normal">
+                        Connected at:
+                      </p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        {item.created_at}
+                      </h4>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-danger"
+                    title="Disconnect"
+                  >
+                    <i className="ki-filled ki-disconnect"></i>
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <EmptyData />
+        )}
       </div>
     </>
   );
