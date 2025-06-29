@@ -54,7 +54,7 @@ const AddTask = ({ isModalOpen, setIsModalOpen, editData }) => {
           open={isModalOpen}
           onClose={handleModalClose}
           title="Add Task"
-          width={700}
+          width={640}
           footer={[
             <div className="flex justify-between" key={"footer-buttons"}>
               <button

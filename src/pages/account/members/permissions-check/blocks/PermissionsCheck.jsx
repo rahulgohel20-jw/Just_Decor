@@ -108,7 +108,7 @@ const PermissionsCheck = () => {
         <a href="#" className="btn btn-light btn-outline">
           Restore Defaults
         </a>
-        <a href="#" className="btn btn-primary">
+        <a href="#" className="btn btn-success">
           Save Changes
         </a>
       </div>

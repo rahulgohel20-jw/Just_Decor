@@ -54,56 +54,56 @@ export const MENU_SIDEBAR = [
   },
 
   {
-    title:"leaves",
+    title: "leaves",
     icon: "ki-filled ki-abstract-17",
     children: [
       {
-      title:"Dashboard",
-      path:"/dashboard",
+        title: "Dashboard",
+        path: "/dashboard",
       },
       {
         title: "My Attendance",
         path: "/myattendance",
       },
       {
-        title:"Approval",
-        path:"/approval",
+        title: "Approval",
+        path: "/approval",
       },
       {
-        title:"Holidays",
-        path:"/holiday",
+        title: "Holidays",
+        path: "/holiday",
       },
       {
-        title:"My Leaves",
-        path:"/myleaves",
+        title: "My Leaves",
+        path: "/myleaves",
       },
       {
-title:"All Leaves",
-path:"/allleave",
+        title: "All Leaves",
+        path: "/allleave",
       },
       {
-        title:"All Attendance",
-        path:"/allattendance",
+        title: "All Attendance",
+        path: "/allattendance",
       },
       {
-        title:"Setting",
-    icon: "ki-filled ki-setting-2",
-    children: [
-      {
-        title:"Leave Type",
-        path:"/leavetype",
+        title: "Settings",
+        icon: "ki-filled ki-setting-2",
+        children: [
+          {
+            title: "Leave Type",
+            path: "/leavetype",
+          },
+          {
+            title: "Attendance Settings",
+            path: "/attendance-setting",
+          },
+          {
+            title: "Office Settings",
+            path: "/officesettings",
+          },
+        ],
       },
-      {
-        title:"Attendance Settings",
-        path:"/attendance-setting",
-      },
-      {
-        title:"Office Settings",
-        path:"/officesetting",
-      },
-    ]
-      }
-    ]
+    ],
   },
   {
     title: "Links",

@@ -79,7 +79,7 @@ const TabComponent = ({ tabs, onTabChange }) => {
             onChange={onChange}
             options={tabs.map((tab) => ({
               label: (
-                <span className="text-sm font-normal whitespace-nowrap flex items-center gap-2">
+                <span className="text-sm font-medium whitespace-nowrap flex items-center gap-2">
                   {tab.label}
                 </span>
               ),

@@ -12,7 +12,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Company"
-        width={700}
+        width={640}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -23,8 +23,8 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Contact">
-              Save Company
+            <button key="save" className="btn btn-primary" title="Save">
+              Save
             </button>
           </div>,
         ]}

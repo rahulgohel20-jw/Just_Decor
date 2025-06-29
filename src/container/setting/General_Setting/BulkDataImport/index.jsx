@@ -47,7 +47,7 @@ const BulkDataImport = () => {
               handleModalOpen();
             }}
           >
-            <i className="ki-filled ki-cloud"></i> Upload CSV
+            <i className="ki-filled ki-file-up"></i> Upload CSV
           </button>
         </div>
       </div>
