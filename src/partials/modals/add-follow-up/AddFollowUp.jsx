@@ -58,7 +58,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
             </button>
             <button
               key="add"
-              className="btn btn btn-primary w-50 "
+              className="btn btn btn-success"
               title="Save"
             >
               Save

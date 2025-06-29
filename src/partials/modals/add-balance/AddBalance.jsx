@@ -30,9 +30,9 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
         footer={null}
       >
           <div className="flex flex-col">
-            <h4 class="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
+            <h4 className="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
             <div className="flex flex-col">
-              <div className="flex flex-col items-center bg-success rounded-t-lg border-t py-3">
+              <div className="flex flex-col items-center bg-primary rounded-t-lg border-t py-3">
                 <h4 className="text-2xl font-semibold text-white">&#8377;100</h4>
                 <span className="text-sm text-white">Current Balance</span>
               </div>
@@ -50,11 +50,11 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
                   </label>
                 </div>
                 <div className="flex flex-col mb-3">
-                  <div class="flex flex-wrap justify-center gap-1">
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 100">+100</span>
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 500">+500</span>
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 1000">+1,000</span>
-                    <span class="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 2000">+2,000</span>
+                  <div className="flex flex-wrap justify-center gap-1">
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 100">+100</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 500">+500</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 1000">+1,000</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 2000">+2,000</span>
                   </div>
                 </div>
                 <div className="flex flex-col mb-1">
@@ -71,7 +71,7 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
                 </div>
               </div>
               <div className="flex gap-2.5 justify-between items-center">
-                <button className="btn btn-primary w-full justify-center">Recharge to &#8377;55,500</button>
+                <button className="btn btn-success w-full justify-center">Recharge to &#8377;55,500</button>
               </div>
             </div>
           </div>

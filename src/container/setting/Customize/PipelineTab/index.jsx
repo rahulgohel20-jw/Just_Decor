@@ -59,7 +59,7 @@ const PipelineTab = () => {
     <>
       <div className="pipeline-tab">
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Pipeline for Personal Satisfaction
@@ -67,7 +67,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Track goals, progress, and achievements for growth.
               </span>
-              <button className="btn btn-sm btn-success" title="Add Pipeline">
+              <button className="btn btn-sm btn-primary" title="Add Pipeline">
                 <i className="ki-filled ki-plus"></i>Pipeline
               </button>
             </div>
@@ -99,7 +99,7 @@ const PipelineTab = () => {
               )}
             </div>
           </div>
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Pipeline Template for Personal Satisfaction
@@ -107,7 +107,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Clear steps to achieve goals and fulfillment.
               </span>
-              <button className="btn btn-sm btn-success" title="Add Template">
+              <button className="btn btn-sm btn-primary" title="Add Template">
                 <i className="ki-filled ki-plus"></i>Template
               </button>
             </div>
@@ -136,7 +136,7 @@ const PipelineTab = () => {
               )}
             </div>
           </div>
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Lost Reason for Personal Satisfaction
@@ -144,7 +144,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Tracks reasons for lost opportunities to improve outcomes.
               </span>
-              <button className="btn btn-sm btn-success" title="Add Reason">
+              <button className="btn btn-sm btn-primary" title="Add Reason">
                 <i className="ki-filled ki-plus"></i>Reason
               </button>
             </div>

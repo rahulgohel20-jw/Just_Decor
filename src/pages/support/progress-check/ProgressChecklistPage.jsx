@@ -76,7 +76,7 @@ export const ProgressChecklistPage = () => {
                     {index + 1}. {item}
                   </span>
                 </div>
-                <div className="btn btn-sm btn-light p-0 w-7 h-7 flex items-center justify-center" title="Watch Video"><i class="ki-filled ki-to-right ps-0.5"></i></div>
+                <div className="btn btn-sm btn-light p-0 w-7 h-7 flex items-center justify-center" title="Watch Video"><i className="ki-filled ki-to-right ps-0.5"></i></div>
               </div>
             );
           })}

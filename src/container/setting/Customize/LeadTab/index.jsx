@@ -67,7 +67,7 @@ const LeadTab = () => {
   return (
     <div className="pipeline-tab">
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
-        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
           <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
             <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
               Lead for Personal Satisfaction
@@ -76,10 +76,10 @@ const LeadTab = () => {
               Track goals, progress, and achievements for growth.
             </span>
             <div className="flex gap-2">
-              <button className="btn btn-sm btn-success" title="Reorder Lead">
+              <button className="btn btn-sm btn-primary" title="Reorder Lead">
                 <ListOrdered /> Reorder
               </button>
-              <button className="btn btn-sm btn-success" title="Add Lead">
+              <button className="btn btn-sm btn-primary" title="Add Lead">
                 <i className="ki-filled ki-plus"></i>Lead
               </button>
             </div>
@@ -89,18 +89,18 @@ const LeadTab = () => {
               leadList.map((item, index) => {
                 let leftContent = (
                   <div className="flex flex-col">
-                    {item.name}
+                    <div className="text-sm text-gray-900">{item.name}</div>
                     <small>
-                      <b className="text-primary">Data Type: </b>
-                      <span>{item.data_type}</span>
+                      <span className="text-gray-700">Data Type:</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">{item.data_type}</span>
                     </small>
                     <small>
-                      <b className="text-primary">Pipeline: </b>
-                      <span>{item.pipeline_name}</span>
+                      <span className="text-gray-700">Pipeline:</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">{item.pipeline_name}</span>
                     </small>
                     <small>
-                      <b className="text-primary">Required: </b>
-                      <span>{item.is_required ? "Yes" : "No"}</span>
+                      <span className="text-gray-700">Required:</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">{item.is_required ? "Yes" : "No"}</span>
                     </small>
                   </div>
                 );
@@ -126,7 +126,7 @@ const LeadTab = () => {
             )}
           </div>
         </div>
-        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
           <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
             <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
               Source for Personal Satisfaction
@@ -134,7 +134,7 @@ const LeadTab = () => {
             <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
               Track goals, progress, and achievements for growth.
             </span>
-            <button className="btn btn-sm btn-success" title="Add Source">
+            <button className="btn btn-sm btn-primary" title="Add Source">
               <i className="ki-filled ki-plus"></i>Source
             </button>
           </div>
@@ -160,7 +160,7 @@ const LeadTab = () => {
             )}
           </div>
         </div>
-        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+        <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
           <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
             <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
               Tags for Personal Satisfaction
@@ -168,7 +168,7 @@ const LeadTab = () => {
             <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
               Track goals, progress, and achievements for growth.
             </span>
-            <button className="btn btn-sm btn-success" title="Add Tags">
+            <button className="btn btn-sm btn-primary" title="Add Tags">
               <i className="ki-filled ki-plus"></i>Tags
             </button>
           </div>

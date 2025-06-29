@@ -90,7 +90,7 @@ const BasicSettings = () => {
         </div>
 
         <div className="flex justify-end pt-2.5">
-          <button className="btn btn-primary">Save Changes</button>
+          <button className="btn btn-success">Save Changes</button>
         </div>
       </div>
     </div>;

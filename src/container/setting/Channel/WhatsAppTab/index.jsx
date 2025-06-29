@@ -17,22 +17,34 @@ const WhatsAppTab = () => {
   ];
   return (
     <>
-      <div className="pipeline-tab">
-        <div className="card p-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:650px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-          <div className="pt-3 pb-7.5 px-1.5">WhatsApp API Connection</div>
-          <div className="input">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter WhatsApp API URL"
-            />
+      <div className="grid grid-cols-9 gap-3 lg:gap-4 mt-5">
+        <div className="col-span-3 col-start-4">
+          <div className="card min-w-full py-5 px-6">
+            <h2 className="text-lg font-semibold mb-3">
+              WhatsApp API Connection
+            </h2>
+            <div className="flex flex-col gap-y-3">
+              <div className="flex flex-col">
+                <div className="input">
+                  <i className="ki-filled ki-whatsapp"></i>
+                  <input
+                    type="text"
+                    className="h-full"
+                    placeholder="Enter WhatsApp API URL"
+                  />
+                </div>
+              </div>
+              <div className="text-center">
+                <button
+                  className="btn btn-primary justify-center w-full"
+                  title="Connect WhatsApp API"
+                >
+                  <i className="ki-filled ki-file-down"></i>
+                  Connect WhatsApp API
+                </button>
+              </div>
+            </div>
           </div>
-          <button
-            className="btn btn-sm btn-success mt-3"
-            title="Connect WhatsApp API"
-          >
-            Connect WhatsApp API
-          </button>
         </div>
       </div>
     </>

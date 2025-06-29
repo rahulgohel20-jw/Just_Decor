@@ -86,7 +86,9 @@
   line-height: unset;
   padding: 10px 14px;
 }
-
+.segmentedTabs .ant-segmented-group .ant-segmented-item.ant-segmented-item-selected .ant-segmented-item-label {
+  color: var(--tw-primary);
+}
 .segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label>span i {
   font-size: 18px;
 }

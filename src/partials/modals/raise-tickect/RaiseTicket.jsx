@@ -136,7 +136,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
           </button>
           <button
             key="submit"
-            className="btn btn-primary"
+            className="btn btn-success"
             onClick={handleSubmit}
             title="Submit"
           >

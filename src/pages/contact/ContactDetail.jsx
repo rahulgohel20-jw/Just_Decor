@@ -88,7 +88,7 @@ const ContactDetail = () => {
         <Container>
           {/* filters */}
           <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {/* <PageMenu /> */}
               <button
                 type="button"
@@ -112,22 +112,22 @@ const ContactDetail = () => {
                 Tasks Directory
               </button>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 onClick={handleModalOpen}
                 title="Edit Contact"
               >
-                <i className="ki-filled ki-notepad-edit text-info"></i> Edit
+                <i className="ki-filled ki-notepad-edit"></i> Edit
                 Contact
               </button>
               <button
                 type="button"
-                className="btn btn-light"
+                className="btn btn-sm btn-danger"
                 title="Delete Contact"
               >
-                <i className="ki-filled ki-trash text-danger"></i> Delete
+                <i className="ki-filled ki-trash"></i> Delete
                 Contact
               </button>
             </div>

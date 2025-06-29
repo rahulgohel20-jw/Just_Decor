@@ -235,7 +235,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             </button>
             <button
               key="save"
-              className="btn btn-primary"
+              className="btn btn-success"
               title="Save"
               onClick={saveData}
             >

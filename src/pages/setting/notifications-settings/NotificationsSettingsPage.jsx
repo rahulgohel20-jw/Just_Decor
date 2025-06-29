@@ -29,27 +29,27 @@ const NotificationsSettingsPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Notifications" }]} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-3 lg:gap-4 mb-4">
-          <div className="col-span-3 md:col-start-2 card min-w-full">
-            <div class="flex justify-between items-center p-5 border-b">
-              <h4 class="font-semibold text-gray-900">General Settings</h4>
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-3 lg:gap-4 mb-4">
+          <div className="col-span-4 md:col-start-3 card min-w-full">
+            <div className="flex justify-between items-center p-5 border-b">
+              <h4 className="font-semibold text-gray-900">General Settings</h4>
             </div>
-            <div class="flex flex-col rtl:[background-position:center_center] [background-position:center_center] bg-no-repeat bg-[length:650px] user-access-bg">
-              <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex items-center gap-4">
+            <div className="flex flex-col rtl:[background-position:center_center] [background-position:center_center] bg-no-repeat bg-[length:650px] user-access-bg">
+              <div className="flex justify-between items-center p-5 gap-2 border-b">
+                <div className="flex items-center gap-4">
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-primary-clarity"
+                    fill="fill-light"
                     size="size-[50px]"
                     badge={
-                      <i className="ki-filled ki-ki-filled ki-sms text-xl text-success"></i>
+                      <i className="ki-filled ki-ki-filled ki-sms text-xl text-primary"></i>
                     }
                   />
-                  <div class="flex flex-col">
-                    <h3 class="text-base font-medium text-gray-900">
+                  <div className="flex flex-col">
+                    <h3 className="text-base font-medium text-gray-900">
                       New lead email notification to team
                     </h3>
-                    <p class="text-sm text-gray-700">
+                    <p className="text-sm text-gray-700">
                       An email notification will be sent to the team whenever a
                       new lead is added.
                     </p>
@@ -67,21 +67,21 @@ const NotificationsSettingsPage = () => {
                   />
                 </label>
               </div>
-              <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex items-center gap-4">
+              <div className="flex justify-between items-center p-5 gap-2 border-b">
+                <div className="flex items-center gap-4">
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-primary-clarity"
+                    fill="fill-light"
                     size="size-[50px]"
                     badge={
-                      <i className="ki-filled ki-ki-filled ki-whatsapp text-xl text-success"></i>
+                      <i className="ki-filled ki-ki-filled ki-whatsapp text-xl text-primary"></i>
                     }
                   />
-                  <div class="flex flex-col">
-                    <h3 class="text-base font-medium text-gray-900">
+                  <div className="flex flex-col">
+                    <h3 className="text-base font-medium text-gray-900">
                       New lead whatsapp notification to team
                     </h3>
-                    <p class="text-sm text-gray-700">
+                    <p className="text-sm text-gray-700">
                       Get instant WhatsApp alerts to the team whenever a new
                       lead is generated.
                     </p>
@@ -101,21 +101,21 @@ const NotificationsSettingsPage = () => {
                   />
                 </label>
               </div>
-              <div class="flex justify-between items-center p-5 gap-2 border-b">
-                <div class="flex items-center gap-4">
+              <div className="flex justify-between items-center p-5 gap-2 border-b">
+                <div className="flex items-center gap-4">
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-primary-clarity"
+                    fill="fill-light"
                     size="size-[50px]"
                     badge={
-                      <i className="ki-filled ki-time text-xl text-success"></i>
+                      <i className="ki-filled ki-time text-xl text-primary"></i>
                     }
                   />
-                  <div class="flex flex-col">
-                    <h3 class="text-base font-medium text-gray-900">
+                  <div className="flex flex-col">
+                    <h3 className="text-base font-medium text-gray-900">
                       Set report time
                     </h3>
-                    <p class="text-sm text-gray-700">
+                    <p className="text-sm text-gray-700">
                       Define report sending time as needed.
                     </p>
                   </div>
@@ -128,12 +128,13 @@ const NotificationsSettingsPage = () => {
                 </div>
               </div>
             </div>
-            <div class="flex justify-end items-center p-5">
+            <div className="flex justify-end items-center p-5">
               <button
                 onClick={handleSave}
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-success"
                 title="Save Changes"
+                disabled
               >
                 Save Changes
               </button>
