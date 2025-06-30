@@ -112,7 +112,7 @@ const CompanyDetails = () => {
         <Container>
           {/* filters */}
           <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {/* <PageMenu /> */}
               <button
                 type="button"
@@ -136,22 +136,22 @@ const CompanyDetails = () => {
                 Tasks Directory
               </button>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 onClick={handleModalOpen}
                 title="Edit Company"
               >
-                <i className="ki-filled ki-notepad-edit text-info"></i> Edit
+                <i className="ki-filled ki-notepad-edit"></i> Edit
                 Company
               </button>
               <button
                 type="button"
-                className="btn btn-light"
+                className="btn btn-sm btn-danger"
                 title="Delete Company"
               >
-                <i className="ki-filled ki-trash text-danger"></i> Delete
+                <i className="ki-filled ki-trash"></i> Delete
                 Company
               </button>
             </div>
@@ -173,7 +173,7 @@ const CompanyDetails = () => {
                 </h6>
                 <div className="flex flex-col flex-wrap gap-1.5">
                   <div className="flex items-center gap-2">
-                    <i className="ki-filled ki-user text-success"></i>
+                    <i className="ki-filled ki-bank text-success"></i>
                     <div className="text-sm text-gray-700">Company Name:</div>
                     <div className="text-md font-medium text-gray-900">
                       John Ferki

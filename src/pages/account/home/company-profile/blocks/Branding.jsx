@@ -118,7 +118,7 @@ const Branding = () => {
           <div className="border-t border-gray-200 my-7.5"></div>
 
           <div className="flex justify-end">
-            <button className="btn btn-primary">Save Changes</button>
+            <button className="btn btn-success">Save Changes</button>
           </div>
         </div>
       </div>

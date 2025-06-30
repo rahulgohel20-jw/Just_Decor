@@ -25,42 +25,56 @@ const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Balance"
-        width={500}
-        footer={[]}
-      >        
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Recharge Wallet</h2>        
-      </div>
-      {/* Current Balance */}
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-gray-600">Current Balance:</span>
-        <span className="font-semibold text-gray-800">₹100</span>
-      </div>
-      {/* Recharge Amount Input */}
-      <div className="mb-4">
-        <label className="block text-gray-600 mb-2">Amount To Recharge</label>
-        <input
-          type="number"
-          value={5000}          
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100"
-          placeholder="Enter amount"
-        />
-      </div>
-      {/* GST and Total */}
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-gray-600">GST (18%)</span>
-        <span className="font-semibold text-gray-800">₹12.55</span>
-      </div>
-      <div className="flex justify-between items-center mb-6">
-        <span className="text-gray-600 font-semibold">TOTAL</span>
-        <span className="font-semibold text-gray-800">₹55500</span>
-      </div>
-      {/* Recharge Now Button */}
-      <button className="btn btn-primary w-full  text-white font-bold py-3 rounded-lg  flex justify-center items-center gap-2">
-        <span>Recharge Now</span>        
-      </button>   
+        width={400}
+        header={null}
+        footer={null}
+      >
+          <div className="flex flex-col">
+            <h4 className="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
+            <div className="flex flex-col">
+              <div className="flex flex-col items-center bg-primary rounded-t-lg border-t py-3">
+                <h4 className="text-2xl font-semibold text-white">&#8377;100</h4>
+                <span className="text-sm text-white">Current Balance</span>
+              </div>
+              <div className="flex flex-col bg-gray-200 border py-6 px-7 mb-5 rounded-b-lg">
+                <div className="flex flex-col mb-2">
+                  <label className="form-label">Amount To Recharge</label>
+                  <label className="input input-lg">
+                    <span className="text-lg text-success">&#8377;</span>
+                    <input
+                      className="text-lg"
+                      placeholder="Enter amount"
+                      type="number"
+                      value={5000}
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-col mb-3">
+                  <div className="flex flex-wrap justify-center gap-1">
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 100">+100</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 500">+500</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 1000">+1,000</span>
+                    <span className="bg-white hover:bg-gray-200 border border-gray-300 h-6 rounded-full text-xs px-2.5 flex justify-between items-center cursor-pointer font-semibold" title="Add 2000">+2,000</span>
+                  </div>
+                </div>
+                <div className="flex flex-col mb-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700">GST (18%)</span>
+                    <span className="text-base font-bold text-gray-900">&#8377;12.55</span>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700">TOTAL</span>
+                    <span className="text-base font-bold text-gray-900">&#8377;55,500</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2.5 justify-between items-center">
+                <button className="btn btn-success w-full justify-center">Recharge to &#8377;55,500</button>
+              </div>
+            </div>
+          </div>
         {renderTabContent()}
       </CustomModal>
     )

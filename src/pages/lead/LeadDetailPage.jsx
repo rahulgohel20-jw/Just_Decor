@@ -49,12 +49,12 @@ const LeadDetailPage = () => {
               </div>
             ))}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <div className="filItems relative">
               <button
                 type="button"
                 onClick={handleMoveTo}
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 title="Move to"
               >
                 <i className="ki-filled ki-arrows-loop"></i> Move to
@@ -64,7 +64,7 @@ const LeadDetailPage = () => {
               <button
                 type="button"
                 onClick={handleEditLead}
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 title="Edit Lead"
               >
                 <i className="ki-filled ki-ki-filled ki-abstract-18 text-lg"></i>{" "}
@@ -75,7 +75,7 @@ const LeadDetailPage = () => {
               <button
                 type="button"
                 onClick={handleAddNote}
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 title="Edit Notes"
               >
                 <i className="ki-filled ki-notepad"></i> Edit Notes
@@ -85,7 +85,7 @@ const LeadDetailPage = () => {
               <button
                 type="button"
                 onClick={handleAddFollowUp}
-                className="btn btn-light"
+                className="btn btn-sm btn-primary"
                 title="Add Follow Up"
               >
                 <i className="ki-filled ki-message-text-2"></i> Add Follow Up

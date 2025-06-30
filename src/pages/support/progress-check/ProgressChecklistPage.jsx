@@ -47,14 +47,11 @@ export const ProgressChecklistPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Progress Checklist" }]} />
         </div>
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">
-            Your Progress: {completedItems.length} / {checklistItems.length}
-          </h2>
-          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            {progressPercent}%
-          </div>
+        
+        <div className="mb-3 flex items-center gap-2.5">
+          <p className="text-sm font-semibold text-gray-900">Your Progress:</p>
+          <p className="text-sm font-semibold text-gray-900">{completedItems.length}/{checklistItems.length}</p>
+          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{progressPercent}%</div>
         </div>
 
         {/* Checklist */}
@@ -62,25 +59,24 @@ export const ProgressChecklistPage = () => {
           {checklistItems.map((item, index) => {
             const isDone = completedItems.includes(index);
             return (
-              <div
+              <div className="flex items-center justify-between px-4 py-3 border-b hover:bg-gray-50 transition">
+                <div className="flex items-center gap-3 cursor-pointer" 
                 key={index}
-                className={`flex items-start justify-between px-4 py-3 border-b hover:bg-gray-50 cursor-pointer transition`}
-                onClick={() => toggleComplete(index)}
-              >
-                <div className="flex items-start gap-3">
+                onClick={() => toggleComplete(index)}>
                   {isDone ? (
-                    <CheckSquare className="text-blue-600" size={20} />
+                    <CheckSquare className="text-success" size={20} />
                   ) : (
                     <Square className="text-gray-400" size={20} />
                   )}
                   <span
-                    className={`text-sm text-gray-700 ${
+                    className={`text-sm text-gray-900 ${
                       isDone ? "line-through" : ""
                     }`}
                   >
                     {index + 1}. {item}
                   </span>
                 </div>
+                <div className="btn btn-sm btn-light p-0 w-7 h-7 flex items-center justify-center" title="Watch Video"><i className="ki-filled ki-to-right ps-0.5"></i></div>
               </div>
             );
           })}

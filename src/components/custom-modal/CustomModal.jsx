@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
-import { X } from "lucide-react";
 const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
@@ -65,7 +64,7 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
           {modal}
         </div>
       )}
-      footer={<div className="pt-3">{footer}</div>}
+      footer={footer ? <div className="pt-3">{footer}</div> : null}
       {...rest}
     >
       {children}

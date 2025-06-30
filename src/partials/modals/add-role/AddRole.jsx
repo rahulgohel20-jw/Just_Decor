@@ -43,13 +43,13 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save Role">
-              Save Role
+            <button key="save" className="btn btn-success" title="Save">
+              Save
             </button>
           </div>,
         ]}
       >
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 max-h-[500px] overflow-auto scrollable-y">
           <div className="flex flex-col">
             <label className="form-label">Define Role</label>
             <div className="input">
