@@ -121,7 +121,6 @@ const OverviewPage = () => {
               <i className="ki-filled ki-arrows-circle"></i>
             </button>
           </div>
-          <div className="filItems"></div>
         </div>
 
         {/* Lead Cards */}

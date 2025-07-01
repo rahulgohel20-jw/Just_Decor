@@ -239,7 +239,7 @@ const ContactDetail = () => {
                 {isTagOpen && (
                   <div className="flex flex-col my-3">
                     <div className="filItems relative">
-                      <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                       <input
                         className="input pl-8"
                         placeholder="Search here"
@@ -285,7 +285,7 @@ const ContactDetail = () => {
                   </h4>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="filItems relative">
-                      <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                       <input
                         className="input pl-8"
                         placeholder="Search contact"
