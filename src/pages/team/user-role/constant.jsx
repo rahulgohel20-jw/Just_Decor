@@ -1,9 +1,8 @@
 import { DataGridColumnHeader } from "@/components";
 import { EyeIcon, KeySquareIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 export const columns = [
   {
-    accessorKey: "role",
+    accessorKey: "role_name",
     header: ({ column }) => (
       <DataGridColumnHeader title="Role" column={column} />
     ),
@@ -16,9 +15,8 @@ export const columns = [
   },
   {
     accessorKey: "users",
-    
+
     header: ({ column }) => (
-      
       <DataGridColumnHeader title="Users" column={column} />
     ),
     cell: ({ cell }) => {
@@ -39,13 +37,16 @@ export const columns = [
           <button
             className="btn btn-sm btn-icon btn-clear"
             title="Edit"
-            onClick={() => cell.row.original.handleModalOpen()}
+            onClick={() => cell.row.original.handleEditClick(cell.row.original)}
           >
             <i className="ki-filled ki-notepad-edit"></i>
           </button>
           <button
             className="btn btn-sm btn-icon btn-clear"
             title="Delete"
+            onClick={() =>
+              cell.row.original.removeRole(cell.row.original.role_id)
+            }
           >
             <i className="ki-filled ki-trash"></i>
           </button>

@@ -6,6 +6,7 @@ import AddRole from "@/partials/modals/add-role/AddRole";
 import { TableComponent } from "@/components/table/TableComponent";
 import { getAllRoles } from "@/services/apiServices";
 import { columns, defaultData } from "./constant";
+import { deleteRole } from "../../../services/apiServices";
 
 const UserRoleList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,22 +19,35 @@ const UserRoleList = () => {
   const [editData, setEditData] = useState(null);
 
   const handleEditClick = (data) => {
+    console.log(data, "data");
+
     setEditData(data);
     setIsEditMode(true);
     setIsModalOpen(true);
   };
 
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
+  const responseFormate = (data) => {
+    const formattedData = data.map((item) => {
       return {
         ...item,
-        handleModalOpen: handleModalOpen,
+        handleEditClick: handleEditClick,
+        removeRole: removeRole,
       };
     });
-    return data;
+    return formattedData;
   };
 
-  const [tableData, setTableData] = useState(responseFormate());
+  const removeRole = (roleId) => {
+    deleteRole(roleId)
+      .then(() => {
+        getTableData();
+      })
+      .catch((error) => {
+        console.error("Error deleting role:", error);
+      });
+  };
+
+  const [tableData, setTableData] = useState([]);
 
   const getTableData = () => {
     // let data = {
@@ -52,8 +66,8 @@ const UserRoleList = () => {
       getTotalCount: false,
     };
     getAllRoles(filters)
-      .then((response) => {
-        console.log(response, "response");
+      .then(({ data: { data } }) => {
+        setTableData(responseFormate(data));
       })
       .catch((error) => {
         console.error("Error fetching roles:", error);
@@ -108,6 +122,10 @@ const UserRoleList = () => {
         setIsModalOpen={setIsModalOpen}
         isEditMode={isEditMode}
         editData={editData}
+        successFunction={() => {
+          setIsModalOpen(false);
+          getTableData();
+        }}
       />
     </Fragment>
   );

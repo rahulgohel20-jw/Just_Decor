@@ -12,15 +12,10 @@ export const getAllRoles = (data) => {
 
 // Update Role
 export const updateRole = (roleId, data) => {
-  return PUT(
-    `/role_master/update-by-id/${roleId}/role_id?select=&deep=&upsert=false&returnDocument=after&throwErrorIfRecordNotFound=false`,
-    data
-  );
+  return PUT(`/role_master/update-by-id/${roleId}/role_id`, data);
 };
 
 // Delete Role
 export const deleteRole = (roleId) => {
-  return DELETE(
-    `/role_master/${roleId}/role_id?select=&deep=&throwErrorIfRecordNotFound=false`
-  );
+  return DELETE(`/role_master/${roleId}/role_id`);
 };
