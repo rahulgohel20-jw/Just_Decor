@@ -58,8 +58,13 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-abstract-17",
     children: [
       {
+
+      title:"Dashboard",
+      path:"/leave-dashboard",
+      },{
         title: "Dashboard",
         path: "/dashboard",
+
       },
       {
         title: "My Attendance",
