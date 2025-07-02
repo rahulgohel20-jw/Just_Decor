@@ -361,7 +361,7 @@ const FollowUpListPage = () => {
               </select>
             </div>
             <div className="filItems">
-              <button className="btn btn-light" title="Refresh">
+              <button className="btn btn-primary" title="Refresh">
                 <i className="ki-filled ki-arrows-circle"></i>
               </button>
             </div>

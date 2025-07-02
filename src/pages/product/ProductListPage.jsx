@@ -53,7 +53,7 @@ const ProductListPage = () => {
               </select>
             </div>
             <div className="filItems">
-              <button className="btn btn-light" title="Filter">
+              <button className="btn btn-primary" title="Filter">
                 <i className="ki-filled ki-setting-4"></i> Filter
               </button>
             </div>

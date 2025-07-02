@@ -112,21 +112,21 @@ const ProductListDetail = () => {
               {/* <PageMenu /> */}
               <button
                 type="button"
-                className="btn btn-sm btn-success"
+                className="btn btn-sm btn-primary"
                 title="All Tasks"
               >
                 All Tasks
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Templates"
               >
                 Tasks Templates
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Directory"
               >
                 Tasks Directory

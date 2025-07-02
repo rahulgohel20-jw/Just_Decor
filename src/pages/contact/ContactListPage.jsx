@@ -96,12 +96,12 @@ const ContactListPage = () => {
               </select>
             </div>
             <div className="filItems">
-              <button className="btn btn-light" title="Export">
+              <button className="btn btn-primary" title="Export">
                 <i className="ki-filled ki-folder-down"></i> Export
               </button>
             </div>
             <div className="filItems">
-              <button className="btn btn-light" title="Filter">
+              <button className="btn btn-primary" title="Filter">
                 <i className="ki-filled ki-setting-4"></i> Filter
               </button>
             </div>

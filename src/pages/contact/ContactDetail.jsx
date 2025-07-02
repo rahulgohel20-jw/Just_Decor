@@ -92,21 +92,21 @@ const ContactDetail = () => {
               {/* <PageMenu /> */}
               <button
                 type="button"
-                className="btn btn-sm btn-success"
+                className="btn btn-sm btn-primary"
                 title="All Tasks"
               >
                 All Tasks
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Templates"
               >
                 Tasks Templates
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Directory"
               >
                 Tasks Directory
@@ -348,19 +348,19 @@ const ContactDetail = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-primary"
                             title="Edit"
                           >
                             <KeenIcon icon="notepad-edit" />
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />

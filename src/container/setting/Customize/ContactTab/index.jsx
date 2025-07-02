@@ -116,7 +116,6 @@ const ContactTab = () => {
             <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
               Track goals, progress, and achievements for growth.
             </span>
-
             <button className="btn btn-sm btn-primary" title="Add Contact Tags">
               <i className="ki-filled ki-plus"></i>Contact Tags
             </button>

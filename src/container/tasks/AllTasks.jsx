@@ -113,10 +113,10 @@ const AllTasks = () => {
     <div className="all-tasks">
       <div className="flex justify-end">
         <button
-          className="btn btn-sm btn-primary mb-4"
+          className="btn btn-primary mb-4"
           onClick={() => setIsTaskModalOpen(true)}
         >
-          <i className="ki-filled ki-plus me-2"></i>
+          <i className="ki-filled ki-plus"></i>
           Add Task
         </button>
       </div>

@@ -40,7 +40,7 @@ const AddLeaveType = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary w-100" title="Add">
+            <button key="save" className="btn btn-success w-100" title="Add">
               Add Leave
             </button>
           </div>,

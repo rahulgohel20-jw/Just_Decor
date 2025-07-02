@@ -28,7 +28,7 @@ const TaskListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Tasks" }]} />
+          <Breadcrumbs items={[{ title: "Manage Tasks" }]} />
         </div>
         <TabComponent tabs={tabs} />
       </Container>
