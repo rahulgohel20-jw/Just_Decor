@@ -1,9 +1,10 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
- import  AddRole  from "@/partials/modals/add-role/AddRole";
- import { TableComponent } from "@/components/table/TableComponent";
+import AddRole from "@/partials/modals/add-role/AddRole";
+import { TableComponent } from "@/components/table/TableComponent";
+import { getAllRoles } from "@/services/apiServices";
 import { columns, defaultData } from "./constant";
 
 const UserRoleList = () => {
@@ -23,16 +24,46 @@ const UserRoleList = () => {
   };
 
   const responseFormate = () => {
-        const data = defaultData.map((item) => {
-          return {
-            ...item,
-            handleModalOpen: handleModalOpen,
-          };
-        });
-        return data;
+    const data = defaultData.map((item) => {
+      return {
+        ...item,
+        handleModalOpen: handleModalOpen,
       };
+    });
+    return data;
+  };
 
   const [tableData, setTableData] = useState(responseFormate());
+
+  const getTableData = () => {
+    // let data = {
+    //   role_name: "Kohler, Pfannerstill and Stoltenberg",
+    //   created_at: "2025-07-01T01:25:39.250Z",
+    //   updated_at: "2025-07-01T12:49:12.877Z",
+    //   isDeleted: 56920,
+    // };
+    let filters = {
+      find: "",
+      skip: 0,
+      limit: 1000,
+      sort: "",
+      select: "",
+      deep: "",
+      getTotalCount: false,
+    };
+    getAllRoles(filters)
+      .then((response) => {
+        console.log(response, "response");
+      })
+      .catch((error) => {
+        console.error("Error fetching roles:", error);
+      })
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    getTableData();
+  }, []);
   return (
     <Fragment>
       <Container>

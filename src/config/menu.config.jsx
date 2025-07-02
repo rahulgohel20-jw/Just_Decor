@@ -5,6 +5,28 @@ export const MENU_SIDEBAR = [
     path: "/",
   },
   {
+    title: "Event Management",
+    icon: "ki-filled ki-abstract-18",
+    children: [
+      {
+        title: "Events",
+        // path: "/overview",
+      },
+      {
+        title: "Add Event",
+        // path: "/lead",
+      },
+      {
+        title: "Menu Planning",
+        // path: "/contacts",
+      },
+      {
+        title: "Quotation",
+        // path: "/contacts",
+      },
+    ],
+  },
+  {
     title: "Leads",
     icon: "ki-filled ki-abstract-18",
     children: [
