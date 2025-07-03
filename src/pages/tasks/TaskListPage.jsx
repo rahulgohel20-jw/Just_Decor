@@ -8,17 +8,32 @@ const TaskListPage = () => {
   const tabs = [
     {
       value: "all",
-      label: "All Tasks",
+      label: (
+        <>
+          <i className="ki-filled ki-abstract-16"></i>
+          All Tasks
+        </>
+      ),
       children: <AllTasks />,
     },
     {
       value: "my",
-      label: "My Tasks",
+      label: (
+        <>
+          <i className="ki-filled ki-check-squared"></i>
+          My Tasks
+        </>
+      ),
       children: <AllTasks />,
     },
     {
       value: "assigned_by_me",
-      label: "Assigned by Me",
+      label: (
+        <>
+          <i className="ki-filled ki-user-tick"></i>
+          Assigned by Me
+        </>
+      ),
       children: <AllTasks />,
     },
   ];

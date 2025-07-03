@@ -21,7 +21,7 @@ const BillingOverviewPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Overview" }]} />
+          <Breadcrumbs items={[{ title: "Billing Overview" }]} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4">

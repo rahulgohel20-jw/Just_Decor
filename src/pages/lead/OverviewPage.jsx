@@ -100,7 +100,7 @@ const OverviewPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Overview" }]} />
+          <Breadcrumbs items={[{ title: "Lead Overview" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center gap-2 mb-3">

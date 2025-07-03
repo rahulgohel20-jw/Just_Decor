@@ -97,6 +97,12 @@
   background-color: #fff;
 }
 
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    color: #fff;
+}
 
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .anticon.anticon-check > svg > path {
+    fill: #fff;
+}
 
 /* /segmentedTabs */

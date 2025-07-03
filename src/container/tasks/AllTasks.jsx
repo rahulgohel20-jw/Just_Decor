@@ -121,7 +121,6 @@ const AllTasks = () => {
         </button>
       </div>
       <div>{itemList.map((item) => renderItem(item))}</div>
-
       <AddTask
         isModalOpen={isTaskModalOpen}
         setIsModalOpen={setIsTaskModalOpen}

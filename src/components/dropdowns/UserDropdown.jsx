@@ -18,6 +18,7 @@ const UserDropdown = () => {
         { label: "User C", value: "UserC" },
       ]}
       mode="multiple"
+      placeholder={"Please select"}
     />
   );
 };
