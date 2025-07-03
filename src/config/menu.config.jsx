@@ -5,6 +5,28 @@ export const MENU_SIDEBAR = [
     path: "/",
   },
   {
+    title: "Event Management",
+    icon: "ki-filled ki-abstract-18",
+    children: [
+      {
+        title: "Events",
+        // path: "/overview",
+      },
+      {
+        title: "Add Event",
+        // path: "/lead",
+      },
+      {
+        title: "Menu Planning",
+        // path: "/contacts",
+      },
+      {
+        title: "Quotation",
+        // path: "/contacts",
+      },
+    ],
+  },
+  {
     title: "Leads",
     icon: "ki-filled ki-abstract-18 text-primary",
     children: [
@@ -58,8 +80,13 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-abstract-17 text-primary",
     children: [
       {
+
+      title:"Dashboard",
+      path:"/leave-dashboard",
+      },{
         title: "Dashboard",
         path: "/dashboard",
+
       },
       {
         title: "My Attendance",

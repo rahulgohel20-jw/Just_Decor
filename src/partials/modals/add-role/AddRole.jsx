@@ -2,6 +2,8 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Checkbox } from "@mui/material";
+import { createRole } from "@/services/apiServices";
+import { updateRole } from "@/services/apiServices";
 
 const permissions = [
   "Dashboard",
@@ -14,18 +16,53 @@ const permissions = [
   "Settings",
 ];
 
-const AddRole = ({ isModalOpen, setIsModalOpen }) => {
+const AddRole = ({
+  isModalOpen,
+  setIsModalOpen,
+  editData,
+  successFunction,
+}) => {
+  const [formData, setFormData] = useState(editData || {});
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
 
   const handleAddRole = () => {
-    console.log("Add Role button clicked");
-    // Add your logic for adding a role here
+    let data = {
+      role_name: formData.role_name,
+      created_at: "2025-07-01T01:25:39.250Z",
+      updated_at: "2025-07-01T12:49:12.877Z",
+    };
+    if (formData.role_id) {
+      updateRole(formData.role_id, data)
+        .then((response) => {
+          successFunction();
+        })
+        .catch((error) => {
+          console.error("Error fetching roles:", error);
+        })
+        .finally(() => {});
+    } else {
+      createRole(data)
+        .then((response) => {
+          successFunction();
+        })
+        .catch((error) => {
+          console.error("Error fetching roles:", error);
+        })
+        .finally(() => {});
+    }
   };
   const [activeTab, setActiveTab] = useState("pages");
   //   const [selectedFeature, setSelectedFeature] = useState("basic");
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
   return (
     isModalOpen && (
       <CustomModal
@@ -43,7 +80,12 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-success" title="Save">
+            <button
+              key="save"
+              className="btn btn-success"
+              title="Save"
+              onClick={handleAddRole}
+            >
               Save
             </button>
           </div>,
@@ -54,12 +96,24 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
             <label className="form-label">Define Role</label>
             <div className="input">
               <i className="ki-filled ki-user"></i>
-              <input type="text" className="h-full" placeholder="Define Role" />
+              <input
+                type="text"
+                className="h-full"
+                placeholder="Define Role"
+                name="role_name"
+                value={formData.role_name || ""}
+                onChange={handleInputChange}
+              />
             </div>
           </div>
           <div className="flex flex-col">
             <label className="form-label">Lead Access</label>
-            <select className="select pe-7.5" defaultValue="all">
+            <select
+              className="select pe-7.5"
+              name="lead_access"
+              value={formData.lead_access || "all"}
+              onChange={handleInputChange}
+            >
               <option value="all">All Leads</option>
               <option value="assigned">Assigned Leads</option>
               <option value="created">Leads</option>

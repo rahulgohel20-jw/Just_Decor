@@ -116,9 +116,12 @@ import { Myattendance } from "@/pages/Leave/my-attendance/Myattendance";
 import Allleave from "@/pages/Leave/all-leave/Allleave";
 import { AllAttendance } from "@/pages/Leave/all-attendance";
 import { LeaveType } from "@/pages/Leave/settings/leave-type/LeaveType";
+
+
 import { AttendanceSetting } from "@/pages/Leave/settings/attendance-settings/AttendanceSettings";
 import { OfficeSetting } from "@/pages/Leave/settings/offices-settings/OfficeSettings";
 
+import  Leavedashboard  from "@/pages/Leave/dashboard/Leavedashboard";
 
 const AppRoutingSetup = () => {
   return (
@@ -162,6 +165,9 @@ const AppRoutingSetup = () => {
 <Route path="allattendance" element={<AllAttendance/>}></Route>
 <Route path="leavetype" element={<LeaveType/>}></Route>
 <Route path ="/myattendance" element={<Myattendance/>}></Route>
+<Route path="/leave-dashboard" element={<Leavedashboard/>}></Route>
+
+
 <Route path="/attendance-setting" element={<AttendanceSetting></AttendanceSetting>}></Route>
 <Route path="officesetting" element={<OfficeSetting/>}></Route>
 
