@@ -1,0 +1,55 @@
+import React, { Fragment, useState } from "react";
+import {
+  Info as InfoIcon,
+  Settings as FunctionsIcon,
+  Utensils as MealIcon,
+} from "lucide-react";
+import { Container } from "@/components/container";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import StepsComponent from "@/components/StepsComponents";
+import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
+import { requiredFields } from "./constant";
+
+const CreateEventPage = () => {
+  const [formData, setFormData] = useState(requiredFields.basic_info);
+
+  const handleInputChange = ({ target: { value, name } }) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const steps = () => [
+    {
+      title: "Basic Information",
+      content: (
+        <EventBasicInfoStep
+          formData={formData}
+          setFormData={setFormData}
+          onInputChange={handleInputChange}
+        />
+      ),
+      icon: <InfoIcon />,
+    },
+    {
+      title: "Functions",
+      content: "Functions-content",
+      icon: <FunctionsIcon />,
+    },
+    {
+      title: "Meal Type & Notes",
+      content: "Meal Type & Notes-content",
+      icon: <MealIcon />,
+    },
+  ];
+  return (
+    <Fragment>
+      <Container>
+        {/* Breadcrumbs */}
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Events" }]} />
+        </div>
+        <StepsComponent steps={steps()} />
+      </Container>
+    </Fragment>
+  );
+};
+export default CreateEventPage;
