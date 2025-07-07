@@ -59,7 +59,7 @@ const NoteTab = () => {
               </div>
             </div>
             <div className="mt-3 text-end">
-              <button className="btn btn-primary">Save</button>
+              <button className="btn btn-success">Save Note</button>
             </div>
           </div>
         </div>

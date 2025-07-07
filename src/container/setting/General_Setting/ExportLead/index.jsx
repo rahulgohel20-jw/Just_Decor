@@ -68,7 +68,7 @@ const ExportLead = () => {
               <div className="text-center">
                 <button
                   onClick={handleExport}
-                  className="btn btn-primary justify-center w-full"
+                  className="btn btn-success justify-center w-full"
                   title="Export Leads"
                 >
                   <i className="ki-filled ki-file-down"></i>

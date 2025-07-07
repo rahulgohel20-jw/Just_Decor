@@ -100,7 +100,7 @@ const OverviewPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Overview" }]} />
+          <Breadcrumbs items={[{ title: "Lead Overview" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center gap-2 mb-3">
@@ -117,11 +117,10 @@ const OverviewPage = () => {
             <CompanyDropdown />
           </div>
           <div className="filItems">
-            <button className="btn btn-light" title="Refresh">
+            <button className="btn btn-primary" title="Refresh">
               <i className="ki-filled ki-arrows-circle"></i>
             </button>
           </div>
-          <div className="filItems"></div>
         </div>
 
         {/* Lead Cards */}

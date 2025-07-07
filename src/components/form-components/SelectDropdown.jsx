@@ -55,7 +55,8 @@ const SelectDropdown = ({
         className={`${classes.select}`}
         onChange={handleChange}
         options={options}
-        placeholder={placeholder}
+        // placeholder={placeholder}
+        placeholder={"Please select"}
       />
     </div>
   );

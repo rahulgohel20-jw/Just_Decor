@@ -27,15 +27,15 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
-          <div id="tab_1" className="space-y-4">
+          <div id="tab_1" className="flex flex-col gap-y-3">
             <select
               name="category"
               value={formData?.category || ""}
               onChange={handleInputChange}
-              className="w-full p-2 rounded border border-gray-300"
               required
+              className="select pe-7.5"
             >
-              <option value="" disabled>
+              <option>
                 Select Category
               </option>
               <option>Report An Issue</option>
@@ -46,33 +46,35 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
               name="sub_category"
               value={formData?.sub_category || ""}
               onChange={handleInputChange}
-              className="w-full p-2 rounded border border-gray-300"
               required
+              className="select pe-7.5"
             >
-              <option value="" disabled>
-                Select Sub Category
-              </option>
+              <option>Select Sub Category</option>
               <option>Leads</option>
               <option>Contact</option>
               <option>Follow Up</option>
               <option>Other</option>
             </select>
-            <input
+            <div className="input">
+                <i className="ki-filled ki-tag"></i>
+                <input
+                
               name="subject"
               value={formData?.subject || ""}
               onChange={handleInputChange}
               type="text"
               placeholder="Subject"
-              className="w-full p-2 rounded border border-gray-300"
               required
-            />
+                  className="h-full"
+                />
+            </div>
             <textarea
               name="description"
               value={formData?.description || ""}
               onChange={handleInputChange}
               placeholder="Description"
               rows={4}
-              className="w-full p-2 rounded border border-gray-300"
+                  className="textarea h-full"
               required
             ></textarea>
           </div>
@@ -81,20 +83,20 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
         return (
           <div id="tab_2" className="space-y-4">
             <div className="flex flex-col">
-              <label className="form-label">Upload Screenshots</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <div className="mb-3">
-                  <i className="ki-filled ki-picture text-3xl text-gray-500"></i>
-                </div>
-                <p className="text-gray-600 mb-2">Drag and drop files here or click to browse</p>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-7 text-center bg-gray-100">
+                <i className="ki-filled ki-picture text-3xl text-gray-500 mb-2.5"></i>
+                <h4 className="text-base font-semibold text-gray-700 leading-none mb-1">Upload Screenshots</h4>
+                <p className="text-gray-500 mb-3">Drag and drop files here or click to browse</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
                   id="image-upload"
-                  onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, image: e.target.files[0] })
+                  }
                 />
-                <label htmlFor="image-upload" className="btn btn-light mt-3">
+                <label htmlFor="image-upload" className="btn btn-sm btn-light" title="Browse Files">
                   Browse Files
                 </label>
               </div>

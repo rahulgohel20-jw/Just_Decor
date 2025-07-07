@@ -23,7 +23,7 @@ const AddCompany = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-primary" title="Save">
+            <button key="save" className="btn btn-success" title="Save">
               Save
             </button>
           </div>,

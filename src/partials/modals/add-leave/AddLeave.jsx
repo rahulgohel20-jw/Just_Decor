@@ -32,8 +32,6 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
         ]}
       >
         <div className="flex flex-col gap-y-2">
-          
-          
           <div className="flex flex-col">
             <label className="form-label">Leave Type</label>
             <select className="select pe-7.5">
@@ -68,18 +66,14 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
             </div>
           </div>
           <div className="mt-3">
-
-          <label className="form-label">Write Reason</label>
-              <div className="w-full">
-                
-                <textarea
-
-                  className="h-full w-full text-dark"
-                  placeholder="Reason of Leave"
-                />
-              </div>
+            <label className="form-label">Write Reason</label>
+            <div className="w-full">
+              <textarea
+                className="h-full w-full text-dark"
+                placeholder="Reason of Leave"
+              />
+            </div>
           </div>
-          
         </div>
 
         {/* 

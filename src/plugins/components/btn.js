@@ -330,7 +330,7 @@ export default plugin(({ addComponents, theme }) => {
           "border-color": "var(--tw-gray-300)",
           "background-color": "var(--tw-light)",
           i: {
-            color: "var(--tw-gray-500)",
+            color: "var(--tw-primary)",
           },
           "&:hover, &:focus, &:active, &.active": {
             "border-color": "var(--tw-gray-300)",
