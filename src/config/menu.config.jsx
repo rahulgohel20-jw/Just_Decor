@@ -10,11 +10,11 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Events",
-        // path: "/overview",
+        path: "/events",
       },
       {
         title: "Add Event",
-        // path: "/lead",
+        path: "/add-event",
       },
       {
         title: "Menu Planning",
@@ -80,13 +80,12 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-abstract-17 text-primary",
     children: [
       {
-
-      title:"Dashboard",
-      path:"/leave-dashboard",
-      },{
+        title: "Dashboard",
+        path: "/leave-dashboard",
+      },
+      {
         title: "Dashboard",
         path: "/dashboard",
-
       },
       {
         title: "My Attendance",
