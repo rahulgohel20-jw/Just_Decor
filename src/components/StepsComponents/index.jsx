@@ -17,10 +17,8 @@ const StepsComponent = ({ steps }) => {
     setCurrent(current - 1);
   };
   const contentStyle = {
-    lineHeight: "260px",
-    textAlign: "center",
+    padding: 24,
     color: token.colorTextTertiary,
-    backgroundColor: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     border: `1px dashed ${token.colorBorder}`,
     marginTop: 16,
@@ -29,24 +27,24 @@ const StepsComponent = ({ steps }) => {
     <>
       <Steps current={current} items={steps} />
       <div style={contentStyle}>{steps[current].content}</div>
-      <div style={{ marginTop: 24 }}>
+      <div className="mt-4 flex justify-end">
+        {current > 0 && (
+          <button className="btn btn-secondary mr-1" onClick={() => prev()}>
+            Previous
+          </button>
+        )}
         {current < steps.length - 1 && (
-          <Button type="primary" onClick={() => next()}>
+          <button className="btn btn-primary ml-1" onClick={() => next()}>
             Next
-          </Button>
+          </button>
         )}
         {current === steps.length - 1 && (
-          <Button
-            type="primary"
+          <button
+            className="btn btn-success ml-1"
             onClick={() => message.success("Processing complete!")}
           >
             Done
-          </Button>
-        )}
-        {current > 0 && (
-          <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
-            Previous
-          </Button>
+          </button>
         )}
       </div>
     </>

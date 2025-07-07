@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 
-const UserDropdown = ({ value, onChange, ...rest }) => {
+const ContactDropdown = ({ value, onChange, ...rest }) => {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
 
   const handleChange = (event) => {
@@ -25,4 +25,4 @@ const UserDropdown = ({ value, onChange, ...rest }) => {
   );
 };
 
-export default UserDropdown;
+export default ContactDropdown;

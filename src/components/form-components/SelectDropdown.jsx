@@ -52,7 +52,7 @@ const SelectDropdown = ({
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         {...rest}
-        className={`${classes.select}`}
+        className={`${classes.select} ${rest.className || ""}`}
         onChange={handleChange}
         options={options}
         // placeholder={placeholder}
