@@ -9,6 +9,8 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
 import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
 import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
+import MealAndNoteStep from "@/container/EventStepsContainer/MealAndNoteStep";
+import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
 
 const CreateEventPage = () => {
@@ -69,8 +71,25 @@ const CreateEventPage = () => {
     },
     {
       title: "Meal Type & Notes",
-      content: "Meal Type & Notes-content",
+      content: (
+        <MealAndNoteStep
+          formData={formData}
+          setFormData={setFormData}
+          onInputChange={handleInputChange}
+        />
+      ),
       icon: <MealIcon />,
+    },
+    {
+      title: "Other Details",
+      content: (
+        <OtherInfoStep
+          formData={formData}
+          setFormData={setFormData}
+          onInputChange={handleInputChange}
+        />
+      ),
+      icon: <InfoIcon />,
     },
   ];
   return (
