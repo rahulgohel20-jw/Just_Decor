@@ -8,10 +8,37 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
 import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
+import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
 import { requiredFields } from "./constant";
 
 const CreateEventPage = () => {
   const [formData, setFormData] = useState(requiredFields.basic_info);
+  const [current, setCurrent] = useState(0);
+
+  const handleNext = () => {
+    const nextStep = current + 1;
+    switch (nextStep) {
+      case 1:
+        setFormData({ ...formData, ...requiredFields.functions });
+        break;
+      case 2:
+        setFormData({ ...formData, ...requiredFields.meal });
+        break;
+      default:
+        break;
+    }
+    setCurrent(nextStep);
+  };
+  const handlePrev = () => {
+    setCurrent(current - 1);
+  };
+  const handleFinish = () => {
+    // Handle form submission logic here
+    console.log("Form submitted with data:", formData);
+    // Reset form or redirect as needed
+    setFormData(requiredFields.basic_info);
+    setCurrent(0);
+  };
 
   const handleInputChange = ({ target: { value, name } }) => {
     setFormData({ ...formData, [name]: value });
@@ -31,7 +58,13 @@ const CreateEventPage = () => {
     },
     {
       title: "Functions",
-      content: "Functions-content",
+      content: (
+        <FunctionsStep
+          formData={formData}
+          setFormData={setFormData}
+          onInputChange={handleInputChange}
+        />
+      ),
       icon: <FunctionsIcon />,
     },
     {
@@ -47,7 +80,13 @@ const CreateEventPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
-        <StepsComponent steps={steps()} />
+        <StepsComponent
+          current={current}
+          steps={steps()}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onFinish={handleFinish}
+        />
       </Container>
     </Fragment>
   );

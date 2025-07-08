@@ -12,4 +12,11 @@ export const requiredFields = {
     event_date: "",
     status: "pending",
   },
+  functions: {
+    function_array: [],
+  },
+  meal: {
+    meal_type: "",
+    meal_notes: "",
+  },
 };
