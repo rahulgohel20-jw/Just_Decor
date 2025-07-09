@@ -45,16 +45,18 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
       keyboard={false} //disables closing on Esc
       closable={false} // Disable default close button
       title={
-        <div className="flex justify-between items-center pb-2">
-          <span className="text-base font-medium">{title}</span>
-          <button
-            type="text"
-            onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <i className="ki-filled ki-cross text-xl"></i>
-          </button>
-        </div>
+        title ? (
+          <div className="flex justify-between items-center pb-2">
+            <span className="text-base font-medium">{title}</span>
+            <button
+              type="text"
+              onClick={handleClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <i className="ki-filled ki-cross text-xl"></i>
+            </button>
+          </div>
+        ) : null
       }
       open={open}
       onCancel={handleClose}
