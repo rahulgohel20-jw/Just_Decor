@@ -1,12 +1,12 @@
 export const MENU_SIDEBAR = [
   {
     title: "MyApp",
-    icon: "element-11",
+    icon: "element-11 text-primary",
     path: "/",
   },
   {
     title: "Event Management",
-    icon: "ki-filled ki-abstract-18",
+    icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
         title: "Events",
