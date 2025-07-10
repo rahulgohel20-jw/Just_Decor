@@ -1,6 +1,7 @@
 import { toAbsoluteUrl } from "@/utils/Assets";
 import { KeenIcon } from "@/components";
 import AddTask from "@/partials/modals/add-task/AddTask";
+import { Checkbox } from "@mui/material";
 import { useState } from "react";
 
 const AllTasks = () => {
@@ -34,7 +35,11 @@ const AllTasks = () => {
           `}
         </style>
          <div className="card min-w-full">
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -76,7 +81,11 @@ const AllTasks = () => {
               <button className="btn btn-sm btn-icon btn-light btn-clear" title="Expand"><i className="ki-filled ki-up"></i></button>
             </div>
           </div>
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -118,7 +127,11 @@ const AllTasks = () => {
               <button className="btn btn-sm btn-icon btn-light btn-clear" title="Expand"><i className="ki-filled ki-down"></i></button>
             </div>
           </div>
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -160,7 +173,11 @@ const AllTasks = () => {
               <button className="btn btn-sm btn-icon btn-light btn-clear" title="Expand"><i className="ki-filled ki-down"></i></button>
             </div>
           </div>
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -202,7 +219,11 @@ const AllTasks = () => {
               <button className="btn btn-sm btn-icon btn-light btn-clear" title="Expand"><i className="ki-filled ki-down"></i></button>
             </div>
           </div>
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -244,7 +265,11 @@ const AllTasks = () => {
               <button className="btn btn-sm btn-icon btn-light btn-clear" title="Expand"><i className="ki-filled ki-down"></i></button>
             </div>
           </div>
-          <div className="flex items-start border-t first:border-0 border-gray-200 px-4 pt-3 even:bg-gray-100">
+          <div className="flex items-start border-t first:border-0 border-gray-200 px-4.5 pt-4">
+            <div className="flex items-center gap-2.5 me-3 pt-1">
+              <i class="ki-filled ki-star"></i>
+               <input type="checkbox" name="" value="" />
+            </div>
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">TASK-{item.id}</div>
@@ -287,6 +312,20 @@ const AllTasks = () => {
             </div>
           </div>
         </div>
+        <div className="fixed left-[0px] right-[0px] bottom-[20px] mx-auto text-center">
+          <div className="inline-flex items-center bg-light shadow-lg px-4 py-2 gap-4 rounded-md border">
+            <span className="text-xs font-medium text-gray-600">1 of 21 items selected</span>
+            <div className="inline-flex items-center gap-5">
+              <button type="text" class="text-gray-500 hover:text-gray-700" title="Edit"><i class="ki-filled ki-message-edit"></i></button>
+              <button type="text" class="text-gray-500 hover:text-gray-700" title="Downoad"><i class="ki-filled ki-file-down"></i></button>
+              <button type="text" class="text-gray-500 hover:text-gray-700" title="Delete"><i class="ki-filled ki-trash"></i></button>
+            </div>
+            <span className="text-gray-300">|</span>
+            <button type="text" class="text-gray-500 hover:text-gray-700" title="Close"><i class="ki-filled ki-cross"></i></button>
+          </div>
+        </div>
+
+
         
         <div className="my-7"></div>
 
