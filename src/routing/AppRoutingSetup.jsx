@@ -151,7 +151,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/all-members" element={<MemberList />} />
 
           {/* event management routes */}
-          <Route path="/events" element={<CalendarPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
 
           {/* Tasks routes */}

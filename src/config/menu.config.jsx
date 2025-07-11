@@ -9,20 +9,12 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
-        title: "Events",
-        path: "/events",
+        title: "Calendar",
+        path: "/calendar",
       },
       {
-        title: "Add Event",
+        title: "Event",
         path: "/add-event",
-      },
-      {
-        title: "Menu Planning",
-        // path: "/contacts",
-      },
-      {
-        title: "Quotation",
-        // path: "/contacts",
       },
     ],
   },
