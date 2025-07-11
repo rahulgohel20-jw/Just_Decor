@@ -9,29 +9,22 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
     <div className="flex flex-col gap-y-2 gap-x-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
         <div className="flex flex-col">
-          <label className="form-label">Customer</label>
           <ContactDropdown
             value={formData.customer_id}
             onChange={onInputChange}
             className="w-full"
+            label="Customer"
+            createBtn={true}
           />
         </div>
 
         <div className="flex flex-col">
-          <label className="form-label">Manager</label>
           <UserDropdown
             value={formData.manager_id}
             onChange={onInputChange}
             className="w-full"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="form-label">Chef</label>
-          <UserDropdown
-            value={formData.chef_id}
-            onChange={onInputChange}
-            className="w-full"
+            label="Manager"
+            createBtn={true}
           />
         </div>
 
@@ -96,10 +89,11 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="form-label">Event Type</label>
           <EventTypeDropdown
             value={formData.event_type}
             onChange={onInputChange}
+            label="Event Type"
+            createBtn={true}
           />
         </div>
 

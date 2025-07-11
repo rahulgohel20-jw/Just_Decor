@@ -4,9 +4,9 @@ const useStyles = makeStyles({
   formGrp: {
     "& .ant-select": {
       // minWidth: "100%",
-      maxWidth: 240,
+      // maxWidth: 240,
       width: "100%",
-      height: '40px',
+      height: "40px",
       "& .ant-select-selector": {
         borderColor: "var(--tw-gray-300)",
         "& .ant-select-selection-wrap": {

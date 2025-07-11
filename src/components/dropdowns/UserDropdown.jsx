@@ -18,7 +18,6 @@ const UserDropdown = ({ value, onChange, ...rest }) => {
         { label: "User B", value: "UserB" },
         { label: "User C", value: "UserC" },
       ]}
-      mode="multiple"
       placeholder={"Please select"}
       {...rest}
     />
