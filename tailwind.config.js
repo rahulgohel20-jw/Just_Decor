@@ -439,12 +439,17 @@ module.exports = {
           from: { height: "var(--radix-collapsible-content-height)" },
           to: { height: "o" },
         },
+        wave: {
+          "0%, 100%": { transform: "scaleY(1)" },
+          "50%": { transform: "scaleY(2)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
+        wave: "wave 1s infinite ease-in-out",
       },
       //end
     },

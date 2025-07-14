@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { DatePicker } from "antd";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
 import ContactDropdown from "@/components/dropdowns/ContactDropdown";
 import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
 import EventTypeDropdown from "@/components/dropdowns/EventTypeDropdown";
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
-import { useState } from "react";
+import SpeechToText from "@/components/form-inputs/SpeechToText";
 
 const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -71,16 +72,13 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
         {/* Venue */}
         <div className="flex flex-col">
           <label className="form-label">Venue</label>
-          <div className="relative">
-            <input
-              className="w-full border-2 border-primary rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
-              type="text"
-              name="venue"
-              placeholder="Venue"
-              value={formData.venue}
-              onChange={onInputChange}
-            />
-          </div>
+          <SpeechToText
+            type="text"
+            name="venue"
+            placeholder="Venue"
+            value={formData.venue}
+            onChange={onInputChange}
+          />
         </div>
 
         {/* Event Type */}
