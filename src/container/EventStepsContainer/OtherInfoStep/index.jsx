@@ -11,14 +11,14 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
         <div className="flex flex-col gap-y-2 gap-x-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label"> Name</label>
+              <label className="form-label"> Instagram Link</label>
               <div className="input">
-                <i className="ki-filled ki-autobrightness"></i>
+                <i className="ki-filled ki-instagram"></i>
                 <input
                   className="h-full"
                   type="text"
                   name="groom_name"
-                  placeholder="Groom Name"
+                  placeholder="Instagram Link"
                   value={formData.groom_name}
                   onChange={handleInputChange}
                 />
@@ -64,14 +64,14 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
         <div className="flex flex-col gap-y-2 gap-x-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label"> Name</label>
+              <label className="form-label"> Instagram Link</label>
               <div className="input">
-                <i className="ki-filled ki-autobrightness"></i>
+                <i className="ki-filled ki-instagram"></i>
                 <input
                   className="h-full"
                   type="text"
                   name="bride_name"
-                  placeholder="Bride Name"
+                  placeholder="Instagram Link"
                   value={formData.bride_name}
                   onChange={handleInputChange}
                 />

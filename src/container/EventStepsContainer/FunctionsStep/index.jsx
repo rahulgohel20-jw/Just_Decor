@@ -48,9 +48,9 @@ const FunctionsStep = ({ formData, setFormData }) => {
             key={index}
           >
             <div className="flex flex-col gap-y-2 gap-x-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-y-2 gap-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Function Type</label>
+                  <label className="form-label">Function Name</label>
                   <FunctionTypeDropdown
                     value={func.customer_id}
                     onChange={(e) => handleInputChange(e, index)}
@@ -58,20 +58,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="form-label">Person</label>
-                  <div className="input">
-                    <i className="ki-filled ki-autobrightness"></i>
-                    <input
-                      className="h-full"
-                      type="number"
-                      name="person"
-                      placeholder="person"
-                      value={func.person}
-                      onChange={(e) => handleInputChange(e, index)}
-                    />
-                  </div>
-                </div>
+                
 
                 <div className="flex flex-col">
                   <label className="form-label">Start Date</label>
@@ -101,46 +88,6 @@ const FunctionsStep = ({ formData, setFormData }) => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="form-label">Rate</label>
-                  <div className="input">
-                    <i className="ki-filled ki-autobrightness"></i>
-                    <input
-                      className="h-full"
-                      type="number"
-                      name="rate"
-                      placeholder="Rate"
-                      value={func.rate}
-                      onChange={(e) => handleInputChange(e, index)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="form-label">Raw Material Time</label>
-                  <DatePicker
-                    className="input"
-                    showTime
-                    value={func.raw_material_time}
-                    onChange={(date) =>
-                      handleInputChange(
-                        { target: { value: date, name: "raw_material_time" } },
-                        index
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="form-label">Address</label>
-                  <Textarea
-                    className="textarea h-full"
-                    placeholder="Description"
-                    rows={3}
-                    value={func.address}
-                    onChange={(e) => handleInputChange(e, index)}
-                  />
-                </div>
-                <div className="flex flex-col">
                   <label className="form-label">Notes</label>
                   <Textarea
                     className="textarea h-full"
@@ -150,6 +97,19 @@ const FunctionsStep = ({ formData, setFormData }) => {
                     onChange={(e) => handleInputChange(e, index)}
                   />
                 </div>
+
+                
+                <div className="flex flex-col">
+                  <label className="form-label">Location</label>
+                  <Textarea
+                    className="textarea h-full"
+                    placeholder="Description"
+                    rows={3}
+                    value={func.address}
+                    onChange={(e) => handleInputChange(e, index)}
+                  />
+                </div>
+                
               </div>
               <div className="flex justify-end mt-2">
                 <button
