@@ -122,7 +122,8 @@ import { OfficeSetting } from "@/pages/Leave/settings/offices-settings/OfficeSet
 
 import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
 import CalendarPage from "@/pages/Event/CalendarPage";
-import CreateEventPage from "../pages/Event/CreateEventPage";
+import CreateEventPage from "@/pages/Event/CreateEventPage";
+import EventListPage from "@/pages/Event/EventListPage";
 
 const AppRoutingSetup = () => {
   return (
@@ -152,6 +153,7 @@ const AppRoutingSetup = () => {
 
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
 
           {/* Tasks routes */}

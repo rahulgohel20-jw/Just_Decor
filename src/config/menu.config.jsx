@@ -14,7 +14,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Event",
-        path: "/add-event",
+        path: "/event",
       },
     ],
   },
