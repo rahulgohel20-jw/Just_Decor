@@ -97,7 +97,7 @@ const CreateEventPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs items={[{ title: "Create Events" }]} />
         </div>
         <StepsComponent
           current={current}
