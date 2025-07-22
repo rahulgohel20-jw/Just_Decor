@@ -97,12 +97,14 @@ export const columns = [
           </Tooltip>
 
           <Tooltip title="Menu Preparation">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Menu Preparation"
-            >
-              <i className="ki-filled ki-notepad text-warning"></i>
-            </button>
+            <Link to="/menu-preparation">
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Menu Preparation"
+              >
+                <i className="ki-filled ki-notepad text-warning"></i>
+              </button>
+            </Link>
           </Tooltip>
 
           <Tooltip title="Menu Allocation">
@@ -176,12 +178,13 @@ export const columns = [
               >
                 <i className="ki-filled ki-trash text-danger"></i> Remove
               </button>
-              <button
-                className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-start"
+              <Link
+                to="/menu-preparation"
+                className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
                 onClick={closeMenu}
               >
                 <i className="ki-filled ki-notepad text-warning"></i> Menu Prep
-              </button>
+              </Link>
               <button
                 className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-start"
                 onClick={closeMenu}
