@@ -124,6 +124,7 @@ import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
 import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
+import EventPreparationPage from "@/pages/Event/EventPreparationPage";
 
 const AppRoutingSetup = () => {
   return (
@@ -155,6 +156,7 @@ const AppRoutingSetup = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
+          <Route path="/menu-preparation" element={<EventPreparationPage />} />
 
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
