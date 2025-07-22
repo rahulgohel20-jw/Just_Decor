@@ -275,7 +275,7 @@ const CompanyDetails = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -284,7 +284,7 @@ const CompanyDetails = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
+                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call text-success me-2"></i>+91 9988776655</div>
                         <div className="flex gap-2">
                           <button
                             className="btn btn-sm btn-icon btn-clear btn-success"
@@ -309,7 +309,7 @@ const CompanyDetails = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -318,7 +318,7 @@ const CompanyDetails = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
+                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call text-success me-2"></i>+91 9988776655</div>
                         <div className="flex gap-2">
                           <button
                             className="btn btn-sm btn-icon btn-clear btn-success"

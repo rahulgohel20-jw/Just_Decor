@@ -337,19 +337,19 @@ const ProductListDetail = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-primary"
                             title="Edit"
                           >
                             <KeenIcon icon="notepad-edit" />
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
@@ -417,19 +417,19 @@ const ProductListDetail = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-primary"
                             title="Edit"
                           >
                             <KeenIcon icon="notepad-edit" />
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
@@ -497,19 +497,19 @@ const ProductListDetail = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-primary"
                             title="Edit"
                           >
                             <KeenIcon icon="notepad-edit" />
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
