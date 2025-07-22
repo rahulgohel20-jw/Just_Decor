@@ -61,39 +61,39 @@ module.exports = {
                 clarity: "rgba(0, 91, 168, 0.20)",
               },
               success: {
-                default: "#17C653",
-                active: "#04B440",
-                light: "#EAFFF1",
-                clarity: "rgba(23, 198, 83, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(40, 167, 69, 1)", // #28A745
+                active: "rgba(33, 136, 56, 1)", // #218838
+                light: "rgba(230, 244, 234, 1)", // #E6F4EA
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(40, 167, 69, 0.20)",
               },
               info: {
-                default: "#7239EA",
-                active: "#5014D0",
-                light: "#F8F5FF",
-                clarity: "rgba(114, 57, 234, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(23, 162, 184, 1)", // #17A2B8
+                active: "rgba(17, 122, 139, 1)", // #117A8B
+                light: "rgba(230, 246, 248, 1)", // #E6F6F8
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(23, 162, 184, 0.20)",
               },
               danger: {
-                default: "#BF2225",
-                active: "#991B1E",
-                light: "#F9E9E9",
+                default: "rgba(191, 34, 37, 1)", // #BF2225
+                active: "rgba(153, 27, 30, 1)", // #991B1E
+                light: "rgba(253, 235, 236, 1)", // #FDEBEC
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(191, 34, 37, 0.20)",
-                inverse: "#ffffff",
               },
               warning: {
-                default: "#F6B100",
-                active: "#DFA000",
-                light: "#FFF8DD",
-                clarity: "rgba(246, 177, 0, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(255, 193, 7, 1)", // #FFC107
+                active: "rgba(224, 168, 0, 1)", // #e0a800
+                light: "rgba(255, 248, 225, 1)", // #FFF8E1
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(255, 193, 7, 0.20)",
               },
               dark: {
-                default: "#1E2129",
-                active: "#111318",
-                light: "#F9F9F9",
+                default: "rgba(30, 33, 41, 1)", // #1E2129
+                active: "rgba(24, 27, 34, 1)", // #181B22
+                light: "rgba(230, 230, 232, 1)", // #E6E6E8
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(30, 33, 41, 0.20)",
-                inverse: "#ffffff",
               },
               light: {
                 default: "#ffffff",
@@ -108,6 +108,19 @@ module.exports = {
                 light: "#F9F9F9",
                 clarity: "rgba(249, 249, 249, 0.20)",
                 inverse: "#4B5675",
+
+                //default: "rgba(108, 117, 125, 1)", // #6C757D
+                //active: "rgba(84, 91, 98, 1)", // #545B62
+                //light: "rgba(241, 243, 244, 1)", // #F1F3F4
+                //inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                //clarity: "rgba(108, 117, 125, 0.20)",
+              },
+              indigo: {
+                default: "rgba(102, 16, 242, 1)", // #6610F2
+                active: "rgba(82, 13, 194, 1)", // #520DC2
+                light: "rgba(239, 230, 252, 1)", // #EFE6FC
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(102, 16, 242, 0.20)",
               },
             },
             // dark theme

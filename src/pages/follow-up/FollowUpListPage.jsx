@@ -67,7 +67,7 @@ const FollowUpListPage = () => {
                   <div className="flex flex-wrap items-center gap-3">
                     <img
                       src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
-                      className="rounded-md max-h-10 max-w-full shrink-0"
+                      className="rounded-full max-h-10 max-w-full shrink-0"
                       alt=""
                     />
                     <div className="grid grid-col">
@@ -109,39 +109,39 @@ const FollowUpListPage = () => {
               <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-4">
                   <p className="text-md">
-                    <i className="ki-filled ki-user me-2"></i>
+                    <i className="ki-filled ki-user text-success me-2"></i>
                     {item.name}
                   </p>
                   <p className="text-md">
-                    <i className="ki-filled ki-ki-filled ki-sms me-2"></i>
+                    <i className="ki-filled ki-ki-filled ki-sms text-success me-2"></i>
                     {item.email}
                   </p>
                   <p className="text-md">
-                    <i className="ki-filled ki-call me-2"></i>
+                    <i className="ki-filled ki-call text-success me-2"></i>
                     {item.mobile}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-primary"
                     title="Edit"
                   >
                     <KeenIcon icon="notepad-edit" />
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-info"
                     title="Close"
                   >
                     <KeenIcon icon="check-circle" />
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-warning"
                     title="Remark"
                   >
                     <i className="ki-filled ki-tab-tablet"></i>
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-danger"
                     title="Delete"
                   >
                     <KeenIcon icon="trash" />
@@ -157,7 +157,7 @@ const FollowUpListPage = () => {
                   <div className="flex flex-wrap items-center gap-3">
                     <img
                       src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
-                      className="rounded-md max-h-10 max-w-full shrink-0"
+                      className="rounded-full max-h-10 max-w-full shrink-0"
                       alt=""
                     />
                     <div className="grid grid-col">
@@ -199,39 +199,39 @@ const FollowUpListPage = () => {
               <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-4">
                   <p className="text-md">
-                    <i className="ki-filled ki-user me-2"></i>
+                    <i className="ki-filled ki-user text-success me-2"></i>
                     {item.name}
                   </p>
                   <p className="text-md">
-                    <i className="ki-filled ki-ki-filled ki-sms me-2"></i>
+                    <i className="ki-filled ki-ki-filled ki-sms text-success me-2"></i>
                     {item.email}
                   </p>
                   <p className="text-md">
-                    <i className="ki-filled ki-call me-2"></i>
+                    <i className="ki-filled ki-call text-success me-2"></i>
                     {item.mobile}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-primary"
                     title="Edit"
                   >
                     <KeenIcon icon="notepad-edit" />
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-info"
                     title="Close"
                   >
                     <KeenIcon icon="check-circle" />
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-warning"
                     title="Remark"
                   >
                     <i className="ki-filled ki-tab-tablet"></i>
                   </button>
                   <button
-                    className="btn btn-sm btn-icon btn-clear btn-light"
+                    className="btn btn-sm btn-icon btn-clear btn-danger"
                     title="Delete"
                   >
                     <KeenIcon icon="trash" />
