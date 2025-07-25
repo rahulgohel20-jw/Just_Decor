@@ -6,8 +6,11 @@ import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
 import EventTypeDropdown from "@/components/dropdowns/EventTypeDropdown";
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
+import useStyles from "./style";
 
 const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
+  const classes = useStyles();
+
   const [showCustomerModal, setShowCustomerModal] = useState(false);
 
   const handleAddClick = () => {
@@ -17,7 +20,7 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
   // Example handler for plus buttons
 
   return (
-    <div className="flex flex-col gap-y-2 gap-x-4">
+    <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.customStyle}`}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-5">
         {/* Customer Name */}
         <div className="flex flex-col">
