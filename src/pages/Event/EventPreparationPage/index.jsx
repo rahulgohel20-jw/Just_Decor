@@ -3,9 +3,10 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
 import { Eye, EyeOff } from "lucide-react";
+import useStyles from "./style";
 
 const EventPreparationPage = () => {
-  useEffect(() => {}, []);
+  const classes = useStyles();
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -79,7 +80,9 @@ const EventPreparationPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Preparation" }]} />
         </div>
-        <div className="grid grid-cols-11 lg:grid-cols-11 border rounded-lg gap-4 p-4">
+        <div
+          className={`grid grid-cols-11 lg:grid-cols-11 border rounded-lg gap-4 p-4 ${classes.customStyle}`}
+        >
           {/* Sidebar: Categories */}
           <div className="col-span-2 border rounded-lg h-96 flex flex-col bg-gray-50">
             <input
