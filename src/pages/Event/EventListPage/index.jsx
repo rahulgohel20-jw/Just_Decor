@@ -1,12 +1,15 @@
 import { Fragment, useEffect, useState } from "react";
+import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
+import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
-import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
-import { Tooltip } from "antd";
+import useStyle from "./style";
 
 const EventListPage = () => {
+  const classes = useStyle();
+
   const [tableData, setTableData] = useState();
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -56,7 +59,9 @@ const EventListPage = () => {
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div
+            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
+          >
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
