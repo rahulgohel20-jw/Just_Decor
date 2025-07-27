@@ -18,21 +18,21 @@ const EventListPage = () => {
         proforma_invoice: (
           <Tooltip className="cursor-pointer" title="Proforma Invoice">
             <div className="flex justify-center items-center w-full">
-              <FileText className="w-5 h-5 text-green-600" />
+              <FileText className="w-5 h-5 text-primary" />
             </div>
           </Tooltip>
         ),
         invoice: (
           <Tooltip className="cursor-pointer" title="Invoice">
             <div className="flex justify-center items-center w-full">
-              <Receipt className="w-5 h-5 text-green-600" />
+              <Receipt className="w-5 h-5 text-success" />
             </div>
           </Tooltip>
         ),
         quotation: (
           <Tooltip className="cursor-pointer" title="Quotation">
             <div className="flex justify-center items-center w-full">
-              <BadgeDollarSign className="w-5 h-5 text-blue-500" />
+              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
             </div>
           </Tooltip>
         ),

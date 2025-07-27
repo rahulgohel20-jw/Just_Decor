@@ -6,6 +6,7 @@ import AddContact from "@/partials/modals/add-contact/AddContact";
 import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
 import { Link } from "react-router-dom";
+import { Tooltip } from "antd";
 
 const ContactListPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,33 +33,36 @@ const ContactListPage = () => {
         ...item,
         action: (
           <div className="flex items-center justify-center gap-1">
-            <Link
-              to={`/contacts/details`}
-              className="btn btn-sm btn-icon btn-clear"
-              title="View"
-            >
-              <i className="ki-filled ki-eye"></i>
-            </Link>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Edit"
-              onClick={() => handleEdit(item)}
-            >
-              <i className="ki-filled ki-notepad-edit"></i>
-            </button>
-            {/* <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            > */}
-            <Confirmation
-              trigger={<i className="ki-filled ki-trash"></i>}
-              content="Do you really want to delete?"
-              yesText="Proceed"
-              noText="Dismiss"
-              onConfirm={() => console.log("User confirmed")}
-              onCancel={() => console.log("User cancelled")}
-            ></Confirmation>
-            {/* </button> */}
+            <Tooltip className="cursor-pointer" title="View">
+              <Link
+                to={`/contacts/details`}
+                className="btn btn-sm btn-icon btn-clear"
+                title="View"
+              >
+                <i className="ki-filled ki-eye text-success"></i>
+              </Link>
+            </Tooltip>
+            <Tooltip className="cursor-pointer" title="Edit">
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Edit"
+                onClick={() => handleEdit(item)}
+              >
+                <i className="ki-filled ki-notepad-edit text-primary"></i>
+              </button>
+            </Tooltip>
+            <Tooltip className="cursor-pointer" title="Delete">
+              <span>
+                <Confirmation
+                  trigger={<i className="ki-filled ki-trash text-danger"></i>}
+                  content="Do you really want to delete?"
+                  yesText="Proceed"
+                  noText="Dismiss"
+                  onConfirm={() => console.log("User confirmed")}
+                  onCancel={() => console.log("User cancelled")}
+                ></Confirmation>
+              </span>
+            </Tooltip>
           </div>
         ),
       };

@@ -5,8 +5,8 @@ const LeadLeftComponent = () => {
       <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
         Lead Details
         <CommonHexagonBadge
-          stroke="stroke-success-clarity"
-          fill="fill-success-light"
+          stroke="stroke-success"
+          fill="fill-light"
           size="size-[38px]"
           badge={<i className="ki-filled ki-ki-filled ki-abstract-18 text-lg text-success"></i>}
         />
@@ -58,8 +58,8 @@ const LeadLeftComponent = () => {
       <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
         Contact Details
         <CommonHexagonBadge
-          stroke="stroke-success-clarity"
-          fill="fill-success-light"
+          stroke="stroke-success"
+          fill="fill-light"
           size="size-[38px]"
           badge={<i className="ki-filled ki-book-open text-lg text-success"></i>}
         />
@@ -78,13 +78,12 @@ const LeadLeftComponent = () => {
           <div className="text-sm text-gray-700">+91 9876554321</div>
         </div>
       </div>
-
       <hr className="border-t border-gray-200 my-5" />
       <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
         Company Details
         <CommonHexagonBadge
-          stroke="stroke-success-clarity"
-          fill="fill-success-light"
+          stroke="stroke-success"
+          fill="fill-light"
           size="size-[38px]"
           badge={<i className="ki-filled ki-bank text-lg text-success"></i>}
         />

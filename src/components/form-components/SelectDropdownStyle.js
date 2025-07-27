@@ -3,8 +3,6 @@ import { makeStyles } from "@mui/styles";
 const useStyles = makeStyles({
   formGrp: {
     "& .ant-select": {
-      // minWidth: "100%",
-      // maxWidth: 240,
       width: "100%",
       height: "40px",
       "& .ant-select-selector": {
@@ -15,10 +13,10 @@ const useStyles = makeStyles({
           },
           "& .ant-select-selection-overflow": {
             flexWrap: "nowrap",
-            width: "calc(100% - 30px)",
             overflow: "auto",
             MsOverflowStyle: "none",
             scrollbarWidth: "none",
+            flex: "unset",
             "&::-webkit-scrollbar": {
               display: "none",
             },
@@ -26,8 +24,12 @@ const useStyles = makeStyles({
           },
           "& .ant-select-selection-placeholder": {
             color: "var(--tw-gray-700)",
-            fontWeight: "500",
+            paddingInlineEnd: "6px",
             fontSize: "0.8125rem",
+            fontWeight: "500",
+            lineHeight: "36px",
+            position: "unset",
+            transform: "unset",
           },
         },
       },

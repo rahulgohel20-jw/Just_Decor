@@ -5,6 +5,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Confirmation } from "@/components/confirmation/confirmation";
 import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
+import { Tooltip } from "antd";
 
 const FollowUpListPage = () => {
   const image = (
@@ -49,8 +50,8 @@ const FollowUpListPage = () => {
   const renderItem = (item, index) => {
     return (
       <>
-      <style>
-        {`
+        <style>
+          {`
           .user-access-bg {
             background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
           }
@@ -58,7 +59,7 @@ const FollowUpListPage = () => {
             background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
           }
         `}
-      </style>
+        </style>
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="card min-w-full">
             <div className="flex flex-col flex-1">
@@ -98,12 +99,14 @@ const FollowUpListPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div
-                    className="badge badge-outline badge-secondary rounded-full badge-lg"
-                    title="Status"
-                  >
-                    {item.status}
-                  </div>
+                  <Tooltip title="Follow Status">
+                    <div
+                      className="badge badge-outline badge-secondary rounded-full badge-lg"
+                      title="Status"
+                    >
+                      {item.status}
+                    </div>
+                  </Tooltip>
                 </div>
               </div>
               <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -122,30 +125,38 @@ const FollowUpListPage = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-primary"
-                    title="Edit"
-                  >
-                    <KeenIcon icon="notepad-edit" />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-info"
-                    title="Close"
-                  >
-                    <KeenIcon icon="check-circle" />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-warning"
-                    title="Remark"
-                  >
-                    <i className="ki-filled ki-tab-tablet"></i>
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-danger"
-                    title="Delete"
-                  >
-                    <KeenIcon icon="trash" />
-                  </button>
+                  <Tooltip title="Edit">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-primary"
+                      title="Edit"
+                    >
+                      <KeenIcon icon="notepad-edit" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Close">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-info"
+                      title="Close"
+                    >
+                      <KeenIcon icon="check-circle" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Remark">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-warning"
+                      title="Remark"
+                    >
+                      <i className="ki-filled ki-tab-tablet"></i>
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-danger"
+                      title="Delete"
+                    >
+                      <KeenIcon icon="trash" />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -188,12 +199,14 @@ const FollowUpListPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div
-                    className="badge badge-outline badge-success rounded-full badge-lg"
-                    title="Status"
-                  >
-                    Success
-                  </div>
+                  <Tooltip title="Follow Status">
+                    <div
+                      className="badge badge-outline badge-success rounded-full badge-lg"
+                      title="Status"
+                    >
+                      Success
+                    </div>
+                  </Tooltip>
                 </div>
               </div>
               <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -212,104 +225,43 @@ const FollowUpListPage = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-primary"
-                    title="Edit"
-                  >
-                    <KeenIcon icon="notepad-edit" />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-info"
-                    title="Close"
-                  >
-                    <KeenIcon icon="check-circle" />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-warning"
-                    title="Remark"
-                  >
-                    <i className="ki-filled ki-tab-tablet"></i>
-                  </button>
-                  <button
-                    className="btn btn-sm btn-icon btn-clear btn-danger"
-                    title="Delete"
-                  >
-                    <KeenIcon icon="trash" />
-                  </button>
+                  <Tooltip title="Edit">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-primary"
+                      title="Edit"
+                    >
+                      <KeenIcon icon="notepad-edit" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Close">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-info"
+                      title="Close"
+                    >
+                      <KeenIcon icon="check-circle" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Remark">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-warning"
+                      title="Remark"
+                    >
+                      <i className="ki-filled ki-tab-tablet"></i>
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <button
+                      className="btn btn-sm btn-icon btn-clear btn-danger"
+                      title="Delete"
+                    >
+                      <KeenIcon icon="trash" />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* <div
-          key={index}
-          className="flex items-center justify-between border border-gray-200 rounded-xl gap-2 px-4 py-4 bg-secondary-clarity"
-          >
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <span className="text-sm font-medium hover:text-primary-active mb-px">
-                Status:{item.status}
-              </span>
-              <span className="text-sm font-medium hover:text-primary-active ms-2 mb-px">
-                Type:{item.type}
-              </span>
-            </div>
-            <div className="ms-2 flex flex-row">
-              <span className="text-sm font-medium hover:text-primary-active mb-px">
-                {item.date_of_followup}
-              </span>
-            </div>
-            <div className="ms-2 flex flex-row">
-              <span className="text-sm font-medium hover:text-primary-active mb-px">
-                <KeenIcon icon="user" />
-                {item.name}
-              </span>
-              <span className="text-sm font-medium text-gray ms-2 hover:text-primary-active mb-px">
-                <KeenIcon icon="call" />
-                {item.mobile}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center rounded-circle gap-3.5">
-            <img
-              src={toAbsoluteUrl(`/media/avatars/${item.logo}`)}
-              className="w-10 shrink-0"
-              alt=""
-            />
-            <div className="flex flex-col">
-              <a
-                href="#"
-                className="text-sm font-medium text-gray-900 hover:text-primary-active mb-px"
-              >
-                {item.name}
-              </a>
-              <span className="text-2sm text-gray-700">{item.email}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-5"></div>
-          <div className="flex items-center gap-5">
-            {item.label && (
-              <span className="badge badge-sm badge-success badge-outline">
-                Primary
-              </span>
-            )}
-            <div className="flex gap-0.5">
-              <div className="btn btn-sm btn-icon btn-clear btn-light">
-                <KeenIcon icon="notepad-edit" />
-              </div>
-              <div className="btn btn-sm btn-icon btn-clear btn-light">
-                <KeenIcon icon="check-circle" />
-              </div>
-              <div className="btn btn-sm btn-icon btn-clear btn-light">
-                <KeenIcon icon="trash" />
-              </div>
-              <div className="btn btn-sm btn-icon btn-clear btn-info">
-                <i className="ki-outline ki-bookmark fs-2x"></i>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </>
     );
   };

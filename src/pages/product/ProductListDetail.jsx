@@ -7,6 +7,7 @@ import { CommonHexagonBadge } from "@/partials/common";
 
 import { Navbar, NavbarActions } from "@/partials/navbar";
 import { PageMenu } from "@/pages/public-profile";
+import { Tooltip } from "antd";
 const ProductListDetail = () => {
   const image = (
     <div className="flex items-center justify-center rounded-full border-2 border-success-clarity size-[100px] shrink-0 bg-light">
@@ -139,16 +140,14 @@ const ProductListDetail = () => {
                 onClick={handleModalOpen}
                 title="Edit Product"
               >
-                <i className="ki-filled ki-notepad-edit"></i> Edit
-                Product
+                <i className="ki-filled ki-notepad-edit"></i> Edit Product
               </button>
               <button
                 type="button"
                 className="btn btn-sm btn-danger"
                 title="Delete Product"
               >
-                <i className="ki-filled ki-trash"></i> Delete
-                Product
+                <i className="ki-filled ki-trash"></i> Delete Product
               </button>
             </div>
           </div>
@@ -159,8 +158,8 @@ const ProductListDetail = () => {
                 <h6 className="flex items-center justify-between font-bold text-gray-900 mb-3">
                   Product Details
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-success"
+                    fill="fill-light"
                     size="size-[38px]"
                     badge={
                       <i className="ki-filled ki-bookmark text-lg text-success"></i>
@@ -174,7 +173,9 @@ const ProductListDetail = () => {
                       className="max-h-16 max-w-full shrink-0"
                       alt=""
                     />
-                    <div className="text-2xs text-gray-500">No Product Image</div>
+                    <div className="text-2xs text-gray-500">
+                      No Product Image
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <i className="ki-filled ki-user text-success"></i>
@@ -270,7 +271,10 @@ const ProductListDetail = () => {
                 {/* Filter */}
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <h4 className="font-semibold text-gray-900 flex items-center">
-                    Contact Related to Products <span className="ms-2 badge badge-sm badge-outline shrink-0 px-2">Total lead: 2</span>
+                    Contact Related to Products{" "}
+                    <span className="ms-2 badge badge-sm badge-outline shrink-0 px-2">
+                      Total lead: 2
+                    </span>
                   </h4>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="filItems relative">
@@ -319,13 +323,17 @@ const ProductListDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
-                          <div
-                            className="badge badge-outline badge-secondary rounded-full badge-lg"
-                            title="Client Demo"
-                          >
-                            Client Demo
-                          </div>
+                          <h4 className="text-base font-medium text-success">
+                            &#8377;3,000
+                          </h4>
+                          <Tooltip title="Status">
+                            <div
+                              className="badge badge-outline badge-secondary rounded-full badge-lg"
+                              title="Client Demo"
+                            >
+                              Client Demo
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -336,30 +344,38 @@ const ProductListDetail = () => {
                           <p className="text-sm font-medium">Deep Jain</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-primary"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-light"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -399,13 +415,17 @@ const ProductListDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
-                          <div
-                            className="badge badge-outline badge-secondary rounded-full badge-lg"
-                            title="Client Demo"
-                          >
-                            Client Demo
-                          </div>
+                          <h4 className="text-base font-medium text-success">
+                            &#8377;3,000
+                          </h4>
+                          <Tooltip title="Status">
+                            <div
+                              className="badge badge-outline badge-secondary rounded-full badge-lg"
+                              title="Client Demo"
+                            >
+                              Client Demo
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -416,30 +436,38 @@ const ProductListDetail = () => {
                           <p className="text-sm font-medium">Deep Jain</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-primary"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-light"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -479,13 +507,17 @@ const ProductListDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <h4 className="text-base font-medium text-success">&#8377;3,000</h4>
-                          <div
-                            className="badge badge-outline badge-secondary rounded-full badge-lg"
-                            title="Client Demo"
-                          >
-                            Client Demo
-                          </div>
+                          <h4 className="text-base font-medium text-success">
+                            &#8377;3,000
+                          </h4>
+                          <Tooltip title="Status">
+                            <div
+                              className="badge badge-outline badge-secondary rounded-full badge-lg"
+                              title="Client Demo"
+                            >
+                              Client Demo
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -496,30 +528,38 @@ const ProductListDetail = () => {
                           <p className="text-sm font-medium">Deep Jain</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-primary"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-light"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>

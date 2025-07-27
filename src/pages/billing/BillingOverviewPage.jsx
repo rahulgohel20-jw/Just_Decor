@@ -30,9 +30,11 @@ const BillingOverviewPage = () => {
               <div className="flex items-center gap-4">
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
-                  fill="fill-success-light"
+                  fill="fill-light"
                   size="size-[50px]"
-                  badge={<i className="ki-filled ki-wallet text-xl text-success"></i>}
+                  badge={
+                    <i className="ki-filled ki-wallet text-xl text-success"></i>
+                  }
                 />
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center flex-wrap gap-2.5">
@@ -63,7 +65,7 @@ const BillingOverviewPage = () => {
               <div className="flex items-center gap-4">
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
-                  fill="fill-success-light"
+                  fill="fill-light"
                   size="size-[50px]"
                   badge={
                     <KeenIcon
@@ -520,7 +522,7 @@ const BillingOverviewPage = () => {
                         1,999/user
                       </span>
                       <span className="text-2sm text-2sm text-gray-700">
-                      Per year
+                        Per year
                       </span>
                     </div>
                   </div>

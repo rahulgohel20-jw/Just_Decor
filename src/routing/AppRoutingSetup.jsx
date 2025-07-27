@@ -175,13 +175,11 @@ const AppRoutingSetup = () => {
           <Route path="leavetype" element={<LeaveType />}></Route>
           <Route path="/myattendance" element={<Myattendance />}></Route>
           <Route path="/leave-dashboard" element={<Leavedashboard />}></Route>
-
           <Route
             path="/attendance-setting"
             element={<AttendanceSetting></AttendanceSetting>}
           ></Route>
           <Route path="officesetting" element={<OfficeSetting />}></Route>
-
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route
@@ -206,7 +204,6 @@ const AppRoutingSetup = () => {
           {/* Billing routes */}
           <Route path="/billing/overview" element={<BillingOverviewPage />} />
           <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
-
           {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
