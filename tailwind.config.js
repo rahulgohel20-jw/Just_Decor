@@ -56,42 +56,48 @@ module.exports = {
               primary: {
                 default: "rgba(0, 91, 168, 1)", // #005BA8
                 active: "rgba(0, 73, 134, 1)", // #004986
-                light: "rgba(230, 239, 246, 1)", // #e6eff6
+                light: "rgba(51, 124, 185, 1)", // #e6eff6
+                lighter: "rgba(230, 239, 246, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(0, 91, 168, 0.20)",
               },
               success: {
                 default: "rgba(40, 167, 69, 1)", // #28A745
                 active: "rgba(33, 136, 56, 1)", // #218838
-                light: "rgba(230, 244, 234, 1)", // #E6F4EA
+                light: "rgba(92, 209, 120, 1)", // #E6F4EA
+                lighter: "rgba(230, 244, 234, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(40, 167, 69, 0.20)",
               },
               info: {
                 default: "rgba(23, 162, 184, 1)", // #17A2B8
                 active: "rgba(17, 122, 139, 1)", // #117A8B
-                light: "rgba(230, 246, 248, 1)", // #E6F6F8
+                light: "rgba(88, 197, 211, 1)", // #E6F6F8
+                lighter: "rgba(230, 246, 248, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(23, 162, 184, 0.20)",
               },
               danger: {
                 default: "rgba(191, 34, 37, 1)", // #BF2225
                 active: "rgba(153, 27, 30, 1)", // #991B1E
-                light: "rgba(253, 235, 236, 1)", // #FDEBEC
+                light: "rgba(224, 92, 94, 1)", // #FDEBEC
+                lighter: "rgba(253, 235, 236, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(191, 34, 37, 0.20)",
               },
               warning: {
                 default: "rgba(255, 193, 7, 1)", // #FFC107
                 active: "rgba(224, 168, 0, 1)", // #e0a800
-                light: "rgba(255, 248, 225, 1)", // #FFF8E1
+                light: "rgba(255, 212, 84, 1)", // #FFF8E1
+                lighter: "rgba(255, 248, 225, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(255, 193, 7, 0.20)",
               },
               dark: {
                 default: "rgba(30, 33, 41, 1)", // #1E2129
                 active: "rgba(24, 27, 34, 1)", // #181B22
-                light: "rgba(230, 230, 232, 1)", // #E6E6E8
+                light: "rgba(56, 59, 68, 1)", // #E6E6E8
+                lighter: "rgba(230, 230, 232, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(30, 33, 41, 0.20)",
               },
@@ -99,6 +105,7 @@ module.exports = {
                 default: "#ffffff",
                 active: "#FCFCFC",
                 light: "#ffffff",
+                // lighter: "rgba(255, 255, 255, 1)", // #e6eff6
                 clarity: "rgba(255, 255, 255, 0.20)",
                 inverse: "#4B5675",
               },
@@ -112,13 +119,15 @@ module.exports = {
                 //default: "rgba(108, 117, 125, 1)", // #6C757D
                 //active: "rgba(84, 91, 98, 1)", // #545B62
                 //light: "rgba(241, 243, 244, 1)", // #F1F3F4
+                //lighter: "rgba(241, 243, 244, 1)", // #F1F3F4
                 //inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 //clarity: "rgba(108, 117, 125, 0.20)",
               },
               indigo: {
                 default: "rgba(102, 16, 242, 1)", // #6610F2
                 active: "rgba(82, 13, 194, 1)", // #520DC2
-                light: "rgba(239, 230, 252, 1)", // #EFE6FC
+                light: "rgba(136, 86, 245, 1)", // #8856F5
+                lighter: "rgba(239, 230, 252, 1)", // #EFE6FC
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(102, 16, 242, 0.20)",
               },
@@ -135,37 +144,42 @@ module.exports = {
               primary: {
                 default: "rgba(0, 91, 168, 1)", // #005BA8
                 active: "rgba(0, 73, 134, 1)", // #004986
-                light: "rgba(230, 239, 246, 1)", // #e6eff6
+                light: "rgba(51, 124, 185, 1)", // #e6eff6
+                lighter: "rgba(230, 239, 246, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 clarity: "rgba(0, 91, 168, 0.20)",
               },
               success: {
-                default: "#00A261",
-                active: "#01BF73",
-                light: "#1F2623",
-                clarity: "rgba(0, 162, 97, 0.20);",
-                inverse: "#ffffff",
+                default: "rgba(40, 167, 69, 1)", // #28A745
+                active: "rgba(33, 136, 56, 1)", // #218838
+                light: "rgba(92, 209, 120, 1)", // #E6F4EA
+                lighter: "rgba(230, 244, 234, 1)", // #e6eff6
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(40, 167, 69, 0.20)",
               },
               info: {
-                default: "#883FFF",
-                active: "#9E63FF",
-                light: "#272134",
-                clarity: "rgba(136, 63, 255, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(23, 162, 184, 1)", // #17A2B8
+                active: "rgba(17, 122, 139, 1)", // #117A8B
+                light: "rgba(88, 197, 211, 1)", // #E6F6F8
+                lighter: "rgba(230, 246, 248, 1)", // #e6eff6
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(23, 162, 184, 0.20)",
               },
               danger: {
-                default: "#E42855",
-                active: "#FF3767",
-                light: "#302024",
-                clarity: "rgba(228, 40, 85, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(191, 34, 37, 1)", // #BF2225
+                active: "rgba(153, 27, 30, 1)", // #991B1E
+                light: "rgba(224, 92, 94, 1)", // #FDEBEC
+                lighter: "rgba(253, 235, 236, 1)", // #e6eff6
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(191, 34, 37, 0.20)",
               },
               warning: {
-                default: "#C59A00",
-                active: "#D9AA00",
-                light: "#242320",
-                clarity: "rgba(197, 154, 0, 0.20)",
-                inverse: "#ffffff",
+                default: "rgba(255, 193, 7, 1)", // #FFC107
+                active: "rgba(224, 168, 0, 1)", // #e0a800
+                light: "rgba(255, 212, 84, 1)", // #FFF8E1
+                lighter: "rgba(255, 248, 225, 1)", // #e6eff6
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(255, 193, 7, 0.20)",
               },
               dark: {
                 default: "#272A34",
@@ -275,6 +289,7 @@ module.exports = {
           DEFAULT: "var(--tw-primary)",
           active: "var(--tw-primary-active)",
           light: "var(--tw-primary-light)",
+          lighter: "var(--tw-primary-lighter)",
           clarity: "var(--tw-primary-clarity)",
           inverse: "var(--tw-primary-inverse)",
           foreground: "hsl(var(--primary-foreground))",
@@ -283,6 +298,7 @@ module.exports = {
           DEFAULT: "var(--tw-success)",
           active: "var(--tw-success-active)",
           light: "var(--tw-success-light)",
+          lighter: "var(--tw-success-lighter)",
           clarity: "var(--tw-success-clarity)",
           inverse: "var(--tw-success-inverse)",
         },
@@ -290,6 +306,7 @@ module.exports = {
           DEFAULT: "var(--tw-warning)",
           active: "var(--tw-warning-active)",
           light: "var(--tw-warning-light)",
+          lighter: "var(--tw-warning-lighter)",
           clarity: "var(--tw-warning-clarity)",
           inverse: "var(--tw-warning-inverse)",
         },
@@ -297,6 +314,7 @@ module.exports = {
           DEFAULT: "var(--tw-danger)",
           active: "var(--tw-danger-active)",
           light: "var(--tw-danger-light)",
+          lighter: "var(--tw-danger-lighter)",
           clarity: "var(--tw-danger-clarity)",
           inverse: "var(--tw-danger-inverse)",
         },
@@ -304,6 +322,7 @@ module.exports = {
           DEFAULT: "var(--tw-info)",
           active: "var(--tw-info-active)",
           light: "var(--tw-info-light)",
+          lighter: "var(--tw-info-lighter)",
           clarity: "var(--tw-info-clarity)",
           inverse: "var(--tw-info-inverse)",
         },
@@ -311,6 +330,7 @@ module.exports = {
           DEFAULT: "var(--tw-dark)",
           active: "var(--tw-dark-active)",
           light: "var(--tw-dark-light)",
+          lighter: "var(--tw-dark-lighter)",
           clarity: "var(--tw-dark-clarity)",
           inverse: "var(--tw-dark-inverse)",
         },
@@ -318,6 +338,7 @@ module.exports = {
           DEFAULT: "var(--tw-secondary)",
           active: "var(--tw-secondary-active)",
           light: "var(--tw-secondary-light)",
+          lighter: "var(--tw-secondary-lighter)",
           clarity: "var(--tw-secondary-clarity)",
           inverse: "var(--tw-secondary-inverse)",
           foreground: "hsl(var(--secondary-foreground))",

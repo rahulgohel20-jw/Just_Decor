@@ -112,7 +112,7 @@ const DropdownUser = ({ menuItemRef }) => {
               <MenuTitle>Settings</MenuTitle>
             </MenuLink>
           </MenuItem>
-          
+
           {/* activity */}
           <MenuItem>
             <MenuLink path="">
@@ -124,10 +124,10 @@ const DropdownUser = ({ menuItemRef }) => {
           </MenuItem>
 
           <MenuSeparator />
-          
+
           {/* language */}
           <DropdownUserLanguages menuItemRef={menuItemRef} />
-                
+
           {/* 
           <MenuItem
             toggle="dropdown"
@@ -271,7 +271,7 @@ const DropdownUser = ({ menuItemRef }) => {
   const buildFooter = () => {
     return (
       <div className="flex flex-col">
-        <div className="menu-item mb-0.5">
+        {/* <div className="menu-item mb-0.5">
           <div className="menu-link">
             <span className="menu-icon">
               <KeenIcon icon="moon" />
@@ -289,7 +289,7 @@ const DropdownUser = ({ menuItemRef }) => {
               />
             </label>
           </div>
-        </div>
+        </div> */}
 
         <div className="menu-item mb-0.5">
           <div className="menu-link" onClick={logout}>
@@ -304,12 +304,34 @@ const DropdownUser = ({ menuItemRef }) => {
 
         <MenuSeparator />
         <div className="flex items-center gap-2 px-4.5 my-2">
-          <a className="btn btn-sm btn-light w-full" href="#" title="Download App">
-            <img className="dark:hidden h-5" src={toAbsoluteUrl("/media/brand-logos/apple-black.svg")} alt="iOS app" /> 
-            <img className="light:hidden h-5" src={toAbsoluteUrl("/media/brand-logos/apple-white.svg")} alt="iOS app" /> iPhone
+          <a
+            className="btn btn-sm btn-light w-full"
+            href="#"
+            title="Download App"
+          >
+            <img
+              className="dark:hidden h-5"
+              src={toAbsoluteUrl("/media/brand-logos/apple-black.svg")}
+              alt="iOS app"
+            />
+            <img
+              className="light:hidden h-5"
+              src={toAbsoluteUrl("/media/brand-logos/apple-white.svg")}
+              alt="iOS app"
+            />{" "}
+            iPhone
           </a>
-          <a className="btn btn-sm btn-light w-full" href="#" title="Download App">
-            <img className="h-5" src={toAbsoluteUrl("/media/brand-logos/android.svg")} alt="Android app" /> Android
+          <a
+            className="btn btn-sm btn-light w-full"
+            href="#"
+            title="Download App"
+          >
+            <img
+              className="h-5"
+              src={toAbsoluteUrl("/media/brand-logos/android.svg")}
+              alt="Android app"
+            />{" "}
+            Android
           </a>
         </div>
         {/* <MenuSeparator />  */}
@@ -319,7 +341,6 @@ const DropdownUser = ({ menuItemRef }) => {
             <FormattedMessage id="USER.MENU.LOGOUT" />
           </a>
         </div> */}
-
       </div>
     );
   };

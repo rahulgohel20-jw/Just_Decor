@@ -16,7 +16,7 @@ const ApplyRegularization = ({ isModalOpen, setIsModalOpen }) => {
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
-              className="btn btn-secondary"
+              className="btn btn-light"
               onClick={handleModalClose}
               title="Cancel"
             >

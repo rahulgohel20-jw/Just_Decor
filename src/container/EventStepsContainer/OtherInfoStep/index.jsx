@@ -27,7 +27,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 />
               </div>
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Birth Date</label>
               <DatePicker
@@ -42,7 +41,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 }
               />
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Community</label>
               <div className="input">
@@ -61,7 +59,7 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
         </div>
       </div>
       <h1 className="flex">
-        <Sparkles className="mr-2 text-primary" /> Bride Information
+        <i className="ki-filled ki-information-4"></i> Bride Information
       </h1>
       <div className="card p-4 bg-white shadow-sm rounded-lg mb-4">
         <div className="flex flex-col gap-y-2 gap-x-4">
@@ -80,7 +78,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 />
               </div>
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Birth Date</label>
               <DatePicker
@@ -95,7 +92,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 }
               />
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Community</label>
               <div className="input">

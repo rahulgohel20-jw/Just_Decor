@@ -51,7 +51,7 @@ const WalletLogsPage = () => {
               <div className="flex items-center gap-4">
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
-                  fill="fill-success-light"
+                  fill="fill-light"
                   size="size-[50px]"
                   badge={
                     <i className="ki-filled ki-wallet text-xl text-success"></i>

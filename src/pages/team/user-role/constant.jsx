@@ -1,4 +1,5 @@
 import { DataGridColumnHeader } from "@/components";
+import { Tooltip } from "antd";
 import { EyeIcon, KeySquareIcon } from "lucide-react";
 export const columns = [
   {
@@ -34,22 +35,28 @@ export const columns = [
     cell: ({ cell }) => {
       return (
         <div className="flex items-center justify-center gap-1">
-          <button
-            className="btn btn-sm btn-icon btn-clear"
-            title="Edit"
-            onClick={() => cell.row.original.handleEditClick(cell.row.original)}
-          >
-            <i className="ki-filled ki-notepad-edit"></i>
-          </button>
-          <button
-            className="btn btn-sm btn-icon btn-clear"
-            title="Delete"
-            onClick={() =>
-              cell.row.original.removeRole(cell.row.original.role_id)
-            }
-          >
-            <i className="ki-filled ki-trash"></i>
-          </button>
+          <Tooltip title="Edit">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Edit"
+              onClick={() =>
+                cell.row.original.handleEditClick(cell.row.original)
+              }
+            >
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
+            </button>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Delete"
+              onClick={() =>
+                cell.row.original.removeRole(cell.row.original.role_id)
+              }
+            >
+              <i className="ki-filled ki-trash text-danger"></i>
+            </button>
+          </Tooltip>
         </div>
       );
     },

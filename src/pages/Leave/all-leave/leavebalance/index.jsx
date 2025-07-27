@@ -36,7 +36,7 @@ const LeaveBalanceTable = () => {
               handleEdit(row.original);
             }}
           >
-            <i className="ki-filled ki-notepad-edit"></i>
+            <i className="ki-filled ki-notepad-edit text-primary"></i>
           </button>
         </div>
       )

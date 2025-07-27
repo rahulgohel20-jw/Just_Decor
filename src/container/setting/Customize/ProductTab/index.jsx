@@ -1,5 +1,6 @@
 import { ListOrdered, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
+import { Tooltip } from "antd";
 
 const ProductTab = () => {
   const product = [
@@ -52,15 +53,21 @@ const ProductTab = () => {
                     <div className="text-sm text-gray-900">{item.name}</div>
                     <small>
                       <span className="text-gray-700">Data Type:</span>
-                      <span className="ms-1.5 font-semibold text-gray-900">{item.data_type}</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">
+                        {item.data_type}
+                      </span>
                     </small>
                     <small>
                       <span className="text-gray-700">Pipeline:</span>
-                      <span className="ms-1.5 font-semibold text-gray-900">{item.pipeline_name}</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">
+                        {item.pipeline_name}
+                      </span>
                     </small>
                     <small>
                       <span className="text-gray-700">Required:</span>
-                      <span className="ms-1.5 font-semibold text-gray-900">{item.is_required ? "Yes" : "No"}</span>
+                      <span className="ms-1.5 font-semibold text-gray-900">
+                        {item.is_required ? "Yes" : "No"}
+                      </span>
                     </small>
                   </div>
                 );
@@ -70,12 +77,16 @@ const ProductTab = () => {
                     leftContent={leftContent}
                     rightContent={
                       <>
-                        <button type="button" title="Edit">
-                          <i className="ki-filled ki-notepad-edit"></i>
-                        </button>
-                        <button type="button" title="Delete">
-                          <i className="ki-filled ki-trash"></i>
-                        </button>
+                        <Tooltip title="Edit">
+                          <button type="button" title="Edit">
+                            <i className="ki-filled ki-notepad-edit text-primary"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <button type="button" title="Delete">
+                            <i className="ki-filled ki-trash text-danger"></i>
+                          </button>
+                        </Tooltip>
                       </>
                     }
                   />

@@ -12,10 +12,8 @@ import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
 import MealAndNoteStep from "@/container/EventStepsContainer/MealAndNoteStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
-import useStyles from "./style";
 
 const CreateEventPage = () => {
-  const classes = useStyles();
   const [formData, setFormData] = useState(requiredFields.basic_info);
   const [current, setCurrent] = useState(0);
 
@@ -58,7 +56,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <InfoIcon />,
+      icon: <i className="ki-filled ki-information-4"></i>,
     },
     {
       title: "Functions",
@@ -69,7 +67,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <FunctionsIcon />,
+      icon: <i class="ki-filled ki-setting-4"></i>,
     },
     {
       title: "Meal Type & Notes",
@@ -98,10 +96,12 @@ const CreateEventPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className={`gap-2 pb-2 mb-3 ${classes.customStyle}`}>
-          <Breadcrumbs items={[{ title: "Create Events" }]} />
+        <div className="gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Create Event" }]} />
         </div>
         <StepsComponent
+          direction="vertical"
+          // direction="horizontal"
           current={current}
           steps={steps()}
           onNext={handleNext}

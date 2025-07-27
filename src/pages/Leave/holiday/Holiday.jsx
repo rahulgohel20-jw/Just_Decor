@@ -6,6 +6,7 @@ import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
 import { Link } from "react-router-dom";
 import AddHoliday from "@/partials/modals/add-holiday/AddHoliday";
+import { Tooltip } from "antd";
 
 const Holiday = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,33 +33,34 @@ const Holiday = () => {
         ...item,
         action: (
           <div className="flex items-center justify-center gap-1">
-            <Link
-              to={`/contacts/details`}
-              className="btn btn-sm btn-icon btn-clear"
-              title="View"
-            >
-              <i className="ki-filled ki-eye"></i>
-            </Link>
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Edit"
-              onClick={() => handleEdit(item)}
-            >
-              <i className="ki-filled ki-notepad-edit"></i>
-            </button>
-            {/* <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            > */}
-            <Confirmation
-              trigger={<i className="ki-filled ki-trash"></i>}
-              content="Do you really want to delete?"
-              yesText="Proceed"
-              noText="Dismiss"
-              onConfirm={() => console.log("User confirmed")}
-              onCancel={() => console.log("User cancelled")}
-            ></Confirmation>
-            {/* </button> */}
+            <Tooltip title="View">
+              <Link
+                to={`/contacts/details`}
+                className="btn btn-sm btn-icon btn-clear"
+                title="View"
+              >
+                <i className="ki-filled ki-eye text-success"></i>
+              </Link>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Edit"
+                onClick={() => handleEdit(item)}
+              >
+                <i className="ki-filled ki-notepad-edit text-primary"></i>
+              </button>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <Confirmation
+                trigger={<i className="ki-filled ki-trash text-danger"></i>}
+                content="Do you really want to delete?"
+                yesText="Proceed"
+                noText="Dismiss"
+                onConfirm={() => console.log("User confirmed")}
+                onCancel={() => console.log("User cancelled")}
+              ></Confirmation>
+            </Tooltip>
           </div>
         ),
       };
@@ -77,14 +79,14 @@ const Holiday = () => {
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
               onClick={handleModalOpen}
               title="Add Contact"
             >
-              <i className="ki-filled ki-plus"></i><span className="text-base">Holiday</span>
+              <i className="ki-filled ki-plus"></i>
+              <span className="text-base">Holiday</span>
             </button>
           </div>
         </div>

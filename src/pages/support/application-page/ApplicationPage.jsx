@@ -27,7 +27,7 @@ const ApplicationPage = () => {
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-primary-clarity"
-                fill="fill-dark-light"
+                fill="fill-light"
                 size="size-[60px]"
                 badge={
                   <KeenIcon
@@ -60,7 +60,7 @@ const ApplicationPage = () => {
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-primary-clarity"
-                fill="fill-dark-light"
+                fill="fill-light"
                 size="size-[60px]"
                 badge={
                   <KeenIcon

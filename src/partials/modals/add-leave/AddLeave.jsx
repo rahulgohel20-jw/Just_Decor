@@ -19,7 +19,7 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
               key="cancel"
-              className="btn btn-secondary"
+              className="btn btn-light"
               onClick={handleModalClose}
               title="Cancel"
             >
