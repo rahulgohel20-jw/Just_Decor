@@ -31,7 +31,7 @@ const BillingOverviewPage = () => {
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
                   fill="fill-light"
-                  size="size-[50px]"
+                  size="size-[60px]"
                   badge={
                     <i className="ki-filled ki-wallet text-xl text-success"></i>
                   }
@@ -52,7 +52,7 @@ const BillingOverviewPage = () => {
               </div>
               <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
                 <button
-                  className="btn btn-sm btn-success shrink-0"
+                  className="btn btn-success shrink-0"
                   title="Recharge Now"
                 >
                   &#8377; Recharge Now
@@ -66,7 +66,7 @@ const BillingOverviewPage = () => {
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
                   fill="fill-light"
-                  size="size-[50px]"
+                  size="size-[60px]"
                   badge={
                     <KeenIcon
                       icon="security-user"
@@ -89,10 +89,7 @@ const BillingOverviewPage = () => {
                 </div>
               </div>
               <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-                <button
-                  className="btn btn-sm btn-success shrink-0"
-                  title="Connect"
-                >
+                <button className="btn btn-success shrink-0" title="Connect">
                   <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
                 </button>
               </div>
@@ -120,8 +117,8 @@ const BillingOverviewPage = () => {
                     <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -132,18 +129,18 @@ const BillingOverviewPage = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
-                        Feb 26, 2026
+                        21 Feb 2026
                       </span>
                       <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -244,8 +241,8 @@ const BillingOverviewPage = () => {
                     <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -256,18 +253,18 @@ const BillingOverviewPage = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
-                        Feb 26, 2026
+                        21 Feb 2026
                       </span>
                       <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -368,8 +365,8 @@ const BillingOverviewPage = () => {
                     <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -380,18 +377,18 @@ const BillingOverviewPage = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
-                        Feb 26, 2026
+                        21 Feb 2026
                       </span>
                       <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -492,8 +489,8 @@ const BillingOverviewPage = () => {
                     <i className="ki-filled ki-ki-filled ki-user"></i>Add Users
                   </button>
                 </div>
-                <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -504,18 +501,18 @@ const BillingOverviewPage = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
-                        Feb 26, 2026
+                        21 Feb 2026
                       </span>
                       <span className="text-2sm text-2sm text-gray-700">
                         Renews on
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">
@@ -616,22 +613,22 @@ const BillingOverviewPage = () => {
                     Coming soon
                   </button>
                 </div>
-                {/* <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                {/* <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
                       <span className="text-2sm text-2sm text-gray-700">Subscribers</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
-                      <span className="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">21 Feb 2026</span>
                       <span className="text-2sm text-2sm text-gray-700">Renews on</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>
@@ -711,22 +708,22 @@ const BillingOverviewPage = () => {
                     Coming soon
                   </button>
                 </div>
-                {/* <div className="flex items-center flex-wrap gap-1 lg:gap-2">
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                {/* <div className="flex items-center justify-between w-full flex-wrap gap-1 lg:gap-1.5">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-users text-xl"></i>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">5 Users</span>
                       <span className="text-2sm text-2sm text-gray-700">Subscribers</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <i className="ki-filled ki-timer text-xl"></i>
                     <div className="flex flex-col">
-                      <span className="text-sm text-base leading-none font-bold text-gray-800">Feb 26, 2026</span>
+                      <span className="text-sm text-base leading-none font-bold text-gray-800">21 Feb 2026</span>
                       <span className="text-2sm text-2sm text-gray-700">Renews on</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
+                  <div className="flex-1 flex items-center gap-2 border border-dashed border-input shrink-0 rounded-md px-2 py-3 min-w-24 max-w-auto">
                     <span className="text-xl">&#8377;</span>
                     <div className="flex flex-col">
                       <span className="text-sm text-base leading-none font-bold text-gray-800">1,999/user</span>

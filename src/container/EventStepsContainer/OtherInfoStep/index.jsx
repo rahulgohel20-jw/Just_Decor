@@ -59,7 +59,7 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
         </div>
       </div>
       <h1 className="flex">
-        <i className="ki-filled ki-information-4"></i> Bride Information
+        <Sparkles className="mr-2 text-primary" /> Bride Information
       </h1>
       <div className="card p-4 bg-white shadow-sm rounded-lg mb-4">
         <div className="flex flex-col gap-y-2 gap-x-4">

@@ -48,10 +48,7 @@ const ApplicationPage = () => {
               </div>
             </div>
             <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-              <button
-                className="btn btn-sm btn-primary shrink-0"
-                title="Download App"
-              >
+              <button className="btn btn-primary shrink-0" title="Download App">
                 <i className="ki-filled ki-cloud-download"></i> Download App
               </button>
             </div>
@@ -81,10 +78,7 @@ const ApplicationPage = () => {
               </div>
             </div>
             <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-              <button
-                className="btn btn-sm btn-primary shrink-0"
-                title="Download App"
-              >
+              <button className="btn btn-primary shrink-0" title="Download App">
                 <i className="ki-filled ki-cloud-download"></i> Download App
               </button>
             </div>

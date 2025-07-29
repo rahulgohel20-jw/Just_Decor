@@ -129,8 +129,12 @@ const FunctionsStep = ({ formData, setFormData }) => {
           </div>
         )}
       <div className="mt-4 text-center">
-        <button className="btn btn-primary" onClick={handleAddFunction}>
-          Add Function
+        <button
+          className="btn btn-success"
+          onClick={handleAddFunction}
+          title="Add Function"
+        >
+          <i className="ki-filled ki-plus"></i> Function
         </button>
       </div>
     </div>
