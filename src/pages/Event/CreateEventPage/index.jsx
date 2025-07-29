@@ -56,7 +56,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <i className="ki-filled ki-information-4"></i>,
+      icon: <i className="ki-filled ki-security-user"></i>,
     },
     {
       title: "Functions",
@@ -67,7 +67,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <i class="ki-filled ki-setting-4"></i>,
+      icon: <i className="ki-filled ki-setting-4"></i>,
     },
     {
       title: "Meal Type & Notes",
@@ -78,7 +78,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <MealIcon />,
+      icon: <i className="ki-filled ki-note-2"></i>,
     },
     {
       title: "Other Details",
@@ -89,7 +89,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <InfoIcon />,
+      icon: <i className="ki-filled ki-information-4"></i>,
     },
   ];
   return (

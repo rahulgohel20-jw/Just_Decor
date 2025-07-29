@@ -4,19 +4,16 @@ import { Tooltip } from "antd";
 export const columns = [
   {
     accessorKey: "user",
-
     header: ({ column }) => (
       <DataGridColumnHeader title="User" column={column} />
     ),
   },
   {
     accessorKey: "email",
-
     header: ({ column }) => (
       <DataGridColumnHeader title="Email" column={column} />
     ),
   },
-
   {
     accessorKey: "mobile",
     header: ({ column }) => (
