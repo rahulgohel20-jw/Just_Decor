@@ -1,8 +1,17 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import CalendarComponent from "@/components/CalendarComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import EventViewModal from "@/partials/modals/calendar-event/EventView";
+import {calendarData} from "./constant";
 const CalendarPage = () => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventModalData, setEventModalData] = useState(false)
+  const openEvent = (data) => {
+    setEventModalData(data)
+    setIsModalOpen(true)
+  }
   return (
     <Fragment>
       <Container>
@@ -11,15 +20,14 @@ const CalendarPage = () => {
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
         <CalendarComponent
-          data={[
-            {
-              title: "MR KAUSHIK BRAHMBHATT",
-              date: "2025-07-07",
-              status: "Completed",
-            },
-          ]}
+          data={calendarData}
+          openEvent={openEvent}
         />
       </Container>
+      {/* AddContact */}
+      {isModalOpen && (
+      <EventViewModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} eventData={eventModalData} />
+      )}
     </Fragment>
   );
 };
