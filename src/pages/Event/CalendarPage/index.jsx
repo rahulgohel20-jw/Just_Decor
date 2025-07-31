@@ -1,8 +1,29 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import CalendarComponent from "@/components/CalendarComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import EventViewModal from "@/partials/modals/calendar-event/EventView";
+import {calendarData} from "./constant";
 const CalendarPage = () => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventModalData, setEventModalData] = useState(false)
+  const openEvent = (data) => {
+    setEventModalData(data)
+    setIsModalOpen(true)
+  }
+
+  const handleDateClick =(info)=>{
+    const clickedDate = new Date(info.dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (clickedDate > today) {
+      const url = '/add-event';
+      window.open(url, "_blank");
+    }
+    
+  }
   return (
     <Fragment>
       <Container>
@@ -11,15 +32,15 @@ const CalendarPage = () => {
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
         <CalendarComponent
-          data={[
-            {
-              title: "MR KAUSHIK BRAHMBHATT",
-              date: "2025-07-07",
-              status: "Completed",
-            },
-          ]}
+          data={calendarData}
+          openEvent={openEvent}
+          handleDateClick={handleDateClick}
         />
       </Container>
+      {/* AddContact */}
+      {isModalOpen && (
+      <EventViewModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} eventData={eventModalData} />
+      )}
     </Fragment>
   );
 };
