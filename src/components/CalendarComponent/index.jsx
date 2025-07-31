@@ -1,16 +1,15 @@
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import useStyles from "./style";
-const CalendarComponent = ({ data, openEvent }) => {
+const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const classes = useStyles();
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
       <FullCalendar
         events={data}
-        eventClick={(info) => {
-          openEvent && openEvent(info); // call your function here
-        }}
-        plugins={[dayGridPlugin]}
+        eventClick={(e) => openEvent(e)} 
+        plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
           left: "prev,next today",
@@ -22,6 +21,7 @@ const CalendarComponent = ({ data, openEvent }) => {
           dayGridMonth: "Month",
           dayGridWeek: "Week",
         }}
+         dateClick={handleDateClick} 
       />
     </div>
   );

@@ -12,6 +12,18 @@ const CalendarPage = () => {
     setEventModalData(data)
     setIsModalOpen(true)
   }
+
+  const handleDateClick =(info)=>{
+    const clickedDate = new Date(info.dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (clickedDate > today) {
+      const url = '/add-event';
+      window.open(url, "_blank");
+    }
+    
+  }
   return (
     <Fragment>
       <Container>
@@ -22,6 +34,7 @@ const CalendarPage = () => {
         <CalendarComponent
           data={calendarData}
           openEvent={openEvent}
+          handleDateClick={handleDateClick}
         />
       </Container>
       {/* AddContact */}

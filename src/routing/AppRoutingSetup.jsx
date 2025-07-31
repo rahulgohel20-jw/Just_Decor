@@ -125,6 +125,14 @@ import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
 import EventPreparationPage from "@/pages/Event/EventPreparationPage";
+import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
+import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
+import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
+import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
+import DishCostingPage from "@/pages/Event/DishCostingPage";
+import QuotationPage from "@/pages/Event/QuotationPage";
+import EventInvoicePage from "@/pages/Event/EventInvoicePage";
+import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 
 const AppRoutingSetup = () => {
   return (
@@ -157,6 +165,14 @@ const AppRoutingSetup = () => {
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
+          <Route path="/menu-allocation" element={<EventMenuAllocationPage />} />
+          <Route path="/raw-material-allocation" element={<RawMaterialAllocationPage />} />
+          <Route path="/labour-and-other-management" element={<LabourOtherManagementPage />} />
+          <Route path="/order-booking-reports" element={<OrderBookingReportsPage />} />
+          <Route path="/dish-costing" element={<DishCostingPage />} />
+          <Route path="/quotation" element={<QuotationPage />} />
+          <Route path="/event-invoice" element={<EventInvoicePage />} />
+          <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
 
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
