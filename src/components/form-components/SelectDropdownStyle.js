@@ -3,7 +3,7 @@ const useStyles = makeStyles({
   formGrp: {
     "& .ant-select": {
       width: "100%",
-      height: "2.75rem",
+      height: "2.5rem",
       "& .ant-select-selector": {
         borderColor: "var(--tw-gray-400)",
         "& .ant-select-selection-wrap": {

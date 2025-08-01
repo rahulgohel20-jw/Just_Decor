@@ -8,7 +8,34 @@ const useStyles = makeStyles({
       "& th, & td": {
         borderColor: "var(--tw-gray-300)",
       },
+      // fc-dayGridMonth-view
+      "& .fc-dayGridMonth-view": {},
+      // fc-dayGridWeek-view
+      "& .fc-dayGridWeek-view": {},
       "& .fc-daygrid-day": {
+        "& .fc-daygrid-day-events": {
+          "& .fc-event": {
+            "&.fc-event-start": {
+              height: "20px",
+              borderRadius: "4px",
+              "& .fc-event-main": {
+                height: "20px",
+                "& .fc-event-main-frame": {
+                  height: "20px",
+                  "& .fc-event-title-container": {
+                    "& .fc-event-title": {
+                      height: "20px",
+                      lineHeight: "1.3",
+                      paddingLeft: "4px",
+                      fontSize: "12px",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+
         "&.fc-day-today": {
           backgroundColor: "var(--tw-primary-lighter)",
           "& .fc-daygrid-day-number": {
