@@ -20,60 +20,43 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
   // Example handler for plus buttons
 
   return (
-    <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.customStyle}`}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-5">
-        {/* Customer Name */}
-        <div className="flex flex-col">
+    <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-5">
+        <div className="select__grp flex flex-col">
           <label className="form-label">Customer Name</label>
-          <div className="relative">
+          <div className="sg__inner flex items-center gap-1 relative">
             <ContactDropdown
               value={formData.customer_id}
               onChange={onInputChange}
-              className="w-full border-2 border-primary rounded-lg pr-10"
             />
             <button
               type="button"
               onClick={handleAddClick}
-              className="absolute inset-y-0 right-0 flex items-center justify-center mr-2 my-1 w-8 h-8 bg-primary text-white rounded-full hover:bg-primary/90 transition"
+              title="Add"
+              className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <i className="ki-filled ki-plus"></i>
             </button>
           </div>
         </div>
-
-        {/* Manager */}
-        <div className="flex flex-col">
+        <div className="select__grp flex flex-col">
           <label className="form-label">Manager</label>
-          <div className="relative">
+          <div className="sg__inner flex items-center gap-1 relative">
             <UserDropdown
               value={formData.manager_id}
               onChange={onInputChange}
-              className="w-full border-2 border-primary rounded-lg pr-10"
             />
             <button
               type="button"
               onClick={() => handleAddClick("Manager")}
-              className="absolute inset-y-0 right-0 flex items-center justify-center mr-2 my-1 w-8 h-8 bg-primary text-white rounded-full hover:bg-primary/90 transition"
+              title="Add"
+              className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <i className="ki-filled ki-plus"></i>
             </button>
           </div>
         </div>
-
-        {/* Venue */}
-        <div className="flex flex-col">
+        <div className="select__grp flex flex-col">
           <label className="form-label">Venue</label>
           <SpeechToText
             type="text"
@@ -83,22 +66,16 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
             onChange={onInputChange}
           />
         </div>
-
-        {/* Event Type */}
-        <div className="flex flex-col">
+        <div className="select__grp flex flex-col">
           <label className="form-label">Event Name</label>
           <EventTypeDropdown
             value={formData.event_type}
-            className="w-full border-2 border-primary rounded-lg"
             onChange={onInputChange}
           />
         </div>
-
-        {/* Enquiry Date */}
-        <div className="flex flex-col">
+        <div className="select__grp flex flex-col">
           <label className="form-label">Enquiry Date</label>
           <DatePicker
-            className="input border-2 border-primary rounded-lg"
             date={formData.meeting_date}
             setDate={(date) => setFormData({ ...formData, meeting_date: date })}
           />
