@@ -68,7 +68,6 @@ const SelectDropdown = ({
         ) : (
           label && <label className="form-label">{label}</label>
         )}
-
         <Select
           {...rest}
           className={`${classes.select} ${rest.className || ""}`}

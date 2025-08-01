@@ -1,15 +1,19 @@
 import { makeStyles } from "@mui/styles";
-
 const useStyles = makeStyles({
   formGrp: {
     "& .ant-select": {
       width: "100%",
-      height: "40px",
+      height: "2.75rem",
       "& .ant-select-selector": {
-        borderColor: "var(--tw-gray-300)",
+        borderColor: "var(--tw-gray-400)",
         "& .ant-select-selection-wrap": {
           "&:after": {
             lineHeight: "32px",
+          },
+          "& .ant-select-selection-search": {
+            "& .ant-select-selection-search-input": {
+              height: "36px",
+            },
           },
           "& .ant-select-selection-overflow": {
             flexWrap: "nowrap",
