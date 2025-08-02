@@ -4,6 +4,7 @@ import {
   Settings as FunctionsIcon,
   Utensils as MealIcon,
 } from "lucide-react";
+import dayjs from 'dayjs';
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
@@ -12,9 +13,15 @@ import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
 import MealAndNoteStep from "@/container/EventStepsContainer/MealAndNoteStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
+import { useLocation } from "react-router";
 
 const CreateEventPage = () => {
-  const [formData, setFormData] = useState(requiredFields.basic_info);
+const location = useLocation();
+  const { event_date } = location.state || {};
+  
+  const [formData, setFormData] = useState({...requiredFields.basic_info, event_date: event_date ? event_date : '',
+    meeting_date: dayjs().format('YYYY-MM-DD')
+  });
   const [current, setCurrent] = useState(0);
 
   const handleNext = () => {

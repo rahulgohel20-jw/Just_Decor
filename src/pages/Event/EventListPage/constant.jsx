@@ -1,4 +1,4 @@
-import { Tooltip } from "antd";
+import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
@@ -83,19 +83,34 @@ export const columns = [
               </button>
             </Link>
           </Tooltip>
-
+        <Popconfirm
+              title="Are you sure to copy this item?"
+              onConfirm={() => console.log('confirm')
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip className="cursor-pointer" title="Copy Event">
             <button className="btn btn-sm btn-icon btn-clear" title="Copy">
               <i className="ki-filled ki-copy text-success"></i>
             </button>
           </Tooltip>
-
+          </Popconfirm>
+          <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => console.log('confirm')
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip className="cursor-pointer" title="Remove Event">
             <button className="btn btn-sm btn-icon btn-clear" title="Remove">
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
-
+        </Popconfirm>
           <Tooltip title="Menu Preparation">
             <Link to="/menu-preparation">
               <button
@@ -108,12 +123,14 @@ export const columns = [
           </Tooltip>
 
           <Tooltip title="Menu Allocation">
+            <Link to="/menu-allocation">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Menu Allocation"
             >
               <i className="ki-filled ki-grid  text-info"></i>
             </button>
+            </Link>
           </Tooltip>
         </div>
       );
@@ -166,18 +183,36 @@ export const columns = [
               >
                 <i className="ki-filled ki-notepad-edit text-primary"></i> Edit
               </Link>
+              <Popconfirm
+              title="Are you sure to copy this item?"
+              onConfirm={() => console.log('confirm')
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
               <button
                 className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-start"
-                onClick={closeMenu}
+                // onClick={closeMenu}
               >
                 <i className="ki-filled ki-copy text-success"></i> Copy
               </button>
+              </Popconfirm>
+              <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => closeMenu
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
               <button
                 className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-start"
-                onClick={closeMenu}
+                // onClick={closeMenu}
               >
                 <i className="ki-filled ki-trash text-danger"></i> Remove
               </button>
+              </Popconfirm>
               <Link
                 to="/menu-preparation"
                 className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
@@ -185,12 +220,13 @@ export const columns = [
               >
                 <i className="ki-filled ki-notepad text-warning"></i> Menu Prep
               </Link>
-              <button
-                className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-start"
+              <Link
+                to="/menu-allocation"
+                className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
                 onClick={closeMenu}
               >
                 <i className="ki-filled ki-grid text-info"></i> Menu Allocate
-              </button>
+              </Link>
             </div>
           )}
         </div>

@@ -37,7 +37,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
           <div class="flex flex-col gap-3 lg:gap-4 grow">
             <div class="flex flex-col">
-              <p className="text-gray-700">Title:</p>
+              <p className="text-gray-700">Name:</p>
               <h4 className="text-gray-900 font-semibold">
                 {eventData?.event?._def?.title}
               </h4>
@@ -85,122 +85,101 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
           >
             Pending
           </button>
-          {/* <label className="form-label">Status</label>
-          <select className="select pe-7.5" placeholder="User Role">
-            <option value="1">Inquiry </option>
-            <option value="2">Completed</option>
-            <option value="3">Pending</option>
-          </select> */}
         </div>
         <hr className="my-5" />
         <div className="flex flex-col gap-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <Link to="/menu-preparation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Menu Preparation"
             >
               Menu Preparation
             </button>
+            </Link>
+            
+            <Link to="/menu-allocation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Menu Allocation"
             >
               Menu Allocation
             </button>
+            </Link>
+            <Link to="/raw-material-allocation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Raw Material Allocation"
             >
               Raw Material Allocation
             </button>
+            </Link>
+            <Link to="/labour-and-other-management">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Labour/Other Management"
             >
               Labour/Other Management
             </button>
+            </Link>
+            <Link to="/order-booking-reports">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Order Booking Reports"
             >
               Order Booking Reports
             </button>
+            </Link>
+            <Link to="/dish-costing">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Dish Costing"
             >
               Dish Costing
             </button>
+            </Link>
+            <Link to="/quotation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Quotation"
             >
               Quotation
             </button>
+            </Link>
+            <Link to="/event-invoice">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Invoice"
             >
               Invoice
             </button>
+            </Link>
+            <Link to="/proforma-invoice">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Proforma Invoice"
             >
               Proforma Invoice
             </button>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Link to="/add-event">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Edit"
             >
               <i className="ki-filled ki-notepad-edit"></i> Edit
             </button>
+            </Link>
+            <Link to="">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Copy Order"
             >
               <i className="ki-filled ki-copy"></i> Copy Order
             </button>
-            {/* <Link to="/menu-preparation">
-            <Button type="primary">Menu Preparation</Button>
-          </Link>
-          <Link to="/menu-allocation">
-            <Button type="primary">Menu Allocation</Button>
-          </Link>
-          <Link to="/raw-material-allocation">
-            <Button type="primary">Raw Material Allocation</Button>
-          </Link>
-          <Link to="/labour-and-other-management">
-            <Button type="primary">Labour/Other Management</Button>
-          </Link>
-          <Link to="/order-booking-reports">
-            <Button type="primary">Order Booking Reports</Button>
-          </Link>
-          <Link to="/dish-costing">
-            <Button type="primary">Dish Costing</Button>
-          </Link>
-          <Link to="/quotation">
-            <Button type="primary">Quotation</Button>
-          </Link>
-          <Link to="/event-invoice">
-            <Button type="primary">Invoice</Button>
-          </Link>
-          <Link to="/proforma-invoice">
-            <Button type="primary">Proforma Invoice</Button>
-          </Link>
-          <Link to="/add-event">
-            <Button type="primary">Edit</Button>
-          </Link>
-          <Link to="">
-            <Button type="primary">Copy Order</Button>
-          </Link>
-          <Link to="">
-            <Button type="danger" className="btn-danger">
-              Delete
-            </Button>
-          </Link> */}
+            </Link>
           </div>
         </div>
       </CustomModal>

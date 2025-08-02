@@ -3,9 +3,11 @@ import { Container } from "@/components/container";
 import CalendarComponent from "@/components/CalendarComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import EventViewModal from "@/partials/modals/calendar-event/EventView";
+import { useNavigate } from "react-router-dom";
 import {calendarData} from "./constant";
 const CalendarPage = () => {
 
+   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalData, setEventModalData] = useState(false)
   const openEvent = (data) => {
@@ -19,8 +21,11 @@ const CalendarPage = () => {
     today.setHours(0, 0, 0, 0);
 
     if (clickedDate > today) {
-      const url = '/add-event';
-      window.open(url, "_blank");
+      navigate('/add-event', {
+            state: {
+              event_date: clickedDate,
+            },
+          });
     }
     
   }

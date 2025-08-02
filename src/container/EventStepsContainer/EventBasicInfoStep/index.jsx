@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DatePicker } from "antd";
+import dayjs from 'dayjs';
 import UserDropdown from "@/components/dropdowns/UserDropdown";
 import ContactDropdown from "@/components/dropdowns/ContactDropdown";
 import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
@@ -77,7 +78,9 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
           <label className="form-label">Enquiry Date</label>
           <DatePicker
             date={formData.meeting_date}
+            className="input border-2 border-primary rounded-lg"
             setDate={(date) => setFormData({ ...formData, meeting_date: date })}
+            defaultValue={formData.meeting_date ? dayjs(formData.meeting_date) : null} // Show selected value
           />
         </div>
 
@@ -88,6 +91,7 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
             className="input border-2 border-primary rounded-lg"
             date={formData.event_date}
             setDate={(date) => setFormData({ ...formData, event_date: date })}
+            defaultValue={formData.event_date ? dayjs(formData.event_date) : null} // Show selected value
           />
         </div>
 
