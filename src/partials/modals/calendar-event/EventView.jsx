@@ -14,15 +14,9 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="View Event Details"
-        width={720}
+        width={800}
         footer={[
-          <div
-            className="flex items-center justify-between"
-            key={"footer-buttons"}
-          >
-            <button key="cancel" className="btn btn-danger" title="Delete">
-              Delete
-            </button>
+          <div className="flex items-center justify-end" key={"footer-buttons"}>
             <button
               key="cancel"
               className="btn btn-light"
@@ -34,7 +28,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
           </div>,
         ]}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
           <div class="flex flex-col gap-3 lg:gap-4 grow">
             <div class="flex flex-col">
               <p className="text-gray-700">Name:</p>
@@ -63,122 +57,128 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               </h4>
             </div>
           </div>
+          <div class="flex flex-col gap-1.5 grow">
+            <Link to="">
+              <button
+                className="btn btn-sm btn-success justify-center w-full"
+                title="Copy Order"
+              >
+                <i className="ki-filled ki-copy me-1"></i> Copy Order
+              </button>
+            </Link>
+            <Link to="/add-event">
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Edit Event"
+              >
+                <i className="ki-filled ki-notepad-edit me-1"></i> Edit Event
+              </button>
+            </Link>
+            <button
+              key="cancel"
+              className="btn btn-sm btn-danger justify-center w-full"
+              title="Delete"
+            >
+              <i className="ki-filled ki-trash me-1"></i>
+              Delete
+            </button>
+          </div>
         </div>
-        <hr className="my-5" />
+        <hr className="mt-5 mb-4" />
         <div className="flex items-center justify-center gap-2 grow">
-          <label className="form-label w-auto">Status:</label>
           <button
-            className="badge badge-outline badge-info rounded-full badge-lg"
+            className="btn btn-sm px-5 rounded-full bg-gray-400 text-white transition-colors duration-200 flex items-center space-x-2"
             title="Inquiry"
           >
-            Inquiry
+            <i className="ki-filled ki-check me-1"></i> Inquiry
           </button>
           <button
-            className="badge badge-outline badge-success rounded-full badge-lg"
-            title="Completed"
-          >
-            Completed
-          </button>
-          <button
-            className="badge badge-outline badge-warning rounded-full badge-lg"
+            className="btn btn-sm px-5 rounded-full bg-warning text-white transition-colors duration-200 flex items-center space-x-2"
             title="Pending"
           >
             Pending
           </button>
+          <button
+            className="btn btn-sm px-5 rounded-full bg-success text-white transition-colors duration-200 flex items-center space-x-2"
+            title="Completed"
+          >
+            Completed
+          </button>
         </div>
-        <hr className="my-5" />
+        <hr className="mt-4 mb-5" />
         <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
             <Link to="/menu-preparation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Menu Preparation"
-            >
-              Menu Preparation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Menu Preparation"
+              >
+                Menu Preparation
+              </button>
             </Link>
-            
             <Link to="/menu-allocation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Menu Allocation"
-            >
-              Menu Allocation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Menu Allocation"
+              >
+                Menu Allocation
+              </button>
             </Link>
             <Link to="/raw-material-allocation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Raw Material Allocation"
-            >
-              Raw Material Allocation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Raw Material Allocation"
+              >
+                Raw Material Allocation
+              </button>
             </Link>
             <Link to="/labour-and-other-management">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Labour/Other Management"
-            >
-              Labour/Other Management
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Labour/Other Management"
+              >
+                Labour/Other Management
+              </button>
             </Link>
             <Link to="/order-booking-reports">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Order Booking Reports"
-            >
-              Order Booking Reports
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Order Booking Reports"
+              >
+                Order Booking Reports
+              </button>
             </Link>
             <Link to="/dish-costing">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Dish Costing"
-            >
-              Dish Costing
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Dish Costing"
+              >
+                Dish Costing
+              </button>
             </Link>
             <Link to="/quotation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Quotation"
-            >
-              Quotation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Quotation"
+              >
+                Quotation
+              </button>
             </Link>
             <Link to="/event-invoice">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Invoice"
-            >
-              Invoice
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Invoice"
+              >
+                Invoice
+              </button>
             </Link>
             <Link to="/proforma-invoice">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Proforma Invoice"
-            >
-              Proforma Invoice
-            </button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <Link to="/add-event">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Edit"
-            >
-              <i className="ki-filled ki-notepad-edit"></i> Edit
-            </button>
-            </Link>
-            <Link to="">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Copy Order"
-            >
-              <i className="ki-filled ki-copy"></i> Copy Order
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Proforma Invoice"
+              >
+                Proforma Invoice
+              </button>
             </Link>
           </div>
         </div>
