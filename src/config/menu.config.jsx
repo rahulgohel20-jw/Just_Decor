@@ -1,34 +1,26 @@
 export const MENU_SIDEBAR = [
   {
     title: "MyApp",
-    icon: "element-11",
+    icon: "element-11 text-primary",
     path: "/",
   },
   {
     title: "Event Management",
-    icon: "ki-filled ki-abstract-18",
+    icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
-        title: "Events",
-        // path: "/overview",
+        title: "Calendar",
+        path: "/calendar",
       },
       {
-        title: "Add Event",
-        // path: "/lead",
-      },
-      {
-        title: "Menu Planning",
-        // path: "/contacts",
-      },
-      {
-        title: "Quotation",
-        // path: "/contacts",
+        title: "Event",
+        path: "/event",
       },
     ],
   },
   {
     title: "Leads",
-    icon: "ki-filled ki-abstract-18",
+    icon: "ki-filled ki-abstract-18 text-primary",
     children: [
       {
         title: "Overview",
@@ -58,7 +50,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Tasks",
-    icon: "ki-filled ki-abstract-16",
+    icon: "ki-filled ki-abstract-16 text-primary",
     children: [
       {
         title: "All Tasks",
@@ -77,15 +69,16 @@ export const MENU_SIDEBAR = [
 
   {
     title: "leaves",
-    icon: "ki-filled ki-abstract-17",
+    icon: "ki-filled ki-abstract-17 text-primary",
     children: [
       {
-
-      title:"Dashboard",
-      path:"/leave-dashboard",
+        title: "Dashboard",
+        path: "/leave-dashboard",
       },
-
-
+      {
+        title: "Dashboard",
+        path: "/dashboard",
+      },
       {
         title: "My Attendance",
         path: "/myattendance",
@@ -112,7 +105,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Settings",
-        icon: "ki-filled ki-setting-2",
+        icon: "ki-filled ki-setting-2 text-primary",
         children: [
           {
             title: "Leave Type",
@@ -132,12 +125,12 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Links",
-    icon: "ki-filled ki-disconnect",
+    icon: "ki-filled ki-disconnect text-primary",
     path: "/links",
   },
   {
     title: "Team",
-    icon: "ki-filled ki-users",
+    icon: "ki-filled ki-users text-primary",
     children: [
       {
         title: "Sales Team",
@@ -155,7 +148,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Settings",
-    icon: "ki-filled ki-setting-2",
+    icon: "ki-filled ki-setting-2 text-primary",
     children: [
       {
         title: "General",
@@ -177,7 +170,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Support",
-    icon: "ki-filled ki-support",
+    icon: "ki-filled ki-support text-primary",
     children: [
       { title: "Events", path: "/support/events" },
       { title: "Tutorials", path: "/support/tutorials" },
@@ -189,7 +182,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Billing",
-    icon: "ki-filled ki-cheque",
+    icon: "ki-filled ki-cheque text-primary",
     children: [
       {
         title: "Overview",
@@ -201,495 +194,6 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-  // {
-  //   title: "Dashboards",
-  //   icon: "element-11",
-  //   children: [
-  //     {
-  //       title: "Light Sidebar",
-  //       path: "/",
-  //     },
-  //     {
-  //       title: "Dark Sidebar",
-  //       path: "/dark-sidebar",
-  //     },
-  //   ],
-  // },
-  // {
-  //   heading: "User",
-  // },
-  // {
-  //   title: "Public Profile",
-  //   icon: "profile-circle",
-  //   children: [
-  //     {
-  //       title: "Profiles",
-  //       children: [
-  //         {
-  //           title: "Default",
-  //           path: "/public-profile/profiles/default",
-  //         },
-  //         {
-  //           title: "Creator",
-  //           path: "/public-profile/profiles/creator",
-  //         },
-  //         {
-  //           title: "Company",
-  //           path: "/public-profile/profiles/company",
-  //         },
-  //         {
-  //           title: "NFT",
-  //           path: "/public-profile/profiles/nft",
-  //         },
-  //         {
-  //           title: "Blogger",
-  //           path: "/public-profile/profiles/blogger",
-  //         },
-  //         {
-  //           title: "CRM",
-  //           path: "/public-profile/profiles/crm",
-  //         },
-  //         {
-  //           title: "More",
-  //           collapse: true,
-  //           collapseTitle: "Show less",
-  //           expandTitle: "Show 4 more",
-  //           dropdownProps: {
-  //             placement: "right-start",
-  //           },
-  //           children: [
-  //             {
-  //               title: "Gamer",
-  //               path: "/public-profile/profiles/gamer",
-  //             },
-  //             {
-  //               title: "Feeds",
-  //               path: "/public-profile/profiles/feeds",
-  //             },
-  //             {
-  //               title: "Plain",
-  //               path: "/public-profile/profiles/plain",
-  //             },
-  //             {
-  //               title: "Modal",
-  //               path: "/public-profile/profiles/modal",
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Projects",
-  //       children: [
-  //         {
-  //           title: "3 Columns",
-  //           path: "/public-profile/projects/3-columns",
-  //         },
-  //         {
-  //           title: "2 Columns",
-  //           path: "/public-profile/projects/2-columns",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Works",
-  //       path: "/public-profile/works",
-  //     },
-  //     {
-  //       title: "Teams",
-  //       path: "/public-profile/teams",
-  //     },
-  //     {
-  //       title: "Network",
-  //       path: "/public-profile/network",
-  //     },
-  //     {
-  //       title: "Activity",
-  //       path: "/public-profile/activity",
-  //     },
-  //     {
-  //       title: "More",
-  //       collapse: true,
-  //       collapseTitle: "Show less",
-  //       expandTitle: "Show 3 more",
-  //       dropdownProps: {
-  //         placement: "right-start",
-  //       },
-  //       children: [
-  //         {
-  //           title: "Campaigns - Card",
-  //           path: "/public-profile/campaigns/card",
-  //         },
-  //         {
-  //           title: "Campaigns - List",
-  //           path: "/public-profile/campaigns/list",
-  //         },
-  //         {
-  //           title: "Empty",
-  //           path: "/public-profile/empty",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "My Account",
-  //   icon: "setting-2",
-  //   children: [
-  //     {
-  //       title: "Account",
-  //       children: [
-  //         {
-  //           title: "Get Started",
-  //           path: "/account/home/get-started",
-  //         },
-  //         {
-  //           title: "User Profile",
-  //           path: "/account/home/user-profile",
-  //         },
-  //         {
-  //           title: "Company Profile",
-  //           path: "/account/home/company-profile",
-  //         },
-  //         {
-  //           title: "Settings - With Sidebar",
-  //           path: "/account/home/settings-sidebar",
-  //         },
-  //         {
-  //           title: "Settings - Enterprise",
-  //           path: "/account/home/settings-enterprise",
-  //         },
-  //         {
-  //           title: "Settings - Plain",
-  //           path: "/account/home/settings-plain",
-  //         },
-  //         {
-  //           title: "Settings - Modal",
-  //           path: "/account/home/settings-modal",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Billing",
-  //       children: [
-  //         {
-  //           title: "Billing - Basic",
-  //           path: "/account/billing/basic",
-  //         },
-  //         {
-  //           title: "Billing - Enterprise",
-  //           path: "/account/billing/enterprise",
-  //         },
-  //         {
-  //           title: "Plans",
-  //           path: "/account/billing/plans",
-  //         },
-  //         {
-  //           title: "Billing History",
-  //           path: "/account/billing/history",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Security",
-  //       children: [
-  //         {
-  //           title: "Get Started",
-  //           path: "/account/security/get-started",
-  //         },
-  //         {
-  //           title: "Security Overview",
-  //           path: "/account/security/overview",
-  //         },
-  //         {
-  //           title: "Allowed IP Addresses",
-  //           path: "/account/security/allowed-ip-addresses",
-  //         },
-  //         {
-  //           title: "Privacy Settings",
-  //           path: "/account/security/privacy-settings",
-  //         },
-  //         {
-  //           title: "Device Management",
-  //           path: "/account/security/device-management",
-  //         },
-  //         {
-  //           title: "Backup & Recovery",
-  //           path: "/account/security/backup-and-recovery",
-  //         },
-  //         {
-  //           title: "Current Sessions",
-  //           path: "/account/security/current-sessions",
-  //         },
-  //         {
-  //           title: "Security Log",
-  //           path: "/account/security/security-log",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Members & Roles",
-  //       children: [
-  //         {
-  //           title: "Teams Starter",
-  //           path: "/account/members/team-starter",
-  //         },
-  //         {
-  //           title: "Teams",
-  //           path: "/account/members/teams",
-  //         },
-  //         {
-  //           title: "Team Info",
-  //           path: "/account/members/team-info",
-  //         },
-  //         {
-  //           title: "Members Starter",
-  //           path: "/account/members/members-starter",
-  //         },
-  //         {
-  //           title: "Team Members",
-  //           path: "/account/members/team-members",
-  //         },
-  //         {
-  //           title: "Import Members",
-  //           path: "/account/members/import-members",
-  //         },
-  //         {
-  //           title: "Roles",
-  //           path: "/account/members/roles",
-  //         },
-  //         {
-  //           title: "Permissions - Toggler",
-  //           path: "/account/members/permissions-toggle",
-  //         },
-  //         {
-  //           title: "Permissions - Check",
-  //           path: "/account/members/permissions-check",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Integrations",
-  //       path: "/account/integrations",
-  //     },
-  //     {
-  //       title: "Notifications",
-  //       path: "/account/notifications",
-  //     },
-  //     {
-  //       title: "API Keys",
-  //       path: "/account/api-keys",
-  //     },
-  //     {
-  //       title: "More",
-  //       collapse: true,
-  //       collapseTitle: "Show less",
-  //       expandTitle: "Show 3 more",
-  //       dropdownProps: {
-  //         placement: "right-start",
-  //       },
-  //       children: [
-  //         {
-  //           title: "Appearance",
-  //           path: "/account/appearance",
-  //         },
-  //         {
-  //           title: "Invite a Friend",
-  //           path: "/account/invite-a-friend",
-  //         },
-  //         {
-  //           title: "Activity",
-  //           path: "/account/activity",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Network",
-  //   icon: "users",
-  //   children: [
-  //     {
-  //       title: "Get Started",
-  //       path: "/network/get-started",
-  //     },
-  //     {
-  //       title: "User Cards",
-  //       children: [
-  //         {
-  //           title: "Mini Cards",
-  //           path: "/network/user-cards/mini-cards",
-  //         },
-  //         {
-  //           title: "Team Crew",
-  //           path: "/network/user-cards/team-crew",
-  //         },
-  //         {
-  //           title: "Author",
-  //           path: "/network/user-cards/author",
-  //         },
-  //         {
-  //           title: "NFT",
-  //           path: "/network/user-cards/nft",
-  //         },
-  //         {
-  //           title: "Social",
-  //           path: "/network/user-cards/social",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "User Table",
-  //       children: [
-  //         {
-  //           title: "Team Crew",
-  //           path: "/network/user-table/team-crew",
-  //         },
-  //         {
-  //           title: "App Roster",
-  //           path: "/network/user-table/app-roster",
-  //         },
-  //         {
-  //           title: "Market Authors",
-  //           path: "/network/user-table/market-authors",
-  //         },
-  //         {
-  //           title: "SaaS Users",
-  //           path: "/network/user-table/saas-users",
-  //         },
-  //         {
-  //           title: "Store Clients",
-  //           path: "/network/user-table/store-clients",
-  //         },
-  //         {
-  //           title: "Visitors",
-  //           path: "/network/user-table/visitors",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Cooperations",
-  //       path: "/network/cooperations",
-  //       disabled: true,
-  //     },
-  //     {
-  //       title: "Leads",
-  //       path: "/network/leads",
-  //       disabled: true,
-  //     },
-  //     {
-  //       title: "Donators",
-  //       path: "/network/donators",
-  //       disabled: true,
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Authentication",
-  //   icon: "security-user",
-  //   children: [
-  //     {
-  //       title: "Classic",
-  //       children: [
-  //         {
-  //           title: "Sign In",
-  //           path: "/auth/classic/login",
-  //         },
-  //         {
-  //           title: "Sign Up",
-  //           path: "/auth/classic/signup",
-  //         },
-  //         {
-  //           title: "2FA",
-  //           path: "/auth/classic/2fa",
-  //         },
-  //         {
-  //           title: "Check Email",
-  //           path: "/auth/classic/check-email",
-  //         },
-  //         {
-  //           title: "Reset Password",
-  //           children: [
-  //             {
-  //               title: "Enter Email",
-  //               path: "/auth/classic/reset-password/enter-email",
-  //             },
-  //             {
-  //               title: "Check Email",
-  //               path: "/auth/classic/reset-password/check-email",
-  //             },
-  //             {
-  //               title: "Change Password",
-  //               path: "/auth/classic/reset-password/change",
-  //             },
-  //             {
-  //               title: "Password Changed",
-  //               path: "/auth/classic/reset-password/changed",
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Branded",
-  //       children: [
-  //         {
-  //           title: "Sign In",
-  //           path: "/auth/login",
-  //         },
-  //         {
-  //           title: "Sign Up",
-  //           path: "/auth/signup",
-  //         },
-  //         {
-  //           title: "2FA",
-  //           path: "/auth/2fa",
-  //         },
-  //         {
-  //           title: "Check Email",
-  //           path: "/auth/check-email",
-  //         },
-  //         {
-  //           title: "Reset Password",
-  //           children: [
-  //             {
-  //               title: "Enter Email",
-  //               path: "/auth/reset-password/enter-email",
-  //             },
-  //             {
-  //               title: "Check Email",
-  //               path: "/auth/reset-password/check-email",
-  //             },
-  //             {
-  //               title: "Change Password",
-  //               path: "/auth/reset-password/change",
-  //             },
-  //             {
-  //               title: "Password Changed",
-  //               path: "/auth/reset-password/changed",
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Welcome Message",
-  //       path: "/auth/welcome-message",
-  //     },
-  //     {
-  //       title: "Account Deactivated",
-  //       path: "/auth/account-deactivated",
-  //     },
-  //     {
-  //       title: "Error 404",
-  //       path: "/error/404",
-  //     },
-  //     {
-  //       title: "Error 500",
-  //       path: "/error/500",
-  //     },
-  //   ],
-  // },
 ];
 export const MENU_MEGA = [
   {
@@ -1315,7 +819,7 @@ export const MENU_MEGA = [
       {
         title: "Getting Started",
         icon: "coffee",
-        path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
+        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
       },
       {
         title: "Support Forum",
@@ -1324,17 +828,17 @@ export const MENU_MEGA = [
           {
             title: "All Questions",
             icon: "questionnaire-tablet",
-            path: "https://devs.keenthemes.com",
+            // path: "https://devs.keenthemes.com",
           },
           {
             title: "Popular Questions",
             icon: "star",
-            path: "https://devs.keenthemes.com/popular",
+            // path: "https://devs.keenthemes.com/popular",
           },
           {
             title: "Ask Question",
             icon: "message-question",
-            path: "https://devs.keenthemes.com/question/create",
+            // path: "https://devs.keenthemes.com/question/create",
           },
         ],
       },
@@ -1345,12 +849,12 @@ export const MENU_MEGA = [
           placement: "right",
         },
         icon: "subtitle",
-        path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
+        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
       },
       {
         title: "Documentation",
         icon: "questionnaire-tablet",
-        path: "https://keenthemes.com/metronic/tailwind/docs",
+        // path: "https://keenthemes.com/metronic/tailwind/docs",
       },
       {
         separator: true,
@@ -1358,7 +862,7 @@ export const MENU_MEGA = [
       {
         title: "Contact Us",
         icon: "share",
-        path: "https://keenthemes.com/contact",
+        // path: "https://keenthemes.com/contact",
       },
     ],
   },
