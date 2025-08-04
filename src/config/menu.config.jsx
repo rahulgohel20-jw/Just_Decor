@@ -85,7 +85,7 @@ export const MENU_SIDEBAR = [
       path:"/leave-dashboard",
       },
 
-    
+
       {
         title: "My Attendance",
         path: "/myattendance",
@@ -1470,10 +1470,6 @@ export const MENU_SIDEBAR = [
       {
         title: "Dashboard",
         path: "/leave-dashboard",
-      },
-      {
-        title: "Dashboard",
-        path: "/dashboard",
       },
       {
         title: "My Attendance",
