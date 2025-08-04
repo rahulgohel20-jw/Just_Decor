@@ -7,6 +7,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import { Link } from "react-router-dom";
+import { underConstruction } from "@/underConstruction";
 
 const EventListPage = () => {
   const classes = useStyle();
@@ -17,31 +18,31 @@ const EventListPage = () => {
       return {
         ...item,
         proforma_invoice: (
-          <Link to="/proforma-invoice">
+          // <Link to="/proforma-invoice">
           <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
               <FileText className="w-5 h-5 text-primary" />
             </div>
           </Tooltip>
-          </Link>
+          // </Link>
         ),
         invoice: (
-          <Link to="/event-invoice">
+          // <Link to="/event-invoice">
           <Tooltip className="cursor-pointer" title="Invoice">
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
               <Receipt className="w-5 h-5 text-success" />
             </div>
           </Tooltip>
-          </Link>
+          // </Link>
         ),
         quotation: (
-          <Link to="/quotation">
+          // <Link to="/quotation">
           <Tooltip className="cursor-pointer" title="Quotation">
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
               <BadgeDollarSign className="w-5 h-5 text-blue-600" />
             </div>
           </Tooltip>
-          </Link>
+          // </Link>
         ),
         handleModalOpen: handleModalOpen,
       };

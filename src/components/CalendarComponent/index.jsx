@@ -9,7 +9,12 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
       <FullCalendar
         events={data}
         eventClick={(e) => openEvent(e)} 
-        plugins={[dayGridPlugin, interactionPlugin]}
+        plugins={[
+            dayGridPlugin, 
+            // timeGridPlugin,
+            // listPlugin,
+            interactionPlugin
+          ]}
         initialView="dayGridMonth"
         headerToolbar={{
           left: "prev,next today",
@@ -20,6 +25,8 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
           today: "Today",
           dayGridMonth: "Month",
           dayGridWeek: "Week",
+          timeGridDay: "Day",
+          listWeek: "List", 
         }}
          dateClick={handleDateClick} 
       />
