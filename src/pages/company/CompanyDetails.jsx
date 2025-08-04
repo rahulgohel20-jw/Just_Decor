@@ -116,21 +116,21 @@ const CompanyDetails = () => {
               {/* <PageMenu /> */}
               <button
                 type="button"
-                className="btn btn-sm btn-success"
+                className="btn btn-sm btn-primary"
                 title="All Tasks"
               >
                 All Tasks
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Templates"
               >
                 Tasks Templates
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-light"
+                className="btn btn-sm btn-primary"
                 title="Tasks Directory"
               >
                 Tasks Directory
@@ -215,7 +215,7 @@ const CompanyDetails = () => {
                 </h6>
                 <div className="flex flex-col my-3">
                   <div className="filItems relative">
-                    <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                    <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                     <input
                       className="input pl-8"
                       placeholder="Search company"
@@ -258,7 +258,7 @@ const CompanyDetails = () => {
                   </h4>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="filItems relative">
-                      <i className="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                       <input
                         className="input pl-8"
                         placeholder="Search contact"
@@ -287,13 +287,13 @@ const CompanyDetails = () => {
                         <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />
@@ -321,13 +321,13 @@ const CompanyDetails = () => {
                         <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
                         <div className="flex gap-2">
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-success"
                             title="View"
                           >
                             <i className="ki-filled ki-eye"></i>
                           </button>
                           <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            className="btn btn-sm btn-icon btn-clear btn-danger"
                             title="Delete"
                           >
                             <KeenIcon icon="trash" />

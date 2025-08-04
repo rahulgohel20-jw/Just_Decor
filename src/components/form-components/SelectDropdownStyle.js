@@ -3,9 +3,10 @@ import { makeStyles } from "@mui/styles";
 const useStyles = makeStyles({
   formGrp: {
     "& .ant-select": {
-      minWidth: 200,
-      maxWidth: 240,
+      // minWidth: "100%",
+      // maxWidth: 240,
       width: "100%",
+      height: "40px",
       "& .ant-select-selector": {
         borderColor: "var(--tw-gray-300)",
         "& .ant-select-selection-wrap": {

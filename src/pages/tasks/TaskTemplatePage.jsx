@@ -24,14 +24,25 @@ const TaskTemplatePage = () => {
       template: "Task Template 4",
       template_description: "Description for task template 4",
     },
+    {
+      id: "5",
+      template: "Task Template 5",
+      template_description: "Description for task template 4",
+    },
+    {
+      id: "6",
+      template: "Task Template 6",
+      template_description: "Description for task template 4",
+    },
   ];
 
   const renderItem = (item) => {
     return (
       <div
-        className="p-3 card bg-white dark:bg-dark border rounded-lg shadow-sm m-2 bg-user-access"
+        className="p-5 card"
         key={item.id}
       >
+        <h4>Template Title</h4>
         <h4>{item.title}</h4>
         <small>{item.template_description}</small>
       </div>
@@ -44,13 +55,11 @@ const TaskTemplatePage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Tasks Template" }]} />
         </div>
-        <div className="flex justify-end">
-          <button className="btn btn-sm btn-primary">
-            Create New Template
-          </button>
-        </div>
-        <div className="grid lg:grid-cols-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
           {itemList && itemList.map((item, index) => renderItem(item))}
+           <a href="#" className="p-5 card flex items-center justify-center border-2 border-dashed border-primary/10 bg-center bg-[length:600px] bg-no-repeat add-new-bg">
+            <h4>Add New Template</h4>
+          </a>
         </div>
       </Container>
     </Fragment>

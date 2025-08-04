@@ -40,10 +40,10 @@ const LeadDetailPage = () => {
       <Container>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1.5">
-            <button className="btn btn-sm btn-success" title="New Inquiry">New Inquiry</button>
+            <button className="btn btn-sm btn-primary" title="New Inquiry">New Inquiry</button>
             {leadTypes.map(({ id, name }, index) => (
               <div className="filItems relative">
-                <button className="btn btn-sm btn-light" title={name} key={index}>
+                <button className="btn btn-sm btn-primary" title={name} key={index}>
                   {name}
                 </button>
               </div>

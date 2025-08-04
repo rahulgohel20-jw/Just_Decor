@@ -53,8 +53,7 @@ const LeadLeftComponent = () => {
           <div className="text-sm text-gray-700">Description:</div>
           <div className="text-md font-medium text-gray-900">He will call back in 10 min Details shared</div>
         </div>
-      </div>
-      
+      </div>      
       <hr className="border-t border-gray-200 my-5" />
       <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
         Contact Details

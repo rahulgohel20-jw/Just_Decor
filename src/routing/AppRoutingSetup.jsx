@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
-import {  Demo1DarkSidebarPage } from "@/pages/dashboards";
+import { Demo1DarkSidebarPage } from "@/pages/dashboards";
 import {
   ProfileActivityPage,
   ProfileBloggerPage,
@@ -111,17 +111,19 @@ import {
 
 import { Holiday } from "@/pages/Leave/holiday";
 import { MyLeaves } from "@/pages/Leave/my-leaves";
-import {Approval} from "@/pages/Leave/approval";
+import { Approval } from "@/pages/Leave/approval";
 import { Myattendance } from "@/pages/Leave/my-attendance/Myattendance";
 import Allleave from "@/pages/Leave/all-leave/Allleave";
 import { AllAttendance } from "@/pages/Leave/all-attendance";
 import { LeaveType } from "@/pages/Leave/settings/leave-type/LeaveType";
 
-
 import { AttendanceSetting } from "@/pages/Leave/settings/attendance-settings/AttendanceSettings";
 import { OfficeSetting } from "@/pages/Leave/settings/offices-settings/OfficeSettings";
 
-import  Leavedashboard  from "@/pages/Leave/dashboard/Leavedashboard";
+import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
+import CalendarPage from "@/pages/Event/CalendarPage";
+import CreateEventPage from "@/pages/Event/CreateEventPage";
+import EventListPage from "@/pages/Event/EventListPage";
 
 const AppRoutingSetup = () => {
   return (
@@ -149,6 +151,11 @@ const AppRoutingSetup = () => {
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
 
+          {/* event management routes */}
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/event" element={<EventListPage />} />
+          <Route path="/add-event" element={<CreateEventPage />} />
+
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
           <Route
@@ -157,19 +164,21 @@ const AppRoutingSetup = () => {
           ></Route>
           <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
 
-{/* leavs route */}
-<Route path="/approval" element={<Approval/>}></Route>
-<Route path="/holiday" element={<Holiday/>}></Route>
-<Route path="/myleaves" element={<MyLeaves/>}></Route>
-<Route path="/allleave" element={<Allleave/>}></Route>
-<Route path="allattendance" element={<AllAttendance/>}></Route>
-<Route path="leavetype" element={<LeaveType/>}></Route>
-<Route path ="/myattendance" element={<Myattendance/>}></Route>
-<Route path="/leave-dashboard" element={<Leavedashboard/>}></Route>
+          {/* leavs route */}
+          <Route path="/approval" element={<Approval />}></Route>
+          <Route path="/holiday" element={<Holiday />}></Route>
+          <Route path="/myleaves" element={<MyLeaves />}></Route>
+          <Route path="/allleave" element={<Allleave />}></Route>
+          <Route path="allattendance" element={<AllAttendance />}></Route>
+          <Route path="leavetype" element={<LeaveType />}></Route>
+          <Route path="/myattendance" element={<Myattendance />}></Route>
+          <Route path="/leave-dashboard" element={<Leavedashboard />}></Route>
 
-
-<Route path="/attendance-setting" element={<AttendanceSetting></AttendanceSetting>}></Route>
-<Route path="officesetting" element={<OfficeSetting/>}></Route>
+          <Route
+            path="/attendance-setting"
+            element={<AttendanceSetting></AttendanceSetting>}
+          ></Route>
+          <Route path="officesetting" element={<OfficeSetting />}></Route>
 
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />

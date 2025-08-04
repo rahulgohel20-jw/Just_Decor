@@ -114,7 +114,7 @@ const Breadcrumbs = ({ items }) => {
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>
-              <button className="btn btn-sm btn-success" title="Create New">
+              <button className="btn btn-sm btn-primary" title="Create New">
                 <i className="ki-filled ki-plus"></i>
                 Create New
               </button>

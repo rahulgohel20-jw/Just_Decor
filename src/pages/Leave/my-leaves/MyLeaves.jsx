@@ -115,8 +115,7 @@ const MyLeaves = () => {
                 <option value="0">Casual Leave</option>
                 <option value="1">Earned Leave</option>
                 <option value="2">Sick Leave</option>
-                <option value="3">Leave Without Pay</option>
-                
+                <option value="3">Leave Without Pay</option>                
               </select>
             </div>
             <div className="filItems">
@@ -124,15 +123,11 @@ const MyLeaves = () => {
                 <option value="0">All</option>
                 <option value="1">Pending</option>
                 <option value="2">Approved</option>
-                <option value="3">Rejected</option>
-                
+                <option value="3">Rejected</option>                
               </select>
             </div>
-          </div>
-          
+          </div>          
         </div>
-        
-        
       </Container>
       <AddLeave
         isModalOpen={isModalOpen}

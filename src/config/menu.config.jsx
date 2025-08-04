@@ -1,34 +1,26 @@
 export const MENU_SIDEBAR = [
   {
     title: "MyApp",
-    icon: "element-11",
+    icon: "element-11 text-primary",
     path: "/",
   },
   {
     title: "Event Management",
-    icon: "ki-filled ki-abstract-18",
+    icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
-        title: "Events",
-        // path: "/overview",
+        title: "Calendar",
+        path: "/calendar",
       },
       {
-        title: "Add Event",
-        // path: "/lead",
-      },
-      {
-        title: "Menu Planning",
-        // path: "/contacts",
-      },
-      {
-        title: "Quotation",
-        // path: "/contacts",
+        title: "Event",
+        path: "/event",
       },
     ],
   },
   {
     title: "Leads",
-    icon: "ki-filled ki-abstract-18",
+    icon: "ki-filled ki-abstract-18 text-primary",
     children: [
       {
         title: "Overview",
@@ -58,7 +50,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Tasks",
-    icon: "ki-filled ki-abstract-16",
+    icon: "ki-filled ki-abstract-16 text-primary",
     children: [
       {
         title: "All Tasks",
@@ -77,12 +69,18 @@ export const MENU_SIDEBAR = [
 
   {
     title: "leaves",
-    icon: "ki-filled ki-abstract-17",
+    icon: "ki-filled ki-abstract-17 text-primary",
     children: [
       {
 
       title:"Dashboard",
       path:"/leave-dashboard",
+        title: "Dashboard",
+        path: "/leave-dashboard",
+      },
+      {
+        title: "Dashboard",
+        path: "/dashboard",
       },
 
     
@@ -112,7 +110,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Settings",
-        icon: "ki-filled ki-setting-2",
+        icon: "ki-filled ki-setting-2 text-primary",
         children: [
           {
             title: "Leave Type",
@@ -132,12 +130,12 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Links",
-    icon: "ki-filled ki-disconnect",
+    icon: "ki-filled ki-disconnect text-primary",
     path: "/links",
   },
   {
     title: "Team",
-    icon: "ki-filled ki-users",
+    icon: "ki-filled ki-users text-primary",
     children: [
       {
         title: "Sales Team",
@@ -155,7 +153,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Settings",
-    icon: "ki-filled ki-setting-2",
+    icon: "ki-filled ki-setting-2 text-primary",
     children: [
       {
         title: "General",
@@ -177,7 +175,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Support",
-    icon: "ki-filled ki-support",
+    icon: "ki-filled ki-support text-primary",
     children: [
       { title: "Events", path: "/support/events" },
       { title: "Tutorials", path: "/support/tutorials" },
@@ -189,7 +187,7 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Billing",
-    icon: "ki-filled ki-cheque",
+    icon: "ki-filled ki-cheque text-primary",
     children: [
       {
         title: "Overview",
@@ -1315,7 +1313,7 @@ export const MENU_MEGA = [
       {
         title: "Getting Started",
         icon: "coffee",
-        path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
+        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
       },
       {
         title: "Support Forum",
@@ -1324,17 +1322,17 @@ export const MENU_MEGA = [
           {
             title: "All Questions",
             icon: "questionnaire-tablet",
-            path: "https://devs.keenthemes.com",
+            // path: "https://devs.keenthemes.com",
           },
           {
             title: "Popular Questions",
             icon: "star",
-            path: "https://devs.keenthemes.com/popular",
+            // path: "https://devs.keenthemes.com/popular",
           },
           {
             title: "Ask Question",
             icon: "message-question",
-            path: "https://devs.keenthemes.com/question/create",
+            // path: "https://devs.keenthemes.com/question/create",
           },
         ],
       },
@@ -1345,12 +1343,12 @@ export const MENU_MEGA = [
           placement: "right",
         },
         icon: "subtitle",
-        path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
+        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
       },
       {
         title: "Documentation",
         icon: "questionnaire-tablet",
-        path: "https://keenthemes.com/metronic/tailwind/docs",
+        // path: "https://keenthemes.com/metronic/tailwind/docs",
       },
       {
         separator: true,
@@ -1358,7 +1356,7 @@ export const MENU_MEGA = [
       {
         title: "Contact Us",
         icon: "share",
-        path: "https://keenthemes.com/contact",
+        // path: "https://keenthemes.com/contact",
       },
     ],
   },

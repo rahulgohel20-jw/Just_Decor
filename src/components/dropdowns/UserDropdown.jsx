@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 
-const UserDropdown = () => {
-  const [selectedCompanies, setSelectedCompanies] = useState([]);
+const UserDropdown = ({ value, onChange, ...rest }) => {
+  const [selectedCompanies, setSelectedCompanies] = useState(value || []);
 
   const handleChange = (event) => {
     setSelectedCompanies(event.target.value);
+    onChange(event);
   };
 
   return (
@@ -17,7 +18,8 @@ const UserDropdown = () => {
         { label: "User B", value: "UserB" },
         { label: "User C", value: "UserC" },
       ]}
-      mode="multiple"
+      placeholder={"Please select"}
+      {...rest}
     />
   );
 };

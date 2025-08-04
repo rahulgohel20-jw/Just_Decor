@@ -1,36 +1,28 @@
 import { useState } from "react";
-
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { Input } from "@mui/base";
-
 const AddBalance = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-
   const [activeTab, setActiveTab] = useState("tab_1");
-
   const renderTabContent = () => {
     switch (activeTab) {
       case "tab_1":
         return <div id="tab_1" className="tab-content active"></div>;
-
       default:
         return null;
     }
   };
-
   return (
     isModalOpen && (
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
         width={400}
-        header={null}
+        title={"Recharge Wallet"}
         footer={null}
       >
           <div className="flex flex-col">
-            <h4 className="text-xl font-bold text-center mb-3">Recharge Wallet</h4>
             <div className="flex flex-col">
               <div className="flex flex-col items-center bg-primary rounded-t-lg border-t py-3">
                 <h4 className="text-2xl font-semibold text-white">&#8377;100</h4>

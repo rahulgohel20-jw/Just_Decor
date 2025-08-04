@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
@@ -13,6 +13,16 @@ import LeadReportTab from "@/components/LeadOverview/LeadReportTab";
 import FollowUpReportTab from "@/components/LeadOverview/FollowUpReportTab";
 
 const OverviewPage = () => {
+  const [filters, setFilters] = useState({});
+
+  const onInputChange = (event) => {
+    const { name, value } = event.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
   const salesTabs = [
     {
       label: "Daily",
@@ -100,28 +110,33 @@ const OverviewPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Overview" }]} />
+          <Breadcrumbs items={[{ title: "Lead Overview" }]} />
         </div>
         {/* filters */}
-        <div className="filters flex flex-wrap items-center gap-2 mb-3">
+        <div className="filters flex-wrap items-center gap-2 mb-3">
           <div className="filItems">
-            <PipLineDropdown />
+            <PipLineDropdown
+              value={filters.event_type}
+              onChange={onInputChange}
+            />
           </div>
           <div className="filItems">
-            <SourceDropdown />
+            <SourceDropdown value={filters.source} onChange={onInputChange} />
           </div>
           <div className="filItems">
-            <SalesPersonDropdown />
+            <SalesPersonDropdown
+              value={filters.sales_person}
+              onChange={onInputChange}
+            />
           </div>
           <div className="filItems">
-            <CompanyDropdown />
+            <CompanyDropdown value={filters.company} onChange={onInputChange} />
           </div>
           <div className="filItems">
-            <button className="btn btn-light" title="Refresh">
+            <button className="btn btn-primary" title="Refresh">
               <i className="ki-filled ki-arrows-circle"></i>
             </button>
           </div>
-          <div className="filItems"></div>
         </div>
 
         {/* Lead Cards */}

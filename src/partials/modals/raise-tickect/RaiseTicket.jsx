@@ -26,6 +26,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
+<<<<<<< HEAD
           <div id="tab_1" className="tab-content space-y-4">
             <div className="flex flex-col">
               <label className="form-label">Category</label>
@@ -84,6 +85,81 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
                 rows={4}
                 className="input"
               ></textarea>
+=======
+          <div id="tab_1" className="flex flex-col gap-y-3">
+            <select
+              name="category"
+              value={formData?.category || ""}
+              onChange={handleInputChange}
+              required
+              className="select pe-7.5"
+            >
+              <option>
+                Select Category
+              </option>
+              <option>Report An Issue</option>
+              <option>Give Feedback</option>
+              <option>Issue on Billing</option>
+            </select>
+            <select
+              name="sub_category"
+              value={formData?.sub_category || ""}
+              onChange={handleInputChange}
+              required
+              className="select pe-7.5"
+            >
+              <option>Select Sub Category</option>
+              <option>Leads</option>
+              <option>Contact</option>
+              <option>Follow Up</option>
+              <option>Other</option>
+            </select>
+            <div className="input">
+                <i className="ki-filled ki-tag"></i>
+                <input
+                
+              name="subject"
+              value={formData?.subject || ""}
+              onChange={handleInputChange}
+              type="text"
+              placeholder="Subject"
+              required
+                  className="h-full"
+                />
+            </div>
+            <textarea
+              name="description"
+              value={formData?.description || ""}
+              onChange={handleInputChange}
+              placeholder="Description"
+              rows={4}
+                  className="textarea h-full"
+              required
+            ></textarea>
+          </div>
+        );
+      case "tab_2":
+        return (
+          <div id="tab_2" className="space-y-4">
+            <div className="flex flex-col">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-7 text-center bg-gray-100">
+                <i className="ki-filled ki-picture text-3xl text-gray-500 mb-2.5"></i>
+                <h4 className="text-base font-semibold text-gray-700 leading-none mb-1">Upload Screenshots</h4>
+                <p className="text-gray-500 mb-3">Drag and drop files here or click to browse</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="image-upload"
+                  onChange={(e) =>
+                    setFormData({ ...formData, image: e.target.files[0] })
+                  }
+                />
+                <label htmlFor="image-upload" className="btn btn-sm btn-light" title="Browse Files">
+                  Browse Files
+                </label>
+              </div>
+>>>>>>> 8f84c198cf74a2a77837069c5c4a6779ead84a91
             </div>
           </div>
         );
