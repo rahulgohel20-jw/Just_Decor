@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DatePicker } from "antd";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
 import ContactDropdown from "@/components/dropdowns/ContactDropdown";
 import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
@@ -34,7 +34,7 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
               type="button"
               onClick={handleAddClick}
               title="Add"
-              className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
+              className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
             >
               <i className="ki-filled ki-plus"></i>
             </button>
@@ -51,7 +51,7 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
               type="button"
               onClick={() => handleAddClick("Manager")}
               title="Add"
-              className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
+              className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
             >
               <i className="ki-filled ki-plus"></i>
             </button>
@@ -78,34 +78,33 @@ const EventBasicInfoStep = ({ formData, setFormData, onInputChange }) => {
           <label className="form-label">Enquiry Date</label>
           <DatePicker
             date={formData.meeting_date}
-            className="input border-2 border-primary rounded-lg"
+            className="input"
             setDate={(date) => setFormData({ ...formData, meeting_date: date })}
-            defaultValue={formData.meeting_date ? dayjs(formData.meeting_date) : null} // Show selected value
+            defaultValue={
+              formData.meeting_date ? dayjs(formData.meeting_date) : null
+            } // Show selected value
           />
         </div>
-
-        {/* Event Date */}
         <div className="flex flex-col">
           <label className="form-label">Event Date</label>
           <DatePicker
-            className="input border-2 border-primary rounded-lg"
+            className="input"
             date={formData.event_date}
             setDate={(date) => setFormData({ ...formData, event_date: date })}
-            defaultValue={formData.event_date ? dayjs(formData.event_date) : null} // Show selected value
+            defaultValue={
+              formData.event_date ? dayjs(formData.event_date) : null
+            } // Show selected value
           />
         </div>
-
-        {/* Status */}
         <div className="flex flex-col">
           <label className="form-label">Status</label>
           <EventStatusDropdown
             value={formData.status}
-            className="w-full border-2 border-primary rounded-lg"
+            className="w-full"
             onChange={onInputChange}
           />
         </div>
       </div>
-      {/* Modal */}
       <AddCustomer
         isOpen={showCustomerModal}
         onClose={() => setShowCustomerModal(false)}

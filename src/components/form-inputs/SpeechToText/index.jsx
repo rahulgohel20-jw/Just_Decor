@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, Square } from "lucide-react";
-
 const SpeechToText = ({
   name,
   placeholder,
@@ -14,7 +13,6 @@ const SpeechToText = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef(null);
   const silenceTimeoutRef = useRef(null);
-
   useEffect(() => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
@@ -22,20 +20,16 @@ const SpeechToText = ({
       alert("Speech Recognition not supported in this browser.");
       return;
     }
-
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const recog = new SpeechRecognition();
     recog.continuous = true;
     recog.interimResults = true;
     recog.lang = lang;
-
     recog.onstart = () => setIsListening(true);
-
     recog.onresult = (event) => {
       let finalText = "";
       let speakingNow = false;
-
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = result[0].transcript;
@@ -45,7 +39,6 @@ const SpeechToText = ({
           speakingNow = true;
         }
       }
-
       if (finalText.trim()) {
         onChange({
           target: {
@@ -54,34 +47,28 @@ const SpeechToText = ({
           },
         });
       }
-
       if (speakingNow) {
         setIsSpeaking(true);
         resetSilenceTimeout();
       }
     };
-
     recog.onend = () => {
       setIsListening(false);
       setIsSpeaking(false);
       clearTimeout(silenceTimeoutRef.current);
     };
-
     recognitionRef.current = recog;
-
     return () => {
       recog.abort();
       clearTimeout(silenceTimeoutRef.current);
     };
   }, [name, value, onChange]);
-
   const resetSilenceTimeout = () => {
     clearTimeout(silenceTimeoutRef.current);
     silenceTimeoutRef.current = setTimeout(() => {
       recognitionRef.current?.stop();
     }, 3000);
   };
-
   const toggleMic = () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -89,7 +76,6 @@ const SpeechToText = ({
       recognitionRef.current?.start();
     }
   };
-
   const renderField = () => {
     const commonProps = {
       className: `input ${className}`,
@@ -98,14 +84,12 @@ const SpeechToText = ({
       value,
       onChange,
     };
-
     return type === "textarea" ? (
       <textarea rows={4} {...commonProps} />
     ) : (
       <input type="text" {...commonProps} />
     );
   };
-
   return (
     <div className="sg__inner flex items-center gap-1 relative">
       {renderField()}
@@ -113,18 +97,15 @@ const SpeechToText = ({
         type="button"
         onClick={toggleMic}
         // className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
-        className="relative w-10 h-10 flex items-center justify-center "
+        className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
       >
-        {isListening && isSpeaking && (
-          <span className="absolute w-full h-full rounded-full bg-purple-400 opacity-30 animate-ping z-0"></span>
-        )}
-        <span className="me-1.5 btn btn-light flex items-center justify-center rounded-full p-0 w-8 h-8">
-          {isListening ? (
-            <Square size={18} className="text-danger" />
-          ) : (
-            <Mic size={18} className="text-primary" />
-          )}
-        </span>
+        {
+          isListening && isSpeaking && ""
+          // <span className="absolute w-full h-full rounded-full bg-purple-400 opacity-30 animate-ping z-0"></span>
+        }
+        {/* <span className="me-1.5 btn btn-light flex items-center justify-center rounded-full p-0 w-8 h-8"> */}
+        {isListening ? <Square size={18} /> : <Mic size={18} />}
+        {/* </span> */}
       </button>
     </div>
   );
