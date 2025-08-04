@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { FileUp, ClipboardList } from "lucide-react";
+import PropTypes from 'prop-types';
 
 const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [formData, setFormData] = useState({});
@@ -189,4 +190,9 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
   );
 };
 
+RaiseTicket.propTypes = {
+  isModalOpen: PropTypes.bool.isRequired,
+  setIsModalOpen: PropTypes.func.isRequired,
+  editData: PropTypes.object,
+};
 export default RaiseTicket;
