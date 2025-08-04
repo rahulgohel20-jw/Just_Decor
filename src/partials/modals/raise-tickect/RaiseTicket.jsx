@@ -26,7 +26,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
     switch (activeTab) {
       case "tab_1":
         return (
-<<<<<<< HEAD
+
           <div id="tab_1" className="tab-content space-y-4">
             <div className="flex flex-col">
               <label className="form-label">Category</label>
@@ -159,7 +159,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
                   Browse Files
                 </label>
               </div>
->>>>>>> 8f84c198cf74a2a77837069c5c4a6779ead84a91
+
             </div>
           </div>
         );
@@ -211,6 +211,7 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
   }, [isModalOpen, editData]);
 
   return (
+
     isModalOpen && (
       <CustomModal
         open={isModalOpen}
@@ -242,6 +243,40 @@ const RaiseTicket = ({ isModalOpen, setIsModalOpen, editData }) => {
           <a
             className={`btn btn-clear w-full flex justify-center ${
               activeTab === "tab_1" ? "active" : ""
+
+    <CustomModal
+      open={isModalOpen}
+      onClose={handleModalClose}
+      title="Raise a Ticket"
+      width={540}
+      footer={[
+        <div className="flex justify-between" key="footer-buttons">
+          <button
+            key="cancel"
+            className="btn btn-light"
+            onClick={handleModalClose}
+            title="Cancel"
+          >
+            Cancel
+          </button>
+          <button
+            key="submit"
+            className="btn btn-success"
+            onClick={handleSubmit}
+            title="Submit"
+          >
+            Submit
+          </button>
+        </div>,
+      ]}
+    >
+      <div className="space-y-4">
+        <div className="flex justify-between gap-2">
+          <button
+            type="button"
+            className={`w-full p-2 rounded border border-gray-300 ${
+              activeTab === "tab_1" ? "bg-gray-200" : ""
+
             }`}
             onClick={() => setActiveTab("tab_1")}
           >

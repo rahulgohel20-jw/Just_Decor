@@ -79,7 +79,7 @@ export default plugin(({ addComponents, theme }) => {
       },
       [`.badge-outline.badge-${color}`]: {
         color: `var(--tw-${color})`,
-        "background-color": `var(--tw-${color}-light)`,
+        "background-color": `var(--tw-${color}-lighter)`,
         "border-color": `var(--tw-${color}-clarity)`,
       },
     });

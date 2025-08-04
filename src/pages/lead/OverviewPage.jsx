@@ -113,7 +113,7 @@ const OverviewPage = () => {
           <Breadcrumbs items={[{ title: "Lead Overview" }]} />
         </div>
         {/* filters */}
-        <div className="filters flex-wrap items-center gap-2 mb-3">
+        <div className="filters flex flex-wrap items-center gap-2 mb-3">
           <div className="filItems">
             <PipLineDropdown
               value={filters.event_type}
@@ -148,7 +148,7 @@ const OverviewPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Total: <strong>0</strong>
@@ -166,7 +166,7 @@ const OverviewPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Open: <strong>0</strong>
@@ -184,7 +184,7 @@ const OverviewPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Won: <strong>0</strong>
@@ -202,7 +202,7 @@ const OverviewPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Lost: <strong>0</strong>

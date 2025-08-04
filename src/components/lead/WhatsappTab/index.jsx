@@ -3,6 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TableComponent } from "@/components/table/TableComponent";
 import { Confirmation } from "@/components/confirmation/confirmation";
 import { columns, defaultData } from "./constant";
+import { Tooltip } from "antd";
 
 const WhatsappTab = () => {
   const handleEdit = (data) => {
@@ -16,23 +17,27 @@ const WhatsappTab = () => {
         ...item,
         action: (
           <div className="flex items-center justify-center gap-1">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Edit"
-              onClick={() => handleEdit(item)}
-            >
-              <i className="ki-filled ki-notepad-edit"></i>
-            </button>
-            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
-              <Confirmation
-                trigger={<i className="ki-filled ki-trash"></i>}
-                content="Do you really want to delete?"
-                yesText="Proceed"
-                noText="Dismiss"
-                onConfirm={() => console.log("User confirmed")}
-                onCancel={() => console.log("User cancelled")}
-              ></Confirmation>
-            </button>
+            <Tooltip title="Edit">
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Edit"
+                onClick={() => handleEdit(item)}
+              >
+                <i className="ki-filled ki-notepad-edit text-primary"></i>
+              </button>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+                <Confirmation
+                  trigger={<i className="ki-filled ki-trash text-danger"></i>}
+                  content="Do you really want to delete?"
+                  yesText="Proceed"
+                  noText="Dismiss"
+                  onConfirm={() => console.log("User confirmed")}
+                  onCancel={() => console.log("User cancelled")}
+                ></Confirmation>
+              </button>
+            </Tooltip>
           </div>
         ),
       };
@@ -47,12 +52,14 @@ const WhatsappTab = () => {
         <div className="flex flex-wrap items-center gap-2">
           <div className="filItems">
             <button className="btn btn-primary shrink-0" title="Send Whatsapp">
-              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Send Whatsapp
+              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Send
+              Whatsapp
             </button>
           </div>
           <div className="filItems">
             <button className="btn btn-primary shrink-0" title="Whatsapp Web">
-              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Whatsapp Web
+              <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Whatsapp
+              Web
             </button>
           </div>
         </div>

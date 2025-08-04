@@ -4,14 +4,11 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddLink from "../../partials/modals/add-link/AddLink";
 import { columns, defaultData } from "./constant";
-
 const LinkList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-
   const responseFormate = () => {
     const data = defaultData.map((item) => {
       return {
@@ -21,7 +18,6 @@ const LinkList = () => {
     });
     return data;
   };
-
   const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>

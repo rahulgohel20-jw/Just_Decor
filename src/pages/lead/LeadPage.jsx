@@ -176,7 +176,7 @@ const LeadPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Total: <strong>3</strong>
@@ -192,7 +192,7 @@ const LeadPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Open: <strong>150</strong>
@@ -208,7 +208,7 @@ const LeadPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Won: <strong>1</strong>
@@ -224,7 +224,7 @@ const LeadPage = () => {
                 title="Type one"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-1"></i>
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
                       Lost: <strong>3</strong>

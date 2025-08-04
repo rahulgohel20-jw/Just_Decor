@@ -1,9 +1,11 @@
 import { DatePicker } from "antd";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import { Textarea } from "@/components/ui/textarea";
+import useStyles from "./style";
 
 const FunctionsStep = ({ formData, setFormData }) => {
-  console.log(formData, "formData");
+  const classes = useStyles();
+
   const handleAddFunction = () => {
     const newFunction = {
       customer_id: "",
@@ -44,7 +46,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
         formData.function_array.length > 0 &&
         formData.function_array.map((func, index) => (
           <div
-            className="card p-4 bg-white shadow-sm rounded-lg mb-4"
+            className={`card p-4 bg-white shadow-sm rounded-lg mb-4 ${classes.customStyle}`}
             key={index}
           >
             <div className="flex flex-col gap-y-2 gap-x-4">
@@ -57,8 +59,6 @@ const FunctionsStep = ({ formData, setFormData }) => {
                     className="w-full"
                   />
                 </div>
-
-                
 
                 <div className="flex flex-col">
                   <label className="form-label">Start Date</label>
@@ -98,7 +98,6 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   />
                 </div>
 
-                
                 <div className="flex flex-col">
                   <label className="form-label">Location</label>
                   <Textarea
@@ -109,7 +108,6 @@ const FunctionsStep = ({ formData, setFormData }) => {
                     onChange={(e) => handleInputChange(e, index)}
                   />
                 </div>
-                
               </div>
               <div className="flex justify-end mt-2">
                 <button
@@ -131,8 +129,12 @@ const FunctionsStep = ({ formData, setFormData }) => {
           </div>
         )}
       <div className="mt-4 text-center">
-        <button className="btn btn-primary" onClick={handleAddFunction}>
-          Add Function
+        <button
+          className="btn btn-success"
+          onClick={handleAddFunction}
+          title="Add Function"
+        >
+          <i className="ki-filled ki-plus"></i> Function
         </button>
       </div>
     </div>

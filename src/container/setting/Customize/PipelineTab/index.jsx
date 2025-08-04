@@ -2,6 +2,7 @@ import { toAbsoluteUrl } from "@/utils";
 import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
 import EmptyData from "@/components/ui/emptyData";
+import { Tooltip } from "antd";
 const PipelineTab = () => {
   const pipeLine = [
     {
@@ -80,15 +81,21 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <button type="button" title="Copy">
-                            <i className="ki-filled ki-copy"></i>
-                          </button>
-                          <button type="button" title="Edit">
-                            <i className="ki-filled ki-notepad-edit"></i>
-                          </button>
-                          <button type="button" title="Delete">
-                            <i className="ki-filled ki-trash"></i>
-                          </button>
+                          <Tooltip title="Copy">
+                            <button type="button" title="Copy">
+                              <i className="ki-filled ki-copy text-success"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button type="button" title="Edit">
+                              <i className="ki-filled ki-notepad-edit text-primary"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button type="button" title="Delete">
+                              <i className="ki-filled ki-trash text-danger"></i>
+                            </button>
+                          </Tooltip>
                         </>
                       }
                     />
@@ -120,12 +127,16 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <button type="button" title="Copy">
-                            <i className="ki-filled ki-copy"></i>
-                          </button>
-                          <button type="button" title="Delete">
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
+                          <Tooltip title="Copy">
+                            <button type="button" title="Copy">
+                              <i className="ki-filled ki-copy text-success"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button type="button" title="Delete">
+                              <i className="ki-filled ki-eye text-success"></i>
+                            </button>
+                          </Tooltip>
                         </>
                       }
                     />
@@ -157,12 +168,16 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
-                          <button type="button" title="Edit">
-                            <i className="ki-filled ki-notepad-edit"></i>
-                          </button>
-                          <button type="button" title="Delete">
-                            <i className="ki-filled ki-trash"></i>
-                          </button>
+                          <Tooltip title="Edit">
+                            <button type="button" title="Edit">
+                              <i className="ki-filled ki-notepad-edit text-primary"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button type="button" title="Delete">
+                              <i className="ki-filled ki-trash text-danger"></i>
+                            </button>
+                          </Tooltip>
                         </>
                       }
                     />

@@ -124,6 +124,15 @@ import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
 import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
+import EventPreparationPage from "@/pages/Event/EventPreparationPage";
+import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
+import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
+import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
+import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
+import DishCostingPage from "@/pages/Event/DishCostingPage";
+import QuotationPage from "@/pages/Event/QuotationPage";
+import EventInvoicePage from "@/pages/Event/EventInvoicePage";
+import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 
 const AppRoutingSetup = () => {
   return (
@@ -155,6 +164,15 @@ const AppRoutingSetup = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
+          <Route path="/menu-preparation" element={<EventPreparationPage />} />
+          <Route path="/menu-allocation" element={<EventMenuAllocationPage />} />
+          <Route path="/raw-material-allocation" element={<RawMaterialAllocationPage />} />
+          <Route path="/labour-and-other-management" element={<LabourOtherManagementPage />} />
+          <Route path="/order-booking-reports" element={<OrderBookingReportsPage />} />
+          <Route path="/dish-costing" element={<DishCostingPage />} />
+          <Route path="/quotation" element={<QuotationPage />} />
+          <Route path="/event-invoice" element={<EventInvoicePage />} />
+          <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
 
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
@@ -173,13 +191,11 @@ const AppRoutingSetup = () => {
           <Route path="leavetype" element={<LeaveType />}></Route>
           <Route path="/myattendance" element={<Myattendance />}></Route>
           <Route path="/leave-dashboard" element={<Leavedashboard />}></Route>
-
           <Route
             path="/attendance-setting"
             element={<AttendanceSetting></AttendanceSetting>}
           ></Route>
           <Route path="officesetting" element={<OfficeSetting />}></Route>
-
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
           <Route
@@ -204,7 +220,6 @@ const AppRoutingSetup = () => {
           {/* Billing routes */}
           <Route path="/billing/overview" element={<BillingOverviewPage />} />
           <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
-
           {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

@@ -3,28 +3,27 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 
-
 import AddMember from "@/partials/modals/add-member/AddMember";
 import { columns, defaultData } from "./constant";
 
 const MemberList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-    const handleModalOpen = () => {
-      setIsModalOpen(true);
-    };
-  
-    const responseFormate = () => {
-      const data = defaultData.map((item) => {
-        return {
-          ...item,
-          handleModalOpen: handleModalOpen,
-        };
-      });
-      return data;
-    };
-  
-    const [tableData, setTableData] = useState(responseFormate());
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  const responseFormate = () => {
+    const data = defaultData.map((item) => {
+      return {
+        ...item,
+        handleModalOpen: handleModalOpen,
+      };
+    });
+    return data;
+  };
+
+  const [tableData, setTableData] = useState(responseFormate());
   return (
     <Fragment>
       <Container>
@@ -58,23 +57,26 @@ const MemberList = () => {
                 <option value="1">Admin</option>
                 <option value="2">Manager</option>
                 <option value="3">Team Manager</option>
-              </select> 
+              </select>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" onClick={handleModalOpen} title="Add Member">              
+            <button
+              className="btn btn-primary"
+              onClick={handleModalOpen}
+              title="Add Member"
+            >
               <i className="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>
         <TableComponent
-                  columns={columns}
-                  data={tableData}
-                  paginationSize={10}
-                />
+          columns={columns}
+          data={tableData}
+          paginationSize={10}
+        />
       </Container>
       <AddMember isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-
     </Fragment>
   );
 };

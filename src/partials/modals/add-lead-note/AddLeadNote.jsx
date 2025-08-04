@@ -40,7 +40,7 @@ const AddLeadNote = ({ isModalOpen, setIsModalOpen, editData }) => {
           footer={[
             <button
               key="cancel"
-              className="btn btn-secondary"
+              className="btn btn-light"
               onClick={handleModalClose}
               title="Cancel"
             >

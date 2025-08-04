@@ -7,6 +7,7 @@ import { CommonHexagonBadge } from "@/partials/common";
 import ViewContact from "../../partials/modals/add-contact/ViewContact";
 import { Navbar, NavbarActions } from "@/partials/navbar";
 import { PageMenu } from "@/pages/public-profile";
+import { Tooltip } from "antd";
 
 const ContactDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,16 +120,14 @@ const ContactDetail = () => {
                 onClick={handleModalOpen}
                 title="Edit Contact"
               >
-                <i className="ki-filled ki-notepad-edit"></i> Edit
-                Contact
+                <i className="ki-filled ki-notepad-edit"></i> Edit Contact
               </button>
               <button
                 type="button"
                 className="btn btn-sm btn-danger"
                 title="Delete Contact"
               >
-                <i className="ki-filled ki-trash"></i> Delete
-                Contact
+                <i className="ki-filled ki-trash"></i> Delete Contact
               </button>
             </div>
           </div>
@@ -140,8 +139,8 @@ const ContactDetail = () => {
                 <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
                   Contact Details
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-success"
+                    fill="fill-light"
                     size="size-[38px]"
                     badge={
                       <i className="ki-filled ki-book-open text-lg text-success"></i>
@@ -200,8 +199,8 @@ const ContactDetail = () => {
                 <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
                   Company Details
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-success"
+                    fill="fill-light"
                     size="size-[38px]"
                     badge={
                       <i className="ki-filled ki-bank text-lg text-success"></i>
@@ -294,7 +293,6 @@ const ContactDetail = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="flex flex-col gap-3 lg:gap-4 max-h-[600px] overflow-auto scrollable-y">
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
@@ -303,7 +301,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -331,12 +329,14 @@ const ContactDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
+                          <Tooltip title="Leads Status">
+                            <div
+                              className="badge badge-outline badge-warning rounded-full badge-lg"
+                              title="New Inquiry"
+                            >
+                              New Inquiry
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -347,30 +347,38 @@ const ContactDetail = () => {
                           <p className="text-sm font-medium">Manan Gandhi</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-primary"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-info"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -382,7 +390,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -410,12 +418,14 @@ const ContactDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
+                          <Tooltip title="Leads Status">
+                            <div
+                              className="badge badge-outline badge-warning rounded-full badge-lg"
+                              title="New Inquiry"
+                            >
+                              New Inquiry
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -426,30 +436,38 @@ const ContactDetail = () => {
                           <p className="text-sm font-medium">Manan Gandhi</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-info"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -461,7 +479,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -489,12 +507,14 @@ const ContactDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
+                          <Tooltip title="Leads Status">
+                            <div
+                              className="badge badge-outline badge-warning rounded-full badge-lg"
+                              title="New Inquiry"
+                            >
+                              New Inquiry
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -505,30 +525,38 @@ const ContactDetail = () => {
                           <p className="text-sm font-medium">Manan Gandhi</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-info"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -540,7 +568,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -568,12 +596,14 @@ const ContactDetail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
+                          <Tooltip title="Leads Status">
+                            <div
+                              className="badge badge-outline badge-warning rounded-full badge-lg"
+                              title="New Inquiry"
+                            >
+                              New Inquiry
+                            </div>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
@@ -584,30 +614,38 @@ const ContactDetail = () => {
                           <p className="text-sm font-medium">Manan Gandhi</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-primary"
+                              title="Edit"
+                            >
+                              <KeenIcon icon="notepad-edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="More">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-info"
+                              title="More"
+                            >
+                              <i className="ki-filled ki-dots-vertical"></i>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -619,165 +657,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
-                              alt=""
-                            />
-                            <div className="grid grid-col">
-                              <p className="text-md font-medium text-gray-900">
-                                Company name
-                              </p>
-                              <span className="text-sm" title="User name">
-                                User name
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div className="flex flex-col">
-                              <div className="text-xs">Created At</div>
-                              <div className="text-sm font-medium text-gray-900">
-                                3 days ago
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="text-xs">Updated At</div>
-                              <span className="text-sm font-medium text-gray-900">
-                                3 days ago
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
-                        <div className="flex flex-wrap items-center">
-                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
-                            mg
-                          </div>
-                          <p className="text-sm font-medium">Manan Gandhi</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card min-w-full">
-                    <div className="flex flex-col flex-1">
-                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
-                        <div className="flex flex-wrap items-center gap-7">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <img
-                              src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
-                              alt=""
-                            />
-                            <div className="grid grid-col">
-                              <p className="text-md font-medium text-gray-900">
-                                Company name
-                              </p>
-                              <span className="text-sm" title="User name">
-                                User name
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div className="flex flex-col">
-                              <div className="text-xs">Created At</div>
-                              <div className="text-sm font-medium text-gray-900">
-                                3 days ago
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="text-xs">Updated At</div>
-                              <span className="text-sm font-medium text-gray-900">
-                                3 days ago
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div
-                            className="badge badge-outline badge-warning rounded-full badge-lg"
-                            title="New Inquiry"
-                          >
-                            New Inquiry
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
-                        <div className="flex flex-wrap items-center">
-                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
-                            mg
-                          </div>
-                          <p className="text-sm font-medium">Manan Gandhi</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Edit"
-                          >
-                            <KeenIcon icon="notepad-edit" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                            title="Action"
-                          >
-                            <i className="ki-filled ki-dots-vertical"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card min-w-full">
-                    <div className="flex flex-col flex-1">
-                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
-                        <div className="flex flex-wrap items-center gap-7">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <img
-                              src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -856,7 +736,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -935,7 +815,7 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
@@ -1014,7 +894,165 @@ const ContactDetail = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-full max-h-10 max-w-full shrink-0"
+                              alt=""
+                            />
+                            <div className="grid grid-col">
+                              <p className="text-md font-medium text-gray-900">
+                                Company name
+                              </p>
+                              <span className="text-sm" title="User name">
+                                User name
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs">Created At</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="text-xs">Updated At</div>
+                              <span className="text-sm font-medium text-gray-900">
+                                3 days ago
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="badge badge-outline badge-warning rounded-full badge-lg"
+                            title="New Inquiry"
+                          >
+                            New Inquiry
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center">
+                          <div className="w-6 h-6 rounded-full bg-primary text-white text-2xs font-bold uppercase flex items-center justify-center me-2">
+                            mg
+                          </div>
+                          <p className="text-sm font-medium">Manan Gandhi</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="View"
+                          >
+                            <i className="ki-filled ki-eye"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Edit"
+                          >
+                            <KeenIcon icon="notepad-edit" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Delete"
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-light"
+                            title="Action"
+                          >
+                            <i className="ki-filled ki-dots-vertical"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+                        <div className="flex flex-wrap items-center gap-7">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <img
+                              src={toAbsoluteUrl("/images/user_img.jpg")}
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">

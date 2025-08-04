@@ -4,6 +4,7 @@ import {
   Settings as FunctionsIcon,
   Utensils as MealIcon,
 } from "lucide-react";
+import dayjs from 'dayjs';
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
@@ -12,9 +13,15 @@ import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
 import MealAndNoteStep from "@/container/EventStepsContainer/MealAndNoteStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
+import { useLocation } from "react-router";
 
 const CreateEventPage = () => {
-  const [formData, setFormData] = useState(requiredFields.basic_info);
+const location = useLocation();
+  const { event_date } = location.state || {};
+  
+  const [formData, setFormData] = useState({...requiredFields.basic_info, event_date: event_date ? event_date : '',
+    meeting_date: dayjs().format('YYYY-MM-DD')
+  });
   const [current, setCurrent] = useState(0);
 
   const handleNext = () => {
@@ -56,7 +63,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <InfoIcon />,
+      icon: <i className="ki-filled ki-security-user"></i>,
     },
     {
       title: "Functions",
@@ -67,7 +74,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <FunctionsIcon />,
+      icon: <i className="ki-filled ki-setting-4"></i>,
     },
     {
       title: "Meal Type & Notes",
@@ -78,7 +85,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <MealIcon />,
+      icon: <i className="ki-filled ki-note-2"></i>,
     },
     {
       title: "Other Details",
@@ -89,7 +96,7 @@ const CreateEventPage = () => {
           onInputChange={handleInputChange}
         />
       ),
-      icon: <InfoIcon />,
+      icon: <i className="ki-filled ki-information-4"></i>,
     },
   ];
   return (
@@ -97,9 +104,11 @@ const CreateEventPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Create Events" }]} />
+          <Breadcrumbs items={[{ title: "Create Event" }]} />
         </div>
         <StepsComponent
+          direction="vertical"
+          // direction="horizontal"
           current={current}
           steps={steps()}
           onNext={handleNext}

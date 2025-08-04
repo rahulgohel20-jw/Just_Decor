@@ -1,10 +1,13 @@
 import { DatePicker } from "antd";
 import { Crown, Sparkles } from "lucide-react";
+import useStyles from "./style";
 
 const OtherInfoStep = ({ formData, handleInputChange }) => {
+  const classes = useStyles();
+
   return (
     <>
-      <h1 className="flex">
+      <h1 className={`flex ${classes.customStyle}`}>
         <Crown className="mr-2 text-primary" /> Groom Information
       </h1>
       <div className="card p-4 bg-white shadow-sm rounded-lg mb-4">
@@ -24,7 +27,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 />
               </div>
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Birth Date</label>
               <DatePicker
@@ -39,7 +41,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 }
               />
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Community</label>
               <div className="input">
@@ -77,7 +78,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 />
               </div>
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Birth Date</label>
               <DatePicker
@@ -92,7 +92,6 @@ const OtherInfoStep = ({ formData, handleInputChange }) => {
                 }
               />
             </div>
-
             <div className="flex flex-col">
               <label className="form-label"> Community</label>
               <div className="input">

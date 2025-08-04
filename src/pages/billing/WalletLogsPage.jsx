@@ -51,8 +51,8 @@ const WalletLogsPage = () => {
               <div className="flex items-center gap-4">
                 <CommonHexagonBadge
                   stroke="stroke-success-clarity"
-                  fill="fill-success-light"
-                  size="size-[50px]"
+                  fill="fill-light"
+                  size="size-[60px]"
                   badge={
                     <i className="ki-filled ki-wallet text-xl text-success"></i>
                   }
@@ -73,7 +73,7 @@ const WalletLogsPage = () => {
               </div>
               <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
                 <button
-                  className="btn btn-sm btn-success shrink-0"
+                  className="btn btn-success shrink-0"
                   title="Recharge Now"
                   onClick={() => {
                     handleModalOpen();

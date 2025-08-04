@@ -7,6 +7,7 @@ import { CommonHexagonBadge } from "@/partials/common";
 
 import { Navbar, NavbarActions, NavbarDropdown } from "@/partials/navbar";
 import { PageMenu } from "@/pages/public-profile";
+import { Tooltip } from "antd";
 const CompanyDetails = () => {
   const image = (
     <div className="flex items-center justify-center rounded-full border-2 border-success-clarity size-[100px] shrink-0 bg-light">
@@ -143,16 +144,14 @@ const CompanyDetails = () => {
                 onClick={handleModalOpen}
                 title="Edit Company"
               >
-                <i className="ki-filled ki-notepad-edit"></i> Edit
-                Company
+                <i className="ki-filled ki-notepad-edit"></i> Edit Company
               </button>
               <button
                 type="button"
                 className="btn btn-sm btn-danger"
                 title="Delete Company"
               >
-                <i className="ki-filled ki-trash"></i> Delete
-                Company
+                <i className="ki-filled ki-trash"></i> Delete Company
               </button>
             </div>
           </div>
@@ -163,8 +162,8 @@ const CompanyDetails = () => {
                 <h6 className="flex items-center justify-between font-bold text-gray-900 mb-4">
                   Company Details
                   <CommonHexagonBadge
-                    stroke="stroke-success-clarity"
-                    fill="fill-success-light"
+                    stroke="stroke-success"
+                    fill="fill-light"
                     size="size-[38px]"
                     badge={
                       <i className="ki-filled ki-bank text-lg text-success"></i>
@@ -275,29 +274,43 @@ const CompanyDetails = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
-                              <p className="text-md font-medium text-gray-900">Ragnar Lothbrok</p>
-                              <span className="text-sm" title="ragnar.lothbrok@gmail.com">ragnar.lothbrok@gmail.com</span>
+                              <p className="text-md font-medium text-gray-900">
+                                Ragnar Lothbrok
+                              </p>
+                              <span
+                                className="text-sm"
+                                title="ragnar.lothbrok@gmail.com"
+                              >
+                                ragnar.lothbrok@gmail.com
+                              </span>
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
+                        <div className="text-md font-medium text-gray-900">
+                          <i className="ki-filled ki-call text-success me-2"></i>
+                          +91 9988776655
+                        </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>
@@ -309,29 +322,43 @@ const CompanyDetails = () => {
                           <div className="flex flex-wrap items-center gap-3">
                             <img
                               src={toAbsoluteUrl("/images/user_img.jpg")}
-                              className="rounded-md max-h-10 max-w-full shrink-0"
+                              className="rounded-full max-h-10 max-w-full shrink-0"
                               alt=""
                             />
                             <div className="grid grid-col">
-                              <p className="text-md font-medium text-gray-900">Ragnar Lothbrok</p>
-                              <span className="text-sm" title="ragnar.lothbrok@gmail.com">ragnar.lothbrok@gmail.com</span>
+                              <p className="text-md font-medium text-gray-900">
+                                Ragnar Lothbrok
+                              </p>
+                              <span
+                                className="text-sm"
+                                title="ragnar.lothbrok@gmail.com"
+                              >
+                                ragnar.lothbrok@gmail.com
+                              </span>
                             </div>
                           </div>
                         </div>
-                        <div className="text-md font-medium text-gray-900"><i className="ki-filled ki-call me-2"></i>+91 9988776655</div>
+                        <div className="text-md font-medium text-gray-900">
+                          <i className="ki-filled ki-call text-success me-2"></i>
+                          +91 9988776655
+                        </div>
                         <div className="flex gap-2">
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-success"
-                            title="View"
-                          >
-                            <i className="ki-filled ki-eye"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-icon btn-clear btn-danger"
-                            title="Delete"
-                          >
-                            <KeenIcon icon="trash" />
-                          </button>
+                          <Tooltip title="View">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-success"
+                              title="View"
+                            >
+                              <i className="ki-filled ki-eye"></i>
+                            </button>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <button
+                              className="btn btn-sm btn-icon btn-clear btn-danger"
+                              title="Delete"
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                     </div>

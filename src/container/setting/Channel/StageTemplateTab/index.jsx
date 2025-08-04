@@ -1,5 +1,6 @@
 import EmptyData from "@/components/ui/emptyData";
 import { toAbsoluteUrl } from "@/utils";
+import { Tooltip } from "antd";
 
 const StageTemplateTab = () => {
   const emailTemplate = [
@@ -27,7 +28,6 @@ const StageTemplateTab = () => {
   ];
   return (
     <>
-    
       <style>
         {`
           .user-access-bg {
@@ -52,18 +52,24 @@ const StageTemplateTab = () => {
               <div className="card min-w-full" key={index}>
                 <div className="flex items-center justify-between py-6 px-4 rtl:[background-position:center_top] [background-position:center_top] bg-no-repeat bg-[length:500px] user-access-bg">
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-700">{item.subject}</span>
+                    <span className="text-sm text-gray-700">
+                      {item.subject}
+                    </span>
                     <h3 className="text-lg font-semibold text-gray-900">
                       {item.template_name}
                     </h3>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button type="button" title="Edit">
-                      <i className="ki-filled ki-notepad-edit"></i>
-                    </button>
-                    <button type="button" title="Delete">
-                      <i className="ki-filled ki-trash"></i>
-                    </button>
+                    <Tooltip title="Edit">
+                      <button type="button" title="Edit">
+                        <i className="ki-filled ki-notepad-edit text-primary"></i>
+                      </button>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <button type="button" title="Delete">
+                        <i className="ki-filled ki-trash text-danger"></i>
+                      </button>
+                    </Tooltip>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2 p-4 bg-white dark:bg-dark rounded-b-xl border-t">
@@ -74,7 +80,9 @@ const StageTemplateTab = () => {
                       alt={item.created_by}
                       className="inline-block w-6 h-6 rounded-full"
                     />
-                    <span className="text-sm text-gray-900 font-semibold">{item.created_by}</span>
+                    <span className="text-sm text-gray-900 font-semibold">
+                      {item.created_by}
+                    </span>
                   </span>
                 </div>
               </div>
@@ -83,7 +91,7 @@ const StageTemplateTab = () => {
         ) : (
           <EmptyData />
         )}
-      </div>      
+      </div>
     </>
   );
 };
