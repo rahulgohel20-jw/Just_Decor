@@ -193,7 +193,7 @@ export const MENU_SIDEBAR = [
         path: "billing/wallet-logs",
       },
     ],
-  }, 
+  },
 ];
 export const MENU_MEGA = [
   {

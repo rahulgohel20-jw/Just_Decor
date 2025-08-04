@@ -27,7 +27,9 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Product Name</label>
+                  <label className="form-label ">
+                    Product Name
+                  </label>
                   <div className="input">
                     <i className="ki-filled ki-bookmark"></i>
                     <input
@@ -170,7 +172,7 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
         open={isModalOpen}
         onClose={handleModalClose}
         title="Add Product"
-          width={650}
+        width={650}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -192,20 +194,29 @@ const AddProduct = ({ isModalOpen, setIsModalOpen }) => {
           data-tabs="true"
         >
           <a
-            className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_1" ? "active" : ""}`}
+            className={`btn w-full flex justify-center items-center gap-2 border-b-2 pb-2 transition-colors ${
+              activeTab === "tab_1"
+                ? "text-blue-600 border-blue-600 font-semibold"
+                : "text-gray-500 border-transparent hover:text-blue-600"
+            }`}
             onClick={() => setActiveTab("tab_1")}
           >
             <i className="ki-filled ki-bookmark"></i>
             Product Details
           </a>
           <a
-            className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_2" ? "active" : ""}`}
+            className={`btn w-full flex justify-center items-center gap-2 border-b-2 pb-2 transition-colors ${
+              activeTab === "tab_2"
+                ? "text-blue-600 border-blue-600 font-semibold"
+                : "text-gray-500 border-transparent hover:text-blue-600"
+            }`}
             onClick={() => setActiveTab("tab_2")}
           >
             <i className="ki-filled ki-geolocation-home"></i>
             Address Details
           </a>
         </div>
+
         {renderTabContent()}
       </CustomModal>
     )

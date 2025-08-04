@@ -19,6 +19,7 @@ export const columns = [
     header: ({ column }) => (
       <DataGridColumnHeader title="Price" column={column} />
     ),
+    
   },
   {
     accessorKey: "unit",
