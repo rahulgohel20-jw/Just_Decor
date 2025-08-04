@@ -1,5 +1,6 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Button, Row, Col, Select } from "antd";
+import { underConstruction } from "@/underConstruction";
 import { Link } from "react-router-dom";
 
 const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
@@ -62,6 +63,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               <button
                 className="btn btn-sm btn-success justify-center w-full"
                 title="Copy Order"
+                onClick={underConstruction}
               >
                 <i className="ki-filled ki-copy me-1"></i> Copy Order
               </button>
@@ -78,6 +80,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               key="cancel"
               className="btn btn-sm btn-danger justify-center w-full"
               title="Delete"
+              onClick={underConstruction}
             >
               <i className="ki-filled ki-trash me-1"></i>
               Delete
@@ -116,70 +119,78 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
                 Menu Preparation
               </button>
             </Link>
-            <Link to="/menu-allocation">
+            {/* <Link to="/menu-allocation"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Menu Allocation"
+                onClick={underConstruction}
               >
                 Menu Allocation
               </button>
-            </Link>
-            <Link to="/raw-material-allocation">
+            {/* </Link> */}
+            {/* <Link to="/raw-material-allocation"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Raw Material Allocation"
+                onClick={underConstruction}
               >
                 Raw Material Allocation
               </button>
-            </Link>
-            <Link to="/labour-and-other-management">
+            {/* </Link> */}
+            {/* <Link to="/labour-and-other-management"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Labour/Other Management"
+                onClick={underConstruction}
               >
                 Labour/Other Management
               </button>
-            </Link>
-            <Link to="/order-booking-reports">
+            {/* </Link> */}
+            {/* <Link to="/order-booking-reports"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Order Booking Reports"
+                onClick={underConstruction}
               >
                 Order Booking Reports
               </button>
-            </Link>
-            <Link to="/dish-costing">
+            {/* </Link> */}
+            {/* <Link to="/dish-costing"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Dish Costing"
+                onClick={underConstruction}
               >
                 Dish Costing
               </button>
-            </Link>
-            <Link to="/quotation">
+            {/* </Link> */}
+            {/* <Link to="/quotation"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Quotation"
+                onClick={underConstruction}
               >
                 Quotation
               </button>
-            </Link>
-            <Link to="/event-invoice">
+            {/* </Link> */}
+            {/* <Link to="/event-invoice"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Invoice"
+                onClick={underConstruction}
               >
                 Invoice
               </button>
-            </Link>
-            <Link to="/proforma-invoice">
+            {/* </Link> */}
+            {/* <Link to="/proforma-invoice"> */}
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Proforma Invoice"
+                onClick={underConstruction}
               >
                 Proforma Invoice
               </button>
-            </Link>
+            {/* </Link> */}
           </div>
         </div>
       </CustomModal>
