@@ -6,6 +6,8 @@ export const calendarData = [
     address: "Ahmedabad",
     mobile: "8785748574",
     color: "green",
+    time: '10:45'
+    
   },
   {
     title: "MR. YATIN PATEL",
@@ -14,6 +16,7 @@ export const calendarData = [
     address: "Surat",
     mobile: "9876543210",
     color: "red",
+    time: '12:45'
   },
   {
     title: "MR. VINAY BRAHMBHATT",
@@ -22,6 +25,7 @@ export const calendarData = [
     address: "PATAN",
     mobile: "986756432",
     color: "orange",
+    time: '16:45'
   },
   {
     title: "Mr. Bharat Mer",
@@ -30,6 +34,7 @@ export const calendarData = [
     address: "VAPI",
     mobile: "8785748574",
     color: "green",
+    time: '17:00'
   },
   {
     title: "MR. CHIRAG PATEL",
@@ -38,6 +43,7 @@ export const calendarData = [
     address: "KERALU",
     mobile: "8785748574",
     color: "green",
+    time: '11:15'
   },
   {
     title: "Mr. Ranjit Mer",
@@ -46,6 +52,7 @@ export const calendarData = [
     address: "Ahmedabad",
     mobile: "87857765574",
     color: "orange",
+    time: '07:30'
   },
   {
     title: "MR. PRINCE PATEL",
@@ -54,6 +61,7 @@ export const calendarData = [
     address: "Ahmedabad",
     mobile: "8785748574",
     color: "red",
+    time: '05:00'
   },
   {
     title: "MR. JAYESH BRAHMBHATT",
@@ -62,6 +70,7 @@ export const calendarData = [
     address: "BARODA",
     mobile: "8785748574",
     color: "green",
+    time: '23:00'
   },
   {
     title: "MR. RAMESH BRAHMBHATT",
@@ -70,5 +79,6 @@ export const calendarData = [
     address: "Ahmedabad",
     mobile: "8785748574",
     color: "red",
+    time: '20:20'
   },
 ];
