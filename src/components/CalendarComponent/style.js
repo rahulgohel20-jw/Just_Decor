@@ -99,7 +99,7 @@ const useStyles = makeStyles({
           },
         },
       },
-      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button": {
+      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button, & .fc-timeGridDay-button, & .fc-listWeek-button": {
         "&.fc-button": {
           display: "inline-flex",
           alignItems: "center",

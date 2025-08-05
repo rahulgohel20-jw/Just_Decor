@@ -47,7 +47,7 @@ export const menuCategoryChildren = [
     id: 6,
     name: "WINE",
     image:
-      "https://images.unsplash.com/photo-1514361892635-cebbd82b8bdf?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
     price: 250,
   },
   {
@@ -55,7 +55,7 @@ export const menuCategoryChildren = [
     id: 7,
     name: "WHISKY",
     image:
-      "https://images.unsplash.com/photo-1514361892635-cebbd82b8bdf?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
     price: 300,
   },
   {
@@ -63,7 +63,7 @@ export const menuCategoryChildren = [
     id: 8,
     name: "VODKA",
     image:
-      "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop",
     price: 280,
   },
   {
@@ -71,7 +71,7 @@ export const menuCategoryChildren = [
     id: 9,
     name: "RUM",
     image:
-      "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?w=400&h=300&fit=crop",
     price: 220,
   },
   {
@@ -79,7 +79,7 @@ export const menuCategoryChildren = [
     id: 10,
     name: "GIN",
     image:
-      "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
     price: 210,
   },
   {
@@ -87,7 +87,7 @@ export const menuCategoryChildren = [
     id: 11,
     name: "BRANDY",
     image:
-      "https://images.unsplash.com/photo-1514361892635-cebbd82b8bdf?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
     price: 230,
   },
   {
@@ -95,7 +95,7 @@ export const menuCategoryChildren = [
     id: 12,
     name: "LIQUORS",
     image:
-      "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop",
     price: 260,
   },
 
@@ -166,7 +166,7 @@ export const menuCategoryChildren = [
     id: 20,
     name: "PASTA",
     image:
-      "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
   },
 
   // OUT LANDISH SPECIALITY
