@@ -79,6 +79,16 @@ const useStyles = makeStyles({
         borderRadius: "0.375rem",
         fontSize: "0.8125rem",
         height: "38px",
+        "&.fc-today-button": {
+          color: "var(--tw-light)",
+          borderColor: "var(--tw-primary)",
+          backgroundColor: "var(--tw-primary)",
+          "&:not(:disabled):active:focus,&:hover, &:focus, &:active, &.active":
+            {
+              boxShadow: "var(--tw-primary-box-shadow)",
+              backgroundColor: "var(--tw-primary-active)",
+            },
+        },
       },
       "& .fc-next-button, & .fc-prev-button": {
         display: "flex",

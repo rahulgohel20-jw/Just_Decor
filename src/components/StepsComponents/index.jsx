@@ -21,26 +21,29 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
         <div className="ant-foot mt-4 flex justify-end gap-2">
           {current > 0 && (
             <button
-              className="btn btn-light justify-center w-32"
+              className="btn btn-light justify-center w-28"
               onClick={onPrev}
+              title="Prev"
             >
               <i className="ki-filled ki-arrow-left font-14"></i> Prev
             </button>
           )}
           {current < steps.length - 1 && (
             <button
-              className="btn btn-primary justify-center w-32"
+              className="btn btn-primary justify-center w-28"
               onClick={onNext}
+              title="Next"
             >
               Next <i className="ki-filled ki-arrow-right font-14"></i>
             </button>
           )}
           {current === steps.length - 1 && (
             <button
-              className="btn btn-success justify-center w-32"
+              className="btn btn-success justify-center w-28"
               onClick={onFinish}
+              title="Finish"
             >
-              Save <i className="ki-filled ki-save-2 font-14"></i>
+              Finish <i className="ki-filled ki-save-2 font-14"></i>
             </button>
           )}
         </div>

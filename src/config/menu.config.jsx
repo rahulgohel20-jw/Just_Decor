@@ -13,7 +13,7 @@ export const MENU_SIDEBAR = [
         path: "/calendar",
       },
       {
-        title: "Event",
+        title: "Events",
         path: "/event",
       },
     ],
