@@ -20,7 +20,10 @@ const EventListPage = () => {
         proforma_invoice: (
           // <Link to="/proforma-invoice">
           <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
+            <div
+              className="flex justify-center items-center w-full"
+              onClick={underConstruction}
+            >
               <FileText className="w-5 h-5 text-primary" />
             </div>
           </Tooltip>
@@ -29,7 +32,10 @@ const EventListPage = () => {
         invoice: (
           // <Link to="/event-invoice">
           <Tooltip className="cursor-pointer" title="Invoice">
-            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
+            <div
+              className="flex justify-center items-center w-full"
+              onClick={underConstruction}
+            >
               <Receipt className="w-5 h-5 text-success" />
             </div>
           </Tooltip>
@@ -38,7 +44,10 @@ const EventListPage = () => {
         quotation: (
           // <Link to="/quotation">
           <Tooltip className="cursor-pointer" title="Quotation">
-            <div className="flex justify-center items-center w-full" onClick={underConstruction}>
+            <div
+              className="flex justify-center items-center w-full"
+              onClick={underConstruction}
+            >
               <BadgeDollarSign className="w-5 h-5 text-blue-600" />
             </div>
           </Tooltip>
@@ -74,20 +83,20 @@ const EventListPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Event"
+                placeholder="Search event"
                 type="text"
               />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
-            <button
-              className="btn btn-primary"
-              onClick={handleModalOpen}
-              title="Add Event"
-            >
-              <i className="ki-filled ki-plus"></i> Add Event
-            </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleModalOpen}
+                title="Add Event"
+              >
+                <i className="ki-filled ki-plus"></i> Add Event
+              </button>
             </Link>
           </div>
         </div>

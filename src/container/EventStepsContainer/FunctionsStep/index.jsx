@@ -97,19 +97,17 @@ const FunctionsStep = ({ formData, setFormData }) => {
             <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
               <div className="flex items-center gap-5">
                 <div className="flex flex-col gap-1">
-                  <p className="form-info text-gray-700 font-normal">
-                    Function Name
-                  </p>
                   <h4 className="text-sm font-medium text-gray-900">
                     Function Name Here
                   </h4>
+                  <p className="form-info text-gray-700 font-normal">
+                    Date: 05 February 2025 to 06 February 2025
+                  </p>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="form-info text-gray-700 font-normal">
-                    Start Date
-                  </p>
+                  <p className="form-info text-gray-700 font-normal">Start</p>
                   <h4 className="text-sm font-medium text-gray-900">
-                    05 February 2025
+                    06 February 2025
                   </h4>
                 </div>
                 <div className="flex flex-col gap-1">

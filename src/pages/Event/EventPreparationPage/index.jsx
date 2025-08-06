@@ -81,64 +81,63 @@ const EventPreparationPage = () => {
           <Breadcrumbs items={[{ title: "Menu Preparation" }]} />
         </div>
         <div
-          className={`grid grid-cols-11 lg:grid-cols-11 border rounded-lg gap-4 p-4 ${classes.customStyle}`}
+          className={`grid grid-cols-9 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}
         >
-          {/* Sidebar: Categories */}
-          <div className="col-span-2 border rounded-lg h-96 flex flex-col bg-gray-50">
-            <input
-              type="text"
-              placeholder="Search categories..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="mb-2 p-2 border rounded text-xs focus:outline-none"
-            />
-            <div
-              className="flex-1 overflow-y-auto"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
-            >
-              <style>
-                {`
-                  .hide-scrollbar::-webkit-scrollbar {
-                    display: none;
-                  }
-                `}
-              </style>
-              <div className="hide-scrollbar h-full">
-                {filteredCategories.length === 0 ? (
-                  <div className="p-2 text-gray-400 text-xs">
-                    No categories found
-                  </div>
-                ) : (
-                  filteredCategories.map(({ name, id }) => (
-                    <button
-                      key={id}
-                      onClick={() => setSelectedCategory(id)}
-                      className={`w-full text-left p-2 border-b last:border-b-0 rounded transition-colors text-xs ${
-                        selectedCategory === id
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : "hover:bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {name}
-                    </button>
-                  ))
-                )}
+          {/* one */}
+          <div className="col-span-3">
+            <div className="h-full lg:border-e lg:border-e-border shrink-0 bg-muted/15">
+              <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
+                <div className="relative">
+                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                  <input
+                    type="text"
+                    className="input pl-8"
+                    placeholder="Search categories"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex-1 max-h-[650px] overflow-auto scrollable-y">
+                <div className="h-full">
+                  {filteredCategories.length === 0 ? (
+                    <div className="p-2 text-gray-400 text-xs">
+                      No categories found
+                    </div>
+                  ) : (
+                    filteredCategories.map(({ name, id }) => (
+                      <button
+                        key={id}
+                        onClick={() => setSelectedCategory(id)}
+                        className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
+                          selectedCategory === id
+                            ? "bg-blue-50 text-primary"
+                            : "hover:bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {name}
+                      </button>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          {/* Children: Square Box Grid, 5 per row */}
-          <div className="col-span-6 space-y-4 rounded-lg h-96 flex flex-col">
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={childSearch}
-              onChange={(e) => setChildSearch(e.target.value)}
-              className="mb-2 p-2 border rounded text-xs focus:outline-none"
-            />
-            <div className="flex-1 overflow-y-auto hide-scrollbar">
+          {/* two */}
+          <div className="col-span-6">
+            <div className="border-b p-3 lg:p-4 bg-light">
+              <div className="relative">
+                <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                <input
+                  type="text"
+                  className="input pl-8"
+                  placeholder="Search items"
+                  value={childSearch}
+                  onChange={(e) => setChildSearch(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex-1 p-3 lg:p-4 max-h-[650px] overflow-auto scrollable-y">
               {filteredChildren.length === 0 ? (
                 <div className="p-2 text-gray-400 text-xs">No items found</div>
               ) : (
@@ -174,164 +173,164 @@ const EventPreparationPage = () => {
               )}
             </div>
           </div>
-          {/* Selected Items Summary */}
-          <div className="col-span-3 flex flex-col h-96 border rounded-lg bg-gray-50 p-2">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm">Selected Items</span>
-              <button
-                className="text-primary hover:underline"
-                onClick={() => setShowDetails((prev) => !prev)}
-              >
-                {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
-              </button>
-            </div>
-            {/* Details (Person, Date, Rate, Price) */}
-
-            <div className="mb-2 space-y-1 text-xs">
-              <div>
-                <span className="font-medium">Person:</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={300}
-                  readOnly
-                  className="ml-2 w-20 p-1 border rounded text-xs bg-gray-100"
-                />
-              </div>
-              <div>
-                <span className="font-medium">Date &amp; Time:</span>{" "}
-                <input
-                  type="text"
-                  value="27/07/2025 11:00 AM"
-                  readOnly
-                  className="ml-2 w-36 p-1 border rounded text-xs bg-gray-100"
-                />
-              </div>
-              <div>
-                <span className="font-medium">Default Rate:</span>
-                <input
-                  type="number"
-                  value={rate}
-                  onChange={(e) => setRate(e.target.value)}
-                  className="ml-2 w-20 p-1 border rounded text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto hide-scrollbar">
-              {selectedChildren.length === 0 ? (
-                <div className="text-xs text-gray-400 p-2">
-                  No items selected
+          {/* three */}
+          <div className="col-span-3">
+            <div className="h-full lg:border-s lg:border-s-border shrink-0 bg-muted/15">
+              <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-sm">Selected Items</span>
+                  <button
+                    className="text-primary hover:underline"
+                    onClick={() => setShowDetails((prev) => !prev)}
+                  >
+                    {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  {Object.entries(selectedItemsByCategory).map(
-                    ([categoryName, items]) => (
-                      <div key={categoryName} className="mb-2">
-                        <div className="font-semibold text-xs text-blue-700 mb-1">
-                          {categoryName}
-                        </div>
-                        <ul className="space-y-2">
-                          {items.map((item) => (
-                            <li
-                              key={item.id}
-                              className="flex flex-col bg-white rounded border p-2 shadow-sm"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-8 h-8 object-cover rounded border"
-                                  />
-                                  <span className="text-xs font-medium">
-                                    {item.name}
-                                  </span>
-                                </div>
-                                <button
-                                  className="ml-2 text-gray-400 hover:text-red-500"
-                                  title="Remove"
-                                  onClick={() =>
-                                    setSelectedChildren((prev) =>
-                                      prev.filter((cid) => cid !== item.id)
-                                    )
-                                  }
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M6 18L18 6M6 6l12 12"
+                <div className="mb-2 space-y-1 text-xs">
+                  <div>
+                    <span className="font-medium">Person:</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={300}
+                      readOnly
+                      className="ml-2 w-20 p-1 border rounded text-xs bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <span className="font-medium">Date &amp; Time:</span>{" "}
+                    <input
+                      type="text"
+                      value="27/07/2025 11:00 AM"
+                      readOnly
+                      className="ml-2 w-36 p-1 border rounded text-xs bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <span className="font-medium">Default Rate:</span>
+                    <input
+                      type="number"
+                      value={rate}
+                      onChange={(e) => setRate(e.target.value)}
+                      className="ml-2 w-20 p-1 border rounded text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 p-3 lg:p-4 max-h-[500px] overflow-auto scrollable-y">
+                {selectedChildren.length === 0 ? (
+                  <div className="text-xs text-gray-400 p-2">
+                    No items selected
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {Object.entries(selectedItemsByCategory).map(
+                      ([categoryName, items]) => (
+                        <div key={categoryName} className="mb-2">
+                          <div className="font-semibold text-xs text-blue-700 mb-1">
+                            {categoryName}
+                          </div>
+                          <ul className="space-y-2">
+                            {items.map((item) => (
+                              <li
+                                key={item.id}
+                                className="flex flex-col bg-white rounded border p-2 shadow-sm"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src={item.image}
+                                      alt={item.name}
+                                      className="w-8 h-8 object-cover rounded border"
                                     />
-                                  </svg>
-                                </button>
-                              </div>
-                              {showDetails && (
-                                <div className="flex items-center mt-1 gap-2">
-                                  <span className="text-xs text-gray-500">
-                                    Rate:
-                                  </span>
-                                  <input
-                                    type="number"
-                                    value={itemRates[item.id] || rate}
-                                    onChange={(e) =>
-                                      handleItemRateChange(
-                                        item.id,
-                                        e.target.value
+                                    <span className="text-xs font-medium">
+                                      {item.name}
+                                    </span>
+                                  </div>
+                                  <button
+                                    className="ml-2 text-gray-400 hover:text-red-500"
+                                    title="Remove"
+                                    onClick={() =>
+                                      setSelectedChildren((prev) =>
+                                        prev.filter((cid) => cid !== item.id)
                                       )
                                     }
-                                    className="w-16 p-1 border rounded text-xs"
-                                    min={0}
-                                  />
-                                  <span className="text-xs text-gray-500">
-                                    Price:
-                                  </span>
-                                  <span className="font-semibold text-xs">
-                                    ₹{" "}
-                                    {(Number(itemRates[item.id]) ||
-                                      Number(rate) ||
-                                      0) * 300}
-                                  </span>
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                      />
+                                    </svg>
+                                  </button>
                                 </div>
-                              )}
-                              <div className="mt-1">
-                                <textarea
-                                  placeholder="Add note..."
-                                  value={itemNotes[item.id] || ""}
-                                  onChange={(e) =>
-                                    handleNoteChange(item.id, e.target.value)
-                                  }
-                                  className="w-full p-1 border rounded text-xs mt-1 resize-none"
-                                  rows={1}
-                                />
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )
-                  )}
+                                {showDetails && (
+                                  <div className="flex items-center mt-1 gap-2">
+                                    <span className="text-xs text-gray-500">
+                                      Rate:
+                                    </span>
+                                    <input
+                                      type="number"
+                                      value={itemRates[item.id] || rate}
+                                      onChange={(e) =>
+                                        handleItemRateChange(
+                                          item.id,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-16 p-1 border rounded text-xs"
+                                      min={0}
+                                    />
+                                    <span className="text-xs text-gray-500">
+                                      Price:
+                                    </span>
+                                    <span className="font-semibold text-xs">
+                                      ₹{" "}
+                                      {(Number(itemRates[item.id]) ||
+                                        Number(rate) ||
+                                        0) * 300}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="mt-1">
+                                  <textarea
+                                    placeholder="Add note..."
+                                    value={itemNotes[item.id] || ""}
+                                    onChange={(e) =>
+                                      handleNoteChange(item.id, e.target.value)
+                                    }
+                                    className="w-full p-1 border rounded text-xs mt-1 resize-none"
+                                    rows={1}
+                                  />
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="p-3 lg:p-4 border-t text-xs text-gray-600 flex justify-between">
+                <span>Total Items:</span>
+                <span className="font-semibold">{selectedChildren.length}</span>
+              </div>
+              {showDetails && (
+                <div className="pt-1 text-xs text-gray-700 flex justify-between font-semibold">
+                  <span>Total:</span>
+                  <span>₹ {totalPrice}</span>
                 </div>
               )}
             </div>
-            <div className="pt-2 border-t mt-2 text-xs text-gray-600 flex justify-between">
-              <span>Total Items:</span>
-              <span className="font-semibold">{selectedChildren.length}</span>
-            </div>
-            {/* Show price only when showDetails is false */}
-            {showDetails && (
-              <div className="pt-1 text-xs text-gray-700 flex justify-between font-semibold">
-                <span>Total:</span>
-                <span>₹ {totalPrice}</span>
-              </div>
-            )}
           </div>
         </div>
       </Container>
