@@ -18,7 +18,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
         <div className="ant-body" style={contentStyle}>
           {steps[current].content}
         </div>
-        <div className="ant-foot mt-4 flex justify-end gap-3">
+        <div className="ant-foot mt-4 flex justify-end gap-2">
           {current > 0 && (
             <button
               className="btn btn-light justify-center w-32"

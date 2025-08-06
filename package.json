@@ -21,7 +21,9 @@
     "@formatjs/intl-relativetimeformat": "^11.4.4",
     "@fullcalendar/daygrid": "^6.1.18",
     "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/list": "^6.1.18",
     "@fullcalendar/react": "^6.1.18",
+    "@fullcalendar/timegrid": "^6.1.18",
     "@mui/base": "5.0.0-beta.40",
     "@mui/material": "^6.1.6",
     "@mui/styles": "^6.4.11",
@@ -74,6 +76,7 @@
     "stylis-plugin-rtl": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "tippy.js": "^6.3.7",
     "vite-plugin-windicss": "^1.9.3",
     "yup": "^1.4.0"
   },
