@@ -271,7 +271,7 @@ const ProductListDetail = () => {
                 {/* Filter */}
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <h4 className="font-semibold text-gray-900 flex items-center">
-                    Contact Related to Products{" "}
+                    Leads Related to Products{" "}
                     <span className="ms-2 badge badge-sm badge-outline shrink-0 px-2">
                       Total lead: 2
                     </span>

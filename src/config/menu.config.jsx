@@ -75,10 +75,7 @@ export const MENU_SIDEBAR = [
         title: "Dashboard",
         path: "/leave-dashboard",
       },
-      {
-        title: "Dashboard",
-        path: "/dashboard",
-      },
+     
       {
         title: "My Attendance",
         path: "/myattendance",
