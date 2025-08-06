@@ -3,12 +3,21 @@ import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 import { Linkedin } from "lucide-react";
+import TagPage from "../tag/TagPage";
+
+
 
 const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const [formData, setFormData] = useState();
+const [isTagModalOpen, setIsTagModalOpen] = useState(false);
 
+const [tags, setTags] = useState([
+  { label: "wdd", color: "green" },
+  { label: "s", color: "red" },
+  { label: "test", color: "blue" },
+]);
   const handInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -37,15 +46,16 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Select Role</label>
-                  <select
-                    className="select pe-7.5"
-                    data-control="select2"
-                    data-placeholder="Company name"
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                  </select>
+                  <label className="form-label">Company Name </label>
+                     <div className="input">
+                  <i class="ki-filled ki-building"></i>
+
+                  <input
+                      className="h-full"
+                      type="text"
+                      placeholder="company name "
+                    />
+                    </div>
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Email</label>
@@ -104,6 +114,60 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   />
                 </div>
               </div>
+              <div className="flex flex-col">
+  <label className="form-label">Tags</label>
+  <button
+    className="btn btn-success text-sm w-28 px-2 py-1 text-center"
+    onClick={() => setIsTagModalOpen(true)}
+  >
+    Manage Tags
+  </button>
+
+  <div className="flex flex-wrap gap-2 mt-2">
+    {tags.map((tag, index) => (
+      <span
+        key={index}
+        className={`flex items-center text-white text-xs rounded-full px-3 py-1 ${
+          tag.color === "green"
+            ? "bg-green-500"
+            : tag.color === "red"
+            ? "bg-red-500"
+            : "bg-blue-500"
+        }`}
+      >
+        {tag.label}
+        <i className="ki-filled ki-check ml-1"></i>
+      </span>
+    ))}
+  </div>
+</div>
+<div>
+  <div className="flex flex-col">
+    <h3 className="fw-bold">Custom Field</h3>
+                  <label className="form-label">test</label>
+                  <div className="input">
+                    <i className="ki-filled ki-user"></i>
+                    <input
+                      className="h-half "
+                      type="text"
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                </div> 
+</div>
+<CustomModal
+  open={isTagModalOpen}
+  onClose={() => setIsTagModalOpen(false)}
+  title="Manage Tags"
+  width={500}
+>
+  <TagPage
+    onClose={() => setIsTagModalOpen(false)}
+    tags={tags}
+    setTags={setTags}
+  />
+</CustomModal>
+
             </div>
           </div>
         );
@@ -198,6 +262,45 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                     type="text"
                     placeholder="Enter valid URL starting with https://"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+        case "tab_4":
+           return (
+          <div id="tab_2" className="tab-content mb-2">
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">State</label>
+                  <div className="input">
+                    <i className="ki-filled ki-bank"></i>
+                    <input type="text" placeholder="State" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">City</label>
+                  <div className="input">
+                    <i className="ki-filled ki-pointers"></i>
+                    <input type="text" placeholder="City" />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Pincode</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Pincode" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Address</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Address" />
+                  </div>
                 </div>
               </div>
             </div>
