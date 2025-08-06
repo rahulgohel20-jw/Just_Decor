@@ -1,12 +1,43 @@
 import { DatePicker, Tooltip } from "antd";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import { Textarea } from "@/components/ui/textarea";
+import dayjs from "dayjs";
 import { toAbsoluteUrl } from "@/utils";
+import AddFunctionModal from "@/partials/modals/add-event-function/AddFunction";
+
 import useStyles from "./style";
+import { useState } from "react";
 
 const FunctionsStep = ({ formData, setFormData }) => {
   const classes = useStyles();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventModalData, setEventModalData] = useState({
+      customer_id: "",
+      person: "",
+      start_date: null,
+      end_date: null,
+      rate: "",
+      raw_material_time: null,
+      address: "",
+      notes: "",
+    })
+  const functionDataStore = () =>{
+    setFormData({
+      ...formData,
+      function_data: formData?.function_data ? [...formData.function_data, eventModalData] : [eventModalData],
+    });
 
+    setEventModalData({
+      customer_id: "",
+      person: "",
+      start_date: null,
+      end_date: null,
+      rate: "",
+      raw_material_time: null,
+      address: "",
+      notes: "",
+    })
+  }
   const handleAddFunction = () => {
     const newFunction = {
       customer_id: "",
@@ -25,12 +56,20 @@ const FunctionsStep = ({ formData, setFormData }) => {
   };
 
   const handleRemoveFunction = (index) => {
+    // setFormData({
+    //   ...formData,
+    //   function_array: formData.function_array.filter((_, i) => i !== index),
+    // });
     setFormData({
       ...formData,
-      function_array: formData.function_array.filter((_, i) => i !== index),
+      function_data: formData.function_data.filter((_, i) => i !== index),
     });
   };
 
+  const handleEditFunction = (item,index) => {
+      setEventModalData(item)
+      setIsModalOpen(true)
+  };
   const handleInputChange = ({ target: { value, name } }, index) => {
     setFormData({
       ...formData,
@@ -39,7 +78,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
       ),
     });
   };
-
+ 
   return (
     <>
       <style>
@@ -53,7 +92,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
         `}
       </style>
       <div className="flex flex-col gap-3">
-        <div className="flex items-center grow gap-4">
+        {/* <div className="flex items-center grow gap-4">
           <div className="card w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
             <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
               <div className="flex items-center gap-5">
@@ -156,12 +195,73 @@ const FunctionsStep = ({ formData, setFormData }) => {
               </button>
             </Tooltip>
           </div>
-        </div>
+        </div> */}
+
+        {formData?.function_data ? 
+          formData.function_data.map((item,index)=> {
+            return <div className="flex items-center grow gap-4">
+            <div className="card w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
+              <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
+                <div className="flex items-center gap-5">
+                  <div className="flex flex-col gap-1">
+                    <p className="form-info text-gray-700 font-normal">
+                      Function Name
+                    </p>
+                    <h4 className="text-sm font-medium text-gray-900">
+                     {item.customer_id ? item.customer_id.join(',') : ''}
+                    </h4>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="form-info text-gray-700 font-normal">
+                      Start Date
+                    </p>
+                    <h4 className="text-sm font-medium text-gray-900">
+                      {item.start_date? dayjs(item.start_date).format("DD MMM YYYY"):''}
+                    </h4>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="form-info text-gray-700 font-normal">
+                      End Date
+                    </p>
+                    <h4 className="text-sm font-medium text-gray-900">
+                      {item.end_date? dayjs(item.end_date).format("DD MMM YYYY"):''}
+                    </h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Tooltip title="Edit Function">
+                <button
+                  type="button"
+                  title="Edit Function"
+                  className="btn btn-sm btn-primary p-0 w-8 h-8 rounded-full flex items-center justify-center"
+                  onClick={() => handleEditFunction(item,index)}
+                >
+                  <i className="ki-filled ki-notepad-edit"></i>
+                </button>
+              </Tooltip>
+              <Tooltip title="Remove Function">
+                <button
+                  type="button"
+                  title="Remove Function"
+                  className="btn btn-sm btn-danger p-0 w-8 h-8 rounded-full flex items-center justify-center"
+                  onClick={() => handleRemoveFunction(index)}
+                >
+                  <i className="ki-filled ki-trash"></i>
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+          }
+        ): <div className="text-center text-gray-500">
+              No functions added yet.
+            </div>}
       </div>
       <br />
-      <hr />
-      <br />
-      <div className="flex flex-col gap-y-2 gap-x-4 card min-w-full py-7 px-5 user-access-b">
+      {/* <hr />
+      <br /> */}
+      {/* <div className="flex flex-col gap-y-2 gap-x-4 card min-w-full py-7 px-5 user-access-b">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
           <div className="flex flex-col">
             <label className="form-label">Function Name</label>
@@ -199,10 +299,10 @@ const FunctionsStep = ({ formData, setFormData }) => {
             Remove
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div>
-        {formData &&
+        {/* {formData &&
           formData.function_array &&
           formData.function_array.length > 0 &&
           formData.function_array.map((func, index) => (
@@ -280,24 +380,35 @@ const FunctionsStep = ({ formData, setFormData }) => {
                 </div>
               </div>
             </div>
-          ))}
-        {formData &&
+          ))} */}
+        {/* {formData &&
           formData.function_array &&
           formData.function_array.length === 0 && (
             <div className="text-center text-gray-500">
               No functions added yet.
             </div>
-          )}
+          )} */}
         <div className="mt-4 text-center">
           <button
             className="btn btn-success"
-            onClick={handleAddFunction}
+            // onClick={handleAddFunction}
+            onClick={()=> setIsModalOpen(true)}
             title="Add Function"
           >
             <i className="ki-filled ki-plus"></i> Function
           </button>
         </div>
       </div>
+
+      {isModalOpen && (
+          <AddFunctionModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            eventData={eventModalData}
+            setEventModalData={setEventModalData}
+            functionDataStore={functionDataStore}
+          />
+      )}
     </>
   );
 };
