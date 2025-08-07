@@ -45,18 +45,27 @@ const [tags, setTags] = useState([
           <div id="tab_1" className="tab-content active">
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-x-4">
-                <div className="flex flex-col">
-                  <label className="form-label">Company Name </label>
-                     <div className="input">
-                  <i class="ki-filled ki-building"></i>
+                  <div className="flex flex-col">
+  <div className="flex items-center justify-between">
+    <label className="form-label">Company Name</label>
+    <button
+      className="text-blue-600 text-xs underline hover:text-blue-800"
+      type="button"
+      onClick={() => setIsAddCompanyModalOpen(true)}
+    >
+      + Add Company
+    </button>
+  </div>
 
-                  <input
-                      className="h-full"
-                      type="text"
-                      placeholder="company name "
-                    />
-                    </div>
-                </div>
+  <div className="input">
+    <i className="ki-filled ki-building"></i>
+    <input
+      className="h-full"
+      type="text"
+      placeholder="Company name"
+    />
+  </div>
+</div>
                 <div className="flex flex-col">
                   <label className="form-label">Email</label>
                   <div className="input">
@@ -141,19 +150,18 @@ const [tags, setTags] = useState([
     ))}
   </div>
 </div>
-<div>
-  <div className="flex flex-col">
-    <h3 className="fw-bold">Custom Field</h3>
-                  <label className="form-label">test</label>
-                  <div className="input">
-                    <i className="ki-filled ki-user"></i>
-                    <input
-                      className="h-half "
-                      type="text"
-                      placeholder="Enter last name"
-                    />
-                  </div>
-                </div> 
+<div className="flex flex-col">
+  <h3 className="text-base font-bold mb-2">Custom Field</h3>
+
+  <label className="form-label text-sm">Test</label>
+  <div className="input relative">
+    <i className="ki-filled ki-user absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+    <input
+      className="pl-7 pr-2 py-1 text-sm border border-gray-300 rounded w-full "
+      type="text"
+      placeholder="Enter text"
+    />
+  </div>
 </div>
 <CustomModal
   open={isTagModalOpen}
@@ -195,7 +203,7 @@ const [tags, setTags] = useState([
                 <div className="flex flex-col">
                   <label className="form-label">Pincode</label>
                   <div className="input">
-                    <i className="ki-filled ki-geolocation"></i>
+                    <i className="ki-filled ki-geolocation"></i> 
                     <input type="text" placeholder="Pincode" />
                   </div>
                 </div>
@@ -384,4 +392,4 @@ const [tags, setTags] = useState([
     )
   );
 };
-export default AddContact;
+export default AddContact; 
