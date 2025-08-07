@@ -22,11 +22,21 @@ const FunctionsStep = ({ formData, setFormData }) => {
       notes: "",
     })
   const functionDataStore = () =>{
+
+    if(eventModalData.is_edit >= 0){
+      var index = eventModalData.is_edit;
+      var new_function_data = formData.function_data.map((f, i) =>{
+        return i === index ?  eventModalData : f
+      })
+    }else{
+      var new_function_data = formData?.function_data ? [...formData.function_data, eventModalData] : [eventModalData]
+    }
     setFormData({
       ...formData,
-      function_data: formData?.function_data ? [...formData.function_data, eventModalData] : [eventModalData],
+      function_data: new_function_data,
     });
 
+    
     setEventModalData({
       customer_id: "",
       person: "",
@@ -56,10 +66,6 @@ const FunctionsStep = ({ formData, setFormData }) => {
   };
 
   const handleRemoveFunction = (index) => {
-    // setFormData({
-    //   ...formData,
-    //   function_array: formData.function_array.filter((_, i) => i !== index),
-    // });
     setFormData({
       ...formData,
       function_data: formData.function_data.filter((_, i) => i !== index),
@@ -67,7 +73,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
   };
 
   const handleEditFunction = (item,index) => {
-      setEventModalData(item)
+      setEventModalData({...item, is_edit: index })
       setIsModalOpen(true)
   };
   const handleInputChange = ({ target: { value, name } }, index) => {
