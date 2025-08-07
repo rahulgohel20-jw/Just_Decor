@@ -27,21 +27,25 @@ const MealAndNoteStep = ({
             <div className="col-span-4 col-start-3">
               <div className="card min-w-full py-5 px-6 flex flex-col gap-y-3">
                 <div className="select__grp flex flex-col">
-                  <label className="form-label">Meal Type</label>
-                  <div className="sg__inner flex items-center gap-1 relative">
+                  {/* <div className="sg__inner flex items-center gap-1 relative"> */}
                     <MealTypeDropdown
-                      value={formData.meal_type}
+                      label={"Meal Type"}
+                      name={'customer_id'}
                       onChange={handleInputChange}
+                      value={formData.meal_type}
+                      createBtn={true}
+                      className="w-full"
+                      setCreateModalOpen={setShowCustomerModal}
                     />
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => handleAddClick("Manager")}
                       title="Add"
                       className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                     >
                       <i className="ki-filled ki-plus"></i>
-                    </button>
-                  </div>
+                    </button> */}
+                  {/* </div> */}
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Meal Notes</label>

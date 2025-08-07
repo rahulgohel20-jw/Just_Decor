@@ -51,8 +51,8 @@ const AddFunctionModel = ({ isModalOpen, setIsModalOpen, eventData,setEventModal
         <div className="flex flex-col gap-y-2 gap-x-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
               <div className="flex flex-col">
-                <label className="form-label">Function Name</label>
                 <FunctionTypeDropdown
+                 label={"Function Name"}
                   value={eventData.customer_id}
                   name={'customer_id'}
                   onChange={handleInputChange}

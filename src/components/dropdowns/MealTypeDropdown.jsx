@@ -13,11 +13,22 @@ const MealTypeDropdown = ({ value, onChange,className , ...rest}) => {
     <SelectDropdown
       value={selectedCompanies}
       onChange={handleChange}
-      // className={`border p-2 rounded outline-none ${className}`}
       staticOptions={[
         { label: "User A", value: "UserA" },
         { label: "User B", value: "UserB" },
         { label: "User C", value: "UserC" },
+        { label: "User D", value: "UserD" },
+        { label: "User E", value: "UserE" },
+        { label: "User F", value: "UserF" },
+        { label: "User G", value: "UserG" },
+        { label: "User H", value: "UserH" },
+        { label: "User I", value: "UserI" },
+        { label: "User J", value: "UserJ" },
+        { label: "User K", value: "UserK" },
+        { label: "User L", value: "UserL" },
+        { label: "User M", value: "UserM" },
+        { label: "User N", value: "UserN" },
+        { label: "User O", value: "UserO" },
       ]}
       mode="multiple"
       placeholder={"Please select"}
