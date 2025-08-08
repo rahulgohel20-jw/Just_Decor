@@ -5,7 +5,8 @@ export const MENU_SIDEBAR = [
     path: "/",
   },
   {
-    title: "Event Management",
+    // title: "Event Management",
+    title: "Schedule",
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
@@ -75,7 +76,7 @@ export const MENU_SIDEBAR = [
         title: "Dashboard",
         path: "/leave-dashboard",
       },
-     
+
       {
         title: "My Attendance",
         path: "/myattendance",
