@@ -2,7 +2,7 @@ import { useState, Fragment, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mic } from "lucide-react";
 import useStyles from "./style";
 
 const EventPreparationPage = () => {
@@ -101,7 +101,7 @@ const EventPreparationPage = () => {
               <div className="flex-1 max-h-[650px] overflow-auto scrollable-y">
                 <div className="h-full">
                   {filteredCategories.length === 0 ? (
-                    <div className="p-2 text-gray-400 text-xs">
+                    <div className="p-2 text-gray-400 text-xs text-center">
                       No categories found
                     </div>
                   ) : (
@@ -125,21 +125,50 @@ const EventPreparationPage = () => {
           </div>
           {/* two */}
           <div className="col-span-6">
-            <div className="border-b p-3 lg:p-4 bg-light">
-              <div className="relative">
-                <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                <input
-                  type="text"
-                  className="input pl-8"
-                  placeholder="Search items"
-                  value={childSearch}
-                  onChange={(e) => setChildSearch(e.target.value)}
-                />
+            <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-2">
+              <div className="select__grp flex flex-col w-full">
+                <div className="sg__inner flex items-center gap-1 relative">
+                  <div className="relative w-full">
+                    <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                    <input
+                      type="text"
+                      className="input pl-8"
+                      placeholder="Search items"
+                      value={childSearch}
+                      onChange={(e) => setChildSearch(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAddClick("Manager")}
+                    title="Add"
+                    className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                  >
+                    <i className="ki-filled ki-plus"></i>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddClick("Manager")}
+                    title="Add"
+                    className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                  >
+                    <Mic size={18} />
+                  </button>
+                </div>
               </div>
+              <button
+                type="button"
+                title="Collapsw"
+                className="sga__btn btn btn-light flex items-center justify-center rounded-full p-0 w-8 h-8"
+              >
+                <i className="ki-filled ki-double-right"></i>
+              </button>
             </div>
             <div className="flex-1 p-3 lg:p-4 max-h-[650px] overflow-auto scrollable-y">
               {filteredChildren.length === 0 ? (
-                <div className="p-2 text-gray-400 text-xs">No items found</div>
+                <div className="p-2 text-gray-400 text-xs text-center">
+                  No items found
+                </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {filteredChildren.map(({ parentId, id, name, image }) => (
@@ -219,7 +248,7 @@ const EventPreparationPage = () => {
               </div>
               <div className="flex-1 p-3 lg:p-4 max-h-[500px] overflow-auto scrollable-y">
                 {selectedChildren.length === 0 ? (
-                  <div className="text-xs text-gray-400 p-2">
+                  <div className="text-xs text-gray-400 p-2 text-center">
                     No items selected
                   </div>
                 ) : (

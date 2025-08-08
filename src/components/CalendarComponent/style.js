@@ -52,19 +52,22 @@ const useStyles = makeStyles({
         "&.fc-day-today": {
           backgroundColor: "var(--tw-primary-lighter)",
           cursor: "pointer",
-          "& .fc-daygrid-day-number": {
-            color: "var(--tw-light)",
-            background: "var(--tw-primary)",
-            borderRadius: "50rem",
-            position: "relative",
-            top: "4px",
-            right: "4px",
-            width: "28px",
-            height: "28px",
-            padding: "0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+          "& .fc-daygrid-day-top": {
+            marginBottom: "5px",
+            "& .fc-daygrid-day-number": {
+              color: "var(--tw-light)",
+              background: "var(--tw-primary)",
+              borderRadius: "50rem",
+              position: "relative",
+              top: "4px",
+              right: "4px",
+              width: "24px",
+              height: "24px",
+              padding: "0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            },
           },
         },
       },
@@ -109,31 +112,32 @@ const useStyles = makeStyles({
           },
         },
       },
-      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button, & .fc-timeGridDay-button, & .fc-listWeek-button": {
-        "&.fc-button": {
-          display: "inline-flex",
-          alignItems: "center",
-          cursor: "pointer",
-          gap: "0.375rem",
-          fontWeight: "500",
-          outline: "none",
-          color: "var(--tw-gray-700)",
-          borderColor: "var(--tw-gray-300)",
-          backgroundColor: "var(--tw-light) !important",
-          "&:hover, &:focus, &:active": {
-            borderColor: "var(--tw-gray-300) !important",
-            backgroundColor: "var(--tw-light-active)",
-            boxShadow: "var(--tw-default-box-shadow) !important",
-            color: "var(--tw-gray-800)",
-          },
-          "&:not(:disabled).active, &:not(:disabled).fc-button-active, &.fc-button-active:hover":
-            {
-              borderColor: "var(--tw-primary) !important",
-              backgroundColor: "var(--tw-primary) !important",
-              color: "var(--tw-light)",
+      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button, & .fc-timeGridDay-button, & .fc-listWeek-button":
+        {
+          "&.fc-button": {
+            display: "inline-flex",
+            alignItems: "center",
+            cursor: "pointer",
+            gap: "0.375rem",
+            fontWeight: "500",
+            outline: "none",
+            color: "var(--tw-gray-700)",
+            borderColor: "var(--tw-gray-300)",
+            backgroundColor: "var(--tw-light) !important",
+            "&:hover, &:focus, &:active": {
+              borderColor: "var(--tw-gray-300) !important",
+              backgroundColor: "var(--tw-light-active)",
+              boxShadow: "var(--tw-default-box-shadow) !important",
+              color: "var(--tw-gray-800)",
             },
+            "&:not(:disabled).active, &:not(:disabled).fc-button-active, &.fc-button-active:hover":
+              {
+                borderColor: "var(--tw-primary) !important",
+                backgroundColor: "var(--tw-primary) !important",
+                color: "var(--tw-light)",
+              },
+          },
         },
-      },
       "& .fc-header-toolbar": {
         marginBottom: "10px",
         "& .fc-toolbar-chunk": {
