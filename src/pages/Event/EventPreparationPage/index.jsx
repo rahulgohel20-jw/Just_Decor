@@ -2,8 +2,9 @@ import { useState, Fragment, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
-import { Eye, EyeOff, Mic } from "lucide-react";
+import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
 import useStyles from "./style";
+import { Tooltip } from "antd";
 
 const EventPreparationPage = () => {
   const classes = useStyles();
@@ -125,7 +126,7 @@ const EventPreparationPage = () => {
           </div>
           {/* two */}
           <div className="col-span-6">
-            <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-2">
+            <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-3">
               <div className="select__grp flex flex-col w-full">
                 <div className="sg__inner flex items-center gap-1 relative">
                   <div className="relative w-full">
@@ -138,31 +139,40 @@ const EventPreparationPage = () => {
                       onChange={(e) => setChildSearch(e.target.value)}
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleAddClick("Manager")}
-                    title="Add"
-                    className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-                  >
-                    <i className="ki-filled ki-plus"></i>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddClick("Manager")}
-                    title="Add"
-                    className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-                  >
-                    <Mic size={18} />
-                  </button>
+                  <Tooltip title="Start speech to text">
+                    <button
+                      type="button"
+                      onClick={() => handleAddClick("Manager")}
+                      title="Add"
+                      className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                    >
+                      <i className="ki-filled ki-plus"></i>
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Add menu item">
+                    <button
+                      type="button"
+                      onClick={() => handleAddClick("Manager")}
+                      title="Add"
+                      className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                    >
+                      <Mic size={18} />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
-              <button
-                type="button"
-                title="Collapsw"
-                className="sga__btn btn btn-light flex items-center justify-center rounded-full p-0 w-8 h-8"
-              >
-                <i className="ki-filled ki-double-right"></i>
-              </button>
+              <Tooltip title="Collapse">
+                <button
+                  type="button"
+                  title="Collapse"
+                  className="sga__btn flex items-center justify-center rounded-full p-0"
+                >
+                  <PanelLeftOpen
+                    className="text-primary stroke-2"
+                    style={{ width: "24px" }}
+                  />
+                </button>
+              </Tooltip>
             </div>
             <div className="flex-1 p-3 lg:p-4 max-h-[650px] overflow-auto scrollable-y">
               {filteredChildren.length === 0 ? (
@@ -174,26 +184,27 @@ const EventPreparationPage = () => {
                   {filteredChildren.map(({ parentId, id, name, image }) => (
                     <div
                       key={id}
-                      className={`flex flex-col items-center justify-center p-2 border rounded-lg cursor-pointer aspect-square transition-all ${
+                      className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
                         selectedChildren.includes(id)
-                          ? "bg-blue-100 border-blue-400"
-                          : "hover:bg-gray-100"
+                          ? "border-success bg-green-300/10 text-success"
+                          : "hover:bg-blue-500/10 hover:border-blue-500/15"
                       }`}
                       onClick={() => toggleChildSelection(id)}
                     >
-                      <div className="w-16 h-16 mb-2 flex items-center justify-center">
+                      <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
                         <img
                           src={image}
                           alt={name}
-                          className="w-full h-full object-cover rounded border"
+                          className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="font-medium text-center text-xs">
+                      <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
                         {name}
                       </div>
                       {selectedChildren.includes(id) && (
-                        <span className="text-blue-600 text-lg font-bold mt-1">
-                          &#10003;
+                        <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
+                          <i className="ki-filled ki-check text-sm text-light"></i>
+                          {/* &#10003; */}
                         </span>
                       )}
                     </div>
@@ -207,7 +218,9 @@ const EventPreparationPage = () => {
             <div className="h-full lg:border-s lg:border-s-border shrink-0 bg-muted/15">
               <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-sm">Selected Items</span>
+                  <span className="text-md font-medium text-gray-900">
+                    Selected Items
+                  </span>
                   <button
                     className="text-primary hover:underline"
                     onClick={() => setShowDetails((prev) => !prev)}
@@ -215,38 +228,57 @@ const EventPreparationPage = () => {
                     {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                 </div>
-                <div className="mb-2 space-y-1 text-xs">
-                  <div>
-                    <span className="font-medium">Person:</span>
+                <div className="mb-2 space-y-1">
+                  <p className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-700 w-24">
+                      Person:
+                    </span>
+                    <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                      <i className="ki-filled ki-user text-sm text-primary"></i>
+                      {/* 300 */}
+                    </strong>
                     <input
                       type="number"
                       min={1}
                       value={300}
                       readOnly
-                      className="ml-2 w-20 p-1 border rounded text-xs bg-gray-100"
+                      className="input input-sm w-20"
+                      disabled
                     />
-                  </div>
-                  <div>
-                    <span className="font-medium">Date &amp; Time:</span>{" "}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-700 w-24">
+                      Date &amp; Time:
+                    </span>
+                    <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                      <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
+                      {/* 27/07/2025 11:00 AM */}
+                    </strong>
                     <input
                       type="text"
                       value="27/07/2025 11:00 AM"
                       readOnly
-                      className="ml-2 w-36 p-1 border rounded text-xs bg-gray-100"
+                      className="input input-sm w-36"
+                      disabled
                     />
-                  </div>
-                  <div>
-                    <span className="font-medium">Default Rate:</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-700 w-24">
+                      Default Rate:
+                    </span>
+                    <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                      <span className="text-sm text-primary">&#8377;</span>
+                    </strong>
                     <input
                       type="number"
                       value={rate}
                       onChange={(e) => setRate(e.target.value)}
-                      className="ml-2 w-20 p-1 border rounded text-xs"
+                      className="input input-sm w-20"
                     />
-                  </div>
+                  </p>
                 </div>
               </div>
-              <div className="flex-1 p-3 lg:p-4 max-h-[500px] overflow-auto scrollable-y">
+              <div className="flex-1 p-3 lg:p-4 max-h-[510px] overflow-auto scrollable-y">
                 {selectedChildren.length === 0 ? (
                   <div className="text-xs text-gray-400 p-2 text-center">
                     No items selected
@@ -256,90 +288,93 @@ const EventPreparationPage = () => {
                     {Object.entries(selectedItemsByCategory).map(
                       ([categoryName, items]) => (
                         <div key={categoryName} className="mb-2">
-                          <div className="font-semibold text-xs text-blue-700 mb-1">
-                            {categoryName}
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className="font-semibold text-xs text-gray-900">
+                              {categoryName}
+                            </span>
+                            <Tooltip title="Expand">
+                              <button className="p-0 w-6 h-6" title="Expand">
+                                <i className="ki-filled ki-down text-md"></i>
+                              </button>
+                            </Tooltip>
                           </div>
-                          <ul className="space-y-2">
+                          <ul className="bg-white rounded border shadow-sm">
                             {items.map((item) => (
                               <li
                                 key={item.id}
-                                className="flex flex-col bg-white rounded border p-2 shadow-sm"
+                                className="flex flex-col border-b last:border-0 p-3"
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <img
-                                      src={item.image}
-                                      alt={item.name}
-                                      className="w-8 h-8 object-cover rounded border"
-                                    />
+                                    <span
+                                      className="w-8 h-8 rounded overflow-hidden"
+                                      style={{ flex: "0 0 2rem" }}
+                                    >
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </span>
                                     <span className="text-xs font-medium">
                                       {item.name}
                                     </span>
                                   </div>
-                                  <button
-                                    className="ml-2 text-gray-400 hover:text-red-500"
-                                    title="Remove"
-                                    onClick={() =>
-                                      setSelectedChildren((prev) =>
-                                        prev.filter((cid) => cid !== item.id)
-                                      )
-                                    }
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                      />
-                                    </svg>
-                                  </button>
-                                </div>
-                                {showDetails && (
-                                  <div className="flex items-center mt-1 gap-2">
-                                    <span className="text-xs text-gray-500">
-                                      Rate:
-                                    </span>
-                                    <input
-                                      type="number"
-                                      value={itemRates[item.id] || rate}
-                                      onChange={(e) =>
-                                        handleItemRateChange(
-                                          item.id,
-                                          e.target.value
+                                  <Tooltip title="Remove">
+                                    <button
+                                      className="ml-2 text-gray-400 hover:text-red-500"
+                                      title="Remove"
+                                      onClick={() =>
+                                        setSelectedChildren((prev) =>
+                                          prev.filter((cid) => cid !== item.id)
                                         )
                                       }
-                                      className="w-16 p-1 border rounded text-xs"
-                                      min={0}
-                                    />
-                                    <span className="text-xs text-gray-500">
-                                      Price:
-                                    </span>
-                                    <span className="font-semibold text-xs">
-                                      ₹{" "}
-                                      {(Number(itemRates[item.id]) ||
-                                        Number(rate) ||
-                                        0) * 300}
-                                    </span>
+                                    >
+                                      <i class="ki-filled ki-trash"></i>
+                                    </button>
+                                  </Tooltip>
+                                </div>
+                                {showDetails && (
+                                  <div className="flex items-center justify-between mt-1 gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-gray-500">
+                                        Rate:
+                                      </span>
+                                      <input
+                                        type="number"
+                                        value={itemRates[item.id] || rate}
+                                        onChange={(e) =>
+                                          handleItemRateChange(
+                                            item.id,
+                                            e.target.value
+                                          )
+                                        }
+                                        min={0}
+                                        className="input input-sm w-20"
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-gray-500">
+                                        Price:
+                                      </span>
+                                      <span className="font-semibold text-xs">
+                                        ₹{" "}
+                                        {(Number(itemRates[item.id]) ||
+                                          Number(rate) ||
+                                          0) * 300}
+                                      </span>
+                                    </div>
                                   </div>
                                 )}
-                                <div className="mt-1">
-                                  <textarea
-                                    placeholder="Add note..."
-                                    value={itemNotes[item.id] || ""}
-                                    onChange={(e) =>
-                                      handleNoteChange(item.id, e.target.value)
-                                    }
-                                    className="w-full p-1 border rounded text-xs mt-1 resize-none"
-                                    rows={1}
-                                  />
-                                </div>
+                                <textarea
+                                  placeholder="Add note..."
+                                  value={itemNotes[item.id] || ""}
+                                  onChange={(e) =>
+                                    handleNoteChange(item.id, e.target.value)
+                                  }
+                                  className="textarea textarea-sm w-full mt-1 resize-none"
+                                  rows={1}
+                                />
                               </li>
                             ))}
                           </ul>
@@ -349,16 +384,26 @@ const EventPreparationPage = () => {
                   </div>
                 )}
               </div>
-              <div className="p-3 lg:p-4 border-t text-xs text-gray-600 flex justify-between">
-                <span>Total Items:</span>
-                <span className="font-semibold">{selectedChildren.length}</span>
-              </div>
-              {showDetails && (
-                <div className="pt-1 text-xs text-gray-700 flex justify-between font-semibold">
-                  <span>Total:</span>
-                  <span>₹ {totalPrice}</span>
+              <div className="p-3 lg:p-4 border-t flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-xs text-gray-700">
+                    Total Items:
+                  </span>
+                  <span className="font-bold text-xs text-gray-900">
+                    {selectedChildren.length}
+                  </span>
                 </div>
-              )}
+                {showDetails && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-xs text-gray-700">
+                      Total:
+                    </span>
+                    <span className="font-bold text-xs text-gray-900">
+                      &#8377; {totalPrice}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
