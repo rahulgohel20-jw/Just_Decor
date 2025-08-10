@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
-
 const EventStatusDropdown = ({ value, onChange, ...rest }) => {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
-
   const handleChange = (event) => {
     setSelectedCompanies(event.target.value);
     onChange(event);

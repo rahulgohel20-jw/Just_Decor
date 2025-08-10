@@ -10,7 +10,7 @@ export const requiredFields = {
     event_type: "",
     meeting_date: "",
     event_date: "",
-    status: "pending",
+    status: "Pending",
   },
   functions: {
     function_array: [],
