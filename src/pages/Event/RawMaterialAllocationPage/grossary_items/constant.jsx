@@ -1,4 +1,5 @@
-export const data = [
+
+export const table_data = [
   { 
     sr_no: 1, 
     row_material: 'GHEE', 
@@ -87,11 +88,32 @@ export const columns = [
   },
   {
     accessorKey: "final_qty",
-    header: "Final Qty",
+      header: "Final Qty",
+      cell: ({ row }) => (
+         <div className="input">
+        <input
+          type="text"
+          className=""
+          value={row.original.final_qty}
+          name="final_qty"
+          onChange={(e) => {
+            const updated = [...tableData];
+            updated[row.index].final_qty = e.target.value;
+            setTableData(updated);
+          }}
+        />
+        </div>
+      ),
   },
   {
     accessorKey: "unit",
     header: "Unit",
+    cell: ({ row }) => (
+            <select className="select pe-7.5">
+              <option value="1">KiloGram</option>
+              <option value="2">Gram</option>
+            </select>
+      ),
   },
   {
     accessorKey: "agency",
@@ -104,5 +126,72 @@ export const columns = [
   {
     accessorKey: "total_price",
     header: "Total Price",
+    cell: ({ row }) => (
+         <div className="input">
+        <input
+          type="text"
+          className=""
+          value={row.original.total_price}
+          name="total_price"
+          onChange={(e) => {
+            const updated = [...tableData];
+            updated[row.index].total_price = e.target.value;
+            setTableData(updated);
+          }}
+        />
+        </div>
+      ),
+  },
+];
+
+export const modal_columns = [
+  {
+    accessorKey: "sr_no",
+    header: "#",
+  },
+  {
+    accessorKey: "row_material",
+    header: "Row Material",
+  },
+  {
+    accessorKey: "agency",
+    header: "Agency",
+    cell: ({ row }) => (
+            <select className="select pe-7.5">
+              <option value="">TIRUPATI AGRO</option>
+              <option value="">HARDIKBHAI GAS</option>
+              <option value="">KANUBHAI GAS</option>
+              <option value="">SURBHI DAIRY</option>
+            </select>
+      ),
+  },
+  {
+    accessorKey: "place",
+    header: "Place",
+    cell: ({ row }) => (
+            <select className="select pe-7.5">
+              <option value="">At Venue</option>
+              <option value="">Godown</option>
+            </select>
+      ),
+  },
+  {
+    accessorKey: "date_time",
+    header: "Date & Time",
+    cell: ({ row }) => (
+         <div className="input">
+        <input
+          type="date"
+          className=""
+          value={row.original.date_time}
+          name="date_time"
+          onChange={(e) => {
+            const updated = [...tableData];
+            updated[row.index].date_time = e.target.value;
+            setTableData(updated);
+          }}
+        />
+        </div>
+      ),
   },
 ];
