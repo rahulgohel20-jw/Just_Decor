@@ -1,19 +1,16 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import RaiseTicket from "@/partials/modals/raise-tickect/RaiseTicket";
+import Addticket from "@/partials/modals/add-ticket/Addticket";
 const RaiseTicketPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+   const [isAddticketOpen, setIsAddticketOpen] = useState(false);
+
   const [editData] = useState(null);
   const handleModalOpen = () => {
     console.log("Opening modal");
-    setIsModalOpen(true);
+    setIsAddticketOpen(true); // Use correct setter
     console.log("Modal state set to:", true);
-    console.log("isModalOpen after setting:", isModalOpen); // This will still show false due to React's state update timing
-    // Force a re-render to check if the component updates
-    setTimeout(() => {
-      console.log("isModalOpen after timeout:", isModalOpen);
-    }, 100);
   };
 
   return (
@@ -49,11 +46,11 @@ const RaiseTicketPage = () => {
             </div>
           </div>
         </div>
-        <RaiseTicket
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          editData={editData}
-        />
+         <Addticket
+        isModalOpen={isAddticketOpen}
+        setIsModalOpen={setIsAddticketOpen}
+        editData={{}}
+      />
       </Container>
     </Fragment>
   );

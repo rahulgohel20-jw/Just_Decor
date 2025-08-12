@@ -41,14 +41,16 @@ export const columns = [
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip title="View">
-            <Link to="/companydetails">
-              <button
-                className="btn btn-sm btn-icon btn-clear text-success"
-                title="View"
-              >
-                <i className="ki-filled ki-eye"></i>
-              </button>
-            </Link>
+      <button
+  type="button"
+  className="btn btn-sm btn-icon btn-clear text-success"
+  title="View"
+  onClick={() => setIsAddCompanyOpen(true)}
+>
+  <i className="ki-filled ki-eye"></i>
+</button>
+
+
           </Tooltip>
           <Tooltip title="Edit">
             <button
