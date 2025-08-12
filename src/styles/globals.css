@@ -89,8 +89,11 @@
   fill: #fff;
 }
 
-.input {
-  height: 2.5rem;
+
+.input-sm {
+  height: 1.75rem;
+  padding-inline-start: 6px;
+  padding-inline-end: 6px;
 }
 
 /* /segmentedTabs */

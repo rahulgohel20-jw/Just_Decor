@@ -72,6 +72,12 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
           <div className="flex flex-col">
             <FileUploadComponent type="file" />
           </div>
+          <div className="flex flex-col">
+
+<div className="input">
+              <input className="h-full" type="text" placeholder="URl" />
+            </div>
+          </div>
         </div>
         {renderTabContent()}
       </CustomModal>

@@ -10,6 +10,7 @@ const SelectDropdown = ({
   label,
   placeholder = "Select an option",
   createBtn,
+  setCreateModalOpen,
   ...rest
 }) => {
   const classes = useStyles();
@@ -25,6 +26,7 @@ const SelectDropdown = ({
 
   const handleCreate = () => {
     // Logic for creating a new option can be added here
+    setCreateModalOpen ? setCreateModalOpen(true) : 
     setCreateModeOpen(true);
   };
 
