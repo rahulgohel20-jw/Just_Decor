@@ -6,8 +6,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import useStyles from "./style";
-import { Button } from "@mui/material"; // or your preferred button component
-import { Link } from "react-router-dom"; // assuming you're using React Router
+import { Button } from "@mui/material"; 
+import { Link } from "react-router-dom"; 
 
 const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const classes = useStyles();
@@ -51,6 +51,7 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
           const { event, el } = info;
           const time = event.extendedProps.time || "";
           const address = event.extendedProps.address || "";
+          const events = event.extendedProps.event || "";
           const mobile = event.extendedProps.mobile || "";
 
           tippy(el, {
@@ -58,6 +59,7 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
               <strong>${event.title}</strong><br/>
               Time: ${time}<br/>
               Address: ${address}<br/>
+              Events: ${events}<br/>
               Mobile: ${mobile}
             `,
             allowHTML: true,

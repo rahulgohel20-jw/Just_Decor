@@ -1,23 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 import { Linkedin } from "lucide-react";
+import AddCompany from "@/partials/modals/add-company/AddCompany";
+
 import TagPage from "../tag/TagPage";
 
 const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState();
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const [isAddCompanyModalOpen, setIsAddCompanyModalOpen] = useState(false);
+const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
 
   const [tags, setTags] = useState([
     { label: "wdd", color: "green" },
     { label: "s", color: "red" },
     { label: "test", color: "blue" },
   ]);
-
   const handInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -28,14 +29,14 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   };
 
   const saveData = () => {
-    // Save logic
+    // Save data logic here
+
     setIsModalOpen(false);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-
   const [activeTab, setActiveTab] = useState("tab_1");
 
   const renderTabContent = () => {
@@ -46,39 +47,41 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Company Name</label>
-                  <div className="input">
-                    <i className="ki-filled ki-building"></i>
-                    <input className="h-full" type="text" placeholder="Company name" />
-                  </div>
-                </div>
+  <label className="form-label flex items-center gap-2">
+    Company Name
+    {/* Link to open modal */}
+    <button
+  type="button"
+  className="text-blue-500 underline hover:text-blue-700"
+  onClick={() => setIsAddCompanyOpen(true)}
+>
+  + Add Company
+</button>
 
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between">
-                    <label className="form-label">Company Name</label>
-                    <button
-                      className="text-blue-600 text-xs underline hover:text-blue-800"
-                      type="button"
-                      onClick={() => setIsAddCompanyModalOpen(true)}
-                    >
-                      + Add Company
-                    </button>
-                  </div>
-                  <div className="input">
-                    <i className="ki-filled ki-building"></i>
-                    <input className="h-full" type="text" placeholder="Company name" />
-                  </div>
-                </div>
+  </label>
+
+  <div className="input">
+    <i className="ki-filled ki-building"></i>
+    <input
+      className="h-full"
+      type="text"
+      placeholder="company name"
+    />
+  </div>
+</div>
 
                 <div className="flex flex-col">
                   <label className="form-label">Email</label>
                   <div className="input">
                     <i className="ki-filled ki-sms"></i>
-                    <input className="h-full" type="text" placeholder="Enter email" />
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Enter email"
+                    />
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">First Name</label>
@@ -88,7 +91,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                       className="h-full"
                       type="text"
                       placeholder="Enter first name"
-                      value={formData?.first_name || ""}
+                      value={formData?.first_name}
                       name="first_name"
                       onChange={handInputChange}
                     />
@@ -98,17 +101,19 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   <label className="form-label">Last Name</label>
                   <div className="input">
                     <i className="ki-filled ki-user"></i>
-                    <input className="h-full" type="text" placeholder="Enter last name" />
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Enter last name"
+                    />
                   </div>
                 </div>
               </div>
-
               <PhoneNumber
                 value={formData?.mobile}
                 name="mobile"
                 handleMultiInputChange={handleMultiInputChange}
               />
-
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Date of Birth</label>
@@ -116,10 +121,12 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Date of Anniversary</label>
-                  <DatePicker date={dateOfAnniversary} setDate={setDateOfAnniversary} />
+                  <DatePicker
+                    date={dateOfAnniversary}
+                    setDate={setDateOfAnniversary}
+                  />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Tags</label>
                 <button
@@ -128,6 +135,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                 >
                   Manage Tags
                 </button>
+
                 <div className="flex flex-wrap gap-2 mt-2">
                   {tags.map((tag, index) => (
                     <span
@@ -136,8 +144,8 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                         tag.color === "green"
                           ? "bg-green-500"
                           : tag.color === "red"
-                          ? "bg-red-500"
-                          : "bg-blue-500"
+                            ? "bg-red-500"
+                            : "bg-blue-500"
                       }`}
                     >
                       {tag.label}
@@ -146,7 +154,20 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                   ))}
                 </div>
               </div>
-
+              <div>
+                <div className="flex flex-col">
+                  <h3 className="fw-bold">Custom Field</h3>
+                  <label className="form-label">test</label>
+                  <div className="input">
+                    <i className="ki-filled ki-user"></i>
+                    <input
+                      className="h-half "
+                      type="text"
+                      placeholder="Enter custom field"
+                    />
+                  </div>
+                </div>
+              </div>
               <CustomModal
                 open={isTagModalOpen}
                 onClose={() => setIsTagModalOpen(false)}
@@ -162,25 +183,153 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             </div>
           </div>
         );
-
       case "tab_2":
         return (
           <div id="tab_2" className="tab-content mb-2">
-            {/* Address form */}
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">State</label>
+                  <div className="input">
+                    <i className="ki-filled ki-bank"></i>
+                    <input type="text" placeholder="State" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">City</label>
+                  <div className="input">
+                    <i className="ki-filled ki-pointers"></i>
+                    <input type="text" placeholder="City" />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Pincode</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Pincode" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Address</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Address" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         );
-
       case "tab_3":
         return (
           <div id="tab_3" className="tab-content mb-2">
-            {/* Social form */}
+            <div className="flex flex-col gap-y-2">
+              <div className="flex flex-col">
+                <label className="form-label">Linkedin</label>
+                <div className="input">
+                  <Linkedin className="size-4" />
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label className="form-label">Twitter</label>
+                <div className="input">
+                  <i className="ki-filled ki-twitter"></i>
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label className="form-label">Youtube</label>
+                <div className="input">
+                  <i className="ki-filled ki-youtube"></i>
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label className="form-label">Facebook</label>
+                <div className="input">
+                  <i className="ki-filled ki-facebook"></i>
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label className="form-label">Instagram</label>
+                <div className="input">
+                  <i className="ki-filled ki-instagram"></i>
+                  <input
+                    type="text"
+                    placeholder="Enter valid URL starting with https://"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         );
-
+      case "tab_4":
+        return (
+          <div id="tab_2" className="tab-content mb-2">
+            <div className="flex flex-col gap-y-2">
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">State</label>
+                  <div className="input">
+                    <i className="ki-filled ki-bank"></i>
+                    <input type="text" placeholder="State" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">City</label>
+                  <div className="input">
+                    <i className="ki-filled ki-pointers"></i>
+                    <input type="text" placeholder="City" />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Pincode</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Pincode" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Address</label>
+                  <div className="input">
+                    <i className="ki-filled ki-geolocation"></i>
+                    <input type="text" placeholder="Address" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
   };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setFormData(editData);
+    } else {
+      setFormData(null);
+    }
+  }, [isModalOpen]);
 
   return (
     isModalOpen && (
@@ -190,9 +339,23 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
         title="Add Contact"
         width={640}
         footer={[
-          <div className="flex justify-between" key="footer-buttons">
-            <button className="btn btn-light" onClick={handleModalClose}>Cancel</button>
-            <button className="btn btn-success" onClick={saveData}>Save</button>
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-light"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button
+              key="save"
+              className="btn btn-success"
+              title="Save"
+              onClick={saveData}
+            >
+              Save
+            </button>
           </div>,
         ]}
       >
@@ -225,7 +388,12 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   </button>
 </div>
 
-        {renderTabContent()}
+        <AddCompany
+  isModalOpen={isAddCompanyOpen}
+  setIsModalOpen={setIsAddCompanyOpen}
+/>
+
+        {renderTabContent(formData)}
       </CustomModal>
     )
   );
