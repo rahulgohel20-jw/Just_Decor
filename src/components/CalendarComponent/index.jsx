@@ -11,6 +11,9 @@ import { Link } from "react-router-dom";
 
 const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const classes = useStyles();
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
@@ -18,9 +21,13 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
       {/* Add Event Button */}
       <div style={{ marginBottom: "10px", textAlign: "right" }}>
         <Link to="/add-event" style={{ textDecoration: "none" }}>
-          <Button variant="contained" color="primary">
-            Add Event
-          </Button>
+                        <button
+                className="btn btn-primary"
+                onClick={handleModalOpen}
+                title="Add Event"
+              >
+                <i className="ki-filled ki-plus"></i> Add Event
+              </button>
         </Link>
       </div>
 

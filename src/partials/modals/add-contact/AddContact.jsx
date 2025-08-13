@@ -61,7 +61,7 @@ const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
   </label>
 
   <div className="input">
-    <i className="ki-filled ki-building"></i>
+    <i className="ki-filled ki-user"></i>
     <input
       className="h-full"
       type="text"
