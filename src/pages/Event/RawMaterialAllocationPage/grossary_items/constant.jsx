@@ -310,58 +310,6 @@ export const table_data = [
   },
 ];
 
-export const modal_columns = [
-  {
-    accessorKey: "sr_no",
-    header: "#",
-  },
-  {
-    accessorKey: "row_material",
-    header: "Row Material",
-  },
-  {
-    accessorKey: "agency",
-    header: "Agency",
-    cell: ({ row }) => (
-            <select className="select pe-7.5">
-              <option value="">TIRUPATI AGRO</option>
-              <option value="">HARDIKBHAI GAS</option>
-              <option value="">KANUBHAI GAS</option>
-              <option value="">SURBHI DAIRY</option>
-            </select>
-      ),
-  },
-  {
-    accessorKey: "place",
-    header: "Place",
-    cell: ({ row }) => (
-            <select className="select pe-7.5">
-              <option value="">At Venue</option>
-              <option value="">Godown</option>
-            </select>
-      ),
-  },
-  {
-    accessorKey: "date_time",
-    header: "Date & Time",
-    cell: ({ row }) => (
-         <div className="input">
-        <input
-          type="date"
-          className=""
-          value={row.original.date_time}
-          name="date_time"
-          onChange={(e) => {
-            const updated = [...tableData];
-            updated[row.index].date_time = e.target.value;
-            setTableData(updated);
-          }}
-        />
-        </div>
-      ),
-  },
-];
-
 export const agencies = [
   "TIRUPATI AGRO",
   "jaydeepbhai",
