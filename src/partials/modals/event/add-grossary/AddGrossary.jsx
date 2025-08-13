@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { TableComponent } from "@/components/table/TableComponent";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
-const AddGrossary = ({ isModalOpen, setIsModalOpen,columns, tableData }) => {
+const AddGrossary = ({ isModalOpen, setIsModalOpen,modalData, agencies }) => {
   
-
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -33,20 +32,9 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen,columns, tableData }) => {
           <div className="flex flex-wrap items-end gap-2">
             <select className="select pe-7.5">
                 <option value="">-- Select --</option>
-                <option>TIRUPATI AGRO</option>
-                <option>jaydeepbhai</option>
-                <option>RAJADHIRAJ HITESH BHAI</option>
-                <option>HARDIK BHAI GAS</option>
-                <option>HITESH DANDI</option>
-                <option>BANSARI GROCERY</option>
-                <option>NARESH CHANDRA</option>
-                <option>SURBHI DAIRY</option>
-                <option>KAMLESH BHAI</option>
-                <option>NILESH AQUA BLUE</option>
-                <option>RICHI RICH BAKERY</option>
-                <option>SANKET BAKERY</option>
-                <option>RAM SINGH</option>
-                <option>JAGDISH BHAI</option>
+                {agencies.map((agency, i) => (
+                  <option key={i} >{agency}</option>
+                ))}
               </select>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -89,11 +77,27 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen,columns, tableData }) => {
             </button>
             </div>
         </div>
-       <TableComponent 
-          columns={columns} 
-          data={tableData}
-          paginationSize={10}
-        />
+        <div className={'flex flex-col gap-1 w-full'}>
+          {modalData()}
+        </div>
+        {/* Total Price and save button*/}
+      <div className="flex items-center justify-center gap-5 bg-gray-200 border-b border-gray-300 py-2">
+         <button
+          className="btn btn-primary save-btn"
+          title="Save"
+          onClick={handleModalClose}
+        >
+          Save
+        </button>
+        <button
+              key="cancel"
+              className="btn btn-danger"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+      </div>
       </CustomModal>
     )
   );
