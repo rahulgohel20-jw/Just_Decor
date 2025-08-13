@@ -4,6 +4,7 @@ export const calendarData = [
     date: "2025-08-07",
     status: "Completed",
     address: "Ahmedabad",
+    event: "Wedding",
     mobile: "8785748574",
     color: "green",
     time: '10:45'
@@ -14,6 +15,7 @@ export const calendarData = [
     date: "2025-08-15",
     status: "Pending",
     address: "Surat",
+    event: "Engagement",
     mobile: "9876543210",
     color: "red",
     time: '12:45'
@@ -23,6 +25,7 @@ export const calendarData = [
     date: "2025-08-17",
     status: "In-progress",
     address: "PATAN",
+    event: "Reception",
     mobile: "986756432",
     color: "orange",
     time: '16:45'
@@ -32,6 +35,7 @@ export const calendarData = [
     date: "2025-08-27",
     status: "Completed",
     address: "VAPI",
+    event: "Wedding",
     mobile: "8785748574",
     color: "green",
     time: '17:00'
@@ -41,6 +45,7 @@ export const calendarData = [
     date: "2025-08-30",
     status: "Completed",
     address: "KERALU",
+    event: "Engagement",
     mobile: "8785748574",
     color: "green",
     time: '11:15'
@@ -50,6 +55,7 @@ export const calendarData = [
     date: "2025-08-19",
     status: "In-progress",
     address: "Ahmedabad",
+    event: "Wedding",
     mobile: "87857765574",
     color: "orange",
     time: '07:30'
@@ -59,6 +65,7 @@ export const calendarData = [
     date: "2025-08-07",
     status: "Pending",
     address: "Ahmedabad",
+    event: "Engagement",
     mobile: "8785748574",
     color: "red",
     time: '05:00'
@@ -68,6 +75,7 @@ export const calendarData = [
     date: "2025-08-22",
     status: "In-progress",
     address: "BARODA",
+    event: "Reception",
     mobile: "8785748574",
     color: "green",
     time: '23:00'
@@ -77,6 +85,7 @@ export const calendarData = [
     date: "2025-08-23",
     status: "Pending",
     address: "Ahmedabad",
+    event: "Wedding",
     mobile: "8785748574",
     color: "red",
     time: '20:20'

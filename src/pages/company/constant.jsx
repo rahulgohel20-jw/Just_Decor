@@ -2,13 +2,26 @@ import { DataGridColumnHeader } from "@/components";
 import { Tooltip } from "antd";
 import { Link } from "react-router-dom";
 export const columns = [
+  
   {
-    accessorKey: "company_name",
-
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Company Name" column={column} />
-    ),
+  accessorKey: "company",
+  header: ({ column }) => (
+    <DataGridColumnHeader title="Company" column={column} />
+  ),
+  cell: ({ cell }) => {
+    const company = cell.getValue();
+    return (
+      <div className="flex items-center gap-2">
+        {/* Show only on mobile */}
+        <i className="ki-filled ki-user text-primary text-lg sm:hidden"></i>
+        {/* Always show company name */}
+        <span>{company}</span>
+      </div>
+    );
   },
+}
+
+,
   {
     accessorKey: "address",
     header: ({ column }) => (
