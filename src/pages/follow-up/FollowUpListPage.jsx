@@ -63,7 +63,7 @@ const FollowUpListPage = () => {
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="card min-w-full">
             <div className="flex flex-col flex-1">
-              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
                 <div className="flex flex-wrap items-center gap-7">
                   <div className="flex flex-wrap items-center gap-3">
                     <img
@@ -163,7 +163,7 @@ const FollowUpListPage = () => {
           </div>
           <div className="card min-w-full">
             <div className="flex flex-col flex-1">
-              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:650px] user-access-bg">
+              <div className="flex flex-wrap justify-between items-center gap-7 p-4 rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
                 <div className="flex flex-wrap items-center gap-7">
                   <div className="flex flex-wrap items-center gap-3">
                     <img

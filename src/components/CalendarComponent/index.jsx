@@ -3,8 +3,8 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
 import useStyles from "./style";
 import { Button } from "@mui/material"; 
 import { Link } from "react-router-dom"; 
@@ -17,9 +17,8 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
 
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
-
       {/* Add Event Button */}
-      <div style={{ marginBottom: "10px", textAlign: "right" }}>
+      {/* <div style={{ marginBottom: "10px", textAlign: "right" }}>
         <Link to="/add-event" style={{ textDecoration: "none" }}>
                         <button
                 className="btn btn-primary"
@@ -29,17 +28,12 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
                 <i className="ki-filled ki-plus"></i> Add Event
               </button>
         </Link>
-      </div>
+      </div> */}
 
       <FullCalendar
         events={data}
         eventClick={(e) => openEvent(e)}
-        plugins={[
-          dayGridPlugin,
-          timeGridPlugin,
-          listPlugin,
-          interactionPlugin,
-        ]}
+        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         headerToolbar={{
           left: "prev,next today",
@@ -70,10 +64,10 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
               Mobile: ${mobile}
             `,
             allowHTML: true,
-            theme: 'light',
+            theme: "light",
           });
         }}
-    />
+      />
     </div>
   );
 };

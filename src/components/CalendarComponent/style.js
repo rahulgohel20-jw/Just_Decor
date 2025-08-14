@@ -163,6 +163,7 @@ const useStyles = makeStyles({
       },
       "& .fc-view-harness": {
         "& .fc-view": {
+          borderColor: "var(--tw-gray-300)",
           "& > table": {
             "& > thead": {
               backgroundColor: "var(--tw-gray-100)",
@@ -180,6 +181,38 @@ const useStyles = makeStyles({
           "&.fc-dayGridMonth-view": {},
           // fc-fc-dayGridWeek-view
           "&.fc-fc-dayGridWeek-view": {},
+        },
+      },
+      // fc-listWeek-view
+      "& .fc-listWeek-view": {
+        "& .fc-list-table": {
+          "& .fc-list-day": {
+            "& .fc-list-day-cushion": {
+              background: "var(--tw-gray-100)",
+              "& > a": {
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "var(--tw-gray-900)",
+              },
+            },
+          },
+          "& .fc-list-event": {
+            "& .fc-list-event-time": {
+              fontSize: "13px",
+              fontWeight: "500",
+              color: "var(--tw-gray-700)",
+            },
+            "& .fc-list-event-graphic": {
+              "& > span": {},
+            },
+            "& .fc-list-event-title": {
+              "& > a": {
+                fontSize: "13px",
+                fontWeight: "500",
+                color: "var(--tw-gray-700)",
+              },
+            },
+          },
         },
       },
     },

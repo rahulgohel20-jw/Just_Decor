@@ -184,7 +184,7 @@ const EventPreparationPage = () => {
                   {filteredChildren.map(({ parentId, id, name, image }) => (
                     <div
                       key={id}
-                      className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
+                      className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative transition ${
                         selectedChildren.includes(id)
                           ? "border-success bg-green-300/10 text-success"
                           : "hover:bg-blue-500/10 hover:border-blue-500/15"
@@ -221,12 +221,14 @@ const EventPreparationPage = () => {
                   <span className="text-md font-medium text-gray-900">
                     Selected Items
                   </span>
-                  <button
-                    className="text-primary hover:underline"
-                    onClick={() => setShowDetails((prev) => !prev)}
-                  >
-                    {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
-                  </button>
+                  <Tooltip title="Show price">
+                    <button
+                      className="text-primary hover:underline"
+                      onClick={() => setShowDetails((prev) => !prev)}
+                    >
+                      {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
+                    </button>
+                  </Tooltip>
                 </div>
                 <div className="mb-2 space-y-1">
                   <p className="flex items-center gap-2">
