@@ -18,7 +18,7 @@ export default plugin(({ addComponents, theme }) => {
       "padding-inline-start": theme("custom.components.input.DEFAULT.px"),
       "padding-inline-end": theme("custom.components.input.DEFAULT.px"),
       border: "1px solid var(--tw-gray-400)",
-      color: "var(--tw-gray-700)",
+      color: "var(--tw-gray-900)",
       "&::placeholder, input::placeholder": {
         color: "var(--tw-gray-500)",
       },
@@ -28,7 +28,7 @@ export default plugin(({ addComponents, theme }) => {
       "&:focus, &:has(input:focus)": {
         "border-color": "var(--tw-gray-500)",
         "box-shadow": "var(--tw-input-focus-box-shadow)",
-        color: "var(--tw-gray-700)",
+        color: "var(--tw-gray-900)",
         "&::placeholder, input::placeholder": {
           color: "var(--tw-gray-600)",
         },
