@@ -1,8 +1,11 @@
 import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { DatePicker as AntDatePicker } from "antd"; 
+import dayjs from "dayjs";
 
 const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
+  const [followupdate, setFollowUpDate] = useState(null);
   const [followUpType, setFollowUpType] = useState("Call");
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [reminders, setReminders] = useState([{ time: "", type: "Call" }]);
@@ -139,10 +142,12 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div className="flex flex-col">
             <label className="form-label">Followup Date</label>
-            <div className="input">
-              <i className="ki-filled ki-calendar"></i>
-              <input type="date" className="h-full" />
-            </div>
+       <AntDatePicker 
+       className="input w-full"
+       value={followupdate ? dayjs(followupdate) : null}
+        onChange={(date) => setFollowUpDate(date ? date.toISOString() : null)}
+        getPopupContainer={() => document.body} 
+      />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-2">

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
+// import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
+import { DatePicker as AntDatePicker } from "antd"; 
+import dayjs from "dayjs";
 import AddProduct from "../add-product/AddProduct";
 
 const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
-  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [leadclosedate, setLeadclodedate] = useState(null);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const [formData, setFormData] = useState();
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -49,7 +51,13 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Lead close date</label>
-                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+ 
+                  <AntDatePicker
+                    className="input w-full"
+                    value={leadclosedate  ? dayjs(leadclosedate) : null}
+                    onChange={(date) => setLeadclodedate(date ? date.toISOString() : null)}
+                    getPopupContainer={() => document.body}
+                    /> 
                 </div>
               </div>
               <div className="flex flex-col">
