@@ -67,7 +67,7 @@ export const defaultData = [
     description:
       "The main landing page for the website, providing an overview of services and latest updates.",
     url: "https://www.example.com",
-    attachments: ["homepage_banner.png", "logo.svg"],
+    attachments: ["homepage_banner.png", "justevent.svg"],
   },
   {
     link_name: "Donation Page",
