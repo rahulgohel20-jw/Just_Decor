@@ -6,8 +6,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import useStyles from "./style";
-import { Button } from "@mui/material"; 
-import { Link } from "react-router-dom"; 
+import { Button } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const classes = useStyles();
@@ -57,11 +57,13 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
 
           tippy(el, {
             content: `
-              <strong>${event.title}</strong><br/>
-              Time: ${time}<br/>
-              Address: ${address}<br/>
-              Events: ${events}<br/>
-              Mobile: ${mobile}
+              <div class="p-1">
+                <p class="mb-1"><strong>${event.title}</strong></p>
+                <p><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>
+                <p><i class="me-1 ki-filled ki-call text-success"></i><span>${mobile}</span></p>
+                <p><i class="me-1 ki-filled ki-time text-success"></i><span>${time}</span></p>
+                <p><i class="me-1 ki-filled ki-geolocation text-success"></i><span>${address}</span></p>
+              </div>
             `,
             allowHTML: true,
             theme: "light",
