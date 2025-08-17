@@ -204,208 +204,553 @@ const FunctionsStep = ({ formData, setFormData }) => {
         {formData?.function_data ? (
           formData.function_data.map((item, index) => {
             return (
-              <div className="flex items-center grow gap-4">
-                <div className="card min-w-full py-7 px-5 rtl:[background-position:left_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
-                  <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
-                    <div className="flex flex-wrap items-center gap-7">
-                      <div className="flex flex-col gap-1">
-                        <h4 className="text-base font-medium text-gray-900">
-                          {item.customer_id ? item.customer_id.join(",") : ""}
-                        </h4>
-                        <p class="text-2sm text-gray-700">
-                          Delegate Tasks and get them completed without manual
-                          followups
-                        </p>
-                      </div>
-                      <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                        <div class="flex flex-col">
-                          <div class="text-xs">Start Date</div>
-                          <div class="text-sm font-medium text-gray-900">
-                            {item.start_date
-                              ? dayjs(item.start_date).format("DD MMM YYYY")
-                              : ""}
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div class="flex flex-col">
-                          <div class="text-xs">End Date</div>
-                          <span class="text-sm font-medium text-gray-900">
-                            {item.end_date
-                              ? dayjs(item.end_date).format("DD MMM YYYY")
-                              : ""}
-                          </span>
-                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Tooltip title="Edit">
-                        <button
-                          type="button"
-                          title="Edit"
-                          className="btn btn-sm btn-icon btn-light btn-clear"
-                          onClick={() => handleEditFunction(item, index)}
-                        >
-                          <i className="ki-filled ki-notepad-edit"></i>
-                        </button>
-                      </Tooltip>
-                      <Tooltip title="Remove">
-                        <button
-                          type="button"
-                          title="Remove"
-                          className="btn btn-sm btn-icon btn-danger btn-clear"
-                          onClick={() => handleRemoveFunction(index)}
-                        >
-                          <i className="ki-filled ki-trash"></i>
-                        </button>
-                      </Tooltip>
+                  </div>
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {/* card */}
+                  <div className="card min-w-full">
+                    <div className="flex flex-col flex-1">
+                      <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id
+                              ? item.customer_id.join(",")
+                              : "Title is here"}
+                          </h4>
+                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div class="flex flex-col">
+                            <div class="text-xs text-gray-600">Location</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              123, Ashram Road, Navrangpura, Ahmedabad - 380009
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">
+                                Start Date
+                              </div>
+                              <div class="text-sm font-medium text-gray-900">
+                                {item.start_date
+                                  ? dayjs(item.start_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </div>
+                            </div>
+                            <div class="flex flex-col">
+                              <div class="text-xs text-gray-600">End Date</div>
+                              <span class="text-sm font-medium text-gray-900">
+                                {item.end_date
+                                  ? dayjs(item.end_date).format("DD MMM YYYY")
+                                  : "DD MM YYYY"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap justify-center items-center border-t border-gray-200 rounded-b-xl gap-2 px-4 py-3 mt-auto">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Add More Functions */}
+                  <div className="card border-2 border-dashed border-green-600/15 bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                    <div className="card-body p-5">
+                      <div className="flex flex-col gap-5">
+                        <img
+                          src={toAbsoluteUrl("/images/not_found.svg")}
+                          className="max-h-24 max-w-full shrink-0"
+                          alt=""
+                        />
+                        <div className="flex flex-col gap-2 text-center px-5">
+                          <h2 className="text-sm text-base leading-none font-bold text-gray-700">
+                            Add More Functions
+                          </h2>
+                          <p class="text-2sm text-gray-500">
+                            Please click below to add more functions
+                          </p>
+                        </div>
+                        <div className="flex justify-center">
+                          <button
+                            className="btn btn-sm btn-success"
+                            // onClick={handleAddFunction}
+                            onClick={() => setIsModalOpen(true)}
+                            title="Add Function"
+                          >
+                            <i className="ki-filled ki-plus"></i> Add Function
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+                {/* <div className="flex items-center grow gap-4">
+                  <div className="card min-w-full py-7 px-5 rtl:[background-position:left_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
+                    <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">
+                      <div className="flex flex-wrap items-center gap-7">
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-base font-medium text-gray-900">
+                            {item.customer_id ? item.customer_id.join(",") : ""}
+                          </h4>
+                          <p class="text-2sm text-gray-700 overflow-hidden text-clip">
+                            Delegate Tasks and get them completed without manual
+                            followups
+                          </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-5 lg:gap-7">
+                          <div class="flex flex-col">
+                            <div class="text-xs">Start Date</div>
+                            <div class="text-sm font-medium text-gray-900">
+                              {item.start_date
+                                ? dayjs(item.start_date).format("DD MMM YYYY")
+                                : ""}
+                            </div>
+                          </div>
+                          <div class="flex flex-col">
+                            <div class="text-xs">End Date</div>
+                            <span class="text-sm font-medium text-gray-900">
+                              {item.end_date
+                                ? dayjs(item.end_date).format("DD MMM YYYY")
+                                : ""}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Tooltip title="Edit">
+                          <button
+                            type="button"
+                            title="Edit"
+                            className="btn btn-sm btn-icon btn-light btn-clear"
+                            onClick={() => handleEditFunction(item, index)}
+                          >
+                            <i className="ki-filled ki-notepad-edit"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            type="button"
+                            title="Remove"
+                            className="btn btn-sm btn-icon btn-danger btn-clear"
+                            onClick={() => handleRemoveFunction(index)}
+                          >
+                            <i className="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                </div> */}
+              </>
             );
           })
         ) : (
-          <div className="text-center text-gray-500 mt-3">
-            No functions added yet.
-          </div>
-        )}
-      </div>
-      {/* <hr />
-      <br /> */}
-      {/* <div className="flex flex-col gap-y-2 gap-x-4 card min-w-full py-7 px-5 user-access-b">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">Function Name</label>
-            <FunctionTypeDropdown className="w-full" />
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">Start Date</label>
-            <DatePicker className="input" />
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">End Date</label>
-            <DatePicker className="input" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">Notes</label>
-            <Textarea
-              className="textarea h-full"
-              placeholder="Notes"
-              rows={3}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">Location</label>
-            <Textarea
-              className="textarea h-full"
-              placeholder="Location"
-              rows={3}
-            />
-          </div>
-        </div>
-        <div className="flex justify-end mt-2">
-          <button className="btn btn-danger" type="button">
-            Remove
-          </button>
-        </div>
-      </div> */}
-      {/* {formData &&
-          formData.function_array &&
-          formData.function_array.length > 0 &&
-          formData.function_array.map((func, index) => (
-            <div
-              className={`card p-4 bg-white shadow-sm rounded-lg mb-4 ${classes.customStyle}`}
-              key={index}
-            >
-              <div className="flex flex-col gap-y-2 gap-x-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-y-2 gap-x-4">
-                  <div className="flex flex-col">
-                    <label className="form-label">Function Name</label>
-                    <FunctionTypeDropdown
-                      value={func.customer_id}
-                      onChange={(e) => handleInputChange(e, index)}
-                      className="w-full"
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+              <div className="md:col-start-2 col-span-1 card border-2 border-dashed border-green-600/15 bg-center bg-[length:500px] bg-no-repeat user-access-bg">
+                <div className="card-body p-5">
+                  <div className="flex flex-col gap-5">
+                    <img
+                      src={toAbsoluteUrl("/images/not_found.svg")}
+                      className="max-h-24 max-w-full shrink-0"
+                      alt=""
                     />
+                    <div className="flex flex-col gap-2 text-center px-5">
+                      <h2 className="text-sm text-base leading-none font-bold text-gray-700">
+                        No functions added yet.
+                      </h2>
+                      <p class="text-2sm text-gray-500">
+                        You haven't created any functions yet, please click the
+                        below button to start.
+                      </p>
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        className="btn btn-sm btn-success"
+                        // onClick={handleAddFunction}
+                        onClick={() => setIsModalOpen(true)}
+                        title="Add Function"
+                      >
+                        <i className="ki-filled ki-plus"></i> Add Function
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">Start Date</label>
-                    <DatePicker
-                      className="input"
-                      date={func.start_date}
-                      setDate={(date) =>
-                        handleInputChange(
-                          { target: { value: date, name: "start_date" } },
-                          index
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">End Date</label>
-                    <DatePicker
-                      className="input"
-                      date={func.end_date}
-                      setDate={(date) =>
-                        handleInputChange(
-                          { target: { value: date, name: "end_date" } },
-                          index
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
-                  <div className="flex flex-col">
-                    <label className="form-label">Notes</label>
-                    <Textarea
-                      className="textarea h-full"
-                      placeholder="Notes"
-                      rows={3}
-                      value={func.notes}
-                      onChange={(e) => handleInputChange(e, index)}
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="form-label">Location</label>
-                    <Textarea
-                      className="textarea h-full"
-                      placeholder="Location"
-                      rows={3}
-                      value={func.address}
-                      onChange={(e) => handleInputChange(e, index)}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end mt-2">
-                  <button
-                    className="btn btn-danger"
-                    type="button"
-                    onClick={() => handleRemoveFunction(index)}
-                  >
-                    Remove
-                  </button>
                 </div>
               </div>
             </div>
-          ))} */}
-      {/* {formData &&
-          formData.function_array &&
-          formData.function_array.length === 0 && (
-            <div className="text-center text-gray-500">
-              No functions added yet.
-            </div>
-          )} */}
-      <div className="my-4 text-center">
+          </>
+        )}
+      </div>
+      {/* <div className="my-4 text-center">
         <button
           className="btn btn-success"
-          // onClick={handleAddFunction}
           onClick={() => setIsModalOpen(true)}
           title="Add Function"
         >
           <i className="ki-filled ki-plus"></i> Add Function
         </button>
-      </div>
+      </div> */}
       {isModalOpen && (
         <AddFunctionModal
           isModalOpen={isModalOpen}

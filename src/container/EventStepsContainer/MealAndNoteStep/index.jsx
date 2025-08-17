@@ -21,31 +21,31 @@ const MealAndNoteStep = ({
 
   return (
     <div>
-      <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.customStyle}`}>
+      <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.MealAndNote}`}>
         <div className="grid grid-cols-1 md:grid-cols-1 gap-y-2">
-          <div className="grid grid-cols-8 gap-3 lg:gap-4 mt-5">
-            <div className="col-span-4 col-start-3">
+          <div className="grid grid-cols-9 gap-3 lg:gap-4 mt-5">
+            <div className="col-span-3 col-start-4">
               <div className="card min-w-full py-5 px-6 flex flex-col gap-y-3">
                 <div className="select__grp flex flex-col">
-                  {/* <div className="sg__inner flex items-center gap-1 relative"> */}
+                  <label className="form-label">Meal Type</label>
+                  <div className="sg__inner flex items-center gap-1 relative">
                     <MealTypeDropdown
-                      label={"Meal Type"}
-                      name={'customer_id'}
+                      name={"customer_id"}
                       onChange={handleInputChange}
                       value={formData.meal_type}
                       createBtn={true}
                       className="w-full"
                       setCreateModalOpen={setShowCustomerModal}
                     />
-                    {/* <button
+                    <button
                       type="button"
-                      onClick={() => handleAddClick("Manager")}
+                      onClick={handleAddClick}
                       title="Add"
                       className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                     >
                       <i className="ki-filled ki-plus"></i>
-                    </button> */}
-                  {/* </div> */}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Meal Notes</label>
