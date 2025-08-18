@@ -1,8 +1,13 @@
 import { useState } from "react";
+import { DatePicker as AntDatePicker } from "antd"; 
+import dayjs from "dayjs";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+
 const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
+  const  [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -44,25 +49,21 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
               <label className="form-label">From Date</label>
-              <div className="input">
-                <i className="ki-filled ki-calendar"></i>
-                <input
-                  type="date"
-                  className="h-full"
-                  placeholder="Email address"
+              <AntDatePicker
+                className="input w-full"
+                value={fromDate ? dayjs(fromDate) : null}
+                onChange={(date) => setFromDate(date ? date.toISOString() : null)}
+                getPopupContainer={() => document.body}
                 />
-              </div>
             </div>
             <div className="flex flex-col">
               <label className="form-label">To Date</label>
-              <div className="input">
-                <i className="ki-filled ki-calendar"></i>
-                <input
-                  type="date"
-                  className="h-full"
-                  placeholder="Password no"
-                />
-              </div>
+              <AntDatePicker
+                className="input w-full"
+                value={toDate ? dayjs(toDate) : null}
+                onChange={(date) => setToDate(date ? date.toISOString() : null)}
+                getPopupContainer={() => document.body}
+              />
             </div>
           </div>
           <div className="mt-3">

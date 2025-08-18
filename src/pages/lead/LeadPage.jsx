@@ -253,7 +253,7 @@ const LeadPage = () => {
           </div>
           <div
             ref={scrollRef}
-            className={`${dndActive ? "dnd-active" : ""} overflow-x-auto flex space-x-4 cursor-grab`}
+            className={`${dndActive ? "dnd-active" : ""} overflow-x-auto scrollable-y flex space-x-4 cursor-grab`}
             onMouseDown={onPointerDown}
             onMouseMove={onPointerMove}
             onMouseUp={onPointerUp}

@@ -16,7 +16,7 @@ const DatePicker = ({ date, setDate }) => {
       <PopoverTrigger asChild>
         <button
           id="date"
-          onClick={() => setOpen(true)}
+       
           className={cn(
             "input data-[state=open]:border-primary",
             !date && "text-muted-foreground"
