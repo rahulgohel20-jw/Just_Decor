@@ -3,6 +3,8 @@ import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 import { Linkedin } from "lucide-react";
+import AddCompany from "@/partials/modals/add-company/AddCompany";
+
 import TagPage from "../tag/TagPage";
 
 const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
@@ -10,6 +12,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const [formData, setFormData] = useState();
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
 
   const [tags, setTags] = useState([
     { label: "wdd", color: "green" },
@@ -44,16 +47,29 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
             <div className="flex flex-col gap-y-2">
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Company Name </label>
-                  <div className="input">
-                    <i className="ki-filled ki-building"></i>
-                    <input
-                      className="h-full"
-                      type="text"
-                      placeholder="company name "
-                    />
-                  </div>
-                </div>
+  <label className="form-label flex items-center gap-2">
+    Company Name
+    {/* Link to open modal */}
+    <button
+  type="button"
+  className="text-blue-500 underline hover:text-blue-700"
+  onClick={() => setIsAddCompanyOpen(true)}
+>
+  + Add Company
+</button>
+
+  </label>
+
+  <div className="input">
+    <i className="ki-filled ki-user"></i>
+    <input
+      className="h-full"
+      type="text"
+      placeholder="company name"
+    />
+  </div>
+</div>
+
                 <div className="flex flex-col">
                   <label className="form-label">Email</label>
                   <div className="input">
@@ -147,7 +163,7 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
                     <input
                       className="h-half "
                       type="text"
-                      placeholder="Enter last name"
+                      placeholder="Enter custom field"
                     />
                   </div>
                 </div>
@@ -343,41 +359,44 @@ const AddContact = ({ isModalOpen, setIsModalOpen, editData }) => {
           </div>,
         ]}
       >
-        <div
-          className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
-          data-tabs="true"
-        >
-          <a
-            className={`btn btn-clear w-full flex justify-center ${
-              activeTab === "tab_1" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("tab_1")}
-          >
-            <i className="ki-filled ki-book-open"></i>
-            Contact Details
-          </a>
-          <a
-            className={`btn btn-clear w-full flex justify-center ${
-              activeTab === "tab_2" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("tab_2")}
-          >
-            <i className="ki-filled ki-geolocation-home"></i>
-            Address Details
-          </a>
-          <a
-            className={`btn btn-clear w-full flex justify-center ${
-              activeTab === "tab_3" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("tab_3")}
-          >
-            <i className="ki-filled ki-user-square"></i>
-            Social Profile
-          </a>
-        </div>
+       <div className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full">
+  <button
+    type="button"
+    className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_1" ? "active" : ""}`}
+    onClick={() => setActiveTab("tab_1")}
+  >
+    <i className="ki-filled ki-book-open"></i>
+    Contact Details
+  </button>
+
+  <button
+    type="button"
+    className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_2" ? "active" : ""}`}
+    onClick={() => setActiveTab("tab_2")}
+  >
+    <i className="ki-filled ki-geolocation-home"></i>
+    Address Details
+  </button>
+
+  <button
+    type="button"
+    className={`btn btn-clear w-full flex justify-center ${activeTab === "tab_3" ? "active" : ""}`}
+    onClick={() => setActiveTab("tab_3")}
+  >
+    <i className="ki-filled ki-user-square"></i>
+    Social Profile
+  </button>
+</div>
+
+        <AddCompany
+  isModalOpen={isAddCompanyOpen}
+  setIsModalOpen={setIsAddCompanyOpen}
+/>
+
         {renderTabContent(formData)}
       </CustomModal>
     )
   );
 };
+
 export default AddContact;

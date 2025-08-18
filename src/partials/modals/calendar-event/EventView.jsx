@@ -128,15 +128,15 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               Menu Allocation
             </button>
             {/* </Link> */}
-            {/* <Link to="/raw-material-allocation"> */}
+            <Link to="/raw-material-allocation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Raw Material Allocation"
-              onClick={underConstruction}
+              // onClick={underConstruction}
             >
               Raw Material Allocation
             </button>
-            {/* </Link> */}
+            </Link>
             {/* <Link to="/labour-and-other-management"> */}
             <button
               className="btn btn-sm btn-primary justify-center w-full"

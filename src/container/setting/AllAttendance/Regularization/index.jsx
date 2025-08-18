@@ -1,13 +1,9 @@
-import { Badge } from "lucide-react";
 import { useState } from "react";
-
 const Regularization = () => {
   const [activeTab, setActiveTab] = useState("all");
-
   return (
     <>
       {/* filters */}
-
       <div>
         <div className="flex border-b pt-3 mb-3 bg-gray-200">
           <button

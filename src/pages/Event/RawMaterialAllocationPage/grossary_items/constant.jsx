@@ -9,6 +9,40 @@ export const table_data = [
     agency: '',
     place: 'At Venue',
     total_price: 2295.0,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'FULKA ROTI', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'CHUR CHUR NAAN', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'MATKA DAL RICE', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 255.0,
+      },
+    ]
   },
   { 
     sr_no: 2, 
@@ -19,6 +53,40 @@ export const table_data = [
     agency: '',
     place: 'At Venue',
     total_price: 110.0,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'BURMESE KHOWSUEY SOUP', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'GREEN SURTI UNDHIYU', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+    ]
   },
   { 
     sr_no: 3, 
@@ -29,6 +97,40 @@ export const table_data = [
     agency: 'HARDIK BHAI GAS',
     place: 'At Venue',
     total_price: 462,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '1.500',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'CHUR CHUR NAAN', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+    ]
   },
   { 
     sr_no: 4, 
@@ -39,6 +141,40 @@ export const table_data = [
     agency: '',
     place: 'At Venue',
     total_price: 210,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'FULKA ROTI', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'CHUR CHUR NAAN', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'MATKA DAL RICE', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 255.0,
+      },
+    ]
   },
   { 
     sr_no: 5, 
@@ -49,6 +185,40 @@ export const table_data = [
     agency: '',
     place: 'At Venue',
     total_price: 90,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'BURMESE KHOWSUEY SOUP', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'GREEN SURTI UNDHIYU', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+    ]
   },
   { 
     sr_no: 6, 
@@ -59,6 +229,40 @@ export const table_data = [
     agency: 'HARDIK BHAI GAS',
     place: 'At Venue',
     total_price: 3200,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '1.500',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'CHUR CHUR NAAN', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'PANEER PASANDA', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 10.0,
+      },
+    ]
   },
   { 
     sr_no: 7, 
@@ -69,129 +273,56 @@ export const table_data = [
     agency: '',
     place: 'At Venue',
     total_price: 690,
+    child_data: [
+      { 
+        sr_no: 1, 
+        function_type: 'DINNER', 
+        item_name: 'FULKA ROTI', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },{ 
+        sr_no: 2, 
+        function_type: 'DINNER', 
+        item_name: 'CHUR CHUR NAAN', 
+        agency: '', 
+        qty: '2',
+        unit: 'KiloGram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 1020.0,
+      },
+      { 
+        sr_no: 3, 
+        function_type: 'DINNER', 
+        item_name: 'MATKA DAL RICE', 
+        agency: '', 
+        qty: '500',
+        unit: 'Gram',
+        place: 'At Venue',
+        date_time:'2025-08-15',
+        price: 255.0,
+      },
+    ]
   },
 ];
 
-
-export const columns = [
-  {
-    accessorKey: "sr_no",
-    header: "#",
-  },
-  {
-    accessorKey: "row_material",
-    header: "Row Material",
-  },
-  {
-    accessorKey: "qty",
-    header: "Qty",
-  },
-  {
-    accessorKey: "final_qty",
-      header: "Final Qty",
-      cell: ({ row }) => (
-         <div className="input">
-        <input
-          type="text"
-          className=""
-          value={row.original.final_qty}
-          name="final_qty"
-          onChange={(e) => {
-            const updated = [...tableData];
-            updated[row.index].final_qty = e.target.value;
-            setTableData(updated);
-          }}
-        />
-        </div>
-      ),
-  },
-  {
-    accessorKey: "unit",
-    header: "Unit",
-    cell: ({ row }) => (
-            <select className="select pe-7.5">
-              <option value="1">KiloGram</option>
-              <option value="2">Gram</option>
-            </select>
-      ),
-  },
-  {
-    accessorKey: "agency",
-    header: "Agency",
-  },
-  {
-    accessorKey: "place",
-    header: "Place",
-  },
-  {
-    accessorKey: "total_price",
-    header: "Total Price",
-    cell: ({ row }) => (
-         <div className="input">
-        <input
-          type="text"
-          className=""
-          value={row.original.total_price}
-          name="total_price"
-          onChange={(e) => {
-            const updated = [...tableData];
-            updated[row.index].total_price = e.target.value;
-            setTableData(updated);
-          }}
-        />
-        </div>
-      ),
-  },
-];
-
-export const modal_columns = [
-  {
-    accessorKey: "sr_no",
-    header: "#",
-  },
-  {
-    accessorKey: "row_material",
-    header: "Row Material",
-  },
-  {
-    accessorKey: "agency",
-    header: "Agency",
-    cell: ({ row }) => (
-            <select className="select pe-7.5">
-              <option value="">TIRUPATI AGRO</option>
-              <option value="">HARDIKBHAI GAS</option>
-              <option value="">KANUBHAI GAS</option>
-              <option value="">SURBHI DAIRY</option>
-            </select>
-      ),
-  },
-  {
-    accessorKey: "place",
-    header: "Place",
-    cell: ({ row }) => (
-            <select className="select pe-7.5">
-              <option value="">At Venue</option>
-              <option value="">Godown</option>
-            </select>
-      ),
-  },
-  {
-    accessorKey: "date_time",
-    header: "Date & Time",
-    cell: ({ row }) => (
-         <div className="input">
-        <input
-          type="date"
-          className=""
-          value={row.original.date_time}
-          name="date_time"
-          onChange={(e) => {
-            const updated = [...tableData];
-            updated[row.index].date_time = e.target.value;
-            setTableData(updated);
-          }}
-        />
-        </div>
-      ),
-  },
+export const agencies = [
+  "TIRUPATI AGRO",
+  "jaydeepbhai",
+  "RAJADHIRAJ HITESH BHAI",
+  "HARDIK BHAI GAS",
+  "HITESH DANDI",
+  "BANSARI GROCERY",
+  "NARESH CHANDRA",
+  "SURBHI DAIRY",
+  "KAMLESH BHAI",
+  "NILESH AQUA BLUE",
+  "RICHI RICH BAKERY",
+  "SANKET BAKERY",
+  "RAM SINGH",
+  "JAGDISH BHAI"
 ];
