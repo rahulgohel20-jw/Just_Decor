@@ -66,18 +66,20 @@ const TaskDirectoryPage = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {TaskDirectoryList.map((directory, index) => (
-            <div key={index}>
+            <div className="rounded-lg shadow" key={index}>
               <img
                 src={directory.image}
                 alt={directory.title}
-                className="w-full h-32 object-cover mx-auto mb-4 rounded"
+                className="w-full h-36 object-cover mx-auto rounded-t-lg"
               />
-              <h3 className="text-lg font-semibold mb-2 text-center">
-                {directory.title}
-              </h3>
-              <p className="text-sm text-gray-600 text-center">
-                {directory.template_count} Template
-              </p>
+              <div className="p-4 rounded-b-lg">
+                <h3 className="text-base text-gray-900 mb-1 font-semibold text-center">
+                  {directory.title}
+                </h3>
+                <p className="text-sm text-gray-700 text-center">
+                  {directory.template_count} Template
+                </p>
+              </div>
             </div>
           ))}
         </div>

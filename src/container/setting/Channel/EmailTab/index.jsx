@@ -73,7 +73,7 @@ const EmailTab = () => {
                   </div>
                   <button
                     type="button"
-                    className="btn btn-danger"
+                    className="btn btn-sm btn-danger"
                     title="Disconnect"
                   >
                     <i className="ki-filled ki-disconnect"></i>
