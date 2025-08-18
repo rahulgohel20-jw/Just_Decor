@@ -42,16 +42,15 @@ const EventListPage = () => {
           // </Link>
         ),
         quotation: (
-          // <Link to="/quotation">
+          <Link to="/quotation">
           <Tooltip className="cursor-pointer" title="Quotation">
             <div
               className="flex justify-center items-center w-full"
-              onClick={underConstruction}
             >
               <BadgeDollarSign className="w-5 h-5 text-blue-600" />
             </div>
           </Tooltip>
-          // </Link>
+          </Link>
         ),
         handleModalOpen: handleModalOpen,
       };
