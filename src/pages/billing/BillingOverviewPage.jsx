@@ -52,7 +52,7 @@ const BillingOverviewPage = () => {
               </div>
               <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
                 <button
-                  className="btn btn-success shrink-0"
+                  className="btn btn-sm btn-success shrink-0"
                   title="Recharge Now"
                 >
                   &#8377; Recharge Now
@@ -89,7 +89,10 @@ const BillingOverviewPage = () => {
                 </div>
               </div>
               <div className="flex items-center flex-wrap md:flex-nowrap gap-1.5">
-                <button className="btn btn-success shrink-0" title="Connect">
+                <button
+                  className="btn btn-sm btn-success shrink-0"
+                  title="Connect"
+                >
                   <i className="ki-filled ki-ki-filled ki-whatsapp"></i> Connect
                 </button>
               </div>

@@ -136,7 +136,7 @@ const NotificationsSettingsPage = () => {
                 title="Save Changes"
                 disabled
               >
-                Save Changes
+                Save Changes <i className="ki-filled ki-save-2 font-14"></i>
               </button>
             </div>
           </div>
