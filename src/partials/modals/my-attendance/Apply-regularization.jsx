@@ -1,11 +1,14 @@
+import{ useState } from "react";
 // components/modals/ApplyRegularization.jsx
-
+import { DatePicker as AntDatePicker } from "antd"; 
+import dayjs from "dayjs";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
 const ApplyRegularization = ({ isModalOpen, setIsModalOpen }) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+  const [date, setDate] = useState(null);
 
   return (
     isModalOpen && (
@@ -39,10 +42,12 @@ const ApplyRegularization = ({ isModalOpen, setIsModalOpen }) => {
           {/* Select Date */}
           <div className="flex flex-col">
             <label className="form-label">Select Date</label>
-            <div className="input">
-              <i className="ki-filled ki-calendar"></i>
-              <input type="date" className="h-full w-full" />
-            </div>
+          <AntDatePicker
+            className="input w-full"
+            value={date ? dayjs(date) : null}
+            onChange={(date) => setDate(date ? date.toISOString() : null)}
+            getPopupContainer={() => document.body}
+          />
           </div>
 
           {/* Login & Logout Time */}

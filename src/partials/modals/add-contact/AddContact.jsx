@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
+// import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
+import { DatePicker as AntDatePicker } from "antd"; 
+import dayjs from "dayjs";
 import { Linkedin } from "lucide-react";
 import AddCompany from "@/partials/modals/add-company/AddCompany";
 
@@ -117,14 +119,22 @@ const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
                   <label className="form-label">Date of Birth</label>
-                  <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                <AntDatePicker
+      className="input w-full"
+      value={dateOfBirth ? dayjs(dateOfBirth) : null}
+      onChange={(date) => setDateOfBirth(date ? date.toISOString() : null)}
+      getPopupContainer={() => document.body} />
                 </div>
                 <div className="flex flex-col">
                   <label className="form-label">Date of Anniversary</label>
-                  <DatePicker
-                    date={dateOfAnniversary}
-                    setDate={setDateOfAnniversary}
-                  />
+                    <AntDatePicker
+      className="input w-full"
+      value={dateOfAnniversary ? dayjs(dateOfAnniversary) : null}
+      onChange={(date) =>
+        setDateOfAnniversary(date ? date.toISOString() : null)
+      }
+      getPopupContainer={() => document.body}
+    />
                 </div>
               </div>
               <div className="flex flex-col">
