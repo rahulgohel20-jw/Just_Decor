@@ -1,24 +1,23 @@
-import { useState } from "react";
-import { SelectDropdown } from "@/components/form-components/SelectDropdown";
+import { Select } from "antd";
 
 const UserDropdown = ({ value, onChange, ...rest }) => {
-  const [selectedCompanies, setSelectedCompanies] = useState(value || []);
-
-  const handleChange = (event) => {
-    setSelectedCompanies(event.target.value);
-    onChange(event);
+  const handleChange = (val) => {
+    // send in same format as your other inputs
+    onChange({ target: { name: "event_type", value: val } });
   };
 
   return (
-    <SelectDropdown
-      value={selectedCompanies}
+    <Select
+      value={value || undefined}
+      className="w-full border-none shadow-none focus:outline-none"
       onChange={handleChange}
-      staticOptions={[
-        { label: "User A", value: "UserA" },
-        { label: "User B", value: "UserB" },
-        { label: "User C", value: "UserC" },
+      placeholder="Please select"
+      style={{ width: "100%" }}
+      options={[
+        { label: "Baby Shower", value: "baby_shower" },
+        { label: "Lunch", value: "lunch" },
+        { label: "Dinner", value: "dinner" },
       ]}
-      placeholder={"Please select"}
       {...rest}
     />
   );

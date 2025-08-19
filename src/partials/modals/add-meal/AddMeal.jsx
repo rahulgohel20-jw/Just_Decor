@@ -22,7 +22,7 @@ const AddMeal = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">New Customer</h2>
+          <h2 className="text-xl font-semibold">New Meal</h2>
           <button onClick={onClose} className="text-2xl text-gray-600">
             &times;
           </button>

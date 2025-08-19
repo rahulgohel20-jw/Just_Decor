@@ -12,9 +12,9 @@ const EventStatusDropdown = ({ value, onChange, ...rest }) => {
       value={selectedCompanies}
       onChange={handleChange}
       staticOptions={[
-        { label: "User A", value: "UserA" },
-        { label: "User B", value: "UserB" },
-        { label: "User C", value: "UserC" },
+        { label: "Pending", value: "pending" },
+        { label: "Confirm", value: "confirm" },
+        { label: "Inquriy", value: "inquriy" },
       ]}
       placeholder={"Please select"}
       {...rest}

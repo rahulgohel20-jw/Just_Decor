@@ -14,11 +14,10 @@ const FunctionTypeDropdown = ({ value, onChange, ...rest }) => {
       value={selectedCompanies}
       onChange={handleChange}
       staticOptions={[
-        { label: "User A", value: "UserA" },
-        { label: "User B", value: "UserB" },
-        { label: "User C", value: "UserC" },
+        { label: "BreakFast", value: "breakfast" },
+        { label: "Lunch", value: "lunch" },
+        { label: "Dinner", value: "dinner" },
       ]}
-      mode="multiple"
       placeholder={"Please select"}
       {...rest}
     />

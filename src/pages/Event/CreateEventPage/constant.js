@@ -1,22 +1,27 @@
 export const requiredFields = {
   basic_info: {
-    customer_id: "",
-    manger_id: "",
-    chef_id: "",
-    venue: "",
-    party_plot_name: "",
-    reference_by: "",
-    location_url: "",
-    event_type: "",
-    meeting_date: "",
-    event_date: "",
+    Inquiry_date: "",
     status: "Pending",
+    event_date: "",
+    venue: "",
+    event_type: "",
+    manger_name: "",
+  },
+  client_info: {
+    title: "Mr.",
+    customername: "",
+    customeraddress: "",
+    customermobile: "",
+    highPriority: false,
   },
   functions: {
     function_array: [],
   },
-  meal: {
+  other: {
     meal_type: "",
     meal_notes: "",
+    service: "",
+    theme: "",
+    servicenotes: "",
   },
 };

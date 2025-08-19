@@ -32,7 +32,7 @@ const MealAndNoteStep = ({
                     <MealTypeDropdown
                       name={"customer_id"}
                       onChange={handleInputChange}
-                      value={formData.meal_type}
+                      // value={formData.meal_type}
                       createBtn={true}
                       className="w-full"
                       setCreateModalOpen={setShowCustomerModal}
@@ -53,7 +53,7 @@ const MealAndNoteStep = ({
                     className="textarea h-full"
                     placeholder="Description"
                     rows={3}
-                    value={formData.meal_notes}
+                    // value={formData.meal_notes}
                     onChange={handleInputChange}
                   />
                 </div>

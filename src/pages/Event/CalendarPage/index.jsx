@@ -55,7 +55,13 @@ const CalendarPage = () => {
               Cancel
             </span>
           </div>
-          <button className="btn btn-primary" title="Add Event">
+          <button
+            className="btn btn-primary"
+            title="Add Event"
+            onClick={() => {
+              navigate("/add-event");
+            }}
+          >
             <i class="ki-filled ki-plus"></i> Add Event
           </button>
         </div>
