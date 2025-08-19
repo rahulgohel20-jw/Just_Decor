@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
-const EventStatusDropdown = ({ value, onChange, ...rest }) => {
+
+const SubVenueDropdown = ({ value, onChange, ...rest }) => {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
+
   const handleChange = (event) => {
     setSelectedCompanies(event.target.value);
     onChange(event);
@@ -12,14 +14,15 @@ const EventStatusDropdown = ({ value, onChange, ...rest }) => {
       value={selectedCompanies}
       onChange={handleChange}
       staticOptions={[
-        { label: "Pending", value: "pending" },
-        { label: "Confirm", value: "confirm" },
-        { label: "Inquriy", value: "inquriy" },
+        { label: "Venue 1", value: "UserA" },
+        { label: "Venue 2", value: "UserB" },
+        { label: "Venue 3", value: "UserC" },
       ]}
+      mode="multiple"
       placeholder={"Please select"}
       {...rest}
     />
   );
 };
 
-export default EventStatusDropdown;
+export default SubVenueDropdown;

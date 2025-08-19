@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 
-const MealTypeDropdown = ({ value, onChange,className , ...rest}) => {
+const MealTypeDropdown = ({ value, onChange, className, ...rest }) => {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
 
   const handleChange = (event) => {
@@ -30,7 +30,6 @@ const MealTypeDropdown = ({ value, onChange,className , ...rest}) => {
         { label: "User N", value: "UserN" },
         { label: "User O", value: "UserO" },
       ]}
-      mode="multiple"
       placeholder={"Please select"}
       {...rest}
     />

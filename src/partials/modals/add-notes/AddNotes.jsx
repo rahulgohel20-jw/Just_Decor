@@ -1,28 +1,14 @@
 import React, { useRef, useState } from "react";
 
-const AddMeal = ({ isOpen, onClose }) => {
+const AddNotes = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
-
-  const [imagePreview, setImagePreview] = useState(null);
-
-  const fileInputRef = useRef();
-
-  const handleIconClick = () => {
-    fileInputRef.current.click();
-  };
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">New Meal</h2>
+          <h2 className="text-xl font-semibold">Add Notes</h2>
           <button onClick={onClose} className="text-2xl text-gray-600">
             &times;
           </button>
@@ -30,9 +16,9 @@ const AddMeal = ({ isOpen, onClose }) => {
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           {/* Name fields */}
-          <InputWithIcon label="Name (English)*" />
-          <InputWithIcon label="Name (ગુજરાતી)" />
-          <InputWithIcon label="Name (हिंदी)" />
+          <InputWithIcon label="Notes (English)*" />
+          <InputWithIcon label="Notes (ગુજરાતી)" />
+          <InputWithIcon label="Notes (हिंदी)" />
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
@@ -71,16 +57,4 @@ const InputWithIcon = ({ label }) => (
   </div>
 );
 
-// 🔸 Input without icon
-const InputSimple = ({ label }) => (
-  <div>
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-    />
-  </div>
-);
-
-export default AddMeal;
+export default AddNotes;

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 
-const AddMeal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+const AddEventType = ({ isModalOpen, setIsModalOpen }) => {
+  if (!isModalOpen) return null;
 
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -22,8 +22,11 @@ const AddMeal = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">New Meal</h2>
-          <button onClick={onClose} className="text-2xl text-gray-600">
+          <h2 className="text-xl font-semibold">New Event Type</h2>
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="text-2xl text-gray-600"
+          >
             &times;
           </button>
         </div>
@@ -37,7 +40,7 @@ const AddMeal = ({ isOpen, onClose }) => {
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => setIsModalOpen(false)}
             className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
           >
             Cancel
@@ -83,4 +86,4 @@ const InputSimple = ({ label }) => (
   </div>
 );
 
-export default AddMeal;
+export default AddEventType;

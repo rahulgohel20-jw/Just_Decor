@@ -1,0 +1,28 @@
+import { Select } from "antd";
+
+const ManagerDropdown = ({ value, onChange, ...rest }) => {
+  const handleChange = (val) => {
+    onChange({ target: { name: "manger_name", value: val } });
+  };
+
+  return (
+    <Select
+      value={value || undefined}
+      onChange={handleChange}
+      placeholder="Please select"
+      options={[
+        { label: "Rahul", value: "rahul" },
+        { label: "Aarya", value: "aarya" },
+        { label: "Bharat", value: "bharat" },
+      ]}
+      {...rest}
+      className="w-full border-none shadow-none focus:outline-none"
+      style={{
+        border: "none",
+        boxShadow: "none",
+      }}
+    />
+  );
+};
+
+export default ManagerDropdown;
