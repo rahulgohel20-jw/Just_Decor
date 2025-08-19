@@ -164,15 +164,14 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               Dish Costing
             </button>
             {/* </Link> */}
-            {/* <Link to="/quotation"> */}
+            <Link to="/quotation">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Quotation"
-              onClick={underConstruction}
             >
               Quotation
             </button>
-            {/* </Link> */}
+            </Link>
             {/* <Link to="/event-invoice"> */}
             <button
               className="btn btn-sm btn-primary justify-center w-full"
