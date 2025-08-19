@@ -30,16 +30,16 @@ const EventListPage = () => {
           // </Link>
         ),
         invoice: (
-          // <Link to="/event-invoice">
+          <Link to="/invoice-dashboard">
           <Tooltip className="cursor-pointer" title="Invoice">
             <div
               className="flex justify-center items-center w-full"
-              onClick={underConstruction}
+              
             >
               <Receipt className="w-5 h-5 text-success" />
             </div>
           </Tooltip>
-          // </Link>
+          </Link>
         ),
         quotation: (
           <Link to="/quotation">
