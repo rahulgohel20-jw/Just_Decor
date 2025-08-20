@@ -4,23 +4,8 @@ import AddTask from "@/partials/modals/add-task/AddTask";
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
 
-const AllTasks = () => {
+const AllTasks = ({itemList}) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const itemList = [
-    {
-      profile_image: "300-2.png",
-      user_name: "John Doe",
-      id: "1",
-      title: "Task 1",
-      description: "Description for task 1",
-      category: "Category 1",
-      priority: "High",
-      created_at: "2 months ago",
-      status: "Pending",
-      repeated: "Daily",
-    },
-  ];
-
   const renderItem = (item) => {
     return (
       <div key={item.id}>
@@ -43,7 +28,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -134,7 +119,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -222,7 +207,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -310,7 +295,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -398,7 +383,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -486,7 +471,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -574,7 +559,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -662,7 +647,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -750,7 +735,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -838,7 +823,7 @@ const AllTasks = () => {
             <div className="flex flex-col w-full gap-1.5">
               <div className="flex items-center w-full gap-2 cursor-pointer">
                 <div className="flex flex-no-wrap text-md font-normal text-gray-700">
-                  TASK-{item.id}
+                  {item.title}-{item.id}
                 </div>
                 <div className="text-md font-medium text-primary">
                   Task title Lorem Ipsum has been the industry's standard dummy
@@ -1048,6 +1033,8 @@ const AllTasks = () => {
           Add Task
         </button>
       </div>
+      {console.log(itemList)
+      }
       <div>{itemList.map((item) => renderItem(item))}</div>
       <AddTask
         isModalOpen={isTaskModalOpen}

@@ -5,6 +5,21 @@ import TabComponent from "@/components/tab/TabComponent";
 import { AllTasks } from "@/container/tasks";
 
 const TaskListPage = () => {
+
+  const itemList = [
+    {
+      profile_image: "300-2.png",
+      user_name: "John Doe",
+      id: "1",
+      title: "All TASK",
+      description: "Description for task 1",
+      category: "Category 1",
+      priority: "High",
+      created_at: "2 months ago",
+      status: "Pending",
+      repeated: "Daily",
+    },
+  ];
   const tabs = [
     {
       value: "all",
@@ -14,7 +29,7 @@ const TaskListPage = () => {
           All Tasks
         </>
       ),
-      children: <AllTasks />,
+      children: <AllTasks itemList={itemList}/>,
     },
     {
       value: "my",
@@ -24,7 +39,7 @@ const TaskListPage = () => {
           My Tasks
         </>
       ),
-      children: <AllTasks />,
+      children: <AllTasks itemList={[{...itemList, title: 'MY TASKS',id: "1"}]}/>,
     },
     {
       value: "assigned_by_me",
@@ -34,7 +49,7 @@ const TaskListPage = () => {
           Assigned by Me
         </>
       ),
-      children: <AllTasks />,
+      children: <AllTasks itemList={[{...itemList,title: 'ASSIGNED MY TASKS',id: "1"}]}/>,
     },
   ];
 
