@@ -1,18 +1,30 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
+
 import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
+
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 
-const EventListPage = () => {
+
+import AddMeal from "@/partials/modals/add-meal/AddMeal";
+
+const MealMaster = () => {
   const classes = useStyle();
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [tableData, setTableData] = useState();
+
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
   const responseFormate = () => {
     const data = defaultData.map((item) => {
       return {
@@ -57,21 +69,15 @@ const EventListPage = () => {
     });
     return data;
   };
-
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
-
-  useEffect(() => {
+useEffect(() => {
     setTableData(responseFormate());
   }, []);
-
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs items={[{ title: "Meals Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -88,17 +94,21 @@ const EventListPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/add-event">
+            
               <button
                 className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
+                onClick={() => setIsMemberModalOpen(true)}
+                title="Add Meal"
               >
-                <i className="ki-filled ki-plus"></i> Add Event
+                <i className="ki-filled ki-plus"></i> Meal
               </button>
-            </Link>
+            
           </div>
         </div>
+        <AddMeal
+        isOpen={isMemberModalOpen}
+        onClose={setIsMemberModalOpen}
+      />
         <TableComponent
           columns={columns}
           data={tableData}
@@ -108,4 +118,4 @@ const EventListPage = () => {
     </Fragment>
   );
 };
-export default EventListPage;
+export default MealMaster;

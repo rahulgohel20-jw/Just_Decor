@@ -6,11 +6,13 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
+import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 
-const EventListPage = () => {
+const CustomerMaster = () => {
   const classes = useStyle();
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [tableData, setTableData] = useState();
   const responseFormate = () => {
@@ -71,7 +73,7 @@ const EventListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs items={[{ title: "Customer Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -88,17 +90,21 @@ const EventListPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/add-event">
+            
               <button
                 className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
+                onClick={() => setIsMemberModalOpen(true)}
+                title="Add Customer"
               >
-                <i className="ki-filled ki-plus"></i> Add Event
+                <i className="ki-filled ki-plus"></i> Customer
               </button>
-            </Link>
+            
           </div>
         </div>
+        <AddCustomer 
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+      />
         <TableComponent
           columns={columns}
           data={tableData}
@@ -108,4 +114,4 @@ const EventListPage = () => {
     </Fragment>
   );
 };
-export default EventListPage;
+export default CustomerMaster;

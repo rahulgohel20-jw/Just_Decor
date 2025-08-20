@@ -6,11 +6,14 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
+
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
+import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
 
-const EventListPage = () => {
+const FunctionsMaster = () => {
   const classes = useStyle();
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [tableData, setTableData] = useState();
   const responseFormate = () => {
@@ -71,7 +74,7 @@ const EventListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs items={[{ title: "Functions Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -88,17 +91,21 @@ const EventListPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/add-event">
+            
               <button
                 className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
+                onClick={() => setIsMemberModalOpen(true)}
+                title="Add Function"
               >
-                <i className="ki-filled ki-plus"></i> Add Event
+                <i className="ki-filled ki-plus"></i> Function
               </button>
-            </Link>
+            
           </div>
         </div>
+        <AddFunctionType 
+        isOpen={isMemberModalOpen}
+        onClose={setIsMemberModalOpen}
+      />
         <TableComponent
           columns={columns}
           data={tableData}
@@ -108,4 +115,4 @@ const EventListPage = () => {
     </Fragment>
   );
 };
-export default EventListPage;
+export default FunctionsMaster;

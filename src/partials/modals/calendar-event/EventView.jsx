@@ -172,15 +172,15 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               Quotation
             </button>
             </Link>
-            {/* <Link to="/event-invoice"> */}
+            <Link to="/add-invoice">
             <button
               className="btn btn-sm btn-primary justify-center w-full"
               title="Invoice"
-              onClick={underConstruction}
+              
             >
               Invoice
             </button>
-            {/* </Link> */}
+            </Link>
             {/* <Link to="/proforma-invoice"> */}
             <button
               className="btn btn-sm btn-primary justify-center w-full"

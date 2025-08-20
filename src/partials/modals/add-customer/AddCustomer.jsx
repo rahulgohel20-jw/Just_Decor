@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-const AddCustomer = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+import DocumentDropdown from "@/components/dropdowns/DocumentDropdown";
+const AddCustomer = ({ onInputChange, isModalOpen, setIsModalOpen }) => {
+  if (!isModalOpen) return null;
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef();
   const handleIconClick = () => {
@@ -18,7 +19,10 @@ const AddCustomer = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">New Customer</h2>
-          <button onClick={onClose} className="text-2xl text-gray-600">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="text-2xl text-gray-600"
+          >
             &times;
           </button>
         </div>
@@ -33,30 +37,27 @@ const AddCustomer = ({ isOpen, onClose }) => {
             <InputWithIcon label="Home Address (English)" />
             <InputWithIcon label="Home Address (ગુજરાતી)" />
             <InputWithIcon label="Home Address (हिंदी)" />
-            {/* Venue */}
-            <InputWithIcon label="Venue (English)" />
-            <InputWithIcon label="Venue (ગુજરાતી)" />
-            <InputWithIcon label="Venue (हिंदी)" />
+
             {/* Contact Category with dropdown and plus */}
-            <div className="flex col-span-1 items-center gap-2">
-              <select className="border border-gray-300 rounded-lg p-2 w-full">
-                <option>Contact Category*</option>
-                <option>Family</option>
-                <option>Business</option>
-                <option>Friend</option>
-              </select>
-              <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none">
-                +
-              </button>
+            <div className="flex flex-col gap-1">
+              <label className="text-gray-600">Contact Category*</label>
+              <div className="flex col-span-1 items-center gap-2">
+                <select className="border border-gray-300 rounded-lg p-2 w-full">
+                  <option>Business</option>
+                  <option>Family</option>
+                  <option>Friend</option>
+                </select>
+                <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none">
+                  +
+                </button>
+              </div>
             </div>
             <InputSimple label="Email" />
             <InputSimple label="Mobile Number*" />
             <InputSimple label="Alternative Number" />
-            <InputSimple label="Office Number" />
-            <InputSimple label="Phone Number" />
+
             <InputSimple label="GST Number" />
-            <InputSimple label="PAN Number" />
-            <InputSimple label="Phone Number" />
+
             <div className="relative">
               <label htmlFor="birth_date" className="block text-gray-600 mb-1">
                 Birth Date
@@ -67,21 +68,20 @@ const AddCustomer = ({ isOpen, onClose }) => {
                 placeholder="Birth Date"
               />
             </div>
-            <div className="relative">
-              <label
-                htmlFor="anniversary_date"
-                className="block text-gray-600 mb-1"
-              >
-                Anniversary Date
-              </label>
-              <input
-                type="date"
-                className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
-                placeholder="Anniversary Date"
-              />
+
+            <div className="select__grp flex flex-col w-full">
+              <label className="form-label">Select Document</label>
+              <div className="relative w-full">
+                <DocumentDropdown
+                  onChange={onInputChange}
+                  className="w-full "
+                  style={{ width: "100%" }}
+                />
+              </div>
             </div>
+
             <div className="flex flex-col">
-              <label className="text-gray-600">Upload Addhar</label>
+              <label className="text-gray-600">Upload Documents</label>
               <div className="flex items-center space-x-4">
                 <button
                   type="button"
@@ -115,7 +115,11 @@ const AddCustomer = ({ isOpen, onClose }) => {
           </div>
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">
-          <button type="button" onClick={onClose} className="btn btn-secondary">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="btn btn-secondary"
+          >
             Cancel
           </button>
           <button type="button" className="btn btn-success">
