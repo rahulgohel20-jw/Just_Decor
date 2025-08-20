@@ -53,6 +53,7 @@ const SortableRow = ({ id, children }) => {
   );
 };
 
+
 const Functionsdeatils = ({ formData, setFormData }) => {
   const classes = useStyles();
   const [showFunctionModal, setShowFunctionModal] = useState(false);
@@ -126,6 +127,16 @@ const Functionsdeatils = ({ formData, setFormData }) => {
     }
   };
 
+
+  
+  const [dateTime, setDateTime] = useState(null);
+
+  const onChange = (value, dateString) => {
+    console.log("Selected DateTime: ", value);
+    console.log("Formatted: ", dateString);
+    setDateTime(value);
+  };
+
   return (
     <div className="rounded-md border border-[#C3C3C3] bg-white">
       <div className="p-3 flex justify-between items-center">
@@ -190,22 +201,22 @@ const Functionsdeatils = ({ formData, setFormData }) => {
                       />
                     </td>
                     <td className="p-3 w-40">
-                      <DatePicker
-                        className="w-full"
-                        value={func.start_date}
-                        onChange={(date) =>
-                          handleInputChange(index, "start_date", date)
-                        }
-                      />
+                       <DatePicker
+        showTime
+        format="YYYY-MM-DD HH:mm"
+        onChange={onChange}
+        value={dateTime}
+        style={{ width: "200px" }}
+      />
                     </td>
                     <td className="p-3 w-40">
-                      <DatePicker
-                        className="w-full"
-                        value={func.end_date}
-                        onChange={(date) =>
-                          handleInputChange(index, "end_date", date)
-                        }
-                      />
+                       <DatePicker
+        showTime
+        format="YYYY-MM-DD HH:mm"
+        onChange={onChange}
+        value={dateTime}
+        style={{ width: "200px" }}
+      />
                     </td>
                     <td className="p-3 w-24">
                       <Input
