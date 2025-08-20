@@ -13,8 +13,8 @@ export const columns = [
     },
   },
   {
-    accessorKey: "event_name",
-    header: "Event Name",
+    accessorKey: "contact_name",
+    header: "Contact Type",
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -159,14 +159,14 @@ export const columns = [
 export const defaultData = [
   
   
-   { sr_no: 1, event_name: "Engagement" },
-  { sr_no: 2, event_name: "Wedding" },
-  { sr_no: 3, event_name: "Birthday" },
-  { sr_no: 4, event_name: "Baby Shower" },
-  { sr_no: 5, event_name: "Birthday" },
-  { sr_no: 6, event_name: "Kitty Party" },
-  { sr_no: 7, event_name: "Engagement" },
-  { sr_no: 8, event_name: "Wedding" }
+   { sr_no: 1, contact_name: "Friend" },
+  { sr_no: 2, contact_name: "Colleague" },
+  { sr_no: 3, contact_name: "Relative" },
+  { sr_no: 4, contact_name: "Business Manager" },
+  { sr_no: 5, contact_name: "Friend" },
+  { sr_no: 6, contact_name: "Friend" },
+  { sr_no: 7, contact_name: "Colleague" },
+  { sr_no: 8, contact_name: "Sales Man" }
 
 
 

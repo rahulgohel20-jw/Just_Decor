@@ -139,7 +139,8 @@ import CustomerMaster from "@/pages/master/customer";
 import AllMemberMaster from "@/pages/master/all-menbers";
 import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
-import EventsMaster from "@/pages/master/Events";
+import ContactCategoryMaster from "@/pages/master/contact-category";
+import { Contact } from "lucide-react";
 
 const AppRoutingSetup = () => {
   return (
@@ -189,7 +190,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />
           <Route path="/master/meals" element={<MealMaster />} />
-          <Route path="/master/events" element={<EventsMaster />} />
+          <Route path="/master/contact-categories" element={<ContactCategoryMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
