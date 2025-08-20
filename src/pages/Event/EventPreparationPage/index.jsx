@@ -74,17 +74,86 @@ const EventPreparationPage = () => {
     0
   );
 
+
+
+
+const orderDetails = {
+  id: "1762",
+  customer: "MR KAUSHAL BHAI KUKADIYA",
+  eventType: "Wedding",
+  eventDate: "06/02/2002",
+  venue: "APEX PARTY PLOT",
+};
+
+  const [activeTab, setActiveTab] = useState("lunch");
+   const [selected, setSelected] = useState("custom");
+
   return (
+ 
+
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Preparation" }]} />
+        <div className=" gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
+   
+  <Tooltip
+      placement="right"
+      color="white"
+      overlayInnerStyle={{
+        padding: "12px",
+        borderRadius: "8px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        minWidth: "220px",
+      }}
+      title={
+        <div className="text-gray-800 text-sm space-y-1">
+          <p className="font-semibold text-base text-blue-600">Order Details</p>
+          <p><span className="font-medium">ID:</span> {orderDetails.id}</p>
+          <p><span className="font-medium">Customer:</span> {orderDetails.customer}</p>
+          <p><span className="font-medium">Event Type:</span> {orderDetails.eventType}</p>
+          <p><span className="font-medium">Event Date:</span> {orderDetails.eventDate}</p>
+          <p><span className="font-medium">Venue:</span> {orderDetails.venue}</p>
         </div>
-        <div
-          className={`grid grid-cols-9 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}
-        >
+      }
+    >
+      <span className="ml-4 cursor-pointer text-sm font-semibold text-gray-700">
+        ORDER ID:{" "}
+        <span className="text-blue-600 underline">{orderDetails.id}</span>
+      </span>
+    </Tooltip>
+
+
+
+
+    </div>
+  
+      {/* Top Tabs */}
+      
+      
+        
+       
+      <div className="flex gap-4">
+        <div>
+           <div className={`grid grid-cols-6 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}>
+        {["mandap", "lunch", "dinner"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={ `col-span-4  px-12 py-2 rounded-t-lg font-semibold text-sm transition-all ${
+              activeTab === tab
+                ? "bg-blue-100 text-blue-700 border-b-2 border-blue-700"
+                : "text-gray-500 hover:text-blue-600"
+            }`}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
+      
+      </div>
+        <div className={`grid grid-cols-6 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`} >
           {/* one */}
+         
           <div className="col-span-3">
             <div className="h-full lg:border-e lg:border-e-border shrink-0 bg-muted/15">
               <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
@@ -125,7 +194,7 @@ const EventPreparationPage = () => {
             </div>
           </div>
           {/* two */}
-          <div className="col-span-6">
+          <div className="col-span-9">
             <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-3">
               <div className="select__grp flex flex-col w-full">
                 <div className="sg__inner flex items-center gap-1 relative">
@@ -213,8 +282,11 @@ const EventPreparationPage = () => {
               )}
             </div>
           </div>
+          </div>
+
+        </div>
           {/* three */}
-          <div className="col-span-3">
+          <div className="col-span-3  -mt-10 ">
             <div className="h-full lg:border-s lg:border-s-border shrink-0 bg-muted/15">
               <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
                 <div className="flex items-center justify-between mb-2">
@@ -242,10 +314,10 @@ const EventPreparationPage = () => {
                     <input
                       type="number"
                       min={1}
-                      value={300}
-                      readOnly
+                     
+                     
                       className="input input-sm w-20"
-                      disabled
+                    
                     />
                   </p>
                   <p className="flex items-center gap-2">
@@ -258,10 +330,10 @@ const EventPreparationPage = () => {
                     </strong>
                     <input
                       type="text"
-                      value="27/07/2025 11:00 AM"
-                      readOnly
+                    
+                     
                       className="input input-sm w-36"
-                      disabled
+                     
                     />
                   </p>
                   <p className="flex items-center gap-2">

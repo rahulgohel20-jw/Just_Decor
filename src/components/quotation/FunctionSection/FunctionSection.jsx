@@ -41,12 +41,12 @@ export default function FunctionTable() {
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
-            <th className="p-2">Function Name & Description </th>
-            <th className="p-2">Person</th>
-            <th className="p-2">Extra</th>
-           <th className="p-2">Rate (Per Plate)</th>
-            <th className="p-2">Total price</th>
-            <th className="p-2">Actions</th>
+            <th className="p-2 font-inter font-medium text-gray-700">Function Name & Description </th>
+            <th className="p-2  font-inter font-medium text-gray-700">Person</th>
+            <th className="p-2 font-inter font-medium text-gray-700">Extra</th>
+           <th className="p-2  font-inter font-medium text-gray-700">Rate (Per Plate)</th>
+            <th className="p-2  font-inter font-medium text-gray-700">Total price</th>
+            <th className="p-2 font-inter font-medium text-gray-700">Actions</th>
           </tr>
         </thead>
         <tbody>
