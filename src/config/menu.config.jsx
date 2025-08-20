@@ -44,8 +44,8 @@ export const MENU_SIDEBAR = [
         path: "/master/meals",
       },
       {
-        title: "Events",
-        path: "/master/events",
+        title: "Contact Categories",
+        path: "/master/contact-categories",
       }
       
     ]

@@ -11,9 +11,9 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 
 import { Events } from "leaflet";
-import AddEventType from "@/partials/modals/add-event-type/AddEventType";
+import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 
-const EventsMaster = () => {
+const ContactCategoryMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
@@ -76,7 +76,7 @@ const EventsMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events Master" }]} />
+          <Breadcrumbs items={[{ title: "Contact Category Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -99,14 +99,14 @@ const EventsMaster = () => {
                 onClick={() => setIsMemberModalOpen(true)}
                 title="Add Event"
               >
-                <i className="ki-filled ki-plus"></i> Event
+                <i className="ki-filled ki-plus"></i> Contact Category
               </button>
             
           </div>
         </div>
-        <AddEventType 
-        isModalOpen={isMemberModalOpen}
-        setIsModalOpen={setIsMemberModalOpen}
+        <AddContactCategory 
+        isOpen={isMemberModalOpen}
+        onClose={setIsMemberModalOpen}
       />
         <TableComponent
           columns={columns}
@@ -117,4 +117,4 @@ const EventsMaster = () => {
     </Fragment>
   );
 };
-export default EventsMaster;
+export default ContactCategoryMaster;
