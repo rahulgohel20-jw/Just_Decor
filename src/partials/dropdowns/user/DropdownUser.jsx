@@ -81,16 +81,6 @@ const DropdownUser = ({ menuItemRef }) => {
             </MenuLink>
           </MenuItem>
 
-          {/* my leads */}
-          <MenuItem>
-            <MenuLink path="">
-              <MenuIcon>
-                <i className="ki-filled ki-ki-filled ki-abstract-18"></i>
-              </MenuIcon>
-              <MenuTitle>My Leads</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-
           {/* billing */}
           <MenuItem>
             <MenuLink path="/account/billing/basic">
@@ -100,6 +90,16 @@ const DropdownUser = ({ menuItemRef }) => {
               <MenuTitle>
                 <FormattedMessage id="USER.MENU.BILLING" />
               </MenuTitle>
+            </MenuLink>
+          </MenuItem>
+
+          {/* my leads */}
+          <MenuItem>
+            <MenuLink path="">
+              <MenuIcon>
+                <i className="ki-filled ki-ki-filled ki-abstract-18"></i>
+              </MenuIcon>
+              <MenuTitle>My Leads</MenuTitle>
             </MenuLink>
           </MenuItem>
 

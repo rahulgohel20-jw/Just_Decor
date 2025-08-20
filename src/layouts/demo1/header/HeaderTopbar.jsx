@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Button } from "antd";
 import { KeenIcon } from "@/components/keenicons";
 import { toAbsoluteUrl } from "@/utils";
 import { Menu, MenuItem, MenuToggle } from "@/components";
@@ -11,6 +12,7 @@ import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";
 import CheckInModal from "@/partials/modals/CheckInModal";
+import Priceplan from "@/partials/modals/priceplan/Priceplan";
 const HeaderTopbar = () => {
   const { isRTL } = useLanguage();
   const itemChatRef = useRef(null);
@@ -18,6 +20,7 @@ const HeaderTopbar = () => {
   const itemUserRef = useRef(null);
   const itemNotificationsRef = useRef(null);
   const [checkInModal, setCheckInModal] = useState(false);
+  const [priceModal, setPriceModal] = useState(false);
   const handleShow = () => {
     window.dispatchEvent(new Event("resize"));
   };
@@ -28,6 +31,14 @@ const HeaderTopbar = () => {
   };
   return (
     <div className="flex items-center gap-2 lg:gap-3.5">
+      <Button
+        className=" btn-primary"
+        onClick={() => {
+          setPriceModal(true);
+        }}
+      >
+        Upgrade
+      </Button>
       <button
         onClick={() => setCheckInModal(true)}
         className="btn btn-sm btn-success"
@@ -160,6 +171,7 @@ const HeaderTopbar = () => {
         isModalOpen={checkInModal}
         setIsModalOpen={setCheckInModal}
       />
+      <Priceplan isModalOpen={priceModal} setIsModalOpen={setPriceModal} />
     </div>
   );
 };
