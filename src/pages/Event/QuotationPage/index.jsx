@@ -4,6 +4,10 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import { PlusCircle } from "lucide-react";
 import { Tooltip } from "antd";
+import Oderdetail from "@/components/quotation/Oderdetail";
+import ActionsSection from "../../../components/quotation/ActionSection";
+import FunctionSection from "../../../components/quotation/FunctionSection/FunctionSection";
+import Estimatesection from "../../../components/quotation/estimate/Estimatesection";
 
 const QuotationPage = () => {
   const classes = useStyles();
@@ -45,45 +49,18 @@ const QuotationPage = () => {
         </div>
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
             {/* Header */}
-            <div className="px-5 py-3 font-semibold text-gray-700 bg-gradient-to-b from-blue-100 to-blue-200 border-b border-gray-200">
-            </div>
-
-             <div className="px-4 py-2 bg-gray-100 border-b border-gray-300 font-semibold text-gray-700">
-              Order Details
-            </div>
-            {/* Body */}
-            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
-              <div>
-                <span className="font-medium text-gray-600">Customer Name:</span>{" "}
-                <span className="text-gray-900">{details.customerName}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
-                <span className="text-gray-900">{details.mobileNumber}</span>
-              </div>
-
-              <div>
-                <span className="font-medium text-gray-600">Event Type:</span>{" "}
-                <span className="text-gray-900">{details.eventType}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-600">Event Date:</span>{" "}
-                <span className="text-gray-900">{details.eventDate}</span>
-              </div>
-
-              <div className="md:col-span-2">
-                <span className="font-medium text-gray-600">Venue:</span>{" "}
-                <span className="text-gray-900">{details.venue}</span>
-              </div>
-            </div>
-            <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
+                <div className="quotation-container">
+                       <Oderdetail />
               {/* Header */}
+              {/* action */}
+              <ActionsSection />
               <div className="px-4 py-2 bg-gray-100 border-b border-gray-300 font-semibold text-gray-700">
                 Quotation
               </div>
 
+<FunctionSection/>
               {/* Radio buttons */}
-              <div className="flex gap-6 px-4 py-2 bg-blue-50 border-b border-gray-200">
+              {/* <div className="flex gap-6 px-4 py-2 bg-blue-50 border-b border-gray-200">
                 <div className="text-left flex items-center gap-2">
                   <label className="flex items-center gap-2">
                     <input type="radio" name="amountType"/>
@@ -101,10 +78,10 @@ const QuotationPage = () => {
                   </button>
                 </Tooltip>
                 </div>
-              </div>
+              </div> */}
 
               {/* Table */}
-              <div className="overflow-x-auto">
+              {/* <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead className="bg-gray-100">
                     <tr>
@@ -170,10 +147,10 @@ const QuotationPage = () => {
                     </tr>
                   </tbody>
                 </table>
-              </div>
+              </div> */}
 
               {/* Totals */}
-              <div className="p-4 grid grid-cols-2 gap-3 text-sm bg-gray-50">
+              {/* <div className="p-4 grid grid-cols-2 gap-3 text-sm bg-gray-50">
                 <div className="flex justify-between">
                   <span>Total</span>
                   <input readOnly value={total} className="w-32 border px-2 py-1 rounded input" />
@@ -226,27 +203,37 @@ const QuotationPage = () => {
                   <span>Remaining Amount</span>
                   <input readOnly value={remaining} className="w-32 border px-2 py-1 rounded input" />
                 </div>
-              </div>
+              </div> */}
 
+
+
+
+<Estimatesection/>
               {/* Notes */}
-              <div className="p-4 border-t border-gray-200">
-                <label className="block text-sm mb-1">Note:</label>
-                <textarea
-                  value={form.note}
-                  onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  className="w-full border px-3 py-2 rounded input"
-                />
-              </div>
+           <div className="p-4 border-t border-gray-200 flex items-start justify-between gap-4">
+  {/* Left: Note */}
+  <div className="w-1/2">
+    
+    <textarea
+      value={form.note}
+      placeholder="Note:"
+      onChange={(e) => setForm({ ...form, note: e.target.value })}
+      className="w-full border px-3 py-2 rounded input"
+      rows="3"
+    />
+  </div>
+
+  {/* Right: Save Button */}
+  <div className="flex items-end">
+    <button className="bg-green-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700 me-3">
+      <i className="ki-filled ki-copy-success"></i> Save
+    </button>
+  </div>
+</div>
+
 
               {/* Buttons */}
-              <div className="flex justify-center gap-3 p-4 border-t border-gray-200">
-                <button className="bg-blue-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700">
-                  Save
-                </button>
-                <button className="bg-red-500 text-white px-5 py-2 rounded shadow hover:bg-red-600">
-                  Cancel
-                </button>
-              </div>
+             
             </div>
         </div>
       </Container>
