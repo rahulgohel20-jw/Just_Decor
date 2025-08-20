@@ -135,6 +135,11 @@ import EventInvoicePage from "@/pages/Event/EventInvoicePage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 import AddInvoicePage from "@/pages/Event/AddInvoicePage";
 import InvoiceViewPage from "../pages/Event/InvoiceViewPage";
+import CustomerMaster from "@/pages/master/customer";
+import AllMemberMaster from "@/pages/master/all-menbers";
+import FunctionsMaster from "@/pages/master/functions";
+import MealMaster from "@/pages/master/meals";
+import EventsMaster from "@/pages/master/Events";
 
 const AppRoutingSetup = () => {
   return (
@@ -178,6 +183,13 @@ const AppRoutingSetup = () => {
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
+
+          {/* Masters */}
+          <Route path="/master/customers" element={<CustomerMaster />} />
+          <Route path="/master/all-members" element={<AllMemberMaster />} />
+          <Route path="/master/functions" element={<FunctionsMaster />} />
+          <Route path="/master/meals" element={<MealMaster />} />
+          <Route path="/master/events" element={<EventsMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks" element={<TaskListPage />}></Route>
