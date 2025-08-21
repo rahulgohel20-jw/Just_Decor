@@ -4,7 +4,7 @@ const Location = () => {
   return (
     <div>
       {/* Breadcrumbs */}
-      <div className="gap-2 pb-2 mb-3">
+      <div className="gap-2 mb-3">
         <Breadcrumbs items={[{ title: "Register Face" }]} />
       </div>
       <div className="p-6 max-w-lg mx-auto bg-white">

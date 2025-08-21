@@ -28,7 +28,7 @@ const SalesTeamList = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Sales Team" }]} />
         </div>
         {/* filters */}
@@ -46,17 +46,17 @@ const SalesTeamList = () => {
               <select className="select pe-7.5" placeholder="Roles">
                 <option value="Manager">Manager</option>
                 <option value="Sales Person">Sales Person</option>
-                <option value="Test">Test</option>                
+                <option value="Test">Test</option>
               </select>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
-                className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Member"
-              >
-                <i className="ki-filled ki-plus"></i> Add Member
+              className="btn btn-primary"
+              onClick={handleModalOpen}
+              title="Add Member"
+            >
+              <i className="ki-filled ki-plus"></i> Add Member
             </button>
           </div>
         </div>

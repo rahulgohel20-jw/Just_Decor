@@ -78,7 +78,7 @@ const EventPreparationPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Preparation" }]} />
         </div>
         <div

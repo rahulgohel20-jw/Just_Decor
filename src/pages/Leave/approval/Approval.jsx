@@ -8,7 +8,7 @@ import AddLeave from "../../../partials/modals/add-leave/AddLeave";
 
 const Approval = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editData,] = useState(null);
+  const [editData] = useState(null);
 
   const tabs = [
     {
@@ -37,7 +37,7 @@ const Approval = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Approval" }]} />
         </div>
 
@@ -83,10 +83,8 @@ const Approval = () => {
 
         {/* Tabs */}
         <div className="flex justify-center items-center ">
-   
           <TabComponent tabs={tabs} />
         </div>
-     
       </Container>
 
       {/* Add Leave Modal */}

@@ -17,48 +17,48 @@ const RawMaterialAllocationPage = () => {
     },
     {
       value: "vegetables",
-      label: 'Vegetables',
-      children: 'Vegetables',
+      label: "Vegetables",
+      children: "Vegetables",
     },
     {
       value: "dairy_items",
-      label: 'Dairy Items',
-      children: 'Dairy Items',
+      label: "Dairy Items",
+      children: "Dairy Items",
     },
     {
       value: "ice_department",
-      label: 'Ice Department',
-      children: 'Ice Department',
+      label: "Ice Department",
+      children: "Ice Department",
     },
     {
       value: "mineral_water",
-      label: 'Mineral Water',
-      children: 'Mineral Water',
+      label: "Mineral Water",
+      children: "Mineral Water",
     },
     {
       value: "ready_made_order",
-      label: 'Ready Made Order',
-      children: 'Ready Made Order',
+      label: "Ready Made Order",
+      children: "Ready Made Order",
     },
     {
       value: "gas_batla_item",
-      label: 'GAS BATLA ITEM',
-      children: 'GAS BATLA ITEM',
+      label: "GAS BATLA ITEM",
+      children: "GAS BATLA ITEM",
     },
     {
       value: "staff_salairy",
-      label: 'STAFF SALAIRY',
-      children: 'STAFF SALAIRY',
+      label: "STAFF SALAIRY",
+      children: "STAFF SALAIRY",
     },
   ];
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Raw Material Allocation" }]} />
         </div>
-         <TabComponent tabs={tabs} />
+        <TabComponent tabs={tabs} />
       </Container>
     </Fragment>
   );

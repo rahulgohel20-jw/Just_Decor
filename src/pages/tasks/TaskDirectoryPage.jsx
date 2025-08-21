@@ -49,7 +49,7 @@ const TaskDirectoryPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Tasks Directory" }]} />
         </div>
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -73,10 +73,11 @@ const TaskDirectoryPage = () => {
                 className="w-full h-36 object-cover mx-auto rounded-t-lg"
               />
               <div className="p-4 rounded-b-lg">
-                <h3 className="text-base text-gray-900 mb-1 font-semibold text-center">
+                <h3 className="text-base text-gray-900 mb-1 font-semibold">
                   {directory.title}
                 </h3>
-                <p className="text-sm text-gray-700 text-center">
+                <p className="text-sm text-gray-700">
+                  <i className="ki-filled ki-slider-vertica text-gray-500 mr-1"></i>
                   {directory.template_count} Template
                 </p>
               </div>

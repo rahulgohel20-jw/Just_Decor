@@ -31,7 +31,7 @@ const AccountUserProfilePage = () => {
       </style>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "My Profile" }]} />
         </div>
         <UserProfileHero
@@ -61,9 +61,7 @@ const AccountUserProfilePage = () => {
         <div className="mb-4">
           <div className="h-40 rounded-xl bg-center bg-no-repeat bg-[length:100%] p_cover_bg"></div>
           <div className="h-40 w-40 bg-dark rounded-pill">
-    
-       
-<div className="kt-avatar size-20">
+            <div className="kt-avatar size-20">
               <div className="kt-avatar-image">
                 <img
                   className="size-9 rounded-full shrink-0"
@@ -77,9 +75,9 @@ const AccountUserProfilePage = () => {
 
         {/* <div className="bg-center bg-cover bg-no-repeat hero-bg" style={{backgroundImage: getThemeMode() === 'dark' ? `url('${toAbsoluteUrl('/media/images/2600x1200/bg-1-dark.png')}')` : `url('${toAbsoluteUrl('/media/images/2600x1200/bg-1.png')}')`
     }}> */}
-          <div className="flex flex-col items-center gap-2 lg:gap-3.5 py-4 lg:pt-5 lg:pb-10">
-            {/* <img className="rounded-full border-3 border-green-500 size-[100px] shrink-0" src="/static/metronic/tailwind/dist/assets/media/avatars/300-1.png"> */}
-            {/* {image} */}
+        <div className="flex flex-col items-center gap-2 lg:gap-3.5 py-4 lg:pt-5 lg:pb-10">
+          {/* <img className="rounded-full border-3 border-green-500 size-[100px] shrink-0" src="/static/metronic/tailwind/dist/assets/media/avatars/300-1.png"> */}
+          {/* {image} */}
 
           <div className="flex items-center gap-1.5">
             <div className="text-lg leading-5 font-semibold text-gray-900">

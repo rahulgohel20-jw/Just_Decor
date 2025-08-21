@@ -13,30 +13,27 @@ const OfficeSetting = () => {
       label: (
         <>
           {/* <User className="text-primary" /> */}
-          
-         Login-Logout Time
+          Login-Logout Time
         </>
       ),
-      children: <LoginLogoutTime/>,
+      children: <LoginLogoutTime />,
     },
     {
       value: "bulkdata",
       label: (
         <>
           {/* <DatabaseIcon className="text-primary" /> */}
-          
           Office Location
         </>
       ),
       children: <Location />,
     },
-    
   ];
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Attendance Settings" }]} />
         </div>
         <TabComponent tabs={tabs} />
