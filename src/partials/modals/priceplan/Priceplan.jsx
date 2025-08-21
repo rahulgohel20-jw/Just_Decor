@@ -40,7 +40,7 @@ const Priceplan = ({ isModalOpen, setIsModalOpen }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <Card className="h-fit rounded-2xl shadow-md hover:shadow-lg transition shadow-[4px_4px_42px_0px_#5243C24B]">
+        <Card className="h-fit rounded-2xl hover:shadow-lg transition shadow-[4px_4px_42px_0px_#5243C24B]">
           <div className="flex flex-col ">
             <div className="text-4xl mb-2">
               <img
@@ -140,7 +140,7 @@ const Priceplan = ({ isModalOpen, setIsModalOpen }) => {
           </div>
         </Card>
 
-        <Card className=" h-fit rounded-2xl shadow-md hover:shadow-lg transition shadow-[4px_4px_42px_0px_#5243C24B]">
+        <Card className=" h-fit rounded-2xl  hover:shadow-lg transition shadow-[4px_4px_42px_0px_#5243C24B]">
           <div className="flex flex-col ">
             <div className="text-4xl mb-2">
               <img
