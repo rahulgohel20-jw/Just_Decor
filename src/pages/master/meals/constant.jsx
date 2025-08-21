@@ -38,11 +38,11 @@ export const columns = [
         
           
           
-          <Tooltip title="Menu Allocation">
+          <Tooltip title="Delete">
             {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
-              title="Menu Allocation"
+              title="Delete"
               onClick={underConstruction}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
