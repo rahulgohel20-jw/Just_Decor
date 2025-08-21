@@ -105,21 +105,21 @@ export const columns = [
     cell: ({ cell }) => {
       return (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Event">
-            <Link to="/add-event">
+          <Tooltip className="cursor-pointer" title="Edit Customer">
+            
               <button className="btn btn-sm btn-icon btn-clear" title="Edit">
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>
-            </Link>
+          
           </Tooltip>
         
           
           
-          <Tooltip title="Menu Allocation">
+          <Tooltip title="Delete">
             {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
-              title="Menu Allocation"
+              title="Delete"
               onClick={underConstruction}
             >
               <i className="ki-filled ki-trash  text-danger"></i>

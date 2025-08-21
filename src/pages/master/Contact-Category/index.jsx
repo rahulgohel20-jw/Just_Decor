@@ -87,7 +87,7 @@ const ContactCategoryMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search event"
+                placeholder="Search Contact"
                 type="text"
               />
             </div>
@@ -97,7 +97,7 @@ const ContactCategoryMaster = () => {
               <button
                 className="btn btn-primary"
                 onClick={() => setIsMemberModalOpen(true)}
-                title="Add Event"
+                title="Add Contact Category"
               >
                 <i className="ki-filled ki-plus"></i> Contact Category
               </button>
