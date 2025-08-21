@@ -12,7 +12,7 @@ import {
 
 const { Option } = Select;
 
-const TaskListPage = () => {
+const MyTask = () => {
   const [view, setView] = useState("list");
   const [expandedTask, setExpandedTask] = useState(null);
 
@@ -29,9 +29,8 @@ const TaskListPage = () => {
   ];
 
   const tasks = [
-    { id: 1, title: "Krishnai", ago: "6 months ago" },
-    ,
-    { id: 2, title: "Gala Caterers", ago: "6 months ago" },
+    { id: 1, title: "Task 1" },
+    { id: 2, title: "Task 2" },
     {
       id: 5,
       title: "Nikhil Caterers",
@@ -53,7 +52,7 @@ const TaskListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "All Task" }]} />
+          <Breadcrumbs items={[{ title: "My Task" }]} />
         </div>
 
         <div className="p-4 bg-gradient-to-b  rounded-lg">
@@ -101,11 +100,6 @@ const TaskListPage = () => {
                     onClick={() => setView("calendar")}
                   />
                 </Tooltip>
-              </div>
-
-              <div className="flex items-center bg-white rounded-md  gap-2">
-                <Button className="btn-primary">Import</Button>
-                <Button className="btn-primary">Export</Button>
               </div>
             </div>
           </div>
@@ -208,4 +202,4 @@ const TaskListPage = () => {
   );
 };
 
-export { TaskListPage };
+export { MyTask };
