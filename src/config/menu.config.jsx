@@ -17,6 +17,36 @@ export const MENU_SIDEBAR = [
         title: "Events",
         path: "/event",
       },
+      {
+        title: "Invoice",
+        path: "/invoice-dashboard",
+      },
+    ],
+  },
+  {
+    title: "Master",
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: "Customers",
+        path: "/master/customers",
+      },
+      {
+        title: "All Members",
+        path: "/master/all-members",
+      },
+      {
+        title: "Functions",
+        path: "/master/functions",
+      },
+      {
+        title: "Meals",
+        path: "/master/meals",
+      },
+      {
+        title: "Contact Categories",
+        path: "/master/contact-categories",
+      },
     ],
   },
   {
@@ -53,6 +83,14 @@ export const MENU_SIDEBAR = [
     title: "Tasks",
     icon: "ki-filled ki-abstract-16 text-primary",
     children: [
+      {
+        title: "Dashboard",
+        path: "/tasks/dashboard",
+      },
+      {
+        title: "My Task",
+        path: "/task/mytask",
+      },
       {
         title: "All Tasks",
         path: "/tasks",

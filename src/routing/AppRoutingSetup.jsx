@@ -107,6 +107,8 @@ import {
   TaskListPage,
   TaskTemplatePage,
   TaskDirectoryPage,
+  TaskDashboard,
+  MyTask,
 } from "@/pages/tasks";
 
 import { Holiday } from "@/pages/Leave/holiday";
@@ -135,6 +137,12 @@ import EventInvoicePage from "@/pages/Event/EventInvoicePage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 import AddInvoicePage from "@/pages/Event/AddInvoicePage";
 import InvoiceViewPage from "../pages/Event/InvoiceViewPage";
+import CustomerMaster from "@/pages/master/customer";
+import AllMemberMaster from "@/pages/master/all-menbers";
+import FunctionsMaster from "@/pages/master/functions";
+import MealMaster from "@/pages/master/meals";
+import ContactCategoryMaster from "@/pages/master/contact-category";
+import { Contact } from "lucide-react";
 
 const AppRoutingSetup = () => {
   return (
@@ -167,10 +175,22 @@ const AppRoutingSetup = () => {
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
-          <Route path="/menu-allocation" element={<EventMenuAllocationPage />} />
-          <Route path="/raw-material-allocation" element={<RawMaterialAllocationPage />} />
-          <Route path="/labour-and-other-management" element={<LabourOtherManagementPage />} />
-          <Route path="/order-booking-reports" element={<OrderBookingReportsPage />} />
+          <Route
+            path="/menu-allocation"
+            element={<EventMenuAllocationPage />}
+          />
+          <Route
+            path="/raw-material-allocation"
+            element={<RawMaterialAllocationPage />}
+          />
+          <Route
+            path="/labour-and-other-management"
+            element={<LabourOtherManagementPage />}
+          />
+          <Route
+            path="/order-booking-reports"
+            element={<OrderBookingReportsPage />}
+          />
           <Route path="/dish-costing" element={<DishCostingPage />} />
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />
@@ -179,7 +199,19 @@ const AppRoutingSetup = () => {
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
 
+          {/* Masters */}
+          <Route path="/master/customers" element={<CustomerMaster />} />
+          <Route path="/master/all-members" element={<AllMemberMaster />} />
+          <Route path="/master/functions" element={<FunctionsMaster />} />
+          <Route path="/master/meals" element={<MealMaster />} />
+          <Route
+            path="/master/contact-categories"
+            element={<ContactCategoryMaster />}
+          />
+
           {/* Tasks routes */}
+          <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
+          <Route path="task/mytask" element={<MyTask />}></Route>
           <Route path="/tasks" element={<TaskListPage />}></Route>
           <Route
             path="/tasks-directory"

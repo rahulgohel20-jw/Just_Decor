@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import { PlusCircle } from "lucide-react";
 import { Tooltip } from "antd";
+import Oderdetail from "@/components/quotation/Oderdetail";
 
 const QuotationPage = () => {
   const classes = useStyles();
@@ -109,7 +110,8 @@ const QuotationPage = () => {
               <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
               <span className="text-gray-900">{details.mobileNumber}</span>
             </div>
-            {/* Body */}
+
+            {/* Order Info */}
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
               <div>
                 <span className="font-medium text-gray-600">
@@ -123,7 +125,6 @@ const QuotationPage = () => {
                 </span>{" "}
                 <span className="text-gray-900">{form.mobile_number}</span>
               </div>
-
               <div>
                 <span className="font-medium text-gray-600">Event Type:</span>{" "}
                 <span className="text-gray-900">{form.event_type}</span>
@@ -132,7 +133,6 @@ const QuotationPage = () => {
                 <span className="font-medium text-gray-600">Event Date:</span>{" "}
                 <span className="text-gray-900">{form.event_date}</span>
               </div>
-
               <div className="md:col-span-2">
                 <span className="font-medium text-gray-600">Venue:</span>{" "}
                 <span className="text-gray-900">{form.venue}</span>
@@ -457,4 +457,5 @@ const QuotationPage = () => {
     </Fragment>
   );
 };
+
 export default QuotationPage;

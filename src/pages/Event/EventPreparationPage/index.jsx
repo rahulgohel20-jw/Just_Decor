@@ -74,147 +74,225 @@ const EventPreparationPage = () => {
     0
   );
 
+  const orderDetails = {
+    id: "1762",
+    customer: "MR KAUSHAL BHAI KUKADIYA",
+    eventType: "Wedding",
+    eventDate: "06/02/2002",
+    venue: "APEX PARTY PLOT",
+  };
+
+  const [activeTab, setActiveTab] = useState("lunch");
+  const [selected, setSelected] = useState("custom");
+
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Preparation" }]} />
+        <div className=" gap-2 pb-2 mb-3">
+          <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
+
+          <Tooltip
+            placement="right"
+            color="white"
+            overlayInnerStyle={{
+              padding: "12px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              minWidth: "220px",
+            }}
+            title={
+              <div className="text-gray-800 text-sm space-y-1">
+                <p className="font-semibold text-base text-blue-600">
+                  Order Details
+                </p>
+                <p>
+                  <span className="font-medium">ID:</span> {orderDetails.id}
+                </p>
+                <p>
+                  <span className="font-medium">Customer:</span>{" "}
+                  {orderDetails.customer}
+                </p>
+                <p>
+                  <span className="font-medium">Event Type:</span>{" "}
+                  {orderDetails.eventType}
+                </p>
+                <p>
+                  <span className="font-medium">Event Date:</span>{" "}
+                  {orderDetails.eventDate}
+                </p>
+                <p>
+                  <span className="font-medium">Venue:</span>{" "}
+                  {orderDetails.venue}
+                </p>
+              </div>
+            }
+          >
+            <span className="ml-4 cursor-pointer text-sm font-semibold text-gray-700">
+              ORDER ID:{" "}
+              <span className="text-blue-600 underline">{orderDetails.id}</span>
+            </span>
+          </Tooltip>
         </div>
-        <div
-          className={`grid grid-cols-9 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}
-        >
-          {/* one */}
-          <div className="col-span-3">
-            <div className="h-full lg:border-e lg:border-e-border shrink-0 bg-muted/15">
-              <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
-                <div className="relative">
-                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                  <input
-                    type="text"
-                    className="input pl-8"
-                    placeholder="Search categories"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
+
+        {/* Top Tabs */}
+
+        <div className="flex gap-4">
+          <div>
+            <div
+              className={`grid grid-cols-6 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}
+            >
+              {["mandap", "lunch", "dinner"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`col-span-4  px-12 py-2 rounded-t-lg font-semibold text-sm transition-all ${
+                    activeTab === tab
+                      ? "bg-blue-100 text-blue-700 border-b-2 border-blue-700"
+                      : "text-gray-500 hover:text-blue-600"
+                  }`}
+                >
+                  {tab.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <div
+              className={`grid grid-cols-6 lg:grid-cols-12 border rounded-l rounded-r ${classes.customStyle}`}
+            >
+              {/* one */}
+
+              <div className="col-span-3">
+                <div className="h-full lg:border-e lg:border-e-border shrink-0 bg-muted/15">
+                  <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
+                    <div className="relative">
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                      <input
+                        type="text"
+                        className="input pl-8"
+                        placeholder="Search categories"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-1 max-h-[650px] overflow-auto scrollable-y">
+                    <div className="h-full">
+                      {filteredCategories.length === 0 ? (
+                        <div className="p-2 text-gray-400 text-xs text-center">
+                          No categories found
+                        </div>
+                      ) : (
+                        filteredCategories.map(({ name, id }) => (
+                          <button
+                            key={id}
+                            onClick={() => setSelectedCategory(id)}
+                            className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
+                              selectedCategory === id
+                                ? "bg-blue-50 text-primary"
+                                : "hover:bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex-1 max-h-[650px] overflow-auto scrollable-y">
-                <div className="h-full">
-                  {filteredCategories.length === 0 ? (
+              {/* two */}
+              <div className="col-span-9">
+                <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-3">
+                  <div className="select__grp flex flex-col w-full">
+                    <div className="sg__inner flex items-center gap-1 relative">
+                      <div className="relative w-full">
+                        <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                        <input
+                          type="text"
+                          className="input pl-8"
+                          placeholder="Search items"
+                          value={childSearch}
+                          onChange={(e) => setChildSearch(e.target.value)}
+                        />
+                      </div>
+                      <Tooltip title="Start speech to text">
+                        <button
+                          type="button"
+                          onClick={() => handleAddClick("Manager")}
+                          title="Add"
+                          className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                        >
+                          <i className="ki-filled ki-plus"></i>
+                        </button>
+                      </Tooltip>
+                      <Tooltip title="Add menu item">
+                        <button
+                          type="button"
+                          onClick={() => handleAddClick("Manager")}
+                          title="Add"
+                          className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                        >
+                          <Mic size={18} />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <Tooltip title="Collapse">
+                    <button
+                      type="button"
+                      title="Collapse"
+                      className="sga__btn flex items-center justify-center rounded-full p-0"
+                    >
+                      <PanelLeftOpen
+                        className="text-primary stroke-2"
+                        style={{ width: "24px" }}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <div className="flex-1 p-3 lg:p-4 max-h-[650px] overflow-auto scrollable-y">
+                  {filteredChildren.length === 0 ? (
                     <div className="p-2 text-gray-400 text-xs text-center">
-                      No categories found
+                      No items found
                     </div>
                   ) : (
-                    filteredCategories.map(({ name, id }) => (
-                      <button
-                        key={id}
-                        onClick={() => setSelectedCategory(id)}
-                        className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
-                          selectedCategory === id
-                            ? "bg-blue-50 text-primary"
-                            : "hover:bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {name}
-                      </button>
-                    ))
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {filteredChildren.map(({ parentId, id, name, image }) => (
+                        <div
+                          key={id}
+                          className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative transition ${
+                            selectedChildren.includes(id)
+                              ? "border-success bg-green-300/10 text-success"
+                              : "hover:bg-blue-500/10 hover:border-blue-500/15"
+                          }`}
+                          onClick={() => toggleChildSelection(id)}
+                        >
+                          <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
+                            <img
+                              src={image}
+                              alt={name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
+                            {name}
+                          </div>
+                          {selectedChildren.includes(id) && (
+                            <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
+                              <i className="ki-filled ki-check text-sm text-light"></i>
+                              {/* &#10003; */}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
-          {/* two */}
-          <div className="col-span-6">
-            <div className="border-b p-3 lg:p-4 bg-light flex items-center gap-3">
-              <div className="select__grp flex flex-col w-full">
-                <div className="sg__inner flex items-center gap-1 relative">
-                  <div className="relative w-full">
-                    <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                    <input
-                      type="text"
-                      className="input pl-8"
-                      placeholder="Search items"
-                      value={childSearch}
-                      onChange={(e) => setChildSearch(e.target.value)}
-                    />
-                  </div>
-                  <Tooltip title="Start speech to text">
-                    <button
-                      type="button"
-                      onClick={() => handleAddClick("Manager")}
-                      title="Add"
-                      className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-                    >
-                      <i className="ki-filled ki-plus"></i>
-                    </button>
-                  </Tooltip>
-                  <Tooltip title="Add menu item">
-                    <button
-                      type="button"
-                      onClick={() => handleAddClick("Manager")}
-                      title="Add"
-                      className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-                    >
-                      <Mic size={18} />
-                    </button>
-                  </Tooltip>
-                </div>
-              </div>
-              <Tooltip title="Collapse">
-                <button
-                  type="button"
-                  title="Collapse"
-                  className="sga__btn flex items-center justify-center rounded-full p-0"
-                >
-                  <PanelLeftOpen
-                    className="text-primary stroke-2"
-                    style={{ width: "24px" }}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <div className="flex-1 p-3 lg:p-4 max-h-[650px] overflow-auto scrollable-y">
-              {filteredChildren.length === 0 ? (
-                <div className="p-2 text-gray-400 text-xs text-center">
-                  No items found
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {filteredChildren.map(({ parentId, id, name, image }) => (
-                    <div
-                      key={id}
-                      className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative transition ${
-                        selectedChildren.includes(id)
-                          ? "border-success bg-green-300/10 text-success"
-                          : "hover:bg-blue-500/10 hover:border-blue-500/15"
-                      }`}
-                      onClick={() => toggleChildSelection(id)}
-                    >
-                      <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
-                        <img
-                          src={image}
-                          alt={name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
-                        {name}
-                      </div>
-                      {selectedChildren.includes(id) && (
-                        <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
-                          <i className="ki-filled ki-check text-sm text-light"></i>
-                          {/* &#10003; */}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
           {/* three */}
-          <div className="col-span-3">
+          <div className="col-span-3  -mt-10 ">
             <div className="h-full lg:border-s lg:border-s-border shrink-0 bg-muted/15">
               <div className="border-b p-3 lg:p-4 bg-muted/15 rounded-t-lg">
                 <div className="flex items-center justify-between mb-2">
@@ -242,10 +320,7 @@ const EventPreparationPage = () => {
                     <input
                       type="number"
                       min={1}
-                      value={300}
-                      readOnly
                       className="input input-sm w-20"
-                      disabled
                     />
                   </p>
                   <p className="flex items-center gap-2">
@@ -256,13 +331,7 @@ const EventPreparationPage = () => {
                       <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
                       {/* 27/07/2025 11:00 AM */}
                     </strong>
-                    <input
-                      type="text"
-                      value="27/07/2025 11:00 AM"
-                      readOnly
-                      className="input input-sm w-36"
-                      disabled
-                    />
+                    <input type="text" className="input input-sm w-36" />
                   </p>
                   <p className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-700 w-24">

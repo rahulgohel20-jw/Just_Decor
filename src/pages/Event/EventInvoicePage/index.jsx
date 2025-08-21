@@ -60,12 +60,14 @@ const EventInvoicePage = () => {
       </style>
       <Container>
         {/* Breadcrumbs */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
+        </div>
+        <div className="flex mb-4">
           <Button
-            className="bg-[#F2FAFD] rounded-lg text-[#004986] border-[#004986] font-semibold 
-                       hover:!bg-[#004986] hover:!text-[#ffff] hover:!border-[#0000] 
-                       shadow-addGuest flex items-center gap-2"
+            className="ml-auto bg-[#F2FAFD] rounded-lg text-[#004986] border-[#004986] font-semibold 
+                      hover:!bg-[#004986] hover:!text-[#ffff] hover:!border-[#0000] 
+                      shadow-addGuest flex items-center gap-2"
             onClick={handleAddInvoice}
           >
             Add Invoice
