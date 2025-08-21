@@ -61,7 +61,7 @@ const TutorialsPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Tutorials" }]} />
         </div>
         {/* filters */}
@@ -95,9 +95,7 @@ const TutorialsPage = () => {
                   <h3 className="text-base text-gray-900 mb-4 font-semibold">
                     {tutorial.title}
                   </h3>
-                  <p className="text-sm text-gray-900">
-                    {tutorial.desc}
-                  </p>
+                  <p className="text-sm text-gray-900">{tutorial.desc}</p>
                 </div>
               </a>
             </div>

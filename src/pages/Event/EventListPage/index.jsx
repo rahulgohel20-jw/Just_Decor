@@ -43,13 +43,11 @@ const EventListPage = () => {
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -70,7 +68,7 @@ const EventListPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
         {/* filters */}

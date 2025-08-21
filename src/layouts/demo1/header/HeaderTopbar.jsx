@@ -31,14 +31,15 @@ const HeaderTopbar = () => {
   };
   return (
     <div className="flex items-center gap-2 lg:gap-3.5">
-      <Button
-        className=" btn-primary"
+      <button
         onClick={() => {
           setPriceModal(true);
         }}
+        className="btn btn-sm btn-primary"
+        title="Upgrade"
       >
         Upgrade
-      </Button>
+      </button>
       <button
         onClick={() => setCheckInModal(true)}
         className="btn btn-sm btn-success"
@@ -55,7 +56,6 @@ const HeaderTopbar = () => {
       </button>
       {/* Search */}
       <ModalSearch open={searchModalOpen} onOpenChange={handleClose} />
-
       {/* whatsapp */}
       <Menu>
         <MenuItem

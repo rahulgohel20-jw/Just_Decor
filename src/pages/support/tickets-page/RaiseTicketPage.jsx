@@ -3,8 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import Addticket from "@/partials/modals/add-ticket/Addticket";
 const RaiseTicketPage = () => {
-
-   const [isAddticketOpen, setIsAddticketOpen] = useState(false);
+  const [isAddticketOpen, setIsAddticketOpen] = useState(false);
 
   const [editData] = useState(null);
   const handleModalOpen = () => {
@@ -17,7 +16,7 @@ const RaiseTicketPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Raise Tickets" }]} />
         </div>
         {/* filters */}
@@ -46,11 +45,11 @@ const RaiseTicketPage = () => {
             </div>
           </div>
         </div>
-         <Addticket
-        isModalOpen={isAddticketOpen}
-        setIsModalOpen={setIsAddticketOpen}
-        editData={{}}
-      />
+        <Addticket
+          isModalOpen={isAddticketOpen}
+          setIsModalOpen={setIsAddticketOpen}
+          editData={{}}
+        />
       </Container>
     </Fragment>
   );

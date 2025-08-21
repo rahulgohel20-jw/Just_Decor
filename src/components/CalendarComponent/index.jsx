@@ -59,10 +59,10 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
             content: `
               <div class="p-1">
                 <p class="mb-1"><strong>${event.title}</strong></p>
-                <p><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>
-                <p><i class="me-1 ki-filled ki-call text-success"></i><span>${mobile}</span></p>
-                <p><i class="me-1 ki-filled ki-time text-success"></i><span>${time}</span></p>
-                <p><i class="me-1 ki-filled ki-geolocation text-success"></i><span>${address}</span></p>
+                <p class="mb-1"><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>
+                <p class="mb-1"><i class="me-1 ki-filled ki-call text-success"></i><span>${mobile}</span></p>
+                <p class="mb-1"><i class="me-1 ki-filled ki-time text-success"></i><span>${time}</span></p>
+                <p class="mb-1"><i class="me-1 ki-filled ki-geolocation text-success"></i><span>${address}</span></p>
               </div>
             `,
             allowHTML: true,

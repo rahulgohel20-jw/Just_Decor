@@ -15,30 +15,27 @@ const AttendanceSetting = () => {
       label: (
         <>
           {/* <User className="text-primary" /> */}
-          
           Register Face
         </>
       ),
-      children: <RegisterFace/>,
+      children: <RegisterFace />,
     },
     {
       value: "bulkdata",
       label: (
         <>
           {/* <DatabaseIcon className="text-primary" /> */}
-          
           Reminder
         </>
       ),
       children: <Reminder />,
     },
-    
   ];
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Attendance Settings" }]} />
         </div>
         <TabComponent tabs={tabs} />

@@ -9,15 +9,15 @@ const EventsPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
         <div className="card min-w-full">
           <div className="card-table">
-              <h1 className="text-center p-10">Events content here</h1>
+            <h1 className="text-center p-10">Events content here</h1>
           </div>
         </div>
-        </Container>
+      </Container>
     </Fragment>
   );
 };

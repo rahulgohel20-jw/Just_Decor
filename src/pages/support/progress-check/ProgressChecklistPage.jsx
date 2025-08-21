@@ -44,14 +44,18 @@ export const ProgressChecklistPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
+        <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Progress Checklist" }]} />
         </div>
-        
+
         <div className="mb-3 flex items-center gap-2.5">
           <p className="text-sm font-semibold text-gray-900">Your Progress:</p>
-          <p className="text-sm font-semibold text-gray-900">{completedItems.length}/{checklistItems.length}</p>
-          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{progressPercent}%</div>
+          <p className="text-sm font-semibold text-gray-900">
+            {completedItems.length}/{checklistItems.length}
+          </p>
+          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            {progressPercent}%
+          </div>
         </div>
 
         {/* Checklist */}
@@ -60,9 +64,11 @@ export const ProgressChecklistPage = () => {
             const isDone = completedItems.includes(index);
             return (
               <div className="flex items-center justify-between px-4 py-3 border-b hover:bg-gray-50 transition">
-                <div className="flex items-center gap-3 cursor-pointer" 
-                key={index}
-                onClick={() => toggleComplete(index)}>
+                <div
+                  className="flex items-center gap-3 cursor-pointer"
+                  key={index}
+                  onClick={() => toggleComplete(index)}
+                >
                   {isDone ? (
                     <CheckSquare className="text-success" size={20} />
                   ) : (
@@ -76,7 +82,12 @@ export const ProgressChecklistPage = () => {
                     {index + 1}. {item}
                   </span>
                 </div>
-                <div className="btn btn-sm btn-light p-0 w-7 h-7 flex items-center justify-center" title="Watch Video"><i className="ki-filled ki-to-right ps-0.5"></i></div>
+                <div
+                  className="btn btn-sm btn-light p-0 w-7 h-7 flex items-center justify-center"
+                  title="Watch Video"
+                >
+                  <i className="ki-filled ki-to-right ps-0.5"></i>
+                </div>
               </div>
             );
           })}

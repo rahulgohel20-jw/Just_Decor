@@ -4,9 +4,6 @@ import { Container } from "@/components/container";
 import AddContact from "@/partials/modals/add-contact/AddContact";
 import { toAbsoluteUrl } from "@/utils";
 import { CommonHexagonBadge } from "@/partials/common";
-import ViewContact from "../../partials/modals/add-contact/ViewContact";
-import { Navbar, NavbarActions } from "@/partials/navbar";
-import { PageMenu } from "@/pages/public-profile";
 import { Tooltip } from "antd";
 
 const ContactDetail = () => {
