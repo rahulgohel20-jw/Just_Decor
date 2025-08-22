@@ -1,9 +1,7 @@
 import { DataGridColumnHeader } from "@/components";
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
-
 // import { Children } from "react";
-
 // export const menuCategoryChildren = [
 //   // WELCOME DRINKS AND SPRITZERS
 //   {
@@ -680,34 +678,23 @@ export const columns = [
   {
     accessorKey: "status",
     header: "Status",
+    align: "center",
     cell: () => {
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-1">
           <Tooltip title="View">
-            <Link to="">
-              <button
-                className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-                title="View"
-              >
-                <i className="ki-filled ki-eye text-purple-700"></i>
-              </button>
-            </Link>
-          </Tooltip>
-          <Tooltip title="Edit">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-              title="Edit"
-            >
-              <i className="ki-filled ki-notepad-edit text-blue-700"></i>
+            <button className="btn btn-sm btn-icon btn-clear" title="View">
+              <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip>
-
+          <Tooltip title="Edit">
+            <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
+            </button>
+          </Tooltip>
           <Tooltip title="Delete">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-danger border border-[#E3E3E3]"
-              title="Delete"
-            >
-              <i className="ki-filled ki-trash"></i>
+            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+              <i className="ki-filled ki-trash  text-danger"></i>
             </button>
           </Tooltip>
         </div>

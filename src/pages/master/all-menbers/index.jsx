@@ -19,7 +19,6 @@ const AllMemberMaster = () => {
 
   const [tableData, setTableData] = useState();
 
-
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
@@ -42,25 +41,20 @@ const AllMemberMaster = () => {
         ),
         invoice: (
           <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Invoice">
+              <div className="flex justify-center items-center w-full">
+                <Receipt className="w-5 h-5 text-success" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -68,7 +62,7 @@ const AllMemberMaster = () => {
     });
     return data;
   };
-useEffect(() => {
+  useEffect(() => {
     setTableData(responseFormate());
   }, []);
   return (
@@ -93,21 +87,19 @@ useEffect(() => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Member"
-              >
-                <i className="ki-filled ki-plus"></i> Member
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsMemberModalOpen(true)}
+              title="Add Member"
+            >
+              <i className="ki-filled ki-plus"></i> Add Member
+            </button>
           </div>
         </div>
-        <AddMember 
-        isModalOpen={isMemberModalOpen}
-        setIsModalOpen={setIsMemberModalOpen}
-      />
+        <AddMember
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+        />
         <TableComponent
           columns={columns}
           data={tableData}
