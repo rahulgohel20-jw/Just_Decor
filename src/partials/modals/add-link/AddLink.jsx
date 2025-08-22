@@ -8,6 +8,14 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
     setIsModalOpen(false);
   };
 
+  const [formData, setFormData] = useState({
+      link_type:"",
+      name:'',
+      description:'',
+      url:''
+    });
+
+  const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("tab_1");
 
   const renderTabContent = () => {
@@ -20,6 +28,13 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
+  const handleInputChange = ({ target: { value, name } }) => {
+    setFormData({ ...formData, [name]: value });
+  };
+  const handleSave = () =>{
+
+    setIsModalOpen(false);
+  }
   return (
     isModalOpen && (
       <CustomModal
@@ -37,7 +52,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-success" title="Save">
+            <button key="save" className="btn btn-success" title="Save" onClick={handleSave}>
               Save
             </button>
           </div>,
@@ -45,6 +60,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
       >
         <div className="flex flex-col gap-y-2">
           <div className="flex flex-col">
+            <label className="form-label">Select Type</label>
             <select className="select pe-7.5">
               <option value="0">Please select</option>
               <option value="1">Sales</option>
@@ -57,29 +73,45 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
             </select>
           </div>
           <div className="flex flex-col">
+            <label className="form-label">Link Name</label>
             <div className="input">
-              <input className="h-full" type="text" placeholder="Link Name" />
+              <input className="h-full" type="text" value={formData.name} name={'name'} onChange={handleInputChange} placeholder="Link Name" />
             </div>
           </div>
           <div className="flex flex-col">
+            <label className="form-label">Description</label>
             <textarea
               rows={4}
               type="text"
+              value={formData.description} 
+              name={'description'} 
+              onChange={handleInputChange}
               className="textarea h-full"
               placeholder="Description here"
             />
           </div>
           <div className="flex flex-col">
-            <FileUploadComponent type="file" />
-          </div>
-          <div className="flex flex-col">
-
-<div className="input">
-              <input className="h-full" type="text" placeholder="URl" />
+            <label className="form-label">URL</label>
+            <div className="input">
+              <input className="h-full" type="text"
+              value={formData.url} 
+              name={'url'} 
+              onChange={handleInputChange}
+              placeholder="URl" />
             </div>
           </div>
+          <div className="flex flex-col">
+            <label className="form-label">Document</label>
+            <input className="h-full"
+             type="file"
+              value={formData.url} 
+              name={'url'} 
+              onChange={handleInputChange}
+              placeholder="URl" />
+            {/* <FileUploadComponent type="file" /> */}
+          </div>
         </div>
-        {renderTabContent()}
+        {/* {renderTabContent()} */}
       </CustomModal>
     )
   );
