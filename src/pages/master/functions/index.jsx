@@ -34,25 +34,20 @@ const FunctionsMaster = () => {
         ),
         invoice: (
           <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Invoice">
+              <div className="flex justify-center items-center w-full">
+                <Receipt className="w-5 h-5 text-success" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -91,21 +86,19 @@ const FunctionsMaster = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Function"
-              >
-                <i className="ki-filled ki-plus"></i> Function
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsMemberModalOpen(true)}
+              title="Add Function"
+            >
+              <i className="ki-filled ki-plus"></i> Add Function
+            </button>
           </div>
         </div>
-        <AddFunctionType 
-        isOpen={isMemberModalOpen}
-        onClose={setIsMemberModalOpen}
-      />
+        <AddFunctionType
+          isOpen={isMemberModalOpen}
+          onClose={setIsMemberModalOpen}
+        />
         <TableComponent
           columns={columns}
           data={tableData}

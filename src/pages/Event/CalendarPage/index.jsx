@@ -62,7 +62,7 @@ const CalendarPage = () => {
               navigate("/add-event");
             }}
           >
-            <i class="ki-filled ki-plus"></i> Add Event
+            <i className="ki-filled ki-plus"></i> Add Event
           </button>
         </div>
         <CalendarComponent
