@@ -75,11 +75,11 @@ const OrderDetail = () => {
 
         {/* Column 3 → Buttons */}
         <div className="flex flex-col items-end justify-start gap-3">
-         <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
-        <i class="ki-filled ki-printer"></i>   Print
+          <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
+            <i className="ki-filled ki-printer"></i> Print
           </button>
           <button className=" btn btn-primary px-4 py-2  rounded-md shadow w-28">
-           <i class="ki-filled ki-share"></i> Share
+            <i className="ki-filled ki-share"></i> Share
           </button>
         </div>
       </div>

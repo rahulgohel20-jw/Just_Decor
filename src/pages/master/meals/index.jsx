@@ -11,7 +11,6 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 
-
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 
 const MealMaster = () => {
@@ -19,7 +18,6 @@ const MealMaster = () => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [tableData, setTableData] = useState();
-
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -43,25 +41,20 @@ const MealMaster = () => {
         ),
         invoice: (
           <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Invoice">
+              <div className="flex justify-center items-center w-full">
+                <Receipt className="w-5 h-5 text-success" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -69,7 +62,7 @@ const MealMaster = () => {
     });
     return data;
   };
-useEffect(() => {
+  useEffect(() => {
     setTableData(responseFormate());
   }, []);
   return (
@@ -94,21 +87,16 @@ useEffect(() => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Meal"
-              >
-                <i className="ki-filled ki-plus"></i> Meal
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsMemberModalOpen(true)}
+              title="Add Meal"
+            >
+              <i className="ki-filled ki-plus"></i> Add Meal
+            </button>
           </div>
         </div>
-        <AddMeal
-        isOpen={isMemberModalOpen}
-        onClose={setIsMemberModalOpen}
-      />
+        <AddMeal isOpen={isMemberModalOpen} onClose={setIsMemberModalOpen} />
         <TableComponent
           columns={columns}
           data={tableData}

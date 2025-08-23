@@ -62,7 +62,6 @@ const EventBasicInfoStep = ({
               <span className="text-red-500">{errors.event_date}</span>
             )}
           </div>
-
           <div className="select__grp flex flex-col">
             <label className="form-label">Venue</label>
             <SpeechToText
@@ -85,7 +84,6 @@ const EventBasicInfoStep = ({
                 value={formData.event_type}
                 onChange={onInputChange}
               />
-
               <button
                 type="button"
                 onClick={() => setIsEventTypeModalOpen(true)}
@@ -99,7 +97,6 @@ const EventBasicInfoStep = ({
               <span className="text-red-500">{errors.event_type}</span>
             )}
           </div>
-
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">Manager</label>

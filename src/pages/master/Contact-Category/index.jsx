@@ -36,25 +36,20 @@ const ContactCategoryMaster = () => {
         ),
         invoice: (
           <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Invoice">
+              <div className="flex justify-center items-center w-full">
+                <Receipt className="w-5 h-5 text-success" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -93,21 +88,19 @@ const ContactCategoryMaster = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Contact Category"
-              >
-                <i className="ki-filled ki-plus"></i> Contact Category
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsMemberModalOpen(true)}
+              title="Add Contact Category"
+            >
+              <i className="ki-filled ki-plus"></i> Add Contact Category
+            </button>
           </div>
         </div>
-        <AddContactCategory 
-        isOpen={isMemberModalOpen}
-        onClose={setIsMemberModalOpen}
-      />
+        <AddContactCategory
+          isOpen={isMemberModalOpen}
+          onClose={setIsMemberModalOpen}
+        />
         <TableComponent
           columns={columns}
           data={tableData}
