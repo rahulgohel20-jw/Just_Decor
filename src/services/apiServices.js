@@ -19,3 +19,8 @@ export const updateRole = (roleId, data) => {
 export const deleteRole = (roleId) => {
   return DELETE(`/role_master/${roleId}/role_id`);
 };
+
+//Login api
+export const LoginUser = (data) => {
+  return POST("/v1/api/auth/login", data);
+};
