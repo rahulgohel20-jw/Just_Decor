@@ -80,6 +80,7 @@ const useStyles = makeStyles({
       },
       "& .fc-button": {
         borderRadius: "0.375rem",
+        paddingInline: "1.25em",
         fontSize: "0.8125rem",
         height: "38px",
         "&.fc-today-button": {
