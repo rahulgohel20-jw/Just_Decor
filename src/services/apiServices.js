@@ -19,3 +19,12 @@ export const updateRole = (roleId, data) => {
 export const deleteRole = (roleId) => {
   return DELETE(`/role_master/${roleId}/role_id`);
 };
+
+
+export const GetAllPlans = () => {
+  return GET(`/plans/getall`);
+};
+
+export const GetAllRole = () => {
+  return GET(`/rolemaster/getall`);
+};
