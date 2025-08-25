@@ -9,7 +9,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   const [formData, setFormData] = useState({
-      link_type:"",
+      type:"",
       name:'',
       description:'',
       url:''
