@@ -104,11 +104,11 @@ const QuotationPage = () => {
           <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
             <div>
               <span className="font-medium text-gray-600">Customer Name:</span>{" "}
-              <span className="text-gray-900">{details.customerName}</span>
+              <span className="text-gray-900">{form.customer_name}</span>
             </div>
             <div>
               <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
-              <span className="text-gray-900">{details.mobileNumber}</span>
+              <span className="text-gray-900">{form.mobile_number}</span>
             </div>
 
             {/* Order Info */}

@@ -9,7 +9,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   const [formData, setFormData] = useState({
-      link_type:"",
+      type:"",
       name:'',
       description:'',
       url:''
@@ -17,16 +17,6 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
 
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("tab_1");
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "tab_1":
-        return <div id="tab_1" className="tab-content active"></div>;
-
-      default:
-        return null;
-    }
-  };
 
   const handleInputChange = ({ target: { value, name } }) => {
     setFormData({ ...formData, [name]: value });
@@ -40,7 +30,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Link"
+        title="Add New Link"
         width={500}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -53,7 +43,7 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
               Cancel
             </button>
             <button key="save" className="btn btn-success" title="Save" onClick={handleSave}>
-              Save
+              Save Link
             </button>
           </div>,
         ]}
@@ -102,16 +92,9 @@ const AddLink = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div className="flex flex-col">
             <label className="form-label">Document</label>
-            <input className="h-full"
-             type="file"
-              value={formData.url} 
-              name={'url'} 
-              onChange={handleInputChange}
-              placeholder="URl" />
-            {/* <FileUploadComponent type="file" /> */}
+            <FileUploadComponent type="file" />
           </div>
         </div>
-        {/* {renderTabContent()} */}
       </CustomModal>
     )
   );

@@ -9,6 +9,11 @@
 /* Shadcn UI */
 @import "shadcn.ui";
 
+html,
+:host {
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
 .font-14 {
   font-size: 14px !important;
 }
