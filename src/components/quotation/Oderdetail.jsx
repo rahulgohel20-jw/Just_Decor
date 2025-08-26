@@ -75,16 +75,14 @@ const OrderDetail = () => {
 
         {/* Column 3 → Buttons */}
         <div className="flex flex-col items-end justify-start gap-3">
-<<<<<<< HEAD
+
             <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
         <i class="ki-filled ki-"></i>  Clone to Invoice
           </button>
          <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
-        <i class="ki-filled ki-printer"></i>   Print
-=======
+        <i class="ki-filled ki-printer"></i>   Print</button>
           <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
             <i className="ki-filled ki-printer"></i> Print
->>>>>>> c24b83fa6b2e92b82f1096986bb7336335897663
           </button>
           <button className=" btn btn-primary px-4 py-2  rounded-md shadow w-28">
             <i className="ki-filled ki-share"></i> Share

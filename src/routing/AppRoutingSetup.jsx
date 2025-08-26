@@ -144,7 +144,9 @@ import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
 import EstimatePage from "../pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
-import StateSearchForm from "../pages/StateSearchForm";
+import StateSearchForm from "../pages/StateSearch";
+import AllUser from "../pages/master/user-master/alluser";
+import AllPlan from "../pages/master/user-master/allplan";
 
 const AppRoutingSetup = () => {
   return (
@@ -212,6 +214,7 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
+<Route path="/master/user-master" element={<AllUser />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

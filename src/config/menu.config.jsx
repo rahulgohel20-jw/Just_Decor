@@ -230,6 +230,17 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+   {
+    title: "Users Master",
+    icon: "ki-filled ki-cheque text-primary",
+    children: [
+      {
+        title: "All Users",
+        path: "/master/user-master",
+      },
+      
+    ],
+  },
 ];
 export const MENU_MEGA = [
   {
