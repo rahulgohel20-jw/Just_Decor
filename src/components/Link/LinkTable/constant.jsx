@@ -1,5 +1,6 @@
 import { DataGridColumnHeader } from "@/components";
-import { Tooltip } from "antd";
+import { Tooltip, Popconfirm } from "antd";
+import { underConstruction } from "@/underConstruction";
 export const columns = [
   {
     accessorKey: "link_name",
@@ -31,14 +32,24 @@ export const columns = [
     cell: ({ cell }) => {
       return (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip title="Copy">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-success"
-              title="Copy"
+          <Popconfirm
+              title="Are you sure to copy this item?"
+              onConfirm={() => underConstruction()
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
             >
-              <i className="ki-filled ki-copy"></i>
-            </button>
-          </Tooltip>
+            <Tooltip title="Copy">
+              <button
+                className="btn btn-sm btn-icon btn-clear text-success"
+                title="Copy"
+              >
+                <i className="ki-filled ki-copy"></i>
+              </button>
+            </Tooltip>
+          </Popconfirm>
+          
           <Tooltip title="Edit">
             <button
               className="btn btn-sm btn-icon btn-clear text-primary"
@@ -48,6 +59,14 @@ export const columns = [
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
           </Tooltip>
+          <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => underConstruction()
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear text-danger"
@@ -56,6 +75,7 @@ export const columns = [
               <i className="ki-filled ki-trash"></i>
             </button>
           </Tooltip>
+          </Popconfirm>
         </div>
       );
     },

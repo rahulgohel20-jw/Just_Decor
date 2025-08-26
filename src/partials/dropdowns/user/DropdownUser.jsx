@@ -43,13 +43,13 @@ const DropdownUser = ({ menuItemRef }) => {
               to="/account/hoteme/get-stard"
               className="text-sm text-gray-800 hover:text-primary font-semibold leading-none"
             >
-              {userdata.firstName} {userdata.lastName}
+              {userdata?.firstName} {userdata?.lastName}
             </Link>
             <a
               href="mailto:c.fisher@gmail.com"
               className="text-xs text-gray-600 hover:text-primary font-medium leading-none"
             >
-              {userdata.email}
+              {userdata?.email}
             </a>
           </div>
         </div>

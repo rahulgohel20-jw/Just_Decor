@@ -51,6 +51,14 @@ export const MENU_SIDEBAR = [
         title: "Event Type",
         path: "/master/event-type",
       },
+      {
+        title: "Menu Category",
+        path: "/master/menu-category",
+      },
+      {
+        title: "Menu Item",
+        path: "/master/menu-item",
+      },
     ],
   },
   {
