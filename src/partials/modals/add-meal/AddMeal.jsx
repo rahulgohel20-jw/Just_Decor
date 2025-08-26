@@ -36,7 +36,6 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
     }
 
     if (selectedMeal) {
-      // 🔑 Edit Mode
       const payload = { ...formData, userId: userData.id };
 
       EditMealType(selectedMeal.mealid, payload)
@@ -48,7 +47,6 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
           console.error("Error editing meal:", error);
         });
     } else {
-      // 🔑 Add Mode
       const payload = { ...formData, userId: userData.id };
       AddMealType(payload)
         .then(() => {

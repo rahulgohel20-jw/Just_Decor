@@ -142,6 +142,7 @@ import AllMemberMaster from "@/pages/master/all-menbers";
 import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
+import EventTypeMaster from "@/pages/master/Event-type";
 import EstimatePage from "../pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
 import StateSearchForm from "../pages/StateSearch";
@@ -203,7 +204,7 @@ const AppRoutingSetup = () => {
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
-          <Route  path="/estimate" element={<EstimatePage />} />
+          <Route path="/estimate" element={<EstimatePage />} />
 
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
@@ -215,6 +216,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
 <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/master/event-type" element={<EventTypeMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
@@ -514,7 +516,6 @@ const AppRoutingSetup = () => {
       <Route path="auth/*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
     </Routes>
-    
   );
 };
 export { AppRoutingSetup };

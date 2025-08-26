@@ -1,9 +1,6 @@
 import { Popconfirm, Tooltip } from "antd";
-import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
-import { useEffect, useRef, useState } from "react";
 
-export const columns = [
+export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -20,30 +17,29 @@ export const columns = [
       cellClassName: "w-[8%]",
     },
   },
-  
-  
+
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Contact">
-            
-              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
-                <i className="ki-filled ki-notepad-edit text-primary"></i>
-              </button>
-            
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Edit"
+              onClick={() => onEdit(row.original)}
+            >
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
+            </button>
           </Tooltip>
-        
-          
-          
+
           <Tooltip title="Delete">
             {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={underConstruction}
+              onClick={() => onDelete(row.original.contactid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
@@ -157,18 +153,12 @@ export const columns = [
 ];
 
 export const defaultData = [
-  
-  
-   { sr_no: 1, contact_name: "Friend" },
+  { sr_no: 1, contact_name: "Friend" },
   { sr_no: 2, contact_name: "Colleague" },
   { sr_no: 3, contact_name: "Relative" },
   { sr_no: 4, contact_name: "Business Manager" },
   { sr_no: 5, contact_name: "Friend" },
   { sr_no: 6, contact_name: "Friend" },
   { sr_no: 7, contact_name: "Colleague" },
-  { sr_no: 8, contact_name: "Sales Man" }
-
-
-
-
+  { sr_no: 8, contact_name: "Sales Man" },
 ];

@@ -40,42 +40,40 @@ const AddCustomer = ({
   const parseBirthdate = useCallback((birthdateString) => {
     if (!birthdateString || birthdateString === "-") return "";
     try {
-      let dateStr = birthdateString;
+      let dateStr = birthdateString.trim();
+
+      // Strip time if exists
       if (dateStr.includes(",")) {
         dateStr = dateStr.split(",")[0].trim();
       }
+
+      // dd/MM/yyyy → convert to yyyy-MM-dd
       if (dateStr.includes("/")) {
-        const parts = dateStr.split("/");
-        if (parts.length === 3) {
-          const [day, month, year] = parts;
-          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-            const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-            const testDate = new Date(formattedDate);
-            if (!isNaN(testDate.getTime())) {
-              return formattedDate;
-            }
-          }
-        }
+        const [day, month, year] = dateStr.split("/");
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
       }
+
+      // yyyy-MM-dd → already fine
       if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const testDate = new Date(dateStr);
-        if (!isNaN(testDate.getTime())) {
-          return dateStr;
-        }
+        return dateStr;
       }
-      const testDate = new Date(dateStr);
-      if (!isNaN(testDate.getTime())) {
-        const year = testDate.getFullYear();
-        const month = String(testDate.getMonth() + 1).padStart(2, "0");
-        const day = String(testDate.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+
+      // Fallback: parse with Date
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const da = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${da}`;
       }
+
       return "";
-    } catch (error) {
-      console.warn("Error parsing birthdate:", birthdateString, error);
+    } catch {
       return "";
     }
   }, []);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
     if (isModalOpen && categories.length === 0) {
@@ -89,6 +87,8 @@ const AddCustomer = ({
 
       if (selectedCustomer) {
         const parsedDate = parseBirthdate(selectedCustomer.birthdate);
+        console.log(parsedDate);
+
         setFormData({
           id: selectedCustomer.customerid || "",
           nameEnglish: selectedCustomer.customer || "",
@@ -119,7 +119,7 @@ const AddCustomer = ({
     try {
       const {
         data: { data },
-      } = await GetAllContactCategory();
+      } = await GetAllContactCategory(userData.id);
       setCategories(data["Contact Category Details"] || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -161,7 +161,6 @@ const AddCustomer = ({
   const CustomerAddApi = async () => {
     setIsLoading(true);
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData?.id) {
         throw new Error("User data not found");
       }
