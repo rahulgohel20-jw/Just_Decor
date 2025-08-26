@@ -22,8 +22,8 @@ const ApplicationPage = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Mobile App" }]} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 lg:gap-4 mb-4">
-          <div className="col-span-5 md:col-start-2 flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-200px_center] [background-position:200px_center] bg-no-repeat bg-[length:500px] user-access-bg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4">
+          <div className="col-span-1 flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-200px_center] [background-position:200px_center] bg-no-repeat bg-[length:500px] user-access-bg">
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-primary-clarity"
@@ -56,7 +56,7 @@ const ApplicationPage = () => {
               </button>
             </div>
           </div>
-          <div className="col-span-5 flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-200px_center] [background-position:200px_center] bg-no-repeat bg-[length:500px] user-access-bg">
+          <div className="col-span-1 flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 py-7 px-5 rtl:[background-position:-200px_center] [background-position:200px_center] bg-no-repeat bg-[length:500px] user-access-bg">
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-primary-clarity"

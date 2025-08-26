@@ -1,24 +1,45 @@
-import { useState } from "react";
-import { SelectDropdown } from "@/components/form-components/SelectDropdown";
+import { useState, useEffect } from "react";
+import { Select } from "antd"; // using antd directly (if your SelectDropdown doesn’t have search)
+import { GetAllFunctionsByUserId } from "@/services/apiServices";
 
 const FunctionTypeDropdown = ({ value, onChange, ...rest }) => {
-  const [selectedCompanies, setSelectedCompanies] = useState(value || []);
+  const [options, setOptions] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(value || "");
 
-  const handleChange = (event) => {
-    setSelectedCompanies(event.target.value);
+  useEffect(() => {
+    GetAllFunctionsByUserId()
+      .then((res) => {
+        const data = res?.data?.data?.["Function Details"] || [];
+
+        const mappedOptions = data.map((item) => ({
+          label: item.nameEnglish,
+          value: item.id,
+        }));
+
+        setOptions(mappedOptions);
+      })
+      .catch((err) => {
+        console.error("Error fetching functions:", err);
+      });
+  }, []);
+
+ const handleChange = (event) => {
+    setSelectedValue(event.target.value);
     onChange(event);
   };
 
   return (
-    <SelectDropdown
-      value={selectedCompanies}
+    <Select
+      showSearch
+      allowClear
+      value={selectedValue}
       onChange={handleChange}
-      staticOptions={[
-        { label: "BreakFast", value: "breakfast" },
-        { label: "Lunch", value: "lunch" },
-        { label: "Dinner", value: "dinner" },
-      ]}
-      placeholder={"Please select"}
+      options={options}
+      placeholder="Please select function"
+      filterOption={(input, option) =>
+        option.label.toLowerCase().includes(input.toLowerCase())
+      }
+      style={{ width: "100%" }}
       {...rest}
     />
   );

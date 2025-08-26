@@ -72,7 +72,7 @@ const TaskTemplatePage = () => {
             href="#"
             className="p-5 card flex items-center justify-center border-2 border-dashed border-primary/10 bg-center bg-[length:600px] bg-no-repeat add-new-bg"
           >
-            <i class="ki-filled ki-element-plus"></i>
+            <i className="ki-filled ki-element-plus"></i>
             <h4>Add New Template</h4>
           </a>
         </div>
