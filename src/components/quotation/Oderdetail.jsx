@@ -75,6 +75,9 @@ const OrderDetail = () => {
 
         {/* Column 3 → Buttons */}
         <div className="flex flex-col items-end justify-start gap-3">
+            <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
+        <i class="ki-filled ki-"></i>  Clone to Invoice
+          </button>
          <button className=" btn btn-primary px-4 py-2   rounded-md shadow w-28">
         <i class="ki-filled ki-printer"></i>   Print
           </button>
