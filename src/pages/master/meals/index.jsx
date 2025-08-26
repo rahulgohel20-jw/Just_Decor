@@ -4,7 +4,11 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import useStyle from "./style";
-import { GetMealType, DeleteMealType } from "@/services/apiServices";
+import {
+  GetMealType,
+  DeleteMealType,
+  SearchMealtype,
+} from "@/services/apiServices";
 
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 
@@ -13,9 +17,38 @@ const MealMaster = () => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [tableData, setTableData] = useState();
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     FetchMealType();
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        FetchMealType();
+        return;
+      }
+
+      SearchMealtype(searchQuery, Id)
+        .then(({ data: { data } }) => {
+          if (data && data["MealType Details"]) {
+            const formatted = data["MealType Details"].map((cust, index) => ({
+              sr_no: index + 1,
+              meal_type: cust.nameEnglish || "-",
+              mealid: cust.id,
+            }));
+            setTableData(formatted);
+          } else {
+            setTableData([]);
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching customer:", error);
+        });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
@@ -73,6 +106,8 @@ const MealMaster = () => {
                 className="input pl-8"
                 placeholder="Search Meal"
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
