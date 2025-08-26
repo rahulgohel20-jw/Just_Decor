@@ -2,23 +2,63 @@ import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import TabComponent from "@/components/tab/TabComponent";
+import LinkTable from "@/components/link/LinkTable";
 import AddLink from "../../partials/modals/add-link/AddLink";
-import { columns, defaultData } from "./constant";
+import { tab_value, defaultData } from "./constant";
 const LinkList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
-  const [tableData, setTableData] = useState(responseFormate());
+
+  const [tableData, setTableData] = useState(defaultData);
+  
+  const tabs = [
+    {
+      value: tab_value.sales,
+      label: <><i className="ki-filled ki-chart-line"></i>
+            Sales</>,
+      children: <LinkTable  filterType={tab_value.sales} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.marketing,
+      label: <><i className="ki-filled ki-dollar"></i>
+            Marketing</>,
+      children: <LinkTable  filterType={tab_value.marketing} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.customer_support,
+      label: <> <i className="ki-filled ki-support"></i>
+            Customer Support</>,
+      children: <LinkTable  filterType={tab_value.customer_support} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.hr_admin,
+      label: <><i className="ki-filled ki-user-tick"></i>
+            HR/Admin</>,
+      children: <LinkTable  filterType={tab_value.hr_admin} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.general,
+      label: <> <i className="ki-filled ki-share"></i>
+            General</>,
+      children: <LinkTable  filterType={tab_value.general} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.automation,
+      label: <><i className="ki-filled ki-scan-barcode"></i>
+            Automation</>,
+      children: <LinkTable  filterType={tab_value.automation} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+    {
+      value: tab_value.operation,
+      label: <><i className="ki-filled ki-technology-4"></i>
+            Operation</>,
+      children: <LinkTable  filterType={tab_value.operation} handleModalOpen={handleModalOpen} defaultData={tableData}/>,
+    },
+  ];
+  
   return (
     <Fragment>
       <Container>
@@ -49,41 +89,7 @@ const LinkList = () => {
           </div>
         </div>
         {/* Tabs */}
-        <div className="btn-tabs btn-tabs-lg mb-3 w-full" data-tabs="true">
-          <button className="btn active" title="Sales">
-            <i className="ki-filled ki-chart-line"></i>
-            Sales
-          </button>
-          <button className="btn" title="Marketing">
-            <i className="ki-filled ki-dollar"></i>
-            Marketing
-          </button>
-          <button className="btn" title="Customer Support">
-            <i className="ki-filled ki-support"></i>
-            Customer Support
-          </button>
-          <button className="btn" title="HR/Admin">
-            <i className="ki-filled ki-user-tick"></i>
-            HR/Admin
-          </button>
-          <button className="btn" title="General">
-            <i className="ki-filled ki-share"></i>
-            General
-          </button>
-          <button className="btn" title="Automation">
-            <i className="ki-filled ki-scan-barcode"></i>
-            Automation
-          </button>
-          <button className="btn" title="Operation">
-            <i className="ki-filled ki-technology-4"></i>
-            Operation
-          </button>
-        </div>
-        <TableComponent
-          columns={columns}
-          data={tableData}
-          paginationSize={10}
-        />
+        <TabComponent tabs={tabs} />
       </Container>
       <AddLink isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>

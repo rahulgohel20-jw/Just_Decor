@@ -1,77 +1,60 @@
 import { Fragment, useEffect, useState } from "react";
-import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
-
-import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import useStyle from "./style";
-
-import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
-
+import { GetMealType, DeleteMealType } from "@/services/apiServices";
 
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 
 const MealMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-
+  const [selectedMeal, setSelectedMeal] = useState(null);
   const [tableData, setTableData] = useState();
-
-
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
-
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        proforma_invoice: (
-          // <Link to="/proforma-invoice">
-          <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              onClick={underConstruction}
-            >
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </Tooltip>
-          // </Link>
-        ),
-        invoice: (
-          <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
-          </Link>
-        ),
-        quotation: (
-          <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
-          </Link>
-        ),
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
-useEffect(() => {
-    setTableData(responseFormate());
+  useEffect(() => {
+    FetchMealType();
   }, []);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+  const FetchMealType = () => {
+    GetMealType(Id)
+      .then((res) => {
+        console.log(res);
+        const formatted = res.data.data["MealType Details"].map(
+          (cust, index) => ({
+            sr_no: index + 1,
+            meal_type: cust.nameEnglish || "-",
+            mealid: cust.id,
+          })
+        );
+
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error deleting customer:", error);
+      });
+  };
+
+  const DeleteMealtype = (mealid) => {
+    if (window.confirm("Are you sure you want to delete this customer?")) {
+      DeleteMealType(mealid)
+        .then(() => {
+          FetchMealType();
+        })
+        .catch((error) => {
+          console.error("Error deleting customer:", error);
+        });
+    }
+  };
+
+  const handleEdit = (meal) => {
+    setSelectedMeal(meal);
+    setIsMemberModalOpen(true);
+  };
+
   return (
     <Fragment>
       <Container>
@@ -94,23 +77,26 @@ useEffect(() => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Meal"
-              >
-                <i className="ki-filled ki-plus"></i> Meal
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setSelectedMeal(null);
+                setIsMemberModalOpen(true);
+              }}
+              title="Add Meal"
+            >
+              <i className="ki-filled ki-plus"></i> Add Meal
+            </button>
           </div>
         </div>
         <AddMeal
-        isOpen={isMemberModalOpen}
-        onClose={setIsMemberModalOpen}
-      />
+          isOpen={isMemberModalOpen}
+          onClose={setIsMemberModalOpen}
+          refreshData={FetchMealType}
+          selectedMeal={selectedMeal}
+        />
         <TableComponent
-          columns={columns}
+          columns={columns(handleEdit, DeleteMealtype)}
           data={tableData}
           paginationSize={10}
         />

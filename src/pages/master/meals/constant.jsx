@@ -1,9 +1,6 @@
-import { Popconfirm, Tooltip } from "antd";
-import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
-import { useEffect, useRef, useState } from "react";
+import { Tooltip } from "antd";
 
-export const columns = [
+export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -20,34 +17,31 @@ export const columns = [
       cellClassName: "w-[8%]",
     },
   },
-  
-  
+
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Event">
-            <Link to="/add-event">
-              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
-                <i className="ki-filled ki-notepad-edit text-primary"></i>
-              </button>
-            </Link>
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Edit"
+              onClick={() => onEdit(row.original)}
+            >
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
+            </button>
           </Tooltip>
-        
-          
-          
+
           <Tooltip title="Delete">
-            {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={underConstruction}
+              onClick={() => onDelete(row.original.mealid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
-            {/* </Link> */}
           </Tooltip>
         </div>
       );
@@ -157,17 +151,12 @@ export const columns = [
 ];
 
 export const defaultData = [
-  
-  
-   { sr_no: 1, meal_type: "Jain Meal" },
+  { sr_no: 1, meal_type: "Jain Meal" },
   { sr_no: 2, meal_type: "Vegetarian Meal" },
   { sr_no: 3, meal_type: "Non-Vegetarian Meal" },
   { sr_no: 4, meal_type: "Vegan Meal" },
   { sr_no: 5, meal_type: "Gluten-Free Meal" },
   { sr_no: 6, meal_type: "Keto Meal" },
   { sr_no: 7, meal_type: "Diabetic-Friendly Meal" },
-  { sr_no: 8, meal_type: "Kids Special Meal" }
-
-
-
+  { sr_no: 8, meal_type: "Kids Special Meal" },
 ];

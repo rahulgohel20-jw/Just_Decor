@@ -4,7 +4,6 @@ import clsx from "clsx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { KeenIcon } from "@/components";
-import { toAbsoluteUrl } from "@/utils";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
@@ -21,15 +20,15 @@ const loginSchema = Yup.object().shape({
   remember: Yup.boolean(),
 });
 const initialValues = {
-  email: "demo@keenthemes.com",
-  password: "demo1234",
+  email: "vivek@gmail.com",
+  password: "nI#0WG3zoqpE",
   remember: false,
 };
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthContext();
   const navigate = useNavigate();
-  const from = "/auth/2fa";
+
   const [showPassword, setShowPassword] = useState(false);
   const { currentLayout } = useLayout();
   const formik = useFormik({
@@ -37,26 +36,54 @@ const Login = () => {
     validationSchema: loginSchema,
     onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true);
+      setStatus(null);
+
       try {
         if (!login) {
           throw new Error("JWTProvider is required for this form.");
         }
+
         await login(values.email, values.password);
+
+        if (values.remember) {
+          localStorage.setItem("rememberedEmail", values.email);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+        }
+
         localStorage.setItem("email", values.email);
-        navigate(from, {
-          replace: true,
-        });
-      } catch {
-        setStatus("The login details are incorrect");
+        navigate("/", { replace: true });
+      } catch (error) {
+        console.error("Login error:", error);
+        let errorMessage = "The login details are incorrect";
+
+        if (error.message.includes("Network Error")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Request timed out. Please try again.";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        setStatus(errorMessage);
         setSubmitting(false);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
   const togglePassword = (event) => {
     event.preventDefault();
     setShowPassword(!showPassword);
   };
+  useState(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      formik.setFieldValue("email", rememberedEmail);
+      formik.setFieldValue("remember", true);
+    }
+  });
   return (
     <div className="card max-w-[390px] w-full">
       <form
@@ -73,19 +100,19 @@ const Login = () => {
             securely and easily.
           </span>
         </div>
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}       
+        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>
           <div className="input">
             <i className="ki-filled ki-sms"></i>
             <input
-                placeholder="Enter username"
-                autoComplete="off"
-                {...formik.getFieldProps("email")}
-                className={clsx("form-control", {
-                  "is-invalid": formik.touched.email && formik.errors.email,
-                })}
-              />
+              placeholder="Enter username"
+              autoComplete="off"
+              {...formik.getFieldProps("email")}
+              className={clsx("form-control", {
+                "is-invalid": formik.touched.email && formik.errors.email,
+              })}
+            />
           </div>
           {formik.touched.email && formik.errors.email && (
             <span role="alert" className="text-danger text-xs mt-1">
@@ -156,35 +183,6 @@ const Login = () => {
         >
           {loading ? "Please wait..." : "Login to Your Account"}
         </button>
-        <div className="flex items-center gap-2 my-4">
-          <span className="border-t border-gray-200 w-full"></span>
-          <span className="text-2xs text-gray-500 font-medium uppercase">
-            Or
-          </span>
-          <span className="border-t border-gray-200 w-full"></span>
-        </div>
-        <a href="#" className="btn btn-light btn-sm justify-center py-5">
-          <img
-            src={toAbsoluteUrl("/media/brand-logos/google.svg")}
-            className="size-3.5 shrink-0"
-          />
-          Sign up with Google
-        </a>
-        <div className="flex items-center justify-center mt-3">
-          <span className="text-sm text-gray-700 me-1.5">
-            Don't have an account?
-          </span>
-          <Link
-            to={
-              currentLayout?.name === "auth-branded"
-                ? "/auth/signup"
-                : "/auth/classic/signup"
-            }
-            className="text-2sm link hover:underline font-medium no-underline"
-          >
-            Sign Up
-          </Link>
-        </div>
       </form>
     </div>
   );

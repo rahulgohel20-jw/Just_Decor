@@ -1,72 +1,120 @@
 import { Fragment, useEffect, useState } from "react";
-import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
-import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import useStyle from "./style";
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
-import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
+import {
+  GetAllCustomer,
+  DeleteCustomerApi,
+  SearchCustomerApi,
+} from "@/services/apiServices";
 
 const CustomerMaster = () => {
   const classes = useStyle();
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tableData, setTableData] = useState();
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        proforma_invoice: (
-          // <Link to="/proforma-invoice">
-          <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              onClick={underConstruction}
-            >
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </Tooltip>
-          // </Link>
-        ),
-        invoice: (
-          <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
-          </Link>
-        ),
-        quotation: (
-          <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div
-              className="flex justify-center items-center w-full"
-            >
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
-          </Link>
-        ),
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
-
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
 
   useEffect(() => {
-    setTableData(responseFormate());
+    FetchCustomer();
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        FetchCustomer();
+        return;
+      }
+
+      SearchCustomerApi(searchQuery, Id)
+        .then(({ data: { data } }) => {
+          if (data && data["Party Details"]) {
+            const formatted = data["Party Details"].map((cust, index) => ({
+              sr_no: index + 1,
+              customerid: cust.id,
+              customer: cust.nameEnglish || "-",
+              address: cust.addressEnglish || "-",
+              contact_type: cust.contact.nameEnglish || "-",
+              email: cust.email || "-",
+              mobile: cust.mobileno || "-",
+              gst: cust.gst || "-",
+              birthdate: cust.birthDate || "-",
+              document: cust.document || "-",
+              nameGujarati: cust.nameGujarati || "",
+              nameHindi: cust.nameHindi || "",
+              addressGujarati: cust.addressGujarati || "",
+              addressHindi: cust.addressHindi || "",
+              altMobileno: cust.altMobileno || "",
+              contactCategoryId: cust.contact?.id,
+              image: cust.documentImage || "",
+            }));
+            setTableData(formatted);
+          } else {
+            setTableData([]);
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching customer:", error);
+        });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+  const FetchCustomer = () => {
+    GetAllCustomer(Id)
+      .then(({ data: { data } }) => {
+        const formatted = data["Party Details"].map((cust, index) => ({
+          sr_no: index + 1,
+          customerid: cust.id,
+          customer: cust.nameEnglish || "-",
+          address: cust.addressEnglish || "-",
+          contact_type: cust.contact.nameEnglish || "-",
+          email: cust.email || "-",
+          mobile: cust.mobileno || "-",
+          gst: cust.gst || "-",
+          birthdate: cust.birthDate || "-",
+          document: cust.document || "-",
+          nameGujarati: cust.nameGujarati || "",
+          nameHindi: cust.nameHindi || "",
+          addressGujarati: cust.addressGujarati || "",
+          addressHindi: cust.addressHindi || "",
+          altMobileno: cust.altMobileno || "",
+          contactCategoryId: cust.contact?.id,
+        }));
+
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  };
+
+  const DeleteCustomer = (customerId) => {
+    if (window.confirm("Are you sure you want to delete this customer?")) {
+      DeleteCustomerApi(customerId)
+        .then(() => {
+          FetchCustomer();
+        })
+        .catch((error) => {
+          console.error("Error deleting customer:", error);
+        });
+    }
+  };
+  const handleEditCustomer = (customer) => {
+    setSelectedCustomer(customer);
+    setIsMemberModalOpen(true);
+  };
+
+  const handleAddCustomer = () => {
+    setSelectedCustomer(null);
+    setIsMemberModalOpen(true);
+  };
 
   return (
     <Fragment>
@@ -86,27 +134,29 @@ const CustomerMaster = () => {
                 className="input pl-8"
                 placeholder="Search Customer"
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Customer"
-              >
-                <i className="ki-filled ki-plus"></i> Customer
-              </button>
-            
+            <button
+              className="btn btn-primary"
+              onClick={handleAddCustomer}
+              title="Add Customer"
+            >
+              <i className="ki-filled ki-plus"></i> Add Customer
+            </button>
           </div>
         </div>
-        <AddCustomer 
-        isModalOpen={isMemberModalOpen}
-        setIsModalOpen={setIsMemberModalOpen}
-      />
+        <AddCustomer
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+          selectedCustomer={selectedCustomer}
+          refreshData={FetchCustomer}
+        />
         <TableComponent
-          columns={columns}
+          columns={columns(handleEditCustomer, DeleteCustomer)}
           data={tableData}
           paginationSize={10}
         />

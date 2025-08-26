@@ -22,15 +22,23 @@ const axiosInstance = axios.create({
 // === Set token before request ===
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    config.headers["x-am-authorization"] = token || "__token__";
+    if (config.url?.includes("/v1/api/auth/login")) {
+      const systemToken = localStorage.getItem("token");
+      config.headers["x-am-authorization"] = systemToken || "__token__";
+    } else {
+      const userToken = localStorage.getItem("userToken");
+      if (userToken) {
+        config.headers["Authorization"] = `Bearer ${userToken}`;
+      }
+      const systemToken = localStorage.getItem("token");
+      config.headers["x-am-authorization"] = systemToken || "__token__";
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 // === Token fetch function ===
-//post method to get new token
 const getNewToken = async () => {
   try {
     const response = await fetch(
@@ -88,15 +96,27 @@ axiosInstance.interceptors.response.use(
       try {
         const newToken = await getNewToken();
         console.log(newToken, "newToken");
-
         console.log(localStorage.getItem("token"), "local");
 
-        // Set new token and retry original request
         originalRequest.headers["x-am-authorization"] = newToken;
         return axiosInstance(originalRequest);
       } catch (err) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userData");
+        window.location.href = "/auth/login";
         return Promise.reject(err);
       }
+    }
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest.url?.includes("/v1/api/auth/")
+    ) {
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userData");
+      window.location.href = "/auth/login";
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

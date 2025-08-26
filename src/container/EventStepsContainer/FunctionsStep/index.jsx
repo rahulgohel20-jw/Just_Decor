@@ -210,38 +210,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -278,38 +282,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -346,38 +354,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -414,38 +426,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -482,38 +498,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -550,38 +570,42 @@ const FunctionsStep = ({ formData, setFormData }) => {
                   <div className="card min-w-full">
                     <div className="flex flex-col flex-1">
                       <div className="flex flex-col flex-wrap items-start gap-3 p-4 h-full bg-center bg-[length:500px] bg-no-repeat user-access-bg">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id
                               ? item.customer_id.join(",")
                               : "Title is here"}
                           </h4>
-                          <p class="text-sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-col flex-wrap w-full gap-3 mt-auto">
-                          <div class="flex flex-col">
-                            <div class="text-xs text-gray-600">Location</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-col flex-wrap w-full gap-3 mt-auto">
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600">
+                              Location
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
                               123, Ashram Road, Navrangpura, Ahmedabad - 380009
                             </div>
                           </div>
-                          <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">
+                          <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
                                 Start Date
                               </div>
-                              <div class="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900">
                                 {item.start_date
                                   ? dayjs(item.start_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
                               </div>
                             </div>
-                            <div class="flex flex-col">
-                              <div class="text-xs text-gray-600">End Date</div>
-                              <span class="text-sm font-medium text-gray-900">
+                            <div className="flex flex-col">
+                              <div className="text-xs text-gray-600">
+                                End Date
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
                                 {item.end_date
                                   ? dayjs(item.end_date).format("DD MMM YYYY")
                                   : "DD MM YYYY"}
@@ -627,7 +651,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
                           <h2 className="text-sm text-base leading-none font-bold text-gray-700">
                             Add More Functions
                           </h2>
-                          <p class="text-2sm text-gray-500">
+                          <p className="text-2sm text-gray-500">
                             Please click below to add more functions
                           </p>
                         </div>
@@ -653,23 +677,23 @@ const FunctionsStep = ({ formData, setFormData }) => {
                           <h4 className="text-base font-medium text-gray-900">
                             {item.customer_id ? item.customer_id.join(",") : ""}
                           </h4>
-                          <p class="text-2sm text-gray-700 overflow-hidden text-clip">
+                          <p className="text-2sm text-gray-700 overflow-hidden text-clip">
                             Delegate Tasks and get them completed without manual
                             followups
                           </p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-5 lg:gap-7">
-                          <div class="flex flex-col">
-                            <div class="text-xs">Start Date</div>
-                            <div class="text-sm font-medium text-gray-900">
+                        <div className="flex flex-wrap items-center gap-5 lg:gap-7">
+                          <div className="flex flex-col">
+                            <div className="text-xs">Start Date</div>
+                            <div className="text-sm font-medium text-gray-900">
                               {item.start_date
                                 ? dayjs(item.start_date).format("DD MMM YYYY")
                                 : ""}
                             </div>
                           </div>
-                          <div class="flex flex-col">
-                            <div class="text-xs">End Date</div>
-                            <span class="text-sm font-medium text-gray-900">
+                          <div className="flex flex-col">
+                            <div className="text-xs">End Date</div>
+                            <span className="text-sm font-medium text-gray-900">
                               {item.end_date
                                 ? dayjs(item.end_date).format("DD MMM YYYY")
                                 : ""}
@@ -720,7 +744,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
                       <h2 className="text-sm text-base leading-none font-bold text-gray-700">
                         No functions added yet.
                       </h2>
-                      <p class="text-2sm text-gray-500">
+                      <p className="text-2sm text-gray-500">
                         You haven't created any functions yet, please click the
                         below button to start.
                       </p>

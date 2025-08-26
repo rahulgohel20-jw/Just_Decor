@@ -1,20 +1,10 @@
-import { Input, Button, Form, message, Select, Spin } from "antd";
-import "antd/dist/reset.css";
+import { Input, Select, Button, Form } from "antd";
 import { toAbsoluteUrl } from "@/utils";
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { debounce } from "lodash";
-import ReactCountryFlag from "react-country-flag";
-
-import {
-  fetchCountries,
-  fetchStatesByCountry,
-  fetchCitiesByState,
-} from "../../services/apiServices";
-
+import { useState } from "react";
 const { TextArea } = Input;
-const { Option } = Select;
 
-export default function ProfileForm() {
+export default function ProfileForm({ value, onChange, ...rest }) {
+  const [selectedCompanies, setSelectedCompanies] = useState(value || []);
   const [form] = Form.useForm();
 
   // Country

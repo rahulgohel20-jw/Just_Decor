@@ -401,7 +401,7 @@ const EventPreparationPage = () => {
                                         )
                                       }
                                     >
-                                      <i class="ki-filled ki-trash"></i>
+                                      <i className="ki-filled ki-trash"></i>
                                     </button>
                                   </Tooltip>
                                 </div>
