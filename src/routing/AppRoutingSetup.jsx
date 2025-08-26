@@ -142,6 +142,7 @@ import AllMemberMaster from "@/pages/master/all-menbers";
 import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
+import EventTypeMaster from "@/pages/master/Event-type";
 import { Contact } from "lucide-react";
 
 const AppRoutingSetup = () => {
@@ -208,6 +209,7 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
+          <Route path="/master/event-type" element={<EventTypeMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

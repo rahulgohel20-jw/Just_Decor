@@ -47,6 +47,10 @@ export const MENU_SIDEBAR = [
         title: "Contact Categories",
         path: "/master/contact-categories",
       },
+      {
+        title: "Event Type",
+        path: "/master/event-type",
+      },
     ],
   },
   {
@@ -175,10 +179,6 @@ export const MENU_SIDEBAR = [
       {
         title: "User Roles",
         path: "team/user-role",
-      },
-      {
-        title: "All Members",
-        path: "team/all-members",
       },
     ],
   },
