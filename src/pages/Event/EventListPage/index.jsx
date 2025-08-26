@@ -42,7 +42,7 @@ const EventListPage = () => {
           </Link>
         ),
         quotation: (
-          <Link to="/quotation">
+          <Link to="/estimate">
             <Tooltip className="cursor-pointer" title="Quotation">
               <div className="flex justify-center items-center w-full">
                 <BadgeDollarSign className="w-5 h-5 text-blue-600" />

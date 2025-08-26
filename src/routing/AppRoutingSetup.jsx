@@ -143,7 +143,9 @@ import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
 import EventTypeMaster from "@/pages/master/Event-type";
+import EstimatePage from "../pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
+import StateSearchForm from "../pages/StateSearchForm";
 
 const AppRoutingSetup = () => {
   return (
@@ -151,6 +153,7 @@ const AppRoutingSetup = () => {
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
           {/* project routs */}
+          <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
@@ -199,6 +202,7 @@ const AppRoutingSetup = () => {
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
+          <Route path="/estimate" element={<EstimatePage />} />
 
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
