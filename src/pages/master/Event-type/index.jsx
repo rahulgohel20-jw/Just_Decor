@@ -2,35 +2,28 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns } from "./constant";
-import {
-  GetAllContactCategory,
-  DeleteContactCategory,
-} from "@/services/apiServices";
-import useStyle from "./style";
-
-import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
-
-const ContactCategoryMaster = () => {
-  const classes = useStyle();
-  const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedconatctCategory, setSelectedconatctCategory] = useState(null);
+import { columns, defaultData } from "./constant";
+import AddEventType from "@/partials/modals/add-event-type/AddEventType";
+import { GetEventType, DeleteEventType } from "@/services/apiServices";
+const EventTypeMaster = () => {
+  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [tableData, setTableData] = useState();
-
   useEffect(() => {
-    FetchConatctCategory();
+    FetchEventType();
   }, []);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-  const FetchConatctCategory = () => {
-    GetAllContactCategory(Id)
+  const FetchEventType = () => {
+    GetEventType(Id)
       .then((res) => {
         console.log(res);
-        const formatted = res.data.data["Contact Category Details"].map(
+        const formatted = res.data.data["EventTypes Details"].map(
           (cust, index) => ({
             sr_no: index + 1,
-            contact_name: cust.nameEnglish || "-",
-            contactid: cust.id,
+            event_type: cust.nameEnglish || "-",
+            eventid: cust.id,
           })
         );
 
@@ -41,42 +34,36 @@ const ContactCategoryMaster = () => {
       });
   };
 
-  const DeleteEventtype = (contactid) => {
-    console.log(contactid);
-
+  const DeleteEventtype = (eventid) => {
     if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteContactCategory(contactid)
+      DeleteEventType(eventid)
         .then(() => {
-          FetchConatctCategory();
+          FetchEventType();
         })
         .catch((error) => {
           console.error("Error deleting Event type:", error);
         });
     }
   };
-
   const handleEdit = (event) => {
-    setSelectedconatctCategory(event);
-    setIsContactModalOpen(true);
+    setSelectedEvent(event);
+    setIsEventTypeModalOpen(true);
   };
-
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Contact Category Master" }]} />
+          <Breadcrumbs items={[{ title: "Event Type Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
+          <div className={`flex flex-wrap items-center gap-2`}>
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Contact"
+                placeholder="Search Event"
                 type="text"
               />
             </div>
@@ -84,18 +71,18 @@ const ContactCategoryMaster = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsContactModalOpen(true)}
+              onClick={() => setIsEventTypeModalOpen(true)}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Contact Category
+              <i className="ki-filled ki-plus"></i> Add Event Type
             </button>
           </div>
         </div>
-        <AddContactCategory
-          isOpen={isconatctModalOpen}
-          onClose={setIsContactModalOpen}
-          refreshData={FetchConatctCategory}
-          contactCategory={selectedconatctCategory}
+        <AddEventType
+          isModalOpen={isEventTypeModalOpen}
+          setIsModalOpen={setIsEventTypeModalOpen}
+          refreshData={FetchEventType}
+          selectedEvent={selectedEvent}
         />
         <TableComponent
           columns={columns(handleEdit, DeleteEventtype)}
@@ -106,4 +93,4 @@ const ContactCategoryMaster = () => {
     </Fragment>
   );
 };
-export default ContactCategoryMaster;
+export default EventTypeMaster;

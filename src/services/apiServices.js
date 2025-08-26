@@ -45,52 +45,79 @@ export const fetchCityById = (id) =>
 
 //Login api
 export const LoginUser = (data) => {
-  return POST("/v1/api/auth/login", data);
+  return POST("/auth/login", data);
 };
 //GET All customer
 export const GetAllCustomer = (Id) => {
-  return GET(`/v1/api/partymaster/getallbyuserid?userId=${Id}`);
+  return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
 //Add customer
 export const AddCustomerapi = (data) => {
-  return POST("/v1/api/partymaster/add", data);
+  return POST("/partymaster/add", data);
 };
 
 //Edit customer
 export const EditCustomerApi = (Id, data) => {
-  return PUT(`/v1/api/partymaster/update?id=${Id}`, data);
+  return PUT(`/partymaster/update?id=${Id}`, data);
 };
 //Delete customer
 export const DeleteCustomerApi = (Id) => {
-  return DELETE(`/v1/api/partymaster/deletebyid?id=${Id}`);
+  return DELETE(`/partymaster/deletebyid?id=${Id}`);
 };
 
 //search customer
 export const SearchCustomerApi = (data, Id) => {
-  return GET(
-    `/v1/api/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`
-  );
+  return GET(`/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`);
 };
 //GET All ContactCategory
-export const GetAllContactCategory = () => {
-  return GET("v1/api/contactcategory/getall");
+export const GetAllContactCategory = (Id) => {
+  return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
 
+//Add ContactCategory
+export const Addcontactcategory = (data) => {
+  return POST(`/contactcategory/add`, data);
+};
+//Edit ContactCategory
+export const EditContactCategory = (Id, data) => {
+  return PUT(`/contactcategory/update?id=${Id}`, data);
+};
+//Delete ContactCategory
+export const DeleteContactCategory = (Id) => {
+  return DELETE(`/contactcategory/deletebyid?id=${Id}`);
+};
 //Add Meal Type
 export const AddMealType = (data) => {
-  return POST("/v1/api/mealtype/add", data);
+  return POST("/mealtype/add", data);
 };
 //Get Meal Type
 export const GetMealType = (Id) => {
-  return GET(`/v1/api/mealtype/getallbyuserid?userId=${Id}`);
+  return GET(`/mealtype/getallbyuserid?userId=${Id}`);
 };
 //Edit Meal Type
 export const EditMealType = (Id, data) => {
-  return PUT(`/v1/api/mealtype/update?id=${Id}`, data);
+  return PUT(`/mealtype/update?id=${Id}`, data);
 };
 //Delete Meal Type
 export const DeleteMealType = (Id) => {
-  return DELETE(`/v1/api/mealtype/deletebyid?id=${Id}`);
+  return DELETE(`/mealtype/deletebyid?id=${Id}`);
+};
+//Get Event Type
+export const GetEventType = (Id) => {
+  return GET(`/eventtype/getallbyuserid?userId=${Id}`);
+};
+//Add Event Type
+export const Addeventtype = (data) => {
+  return POST(`/eventtype/add`, data);
+};
+//Edit Event Type
+export const EditEventType = (Id, data) => {
+  return PUT(`/eventtype/update?id=${Id}`, data);
+};
+
+//Delete Event Type
+export const DeleteEventType = (Id) => {
+  return DELETE(`v1/api/eventtype/deletebyid?id=${Id}`);
 };
 
 export const GetAllPlans = () => {
