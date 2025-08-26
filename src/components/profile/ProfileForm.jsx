@@ -6,222 +6,290 @@ const { TextArea } = Input;
 export default function ProfileForm({ value, onChange, ...rest }) {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
   const [form] = Form.useForm();
-  const handleChange = (event) => {
-    setSelectedCompanies(event.target.value);
-    onChange(event);
+
+  // Country
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [countryLoading, setCountryLoading] = useState(false);
+
+  // State
+  const [stateOptions, setStateOptions] = useState([]);
+  const [stateLoading, setStateLoading] = useState(false);
+
+  // City
+  const [cityOptions, setCityOptions] = useState([]);
+  const [cityLoading, setCityLoading] = useState(false);
+
+  // ---------------- COUNTRY ----------------
+  const loadCountries = useCallback(async (search = "") => {
+    setCountryLoading(true);
+    try {
+      const res = await fetchCountries(search);
+      const countries = res?.data?.data?.["Country Details"] || [];
+      setCountryOptions(
+        countries.map((c) => ({
+          id: c.id,
+          value: c.id,
+          code: c.code,
+          name: c.name,
+        }))
+      );
+    } catch {
+      message.error("Failed to load countries");
+    } finally {
+      setCountryLoading(false);
+    }
+  }, []);
+
+  const debouncedCountrySearch = useMemo(
+    () => debounce((val) => loadCountries(val), 500),
+    [loadCountries]
+  );
+
+  // ---------------- STATE ----------------
+  const loadStates = useCallback(async (countryId, search = "") => {
+    if (!countryId) return;
+    setStateLoading(true);
+    try {
+      const res = await fetchStatesByCountry(countryId, search);
+      const states = res?.data?.data?.["state Details"] || [];
+      setStateOptions(
+        states.map((s) => ({
+          id: s.id,
+          value: s.id,
+          name: s.name,
+        }))
+      );
+    } catch {
+      message.error("Failed to load states");
+    } finally {
+      setStateLoading(false);
+    }
+  }, []);
+
+  const debouncedStateSearch = useMemo(
+    () => debounce((val) => loadStates(form.getFieldValue("country"), val), 500),
+    [loadStates, form]
+  );
+
+  // ---------------- CITY ----------------
+  const loadCities = useCallback(async (stateId, search = "") => {
+    if (!stateId) return;
+    setCityLoading(true);
+    try {
+      const res = await fetchCitiesByState(stateId, search);
+      const cities = res?.data?.data?.["City Details"] || [];
+      setCityOptions(
+        cities.map((c) => ({
+          id: c.id,
+          value: c.id,
+          name: c.name,
+        }))
+      );
+    } catch {
+      message.error("Failed to load cities");
+    } finally {
+      setCityLoading(false);
+    }
+  }, []);
+
+  const debouncedCitySearch = useMemo(
+    () => debounce((val) => loadCities(form.getFieldValue("state"), val), 500),
+    [loadCities, form]
+  );
+
+  // ---------------- HANDLERS ----------------
+  const handleCountrySelect = (countryId) => {
+    form.setFieldsValue({ state: undefined, city: undefined });
+    setStateOptions([]);
+    setCityOptions([]);
+    loadStates(countryId);
   };
 
+  const handleStateSelect = (stateId) => {
+    form.setFieldsValue({ city: undefined });
+    setCityOptions([]);
+    loadCities(stateId);
+  };
+
+  // ---------------- INITIAL LOAD ----------------
+  useEffect(() => {
+    loadCountries();
+  }, [loadCountries]);
+
   const onFinish = (values) => {
-    console.log("Form Values:", values);
+    console.log("Form submitted:", values);
+    message.success("Profile saved successfully!");
   };
 
   return (
-    <div className=" bg-white rounded-lg shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)]">
-      <div className="p-6 pb-0 flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <img
-            className="w-16 h-16 rounded-full border-4 border-white object-cover"
-            src={toAbsoluteUrl("/images/user_img.jpg")}
-            alt=""
-          />
-          <div className="flex flex-col">
-            <span className="text-black font-normal">Swapnil Ghodeswar</span>
-            <span className="text-sm text-grey">shreeswapnil@gmail.com</span>
-          </div>
+    <div className="bg-white rounded-lg shadow-md">
+      {/* Header */}
+      <div className="p-6 pb-0 flex flex-row items-center gap-4">
+        <img
+          className="w-16 h-16 rounded-full border-4 border-white object-cover"
+          src={toAbsoluteUrl("/images/user_img.jpg")}
+          alt="profile"
+        />
+        <div className="flex flex-col">
+          <span className="text-black font-normal">Swapnil Ghodeswar</span>
+          <span className="text-sm text-grey">shreeswapnil@gmail.com</span>
         </div>
       </div>
 
-      <div className=" p-6">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          requiredMark="optional"
-        >
+      {/* Form */}
+      <div className="p-6">
+        <Form form={form} layout="vertical" onFinish={onFinish} requiredMark="optional">
+          {/* First & Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item
-              label={
-                <span>
-                  First Name <span className="text-red-500">*</span>
-                </span>
-              }
+              label="First Name"
               name="firstName"
-              rules={[
-                { required: true, message: "Please enter your first name" },
-              ]}
+              rules={[{ required: true, message: "Please enter first name" }]}
             >
-              <Input className="p-2" placeholder="First Name" />
+              <Input placeholder="First Name" />
             </Form.Item>
-
             <Form.Item
-              label={
-                <span>
-                  Last Name <span className="text-red-500">*</span>
-                </span>
-              }
+              label="Last Name"
               name="lastName"
-              rules={[
-                { required: true, message: "Please enter your last name" },
-              ]}
+              rules={[{ required: true, message: "Please enter last name" }]}
             >
-              <Input className="p-2" placeholder="Last Name" />
+              <Input placeholder="Last Name" />
             </Form.Item>
           </div>
 
+          {/* Email & Phone */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item
-              label={
-                <span>
-                  Email ID <span className="text-red-500">*</span>
-                </span>
-              }
+              label="Email ID"
               name="email"
-              rules={[
-                { required: true, message: "Please enter your email" },
-                { type: "email", message: "Please enter a valid email" },
-              ]}
+              rules={[{ required: true, type: "email" }]}
             >
-              <Input className="p-2" placeholder="Email" />
+              <Input placeholder="Email" />
             </Form.Item>
             <Form.Item
-              label={
-                <span>
-                  Phone Number <span className="text-red-500">*</span>
-                </span>
-              }
+              label="Phone Number"
               name="phone"
-              rules={[
-                { required: true, message: "Please enter your phone number" },
-              ]}
+              rules={[{ required: true }]}
             >
-              <Input className="p-2" placeholder="Mobile Number" />
+              <Input placeholder="Phone Number" />
             </Form.Item>
           </div>
 
+          {/* Company */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item
-              label={
-                <span>
-                  Company Name <span className="text-red-500">*</span>
-                </span>
-              }
-              name="companyname"
-              rules={[
-                { required: true, message: "Please enter your Company name" },
-              ]}
+              label="Company Name"
+              name="companyName"
+              rules={[{ required: true }]}
             >
-              <Input className="p-2" placeholder="company Name" />
+              <Input placeholder="Company Name" />
             </Form.Item>
             <Form.Item
-              label={
-                <span>
-                  Company Email<span className="text-red-500">*</span>
-                </span>
-              }
-              name="companyemail"
-              rules={[
-                { required: true, message: "Please enter your Company Email" },
-              ]}
+              label="Company Email"
+              name="companyEmail"
+              rules={[{ required: true, type: "email" }]}
             >
-              <Input className="p-2" placeholder="Company Email" />
+              <Input placeholder="Company Email" />
             </Form.Item>
           </div>
 
+          {/* Address & Office */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item
-              label={
-                <span>
-                  Company Address <span className="text-red-500">*</span>
-                </span>
-              }
-              name="companyaddress"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your Company Address",
-                },
-              ]}
+              label="Company Address"
+              name="companyAddress"
+              rules={[{ required: true }]}
             >
-              <Input className="p-2" placeholder="Company Address" />
+              <Input placeholder="Company Address" />
             </Form.Item>
             <Form.Item
-              label={
-                <span>
-                  Office Number <span className="text-red-500">*</span>
-                </span>
-              }
-              name="phone"
-              rules={[
-                { required: true, message: "Please enter your office number" },
-              ]}
+              label="Office Number"
+              name="officeNumber"
+              rules={[{ required: true }]}
             >
-              <Input className="p-2" placeholder="Office Number" />
+              <Input placeholder="Office Number" />
             </Form.Item>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form.Item
-              label={
-                <span>
-                  State <span className="text-red-500">*</span>
-                </span>
-              }
-              name="state"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your state",
-                },
-              ]}
-            >
-              <Input className="p-2" placeholder="State" />
+          {/* Country - State - City */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Country */}
+            <Form.Item label="Country" name="country" rules={[{ required: true }]}>
+              <Select
+                showSearch
+                placeholder="Select Country"
+                allowClear
+                loading={countryLoading}
+                onSearch={debouncedCountrySearch}
+                onFocus={() => loadCountries()}
+                filterOption={false}
+                notFoundContent={countryLoading ? <Spin size="small" /> : "No country"}
+                onSelect={handleCountrySelect}
+              >
+                {countryOptions.map((c) => (
+                  <Option key={c.id} value={c.value}>
+                    <div className="flex items-center gap-2">
+                      <ReactCountryFlag countryCode={c.code} svg style={{ width: 20, height: 15 }} />
+                      <span>{c.name}</span>
+                    </div>
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
-            <Form.Item
-              label={
-                <span>
-                  City <span className="text-red-500">*</span>
-                </span>
-              }
-              name="city"
-              rules={[{ required: true, message: "Please enter your city" }]}
-            >
-              <Input className="p-2" placeholder="City" />
+
+            {/* State */}
+            <Form.Item label="State" name="state" rules={[{ required: true }]}>
+              <Select
+                showSearch
+                placeholder="Select State"
+                allowClear
+                disabled={!form.getFieldValue("country")}
+                loading={stateLoading}
+                onSearch={debouncedStateSearch}
+                filterOption={false}
+                notFoundContent={stateLoading ? <Spin size="small" /> : "No state"}
+                onSelect={handleStateSelect}
+              >
+                {stateOptions.map((s) => (
+                  <Option key={s.id} value={s.value}>
+                    {s.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {/* City */}
+            <Form.Item label="City" name="city" rules={[{ required: true }]}>
+              <Select
+                showSearch
+                placeholder="Select City"
+                allowClear
+                disabled={!form.getFieldValue("state")}
+                loading={cityLoading}
+                onSearch={debouncedCitySearch}
+                filterOption={false}
+                notFoundContent={cityLoading ? <Spin size="small" /> : "No city"}
+              >
+                {cityOptions.map((c) => (
+                  <Option key={c.id} value={c.value}>
+                    {c.name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </div>
 
-          <Form.Item
-            label={
-              <span>
-                Permitted ID <span className="text-red-500">*</span>
-              </span>
-            }
-            name="permittedId"
-            rules={[{ required: true, message: "Please enter permitted ID" }]}
-          >
-            <Input className="p-2" placeholder=" Permitted ID" />
+          {/* Extra */}
+          <Form.Item label="Permitted ID" name="permittedId" rules={[{ required: true }]}>
+            <Input placeholder="Permitted ID" />
           </Form.Item>
 
-          <Form.Item
-            label={
-              <span>
-                Bio <span className="text-red-500">*</span>
-              </span>
-            }
-            name="bio"
-            rules={[{ required: true, message: "Please enter your bio" }]}
-          >
-            <TextArea
-              rows={4}
-              placeholder="Passionate event manager with over 10 years of experience in creating memorable experiences."
-            />
+          <Form.Item label="Bio" name="bio">
+            <TextArea rows={4} placeholder="Write your bio..." />
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="p-2 bg-green-600 hover:bg-green-700 border-none rounded-md px-8"
-            >
+            <Button type="primary" htmlType="submit">
               Save
             </Button>
           </Form.Item>

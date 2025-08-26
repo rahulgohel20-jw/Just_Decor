@@ -36,46 +36,44 @@
       document: "",
     };
 
-    const [formData, setFormData] = useState(initialFormState);
-    const parseBirthdate = useCallback((birthdateString) => {
-      if (!birthdateString || birthdateString === "-") return "";
-      try {
-        let dateStr = birthdateString;
-        if (dateStr.includes(",")) {
-          dateStr = dateStr.split(",")[0].trim();
-        }
-        if (dateStr.includes("/")) {
-          const parts = dateStr.split("/");
-          if (parts.length === 3) {
-            const [day, month, year] = parts;
-            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-              const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-              const testDate = new Date(formattedDate);
-              if (!isNaN(testDate.getTime())) {
-                return formattedDate;
-              }
-            }
-          }
-        }
-        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          const testDate = new Date(dateStr);
-          if (!isNaN(testDate.getTime())) {
-            return dateStr;
-          }
-        }
-        const testDate = new Date(dateStr);
-        if (!isNaN(testDate.getTime())) {
-          const year = testDate.getFullYear();
-          const month = String(testDate.getMonth() + 1).padStart(2, "0");
-          const day = String(testDate.getDate()).padStart(2, "0");
-          return `${year}-${month}-${day}`;
-        }
-        return "";
-      } catch (error) {
-        console.warn("Error parsing birthdate:", birthdateString, error);
-        return "";
+  const [formData, setFormData] = useState(initialFormState);
+  const parseBirthdate = useCallback((birthdateString) => {
+    if (!birthdateString || birthdateString === "-") return "";
+    try {
+      let dateStr = birthdateString.trim();
+
+      // Strip time if exists
+      if (dateStr.includes(",")) {
+        dateStr = dateStr.split(",")[0].trim();
       }
-    }, []);
+
+      // dd/MM/yyyy → convert to yyyy-MM-dd
+      if (dateStr.includes("/")) {
+        const [day, month, year] = dateStr.split("/");
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      }
+
+      // yyyy-MM-dd → already fine
+      if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return dateStr;
+      }
+
+      // Fallback: parse with Date
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const da = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${da}`;
+      }
+
+      return "";
+    } catch {
+      return "";
+    }
+  }, []);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
 
     useEffect(() => {
       if (isModalOpen && categories.length === 0) {
@@ -87,44 +85,46 @@
       if (isModalOpen) {
         console.log(selectedCustomer, "data");
 
-        if (selectedCustomer) {
-          const parsedDate = parseBirthdate(selectedCustomer.birthdate);
-          setFormData({
-            id: selectedCustomer.customerid || "",
-            nameEnglish: selectedCustomer.customer || "",
-            nameGujarati: selectedCustomer.nameGujarati || "",
-            nameHindi: selectedCustomer.nameHindi || "",
-            addressEnglish: selectedCustomer.address || "",
-            addressGujarati: selectedCustomer.addressGujarati || "",
-            addressHindi: selectedCustomer.addressHindi || "",
-            email: selectedCustomer.email || "",
-            mobileno: selectedCustomer.mobile || "",
-            altMobileno: selectedCustomer.altMobileno || "",
-            gst: selectedCustomer.gst || "",
-            bdate: parsedDate,
-            document: selectedCustomer.document || "",
-            contactCategoryId: selectedCustomer.contactCategoryId || "",
-          });
-          if (selectedCustomer.image) {
-            setImagePreview(`/uploads/${selectedCustomer.image}`);
-          }
-        } else {
-          setFormData(initialFormState);
-          setImagePreview(null);
-        }
-      }
-    }, [selectedCustomer, isModalOpen, parseBirthdate]);
+      if (selectedCustomer) {
+        const parsedDate = parseBirthdate(selectedCustomer.birthdate);
+        console.log(parsedDate);
 
-    const fetchCategories = async () => {
-      try {
-        const {
-          data: { data },
-        } = await GetAllContactCategory();
-        setCategories(data["Contact Category Details"] || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+        setFormData({
+          id: selectedCustomer.customerid || "",
+          nameEnglish: selectedCustomer.customer || "",
+          nameGujarati: selectedCustomer.nameGujarati || "",
+          nameHindi: selectedCustomer.nameHindi || "",
+          addressEnglish: selectedCustomer.address || "",
+          addressGujarati: selectedCustomer.addressGujarati || "",
+          addressHindi: selectedCustomer.addressHindi || "",
+          email: selectedCustomer.email || "",
+          mobileno: selectedCustomer.mobile || "",
+          altMobileno: selectedCustomer.altMobileno || "",
+          gst: selectedCustomer.gst || "",
+          bdate: parsedDate,
+          document: selectedCustomer.document || "",
+          contactCategoryId: selectedCustomer.contactCategoryId || "",
+        });
+        if (selectedCustomer.image) {
+          setImagePreview(`/uploads/${selectedCustomer.image}`);
+        }
+      } else {
+        setFormData(initialFormState);
+        setImagePreview(null);
       }
-    };
+    }
+  }, [selectedCustomer, isModalOpen, parseBirthdate]);
+
+  const fetchCategories = async () => {
+    try {
+      const {
+        data: { data },
+      } = await GetAllContactCategory(userData.id);
+      setCategories(data["Contact Category Details"] || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
     const handleIconClick = () => {
       fileInputRef.current?.click();
@@ -158,25 +158,24 @@
       }
     };
 
-    const CustomerAddApi = async () => {
-      setIsLoading(true);
-      try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData?.id) {
-          throw new Error("User data not found");
-        }
-        const payload = {
-          ...formData,
-          userId: userData.id,
-          bdate: formatDateToDDMMYYYY(formData.bdate),
-        };
-        if (formData.id) {
-          await EditCustomerApi(formData.id, payload);
-        } else {
-          await AddCustomerapi(payload);
-        }
-        setIsModalOpen(false);
-        refreshData();
+  const CustomerAddApi = async () => {
+    setIsLoading(true);
+    try {
+      if (!userData?.id) {
+        throw new Error("User data not found");
+      }
+      const payload = {
+        ...formData,
+        userId: userData.id,
+        bdate: formatDateToDDMMYYYY(formData.bdate),
+      };
+      if (formData.id) {
+        await EditCustomerApi(formData.id, payload);
+      } else {
+        await AddCustomerapi(payload);
+      }
+      setIsModalOpen(false);
+      refreshData();
 
         setFormData(initialFormState);
         setImagePreview(null);
