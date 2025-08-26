@@ -19,3 +19,41 @@ export const updateRole = (roleId, data) => {
 export const deleteRole = (roleId) => {
   return DELETE(`/role_master/${roleId}/role_id`);
 };
+
+
+export const GetAllPlans = () => {
+  return GET(`/plans/getall`);
+};
+
+export const GetAllRole = () => {
+  return GET(`/rolemaster/getall`);
+};
+
+export const AddFunction = (data) => {
+  return POST(`/functionmaster/add`, data);
+};
+
+export const GetAllFunctionsByUserId = () => {
+  return GET(
+    `/functionmaster/getallbyuserid?userId=1`
+  );
+};
+
+export const GetFunctionsByFunctionName = (functionName) => {
+  return GET(
+    `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
+  );
+};
+
+export const DeleteFunctionById = (id) => {
+  return DELETE(
+    `/functionmaster/deletebyid?id=${id}`
+  );
+};
+
+export const UpdateFunctionById = (id, data) => {
+  return PUT(
+    `/functionmaster/updatebyid?id=${id}`,
+    data
+  );
+};
