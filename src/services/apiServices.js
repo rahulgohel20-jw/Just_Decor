@@ -22,30 +22,30 @@ export const deleteRole = (roleId) => {
 
 //Login api
 export const LoginUser = (data) => {
-  return POST("/v1/api/auth/login", data);
+  return POST("/auth/login", data);
 };
 //GET All customer
 export const GetAllCustomer = (Id) => {
-  return GET(`/v1/api/partymaster/getallbyuserid?userId=${Id}`);
+  return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
 //Add customer
 export const AddCustomerapi = (data) => {
-  return POST("/v1/api/partymaster/add", data);
+  return POST("/partymaster/add", data);
 };
 
 //Edit customer
 export const EditCustomerApi = (Id, data) => {
-  return PUT(`/v1/api/partymaster/update?id=${Id}`, data);
+  return PUT(`/partymaster/update?id=${Id}`, data);
 };
 //Delete customer
 export const DeleteCustomerApi = (Id) => {
-  return DELETE(`/v1/api/partymaster/deletebyid?id=${Id}`);
+  return DELETE(`/partymaster/deletebyid?id=${Id}`);
 };
 
 //search customer
 export const SearchCustomerApi = (data, Id) => {
   return GET(
-    `/v1/api/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`
+    `/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`
   );
 };
 //GET All ContactCategory
@@ -55,19 +55,19 @@ export const GetAllContactCategory = () => {
 
 //Add Meal Type
 export const AddMealType = (data) => {
-  return POST("/v1/api/mealtype/add", data);
+  return POST("/mealtype/add", data);
 };
 //Get Meal Type
 export const GetMealType = (Id) => {
-  return GET(`/v1/api/mealtype/getallbyuserid?userId=${Id}`);
+  return GET(`/mealtype/getallbyuserid?userId=${Id}`);
 };
 //Edit Meal Type
 export const EditMealType = (Id, data) => {
-  return PUT(`/v1/api/mealtype/update?id=${Id}`, data);
+  return PUT(`/mealtype/update?id=${Id}`, data);
 };
 //Delete Meal Type
 export const DeleteMealType = (Id) => {
-  return DELETE(`/v1/api/mealtype/deletebyid?id=${Id}`);
+  return DELETE(`/mealtype/deletebyid?id=${Id}`);
 };
 
 export const GetAllPlans = () => {
@@ -98,4 +98,9 @@ export const DeleteFunctionById = (id) => {
 
 export const UpdateFunctionById = (id, data) => {
   return PUT(`/functionmaster/updatebyid?id=${id}`, data);
+};
+
+
+export const EditFunctionById = (id, data) => {
+  return PUT(`/functionmaster/updateid=${id}`, data);
 };

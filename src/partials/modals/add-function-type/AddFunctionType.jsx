@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TimePicker, message } from "antd";
 import { AddFunction } from "@/services/apiServices"; // ✅ your API helper
 import { GetAllFunctionsByUserId } from "@/services/apiServices";
+import SpeechToText from "@/components/form-inputs/SpeechToText";
 
 const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -59,6 +60,7 @@ const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
           <InputWithIcon
             label="Name (English)*"
             value={formData.nameEnglish}
+            
             onChange={(e) => handleChange("nameEnglish", e.target.value)}
           />
           <InputWithIcon
