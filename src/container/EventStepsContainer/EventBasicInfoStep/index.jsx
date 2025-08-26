@@ -50,10 +50,27 @@ const EventBasicInfoStep = ({
           </div>
 
           <div className="flex flex-col">
-            <label className="form-label">Event Date</label>
+            <label className="form-label">Start Event Date</label>
             <DatePicker
               className="input"
-              value={formData.event_date ? dayjs(formData.event_date) : null}
+              value={
+                formData.event_date ? dayjs(formData.start_event_date) : null
+              }
+              onChange={(date) =>
+                setFormData({ ...formData, event_date: date })
+              }
+            />
+            {errors.event_date && (
+              <span className="text-red-500">{errors.event_date}</span>
+            )}
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">End Event Date</label>
+            <DatePicker
+              className="input"
+              value={
+                formData.event_date ? dayjs(formData.end_event_date) : null
+              }
               onChange={(date) =>
                 setFormData({ ...formData, event_date: date })
               }
