@@ -26,6 +26,9 @@ const DropdownUser = ({ menuItemRef }) => {
       themeMode: newThemeMode,
     });
   };
+  let data = localStorage.getItem("userData");
+  let userdata = JSON.parse(data);
+
   const buildHeader = () => {
     return (
       <div className="flex items-center justify-between px-5 py-1.5 gap-1.5">
@@ -40,13 +43,13 @@ const DropdownUser = ({ menuItemRef }) => {
               to="/account/hoteme/get-stard"
               className="text-sm text-gray-800 hover:text-primary font-semibold leading-none"
             >
-              Ragnar Lothbrok
+              {userdata.firstName} {userdata.lastName}
             </Link>
             <a
               href="mailto:c.fisher@gmail.com"
               className="text-xs text-gray-600 hover:text-primary font-medium leading-none"
             >
-              ragnar.lothbrok@gmail.com
+              {userdata.email}
             </a>
           </div>
         </div>

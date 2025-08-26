@@ -1,9 +1,6 @@
 import { Input, Select, Button, Form } from "antd";
-import "antd/dist/reset.css";
 import { toAbsoluteUrl } from "@/utils";
-import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 import { useState } from "react";
-const { Option } = Select;
 const { TextArea } = Input;
 
 export default function ProfileForm({ value, onChange, ...rest }) {
