@@ -38,9 +38,9 @@ export const fetchStateById = (id) =>
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
-export const fetchCityById = (id) =>
-  GET(`/citymaster/getbyid?id=${id}`);
-return DELETE(`/role_master/${roleId}/role_id`);
+// export const fetchCityById = (id) =>
+//   GET(`/citymaster/getbyid?id=${id}`);
+//   return DELETE(`/role_master/${roleId}/role_id`);
 
 
 //Login api
@@ -150,7 +150,9 @@ export const UpdateFunctionById = (id, data) => {
   return PUT(`/functionmaster/updatebyid?id=${id}`, data);
 };
 
-
-export const EditFunctionById = (id, data) => {
-  return PUT(`/functionmaster/updateid=${id}`, data);
+// master
+// allUser APIs
+export const fetchAllUsers = () => {
+  return GET("/user/getall");
+  // ✅ only return the API response body
 };
