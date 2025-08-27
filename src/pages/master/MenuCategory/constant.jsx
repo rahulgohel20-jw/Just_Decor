@@ -10,6 +10,14 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
+    accessorKey: "image",
+    header: "Image",
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
     accessorKey: "category",
     header: "Category",
     meta: {
@@ -17,7 +25,39 @@ export const columns = (onEdit, onDelete) => [
       cellClassName: "w-[8%]",
     },
   },
-
+  {
+    accessorKey: "priority",
+    header: "Priority",
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center  gap-1">
+          <label className="switch switch-lg">
+              <input
+                type="checkbox"
+                value="1"
+                name="check"
+                defaultChecked={row.original.status}
+                readOnly
+                checked={row.original.status}
+                // onChange={() => }
+              />
+            </label>
+        </div>
+      );
+    },
+    meta: {
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
+    },
+  },
   {
     accessorKey: "action",
     header: "Action",
@@ -54,9 +94,9 @@ export const columns = (onEdit, onDelete) => [
 ];
 
 export const defaultData = [
-  { sr_no: 1, category: "Main" },
-  { sr_no: 2, category: "Middel" },
-  { sr_no: 3, category: "Last" },
-  { sr_no: 4, category: "Police" },
-  { sr_no: 5, category: "TEST" },
+  { sr_no: 1, category: "LABENESE COUNTER", image:'', priority: '5', status:1 },
+  { sr_no: 2, category: "WELCOME DRINKS AND SPRITZERS", image:'', priority: '38', status:1},
+  { sr_no: 3, category: "Last", image:'', priority: '27', status:0},
+  { sr_no: 4, category: "Police", image:'', priority: '25', status:1 },
+  { sr_no: 5, category: "TEST", image:'', priority: '88', status:0 },
 ];
