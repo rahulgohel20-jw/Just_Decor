@@ -43,11 +43,7 @@ export const columns = [
     header: "Plan",
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
-  {
-    accessorKey: "price",
-    header: "Price",
-    meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
-  },
+ 
   {
     accessorKey: "isActive",
     header: "Active",

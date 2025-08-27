@@ -238,6 +238,10 @@ export const MENU_SIDEBAR = [
         title: "All Users",
         path: "/master/user-master",
       },
+      {
+        title: "All Plans",
+        path: "/master/user-master/plan",
+      }
       
     ],
   },

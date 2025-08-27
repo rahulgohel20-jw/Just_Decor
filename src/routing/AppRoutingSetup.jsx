@@ -216,7 +216,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
 <Route path="/master/user-master" element={<AllUser />} />
-          <Route path="/master/event-type" element={<EventTypeMaster />} />
+          <Route path="/master/user-master/plan" element={<AllPlan />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

@@ -14,4 +14,9 @@ export const planColumns = [
     header: "Price",
     meta: { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
   },
+  {
+    accessorKey: "billingCycle",
+    header: "Billing Cycle",
+    meta: { headerClassName: "w-[35%]", cellClassName: "w-[35%]" },
+  }
 ];
