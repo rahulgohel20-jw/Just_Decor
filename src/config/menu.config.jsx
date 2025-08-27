@@ -52,13 +52,20 @@ export const MENU_SIDEBAR = [
         path: "/master/event-type",
       },
       {
-        title: "Menu Category",
-        path: "/master/menu-category",
+    title: "Users Master",
+    icon: "ki-filled ki-cheque text-primary",
+    children: [
+      {
+        title: "All Users",
+        path: "/master/user-master",
       },
       {
-        title: "Menu Item",
-        path: "/master/menu-item",
-      },
+        title: "All Plans",
+        path: "/master/user-master/plan",
+      }
+      
+    ],
+  },
     ],
   },
   {
@@ -238,21 +245,7 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-   {
-    title: "Users Master",
-    icon: "ki-filled ki-cheque text-primary",
-    children: [
-      {
-        title: "All Users",
-        path: "/master/user-master",
-      },
-      {
-        title: "All Plans",
-        path: "/master/user-master/plan",
-      }
-      
-    ],
-  },
+   
 ];
 export const MENU_MEGA = [
   {

@@ -1,22 +1,66 @@
+import { underConstruction } from "@/underConstruction";
+import {  Tooltip } from "antd";
 export const planColumns = [
   {
-    accessorKey: "sr_no",
-    header: "#",
-    meta: { headerClassName: "w-[5%]", cellClassName: "w-[5%]" },
+    id: "customerName",
+    header: "Customer Name",
+    accessorKey: "customerName",
   },
   {
-    accessorKey: "name",
+    id: "planName",
     header: "Plan Name",
-    meta: { headerClassName: "w-[40%]", cellClassName: "w-[40%]" },
+    accessorKey: "planName",
   },
   {
-    accessorKey: "price",
-    header: "Price",
-    meta: { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
+    id: "planPrice",
+    header: "Plan Price",
+    accessorKey: "planPrice",
+    cell: (info) =>
+      info.getValue() !== "-" ? `₹${info.getValue()}` : "-",
   },
   {
-    accessorKey: "billingCycle",
+    id: "billingCycle",
     header: "Billing Cycle",
-    meta: { headerClassName: "w-[35%]", cellClassName: "w-[35%]" },
-  }
+    accessorKey: "billingCycle",
+  },
+  {
+    id: "planDescription",
+    header: "Description",
+    accessorKey: "planDescription",
+  },
+  {
+    id: "isPopular",
+    header: "Popular",
+    accessorKey: "isPopular",
+    cell: (info) => (info.getValue() ? " Yes" : " No"),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const data = row.original; // full row data (plan)
+      return (
+        <div className="flex gap-2">
+          <Tooltip className="cursor-pointer" title="Edit Member">
+            
+              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+                <i className="ki-filled ki-notepad-edit text-primary"></i>
+              </button>
+            
+          </Tooltip>
+          <Tooltip title="Delete">
+            {/* <Link to="/menu-allocation"> */}
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Delete"
+              onClick={underConstruction}
+            >
+              <i className="ki-filled ki-trash  text-danger"></i>
+            </button>
+            {/* </Link> */}
+          </Tooltip>
+        </div>
+      );
+    },
+  },
 ];

@@ -22,21 +22,21 @@ export const deleteRole = (roleId) => {
 
 //Country APIs
 export const fetchCountries = (countryName = "") =>
-  GET(`/v1/api/countrymaster/getall?countryName=${countryName}`);
+  GET(`/countrymaster/getall?countryName=${countryName}`);
 
 export const fetchCountryById = (id) => GET(`/v1/api/countrymaster/getbyid?id=${id}`);
 
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(
-    `/v1/api/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
 
 export const fetchStateById = (id) => GET(`/v1/api/statemaster/getbyid?id=${id}`);
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
-  GET(`/v1/api/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
+  GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
 // export const fetchCityById = (id) =>
 //   GET(`/citymaster/getbyid?id=${id}`);
@@ -169,7 +169,7 @@ export const UpdateFunctionById = (id, data) => {
 };
 
 // master
-export const fetchAllUsers = () => GET("/v1/api/user/getall");
+export const fetchAllUsers = () => GET("/user/getall");
 
 
 

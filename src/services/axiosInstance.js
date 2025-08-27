@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
     "x-no-compression": "true",
     
   },
-   baseURL: "/",
+
   timeout: 10000,
 });
 

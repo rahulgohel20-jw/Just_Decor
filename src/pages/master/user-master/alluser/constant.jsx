@@ -47,13 +47,13 @@ export const columns = [
   {
     accessorKey: "isActive",
     header: "Active",
-    cell: ({ getValue }) => (getValue() ? "✅ Yes" : "❌ No"),
+    cell: ({ getValue }) => (getValue() ? " Yes" :  "No"),
     meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
   },
   {
     accessorKey: "isApprove",
     header: "Approved",
-    cell: ({ getValue }) => (getValue() ? "✅ Yes" : "❌ No"),
+    cell: ({ getValue }) => (getValue() ? "Yes" : " No"),
     meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
   },
   {

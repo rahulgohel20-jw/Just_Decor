@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { message, Spin } from "antd";
-import { fetchAllUsers } from "@/services/apiServices"; // Adjust path
+import { fetchAllUsers } from "@/services/apiServices"; 
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { planColumns } from "./constant"; // Define planColumns in a separate constant file
+import { planColumns } from "./constant";
+
 const PlanTable = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
-  const [filteredPlans, setFilteredPlans] = useState([]); // For 
+  const [filteredPlans, setFilteredPlans] = useState([]);
 
   useEffect(() => {
     const getPlans = async () => {
@@ -17,16 +18,21 @@ const PlanTable = () => {
         const response = await fetchAllUsers();
         if (response.data.success) {
           const users = response.data.data["User Details"];
-          // Map user info to plan table
-          const planData = users.map((user) => ({
-            id: user.id,
-            customerName: `${user.firstName} ${user.lastName}`,
-            planName: user.plan?.name || "-",
-            planPrice: user.plan?.price || "-",
-            billingCycle: user.plan?.billingCycle || "-",
-            
-          }));
+
+          // Extract only plan details + customer name
+        const planData = users.map((user) => ({
+  id: user.id,
+  customerName: `${user.firstName} ${user.lastName}`,
+  planName: user.plan?.name || "-",
+  planPrice: user.plan?.price || "-",
+  billingCycle: user.plan?.billingCycle || "-",
+  planDescription: user.plan?.description || "-",
+  isPopular: user.plan?.isPopular || false,
+}));
+
+
           setPlans(planData);
+          setFilteredPlans(planData); // initial table data
         } else {
           message.error(response.data.msg || "Failed to fetch plans");
         }
@@ -41,7 +47,6 @@ const PlanTable = () => {
     getPlans();
   }, []);
 
-  if (loading) return <div className="text-center mt-8">Loading...</div>;
   // Handle search
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -53,11 +58,8 @@ const PlanTable = () => {
     setFilteredPlans(filtered);
   };
 
-  if (loading) return <div className="text-center mt-8">Loading...</div>;
-
   return (
-
-<Container>
+    <Container>
       <div className="gap-2 pb-2 mb-3">
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
@@ -73,10 +75,13 @@ const PlanTable = () => {
       </div>
 
       <Spin spinning={loading}>
-<TableComponent columns={planColumns} data={plans} paginationSize={10} />
+        <TableComponent 
+          columns={planColumns} 
+          data={filteredPlans}   // ✅ use filteredPlans, not plans
+          paginationSize={10} 
+        />
       </Spin>
     </Container>
-
   );
 };
 

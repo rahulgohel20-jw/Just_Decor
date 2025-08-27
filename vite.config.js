@@ -25,12 +25,10 @@ server: {
       target: "http://103.1.101.244:9091",
       changeOrigin: true,
       secure: false,
-      rewrite: (path) => path.replace(/^\/v1\/api/, "/v1/api"), // or just no rewrite
+      rewrite: (path) => path.replace(/^\/api/, ""), 
     },
   },
 },
-
-
 
 
 });
