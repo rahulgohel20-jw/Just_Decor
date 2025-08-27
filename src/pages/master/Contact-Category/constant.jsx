@@ -23,7 +23,7 @@ export const columns = (onEdit, onDelete) => [
     header: "Action",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Contact">
             <button
               className="btn btn-sm btn-icon btn-clear"

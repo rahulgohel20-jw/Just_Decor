@@ -6,6 +6,7 @@ import { columns } from "./constant";
 import {
   GetAllContactCategory,
   DeleteContactCategory,
+  SearchContactCategory,
 } from "@/services/apiServices";
 import useStyle from "./style";
 
@@ -16,10 +17,41 @@ const ContactCategoryMaster = () => {
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedconatctCategory, setSelectedconatctCategory] = useState(null);
   const [tableData, setTableData] = useState();
-
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     FetchConatctCategory();
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        FetchConatctCategory();
+        return;
+      }
+
+      SearchContactCategory(searchQuery, Id)
+        .then(({ data: { data } }) => {
+          if (data && data["Contact Category Details"]) {
+            const formatted = data["Contact Category Details"].map(
+              (cust, index) => ({
+                sr_no: index + 1,
+                contact_name: cust.nameEnglish || "-",
+                contactid: cust.id,
+              })
+            );
+            setTableData(formatted);
+          } else {
+            setTableData([]);
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching customer:", error);
+        });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchConatctCategory = () => {
@@ -78,6 +110,8 @@ const ContactCategoryMaster = () => {
                 className="input pl-8"
                 placeholder="Search Contact"
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>

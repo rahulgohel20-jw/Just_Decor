@@ -4,21 +4,53 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import AddEventType from "@/partials/modals/add-event-type/AddEventType";
-import { GetEventType, DeleteEventType } from "@/services/apiServices";
+import {
+  GetEventType,
+  DeleteEventType,
+  SearchEventType,
+} from "@/services/apiServices";
 const EventTypeMaster = () => {
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [tableData, setTableData] = useState();
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     FetchEventType();
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        FetchEventType();
+        return;
+      }
+
+      SearchEventType(searchQuery, Id)
+        .then(({ data: { data } }) => {
+          if (data && data["EventTypes Details"]) {
+            const formatted = data["EventTypes Details"].map((cust, index) => ({
+              sr_no: index + 1,
+              event_type: cust.nameEnglish || "-",
+              eventid: cust.id,
+            }));
+            setTableData(formatted);
+          } else {
+            setTableData([]);
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching customer:", error);
+        });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchEventType = () => {
     GetEventType(Id)
       .then((res) => {
-        console.log(res);
         const formatted = res.data.data["EventTypes Details"].map(
           (cust, index) => ({
             sr_no: index + 1,
@@ -65,6 +97,8 @@ const EventTypeMaster = () => {
                 className="input pl-8"
                 placeholder="Search Event"
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
