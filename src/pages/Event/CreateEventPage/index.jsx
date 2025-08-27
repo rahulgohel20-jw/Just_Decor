@@ -9,6 +9,7 @@ import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep
 import Functionsdeatils from "@/container/EventStepsContainer/FunctionDetails";
 import { requiredFields } from "./constant";
 import { useLocation } from "react-router";
+import { CreateEventMaster } from "@/services/apiServices";
 
 const CreateEventPage = () => {
   const stepKeys = ["basic_info", "client_info", "functions", "other"];
@@ -147,9 +148,13 @@ const CreateEventPage = () => {
       }
       return;
     }
-
-    console.log("=== FORM SUBMISSION SUCCESSFUL ===");
-    console.log("Complete Form Data:", formData);
+    CreateEventMaster()
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error("Error adding customer:", error);
+      });
     setFormData({
       ...requiredFields.basic_info,
       ...requiredFields.client_info,

@@ -1,47 +1,46 @@
-  import { POST, GET, PUT, DELETE } from "./axiosInstance";
+import { POST, GET, PUT, DELETE } from "./axiosInstance";
 
-  // Create Role
-  export const createRole = (data) => {
-    return POST("/role_master/save-single-or-multiple", data);
-  };
+// Create Role
+export const createRole = (data) => {
+  return POST("/role_master/save-single-or-multiple", data);
+};
 
-  // Get All Roles
-  export const getAllRoles = () => {
-    return GET("/role_master");
-  };
+// Get All Roles
+export const getAllRoles = () => {
+  return GET("/role_master");
+};
 
-  // Update Role
-  export const updateRole = (roleId, data) => {
-    return PUT(`/role_master/update-by-id/${roleId}`, data);
-  };
+// Update Role
+export const updateRole = (roleId, data) => {
+  return PUT(`/role_master/update-by-id/${roleId}`, data);
+};
 
-  // Delete Role
-  export const deleteRole = (roleId) => {
-    return DELETE(`/role_master/${roleId}`);
-  };
+// Delete Role
+export const deleteRole = (roleId) => {
+  return DELETE(`/role_master/${roleId}`);
+};
 
-  //Country APIs 
-  export const fetchCountries = (countryName = "") =>
-    GET(`/v1/api/countrymaster/getall?countryName=${countryName}`);
+//Country APIs
+export const fetchCountries = (countryName = "") =>
+  GET(`/v1/api/countrymaster/getall?countryName=${countryName}`);
 
-  export const fetchCountryById = (id) =>
-    GET(`/v1/api/countrymaster/getbyid?id=${id}`);
+export const fetchCountryById = (id) => GET(`/v1/api/countrymaster/getbyid?id=${id}`);
 
-  // State APIs
-  export const fetchStatesByCountry = (countryId, stateName = "") =>
-    GET(`/v1/api/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`);
+// State APIs
+export const fetchStatesByCountry = (countryId, stateName = "") =>
+  GET(
+    `/v1/api/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+  );
 
-  export const fetchStateById = (id) =>
-    GET(`/v1/api/statemaster/getbyid?id=${id}`);
+export const fetchStateById = (id) => GET(`/v1/api/statemaster/getbyid?id=${id}`);
 
-  //City APIs 
-  export const fetchCitiesByState = (stateId, cityName = "") =>
-    GET(`/v1/api/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
+//City APIs
+export const fetchCitiesByState = (stateId, cityName = "") =>
+  GET(`/v1/api/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
-  // export const fetchCityById = (id) =>
-  //   GET(`/citymaster/getbyid?id=${id}`);
-  //   return DELETE(`/role_master/${roleId}/role_id`);
-
+// export const fetchCityById = (id) =>
+//   GET(`/citymaster/getbyid?id=${id}`);
+//   return DELETE(`/role_master/${roleId}/role_id`);
 
 //Login api
 export const LoginUser = (data) => {
@@ -73,6 +72,12 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
+//search ContactCategory
+export const SearchContactCategory = (data, Id) => {
+  return GET(
+    `/contactcategory/getallbyuserid?categoryName=${data}&userId=${Id}`
+  );
+};
 
 //Add ContactCategory
 export const Addcontactcategory = (data) => {
@@ -94,6 +99,10 @@ export const AddMealType = (data) => {
 export const GetMealType = (Id) => {
   return GET(`/mealtype/getallbyuserid?userId=${Id}`);
 };
+//search Mealtype
+export const SearchMealtype = (data, Id) => {
+  return GET(`/mealtype/getallbyuserid?mealTypeName=${data}&userId=${Id}`);
+};
 //Edit Meal Type
 export const EditMealType = (Id, data) => {
   return PUT(`/mealtype/update?id=${Id}`, data);
@@ -106,6 +115,10 @@ export const DeleteMealType = (Id) => {
 export const GetEventType = (Id) => {
   return GET(`/eventtype/getallbyuserid?userId=${Id}`);
 };
+//search Event Type
+export const SearchEventType = (data, Id) => {
+  return GET(`/eventtype/getallbyuserid?eventTypeName=${data}&userId=${Id}`);
+};
 //Add Event Type
 export const Addeventtype = (data) => {
   return POST(`/eventtype/add`, data);
@@ -117,38 +130,43 @@ export const EditEventType = (Id, data) => {
 
 //Delete Event Type
 export const DeleteEventType = (Id) => {
-  return DELETE(`v1/api/eventtype/deletebyid?id=${Id}`);
+  return DELETE(`/eventtype/deletebyid?id=${Id}`);
 };
 
-  export const GetAllPlans = () => {
-    return GET(`/plans/getall`);
-  };
+//Create Event master
+export const CreateEventMaster = (data) => {
+  return POST(`/eventmaster/add`, data);
+};
 
-  export const GetAllRole = () => {
-    return GET(`/rolemaster/getall`);
-  };
+export const GetAllPlans = () => {
+  return GET(`/plans/getall`);
+};
 
-  export const AddFunction = (data) => {
-    return POST(`/functionmaster/add`, data);
-  };
+export const GetAllRole = () => {
+  return GET(`/rolemaster/getall`);
+};
 
-  export const GetAllFunctionsByUserId = () => {
-    return GET(`/functionmaster/getallbyuserid?userId=1`);
-  };
+export const AddFunction = (data) => {
+  return POST(`/functionmaster/add`, data);
+};
 
-  export const GetFunctionsByFunctionName = (functionName) => {
-    return GET(
-      `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
-    );
-  };
+export const GetAllFunctionsByUserId = () => {
+  return GET(`/functionmaster/getallbyuserid?userId=1`);
+};
 
-  export const DeleteFunctionById = (id) => {
-    return DELETE(`/functionmaster/deletebyid?id=${id}`);
-  };
+export const GetFunctionsByFunctionName = (functionName) => {
+  return GET(
+    `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
+  );
+};
 
-  export const UpdateFunctionById = (id, data) => {
-    return PUT(`/functionmaster/updatebyid?id=${id}`, data);
-  };
+export const DeleteFunctionById = (id) => {
+  return DELETE(`/functionmaster/deletebyid?id=${id}`);
+};
+
+export const UpdateFunctionById = (id, data) => {
+  return PUT(`/functionmaster/updatebyid?id=${id}`, data);
+};
 
 // master
 export const fetchAllUsers = () => GET("/v1/api/user/getall");

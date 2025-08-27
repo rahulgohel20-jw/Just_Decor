@@ -2,7 +2,8 @@ export const requiredFields = {
   basic_info: {
     Inquiry_date: "",
     status: "Pending",
-    event_date: "",
+    start_event_date: "",
+    end_event_date: "",
     venue: "",
     event_type: "",
     manger_name: "",

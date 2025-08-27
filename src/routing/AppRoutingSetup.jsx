@@ -143,6 +143,8 @@ import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
 import EventTypeMaster from "@/pages/master/Event-type";
+import MenuCategoryMaster from "@/pages/master/MenuCategory";
+import MenuItemsMaster from "@/pages/master/MenuItems";
 import EstimatePage from "../pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
 import StateSearchForm from "../pages/StateSearch";
@@ -215,8 +217,10 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
-<Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
+          <Route path="/master/menu-category" element={<MenuCategoryMaster />} />
+          <Route path="/master/menu-item" element={<MenuItemsMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
