@@ -15,6 +15,7 @@ const FunctionsMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // ✅ state for search
 
   const formatData = (apiData) =>
@@ -80,6 +81,11 @@ const FunctionsMaster = () => {
     return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
 
+  const handleEdit = (func) => {
+    setSelectedFunction(func);
+    setIsMemberModalOpen(true);
+  };
+
   return (
     <Fragment>
       <Container>
@@ -106,7 +112,10 @@ const FunctionsMaster = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsMemberModalOpen(true)}
+              onClick={() => {
+                setSelectedFunction(null);
+                setIsMemberModalOpen(true);
+              }}
               title="Add Function"
             >
               <i className="ki-filled ki-plus"></i> Add Function
@@ -115,13 +124,14 @@ const FunctionsMaster = () => {
         </div>
 
         {/* Modal */}
-        <AddFunctionType isOpen={isMemberModalOpen} onClose={setIsMemberModalOpen} />
+        <AddFunctionType isOpen={isMemberModalOpen}  selectedFunction={selectedFunction}
+  paginationSize={10} onClose={setIsMemberModalOpen} />
 
         {/* Table */}
 <TableComponent
-  columns={columns({ fetchFunctions, setTableData })} // ✅ pass actions
+  columns={columns(handleEdit  )} // ✅ pass actions
   data={tableData}
-  paginationSize={10}
+ paginationSize={10}
 />
         </Container>
     </Fragment>

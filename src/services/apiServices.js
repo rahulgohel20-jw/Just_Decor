@@ -142,6 +142,11 @@ export const GetFunctionsByFunctionName = (functionName) => {
   );
 };
 
+export const EditFunctionById = (Id, data) => {
+  return PUT(`/functionmaster/update?id=${Id}`, data);
+};
+
+
 export const DeleteFunctionById = (id) => {
   return DELETE(`/functionmaster/deletebyid?id=${id}`);
 };

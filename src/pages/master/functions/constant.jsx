@@ -1,7 +1,7 @@
 import { Popconfirm, Tooltip, message } from "antd";
 import { DeleteFunctionById } from "@/services/apiServices";
 
-export const columns = ({ fetchFunctions, setTableData }) => [
+export const columns = (onEdit ) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -38,29 +38,23 @@ export const columns = ({ fetchFunctions, setTableData }) => [
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
-      const handleDelete = () => {
-        const id = row.original.id; // ✅ make sure your API data has `id`
-        DeleteFunctionById(id)
-          .then(() => {
-            message.success("Function deleted successfully!");
-            fetchFunctions(); // refresh table
-          })
-          .catch(() => {
-            message.error("Failed to delete function");
-          });
-      };
+ 
 
       return (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Function">
-            <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+           <Tooltip className="cursor-pointer" title="Edit Function">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Edit"
+                    onClick={() =>onEdit(row.original)}
+            >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
           <Popconfirm
             title="Are you sure to delete this function?"
-            onConfirm={handleDelete}
+            // onConfirm={handleDelete}
             okText="Yes"
             cancelText="No"
           >
