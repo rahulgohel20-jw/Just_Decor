@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { EditEventType, Addeventtype } from "@/services/apiServices";
-const AddMenuCategory = ({
+const AddKitchenArea = ({
   isModalOpen,
   setIsModalOpen,
   refreshData,
@@ -71,7 +71,7 @@ const AddMenuCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedMenuCategory ? "Edit Menu Category" : "New Menu Category"}
+            {selectedMenuCategory ? "Edit Kitchen Area" : "New Kitchen Area"}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -104,39 +104,6 @@ const AddMenuCategory = ({
             onChange={handleChange}
             required
           />
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Slogun'}</label>
-            <textarea
-              type="text"
-              name={'slogun'}
-              value={formData.slogun}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Slogun'}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Priority'}</label>
-            <input
-              type="number"
-              name={'priority'}
-              value={formData.priority}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Priority'}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Document'}</label>
-            <input
-              type="file"
-              name={'document'}
-              value={formData.document}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'document'}
-            />
-          </div>
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
@@ -180,4 +147,4 @@ const InputWithIcon = ({ label, name, value, onChange, required }) => (
   </div>
 );
 
-export default AddMenuCategory;
+export default AddKitchenArea;
