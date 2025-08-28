@@ -1,7 +1,7 @@
 export const requiredFields = {
   basic_info: {
     Inquiry_date: "",
-    status: "Pending",
+    status: "0",
     start_event_date: "",
     end_event_date: "",
     venue: "",
@@ -10,10 +10,11 @@ export const requiredFields = {
   },
   client_info: {
     title: "Mr.",
-    customername: "",
+    customer_name: "",
     customeraddress: "",
     customermobile: "",
-    highPriority: false,
+    highPriority: "Yes",
+    reference: "",
   },
   functions: {
     function_array: [],

@@ -102,11 +102,7 @@ const EventListPage = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
-              <button
-                className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
-              >
+              <button className="btn btn-primary" title="Add Event">
                 <i className="ki-filled ki-plus"></i> Add Event
               </button>
             </Link>

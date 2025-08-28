@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Table, Spin, message } from "antd";
-import "antd/dist/reset.css";
 
 const UserTable = () => {
   const [loading, setLoading] = useState(false);

@@ -99,7 +99,7 @@ export const columns = (onDelete) => [
           </Popconfirm>
           <Popconfirm
             title="Are you sure to delete this item?"
-            onConfirm={() => DeleteEvent(row.original.eventid)}
+            onConfirm={() => onDelete(row.original.eventid)}
             okText="Yes"
             cancelText="No"
           >

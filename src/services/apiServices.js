@@ -26,6 +26,12 @@ export const fetchCountries = (countryName = "") =>
 
 export const fetchCountryById = (id) => GET(`/countrymaster/getbyid?id=${id}`);
 
+export const Fetchmenu = (Id) => {
+  return GET(`/menucategory/getallbyuserid?userid=${Id}`, {
+    withCredentials: true,
+  });
+};
+
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(
@@ -143,7 +149,11 @@ export const GetEventMaster = (Id) => {
 };
 //Delete event
 export const DeleteEventMaster = (Id) => {
-  return GET(`/eventmaster/getallbyuserid?userId=${Id}`);
+  return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
+};
+//get all manager and admin
+export const Fetchmanager = (Id) => {
+  return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
 };
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
