@@ -1,7 +1,12 @@
-import { Input, Select, Button, Form } from "antd";
+import { Input, Select, Button, Form,  message, Spin} from "antd";
 import { toAbsoluteUrl } from "@/utils";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { debounce } from "lodash";
+import ReactCountryFlag from "react-country-flag";
 const { TextArea } = Input;
+const { Option } = Select;
+import { fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
+
 
 export default function ProfileForm({ value, onChange, ...rest }) {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
@@ -19,83 +24,88 @@ export default function ProfileForm({ value, onChange, ...rest }) {
   const [cityOptions, setCityOptions] = useState([]);
   const [cityLoading, setCityLoading] = useState(false);
 
-  // ---------------- COUNTRY ----------------
-  const loadCountries = useCallback(async (search = "") => {
-    setCountryLoading(true);
-    try {
-      const res = await fetchCountries(search);
-      const countries = res?.data?.data?.["Country Details"] || [];
-      setCountryOptions(
-        countries.map((c) => ({
-          id: c.id,
-          value: c.id,
-          code: c.code,
-          name: c.name,
-        }))
-      );
-    } catch {
-      message.error("Failed to load countries");
-    } finally {
-      setCountryLoading(false);
-    }
-  }, []);
+// ---------------- COUNTRY ----------------
+const loadCountries = useCallback(async (search = "") => {
+  setCountryLoading(true);
+  try {
+    const res = await fetchCountries(search);
+       console.log("Country API response:", res);
 
-  const debouncedCountrySearch = useMemo(
-    () => debounce((val) => loadCountries(val), 500),
-    [loadCountries]
-  );
+const countries = res?.data?.data?.["Country Details"] || [];
+        console.log("Parsed countries:", countries);
 
-  // ---------------- STATE ----------------
-  const loadStates = useCallback(async (countryId, search = "") => {
-    if (!countryId) return;
-    setStateLoading(true);
-    try {
-      const res = await fetchStatesByCountry(countryId, search);
-      const states = res?.data?.data?.["state Details"] || [];
-      setStateOptions(
-        states.map((s) => ({
-          id: s.id,
-          value: s.id,
-          name: s.name,
-        }))
-      );
-    } catch {
-      message.error("Failed to load states");
-    } finally {
-      setStateLoading(false);
-    }
-  }, []);
+    setCountryOptions(
+      countries.map((c) => ({
+        id: c.id,
+        value: c.id,
+        code: c.code,
+        name: c.name,
+      }))
+    );
+  } catch (err) {
+    message.error("Failed to load countries");
+  } finally {
+    setCountryLoading(false);
+  }
+}, []);
 
-  const debouncedStateSearch = useMemo(
-    () => debounce((val) => loadStates(form.getFieldValue("country"), val), 500),
-    [loadStates, form]
-  );
+// ---------------- STATE ----------------
+const loadStates = useCallback(async (countryId, search = "") => {
+  if (!countryId) return;
+  setStateLoading(true);
+  try {
+    const res = await fetchStatesByCountry(countryId, search);
+    const states = res?.data?.data?.["state Details"] || [];
+    setStateOptions(
+      states.map((s) => ({
+        id: s.id,
+        value: s.id,
+        name: s.name,
+      }))
+    );
+  } catch (err) {
+    message.error("Failed to load states");
+  } finally {
+    setStateLoading(false);
+  }
+}, []);
 
-  // ---------------- CITY ----------------
-  const loadCities = useCallback(async (stateId, search = "") => {
-    if (!stateId) return;
-    setCityLoading(true);
-    try {
-      const res = await fetchCitiesByState(stateId, search);
-      const cities = res?.data?.data?.["City Details"] || [];
-      setCityOptions(
-        cities.map((c) => ({
-          id: c.id,
-          value: c.id,
-          name: c.name,
-        }))
-      );
-    } catch {
-      message.error("Failed to load cities");
-    } finally {
-      setCityLoading(false);
-    }
-  }, []);
+// ---------------- CITY ----------------
+const loadCities = useCallback(async (stateId, search = "") => {
+  if (!stateId) return;
+  setCityLoading(true);
+  try {
+    const res = await fetchCitiesByState(stateId, search);
+     const cities = res?.data?.data?.["City Details"] || [];
+    setCityOptions(
+      cities.map((c) => ({
+        id: c.id,
+        value: c.id,
+        name: c.name,
+      }))
+    );
+  } catch {
+    message.error("Failed to load cities");
+  } finally {
+    setCityLoading(false);
+  }
+}, []);
 
-  const debouncedCitySearch = useMemo(
-    () => debounce((val) => loadCities(form.getFieldValue("state"), val), 500),
-    [loadCities, form]
-  );
+// ---------------- DEBOUNCED SEARCH ----------------
+const debouncedCountrySearch = useMemo(
+  () => debounce((val) => loadCountries(val), 500),
+  [loadCountries]
+);
+
+const debouncedStateSearch = useMemo(
+  () => debounce((val) => loadStates(form.getFieldValue("country"), val), 500),
+  [loadStates, form]
+);
+
+const debouncedCitySearch = useMemo(
+  () => debounce((val) => loadCities(form.getFieldValue("state"), val), 500),
+  [loadCities, form]
+);
 
   // ---------------- HANDLERS ----------------
   const handleCountrySelect = (countryId) => {

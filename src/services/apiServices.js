@@ -24,7 +24,7 @@ export const deleteRole = (roleId) => {
 export const fetchCountries = (countryName = "") =>
   GET(`/countrymaster/getall?countryName=${countryName}`);
 
-export const fetchCountryById = (id) => GET(`/countrymaster/getbyid?id=${id}`);
+export const fetchCountryById = (id) => GET(`/v1/api/countrymaster/getbyid?id=${id}`);
 
 export const Fetchmenu = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`, {
@@ -38,7 +38,7 @@ export const fetchStatesByCountry = (countryId, stateName = "") =>
     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
 
-export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
+export const fetchStateById = (id) => GET(`/v1/api/statemaster/getbyid?id=${id}`);
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
@@ -186,8 +186,7 @@ export const UpdateFunctionById = (id, data) => {
 };
 
 // master
-// allUser APIs
-export const fetchAllUsers = () => {
-  return GET("/user/getall");
-  // ✅ only return the API response body
-};
+export const fetchAllUsers = () => GET("/user/getall");
+
+
+
