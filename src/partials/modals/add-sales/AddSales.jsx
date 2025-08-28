@@ -2,64 +2,24 @@ import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
-const AddSales = ({ isModalOpen, setIsModalOpen }) => {
+const AddSales = ({ isModalOpen, setIsModalOpen , titleModal="Add Member"}) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-  const [activeTab, setActiveTab] = useState("tab_1");
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "tab_1":
-      // return (
-      //   <div id="tab_1" className="tab-content active">
-      //     <div className="grid grid-cols-1 gap-6">
-      //       <div className="filItems">
-      //         <select
-      //           className="select select-lg w-full"
-      //           placeholder="Select Team Member"
-      //         >
-      //           <option value="1">Henry Mark </option>
-      //           <option value="2">Garix Fen</option>
-      //           <option value="2">John Mep</option>
-      //         </select>
-      //       </div>
-      //       <div className="filItems">
-      //         <select
-      //           className="select select-lg w-full"
-      //           placeholder="User Role"
-      //         >
-      //           <option value="1">Sales Person </option>
-      //           <option value="2">Manager</option>
-      //         </select>
-      //       </div>
-      //       <div className="filItems">
-      //         <select
-      //           className="select select-lg w-full"
-      //           placeholder="Select Manager Name"
-      //         >
-      //           <option value="1">Manan Gandhi </option>
-      //           <option value="2">Ken Jark</option>
-      //         </select>
-      //       </div>
-      //     </div>
-      //   </div>
-      // );
-
-      default:
-        return null;
-    }
-  };
+  const handleSave = () => {
+    setIsModalOpen(false);
+  }
 
   return (
     isModalOpen && (
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Member"
+        title={titleModal}
         width={500}
         footer={[
-          <button key="add" className="btn btn-success" title="Save">Save</button>,
+          <button key="add" className="btn btn-success" title="Save" onClick={handleSave}>Save</button>,
         ]}
       >
         <div className="flex flex-col gap-y-2">
@@ -98,7 +58,6 @@ const AddSales = ({ isModalOpen, setIsModalOpen }) => {
             </label>
           </div>
         </div>
-        {renderTabContent()}
       </CustomModal>
     )
   );
