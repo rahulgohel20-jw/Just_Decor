@@ -25,7 +25,6 @@ const GeneralSettingsPage = () => {
       value: "bulkdata",
       label: (
         <>
-          {/* <DatabaseIcon className="text-primary" /> */}
           <i className="ki-filled ki-parcel"></i>
           Bulk Data Import
         </>

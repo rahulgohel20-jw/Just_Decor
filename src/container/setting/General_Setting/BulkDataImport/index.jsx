@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddRole from "@/partials/modals/add-role/AddRole";
+import AddBulkDataImport from "@/partials/modals/add-bulk-data-import/AddBulkDataImport";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 
@@ -13,12 +13,10 @@ const BulkDataImport = () => {
     setIsModalOpen(true);
   };
 
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editData, setEditData] = useState(null);
+  const [isTypeMode, setIsTypeMode] = useState(false);
 
-  const handleEditClick = (data) => {
-    setEditData(data);
-    setIsEditMode(true);
+  const handleEditClick = () => {
+    setIsTypeMode(true);
     setIsModalOpen(true);
   };
 
@@ -26,7 +24,7 @@ const BulkDataImport = () => {
     const data = defaultData.map((item) => {
       return {
         ...item,
-        handleModalOpen: handleModalOpen,
+        handleEditClick: handleEditClick,
       };
     });
     return data;
@@ -38,12 +36,23 @@ const BulkDataImport = () => {
       {/* filters */}
       <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
         <div className="filItems relative">
+           <button
+            className="btn btn-primary"
+            title="Download Sample"
+            onClick={() => {
+              handleModalOpen();
+              setIsTypeMode(false)
+            }}
+          >
+            <i className="ki-filled ki-cloud-download"></i> Download Sample
+          </button>
+          </div>
+          <div className="filItems relative">
           <button
             className="btn btn-primary"
             title="Upload CSV"
             onClick={() => {
-              setIsEditMode(false);
-              setEditData(null);
+              setIsTypeMode(true);
               handleModalOpen();
             }}
           >
@@ -52,11 +61,10 @@ const BulkDataImport = () => {
         </div>
       </div>
       <TableComponent columns={columns} data={tableData} paginationSize={10} />
-      <AddRole
+      <AddBulkDataImport
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        isEditMode={isEditMode}
-        editData={editData}
+        type={isTypeMode}
       />
     </>
   );

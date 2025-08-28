@@ -1,5 +1,6 @@
 import { DataGridColumnHeader } from "@/components";
-import { Tooltip } from "antd";
+import { Tooltip, Popconfirm } from "antd";
+import { underConstruction } from "@/underConstruction";
 export const columns = [
   {
     accessorKey: "role",
@@ -22,11 +23,20 @@ export const columns = [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
+          <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => underConstruction()
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip title="Delete">
             <button className="btn btn-sm btn-icon btn-clear" title="Delete">
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
+          </Popconfirm>
         </div>
       );
     },

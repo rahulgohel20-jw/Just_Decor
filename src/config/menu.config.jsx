@@ -52,20 +52,21 @@ export const MENU_SIDEBAR = [
         path: "/master/event-type",
       },
       {
-    title: "Users Master",
-    icon: "ki-filled ki-cheque text-primary",
-    children: [
-      {
-        title: "All Users",
-        path: "/master/user-master",
+        title: "Menu Item Category",
+        path: "/master/menu-category",
       },
       {
-        title: "All Plans",
-        path: "/master/user-master/plan",
-      }
-      
-    ],
-  },
+        title: "Menu Item Sub Category",
+        path: "/master/menu-sub-category",
+      },
+      {
+        title: "Kitchen Area",
+        path: "/master/menu-kitchan-area",
+      },
+      {
+        title: "Menu Item",
+        path: "/master/menu-item",
+      },
     ],
   },
   {
