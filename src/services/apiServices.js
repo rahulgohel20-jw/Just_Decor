@@ -31,21 +31,21 @@ export const fetchCountryById = (id) =>
 export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(`/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`);
 // State APIs
-export const fetchStatesByCountry = (countryId, stateName = "") =>
-  GET(
-    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
-  );
+// export const fetchStatesByCountry = (countryId, stateName = "") =>
+//   GET(
+//     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+//   );
 
 export const fetchStateById = (id) =>
   GET(`/statemaster/getbyid?id=${id}`);
-export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
+// export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
 
 //City APIs 
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 //City APIs
-export const fetchCitiesByState = (stateId, cityName = "") =>
-  GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
+// export const fetchCitiesByState = (stateId, cityName = "") =>
+//   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
 // export const fetchCityById = (id) =>
 //   GET(`/citymaster/getbyid?id=${id}`);
@@ -169,12 +169,12 @@ export const GetFunctionsByFunctionName = (functionName) => {
   );
 };
 
-export const DeleteFunctionById = (id) => {
-  return DELETE(`/functionmaster/deletebyid?id=${id}`);
+export const DeleteFunctionType = (Id) => {
+  return DELETE(`/functionmaster/deletebyid?id=${Id}`);
 };
 
-export const UpdateFunctionById = (id, data) => {
-  return PUT(`/functionmaster/updatebyid?id=${id}`, data);
+export const EditFunctionById = (id, data) => {
+  return PUT(`/functionmaster/update?id=${id}`, data);
 };
 
 // master

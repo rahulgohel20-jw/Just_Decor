@@ -10,38 +10,14 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "image",
-    header: "Image",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
-  },
-  {
-    accessorKey: "name",
+    accessorKey: "category",
     header: "Name",
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
     },
   },
-  {
-    accessorKey: "category",
-    header: "Menu Item Category",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
-  },
-   {
-    accessorKey: "priority",
-    header: "Priority",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
-  },
-  {
+{
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -101,18 +77,8 @@ export const columns = (onEdit, onDelete) => [
   },
 ];
 
-export const categoryData = [
-  { id: 1, category: "LABENESE COUNTER" },
-  { id: 2, category: "WELCOME DRINKS AND SPRITZERS" },
-  { id: 3, category: "Last" },
-  { id: 4, category: "Police" },
-  { id: 5, category: "QA" },
-];
-
 export const defaultData = [
-  { sr_no: 1, name:'COLLEGIAN BHEL', category: "LABENESE COUNTER", image:'', priority: '5', status:1 },
-  { sr_no: 2, name:'WELCOME DRINKS AND SPRITZERS', category: "WELCOME DRINKS AND SPRITZERS", image:'', priority: '38', status:1},
-  { sr_no: 3, name:'FINGER FOOD STARTERS', category: "Last", image:'', priority: '27', status:0},
-  { sr_no: 4, name:'STYLISH BAR BE QUE', category: "Police", image:'', priority: '25', status:1 },
-  { sr_no: 5, name:'EXOTIC COUNTER', category: "TEST", image:'', priority: '88', status:0 },
+  { sr_no: 1, category: "BANGALI SWEETS" , status: 1},
+  { sr_no: 2, category: "LIVE SWEETS", status:0 },
+  { sr_no: 2, category: "NONE", status:1 },
 ];

@@ -9,6 +9,8 @@ import {
   Trash,
 } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
+import { underConstruction } from "@/underConstruction";
+
 import { useState } from "react";
 
 const ExportLead = () => {
@@ -17,7 +19,8 @@ const ExportLead = () => {
   const [assignedTo, setAssignedTo] = useState("");
 
   const handleExport = () => {
-    alert("Leads exported!");
+      underConstruction()
+    // alert("Leads exported!");
   };
 
   return (
@@ -44,7 +47,7 @@ const ExportLead = () => {
                   value={pipeline}
                   onChange={(e) => setPipeline(e.target.value)}
                   className="select pe-7.5"
-                  disabled
+                  // disabled
                 >
                   <option value="0">Select Pipeline</option>
                   <option value="Pipeline 1">Pipeline 1</option>
@@ -57,7 +60,7 @@ const ExportLead = () => {
                   value={assignedTo}
                   onChange={(e) => setAssignedTo(e.target.value)}
                   className="select pe-7.5"
-                  disabled
+                  // disabled
                 >
                   <option value="0">Select User</option>
                   <option value="User 1">User 1</option>

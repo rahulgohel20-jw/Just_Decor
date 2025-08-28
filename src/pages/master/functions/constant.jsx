@@ -1,7 +1,7 @@
 import { Popconfirm, Tooltip, message } from "antd";
-import { DeleteFunctionById } from "@/services/apiServices";
 
-export const columns = (onEdit ) => [
+
+export const columns = (onEdit, onDelete ) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -53,17 +53,19 @@ export const columns = (onEdit ) => [
           </Tooltip>
 
           <Popconfirm
-            title="Are you sure to delete this function?"
-            // onConfirm={handleDelete}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete">
-              <button className="btn btn-sm btn-icon btn-clear" title="Delete">
-                <i className="ki-filled ki-trash text-danger"></i>
-              </button>
-            </Tooltip>
-          </Popconfirm>
+  title="Are you sure to delete this function?"
+  onConfirm={() => onDelete(row.original.id)}   // ✅ confirm triggers delete
+  okText="Yes"
+  cancelText="No"
+>
+  <Tooltip title="Delete">
+    <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+      <i className="ki-filled ki-trash text-danger"></i>
+    </button>
+  </Tooltip>
+</Popconfirm>
+
+
         </div>
       );
     },

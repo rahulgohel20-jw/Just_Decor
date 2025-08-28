@@ -38,7 +38,7 @@ export const columns = (onEdit, onDelete) => [
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => onDelete(row.original.mealid)}
+              onClick={() => onDelete(row.original.eventid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>

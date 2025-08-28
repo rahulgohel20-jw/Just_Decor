@@ -114,7 +114,7 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
         {/* Time Pickers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col">
-            <label className="form-label">Start Time</label>
+            <label className="form-label">Start Time<span className="text-red-700 fs-5">  *</span></label>
             <TimePicker
               className="input"
               format="HH:mm"
@@ -123,7 +123,7 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="form-label">End Time</label>
+            <label className="form-label">End Time <span className="text-red-700"> *</span></label>
             <TimePicker
               className="input"
               format="HH:mm"

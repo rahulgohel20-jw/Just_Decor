@@ -9,7 +9,8 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
-import { GetAllFunctionsByUserId, GetFunctionsByFunctionName } from "@/services/apiServices";
+import { GetAllFunctionsByUserId, DeleteFunctionType,  GetFunctionsByFunctionName } from "@/services/apiServices";
+
 
 const FunctionsMaster = () => {
   const classes = useStyle();
@@ -18,6 +19,9 @@ const FunctionsMaster = () => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // ✅ state for search
 
+
+
+  
   const formatData = (apiData) =>
     apiData.map((item, index) => ({
       sr_no: index + 1,
@@ -86,6 +90,18 @@ const FunctionsMaster = () => {
     setIsMemberModalOpen(true);
   };
 
+  const handleDelete = (functionId) => {
+  DeleteFunctionType(functionId)  // direct API call
+    .then(() => {
+      fetchFunctions();
+    })
+    .catch((error) => {
+      console.error("Error deleting function:", error);
+    });
+};
+
+
+
   return (
     <Fragment>
       <Container>
@@ -129,7 +145,7 @@ const FunctionsMaster = () => {
 
         {/* Table */}
 <TableComponent
-  columns={columns(handleEdit  )} // ✅ pass actions
+  columns={columns(handleEdit, handleDelete)} // ✅ pass actions
   data={tableData}
  paginationSize={10}
 />
