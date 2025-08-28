@@ -85,7 +85,7 @@ const EventInvoicePage = () => {
                   badge={step.icon}
                 />
                 <div className="flex flex-col items-center justify-center w-full">
-                  <p className="form-info text-gray-700 font-normal mb-0">
+                  <p className="form-info text-gray-700 font-normal text-center mb-0">
                     {step.title}
                   </p>
                   <h3 className="text-xl font-semibold text-primary mb-0">
