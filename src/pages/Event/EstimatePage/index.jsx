@@ -89,23 +89,60 @@ const EstimatePage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Quotation" }]} />
         </div>
+        <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 mb-4">
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
+                Pipeline for Personal Satisfaction
+              </h3>
+              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
+                Track goals, progress, and achievements for growth.
+              </span>
+              <button className="btn btn-sm btn-primary" title="Add Pipeline">
+                <i className="ki-filled ki-plus"></i>Pipeline
+              </button>
+            </div>
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              iuouiouioui
+            </div>
+          </div>
+          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
+                Pipeline Template for Personal Satisfaction
+              </h3>
+              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
+                Clear steps to achieve goals and fulfillment.
+              </span>
+              <button className="btn btn-sm btn-primary" title="Add Template">
+                <i className="ki-filled ki-plus"></i>Template
+              </button>
+            </div>
+            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+              sdfsdfsdf
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
           <div className="quotation-container">
             <Oderdetail />
             <div className="px-5 py-3 font-semibold text-gray-700 bg-gradient-to-b from-blue-100 to-blue-200 border-b border-gray-200"></div>
-
             <div className="px-4 py-2 bg-gray-100 border-b border-gray-300 font-semibold text-gray-700">
               Order Details
             </div>
-
             {/* Order Info */}
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
               <div>
-                <span className="font-medium text-gray-600">Customer Name:</span>{" "}
+                <span className="font-medium text-gray-600">
+                  Customer Name:
+                </span>{" "}
                 <span className="text-gray-900">{form.customer_name}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
+                <span className="font-medium text-gray-600">
+                  Mobile Number:
+                </span>{" "}
                 <span className="text-gray-900">{form.mobile_number}</span>
               </div>
               <div>
