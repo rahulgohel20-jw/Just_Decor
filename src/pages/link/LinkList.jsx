@@ -1,6 +1,5 @@
 import { Fragment, useRef, useState } from "react";
 import { Container } from "@/components/container";
-import { TableComponent } from "@/components/table/TableComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
 import LinkTable from "@/components/link/LinkTable";

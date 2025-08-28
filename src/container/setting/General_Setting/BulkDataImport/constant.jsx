@@ -1,42 +1,39 @@
 import { DataGridColumnHeader } from "@/components";
+import { Tooltip, Popconfirm } from "antd";
+import { underConstruction } from "@/underConstruction";
 import { Link } from "react-router-dom";
 export const columns = [
   {
-    accessorKey: "Imported ID",
-
+    accessorKey: "source",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Roles" column={column} />
+      <DataGridColumnHeader title="Source" column={column} />
     ),
   },
   {
-    accessorKey: "Imported on",
-
+    accessorKey: "module_name",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Roles" column={column} />
+      <DataGridColumnHeader title="Module" column={column} />
     ),
   },
   {
-    accessorKey: "Module",
-
+    accessorKey: "total_records",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Roles" column={column} />
+      <DataGridColumnHeader title="No. of Records" column={column} />
     ),
   },
   {
-    accessorKey: "No. of Records",
-
+    accessorKey: "imported_by",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Roles" column={column} />
+      <DataGridColumnHeader title="Imported By" column={column} />
     ),
   },
+
   {
-    accessorKey: "Imported By",
-
+    accessorKey: "imported_on",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Roles" column={column} />
+      <DataGridColumnHeader title="Imported on" column={column} />
     ),
   },
-
   {
     accessorKey: "action",
     header: "Action",
@@ -47,19 +44,48 @@ export const columns = [
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
-              onClick={() => cell.row.original.handleModalOpen()}
+              onClick={() => cell.row.original.handleEditClick()}
             >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
-          <Tooltip title="Delete">
-            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
-              <i className="ki-filled ki-trash text-danger"></i>
-            </button>
-          </Tooltip>
+          <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => underConstruction()
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
+            <Tooltip title="Delete">
+              <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+                <i className="ki-filled ki-trash text-danger"></i>
+              </button>
+            </Tooltip>
+          </Popconfirm>
         </div>
       );
     },
   },
 ];
-export const defaultData = [];
+export const defaultData = [
+  {
+    source : 'product.doc',
+    module_name : 'products',
+    total_records : 'products',
+    imported_by : 'KBOY',
+    imported_on : '2025-08-15',
+  },{
+    source : 'Lead.doc',
+    module_name : 'Leads',
+    total_records : 'Leads',
+    imported_by : 'KBOY',
+    imported_on : '2025-08-20',
+  },{
+    source : 'contacts.doc',
+    module_name : 'contacts',
+    total_records : 'contacts',
+    imported_by : 'KBOY',
+    imported_on : '2025-08-20',
+  },
+];

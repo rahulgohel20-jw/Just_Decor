@@ -19,6 +19,7 @@ const MenuItems = () => {
   const FetchCategoryData = () => {
     const formatted = defaultData.map(
           (item, index) => ({
+            ...item,
             sr_no: index + 1,
             category: item.category || "-",
             item: item.item

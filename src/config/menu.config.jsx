@@ -52,8 +52,16 @@ export const MENU_SIDEBAR = [
         path: "/master/event-type",
       },
       {
-        title: "Menu Category",
+        title: "Menu Item Category",
         path: "/master/menu-category",
+      },
+      {
+        title: "Menu Item Sub Category",
+        path: "/master/menu-sub-category",
+      },
+      {
+        title: "Kitchen Area",
+        path: "/master/menu-kitchan-area",
       },
       {
         title: "Menu Item",
