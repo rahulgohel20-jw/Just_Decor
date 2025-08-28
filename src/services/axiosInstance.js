@@ -15,7 +15,9 @@ const axiosInstance = axios.create({
     "x-am-cache-control": "no_action",
     "x-am-get-encrypted-data": "no_encryption",
     "x-no-compression": "true",
+    
   },
+
   timeout: 10000,
 });
 

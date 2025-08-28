@@ -178,8 +178,7 @@ export const EditFunctionById = (id, data) => {
 };
 
 // master
-// allUser APIs
-export const fetchAllUsers = () => {
-  return GET("/user/getall");
-  // ✅ only return the API response body
-};
+export const fetchAllUsers = () => GET("/user/getall");
+
+
+

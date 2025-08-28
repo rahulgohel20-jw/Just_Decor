@@ -67,6 +67,24 @@ export const MENU_SIDEBAR = [
         title: "Menu Item",
         path: "/master/menu-item",
       },
+       {
+    title: "User Master",
+    icon: "ki-filled ki-abstract-18 text-primary",
+    children: [
+      {
+        title: "All User",
+        path: "/master/user-master/",
+      },
+      {
+        title: "All Plan",
+        path: "/master/user-master/plan",
+      },
+      
+      
+     
+      
+    ],
+  },
     ],
   },
   {
@@ -246,17 +264,7 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-   {
-    title: "Users Master",
-    icon: "ki-filled ki-cheque text-primary",
-    children: [
-      {
-        title: "All Users",
-        path: "/master/user-master",
-      },
-      
-    ],
-  },
+   
 ];
 export const MENU_MEGA = [
   {

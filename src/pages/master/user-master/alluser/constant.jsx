@@ -43,21 +43,39 @@ export const columns = [
     header: "Plan",
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
-  {
-    accessorKey: "price",
-    header: "Price",
-    meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
+ {
+  accessorKey: "isActive",
+  header: "Active",
+  cell: ({ getValue }) => {
+    const value = getValue();
+    return (
+      <span
+        className={`font-medium ${
+          value ? "text-primary" : "text-danger"
+        }`}
+      >
+        {value ? "Yes" : "No"}
+      </span>
+    );
   },
-  {
-    accessorKey: "isActive",
-    header: "Active",
-    cell: ({ getValue }) => (getValue() ? "✅ Yes" : "❌ No"),
-    meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
-  },
+  meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
+}
+,
   {
     accessorKey: "isApprove",
     header: "Approved",
-    cell: ({ getValue }) => (getValue() ? "✅ Yes" : "❌ No"),
+    cell: ({ getValue }) => {
+    const value = getValue();
+    return (
+      <span
+        className={`font-medium ${
+          value ? "text-primary" : "text-danger"
+        }`}
+      >
+        {value ? "Yes" : "No"}
+      </span>
+    );
+  },
     meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
   },
   {
