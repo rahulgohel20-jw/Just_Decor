@@ -220,7 +220,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
           <Route path="/master/user-master" element={<AllUser />} />
-          <Route path="/master/event-type" element={<EventTypeMaster />} />
+          <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route path="/master/menu-category" element={<MenuCategoryMaster />} />
           <Route path="/master/menu-sub-category" element={<MenuSubCategory />} />
           <Route path="/master/menu-kitchan-area" element={<MenuKitchenArea />} />
