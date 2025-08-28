@@ -137,7 +137,14 @@ export const DeleteEventType = (Id) => {
 export const CreateEventMaster = (data) => {
   return POST(`/eventmaster/add`, data);
 };
-
+//Get all event
+export const GetEventMaster = (Id) => {
+  return GET(`/eventmaster/getallbyuserid?userId=${Id}`);
+};
+//Delete event
+export const DeleteEventMaster = (Id) => {
+  return GET(`/eventmaster/getallbyuserid?userId=${Id}`);
+};
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };

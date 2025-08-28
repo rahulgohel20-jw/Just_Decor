@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = [
+export const columns = (onDelete) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -22,7 +22,7 @@ export const columns = [
   },
   {
     accessorKey: "event_date",
-    header: "Event Date",
+    header: "Event Date & Event Time",
     meta: {
       headerClassName: "w-[10%]",
       cellClassName: "w-[10%]",
@@ -74,7 +74,7 @@ export const columns = [
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Event">
@@ -84,34 +84,31 @@ export const columns = [
               </button>
             </Link>
           </Tooltip>
-        <Popconfirm
-              title="Are you sure to copy this item?"
-              onConfirm={() => underConstruction()
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <Tooltip className="cursor-pointer" title="Copy Event">
-            <button className="btn btn-sm btn-icon btn-clear" title="Copy">
-              <i className="ki-filled ki-copy text-success"></i>
-            </button>
-          </Tooltip>
+          <Popconfirm
+            title="Are you sure to copy this item?"
+            onConfirm={() => underConstruction()}
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip className="cursor-pointer" title="Copy Event">
+              <button className="btn btn-sm btn-icon btn-clear" title="Copy">
+                <i className="ki-filled ki-copy text-success"></i>
+              </button>
+            </Tooltip>
           </Popconfirm>
           <Popconfirm
-              title="Are you sure to delete this item?"
-              onConfirm={() => underConstruction()
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <Tooltip className="cursor-pointer" title="Remove Event">
-            <button className="btn btn-sm btn-icon btn-clear" title="Remove">
-              <i className="ki-filled ki-trash text-danger"></i>
-            </button>
-          </Tooltip>
-        </Popconfirm>
+            title="Are you sure to delete this item?"
+            onConfirm={() => DeleteEvent(row.original.eventid)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip className="cursor-pointer">
+              <button className="btn btn-sm btn-icon btn-clear" title="Remove">
+                <i className="ki-filled ki-trash text-danger"></i>
+              </button>
+            </Tooltip>
+          </Popconfirm>
           <Tooltip title="Menu Preparation">
             <Link to="/menu-preparation">
               <button
