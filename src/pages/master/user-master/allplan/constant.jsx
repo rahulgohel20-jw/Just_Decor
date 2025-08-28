@@ -32,7 +32,18 @@ export const planColumns = [
     id: "isPopular",
     header: "Popular",
     accessorKey: "isPopular",
-    cell: (info) => (info.getValue() ? " Yes" : " No"),
+ cell: ({ getValue }) => {
+    const value = getValue();
+    return (
+      <span
+        className={`font-medium ${
+          value ? "text-primary" : "text-danger"
+        }`}
+      >
+        {value ? "Yes" : "No"}
+      </span>
+    );
+  },
   },
   {
     id: "actions",
