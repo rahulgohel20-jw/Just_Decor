@@ -22,19 +22,21 @@ const CreateEventPage = () => {
     ...requiredFields.client_info,
     ...requiredFields.functions,
     ...requiredFields.other,
-    event_date: event_date || "",
-    Inquiry_date: dayjs().format("YYYY-MM-DD"),
+    start_event_date: "",
+    end_event_date: "",
+    Inquiry_date: dayjs().format("DD/MM/YYYY"),
   });
   const [current, setCurrent] = useState(0);
   const [errors, setErrors] = useState({});
 
   const fieldDisplayNames = {
     Inquiry_date: "Inquiry Date",
-    event_date: "Event Date",
+    start_event_date: "Event Start Date",
+    end_event_date: "Event End Date",
     venue: "Venue",
     event_type: "Event Type",
     manger_name: "Manager Name",
-    customername: "Customer Name",
+    customer_name: "Customer Name",
     customeraddress: "Customer Address",
     customermobile: "Customer Mobile",
     function_array: "Functions",
@@ -148,20 +150,24 @@ const CreateEventPage = () => {
       }
       return;
     }
-    CreateEventMaster()
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error("Error adding customer:", error);
-      });
+
+    const payload = {
+      ...formData,
+      start_event_date: formData.start_event_date || null,
+      end_event_date: formData.end_event_date || null,
+      Inquiry_date: formData.Inquiry_date || null,
+    };
+
+    CreateEventMaster(payload)
+      .then((res) => console.log(res))
+      .catch((error) => console.error("Error adding customer:", error));
     setFormData({
       ...requiredFields.basic_info,
       ...requiredFields.client_info,
       ...requiredFields.functions,
       ...requiredFields.other,
       event_date: "",
-      Inquiry_date: dayjs().format("YYYY-MM-DD"),
+      Inquiry_date: dayjs().format("DD/MM/YYYY"),
     });
     setCurrent(0);
     setErrors({});
@@ -227,6 +233,8 @@ const CreateEventPage = () => {
           setFormData={setFormData}
           onInputChange={handleInputChange}
           errors={errors}
+          start_event_date={formData.start_event_date}
+          end_event_date={formData.end_event_date}
         />
       ),
       icon: <i className="ki-filled ki-setting-4"></i>,

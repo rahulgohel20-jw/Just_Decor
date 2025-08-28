@@ -1,8 +1,6 @@
 import { Input, Button, Form } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 
-import "antd/dist/reset.css";
-
 const { TextArea } = Input;
 
 export default function Password() {
