@@ -57,25 +57,26 @@ const SortableRow = ({ id, children }) => {
 const FunctionsDetails = ({
   formData,
   setFormData,
-  start_event_date,
-  end_event_date,
+  eventStartDateTime,
+  eventEndDateTime,
 }) => {
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [options, setOptions] = useState([]);
+  const [selectedFunctionIndex, setSelectedFunctionIndex] = useState(null);
 
   const createEmptyRow = () => ({
     eventFuncId: 0,
     functionId: 0,
     functionStartDateTime: null,
     functionEndDateTime: null,
-    person: "",
+    pax: "",
     rate: "",
     function_venue: "",
+    notesEnglish: "",
+    notesGujarati: "",
+    notesHindi: "",
   });
-  useEffect(() => {
-    console.log("Form Data Updated:", formData);
-  }, [formData]);
 
   // fetch function types from API
   const FetchFunction = () => {
@@ -100,6 +101,23 @@ const FunctionsDetails = ({
       setFormData({ ...formData, function_array: [createEmptyRow()] });
     }
   }, []);
+
+  const handleAddClick = () => {
+    setShowFunctionModal(true);
+  };
+
+  const handleSaveNotes = (notes) => {
+    if (selectedFunctionIndex === null) return;
+
+    const updatedArray = [...formData.function_array];
+    updatedArray[selectedFunctionIndex].notesEnglish = notes.notesEnglish;
+    updatedArray[selectedFunctionIndex].notesGujarati = notes.notesGujarati;
+    updatedArray[selectedFunctionIndex].notesHindi = notes.notesHindi;
+
+    setFormData({ ...formData, function_array: updatedArray });
+    setShowNoteModal(false);
+    setSelectedFunctionIndex(null);
+  };
 
   // add new row
   const handleAddFunction = () => {
@@ -131,8 +149,8 @@ const FunctionsDetails = ({
     const updatedArray = [...formData.function_array];
 
     if (selected) {
-      const eventStartDate = dayjs(start_event_date, "DD/MM/YYYY");
-      const eventEndDate = dayjs(end_event_date, "DD/MM/YYYY");
+      const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY");
+      const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY");
 
       const startTime = dayjs(selected.functionstartTime, "HH:mm");
       const endTime = dayjs(selected.functionendTime, "HH:mm");
@@ -195,7 +213,18 @@ const FunctionsDetails = ({
           <thead className="text-black font-bold border-b border-[#C3C3C3]">
             <tr>
               <th className="p-3 w-10"></th>
-              <th className="p-3">Function Type</th>
+              <div className="flex items-center">
+                {" "}
+                <th className="p-3">Function Type</th>{" "}
+                <button
+                  type="button"
+                  onClick={handleAddClick}
+                  title="Add"
+                  className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-6 h-6"
+                >
+                  <i className="ki-filled ki-plus"></i>
+                </button>
+              </div>
               <th className="p-3">Start Date</th>
               <th className="p-3">End Date</th>
               <th className="p-3">Person</th>
@@ -239,10 +268,13 @@ const FunctionsDetails = ({
                         }
                         disabledDate={(current) => {
                           const eventStart = dayjs(
-                            start_event_date,
+                            eventStartDateTime,
                             "DD/MM/YYYY"
                           );
-                          const eventEnd = dayjs(end_event_date, "DD/MM/YYYY");
+                          const eventEnd = dayjs(
+                            eventEndDateTime,
+                            "DD/MM/YYYY"
+                          );
                           return (
                             current &&
                             (current < eventStart.startOf("day") ||
@@ -272,10 +304,13 @@ const FunctionsDetails = ({
                         }
                         disabledDate={(current) => {
                           const eventStart = dayjs(
-                            start_event_date,
+                            eventStartDateTime,
                             "DD/MM/YYYY"
                           );
-                          const eventEnd = dayjs(end_event_date, "DD/MM/YYYY");
+                          const eventEnd = dayjs(
+                            eventEndDateTime,
+                            "DD/MM/YYYY"
+                          );
                           return (
                             current &&
                             (current < eventStart.startOf("day") ||
@@ -296,10 +331,10 @@ const FunctionsDetails = ({
                     <td className="p-3 w-24">
                       <Input
                         className="w-full text-center"
-                        value={func.person}
+                        value={func.pax}
                         type="number"
                         onChange={(e) =>
-                          handleInputChange(index, "person", e.target.value)
+                          handleInputChange(index, "pax", e.target.value)
                         }
                       />
                     </td>
@@ -343,7 +378,10 @@ const FunctionsDetails = ({
                         <button
                           type="button"
                           title="Notes"
-                          onClick={() => setShowNoteModal(true)}
+                          onClick={() => {
+                            setSelectedFunctionIndex(index);
+                            setShowNoteModal(true);
+                          }}
                         >
                           <StickyNote size={18} className="text-primary" />
                         </button>
@@ -372,6 +410,19 @@ const FunctionsDetails = ({
       <AddNotes
         isOpen={showNoteModal}
         onClose={() => setShowNoteModal(false)}
+        initialNotes={
+          selectedFunctionIndex !== null
+            ? {
+                notesEnglish:
+                  formData.function_array[selectedFunctionIndex].notesEnglish,
+                notesGujarati:
+                  formData.function_array[selectedFunctionIndex].notesGujarati,
+                notesHindi:
+                  formData.function_array[selectedFunctionIndex].notesHindi,
+              }
+            : { notesEnglish: "", notesGujarati: "", notesHindi: "" }
+        }
+        onSave={handleSaveNotes}
       />
     </div>
   );

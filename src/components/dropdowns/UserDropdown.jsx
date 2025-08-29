@@ -3,7 +3,7 @@ import { Select } from "antd";
 const UserDropdown = ({ value, onChange, options = [], ...rest }) => {
   const handleChange = (val) => {
     // send in same format as your other inputs
-    onChange({ target: { name: "event_type", value: val } });
+    onChange({ target: { name: "eventTypeId", value: val } });
   };
 
   return (

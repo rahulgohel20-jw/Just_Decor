@@ -26,18 +26,18 @@ const ClientDetailsStep = ({
     if (selectedCustomer) {
       setFormData({
         ...formData,
-        customer_id: selectedCustomer.value,
+        partyId: selectedCustomer.value,
         customer_name: selectedCustomer.customername,
-        customermobile: selectedCustomer.mobile || "",
-        customeraddress: selectedCustomer.address || "",
+        mobileno: selectedCustomer.mobile || "",
+        address: selectedCustomer.address || "",
       });
     } else {
       setFormData({
         ...formData,
-        customer_id: "",
+        partyId: "",
         customer_name: "",
-        customermobile: "",
-        customeraddress: "",
+        mobileno: "",
+        address: "",
       });
     }
   };
@@ -53,7 +53,6 @@ const ClientDetailsStep = ({
   const FetchCustomerName = () => {
     GetAllCustomer(Id)
       .then((res) => {
-        console.log("response : ", res.data);
         const customername = res.data.data["Party Details"].map(
           (customer, index) => ({
             sr_no: index + 1,
@@ -79,9 +78,9 @@ const ClientDetailsStep = ({
         </label>
         <div className="flex space-x-2">
           <select
-            name="title"
+            name="prefix"
             className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none"
-            value={formData.title || "Mr."}
+            value={formData.prefix || "Mr."}
             onChange={handleChange}
           >
             <option value="Mr.">Mr.</option>
@@ -116,17 +115,14 @@ const ClientDetailsStep = ({
         <div className="input">
           <i className="ki-filled ki-geolocation text-[rgba(0, 91, 168, 1)]"></i>
           <Input
-            name="customeraddress"
+            name="address"
             placeholder="Enter Order Address"
-            value={formData.customeraddress || ""}
+            value={formData.address || ""}
             onChange={handleChange}
             className="!border-none !shadow-none focus:!outline-none focus:!ring-0"
             bordered={false}
           />
         </div>
-        {errors.customeraddress && (
-          <span className="text-red-500">{errors.customeraddress}</span>
-        )}
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center gap-x-32">
@@ -137,16 +133,16 @@ const ClientDetailsStep = ({
           <div className="input">
             <i className="ki-filled ki-phone text-[rgba(0, 91, 168, 1)]"></i>
             <Input
-              name="customermobile"
+              name="mobileno"
               placeholder="Enter Mobile Number"
-              value={formData.customermobile || ""}
+              value={formData.mobileno || ""}
               onChange={handleChange}
               className="!border-none !shadow-none focus:!outline-none focus:!ring-0"
               bordered={false}
             />
           </div>
-          {errors.customermobile && (
-            <span className="text-red-500">{errors.customermobile}</span>
+          {errors.mobileno && (
+            <span className="text-red-500">{errors.mobileno}</span>
           )}
         </div>
 
@@ -158,20 +154,24 @@ const ClientDetailsStep = ({
           <label className="flex items-center gap-1 text-sm">
             <input
               type="radio"
-              name="highPriority"
+              name="isHighPriority"
               value="Yes"
-              checked={formData.highPriority === "Yes"}
-              onChange={() => setFormData({ ...formData, highPriority: "Yes" })}
+              checked={formData.isHighPriority === "Yes"}
+              onChange={() =>
+                setFormData({ ...formData, isHighPriority: "Yes" })
+              }
             />
             Yes
           </label>
           <label className="flex items-center gap-1 text-sm">
             <input
               type="radio"
-              name="highPriority"
+              name="isHighPriority"
               value="No"
-              checked={formData.highPriority === "No"}
-              onChange={() => setFormData({ ...formData, highPriority: "No" })}
+              checked={formData.isHighPriority === "No"}
+              onChange={() =>
+                setFormData({ ...formData, isHighPriority: "No" })
+              }
             />
             No
           </label>
