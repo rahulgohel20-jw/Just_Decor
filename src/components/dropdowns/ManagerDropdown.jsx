@@ -1,6 +1,6 @@
 import { Select } from "antd";
 
-const ManagerDropdown = ({ value, onChange, ...rest }) => {
+const ManagerDropdown = ({ value, onChange, options, ...rest }) => {
   const handleChange = (val) => {
     onChange({ target: { name: "manger_name", value: val } });
   };
@@ -10,11 +10,7 @@ const ManagerDropdown = ({ value, onChange, ...rest }) => {
       value={value || undefined}
       onChange={handleChange}
       placeholder="Please select"
-      options={[
-        { label: "Rahul", value: "rahul" },
-        { label: "Aarya", value: "aarya" },
-        { label: "Bharat", value: "bharat" },
-      ]}
+      options={options}
       {...rest}
       className="w-full border-none shadow-none focus:outline-none"
       style={{

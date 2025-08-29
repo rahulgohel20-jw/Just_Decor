@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 
 import AddMember from "@/partials/modals/add-member/AddMember";
+import { underConstruction } from "@/underConstruction";
 import { columns, defaultData } from "./constant";
 
 const MemberList = () => {
@@ -58,6 +59,15 @@ const MemberList = () => {
                 <option value="2">Manager</option>
                 <option value="3">Team Manager</option>
               </select>
+            </div>
+            <div className="filItems">
+              <button
+              className="btn btn-primary"
+              onClick={underConstruction}
+              title="Clear Filter"
+            >
+              <i class="ki-filled ki-filter"></i> Clear Filter
+            </button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">

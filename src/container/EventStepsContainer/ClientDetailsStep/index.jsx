@@ -1,15 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
-
+import CustomerDropdown from "@/components/dropdowns/customerDropdown";
+import { GetAllCustomer } from "@/services/apiServices";
 const ClientDetailsStep = ({
   formData,
   setFormData,
-  onInputChange, // This uses (e, key) format
-  handleInputChange, // This uses ({target: {value, name}}) format
+  onInputChange,
   errors,
 }) => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [customer, setCustomer] = useState([]);
+  useEffect(() => {
+    FetchCustomerName();
+  }, []);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+
+  const handleCustomerChange = (selectedId) => {
+    const selectedCustomer = customer.find(
+      (c) => c.value === selectedId["target"].value
+    );
+
+    if (selectedCustomer) {
+      setFormData({
+        ...formData,
+        customer_id: selectedCustomer.value,
+        customer_name: selectedCustomer.customername,
+        customermobile: selectedCustomer.mobile || "",
+        customeraddress: selectedCustomer.address || "",
+      });
+    } else {
+      setFormData({
+        ...formData,
+        customer_id: "",
+        customer_name: "",
+        customermobile: "",
+        customeraddress: "",
+      });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +49,26 @@ const ClientDetailsStep = ({
     if (errors && errors[name]) {
       console.log(`Clearing error for ${name}`);
     }
+  };
+  const FetchCustomerName = () => {
+    GetAllCustomer(Id)
+      .then((res) => {
+        console.log("response : ", res.data);
+        const customername = res.data.data["Party Details"].map(
+          (customer, index) => ({
+            sr_no: index + 1,
+            value: customer.id,
+            label: customer.nameEnglish + " - " + customer.mobileno,
+            mobile: customer.mobileno,
+            address: customer.addressEnglish,
+            customername: customer.nameEnglish,
+          })
+        );
+        setCustomer(customername);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -38,13 +89,10 @@ const ClientDetailsStep = ({
           </select>
           <div className="input">
             <i className="ki-filled ki-user text-[rgba(0, 91, 168, 1)]"></i>
-            <Input
-              name="customername"
-              placeholder="Alex Roy"
-              value={formData.customername || ""}
-              onChange={handleChange}
-              className="!border-none !shadow-none focus:!outline-none focus:!ring-0"
-              bordered={false}
+            <CustomerDropdown
+              value={formData.customer_name}
+              onChange={handleCustomerChange}
+              options={customer}
             />
             <button
               type="button"
@@ -56,8 +104,8 @@ const ClientDetailsStep = ({
             </button>
           </div>
         </div>
-        {errors.customername && (
-          <span className="text-red-500 ml-[80px]">{errors.customername}</span>
+        {errors.customer_name && (
+          <span className="text-red-500 ml-[80px]">{errors.customer_name}</span>
         )}
       </div>
 
@@ -111,9 +159,9 @@ const ClientDetailsStep = ({
             <input
               type="radio"
               name="highPriority"
-              value="true"
-              checked={formData.highPriority === true}
-              onChange={() => setFormData({ ...formData, highPriority: true })}
+              value="Yes"
+              checked={formData.highPriority === "Yes"}
+              onChange={() => setFormData({ ...formData, highPriority: "Yes" })}
             />
             Yes
           </label>
@@ -121,9 +169,9 @@ const ClientDetailsStep = ({
             <input
               type="radio"
               name="highPriority"
-              value="false"
-              checked={formData.highPriority === false}
-              onChange={() => setFormData({ ...formData, highPriority: false })}
+              value="No"
+              checked={formData.highPriority === "No"}
+              onChange={() => setFormData({ ...formData, highPriority: "No" })}
             />
             No
           </label>
@@ -137,9 +185,9 @@ const ClientDetailsStep = ({
         <div className="input">
           <i className="ki-filled ki-instagram text-[rgba(0, 91, 168, 1)]"></i>
           <Input
-            name="customerreference"
+            name="reference"
             placeholder="Reference"
-            value={formData.customerreference || ""}
+            value={formData.reference || ""}
             onChange={handleChange}
             className="!border-none !shadow-none focus:!outline-none focus:!ring-0"
             bordered={false}

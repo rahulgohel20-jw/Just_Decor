@@ -54,30 +54,60 @@ const MyTask = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "My Task" }]} />
         </div>
-
-        <div className="p-4 bg-gradient-to-b  rounded-lg">
+        {/* filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+              <input
+                className="input pl-8"
+                placeholder="Search task"
+                type="text"
+              />
+            </div>
+            <div className="filItems">
+              {/* <Select defaultValue="This Month" className="w-40">
+                <Option value="today">Today</Option>
+                <Option value="thisWeek">This Week</Option>
+                <Option value="thisMonth">This Month</Option>
+              </Select> */}
+              <select className="select pe-7.5">
+                <option value="0" selected>
+                  This Month
+                </option>
+                <option value="today">Today</option>
+                <option value="thisWeek">This Week</option>
+                <option value="thisMonth">This Month</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <button className="btn btn-light" title="Filter">
+                <i className="ki-filled ki-setting-4"></i> Filter
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button className="btn btn-primary" title="Assign Task">
+              <i className="ki-filled ki-plus"></i>Assign Task
+            </button>
+          </div>
+        </div>
+        <div className="p-4 bg-gradient-to-b rounded-lg">
           <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
-            <div className="flex  items-center  items-center gap-3">
-              <Button
+            <div className="flex items-center items-center gap-3">
+              {/* <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 className="bg-primary hover:bg-primary rounded-md"
               >
                 Assign Task
               </Button>
-              <Select defaultValue="This Month" className="w-40">
-                <Option value="today">Today</Option>
-                <Option value="thisWeek">This Week</Option>
-                <Option value="thisMonth">This Month</Option>
-              </Select>
-
               <Button
                 icon={<FilterOutlined />}
                 className="bg-primary text-white rounded-md"
               >
                 Filter
-              </Button>
-
+              </Button> */}
               <div className="flex items-center bg-white rounded-md border">
                 <Tooltip title="List View">
                   <Button
@@ -103,7 +133,6 @@ const MyTask = () => {
               </div>
             </div>
           </div>
-
           <div className="flex items-center justify-center gap-6 border-b border-gray-300 pb-2 mb-4">
             {taskStats.map((stat) => (
               <div
@@ -116,7 +145,6 @@ const MyTask = () => {
               </div>
             ))}
           </div>
-
           {view === "list" && (
             <div className="flex flex-col gap-3">
               {tasks.map((task) => (
@@ -184,13 +212,11 @@ const MyTask = () => {
               ))}
             </div>
           )}
-
           {view === "bar" && (
             <div className="p-6 bg-white rounded-md border border-gray-200">
               📊 Bar Chart View
             </div>
           )}
-
           {view === "calendar" && (
             <div className="p-6 bg-white rounded-md border border-gray-200">
               📅 Calendar View
