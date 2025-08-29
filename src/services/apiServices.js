@@ -188,5 +188,9 @@ export const UpdateFunctionById = (id, data) => {
 // master
 export const fetchAllUsers = () => GET("/user/getall");
 
+// profile userbyid
 
+export const getUserById = (id) => {
+  return GET(`/user/getbyid?id=${id}`);
+};
 
