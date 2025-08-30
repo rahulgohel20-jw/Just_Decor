@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
-import { message, Spin, Button } from "antd";
+import { message, Spin, Input } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { 
-  getAllByUserId, 
-  getAllByRoleId, 
-  getUserById, 
-  getManagerAndAdminUsersByClient 
-} from "@/services/apiServices";
+import { getAllByRoleId } from "@/services/apiServices";
 
 const AllUser = () => {
   const [loading, setLoading] = useState(false);
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState([]);       // full data
+  const [filteredData, setFilteredData] = useState([]); // for search results
+  const [userId, setUserId] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   // 🔹 Common formatting function
   const formatUsers = (users) =>
@@ -24,83 +22,61 @@ const AllUser = () => {
       email: user.email,
       contactNo: user.contactNo,
       companyName: user.userBasicDetails?.companyName || "-",
-      role: user.userBasicDetails?.role?.name || "-",
       plan: user.plan?.name || "-",
       isActive: user.isActive,
       isApprove: user.isApprove,
       createdAt: new Date(user.createdAt).toLocaleDateString(),
     }));
 
-  // 🔹 Fetch by UserId (default for initial load)
-  const handleFetchByUserId = async (userId) => {
+  // 🔹 Fetch users by UserId
+  const handleFetchByUserId = async (id) => {
+    if (!id) {
+      message.warning("Please enter a User Id");
+      return;
+    }
     try {
       setLoading(true);
-      const response = await getAllByUserId(userId);
+      const response = await getAllByRoleId(id);
+      console.log("🔍 API Response:", response.data);
+
       if (response.data.success) {
-        const users = response.data.data["User Details"] || [];
-        setTableData(formatUsers(users));
+        const users = response.data.data?.["User Details"] || response.data.data || [];
+        const formatted = formatUsers(users);
+        setTableData(formatted);
+        setFilteredData(formatted); // initialize search data
       } else {
-        message.error(response.data.msg || "Failed to fetch users by UserId");
+        message.error(response.data.msg || "No users found");
       }
     } catch (err) {
-      console.error(err);
-      message.error("Error fetching by UserId");
+      console.error("❌ API Error:", err);
+      message.error("Error fetching users by UserId");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Fetch by RoleId
-  const handleFetchByRoleId = async (roleId) => {
-    try {
-      setLoading(true);
-      const response = await getAllByRoleId(roleId);
-      if (response.data.success) {
-        const users = response.data.data["User Details"] || [];
-        setTableData(formatUsers(users));
-      }
-    } catch (err) {
-      message.error("Error fetching by RoleId");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🔹 Fetch single User by Id
-  const handleGetUserById = async (id) => {
-    try {
-      setLoading(true);
-      const response = await getUserById(id);
-      if (response.data.success) {
-        const user = response.data.data;
-        setTableData(formatUsers([user])); // single user in table
-      }
-    } catch (err) {
-      message.error("Error fetching user by Id");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🔹 Fetch Manager & Admin by Client
-  const handleGetManagerAndAdmin = async (clientUserId) => {
-    try {
-      setLoading(true);
-      const response = await getManagerAndAdminUsersByClient(clientUserId);
-      if (response.data.success) {
-        const users = response.data.data["User Details"] || [];
-        setTableData(formatUsers(users));
-      }
-    } catch (err) {
-      message.error("Error fetching Manager/Admin users");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Default load → maybe by a specific userId
+  // 🔹 Search filter
   useEffect(() => {
-    handleFetchByUserId("123"); // pass a real userId
+    if (!searchText) {
+      setFilteredData(tableData);
+    } else {
+      const lower = searchText.toLowerCase();
+      setFilteredData(
+        tableData.filter(
+          (u) =>
+            u.first_name?.toLowerCase().includes(lower) ||
+            u.last_name?.toLowerCase().includes(lower) ||
+            u.email?.toLowerCase().includes(lower) ||
+            u.companyName?.toLowerCase().includes(lower) ||
+            u.plan?.toLowerCase().includes(lower)
+        )
+      );
+    }
+  }, [searchText, tableData]);
+
+  // 🔹 Load default user list on mount
+  useEffect(() => {
+    handleFetchByUserId("1"); // load userId=1 initially
   }, []);
 
   return (
@@ -109,18 +85,19 @@ const AllUser = () => {
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
 
-      {/* Buttons to test APIs */}
+      {/* Input & Button to fetch */}
       <div className="flex gap-2 mb-4">
-        <Button onClick={() => handleFetchByUserId("123")}>Get by UserId</Button>
-        <Button onClick={() => handleFetchByRoleId("456")}>Get by RoleId</Button>
-        <Button onClick={() => handleGetUserById("789")}>Get User by Id</Button>
-        <Button onClick={() => handleGetManagerAndAdmin("321")}>
-          Get Manager/Admin
-        </Button>
+        
+        <Input.Search
+          placeholder="Search users..."
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 250 }}
+        />
       </div>
 
       <Spin spinning={loading}>
-        <TableComponent columns={columns} data={tableData} paginationSize={10} />
+        <TableComponent columns={columns} data={filteredData} paginationSize={10} />
       </Spin>
     </Container>
   );

@@ -33,11 +33,11 @@ export const columns = [
     header: "Company",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "role",
-    header: "Role",
-    meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
-  },
+  // {
+  //   accessorKey: "role",
+  //   header: "Role",
+  //   meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
+  // },
   {
     accessorKey: "plan",
     header: "Plan",

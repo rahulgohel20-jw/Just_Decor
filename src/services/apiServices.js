@@ -194,19 +194,18 @@ export const getAllByUserId = (userId) => {
   return GET(`/user/getallbyuserid?userId=${userId}`);
 };
 
-// ✅ Get all users by RoleId
-export const getAllByRoleId = (roleId) => {
-  return GET(`/user/getallbyroleid?roleId=${roleId}`);
+// ✅ Get all users by RoleId all user
+export const getAllByRoleId = (id) => {
+  return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
-// ✅ Get user by Id
+// ✅ Get user by Id in profile
 export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
 
-// ✅ Get Manager & Admin users by Client UserId
-export const getManagerAndAdminUsersByClient = (clientUserId) => {
-  return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${clientUserId}`);
+
+//registration/signup
+export const registerUser = (data) => {
+  return POST(`/auth/add`, data);
 };
-
-
