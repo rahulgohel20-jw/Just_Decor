@@ -7,9 +7,15 @@ import AddSales from "@/partials/modals/add-sales/AddSales";
 
 const SalesTeamList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [titleModal, setTitleModal] = useState('Add Member');
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
+    setTitleModal('Add Member')
+  };
+  const handleModalShowOpen = () => {
+    setIsModalOpen(true);
+    setTitleModal('View Member')
   };
 
   const responseFormate = () => {
@@ -17,6 +23,7 @@ const SalesTeamList = () => {
       return {
         ...item,
         handleModalOpen: handleModalOpen,
+        handleModalShowOpen:handleModalShowOpen
       };
     });
     return data;
@@ -66,7 +73,7 @@ const SalesTeamList = () => {
           paginationSize={10}
         />
       </Container>
-      <AddSales isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <AddSales isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} titleModal={titleModal}/>
     </Fragment>
   );
 };

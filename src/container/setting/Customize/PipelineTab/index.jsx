@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { toAbsoluteUrl } from "@/utils";
 import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
 import EmptyData from "@/components/ui/emptyData";
+import AddPipelines from "@/partials/modals/add-pipeline/AddPipelines";
 import { Tooltip } from "antd";
 const PipelineTab = () => {
   const pipeLine = [
@@ -56,6 +58,11 @@ const PipelineTab = () => {
       name: "Lost Reason 4",
     },
   ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+    
+  };
   return (
     <>
       <div className="pipeline-tab">
@@ -68,7 +75,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Track goals, progress, and achievements for growth.
               </span>
-              <button className="btn btn-sm btn-primary" title="Add Pipeline">
+              <button className="btn btn-sm btn-primary" title="Add Pipeline" onClick={handleModalOpen}>
                 <i className="ki-filled ki-plus"></i>Pipeline
               </button>
             </div>
@@ -190,6 +197,7 @@ const PipelineTab = () => {
           </div>
         </div>
       </div>
+      <AddPipelines isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </>
   );
 };

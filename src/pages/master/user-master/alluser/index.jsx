@@ -20,7 +20,7 @@ const AllUser = () => {
         console.log("API response:", response.data);
 
         if (response.data.success) {
-          const users = response.data.data["User Details"]; // <-- extract from data.data
+          const users = response.data.data["User Details"]; 
           if (!users || users.length === 0) {
             message.info("No users found");
             setTableData([]);

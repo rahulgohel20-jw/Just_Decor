@@ -1,13 +1,15 @@
 import { Select } from "antd";
 
-const UserDropdown = ({ value, onChange, options = [], ...rest }) => {
+const CustomerDropdown = ({ value, onChange, options = [], ...rest }) => {
   const handleChange = (val) => {
     // send in same format as your other inputs
-    onChange({ target: { name: "eventTypeId", value: val } });
+    onChange({ target: { name: "customer_name", value: val } });
   };
 
   return (
     <Select
+      showSearch
+      allowClear
       value={value || undefined}
       className="w-full border-none shadow-none focus:outline-none"
       onChange={handleChange}
@@ -19,4 +21,4 @@ const UserDropdown = ({ value, onChange, options = [], ...rest }) => {
   );
 };
 
-export default UserDropdown;
+export default CustomerDropdown;

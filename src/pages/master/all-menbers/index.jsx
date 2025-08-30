@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
+import { GetAllMemberByUserId } from "@/services/apiServices"; // ✅ your API
 
 import { Tooltip } from "antd";
 import { Container } from "@/components/container";
@@ -16,12 +17,50 @@ import AddMember from "@/partials/modals/add-member/AddMember";
 const AllMemberMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-
-  const [tableData, setTableData] = useState();
+const [selectedMember, setSelectedMember] = useState(null);
+  const [tableData, setTableData] = useState([]);
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+
+  useEffect(() => {
+    FetchMembers();
+  }, []);
+
+  // ✅ Fetch all members
+  const FetchMembers = () => {
+  GetAllMemberByUserId(Id)
+    .then((res) => {
+      const userDetails = res?.data?.data?.["User Details"];
+      if (userDetails && Array.isArray(userDetails)) {
+        const formatted = userDetails.map((member, index) => ({
+          sr_no: index + 1,
+          email: member.email || "-",
+          full_name: `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-",
+          memberid: member.id,
+          country: member["userBasicDetails"].country.name || "-",
+          contact: member.contactNo || "-",
+          role: member["userBasicDetails"].role.name || "-",
+          task_access: member["userBasicDetails"].isTaskAccess || "-",
+          leave_attendence_access: member["userBasicDetails"].isAttendanceLeaveAccess || "-",
+          city: member["userBasicDetails"].city.name || "-",
+          state: member["userBasicDetails"].state.name || "-",
+        }));
+        console.log("Formatted Member Data:", formatted);
+        setTableData(formatted);
+      } else {
+        setTableData([]);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching members:", error);
+    });
+};
+
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -101,7 +140,7 @@ const AllMemberMaster = () => {
           setIsModalOpen={setIsMemberModalOpen}
         />
         <TableComponent
-          columns={columns}
+          columns={columns} // just edit
           data={tableData}
           paginationSize={10}
         />

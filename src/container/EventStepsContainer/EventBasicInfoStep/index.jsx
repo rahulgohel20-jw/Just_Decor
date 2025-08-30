@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatePicker, Form } from "antd";
 import dayjs from "dayjs";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
@@ -8,6 +8,7 @@ import SpeechToText from "@/components/form-inputs/SpeechToText";
 import useStyles from "./style";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import AddEventType from "@/partials/modals/add-event-type/AddEventType";
+import { GetEventType, Fetchmanager } from "@/services/apiServices";
 
 const EventBasicInfoStep = ({
   formData,
@@ -16,6 +17,43 @@ const EventBasicInfoStep = ({
   errors,
 }) => {
   const classes = useStyles();
+  const [eventTypes, setEventTypes] = useState([]);
+  const [manager, setManager] = useState([]);
+
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+
+  useEffect(() => {
+    Fetcheventtype();
+    FetchManager();
+  }, []);
+
+  const Fetcheventtype = () => {
+    GetEventType(Id)
+      .then((res) => {
+        const eventtype = res.data.data["EventTypes Details"].map(
+          (event, index) => ({
+            sr_no: index + 1,
+            value: event.id,
+            label: event.nameEnglish || "-",
+          })
+        );
+        setEventTypes(eventtype);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const FetchManager = () => {
+    Fetchmanager(Id).then((res) => {
+      const manager = res.data.data["userDetails"].map((man, index) => ({
+        sr_no: index + 1,
+        value: man.id,
+        label: man.firstName || "-",
+      }));
+      setManager(manager);
+    });
+  };
 
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
@@ -28,15 +66,21 @@ const EventBasicInfoStep = ({
             <label className="form-label">Inquiry Date </label>
             <DatePicker
               className="input"
+              format="DD/MM/YYYY"
               value={
-                formData.Inquiry_date ? dayjs(formData.Inquiry_date) : null
+                formData.inquiryDate
+                  ? dayjs(formData.inquiryDate, "DD/MM/YYYY")
+                  : null
               }
               onChange={(date) =>
-                setFormData({ ...formData, Inquiry_date: date })
+                setFormData({
+                  ...formData,
+                  inquiryDate: date ? date.format("DD/MM/YYYY") : "",
+                })
               }
             />
-            {errors.Inquiry_date && (
-              <span className="text-red-500">{errors.Inquiry_date}</span>
+            {errors.inquiryDate && (
+              <span className="text-red-500">{errors.inquiryDate}</span>
             )}
           </div>
 
@@ -53,30 +97,48 @@ const EventBasicInfoStep = ({
             <label className="form-label">Start Event Date</label>
             <DatePicker
               className="input"
+              showTime={{ use12Hours: true, format: "hh:mm A" }}
+              format="DD/MM/YYYY hh:mm A"
               value={
-                formData.event_date ? dayjs(formData.start_event_date) : null
+                formData.eventStartDateTime
+                  ? dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
+                  : null
               }
               onChange={(date) =>
-                setFormData({ ...formData, event_date: date })
+                setFormData({
+                  ...formData,
+                  eventStartDateTime: date
+                    ? date.format("DD/MM/YYYY hh:mm A")
+                    : "",
+                })
               }
             />
             {errors.event_date && (
-              <span className="text-red-500">{errors.event_date}</span>
+              <span className="text-red-500">{errors.eventStartDateTime}</span>
             )}
           </div>
           <div className="flex flex-col">
             <label className="form-label">End Event Date</label>
             <DatePicker
               className="input"
+              showTime={{ use12Hours: true, format: "hh:mm A" }}
+              format="DD/MM/YYYY hh:mm A"
               value={
-                formData.event_date ? dayjs(formData.end_event_date) : null
+                formData.eventEndDateTime
+                  ? dayjs(formData.eventEndDateTime, "DD/MM/YYYY hh:mm A")
+                  : null
               }
               onChange={(date) =>
-                setFormData({ ...formData, event_date: date })
+                setFormData({
+                  ...formData,
+                  eventEndDateTime: date
+                    ? date.format("DD/MM/YYYY hh:mm A")
+                    : "",
+                })
               }
             />
             {errors.event_date && (
-              <span className="text-red-500">{errors.event_date}</span>
+              <span className="text-red-500">{errors.eventEndDateTime}</span>
             )}
           </div>
           <div className="select__grp flex flex-col">
@@ -98,8 +160,9 @@ const EventBasicInfoStep = ({
             <label className="form-label">Event Type</label>
             <div className="sg__inner flex items-center gap-1 relative">
               <UserDropdown
-                value={formData.event_type}
+                value={formData.eventTypeId}
                 onChange={onInputChange}
+                options={eventTypes}
               />
               <button
                 type="button"
@@ -110,8 +173,8 @@ const EventBasicInfoStep = ({
                 <i className="ki-filled ki-plus"></i>
               </button>
             </div>
-            {errors.event_type && (
-              <span className="text-red-500">{errors.event_type}</span>
+            {errors.eventTypeId && (
+              <span className="text-red-500">{errors.eventTypeId}</span>
             )}
           </div>
           {/* Manager */}
@@ -119,8 +182,9 @@ const EventBasicInfoStep = ({
             <label className="form-label">Manager</label>
             <div className="sg__inner flex items-center gap-1 relative">
               <ManagerDropdown
-                value={formData.manger_name}
+                value={formData.managerId}
                 onChange={onInputChange}
+                options={manager}
               />
               <button
                 type="button"
@@ -131,8 +195,8 @@ const EventBasicInfoStep = ({
                 <i className="ki-filled ki-plus"></i>
               </button>
             </div>
-            {errors.manger_name && (
-              <span className="text-red-500">{errors.manger_name}</span>
+            {errors.managerId && (
+              <span className="text-red-500">{errors.managerId}</span>
             )}
           </div>
         </div>

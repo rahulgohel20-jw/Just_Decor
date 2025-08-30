@@ -214,6 +214,10 @@ export const MENU_SIDEBAR = [
         title: "User Roles",
         path: "team/user-role",
       },
+      {
+        title: "All Members",
+        path: "team/all-members",
+      },
     ],
   },
   {

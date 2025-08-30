@@ -1,68 +1,84 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
 import { Tooltip } from "antd";
+import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
+import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
 
 const EventListPage = () => {
   const classes = useStyle();
-
+  useEffect(() => {
+    FetchEvent();
+  }, []);
   const [tableData, setTableData] = useState();
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        proforma_invoice: (
-          // <Link to="/proforma-invoice">
-          <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              onClick={underConstruction}
-            >
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </Tooltip>
-          // </Link>
-        ),
-        invoice: (
-          <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              
-            >
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
-          </Link>
-        ),
-        quotation: (
-          <Link to="/estimate">
-            <Tooltip className="cursor-pointer" title="Quotation">
-              <div className="flex justify-center items-center w-full">
-                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+  const FetchEvent = () => {
+    GetEventMaster(Id)
+      .then((res) => {
+        const formatted = res.data.data["Event Details"].map((cust, index) => ({
+          sr_no: index + 1,
+          eventid: cust.id,
+          event_id: cust.eventNo || "-",
+          event_date:
+            cust.eventStartDateTime.split(" ")[0] +
+            " To " +
+            cust.eventEndDateTime.split(" ")[0],
+          customer: cust.party.nameEnglish,
+          event_type: cust.eventType.nameEnglish,
+          proforma_invoice: (
+            // <Link to="/proforma-invoice">
+            <Tooltip className="cursor-pointer" title="Proforma Invoice">
+              <div
+                className="flex justify-center items-center w-full"
+                onClick={underConstruction}
+              >
+                <FileText className="w-5 h-5 text-primary" />
               </div>
             </Tooltip>
-          </Link>
-        ),
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
+            // </Link>
+          ),
+          invoice: (
+            <Link to="/invoice-dashboard">
+              <Tooltip className="cursor-pointer" title="Invoice">
+                <div className="flex justify-center items-center w-full">
+                  <Receipt className="w-5 h-5 text-success" />
+                </div>
+              </Tooltip>
+            </Link>
+          ),
+          quotation: (
+            <Link to="/estimate">
+              <Tooltip className="cursor-pointer" title="Quotation">
+                <div className="flex justify-center items-center w-full">
+                  <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+                </div>
+              </Tooltip>
+            </Link>
+          ),
+        }));
 
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error deleting customer:", error);
+      });
   };
-
-  useEffect(() => {
-    setTableData(responseFormate());
-  }, []);
+  const DeleteEvent = (eventid) => {
+    DeleteEventMaster(eventid)
+      .then(() => {
+        FetchEvent();
+      })
+      .catch((error) => {
+        console.error("Error deleting event:", error);
+      });
+  };
 
   return (
     <Fragment>
@@ -87,18 +103,14 @@ const EventListPage = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
-              <button
-                className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
-              >
+              <button className="btn btn-primary" title="Add Event">
                 <i className="ki-filled ki-plus"></i> Add Event
               </button>
             </Link>
           </div>
         </div>
         <TableComponent
-          columns={columns}
+          columns={columns(DeleteEvent)}
           data={tableData}
           paginationSize={10}
         />

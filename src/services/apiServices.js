@@ -149,7 +149,26 @@ export const DeleteEventType = (Id) => {
 export const CreateEventMaster = (data) => {
   return POST(`/eventmaster/add`, data);
 };
-
+//Get all event
+export const GetEventMaster = (Id) => {
+  return GET(`/eventmaster/getallbyuserid?userId=${Id}`);
+};
+//edit event
+export const UpdateEventMaster = (Id, data) => {
+  return PUT(`/eventmaster/update?id=${Id}`, data);
+};
+//get event by id
+export const GetEventMasterById = (Id) => {
+  return GET(`/eventmaster/getbyid?eventId=${Id}`);
+};
+//Delete event
+export const DeleteEventMaster = (Id) => {
+  return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
+};
+//get all manager and admin
+export const Fetchmanager = (Id) => {
+  return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
+};
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
@@ -184,6 +203,16 @@ export const EditFunctionById = (id, data) => {
 export const fetchAllUsers = () => GET("/user/getall");
 
 
+// profile userbyid
 
-//Menu Category
+export const getUserById = (id) => {
+  return GET(`/user/getbyid?id=${id}`);
+};
+
+
+
+// ALL Member
+export const GetAllMemberByUserId = (id) => {
+  return GET(`/user/getallbyuserid?userId=${id}`);
+};
 

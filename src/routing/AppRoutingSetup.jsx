@@ -184,6 +184,10 @@ const AppRoutingSetup = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
+          <Route
+            path="/edit-event/:eventId"
+            element={<CreateEventPage mode="edit" />}
+          />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route
             path="/menu-allocation"
@@ -219,11 +223,21 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
+          <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
-          <Route path="/master/menu-category" element={<MenuCategoryMaster />} />
-          <Route path="/master/menu-sub-category" element={<MenuSubCategory />} />
-          <Route path="/master/menu-kitchan-area" element={<MenuKitchenArea />} />
+          <Route
+            path="/master/menu-category"
+            element={<MenuCategoryMaster />}
+          />
+          <Route
+            path="/master/menu-sub-category"
+            element={<MenuSubCategory />}
+          />
+          <Route
+            path="/master/menu-kitchan-area"
+            element={<MenuKitchenArea />}
+          />
           <Route path="/master/menu-item" element={<MenuItemsMaster />} />
 
           {/* Tasks routes */}

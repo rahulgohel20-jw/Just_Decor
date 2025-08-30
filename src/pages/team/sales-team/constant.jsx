@@ -1,10 +1,10 @@
 import { DataGridColumnHeader } from "@/components";
 import { Link } from "react-router-dom";
-import { Tooltip } from "antd";
+import { underConstruction } from "@/underConstruction";
+import { Tooltip , Popconfirm} from "antd";
 export const columns = [
   {
     accessorKey: "user",
-
     header: ({ column }) => (
       <DataGridColumnHeader title="User" column={column} />
     ),
@@ -41,14 +41,14 @@ export const columns = [
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip title="View">
-      <button
-  type="button"
-  className="btn btn-sm btn-icon btn-clear text-success"
-  title="View"
-  onClick={() => setIsAddCompanyOpen(true)}
->
-  <i className="ki-filled ki-eye"></i>
-</button>
+            <button
+              type="button"
+              className="btn btn-sm btn-icon btn-clear text-success"
+              title="View"
+              onClick={() =>  cell.row.original.handleModalShowOpen() }
+            >
+              <i className="ki-filled ki-eye"></i>
+            </button>
 
 
           </Tooltip>
@@ -61,6 +61,14 @@ export const columns = [
               <i className="ki-filled ki-notepad-edit"></i>
             </button>
           </Tooltip>
+        <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => underConstruction()
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear text-danger"
@@ -69,6 +77,7 @@ export const columns = [
               <i className="ki-filled ki-trash"></i>
             </button>
           </Tooltip>
+          </Popconfirm>
         </div>
       );
     },
