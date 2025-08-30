@@ -39,6 +39,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
           )}
           {current === steps.length - 1 && (
             <button
+              type="button"
               className="btn btn-success justify-center w-28"
               onClick={onFinish}
               title="Finish"

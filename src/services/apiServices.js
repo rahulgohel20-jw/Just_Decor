@@ -24,13 +24,8 @@ export const deleteRole = (roleId) => {
 export const fetchCountries = (countryName = "") =>
   GET(`/countrymaster/getall?countryName=${countryName}`);
 
-export const fetchCountryById = (id) => GET(`/v1/api/countrymaster/getbyid?id=${id}`);
-
-export const Fetchmenu = (Id) => {
-  return GET(`/menucategory/getallbyuserid?userid=${Id}`, {
-    withCredentials: true,
-  });
-};
+export const fetchCountryById = (id) =>
+  GET(`/v1/api/countrymaster/getbyid?id=${id}`);
 
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
@@ -38,7 +33,8 @@ export const fetchStatesByCountry = (countryId, stateName = "") =>
     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
 
-export const fetchStateById = (id) => GET(`/v1/api/statemaster/getbyid?id=${id}`);
+export const fetchStateById = (id) =>
+  GET(`/v1/api/statemaster/getbyid?id=${id}`);
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
@@ -147,6 +143,14 @@ export const CreateEventMaster = (data) => {
 export const GetEventMaster = (Id) => {
   return GET(`/eventmaster/getallbyuserid?userId=${Id}`);
 };
+//edit event
+export const UpdateEventMaster = (Id, data) => {
+  return PUT(`/eventmaster/update?id=${Id}`, data);
+};
+//get event by id
+export const GetEventMasterById = (Id) => {
+  return GET(`/eventmaster/getbyid?eventId=${Id}`);
+};
 //Delete event
 export const DeleteEventMaster = (Id) => {
   return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
@@ -204,6 +208,5 @@ export const getUserById = (id) => {
 export const getManagerAndAdminUsersByClient = (clientUserId) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${clientUserId}`);
 };
-
 
 
