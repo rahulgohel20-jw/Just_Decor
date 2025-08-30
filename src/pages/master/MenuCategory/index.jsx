@@ -5,6 +5,8 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 
+import { GetMenuCategoryByUserId } from "@/services/apiServices";
+
 const MenuCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
@@ -12,22 +14,29 @@ const MenuCategory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     FetchCategoryData();
-  }, [searchQuery]);
+  }, []);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+  
   const FetchCategoryData = () => {
-    const formatted = defaultData.map(
-          (item, index) => ({
-            ...item,
-            sr_no: index + 1,
-            category: item.category || "-",
-            image:item.image,
-            priority: item.priority
-          })
-        );
+    
+    GetMenuCategoryByUserId(Id)
+      .then((res) => {
+        console.log(res);
+        // const formatted = res?.data?.data["Menu Category Details"].map(
+        //   (item, index) => ({
+        //     sr_no: index + 1,
+        //     category: item.nameEnglish || "-",
+        //     categoryid: item.id,
+        //   })
+        // );
 
-        setTableData(formatted);
+        // setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error deleting customer:", error);
+      });
   };
 
   const DeleteCategory = () => {

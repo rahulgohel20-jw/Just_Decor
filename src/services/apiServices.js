@@ -1,5 +1,8 @@
 import { POST, GET, PUT, DELETE } from "./axiosInstance";
 
+export const GetMenuCategoryByUserId = (Id) => {
+  return GET(`/menucategory/getallbyuserid?userid=${Id}`);
+};
 // Create Role
 export const createRole = (data) => {
   return POST("/role_master/save-single-or-multiple", data);
@@ -181,4 +184,6 @@ export const EditFunctionById = (id, data) => {
 export const fetchAllUsers = () => GET("/user/getall");
 
 
+
+//Menu Category
 
