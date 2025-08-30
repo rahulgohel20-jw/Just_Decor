@@ -4,7 +4,10 @@ import { Copy, CopyPlus, Eye, Logs, Pen, Plus, Trash } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
 import EmptyData from "@/components/ui/emptyData";
 import AddPipelines from "@/partials/modals/add-pipeline/AddPipelines";
-import { Tooltip } from "antd";
+import AddPipelinesTemplate from "@/partials/modals/add-pipeline-template/AddPipelinesTemplate";
+import AddPipelinesReason from "@/partials/modals/add-pipeline-reason/AddPipelinesReason";
+import { Popconfirm, Tooltip } from "antd";
+import { underConstruction } from "@/underConstruction";
 const PipelineTab = () => {
   const pipeLine = [
     {
@@ -59,10 +62,18 @@ const PipelineTab = () => {
     },
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalTemplateOpen, setIsModalTemplateOpen] = useState(false);
+  const [isModalReasonOpen, setIsModalReasonOpen] = useState(false);
   const handleModalOpen = () => {
     setIsModalOpen(true);
-    
   };
+
+  const handleModalTemplateOpen = () => {
+    setIsModalTemplateOpen(true)
+  }
+  const handleModalReasonOpen = () => {
+    setIsModalReasonOpen(true)
+  }
   return (
     <>
       <div className="pipeline-tab">
@@ -88,21 +99,39 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
+                          <Popconfirm
+                              title="Are you sure to copy this item?"
+                              onConfirm={() => underConstruction()
+                              }
+                              onCancel={() => console.log('Cancelled')}
+                              okText="Yes"
+                              cancelText="No"
+                            >
                           <Tooltip title="Copy">
                             <button type="button" title="Copy">
                               <i className="ki-filled ki-copy text-success"></i>
                             </button>
                           </Tooltip>
+                          </Popconfirm>
                           <Tooltip title="Edit">
-                            <button type="button" title="Edit">
+                            <button type="button" title="Edit" onClick={handleModalOpen}>
                               <i className="ki-filled ki-notepad-edit text-primary"></i>
                             </button>
                           </Tooltip>
+                          <Popconfirm
+                              title="Are you sure to delete this item?"
+                              onConfirm={() => underConstruction()
+                              }
+                              onCancel={() => console.log('Cancelled')}
+                              okText="Yes"
+                              cancelText="No"
+                            >
                           <Tooltip title="Delete">
                             <button type="button" title="Delete">
                               <i className="ki-filled ki-trash text-danger"></i>
                             </button>
                           </Tooltip>
+                          </Popconfirm>
                         </>
                       }
                     />
@@ -121,7 +150,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Clear steps to achieve goals and fulfillment.
               </span>
-              <button className="btn btn-sm btn-primary" title="Add Template">
+              <button className="btn btn-sm btn-primary" title="Add Template" onClick={handleModalTemplateOpen}>
                 <i className="ki-filled ki-plus"></i>Template
               </button>
             </div>
@@ -134,16 +163,39 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
+                        <Popconfirm
+                              title="Are you sure to copy this item?"
+                              onConfirm={() => underConstruction()
+                              }
+                              onCancel={() => console.log('Cancelled')}
+                              okText="Yes"
+                              cancelText="No"
+                            >
                           <Tooltip title="Copy">
                             <button type="button" title="Copy">
                               <i className="ki-filled ki-copy text-success"></i>
                             </button>
                           </Tooltip>
-                          <Tooltip title="Delete">
-                            <button type="button" title="Delete">
-                              <i className="ki-filled ki-eye text-success"></i>
+                          </Popconfirm>
+                          <Tooltip title="Edit">
+                            <button type="button" title="Edit" onClick={handleModalTemplateOpen}>
+                              <i className="ki-filled ki-notepad-edit text-primary"></i>
                             </button>
                           </Tooltip>
+                          <Popconfirm
+                              title="Are you sure to delete this item?"
+                              onConfirm={() => underConstruction()
+                              }
+                              onCancel={() => console.log('Cancelled')}
+                              okText="Yes"
+                              cancelText="No"
+                            >
+                          <Tooltip title="Delete">
+                            <button type="button" title="Delete">
+                              <i className="ki-filled ki-trash text-danger"></i>
+                            </button>
+                          </Tooltip>
+                          </Popconfirm>
                         </>
                       }
                     />
@@ -162,7 +214,7 @@ const PipelineTab = () => {
               <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
                 Tracks reasons for lost opportunities to improve outcomes.
               </span>
-              <button className="btn btn-sm btn-primary" title="Add Reason">
+              <button className="btn btn-sm btn-primary" title="Add Reason" onClick={handleModalReasonOpen}>
                 <i className="ki-filled ki-plus"></i>Reason
               </button>
             </div>
@@ -175,16 +227,39 @@ const PipelineTab = () => {
                       leftContent={item.name}
                       rightContent={
                         <>
+                          <Popconfirm
+                                title="Are you sure to copy this item?"
+                                onConfirm={() => underConstruction()
+                                }
+                                onCancel={() => console.log('Cancelled')}
+                                okText="Yes"
+                                cancelText="No"
+                              >
+                            <Tooltip title="Copy">
+                              <button type="button" title="Copy">
+                                <i className="ki-filled ki-copy text-success"></i>
+                              </button>
+                            </Tooltip>
+                          </Popconfirm>
                           <Tooltip title="Edit">
-                            <button type="button" title="Edit">
+                            <button type="button" title="Edit" onClick={handleModalReasonOpen}>
                               <i className="ki-filled ki-notepad-edit text-primary"></i>
                             </button>
                           </Tooltip>
+                          <Popconfirm
+                                title="Are you sure to delete this item?"
+                                onConfirm={() => underConstruction()
+                                }
+                                onCancel={() => console.log('Cancelled')}
+                                okText="Yes"
+                                cancelText="No"
+                              >
                           <Tooltip title="Delete">
                             <button type="button" title="Delete">
                               <i className="ki-filled ki-trash text-danger"></i>
                             </button>
                           </Tooltip>
+                          </Popconfirm>
                         </>
                       }
                     />
@@ -198,6 +273,8 @@ const PipelineTab = () => {
         </div>
       </div>
       <AddPipelines isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <AddPipelinesTemplate isModalOpen={isModalTemplateOpen} setIsModalOpen={setIsModalTemplateOpen} />
+      <AddPipelinesReason isModalOpen={isModalReasonOpen} setIsModalOpen={setIsModalReasonOpen} />
     </>
   );
 };

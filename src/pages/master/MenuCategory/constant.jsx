@@ -1,6 +1,5 @@
-import { Tooltip } from "antd";
-
-export const columns = (onEdit, onDelete) => [
+import { Popconfirm, Tooltip } from "antd";
+export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -10,7 +9,7 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "image",
+    accessorKey: "imagePath",
     header: "Image",
     meta: {
       headerClassName: "w-[8%]",
@@ -18,7 +17,7 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "category",
+    accessorKey: "nameEnglish",
     header: "Category",
     meta: {
       headerClassName: "w-[8%]",
@@ -26,7 +25,15 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "priority",
+    accessorKey: "price",
+    header: "Price",
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
+    accessorKey: "sequence",
     header: "Priority",
     meta: {
       headerClassName: "w-[8%]",
@@ -34,22 +41,30 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
       return (
         <div className="flex items-center  gap-1">
+          <Popconfirm
+              title="Are you sure to change this status?"
+              onConfirm={() => onStatus(row.original.id , row.original.isActive ? false: true)
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <label className="switch switch-lg">
               <input
                 type="checkbox"
                 value="1"
                 name="check"
-                defaultChecked={row.original.status}
+                defaultChecked={row.original.isActive}
                 readOnly
-                checked={row.original.status}
-                // onChange={() => }
+                checked={row.original.isActive}
               />
             </label>
+            </Popconfirm>
         </div>
       );
     },
@@ -73,16 +88,23 @@ export const columns = (onEdit, onDelete) => [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
-
+          <Popconfirm
+              title="Are you sure to delete this item?"
+              onConfirm={() => onDelete(row.original.id)
+              }
+              onCancel={() => console.log('Cancelled')}
+              okText="Yes"
+              cancelText="No"
+            >
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => onDelete(row.original.mealid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
           </Tooltip>
+          </Popconfirm>
         </div>
       );
     },
@@ -91,12 +113,4 @@ export const columns = (onEdit, onDelete) => [
       cellClassName: "w-[10%]",
     },
   },
-];
-
-export const defaultData = [
-  { sr_no: 1, category: "LABENESE COUNTER", image:'', priority: '5', status:1 },
-  { sr_no: 2, category: "WELCOME DRINKS AND SPRITZERS", image:'', priority: '38', status:1},
-  { sr_no: 3, category: "Last", image:'', priority: '27', status:0},
-  { sr_no: 4, category: "Police", image:'', priority: '25', status:1 },
-  { sr_no: 5, category: "TEST", image:'', priority: '88', status:0 },
 ];

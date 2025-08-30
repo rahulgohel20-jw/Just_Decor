@@ -1,33 +1,35 @@
 import { useState, useEffect } from "react";
-import { EditEventType, Addeventtype } from "@/services/apiServices";
+import { editCategory, AddCategory } from "@/services/apiServices";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
   refreshData,
-  selectedMenuCategory,
+  editData,
 }) => {
   if (!isModalOpen) return null;
-
   const initialFormState = {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+    menuSlogan:"",
+    price:"",
+    sequence:"",
+    imagePath:""
   };
   const [formData, setFormData] = useState(initialFormState);
 
   useEffect(() => {
-    if (selectedMenuCategory) {
-      console.log(selectedMenuCategory);
-
+    if (editData) {
       setFormData({
-        nameEnglish: selectedMenuCategory.event_type || "",
-        nameGujarati: selectedMenuCategory.nameGujarati || "",
-        nameHindi: selectedMenuCategory.nameHindi || "",
+        nameEnglish: editData.event_type || "",
+        nameGujarati: editData.nameGujarati || "",
+        nameHindi: editData.nameHindi || "",
       });
     } else {
       setFormData(initialFormState);
     }
-  }, [selectedMenuCategory]);
+  }, [editData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,29 +42,32 @@ const AddMenuCategory = ({
       alert("User data not found");
       return;
     }
-    refreshData();
     setIsModalOpen();
-    if (selectedMenuCategory) {
+    if (editData) {
       const payload = { ...formData, userId: userData.id };
 
-      // EditEventType(selectedMenuCategory.eventid, payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error editing meal:", error);
-      //   });
+      editCategory(editData.id, payload)
+        .then((res) => {
+          refreshData();
+          setIsModalOpen();
+          res.data?.msg && successMsgPopup(res.data.msg)
+        })
+        .catch((error) => {
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+          console.error("Error editing meal:", error);
+        });
     } else {
       const payload = { ...formData, userId: userData.id };
-      // Addeventtype(payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error adding meal:", error);
-      //   });
+      AddCategory(payload)
+        .then((res) => {
+          refreshData();
+          setIsModalOpen();
+          res.data?.msg && successMsgPopup(res.data.msg)
+        })
+        .catch((error) => {
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+          console.error("Error adding meal:", error);
+        });
     }
   };
   return (
@@ -71,7 +76,7 @@ const AddMenuCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedMenuCategory ? "Edit Menu Category" : "New Menu Category"}
+            {editData ? "Edit Menu Category" : "New Menu Category"}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -108,19 +113,30 @@ const AddMenuCategory = ({
             <label className="block text-gray-600 mb-1">{'Slogun'}</label>
             <textarea
               type="text"
-              name={'slogun'}
-              value={formData.slogun}
+              name={'menuSlogan'}
+              value={formData.menuSlogan}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
               placeholder={'Slogun'}
             />
           </div>
           <div className="relative">
+            <label className="block text-gray-600 mb-1">{'Price'}</label>
+            <input
+              type="number"
+              name={'price'}
+              value={formData.price}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-lg p-2 w-full"
+              placeholder={'price'}
+            />
+          </div>
+          <div className="relative">
             <label className="block text-gray-600 mb-1">{'Priority'}</label>
             <input
               type="number"
-              name={'priority'}
-              value={formData.priority}
+              name={'sequence'}
+              value={formData.sequence}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
               placeholder={'Priority'}
@@ -130,8 +146,8 @@ const AddMenuCategory = ({
             <label className="block text-gray-600 mb-1">{'Document'}</label>
             <input
               type="file"
-              name={'document'}
-              value={formData.document}
+              name={'imagePath'}
+              value={formData.imagePath}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
               placeholder={'document'}
@@ -151,7 +167,7 @@ const AddMenuCategory = ({
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {selectedMenuCategory ? "Update" : "Save"}
+            {editData ? "Update" : "Save"}
           </button>
         </div>
       </div>

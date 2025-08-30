@@ -4,7 +4,7 @@ import { GetAllRole } from "@/services/apiServices"; // <-- adjust path if neede
 import { set } from "date-fns";
 
 
-const AddPipelines = ({ isModalOpen, setIsModalOpen }) => { 
+const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => { 
   
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
@@ -40,7 +40,7 @@ const AddPipelines = ({ isModalOpen, setIsModalOpen }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add new pipeline"
+        title="Add new leade personal"
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -86,4 +86,4 @@ const AddPipelines = ({ isModalOpen, setIsModalOpen }) => {
     )
   );
 };
-export default AddPipelines;
+export default AddLeadPersonal;
