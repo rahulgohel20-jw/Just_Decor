@@ -89,37 +89,31 @@ const EstimatePage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Quotation" }]} />
         </div>
-        <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 mb-4">
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div className="card rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-start p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
                 Pipeline for Personal Satisfaction
               </h3>
-              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
+              <span className="text-gray-700 text-sm text-center text-center">
                 Track goals, progress, and achievements for growth.
               </span>
-              <button className="btn btn-sm btn-primary" title="Add Pipeline">
-                <i className="ki-filled ki-plus"></i>Pipeline
-              </button>
             </div>
-            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
+            <div className="card-content bg-white rounded-bl-xl rounded-br-xl dark:bg-dark border-t p-4 h-full">
               iuouiouioui
             </div>
           </div>
-          <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
-            <div className="flex flex-col items-center pt-3 pb-7.5 px-1.5">
+          <div className="card rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
+            <div className="flex flex-col items-start p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
-                Pipeline Template for Personal Satisfaction
+                Pipeline for Personal Satisfaction
               </h3>
-              <span className="text-gray-700 text-sm text-center mb-4.5 text-center">
-                Clear steps to achieve goals and fulfillment.
+              <span className="text-gray-700 text-sm text-center text-center">
+                Track goals, progress, and achievements for growth.
               </span>
-              <button className="btn btn-sm btn-primary" title="Add Template">
-                <i className="ki-filled ki-plus"></i>Template
-              </button>
             </div>
-            <div className="card-content bg-white dark:bg-dark border-t py-2 px-1.5 h-full">
-              sdfsdfsdf
+            <div className="card-content bg-white rounded-bl-xl rounded-br-xl dark:bg-dark border-t p-4 h-full">
+              iuouiouioui
             </div>
           </div>
         </div>

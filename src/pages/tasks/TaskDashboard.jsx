@@ -1,7 +1,10 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Card, Select, Input, Button, Tag } from "antd";
+import TabComponent from "@/components/tab/TabComponent";
+import { KeenIcon } from "@/components";
+import { CommonHexagonBadge } from "@/partials/common";
+import { Card, Select, Input, Button, Tag, Tabs } from "antd";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -11,58 +14,63 @@ import {
 } from "@ant-design/icons";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
-
+import { toAbsoluteUrl } from "@/utils";
 const { Option } = Select;
-
 const TaskDashboard = () => {
   const [selectedView, setSelectedView] = useState("Table");
   const [tableData, setTableData] = useState(defaultData);
-
   const taskStats = [
     {
       label: "Overdue",
       value: 32,
-      color: "red",
-      icon: <CloseCircleOutlined />,
-      border: "border-l-4 border-b-4 border-red-500 ",
+      color: "danger",
+      icon: <i class="ki-filled ki-timer text-xl text-danger text-brand"></i>,
+      border: "border-s-red-500 ",
     },
     {
       label: "Pending",
       value: 0,
-      color: "red",
-      icon: <ExclamationCircleOutlined />,
-      border: "border-l-4 border-b-4 border-orange-300",
+      color: "warning",
+      icon: (
+        <i class="ki-filled ki-abstract-18 text-xl text-warning text-brand"></i>
+      ),
+      border: "border-s-warning",
     },
     {
       label: "In Progress",
       value: 0,
-      color: "orange",
-      icon: <SyncOutlined spin />,
-      border: "border-l-4 border-b-4 border-orange-300",
+      color: "info",
+      icon: (
+        <i class="ki-filled ki-arrows-circle text-xl text-info text-brand"></i>
+      ),
+      border: "border-s-info",
     },
     {
       label: "Completed",
       value: 0,
-      color: "green",
-      icon: <CheckCircleOutlined />,
-      border: "border-l-4 border-b-4 border-green-400",
+      color: "success",
+      icon: (
+        <i class="ki-filled ki-check-circle text-xl text-success text-brand"></i>
+      ),
+      border: "border-s-success",
     },
     {
       label: "In Time",
       value: 0,
-      color: "green",
-      icon: <ClockCircleOutlined />,
-      border: "border-l-4 border-b-4 border-green-300",
+      color: "primary",
+      icon: <i class="ki-filled ki-time text-xl text-primary text-brand"></i>,
+      border: "border-s-primary",
     },
     {
       label: "Delayed",
       value: 0,
-      color: "red",
-      icon: <ClockCircleOutlined />,
-      border: "border-l-4 border-b-4 border-red-400",
+      color: "indigo",
+      icon: (
+        <i class="ki-filled ki-information-4 text-xl text-indigo text-brand"></i>
+      ),
+      border: "border-s-indigo",
     },
   ];
-
   const tasks = [
     "Today",
     "Yesterday",
@@ -74,44 +82,126 @@ const TaskDashboard = () => {
     "All Time",
     "Custom",
   ];
-
+  const tavViewTabs = [
+    {
+      label: (
+        <>
+          <i className="ki-filled ki-element-7"></i>
+          Table
+        </>
+      ),
+      value: "table",
+      children: "",
+    },
+    {
+      label: (
+        <>
+          <i className="ki-filled ki-bar-chart"></i>
+          Bar Chart
+        </>
+      ),
+      value: "barChart",
+      children: "",
+    },
+  ];
   return (
     <Fragment>
+      <style>
+        {`
+          .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+          }
+          .dark .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+          }
+        `}
+      </style>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Task Dashboard" }]} />
         </div>
+        {/* status */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 mb-4">
+          {taskStats.map((stat, index) => (
+            <div
+              key={index}
+              className={`col-span-1 flex items-center flex-wrap sm:flex-nowrap grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl gap-3 py-5 px-5 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
+            >
+              <CommonHexagonBadge
+                stroke={`stroke-${stat.color}-clarity`}
+                fill="fill-light"
+                size="size-[46px]"
+                badge={stat.icon}
+              />
+              <div className="flex flex-col">
+                <div className="font-sm form-info text-gray-800">
+                  {stat.label}
+                </div>
+                <h3 className={`text-xl font-semibold text-${stat.color}`}>
+                  {stat.value}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
         {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-center gap-2 mb-3">
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input className="input pl-8" placeholder="Search" type="text" />
+              <input
+                className="input pl-8"
+                placeholder="Search task"
+                type="text"
+              />
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                className="btn btn-primary"
-                // onClick={handleModalOpen}
-                title=" Add Company"
-              >
-                <i className="ki-filled ki-users"></i> Add Member
+            <div className="filItems">
+              <select className="select pe-7.5">
+                <option value="0">Today</option>
+                <option value="1">Yesterday</option>
+                <option value="2">This Week</option>
+                <option value="3">This Month</option>
+                <option value="4">Last Month</option>
+                <option value="5">This Year</option>
+                <option value="6">All</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <select className="select pe-7.5">
+                <option value="0">Assigned to</option>
+                <option value="1">User one</option>
+                <option value="2">User two</option>
+                <option value="3">User three</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <select className="select pe-7.5">
+                <option value="0">Category</option>
+                <option value="1">Category one</option>
+                <option value="2">Category two</option>
+                <option value="3">Category three</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <select className="select pe-7.5">
+                <option value="0">Frequency</option>
+                <option value="1">Daily</option>
+                <option value="2">Weekly</option>
+                <option value="3">Monthly</option>
+              </select>
+            </div>
+            <div className="filItems">
+              <button className="btn btn-primary" title="Refresh">
+                <i className="ki-filled ki-arrows-circle"></i>
               </button>
             </div>
           </div>
+          <div className="filters__right flex flex-wrap items-center gap-2">
+            <TabComponent tabs={tavViewTabs} />
+          </div>
         </div>
-
-        <br />
-        <br />
-        <br />
-        <br />
-        <hr />
-        <br />
-        <br />
-        <br />
-        <br />
-
-        <div className="flex flex-wrap gap-2 justify-center mb-6">
+        {/* <div className="flex flex-wrap gap-2 justify-center mb-6">
           {tasks.map((label, i) => (
             <Button
               key={i}
@@ -126,47 +216,23 @@ const TaskDashboard = () => {
             </Button>
           ))}
         </div>
-
-        <div className="flex flex-wrap gap-4 justify-center mb-6">
-          {taskStats.map((stat, index) => (
-            <Card
-              key={index}
-              className={`flex-1 min-w-[150px] shadow-sm rounded-lg border ${stat.border}`}
-              bodyStyle={{ padding: "12px", textAlign: "center" }}
-            >
-              <div className="flex justify-center items-center gap-2 mb-2 text-lg">
-                <span className={`text-${stat.color}-500`}>{stat.icon}</span>
-                <span className="font-medium">{stat.label}</span>
-              </div>
-              <p className={`text-2xl font-bold text-${stat.color}-600`}>
-                {stat.value}
-              </p>
-            </Card>
-          ))}
-        </div>
-
         <div className="flex flex-wrap justify-center gap-3 mb-6">
           <Select placeholder="Assigned To" className="w-40">
             <Option value="user1">User 1</Option>
             <Option value="user2">User 2</Option>
           </Select>
-
           <Select placeholder="Category" className="w-40">
             <Option value="cat1">Category 1</Option>
             <Option value="cat2">Category 2</Option>
           </Select>
-
           <Select placeholder="Frequency" className="w-40">
             <Option value="daily">Daily</Option>
             <Option value="weekly">Weekly</Option>
             <Option value="monthly">Monthly</Option>
           </Select>
-
           <Input.Search placeholder="Search..." className="w-56" />
-
           <Button>Clear</Button>
         </div>
-
         <div className="flex gap-2 justify-center mb-6">
           <Button
             type={selectedView === "Table" ? "primary" : "default"}
@@ -184,8 +250,7 @@ const TaskDashboard = () => {
           >
             Bar Chart
           </Button>
-        </div>
-
+        </div> */}
         <TableComponent
           columns={columns}
           data={tableData}
