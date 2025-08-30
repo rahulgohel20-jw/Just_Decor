@@ -185,12 +185,25 @@ export const UpdateFunctionById = (id, data) => {
   return PUT(`/functionmaster/updatebyid?id=${id}`, data);
 };
 
-// master
-export const fetchAllUsers = () => GET("/user/getall");
+// ✅ Get all users by UserId
+export const getAllByUserId = (userId) => {
+  return GET(`/user/getallbyuserid?userId=${userId}`);
+};
 
-// profile userbyid
+// ✅ Get all users by RoleId
+export const getAllByRoleId = (roleId) => {
+  return GET(`/user/getallbyroleid?roleId=${roleId}`);
+};
 
+// ✅ Get user by Id
 export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
+
+// ✅ Get Manager & Admin users by Client UserId
+export const getManagerAndAdminUsersByClient = (clientUserId) => {
+  return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${clientUserId}`);
+};
+
+
 

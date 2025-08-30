@@ -1,78 +1,107 @@
 import { useEffect, useState } from "react";
-import { message, Spin } from "antd";
+import { message, Spin, Button } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { fetchAllUsers } from "@/services/apiServices";
+import { 
+  getAllByUserId, 
+  getAllByRoleId, 
+  getUserById, 
+  getManagerAndAdminUsersByClient 
+} from "@/services/apiServices";
 
 const AllUser = () => {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [allUsers, setAllUsers] = useState([]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchAllUsers();
-        console.log("API response:", response.data);
+  // 🔹 Common formatting function
+  const formatUsers = (users) =>
+    users.map((user, index) => ({
+      sr_no: index + 1,
+      first_name: user.firstName,
+      last_name: user.lastName,
+      email: user.email,
+      contactNo: user.contactNo,
+      companyName: user.userBasicDetails?.companyName || "-",
+      role: user.userBasicDetails?.role?.name || "-",
+      plan: user.plan?.name || "-",
+      isActive: user.isActive,
+      isApprove: user.isApprove,
+      createdAt: new Date(user.createdAt).toLocaleDateString(),
+    }));
 
-        if (response.data.success) {
-          const users = response.data.data["User Details"]; 
-          if (!users || users.length === 0) {
-            message.info("No users found");
-            setTableData([]);
-            setAllUsers([]);
-            return;
-          }
-
-          const formattedData = users.map((user, index) => ({
-            sr_no: index + 1,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            email: user.email,
-            contactNo: user.contactNo,
-            companyName: user.userBasicDetails?.companyName || "-",
-            role: user.userBasicDetails?.role?.name || "-",
-            plan: user.plan?.name || "-",
-            isActive: user.isActive,
-            isApprove: user.isApprove,
-            createdAt: new Date(user.createdAt).toLocaleDateString(),
-          }));
-
-          setTableData(formattedData);
-          setAllUsers(formattedData);
-        } else {
-          message.error(response.data.msg || "Failed to fetch users");
-        }
-      } catch (err) {
-        console.error(err);
-        message.error("Error fetching users");
-      } finally {
-        setLoading(false);
+  // 🔹 Fetch by UserId (default for initial load)
+  const handleFetchByUserId = async (userId) => {
+    try {
+      setLoading(true);
+      const response = await getAllByUserId(userId);
+      if (response.data.success) {
+        const users = response.data.data["User Details"] || [];
+        setTableData(formatUsers(users));
+      } else {
+        message.error(response.data.msg || "Failed to fetch users by UserId");
       }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchText(value);
-
-    const filtered = allUsers.filter((user) =>
-      user.first_name.toLowerCase().includes(value) ||
-      user.last_name.toLowerCase().includes(value) ||
-      user.email.toLowerCase().includes(value) ||
-      user.contactNo.toLowerCase().includes(value) ||
-      user.companyName.toLowerCase().includes(value) ||
-      user.role.toLowerCase().includes(value)
-    );
-
-    setTableData(filtered);
+    } catch (err) {
+      console.error(err);
+      message.error("Error fetching by UserId");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // 🔹 Fetch by RoleId
+  const handleFetchByRoleId = async (roleId) => {
+    try {
+      setLoading(true);
+      const response = await getAllByRoleId(roleId);
+      if (response.data.success) {
+        const users = response.data.data["User Details"] || [];
+        setTableData(formatUsers(users));
+      }
+    } catch (err) {
+      message.error("Error fetching by RoleId");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Fetch single User by Id
+  const handleGetUserById = async (id) => {
+    try {
+      setLoading(true);
+      const response = await getUserById(id);
+      if (response.data.success) {
+        const user = response.data.data;
+        setTableData(formatUsers([user])); // single user in table
+      }
+    } catch (err) {
+      message.error("Error fetching user by Id");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Fetch Manager & Admin by Client
+  const handleGetManagerAndAdmin = async (clientUserId) => {
+    try {
+      setLoading(true);
+      const response = await getManagerAndAdminUsersByClient(clientUserId);
+      if (response.data.success) {
+        const users = response.data.data["User Details"] || [];
+        setTableData(formatUsers(users));
+      }
+    } catch (err) {
+      message.error("Error fetching Manager/Admin users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Default load → maybe by a specific userId
+  useEffect(() => {
+    handleFetchByUserId("123"); // pass a real userId
+  }, []);
 
   return (
     <Container>
@@ -80,14 +109,14 @@ const AllUser = () => {
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search Users"
-          value={searchText}
-          onChange={handleSearch}
-          className="border border-gray-300 rounded px-3 py-2 w-full md:w-1/3"
-        />
+      {/* Buttons to test APIs */}
+      <div className="flex gap-2 mb-4">
+        <Button onClick={() => handleFetchByUserId("123")}>Get by UserId</Button>
+        <Button onClick={() => handleFetchByRoleId("456")}>Get by RoleId</Button>
+        <Button onClick={() => handleGetUserById("789")}>Get User by Id</Button>
+        <Button onClick={() => handleGetManagerAndAdmin("321")}>
+          Get Manager/Admin
+        </Button>
       </div>
 
       <Spin spinning={loading}>

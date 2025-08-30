@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { message, Spin } from "antd";
-import { fetchAllUsers } from "@/services/apiServices"; 
+// import { fetchAllUsers } from "@/services/apiServices"; 
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
