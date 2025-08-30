@@ -202,6 +202,14 @@ module.exports = {
                 clarity: "rgba(54, 56, 67, 0.20)",
                 inverse: "#9A9CAE",
               },
+              indigo: {
+                default: "rgba(102, 16, 242, 1)", // #6610F2
+                active: "rgba(82, 13, 194, 1)", // #520DC2
+                light: "rgba(136, 86, 245, 1)", // #8856F5
+                lighter: "rgba(239, 230, 252, 1)", // #EFE6FC
+                inverse: "rgba(255, 255, 255, 1)", // #ffffff
+                clarity: "rgba(102, 16, 242, 0.20)",
+              },
             },
           },
         },
@@ -554,7 +562,6 @@ module.exports = {
             modal: theme("borderRadius.xl"),
           },
         },
-
         container: {
           fixed: {
             px: {
