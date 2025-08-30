@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { EditEventType, Addeventtype } from "@/services/apiServices";
+import { editSubCategory, AddSubCategory } from "@/services/apiServices";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 const AddMenuSubCategory = ({
   isModalOpen,
   setIsModalOpen,
   refreshData,
-  selectedMenuCategory,
+  editData,
 }) => {
   if (!isModalOpen) return null;
 
@@ -16,18 +17,16 @@ const AddMenuSubCategory = ({
   const [formData, setFormData] = useState(initialFormState);
 
   useEffect(() => {
-    if (selectedMenuCategory) {
-      console.log(selectedMenuCategory);
-
+    if (editData) {
       setFormData({
-        nameEnglish: selectedMenuCategory.event_type || "",
-        nameGujarati: selectedMenuCategory.nameGujarati || "",
-        nameHindi: selectedMenuCategory.nameHindi || "",
+        nameEnglish: editData.nameEnglish || "",
+        nameGujarati: editData.nameGujarati || "",
+        nameHindi: editData.nameHindi || "",
       });
     } else {
       setFormData(initialFormState);
     }
-  }, [selectedMenuCategory]);
+  }, [editData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,29 +39,32 @@ const AddMenuSubCategory = ({
       alert("User data not found");
       return;
     }
-    refreshData();
-    setIsModalOpen();
-    if (selectedMenuCategory) {
+    if (editData) {
       const payload = { ...formData, userId: userData.id };
 
-      // EditEventType(selectedMenuCategory.eventid, payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error editing meal:", error);
-      //   });
+      editSubCategory(editData.id, payload)
+        .then((res) => {
+          refreshData();
+          setIsModalOpen();
+          res.data?.msg && successMsgPopup(res.data.msg)
+        })
+        .catch((error) => {
+          console.error("Error editing meal:", error);
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+        });
     } else {
       const payload = { ...formData, userId: userData.id };
-      // Addeventtype(payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error adding meal:", error);
-      //   });
+      AddSubCategory(payload)
+        .then((res) => {
+          res.data?.msg && successMsgPopup(res.data.msg)
+          refreshData();
+          setIsModalOpen();
+          console.log("sss",res);
+        })
+        .catch((error) => {
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+          console.error("Error adding meal:", error);
+        });
     }
   };
   return (
@@ -71,7 +73,7 @@ const AddMenuSubCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedMenuCategory ? "Edit Menu Sub Category" : "New Menu Sub Category"}
+            {editData ? "Edit Menu Sub Category" : "New Menu Sub Category"}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -118,7 +120,7 @@ const AddMenuSubCategory = ({
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {selectedMenuCategory ? "Update" : "Save"}
+            {editData ? "Update" : "Save"}
           </button>
         </div>
       </div>

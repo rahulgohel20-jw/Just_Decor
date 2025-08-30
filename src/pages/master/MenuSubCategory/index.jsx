@@ -2,39 +2,68 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
+import {
+  GetAllSubCategory,
+ DeleteSubCategoryId,
+ UpdateSubStatus
+} from "@/services/apiServices";
+import { columns } from "./constant";
+import { successMsgPopup } from "../../../underConstruction";
 
 const MenuSubCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
-  useEffect(() => {
-    FetchCategoryData();
-  }, [searchQuery]);
-
+  
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-  const FetchCategoryData = () => {
-    const formatted = defaultData.map(
-          (item, index) => ({
-            ...item,
-            sr_no: index + 1,
-            category: item.category || "-",
+  const FetchSubCategoryData = () => {
+    GetAllSubCategory(Id,true,searchQuery)
+          .then((res) => {
+            const formatted = res.data.data["Menu Sub Category Details"].map(
+              (item, index) => ({
+                ...item,
+                sr_no: index + 1,
+              })
+            );    
+            setTableData(formatted);
           })
-        );
-
-        setTableData(formatted);
+          .catch((error) => {
+            console.error("Error deleting customer:", error);
+          });
   };
 
-  const DeleteCategory = () => {
-      FetchCategoryData();
-  };
+  const DeleteCategory = (id) => {
+         DeleteSubCategoryId(id)
+           .then((res) => {
+            res.data?.msg && successMsgPopup(res.data.msg)
+             FetchSubCategoryData();
+           })
+           .catch((error) => {
+             console.error("Error deleting Event type:", error);
+           });
+     };
+  const statusSubCategory = (id, status) => {
+         UpdateSubStatus(id, status)
+           .then((res) => {
+             FetchSubCategoryData();
+             res.data?.msg && successMsgPopup(res.data.msg)
+           })
+           .catch((error) => {
+             console.error("Error deleting Event type:", error);
+           });
+     };
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);
   };
+
+  useEffect(() => {
+    FetchSubCategoryData();
+  }, [searchQuery]);
+
   return (
     <Fragment>
       <Container>
@@ -69,11 +98,11 @@ const MenuSubCategory = () => {
         <AddMenuSubCategory
           isModalOpen={isCategoryModalOpen}
           setIsModalOpen={setIsCategoryModalOpen}
-          refreshData={FetchCategoryData}
-          selectedMenuCategory={selectedMenuCategory}
+          refreshData={FetchSubCategoryData}
+          editData={selectedMenuCategory}
         />
         <TableComponent
-          columns={columns(handleEdit, DeleteCategory)}
+          columns={columns(handleEdit, DeleteCategory, statusSubCategory)}
           data={tableData}
           paginationSize={10}
         />
