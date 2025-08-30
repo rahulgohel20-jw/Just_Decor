@@ -2,7 +2,7 @@ import { Select } from "antd";
 
 const ManagerDropdown = ({ value, onChange, options, ...rest }) => {
   const handleChange = (val) => {
-    onChange({ target: { name: "manger_name", value: val } });
+    onChange({ target: { name: "managerId", value: val } });
   };
 
   return (

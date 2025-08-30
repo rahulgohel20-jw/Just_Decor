@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
 import { Tooltip } from "antd";
+import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -25,7 +26,10 @@ const EventListPage = () => {
           sr_no: index + 1,
           eventid: cust.id,
           event_id: cust.eventNo || "-",
-          event_date: cust.eventStartDateTime,
+          event_date:
+            cust.eventStartDateTime.split(" ")[0] +
+            " To " +
+            cust.eventEndDateTime.split(" ")[0],
           customer: cust.party.nameEnglish,
           event_type: cust.eventType.nameEnglish,
           proforma_invoice: (
@@ -74,9 +78,6 @@ const EventListPage = () => {
       .catch((error) => {
         console.error("Error deleting event:", error);
       });
-  };
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
   };
 
   return (

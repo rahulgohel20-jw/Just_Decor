@@ -14,20 +14,29 @@ export const columns = (onDelete) => [
   },
   {
     accessorKey: "event_id",
-    header: "Event ID",
+    header: "Event Code",
     meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
+      headerClassName: "w-[9%]",
+      cellClassName: "w-[9%]",
+    },
+  },
+  {
+    accessorKey: "event_type",
+    header: "Event Name",
+    meta: {
+      headerClassName: "w-[12%]",
+      cellClassName: "w-[12%]",
     },
   },
   {
     accessorKey: "event_date",
-    header: "Event Date & Event Time",
+    header: "Event Date & Time",
     meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
+      headerClassName: "w-[20%]",
+      cellClassName: "w-[20%]",
     },
   },
+
   {
     accessorKey: "customer",
     header: "Customer",
@@ -36,14 +45,7 @@ export const columns = (onDelete) => [
       cellClassName: "w-[18%]",
     },
   },
-  {
-    accessorKey: "event_type",
-    header: "Event Type",
-    meta: {
-      headerClassName: "w-[12%]",
-      cellClassName: "w-[12%]",
-    },
-  },
+
   {
     accessorKey: "proforma_invoice",
     header: "Proforma Invoice",
@@ -78,7 +80,7 @@ export const columns = (onDelete) => [
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Event">
-            <Link to="/add-event">
+            <Link to={`/edit-event/${row.original.eventid}`}>
               <button className="btn btn-sm btn-icon btn-clear" title="Edit">
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>

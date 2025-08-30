@@ -1,14 +1,14 @@
 import { DatePicker } from "antd";
 import { Crown, Sparkles } from "lucide-react";
 import MealTypeDropdown from "@/components/dropdowns/MealTypeDropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 import useStyles from "./style";
-
+import { GetMealType } from "@/services/apiServices";
 const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const classes = useStyles();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
-
+  const [options, setOptions] = useState([]);
   const handleAddClick = () => {
     setShowCustomerModal(true);
   };
@@ -16,8 +16,35 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleMealTypeChange = ({ target: { value, name } }) => {
-    setFormData({ ...formData, meal_type: value });
+  const handleMealTypeChange = (value) => {
+    setFormData({ ...formData, mealTypeId: value });
+  };
+
+  useEffect(() => {
+    FetchMealtype();
+  }, []);
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+  useEffect(() => {
+    console.log("Form Data Updated:", formData);
+  }, [formData]);
+
+  const FetchMealtype = () => {
+    GetMealType(Id)
+      .then((res) => {
+        const mealdata = res?.data?.data?.["MealType Details"] || [];
+        console.log(mealdata);
+
+        setOptions(
+          mealdata.map((item) => ({
+            label: item.nameEnglish,
+            value: item.id,
+          }))
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -36,11 +63,12 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <label className="form-label">Meal Type</label>
                 <div className="relative w-full">
                   <MealTypeDropdown
-                    value={formData.meal_type || ""}
-                    name="meal_type"
+                    value={formData.mealTypeId || ""}
+                    name="mealTypeId"
                     onChange={handleMealTypeChange}
                     createBtn={true}
-                    className="w-full pr-12"
+                    options={options}
+                    className="w-full pr-14"
                     setCreateModalOpen={setShowCustomerModal}
                   />
                   <button
@@ -52,9 +80,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     <i className="ki-filled ki-plus text-sm"></i>
                   </button>
                 </div>
-                {errors.meal_type && (
+                {errors.mealTypeId && (
                   <span className="text-red-500 text-sm">
-                    {errors.meal_type}
+                    {errors.mealTypeId}
                   </span>
                 )}
               </div>
@@ -125,21 +153,19 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label">Notes</label>
+                <label className="form-label">remark</label>
                 <div className="input">
                   <input
                     className="h-full"
                     type="text"
-                    name="servicenotes"
+                    name="remark"
                     placeholder="Notes"
-                    value={formData.servicenotes || ""}
+                    value={formData.remark || ""}
                     onChange={handleInputChange}
                   />
                 </div>
-                {errors.servicenotes && (
-                  <span className="text-red-500 text-sm">
-                    {errors.servicenotes}
-                  </span>
+                {errors.remark && (
+                  <span className="text-red-500 text-sm">{errors.remark}</span>
                 )}
               </div>
             </div>
@@ -162,9 +188,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="groom_name"
+                    name="groomName"
                     placeholder="Groom name"
-                    value={formData.groom_name || ""}
+                    value={formData.groomName || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -177,9 +203,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="groom_instalink"
+                    name="groomInstaLink"
                     placeholder="Instagram Link"
-                    value={formData.groom_instalink || ""}
+                    value={formData.groomInstaLink || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -190,10 +216,10 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <DatePicker
                   className="input"
                   placeholder="Groom Birth Date"
-                  value={formData.groom_birth_date}
+                  value={formData.groomBirthDate}
                   onChange={(date) =>
                     handleInputChange({
-                      target: { value: date, name: "groom_birth_date" },
+                      target: { value: date, name: "groomBirthDate" },
                     })
                   }
                 />
@@ -221,9 +247,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="tel"
-                    name="groom_number"
+                    name="groomMobileno"
                     placeholder="Groom number"
-                    value={formData.groom_number || ""}
+                    value={formData.groomMobileno || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -248,9 +274,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="bride_name"
+                    name="brideName"
                     placeholder="Bride name"
-                    value={formData.bride_name || ""}
+                    value={formData.brideName || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -263,9 +289,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="bride_instalink"
+                    name="brideInstaLink"
                     placeholder="Instagram Link"
-                    value={formData.bride_instalink || ""}
+                    value={formData.brideInstaLink || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -276,10 +302,10 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <DatePicker
                   className="input"
                   placeholder="Bride Birth Date"
-                  value={formData.bride_birth_date}
+                  value={formData.brideBirthDate}
                   onChange={(date) =>
                     handleInputChange({
-                      target: { value: date, name: "bride_birth_date" },
+                      target: { value: date, name: "brideBirthDate" },
                     })
                   }
                 />
@@ -292,9 +318,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="bride_community"
+                    name="groom_community"
                     placeholder="Bride Community"
-                    value={formData.bride_community || ""}
+                    value={formData.groom_community || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -307,9 +333,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="tel"
-                    name="bride_number"
+                    name="brideMobileno"
                     placeholder="Bride number"
-                    value={formData.bride_number || ""}
+                    value={formData.brideMobileno || ""}
                     onChange={handleInputChange}
                   />
                 </div>
