@@ -204,6 +204,55 @@ export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
 
+//Get category Type
+export const GetAllCategory = (Id, isActive=true, searchQuery='') => {
+  return GET(`/menucategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menuCategoryName=${searchQuery}`);
+};
+
+//Add category Type
+export const AddCategory = (data) => {
+  return POST(`/menucategory/add`, data);
+};
+
+//Edit category Type
+export const editCategory = (Id, data) => {
+  return PUT(`/menucategory/update?id=${Id}`, data);
+};
+
+//delete category Type
+export const DeleteCategoryId = (Id) => {
+  return PUT(`/menucategory/deletebyid?id=${Id}`);
+};
+
+//status category Type
+export const UpdateStatus = (Id, status= true) => {
+  return PUT(`/menucategory/updatestatus?id=${Id}$isActive=${status}`);
+};
+
+//Get Sub category Type
+export const GetAllSubCategory = (Id, isActive=true, searchQuery='') => {
+  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`);
+};
+
+//Add category Type
+export const AddSubCategory = (data) => {
+  return POST(`/menusubcategory/add`, data);
+};
+
+//Edit category Type
+export const editSubCategory = (Id, data) => {
+  return PUT(`/menusubcategory/update?id=${Id}`, data);
+};
+
+//delete category Type
+export const DeleteSubCategoryId = (Id) => {
+  return PUT(`/menusubcategory/deletebyid?id=${Id}`);
+};
+
+//status category Type
+export const UpdateSubStatus = (Id, status= true) => {
+  return PUT(`/menusubcategory/updatestatus?id=${Id}&isActive=${status}`);
+};
 
 //registration/signup
 export const registerUser = (data) => {

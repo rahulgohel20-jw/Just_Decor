@@ -9,9 +9,16 @@ import {
   Trash,
 } from "lucide-react";
 import CardList from "@/components/card-list/CardList";
+import AddLeadPersonal from "@/partials/modals/add-lead-personal/AddLeadPersonal";
 import { Tooltip } from "antd";
+import { useState } from "react";
 
 const LeadTab = () => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
   const leadList = [
     {
       id: 1,
@@ -66,6 +73,7 @@ const LeadTab = () => {
     },
   ];
   return (
+    <>
     <div className="pipeline-tab">
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
         <div className="card px-4 pt-4 rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
@@ -80,7 +88,7 @@ const LeadTab = () => {
               <button className="btn btn-sm btn-primary" title="Reorder Lead">
                 <ListOrdered /> Reorder
               </button>
-              <button className="btn btn-sm btn-primary" title="Add Lead">
+              <button className="btn btn-sm btn-primary" title="Add Lead" onClick={handleModalOpen}>
                 <i className="ki-filled ki-plus"></i>Lead
               </button>
             </div>
@@ -216,6 +224,8 @@ const LeadTab = () => {
         </div>
       </div>
     </div>
+    <AddLeadPersonal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+    </>
   );
 };
 
