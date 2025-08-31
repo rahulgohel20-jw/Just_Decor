@@ -24,50 +24,42 @@ const TaskDashboard = () => {
       label: "Overdue",
       value: 32,
       color: "danger",
-      icon: <i class="ki-filled ki-timer text-xl text-danger text-brand"></i>,
+      icon: <i class="ki-filled ki-timer text-xl text-danger"></i>,
       border: "border-s-red-500 ",
     },
     {
       label: "Pending",
       value: 0,
       color: "warning",
-      icon: (
-        <i class="ki-filled ki-abstract-18 text-xl text-warning text-brand"></i>
-      ),
+      icon: <i class="ki-filled ki-abstract-18 text-xl text-warning"></i>,
       border: "border-s-warning",
     },
     {
       label: "In Progress",
       value: 0,
       color: "info",
-      icon: (
-        <i class="ki-filled ki-arrows-circle text-xl text-info text-brand"></i>
-      ),
+      icon: <i class="ki-filled ki-arrows-circle text-xl text-info"></i>,
       border: "border-s-info",
     },
     {
       label: "Completed",
       value: 0,
       color: "success",
-      icon: (
-        <i class="ki-filled ki-check-circle text-xl text-success text-brand"></i>
-      ),
+      icon: <i class="ki-filled ki-check-circle text-xl text-success"></i>,
       border: "border-s-success",
     },
     {
       label: "In Time",
       value: 0,
       color: "primary",
-      icon: <i class="ki-filled ki-time text-xl text-primary text-brand"></i>,
+      icon: <i class="ki-filled ki-time text-xl text-primary"></i>,
       border: "border-s-primary",
     },
     {
       label: "Delayed",
       value: 0,
       color: "indigo",
-      icon: (
-        <i class="ki-filled ki-information-4 text-xl text-indigo text-brand"></i>
-      ),
+      icon: <i class="ki-filled ki-information-4 text-xl text-indigo"></i>,
       border: "border-s-indigo",
     },
   ];

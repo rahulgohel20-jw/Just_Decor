@@ -89,7 +89,7 @@ const EstimatePage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Quotation" }]} />
         </div>
-        <div className="grid grid-cols-1 gap-4 mb-4">
+        {/* <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="card rtl:[background-position:top_center] [background-position:top_center] bg-no-repeat bg-[length:500px] bg-[url('/images/bg_01.png')] dark:bg-[url('/images/bg_01_dark.png')]">
             <div className="flex flex-col items-start p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-1 text-center">
@@ -116,7 +116,7 @@ const EstimatePage = () => {
               iuouiouioui
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
           <div className="quotation-container">
