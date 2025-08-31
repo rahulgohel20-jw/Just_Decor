@@ -1,14 +1,14 @@
 import React, { Fragment, useState } from "react";
 import { Container } from "@/components/container";
+import { toAbsoluteUrl } from "@/utils/Assets";
+import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import { PlusCircle } from "lucide-react";
 import { Tooltip } from "antd";
 
-
 const QuotationPage = () => {
   const classes = useStyles();
-
   const [form, setForm] = useState({
     customer_name: "AKSHAY BHAI PBN",
     mobile_number: "8000217871",
@@ -24,7 +24,6 @@ const QuotationPage = () => {
     remaining_amount: 0,
     note: "",
   });
-
   const [quotation, setQuotation] = useState([
     {
       name: "DINNER",
@@ -35,7 +34,6 @@ const QuotationPage = () => {
       amount: 0,
     },
   ]);
-
   const handleInput = (index, field, value) => {
     let total_quotation = 0;
     setQuotation((prev) =>
@@ -55,11 +53,9 @@ const QuotationPage = () => {
 
     setForm({ ...form, total: total_quotation });
   };
-
   const handleInputData = ({ target: { name, value } }) => {
     setForm({ ...form, [name]: value });
   };
-
   const removequotation = (index) => {
     let newQuotation = quotation.filter((item, i) => i !== index);
     setQuotation(newQuotation);
@@ -85,22 +81,554 @@ const QuotationPage = () => {
     Number(form.roundOff) +
     Number(form.tax || 0);
   const remaining = grandTotal - Number(form.advance);
-
   return (
     <Fragment>
+      <style>
+        {`
+          .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
+          }
+          .dark .user-access-bg {
+            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
+          }
+        `}
+      </style>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Quotation" }]} />
         </div>
-        <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
-          {/* Header */}
-          <div className="px-5 py-3 font-semibold text-gray-700 bg-gradient-to-b from-blue-100 to-blue-200 border-b border-gray-200"></div>
+        {/* event details */}
+        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            <div className="flex flex-col gap-2.5">
+              <p className="text-lg font-semibold text-gray-900">
+                <Tooltip title="Event name">Event Name Here</Tooltip>
+              </p>
+              <div className="flex items-center gap-7">
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-user text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs">Party name:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      Kiran Bhandari
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-geolocation-home text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs">Venue name:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      Bhacantha Resort
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <i class="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs">Estimate Date:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      04 August 2025
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <Tooltip title="Event Status">
+                <div
+                  className="badge badge-outline badge-success rounded-full badge-lg"
+                  title="Approval"
+                >
+                  Approval
+                </div>
+              </Tooltip>
+              <div className="flex items-center gap-1">
+                <button className="btn btn-sm btn-primary" title="Edit">
+                  <i class="ki-filled ki-notepad-edit"></i> Edit
+                </button>
+                <button className="btn btn-sm btn-primary" title="Print">
+                  <i class="ki-filled ki-printer"></i> Print
+                </button>
+                <button className="btn btn-sm btn-primary" title="Share">
+                  <i class="ki-filled ki-exit-right-corner"></i> Share
+                </button>
+                <button className="btn btn-sm btn-primary" title="Chat">
+                  <i class="ki-filled ki-messages"></i> Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+              <input
+                className="input pl-8"
+                placeholder="Search function"
+                type="text"
+              />
+            </div>
+            <div className="filItems">
+              <select className="select pe-7.5">
+                <option value="0">Select Function</option>
+                <option value="0">Chandlo Matli</option>
+                <option value="1">Sagpan / Sagai</option>
+                <option value="2">Mehendi</option>
+                <option value="3">Sangeet Sandhya</option>
+                <option value="4">Mandap Muhurat</option>
+                <option value="5">Pithi (Haldi)</option>
+                <option value="6">Mameru</option>
+                <option value="7">Grah Shanti</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button className="btn btn-light" title="Clone">
+              <i class="ki-filled ki-additem"></i> Clone
+            </button>
+            <button className="btn btn-light" title="Layout">
+              <i class="ki-filled ki-element-10"></i> Layout
+            </button>
+            <button className="btn btn-light" title="Presentation">
+              <i class="ki-filled ki-menu"></i> Presentation
+            </button>
+            <button className="btn btn-primary" title="Add Function">
+              <i className="ki-filled ki-plus"></i> Add Function
+            </button>
+          </div>
+        </div>
+        {/* Description */}
+        <div className="card min-w-full mb-9">
+          <div className="flex flex-col flex-1">
+            <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
+              <div className="flex flex-wrap justify-between items-center gap-5 p-4">
+                <div className="flex flex-col gap-2.5">
+                  <h3 class="text-lg font-semibold leading-none text-gray-900">
+                    Description
+                  </h3>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="btn btn-sm btn-primary"
+                      title="Generate Item"
+                    >
+                      <i class="ki-filled ki-plus"></i> Generate Item
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-between items-center">
+              <div class="flex flex-col gap-1 w-full">
+                <div class="flex items-center bg-gray-100 font-bold border-y border-gray-200 py-3 px-2">
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[80px]">
+                    No.
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[90px]">
+                    Image
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[520px]">
+                    Name & Description
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[130px]">
+                    Size / Sq.ft.
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[130px]">
+                    Qty
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[130px]">
+                    Rate
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 w-[180px]">
+                    Total Price
+                  </div>
+                  <div class="text-sm font-semibold text-gray-900 px-2 text-center flex-auto">
+                    Action
+                  </div>
+                </div>
+                <div class="flex items-center border-b border-gray-200 py-3 px-2">
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[80px]">
+                    1
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[90px]">
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={toAbsoluteUrl("/images/account_img.jpg")}
+                      alt="profile"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[520px]">
+                    <div class="font-medium text-gray-900 mb-1">
+                      Item Name if long Split on three
+                    </div>
+                    <div class="font-normal text-gray-700">
+                      Description if long Split on three lines if name still too
+                      long
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input
+                      className="input"
+                      placeholder="Size / Sq.ft."
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Qty" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Rate" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[180px]">
+                    <input
+                      className="input"
+                      placeholder="Total price"
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
+                    <Tooltip title="Delete item">
+                      <button className="btn btn-sm btn-icon btn-clear btn-danger">
+                        <KeenIcon icon="trash" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div class="flex items-center border-b border-gray-200 py-3 px-2">
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[80px]">
+                    2
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[90px]">
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={toAbsoluteUrl("/images/account_img.jpg")}
+                      alt="profile"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[520px]">
+                    <div class="font-medium text-gray-900 mb-1">
+                      Item Name if long Split on three
+                    </div>
+                    <div class="font-normal text-gray-700">
+                      Description if long Split on three lines if name still too
+                      long
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input
+                      className="input"
+                      placeholder="Size / Sq.ft."
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Qty" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Rate" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[180px]">
+                    <input
+                      className="input"
+                      placeholder="Total price"
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
+                    <Tooltip title="Delete item">
+                      <button className="btn btn-sm btn-icon btn-clear btn-danger">
+                        <KeenIcon icon="trash" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div class="flex items-center border-b border-gray-200 py-3 px-2">
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[80px]">
+                    3
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[90px]">
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={toAbsoluteUrl("/images/account_img.jpg")}
+                      alt="profile"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[520px]">
+                    <div class="font-medium text-gray-900 mb-1">
+                      Item Name if long Split on three
+                    </div>
+                    <div class="font-normal text-gray-700">
+                      Description if long Split on three lines if name still too
+                      long
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input
+                      className="input"
+                      placeholder="Size / Sq.ft."
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Qty" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Rate" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[180px]">
+                    <input
+                      className="input"
+                      placeholder="Total price"
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
+                    <Tooltip title="Delete item">
+                      <button className="btn btn-sm btn-icon btn-clear btn-danger">
+                        <KeenIcon icon="trash" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div class="flex items-center border-b border-gray-200 py-3 px-2">
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[80px]">
+                    4
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[90px]">
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={toAbsoluteUrl("/images/account_img.jpg")}
+                      alt="profile"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[520px]">
+                    <div class="font-medium text-gray-900 mb-1">
+                      Item Name if long Split on three
+                    </div>
+                    <div class="font-normal text-gray-700">
+                      Description if long Split on three lines if name still too
+                      long
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input
+                      className="input"
+                      placeholder="Size / Sq.ft."
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Qty" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[130px]">
+                    <input className="input" placeholder="Rate" type="text" />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-[180px]">
+                    <input
+                      className="input"
+                      placeholder="Total price"
+                      type="text"
+                    />
+                  </div>
+                  <div class="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
+                    <Tooltip title="Delete item">
+                      <button className="btn btn-sm btn-icon btn-clear btn-danger">
+                        <KeenIcon icon="trash" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div className="relative py-4">
+                  <div className="absolute left-0 right-0 -bottom-4 text-center">
+                    <button
+                      className="btn btn-sm btn-success rounded-full"
+                      title="Add Item"
+                    >
+                      <i class="ki-filled ki-plus"></i> Add Item
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Description */}
+        <div className="card min-w-full mb-7">
+          <div className="flex flex-col flex-1">
+            <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
+              <div className="flex flex-wrap justify-between items-center gap-5 p-4">
+                <div className="flex flex-col gap-2.5">
+                  <h3 class="text-lg font-semibold leading-none text-gray-900">
+                    Estimate Summary
+                  </h3>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-1">
+                    <button className="btn btn-success" title="Save">
+                      <i class="ki-filled ki-save-2"></i> Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-between items-center">
+              <div class="flex flex-col w-full">
+                <div class="flex items-center justify-between border-t border-gray-200 py-3 px-2">
+                  <div class="text-base font-normal text-gray-700 px-2">
+                    Haldi Carnival Total
+                  </div>
+                  <div class="text-base font-semibold text-gray-900 px-2">
+                    &#8377; 15,000.00
+                  </div>
+                </div>
+                <div class="flex items-center justify-between border-t border-gray-200 py-3 px-2">
+                  <div class="text-base font-normal text-gray-700 px-2">
+                    Mayra Groom Side
+                  </div>
+                  <div class="text-base font-semibold text-gray-900 px-2">
+                    &#8377; 25,000.00
+                  </div>
+                </div>
+                <div class="flex items-center justify-between border-t border-gray-200 py-3 px-2">
+                  <div class="text-base font-normal text-gray-700 px-2">
+                    Wedding Reception Total
+                  </div>
+                  <div class="text-base font-semibold text-gray-900 px-2">
+                    &#8377; 60,000.00
+                  </div>
+                </div>
+                <div class="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
+                  <div class="flex items-center justify-between pb-2">
+                    <div class="text-base font-medium text-gray-900">
+                      Subtotal
+                    </div>
+                    <div class="text-lg font-bold text-gray-900">
+                      &#8377; 1,00,000.00
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <div class="text-base font-normal text-gray-700">
+                      Discount
+                    </div>
+                    <div class="text-base font-semibold text-gray-900">
+                      - &#8377; 10,000.00
+                      <span className="ms-1.5 text-sm font-medium text-gray-600">
+                        (10% paid)
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <div class="text-base font-normal text-gray-700">CGST</div>
+                    <div class="text-base font-semibold text-gray-900">
+                      &#8377; 8,100.00
+                      <span className="ms-1.5 text-sm font-medium text-gray-600">
+                        (09% paid)
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <div class="text-base font-normal text-gray-700">SGST</div>
+                    <div class="text-base font-semibold text-gray-900">
+                      &#8377; 8,100.00
+                      <span className="ms-1.5 text-sm font-medium text-gray-600">
+                        (09% paid)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between py-5 px-2">
+                  <div class="text-xl font-bold text-primary px-2">
+                    Grand Total
+                  </div>
+                  <div class="text-lg font-bold text-primary px-2">
+                    &#8377; 1,06,200.00
+                  </div>
+                </div>
+                <div class="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
+                  <div class="text-base font-semibold text-gray-900 pb-2">
+                    Payment Details
+                  </div>
+                  <div class="flex gap-5 py-1">
+                    <div class="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
+                      <i class="ki-filled ki-check text-white"></i>
+                    </div>
+                    <div class="flex flex-col gap-1 w-full">
+                      <div class="flex items-center justify-between">
+                        <div class="text-base font-normal text-gray-700">
+                          Advance Payment 1
+                        </div>
+                        <div class="text-base font-semibold text-gray-900">
+                          &#8377; 20,000.00
+                        </div>
+                      </div>
+                      <span class="bg-white py-3 px-5 rounded-lg text-xs font-normal text-gray-700 border border-gray-200">
+                        Paid Via UPI ON 23th June, 2025. Confirmed
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex gap-5 py-1">
+                    <div class="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
+                      <i class="ki-filled ki-check text-white"></i>
+                    </div>
+                    <div class="flex flex-col gap-1 w-full">
+                      <div class="flex items-center justify-between">
+                        <div class="text-base font-normal text-gray-700">
+                          Advance Payment 1
+                        </div>
+                        <div class="text-base font-semibold text-gray-900">
+                          &#8377; 30,000.00
+                        </div>
+                      </div>
+                      <span class="bg-white py-3 px-5 rounded-lg text-xs font-normal text-gray-700 border border-gray-200">
+                        Paid Via UPI ON 23th June, 2025. Confirmed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between py-5 px-2">
+                  <div class="text-lg font-bold text-success px-2">
+                    Total Paid
+                  </div>
+                  <div class="text-base font-bold text-success px-2">
+                    &#8377; 50,000.00
+                  </div>
+                </div>
+                <div class="flex items-center justify-between border-y border-orange-100 border-dashed bg-orange-50 py-7 px-2">
+                  <div class="text-xl font-bold text-orange-700 px-2">
+                    <i class="ki-filled ki-notification-on"></i> Remaining
+                    Payment
+                  </div>
+                  <div class="text-lg font-bold text-orange-700 px-2">
+                    &#8377; 56,200.00
+                  </div>
+                </div>
+                <div class="flex items-center justify-between font-bold py-5 px-4">
+                  <div class="max-w-[500px] w-full">
+                    <input
+                      className="input"
+                      placeholder="Add notes"
+                      type="text"
+                    />
+                  </div>
+                  <button class="btn btn-success" title="Save">
+                    <i class="ki-filled ki-save-2"></i> Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        {/* <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
+          <div className="px-5 py-3 font-semibold text-gray-700 bg-gradient-to-b from-blue-100 to-blue-200 border-b border-gray-200"></div>
           <div className="px-4 py-2 bg-gray-100 border-b border-gray-300 font-semibold text-gray-700">
             Order Details
           </div>
-          {/* Body */}
           <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
             <div>
               <span className="font-medium text-gray-600">Customer Name:</span>{" "}
@@ -109,15 +637,12 @@ const QuotationPage = () => {
             <div>
               <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
               <span className="text-gray-900">{form.mobileNumber}</span>
-
               <span className="text-gray-900">{form.customer_name}</span>
             </div>
             <div>
               <span className="font-medium text-gray-600">Mobile Number:</span>{" "}
               <span className="text-gray-900">{form.mobile_number}</span>
             </div>
-
-            {/* Order Info */}
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
               <div>
                 <span className="font-medium text-gray-600">
@@ -144,8 +669,6 @@ const QuotationPage = () => {
                 <span className="text-gray-900">{form.venue}</span>
               </div>
             </div>
-
-            {/* Radio buttons */}
             <div className="flex gap-6 px-4 py-2 bg-blue-50 border-b border-gray-200">
               <div className="text-left flex items-center gap-2">
                 <label className="flex items-center gap-2">
@@ -174,8 +697,6 @@ const QuotationPage = () => {
                 </Tooltip>
               </div>
             </div>
-
-            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead className="bg-gray-100">
@@ -411,7 +932,6 @@ const QuotationPage = () => {
                 </tbody>
               </table>
             </div>
-            {/* Buttons */}
             <div className="flex justify-center gap-3 p-4 border-t border-gray-200">
               <button className="bg-blue-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700">
                 Save
@@ -438,8 +958,6 @@ const QuotationPage = () => {
               />
             </div>
           </div>
-
-          {/* Notes */}
           <div className="p-4 border-t border-gray-200">
             <label className="block text-sm mb-1">Note:</label>
             <textarea
@@ -448,8 +966,6 @@ const QuotationPage = () => {
               className="w-full border px-3 py-2 rounded input"
             />
           </div>
-
-          {/* Buttons */}
           <div className="flex justify-center gap-3 p-4 border-t border-gray-200">
             <button className="bg-blue-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700">
               Save
@@ -458,7 +974,7 @@ const QuotationPage = () => {
               Cancel
             </button>
           </div>
-        </div>
+        </div> */}
       </Container>
     </Fragment>
   );

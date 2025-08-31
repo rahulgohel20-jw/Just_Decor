@@ -46,7 +46,7 @@ const BillingOverviewPage = () => {
                     </span>
                   </div>
                   <div className="form-info text-gray-800 font-normal">
-                    Wallet Balance.
+                    Wallet Balance
                   </div>
                 </div>
               </div>
@@ -84,7 +84,7 @@ const BillingOverviewPage = () => {
                     </span>
                   </div>
                   <div className="form-info text-gray-800 font-normal">
-                    Get personalized assistance for your business needs.
+                    Get personalized assistance for your business needs
                   </div>
                 </div>
               </div>
