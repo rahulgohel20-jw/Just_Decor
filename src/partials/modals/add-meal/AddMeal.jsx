@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AddMealType, EditMealType } from "@/services/apiServices";
+import InputToTextLang from "@/components/form-inputs/InputToTextLang"
 const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
   if (!isOpen) return null;
   const initialFormState = {
@@ -77,25 +78,28 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           {/* Name fields */}
-          <InputWithIcon
+          <InputToTextLang
             label="Name (English)"
             name="nameEnglish"
             value={formData.nameEnglish}
             onChange={handleChange}
+            lng={'en-US'}
             required
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (ગુજરાતી)"
             name="nameGujarati"
             value={formData.nameGujarati}
             onChange={handleChange}
+            lng={'gu'}
             required
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (हिंदी)"
             name="nameHindi"
             value={formData.nameHindi}
             onChange={handleChange}
+            lng={'hi'}
             required
           />
         </div>
@@ -119,26 +123,5 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
     </div>
   );
 };
-
-const InputWithIcon = ({ label, name, value, onChange, required }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      name={name} // ✅ bind name
-      value={value} // ✅ controlled value
-      onChange={onChange} // ✅ event handler
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      required={required}
-    />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
-  </div>
-);
 
 export default AddMeal;
