@@ -102,3 +102,10 @@ html,
 }
 
 /* /segmentedTabs */
+.filters__right .custTabs {
+  width: auto;
+}
+
+.filters__right .custTabs .custtNav {
+  margin: 0;
+}

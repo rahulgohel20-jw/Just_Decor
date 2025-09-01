@@ -79,7 +79,7 @@ const LeadPage = ({ children }) => {
           <Breadcrumbs items={[{ title: "Leads" }]} />
         </div>
         {/* filters */}
-        <div className=" filters flex justify-between   items-center  gap-2 mb-3">
+        <div className="filters flex justify-between items-center gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>

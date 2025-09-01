@@ -72,17 +72,32 @@ const EventPreparationPage = () => {
   const [selected, setSelected] = useState("custom");
   const menuPreparationsTabs = [
     {
-      label: "Mandap",
+      label: (
+        <>
+          <i className="ki-filled ki-element-6"></i>
+          Mandap
+        </>
+      ),
       value: "mandap",
       children: "",
     },
     {
-      label: "Lunch",
+      label: (
+        <>
+          <i className="ki-filled ki-disguise"></i>
+          Lunch
+        </>
+      ),
       value: "lunch",
       children: "",
     },
     {
-      label: "Dinner",
+      label: (
+        <>
+          <i className="ki-filled ki-disk"></i>
+          Dinner
+        </>
+      ),
       value: "dinner",
       children: "",
     },
