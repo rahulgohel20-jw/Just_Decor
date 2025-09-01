@@ -33,7 +33,8 @@ const EventInvoicePage = () => {
       icon: <i className="ki-filled ki-information-3 text-xl text-primary"></i>,
     },
     {
-      title: "Average No. of Days for Getting Paid",
+      // title: "Average No. of Days for Getting Paid",
+      title: "Average Payment Days",
       value: "7 Days",
       icon: <i className="ki-filled ki-timer text-xl text-primary"></i>,
     },
@@ -60,7 +61,7 @@ const EventInvoicePage = () => {
           <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
         </div>
         {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
+        {/* <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
           <div className="filItems relative">
             <button
               className="btn btn-primary"
@@ -70,14 +71,14 @@ const EventInvoicePage = () => {
               <i className="ki-filled ki-plus"></i> Add Invoice
             </button>
           </div>
-        </div>
+        </div> */}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="card min-w-full p-5 rtl:[background-position:-center_center] [background-position:center_center] bg-no-repeat bg-[length:460px] user-access-bg"
+              className="card min-w-full p-4 rtl:[background-position:-center_center] [background-position:center_center] bg-no-repeat bg-[length:460px] user-access-bg"
             >
-              <div className="flex flex-col items-center justify-center w-full gap-3">
+              <div className="flex flex-col items-center justify-center w-full gap-2">
                 <CommonHexagonBadge
                   stroke="stroke-primary-clarity"
                   fill="fill-light"

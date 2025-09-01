@@ -578,7 +578,7 @@ const QuotationPage = () => {
                     <div class="flex flex-col gap-1 w-full">
                       <div class="flex items-center justify-between">
                         <div class="text-base font-normal text-gray-700">
-                          Advance Payment 1
+                          Advance Payment 2
                         </div>
                         <div class="text-base font-semibold text-gray-900">
                           &#8377; 30,000.00
