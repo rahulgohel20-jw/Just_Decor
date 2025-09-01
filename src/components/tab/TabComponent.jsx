@@ -66,8 +66,8 @@ const TabComponent = ({ tabs, onTabChange }) => {
   }, []);
 
   return (
-    <div className="w-full">
-      <div className="mb-3">
+    <div className="custTabs w-full">
+      <div className="custtNav mb-3">
         <div
           ref={scrollRef}
           className="segmentedTabs flex gap-2 overflow-x-auto no-scrollbar cursor-grab select-none"
@@ -88,7 +88,7 @@ const TabComponent = ({ tabs, onTabChange }) => {
           />
         </div>
       </div>
-      <div className="tab-conten">
+      <div className="custtContent tab-conten">
         {currentTab?.children ?? (
           <div className="text-center text-gray-400 py-10">No content</div>
         )}
