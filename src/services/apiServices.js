@@ -70,6 +70,9 @@ export const DeleteCustomerApi = (Id) => {
 export const SearchCustomerApi = (data, Id) => {
   return GET(`/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`);
 };
+
+
+
 //GET All ContactCategory
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
@@ -257,4 +260,8 @@ export const UpdateSubStatus = (Id, status= true) => {
 //registration/signup
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
+};
+
+export const updateusermaster = (Id) => {
+  return PUT(`/auth/update?id=${Id}`);
 };

@@ -1,331 +1,345 @@
-import clsx from "clsx";
 import { useFormik } from "formik";
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import * as Yup from "yup";
-import { registerUser } from "@/services/apiServices";
-import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
-import { Alert } from "@/components";
+import { useEffect, useState } from "react";
+import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
+import { useNavigate } from "react-router-dom";
 
-const initialValues = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "", // Expect a string from PhoneNumber component
-  companyName: "",
-  companyEmail: "",
-  country: "",
-  state: "",
-  city: "",
-  acceptTerms: false,
-};
-
-const signupSchema = Yup.object().shape({
-  firstName: Yup.string().required("First Name is required"),
-  lastName: Yup.string().required("Last Name is required"),
-  email: Yup.string()
-    .email("Wrong email format")
-    .required("Email is required"),
-  companyName: Yup.string().required("Company name is required"),
-  companyEmail: Yup.string()
-    .email("Wrong email format")
-    .required("Company email is required"),
-  country: Yup.string().required("Country is required"),
-  state: Yup.string().required("State is required"),
-  city: Yup.string().required("City is required"),
-  plan: Yup.string().required("Plan is required"),
-  acceptTerms: Yup.bool().oneOf([true], "You must accept the terms and conditions"),
-});
-
-const Signup = () => {
-  const [loading, setLoading] = useState(false);
+export default function Signup() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema: signupSchema,
-    onSubmit: async (values, { setStatus, setSubmitting }) => {
-      setLoading(true);
-      setStatus(null);
+  // ✅ Load all countries
+  // useEffect(() => {
+  //   fetchCountries()
+  //     .then((res) => {
+  //       if (res?.data?.data) setCountries(res.data.data);
+  //     })
+  //     .catch((err) => console.error("Error fetching countries:", err));
+  // }, []);
+
+ const formik = useFormik({
+    initialValues: {
+      address: "",
+      cityId: "",
+      clientId: 0,
+      companyEmail: "",
+      companyName: "",
+      contactNo: "",
+      countryCode: "+91",
+      countryId: "",
+      email: "",
+      firstName: "",
+      isAttendanceLeaveAccess: true,
+      isTaskAccess: true,
+      lastName: "",
+      officeNo: "",
+      planId: "",
+      reportingManagerId: 0,
+      roleId: 2,
+      stateId: "",
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("First name required"),
+      lastName: Yup.string().required("Last name required"),
+      email: Yup.string().email("Invalid email").required("Email required"),
+      contactNo: Yup.string().required("Phone required"),
+      companyName: Yup.string().required("Company required"),
+      companyEmail: Yup.string().email("Invalid email").required("Company email required"),
+      officeNo: Yup.string().required("Office number required"),
+      address: Yup.string().required("Address required"),
+      countryId: Yup.string().required("Select country"),
+      stateId: Yup.string().required("Select state"),
+      cityId: Yup.string().required("Select city"),
+      planId: Yup.string().required("Select plan"),
+    }),
+    onSubmit: async (values) => {
       try {
-        // Log values to check payload
-        console.log("Submitting:", values);
+        const payload = {
+          ...values,
+          countryId: Number(values.countryId),
+          stateId: Number(values.stateId),
+          cityId: Number(values.cityId),
+          planId: Number(values.planId),
+        };
 
-        const response = await registerUser(values);
-
-        if (response.success) {
-          navigate(from, { replace: true });
-        } else {
-          setStatus(response.msg || "Registration failed");
+        const res = await registerUser(payload);
+        if (res?.status === 200) {
+          alert("Signup successful!");
+          navigate("/auth/login");
+          console.log("Signup response:", res);
         }
-      } catch (error) {
-        console.error("Registration error:", error.response || error.message);
-        if (error.response) {
-          setStatus(
-            error.response.data.message ||
-              JSON.stringify(error.response.data) ||
-              "Something went wrong"
-          );
-        } else {
-          setStatus(error.message || "Something went wrong");
-        }
-      } finally {
-        setLoading(false);
-        setSubmitting(false);
+      } catch (err) {
+        console.error("Signup error:", err);
+        alert("Signup failed!");
       }
     },
   });
 
-  return (
-    <div className="card max-w-[660px] w-full">
-      <form
-        className="card-body flex flex-col gap-2 p-5 md:p-7"
-        noValidate
-        onSubmit={formik.handleSubmit}
-      >
-        <h3 className="text-lg font-semibold mb-2">Sign Up</h3>
-        <span className="text-sm text-gray-700 mb-6">
-          Please fill in all the information required to create your account.
-        </span>
+  // ✅ Fetch states when country changes
+useEffect(() => {
+  const loadCountries = async () => {
+    try {
+      const res = await fetchCountries();
+      // safely access Country Details
+      const countryList = res?.data?.data?.["Country Details"] || [];
+      setCountries(countryList);
+    } catch (error) {
+      console.error("Error loading countries:", error);
+      setCountries([]);
+    }
+  };
+  loadCountries();
+}, []);
 
-        {/* User Details */}
-        <label className="form-label text-base font-semibold mb-2">User Detail</label>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="form-label">First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First name"
-              className={clsx("input", {
-                "is-invalid": formik.touched.firstName && formik.errors.firstName,
-              })}
-              {...formik.getFieldProps("firstName")}
-            />
-            {formik.touched.firstName && formik.errors.firstName && (
-              <div className="text-danger text-xs mt-1">{formik.errors.firstName}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last name"
-              className={clsx("input", {
-                "is-invalid": formik.touched.lastName && formik.errors.lastName,
-              })}
-              {...formik.getFieldProps("lastName")}
-            />
-            {formik.touched.lastName && formik.errors.lastName && (
-              <div className="text-danger text-xs mt-1">{formik.errors.lastName}</div>
-            )}
-          </div>
+
+
+  // ✅ Fetch cities when state changes
+useEffect(() => {
+  if (formik.values.countryId) {
+    const loadStates = async () => {
+      const res = await fetchStatesByCountry(formik.values.countryId);
+      if (Array.isArray(res?.data?.data?.["state Details"])) {
+        setStates(res?.data?.data?.["state Details"]);
+        console.log(states);
+      } else if (res.data.data) {
+        setStates([res.data.data]);
+      } else {
+        setStates([]);
+      }
+    };
+    loadStates();
+  }
+}, [formik.values.countryId]);
+
+
+// useEffect(() => {
+//   if (formik.values.countryId) {
+//     const loadStates = async () => {
+//       try {
+//         const res = await fetchStatesByCountry(formik.values.countryId);
+//         const stateList = res?.data?.data?.["State Details"] || [];
+//         setStates(stateList);
+//         console.log(stateList);
+//       } catch (error) {
+//         console.error("Error loading states:", error);
+//         setStates([]);
+//       }
+//     };
+//     loadStates();
+//   }
+// }, [formik.values.countryId]);
+
+
+useEffect(() => {
+  if (formik.values.stateId) {
+    const loadCities = async () => {
+      const res = await fetchCitiesByState(formik.values.stateId);
+      if (Array.isArray(res?.data?.data?.["City Details"])) {
+        setCities(res?.data?.data?.["City Details"]);
+        console.log(cities);
+      } else if (res.data.data) {
+        setCities([res.data.data]);
+      } else {
+        setCities([]);
+      }
+    };
+    loadCities();
+  }
+}, [formik.values.stateId]);
+
+
+  return (
+   <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl">
+  <h2 className="text-3xl font-bold mb-8 text-center">Signup</h2>
+  <form onSubmit={formik.handleSubmit} className="space-y-10">
+    
+    {/* Personal Details */}
+    <div>
+      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Personal Details</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">First Name</label>
+          <input
+            name="firstName"
+            placeholder="First Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.firstName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.firstName && <p className="text-red-500 text-sm">{formik.errors.firstName}</p>}
         </div>
 
-        {/* Email */}
-        <div className="mb-4">
-          <label className="form-label">Email Address</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Last Name</label>
+          <input
+            name="lastName"
+            placeholder="Last Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.lastName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.lastName && <p className="text-red-500 text-sm">{formik.errors.lastName}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
           <input
             type="email"
             name="email"
-            placeholder="Email address"
-            className={clsx("input", {
-              "is-invalid": formik.touched.email && formik.errors.email,
-            })}
-            {...formik.getFieldProps("email")}
+            placeholder="Email"
+            className="border p-2 w-full rounded"
+            value={formik.values.email}
+            onChange={formik.handleChange}
           />
-          {formik.touched.email && formik.errors.email && (
-            <div className="text-danger text-xs mt-1">{formik.errors.email}</div>
-          )}
+          {formik.errors.email && <p className="text-red-500 text-sm">{formik.errors.email}</p>}
         </div>
 
-        {/* Phone Number */}
-        <PhoneNumber
-          name="phoneNumber"
-          value={formik.values.phoneNumber}
-          onChange={(value) => {
-            // If PhoneNumber returns object, extract string here
-            const phone = typeof value === "string" ? value : value?.number || "";
-            formik.setFieldValue("phoneNumber", phone);
-          }}
-        />
-<div>
-  <label className="form-label">Phone No</label>
-  <input
-    type="text"
-    name="countryCode"
-    placeholder="Country Code"
-    className={clsx("input", {
-      "is-invalid": formik.touched.countryCode && formik.errors.countryCode,
-    })}
-    {...formik.getFieldProps("countryCode")}
-  />
-  {formik.touched.countryCode && formik.errors.countryCode && (
-    <div className="text-danger text-xs mt-1">{formik.errors.countryCode}</div>
-  )}
-</div>
-        {/* Company Detail */}
-        <label className="form-label text-base font-semibold mt-6 mb-2">Company Detail</label>
-
-        <div className="mb-4">
-          <label className="form-label">Company Name</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Phone</label>
           <input
-            type="text"
-            name="companyName"
-            placeholder="Company name"
-            className={clsx("input", {
-              "is-invalid": formik.touched.companyName && formik.errors.companyName,
-            })}
-            {...formik.getFieldProps("companyName")}
+            name="contactNo"
+            placeholder="Phone Number"
+            className="border p-2 w-full rounded"
+            value={formik.values.contactNo}
+            onChange={formik.handleChange}
           />
-          {formik.touched.companyName && formik.errors.companyName && (
-            <div className="text-danger text-xs mt-1">{formik.errors.companyName}</div>
-          )}
+          {formik.errors.contactNo && <p className="text-red-500 text-sm">{formik.errors.contactNo}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="form-label">Company Email</label>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Address</label>
+          <input
+            name="address"
+            placeholder="Address"
+            className="border p-2 w-full rounded"
+            value={formik.values.address}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.address && <p className="text-red-500 text-sm">{formik.errors.address}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Country</label>
+          <select
+            name="countryId"
+            value={formik.values.countryId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+          >
+            <option value="">Select Country</option>
+            {countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          {formik.errors.countryId && <p className="text-red-500 text-sm">{formik.errors.countryId}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">State</label>
+          <select
+            name="stateId"
+            value={formik.values.stateId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+            disabled={!states.length}
+          >
+            <option value="">Select State</option>
+            {states.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          {formik.errors.stateId && <p className="text-red-500 text-sm">{formik.errors.stateId}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">City</label>
+          <select
+            name="cityId"
+            value={formik.values.cityId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+            disabled={!cities.length}
+          >
+            <option value="">Select City</option>
+            {cities.map((ct) => <option key={ct.id} value={ct.id}>{ct.name}</option>)}
+          </select>
+          {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
+        </div>
+
+      </div>
+    </div>
+
+    {/* Company Details */}
+    <div>
+      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Company Details</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Company Name</label>
+          <input
+            name="companyName"
+            placeholder="Company Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.companyName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Company Email</label>
           <input
             type="email"
             name="companyEmail"
-            placeholder="Company email"
-            className={clsx("input", {
-              "is-invalid": formik.touched.companyEmail && formik.errors.companyEmail,
-            })}
-            {...formik.getFieldProps("companyEmail")}
+            placeholder="Company Email"
+            className="border p-2 w-full rounded"
+            value={formik.values.companyEmail}
+            onChange={formik.handleChange}
           />
-          {formik.touched.companyEmail && formik.errors.companyEmail && (
-            <div className="text-danger text-xs mt-1">{formik.errors.companyEmail}</div>
-          )}
+          {formik.errors.companyEmail && <p className="text-red-500 text-sm">{formik.errors.companyEmail}</p>}
         </div>
 
-        {/* Client Address */}
-        <label className="form-label text-base font-semibold mt-6 mb-2">Client Address</label>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="form-label">Country</label>
-            <input
-              type="text"
-              name="country"
-              placeholder="Country"
-              className={clsx("input", {
-                "is-invalid": formik.touched.country && formik.errors.country,
-              })}
-              {...formik.getFieldProps("country")}
-            />
-            {formik.touched.country && formik.errors.country && (
-              <div className="text-danger text-xs mt-1">{formik.errors.country}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">State</label>
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              className={clsx("input", {
-                "is-invalid": formik.touched.state && formik.errors.state,
-              })}
-              {...formik.getFieldProps("state")}
-            />
-            {formik.touched.state && formik.errors.state && (
-              <div className="text-danger text-xs mt-1">{formik.errors.state}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">City</label>
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              className={clsx("input", {
-                "is-invalid": formik.touched.city && formik.errors.city,
-              })}
-              {...formik.getFieldProps("city")}
-            />
-            {formik.touched.city && formik.errors.city && (
-              <div className="text-danger text-xs mt-1">{formik.errors.city}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">Plan</label>
-            <input
-              type="text"
-              name="plan"
-              placeholder="Plan"
-              className={clsx("input", {
-                "is-invalid": formik.touched.plan && formik.errors.plan,
-              })}
-              {...formik.getFieldProps("plan")}
-            />
-            {formik.touched.plan && formik.errors.plan && (
-              <div className="text-danger text-xs mt-1">{formik.errors.plan}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">Address</label>
-            <textarea
-              name="address"
-              placeholder="Address"
-              className={clsx("input", {
-                "is-invalid": formik.touched.address && formik.errors.address,
-              })}
-              {...formik.getFieldProps("address")}
-            />
-            {formik.touched.address && formik.errors.address && (
-              <div className="text-danger text-xs mt-1">{formik.errors.address}</div>
-            )}
-          </div>
-          <div>
-            <label className="form-label">Country Code</label>
-            <input
-              type="text"
-              name="countryCode"
-              placeholder="Country Code"
-              className={clsx("input", {
-                "is-invalid": formik.touched.zipCode && formik.errors.zipCode,
-              })}
-              {...formik.getFieldProps("zipCode")}
-            />
-            {formik.touched.zipCode && formik.errors.zipCode && (
-              <div className="text-danger text-xs mt-1">{formik.errors.zipCode}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Accept Terms */}
-        <div className="mb-4 flex items-center gap-2">
+        <div>
+          <label className="block text-sm font-medium mb-1">Office Number</label>
           <input
-            type="checkbox"
-            name="acceptTerms"
-            id="acceptTerms"
-            {...formik.getFieldProps("acceptTerms")}
+            name="officeNo"
+            placeholder="Office Number"
+            className="border p-2 w-full rounded"
+            value={formik.values.officeNo}
+            onChange={formik.handleChange}
           />
-          <label htmlFor="acceptTerms" className="form-label mb-0">
-            I accept the terms and conditions
-          </label>
+          {formik.errors.officeNo && <p className="text-red-500 text-sm">{formik.errors.officeNo}</p>}
         </div>
-        {formik.touched.acceptTerms && formik.errors.acceptTerms && (
-          <div className="text-danger text-xs mb-2">{formik.errors.acceptTerms}</div>
-        )}
 
-        {/* API Error */}
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+        <div>
+          <label className="block text-sm font-medium mb-1">Plan</label>
+          <select
+            name="planId"
+            value={formik.values.planId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+          >
+            <option value="">Select Plan</option>
+            <option value="1">Lite</option>
+            <option value="4">ELTIT</option>
+            <option value="3">Premium</option>
+          </select>
+          {formik.errors.planId && <p className="text-red-500 text-sm">{formik.errors.planId}</p>}
+        </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-full"
-          disabled={loading || formik.isSubmitting}
-        >
-          {loading ? "Please wait..." : "Sign Up"}
-        </button>
-      </form>
+      </div>
     </div>
-  );
-};
 
-export { Signup };
+    {/* Submit */}
+    <div className="text-center">
+      <button
+        type="submit"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition"
+      >
+        Sign Up
+      </button>
+    </div>
+  </form>
+</div>
+
+  );
+}

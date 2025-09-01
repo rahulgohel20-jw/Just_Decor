@@ -5,17 +5,19 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
 import { getAllByRoleId } from "@/services/apiServices";
+import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 
 const AllUser = () => {
   const [loading, setLoading] = useState(false);
-  const [tableData, setTableData] = useState([]);       // full data
-  const [filteredData, setFilteredData] = useState([]); // for search results
-  const [userId, setUserId] = useState("");
+  const [tableData, setTableData] = useState([]);       
+  const [filteredData, setFilteredData] = useState([]); 
   const [searchText, setSearchText] = useState("");
+  const [editingUserId, setEditingUserId] = useState(null); // store user id for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 🔹 Common formatting function
   const formatUsers = (users) =>
     users.map((user, index) => ({
+      id: user.id, // ✅ added id
       sr_no: index + 1,
       first_name: user.firstName,
       last_name: user.lastName,
@@ -28,34 +30,30 @@ const AllUser = () => {
       createdAt: new Date(user.createdAt).toLocaleDateString(),
     }));
 
-  // 🔹 Fetch users by UserId
-  const handleFetchByUserId = async (id) => {
-    if (!id) {
-      message.warning("Please enter a User Id");
-      return;
-    }
+  const handleFetchByRoleId = async (roleId = 2) => {
     try {
       setLoading(true);
-      const response = await getAllByRoleId(id);
-      console.log("🔍 API Response:", response.data);
-
+      const response = await getAllByRoleId(roleId);
       if (response.data.success) {
         const users = response.data.data?.["User Details"] || response.data.data || [];
         const formatted = formatUsers(users);
         setTableData(formatted);
-        setFilteredData(formatted); // initialize search data
+        setFilteredData(formatted);
       } else {
         message.error(response.data.msg || "No users found");
       }
     } catch (err) {
-      console.error("❌ API Error:", err);
-      message.error("Error fetching users by UserId");
+      console.error(err);
+      message.error("Error fetching users");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Search filter
+  useEffect(() => {
+    handleFetchByRoleId();
+  }, []);
+
   useEffect(() => {
     if (!searchText) {
       setFilteredData(tableData);
@@ -74,10 +72,12 @@ const AllUser = () => {
     }
   }, [searchText, tableData]);
 
-  // 🔹 Load default user list on mount
-  useEffect(() => {
-    handleFetchByUserId("1"); // load userId=1 initially
-  }, []);
+  // 🔹 Open modal and set user id
+  const handleEdit = (user) => {
+    setEditingUserId(user);
+    console.log("Editing user:", user);
+    setIsModalOpen(true);
+  };
 
   return (
     <Container>
@@ -85,9 +85,7 @@ const AllUser = () => {
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
 
-      {/* Input & Button to fetch */}
       <div className="flex gap-2 mb-4">
-        
         <Input.Search
           placeholder="Search users..."
           allowClear
@@ -96,9 +94,22 @@ const AllUser = () => {
         />
       </div>
 
-      <Spin spinning={loading}>
-        <TableComponent columns={columns} data={filteredData} paginationSize={10} />
-      </Spin>
+      {loading ? (
+        <Spin tip="Loading..." />
+      ) : (
+        <TableComponent
+          columns={columns(handleEdit)}
+          data={filteredData}
+          paginationSize={10}
+        />
+      )}
+
+      <EditUserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        refreshData={handleFetchByRoleId}
+        userId={editingUserId} // pass id here
+      />
     </Container>
   );
 };

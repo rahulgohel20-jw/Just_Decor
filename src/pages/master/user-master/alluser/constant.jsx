@@ -2,7 +2,7 @@
 import { Tooltip } from "antd";
 import { underConstruction } from "@/underConstruction";
 
-export const columns = [
+export const columns = (onEdit) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -33,11 +33,7 @@ export const columns = [
     header: "Company",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  // {
-  //   accessorKey: "role",
-  //   header: "Role",
-  //   meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
-  // },
+ 
   {
     accessorKey: "plan",
     header: "Plan",
@@ -86,10 +82,10 @@ export const columns = [
   {
     accessorKey: "action",
     header: "Action",
-    cell: () => (
+    cell: ({row}) => (
       <div className="flex items-center justify-center gap-1">
         <Tooltip title="Edit User">
-          <button className="btn btn-sm btn-icon btn-clear">
+          <button className="btn btn-sm btn-icon btn-clear" onClick={() => onEdit(row.original.id)}>
             <i className="ki-filled ki-notepad-edit text-primary"></i>
           </button>
         </Tooltip>

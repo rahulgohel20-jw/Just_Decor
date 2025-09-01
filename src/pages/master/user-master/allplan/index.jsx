@@ -21,29 +21,24 @@ useEffect(() => {
       console.log("API Response:", response.data);
 
       if (response.data.success) {
-        let admins = response.data.data;
+        let admins = response?.data?.data?.["User Details"];
 
         if (!Array.isArray(admins)) {
           admins = [admins];
         }
 
-        const planData = admins
-          .map((entry) => {
-            const user = entry["User Details"]?.[0];
+        
 
-            if (!user) return null;
+        const planData = admins.map((user) => ({
+  id: user.id,
+  customerName: `${user.firstName || "-"} ${user.lastName || "-"}`,
+  planName: user.plan?.name || "-",
+  planPrice: user.plan?.price || "-",
+  billingCycle: user.plan?.billingCycle || "-",
+  planDescription: user.plan?.description || "-",
+  isPopular: user.plan?.isPopular ? "Yes" : "No",
+}));
 
-            return {
-              id: user.id,
-              customerName: `${user.firstName || "-"} ${user.lastName || "-"}`,
-              planName: user.plan?.name || "-",
-              planPrice: user.plan?.price || "-",
-              billingCycle: user.plan?.billingCycle || "-",
-              planDescription: user.plan?.description || "-",
-              isPopular: user.plan?.isPopular ? "Yes" : "No",
-            };
-          })
-          .filter(Boolean); // Remove nulls
 
         setPlans(planData);
         setFilteredPlans(planData);
