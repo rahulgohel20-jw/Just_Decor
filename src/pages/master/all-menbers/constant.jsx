@@ -40,8 +40,8 @@ export const columns = [
     accessorKey: "whatsapp",
     header: "WhatsApp No",
     meta: {
-      headerClassName: "w-[16%]",
-      cellClassName: "w-[16%]",
+      headerClassName: "w-[8]",
+      cellClassName: "w-[8%]",
     },
   },
   {
@@ -60,15 +60,7 @@ export const columns = [
       cellClassName: "w-[12%]",
     },
   },
-  
-  {
-    accessorKey: "password",
-    header: "Password",
-    meta: {
-      headerClassName: "w-[12%]",
-      cellClassName: "w-[12%]",
-    },
-  },
+
   {
     accessorKey: "task_access",
     header: "Tast Access",
@@ -85,7 +77,7 @@ export const columns = [
       cellClassName: "w-[10%]",
     },
   },
-  
+
   {
     accessorKey: "action",
     header: "Action",
@@ -93,25 +85,9 @@ export const columns = [
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Member">
-            
-              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
-                <i className="ki-filled ki-notepad-edit text-primary"></i>
-              </button>
-            
-          </Tooltip>
-        
-          
-          
-          <Tooltip title="Delete">
-            {/* <Link to="/menu-allocation"> */}
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-              onClick={underConstruction}
-            >
-              <i className="ki-filled ki-trash  text-danger"></i>
+            <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
-            {/* </Link> */}
           </Tooltip>
         </div>
       );
@@ -221,9 +197,7 @@ export const columns = [
 ];
 
 export const defaultData = [
-  
-  
-   {
+  {
     sr_no: 1,
     first_name: "Rahul",
     last_name: "Gohel",
@@ -233,7 +207,7 @@ export const defaultData = [
     email: "rahul.gohel@example.com",
     password: "Admin@123",
     task_access: true,
-    leave_attendence_access: true
+    leave_attendence_access: true,
   },
   {
     sr_no: 2,
@@ -245,7 +219,7 @@ export const defaultData = [
     email: "anjali.sharma@example.com",
     password: "Team@456",
     task_access: true,
-    leave_attendence_access: false
+    leave_attendence_access: false,
   },
   {
     sr_no: 3,
@@ -257,7 +231,7 @@ export const defaultData = [
     email: "ramesh.patel@example.com",
     password: "Manager@789",
     task_access: true,
-    leave_attendence_access: true
+    leave_attendence_access: true,
   },
   {
     sr_no: 4,
@@ -269,7 +243,7 @@ export const defaultData = [
     email: "neha.verma@example.com",
     password: "Team@321",
     task_access: false,
-    leave_attendence_access: true
+    leave_attendence_access: true,
   },
   {
     sr_no: 5,
@@ -281,7 +255,7 @@ export const defaultData = [
     email: "amit.desai@example.com",
     password: "Admin@654",
     task_access: true,
-    leave_attendence_access: true
+    leave_attendence_access: true,
   },
   {
     sr_no: 6,
@@ -293,7 +267,7 @@ export const defaultData = [
     email: "priya.mehta@example.com",
     password: "Manager@987",
     task_access: true,
-    leave_attendence_access: false
+    leave_attendence_access: false,
   },
   {
     sr_no: 7,
@@ -305,7 +279,7 @@ export const defaultData = [
     email: "suresh.iyer@example.com",
     password: "Team@159",
     task_access: false,
-    leave_attendence_access: true
+    leave_attendence_access: true,
   },
   {
     sr_no: 8,
@@ -317,10 +291,6 @@ export const defaultData = [
     email: "kavita.nair@example.com",
     password: "Manager@753",
     task_access: true,
-    leave_attendence_access: true
-  }
-
-
-
-
+    leave_attendence_access: true,
+  },
 ];

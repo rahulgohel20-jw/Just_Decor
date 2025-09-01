@@ -192,7 +192,6 @@ export const UpdateFunctionById = (id, data) => {
 // master
 export const fetchAllUsers = () => GET("/user/getall");
 
-
 // profile userbyid
 
 export const getUserById = (id) => {
@@ -200,8 +199,10 @@ export const getUserById = (id) => {
 };
 
 //Get category Type
-export const GetAllCategory = (Id, isActive=true, searchQuery='') => {
-  return GET(`/menucategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menuCategoryName=${searchQuery}`);
+export const GetAllCategory = (Id, isActive = true, searchQuery = "") => {
+  return GET(
+    `/menucategory/getallbyuserid?isActive=true&menuCategoryName=Welcome%20Drinks&userid=1`
+  );
 };
 
 //Add category Type
@@ -220,13 +221,15 @@ export const DeleteCategoryId = (Id) => {
 };
 
 //status category Type
-export const UpdateStatus = (Id, status= true) => {
+export const UpdateStatus = (Id, status = true) => {
   return PUT(`/menucategory/updatestatus?id=${Id}$isActive=${status}`);
 };
 
 //Get Sub category Type
-export const GetAllSubCategory = (Id, isActive=true, searchQuery='') => {
-  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`);
+export const GetAllSubCategory = (Id, isActive = true, searchQuery = "") => {
+  return GET(
+    `/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`
+  );
 };
 
 //Add category Type
@@ -241,10 +244,15 @@ export const editSubCategory = (Id, data) => {
 
 //delete category Type
 export const DeleteSubCategoryId = (Id) => {
-  return PUT(`/menusubcategory/deletebyid?id=${Id}`);
+  return DELETE(`/menusubcategory/deletebyid?id=${Id}`);
 };
 
 //status category Type
-export const UpdateSubStatus = (Id, status= true) => {
+export const UpdateSubStatus = (Id, status = true) => {
   return PUT(`/menusubcategory/updatestatus?id=${Id}&isActive=${status}`);
+};
+
+//fetch user
+export const FetchAllUser = (Id) => {
+  return GET(`/user/getallbyuserid?userId=${Id}`);
 };
