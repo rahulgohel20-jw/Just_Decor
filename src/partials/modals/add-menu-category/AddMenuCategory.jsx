@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { editCategory, AddCategory } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
+import { CustomModal } from "../../../components/custom-modal/CustomModal";
+import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
+import { uploadFile } from "../../../services/apiServices";
+
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -12,24 +16,12 @@ const AddMenuCategory = ({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
-    menuSlogan:"",
-    price:"",
-    sequence:"",
-    imagePath:""
+    menuSlogan: "",
+    price: "",
+    sequence: "",
+    file: "",
   };
   const [formData, setFormData] = useState(initialFormState);
-
-  useEffect(() => {
-    if (editData) {
-      setFormData({
-        nameEnglish: editData.event_type || "",
-        nameGujarati: editData.nameGujarati || "",
-        nameHindi: editData.nameHindi || "",
-      });
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [editData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,158 +34,160 @@ const AddMenuCategory = ({
       alert("User data not found");
       return;
     }
-    setIsModalOpen();
     if (editData) {
-      const payload = { ...formData, userId: userData.id };
+      const payload = {
+        ...formData,
+        userId: userData.id,
+        slogan: formData.menuSlogan,
+      };
 
       editCategory(editData.id, payload)
         .then((res) => {
-          refreshData();
-          setIsModalOpen();
-          res.data?.msg && successMsgPopup(res.data.msg)
+          res.data?.msg && successMsgPopup(res.data.msg);
+          uploadImage({
+            ModuleId: res.data.ModuleId,
+            FileType: res.data.FileType,
+            ModuleName: res.data.ModuleName,
+          });
         })
         .catch((error) => {
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
           console.error("Error editing meal:", error);
         });
     } else {
       const payload = { ...formData, userId: userData.id };
       AddCategory(payload)
         .then((res) => {
-          refreshData();
-          setIsModalOpen();
-          res.data?.msg && successMsgPopup(res.data.msg)
+          uploadImage({
+            ModuleId: res.data.ModuleId,
+            FileType: res.data.FileType,
+            ModuleName: res.data.ModuleName,
+          });
         })
         .catch((error) => {
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg)
+          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
           console.error("Error adding meal:", error);
         });
     }
   };
+
+  const uploadImage = (uploadRequest) => {
+    if (!formData.file) {
+      refreshData();
+      setIsModalOpen();
+      return;
+    }
+
+    const request = new FormData();
+    request.append("moduleId", uploadRequest.ModuleId);
+    request.append("moduleName", uploadRequest.ModuleName);
+    request.append("fileType", uploadRequest.FileType);
+    request.append("file", formData.file);
+
+    uploadFile(request)
+      .then((res) => {
+        res.data?.msg && successMsgPopup(res.data.msg);
+        refreshData();
+        setIsModalOpen();
+      })
+      .catch((error) => {
+        error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
+        console.error("Error uploading image:", error);
+      });
+  };
+
+  useEffect(() => {
+    if (editData) {
+      setFormData(editData);
+    } else {
+      setFormData(initialFormState);
+    }
+  }, [isModalOpen]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            {editData ? "Edit Menu Category" : "New Menu Category"}
-          </h2>
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="text-2xl text-gray-600"
-          >
-            &times;
-          </button>
+    <CustomModal
+      open={isModalOpen}
+      title={editData ? "Edit Menu Category" : "New Menu Category"}
+      onClose={() => setIsModalOpen(false)}
+      footer={[
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(false)}
+          className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 me-2"
+        >
+          Cancel
+        </button>,
+        <button
+          type="button"
+          className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+          onClick={handleSubmit}
+        >
+          {editData ? "Update" : "Save"}
+        </button>,
+      ]}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+        {/* Name fields */}
+        <MultiLangInputBox
+          formData={formData}
+          setFormData={setFormData}
+          name="name"
+          label="Name"
+          required
+        />
+        <div className="relative">
+          <label className="block text-gray-600 mb-1">{"Slogun"}</label>
+          <textarea
+            type="text"
+            name={"menuSlogan"}
+            value={formData.menuSlogan}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-lg p-2 w-full"
+            placeholder={"Slogun"}
+          />
         </div>
-        {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
-          <InputWithIcon
-            label="Name (English)"
-            name="nameEnglish"
-            value={formData.nameEnglish}
+        <div className="relative">
+          <label className="block text-gray-600 mb-1">{"Price"}</label>
+          <input
+            type="number"
+            name={"price"}
+            value={formData.price}
             onChange={handleChange}
-            required
+            className="border border-gray-300 rounded-lg p-2 w-full"
+            placeholder={"price"}
           />
-          <InputWithIcon
-            label="Name (ગુજરાતી)"
-            name="nameGujarati"
-            value={formData.nameGujarati}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            label="Name (हिंदी)"
-            name="nameHindi"
-            value={formData.nameHindi}
-            onChange={handleChange}
-            required
-          />
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Slogun'}</label>
-            <textarea
-              type="text"
-              name={'menuSlogan'}
-              value={formData.menuSlogan}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Slogun'}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Price'}</label>
-            <input
-              type="number"
-              name={'price'}
-              value={formData.price}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'price'}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Priority'}</label>
-            <input
-              type="number"
-              name={'sequence'}
-              value={formData.sequence}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Priority'}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Document'}</label>
-            <input
-              type="file"
-              name={'imagePath'}
-              value={formData.imagePath}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'document'}
-            />
-          </div>
         </div>
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-            onClick={handleSubmit}
-          >
-            {editData ? "Update" : "Save"}
-          </button>
+        <div className="relative">
+          <label className="block text-gray-600 mb-1">{"Priority"}</label>
+          <input
+            type="number"
+            name={"sequence"}
+            value={formData.sequence}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-lg p-2 w-full"
+            placeholder={"Priority"}
+          />
+        </div>
+        <div className="relative">
+          <label className="block text-gray-600 mb-1">{"Image"}</label>
+          <input
+            type="file"
+            name={"file"}
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              setFormData((prev) => ({
+                ...prev,
+                file: file,
+              }));
+            }}
+            className="border border-gray-300 rounded-lg p-2 w-full"
+            placeholder={"image"}
+          />
         </div>
       </div>
-    </div>
+    </CustomModal>
   );
 };
-
-const InputWithIcon = ({ label, name, value, onChange, required }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      required={required}
-    />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
-  </div>
-);
 
 export default AddMenuCategory;
