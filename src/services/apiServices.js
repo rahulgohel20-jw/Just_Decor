@@ -255,7 +255,7 @@ export const editSubCategory = (Id, data) => {
 
 //delete category Type
 export const DeleteSubCategoryId = (Id) => {
-  return PUT(`/menusubcategory/deletebyid?id=${Id}`);
+  return DELETE(`/menusubcategory/deletebyid?id=${Id}`);
 };
 
 //status category Type
