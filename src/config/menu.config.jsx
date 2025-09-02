@@ -76,7 +76,7 @@ export const MENU_SIDEBAR = [
         path: "/master/user-master/",
       },
       {
-        title: "All Plan",
+        title: "User Plan",
         path: "/master/user-master/plan",
       },
       

@@ -1,302 +1,345 @@
-import clsx from "clsx";
 import { useFormik } from "formik";
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { useAuthContext } from "../../useAuthContext";
-import { toAbsoluteUrl } from "@/utils";
-import { Alert, KeenIcon } from "@/components";
-import { useLayout } from "@/providers";
-import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
-import { Badge } from '@/components/ui/badge';
-const initialValues = {
-  email: "",
-  password: "",
-  changepassword: "",
-  acceptTerms: false,
-};
-const signupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Wrong email format")
-    .min(3, "Minimum 3 symbols")
-    .max(50, "Maximum 50 symbols")
-    .required("Email is required"),
-  password: Yup.string()
-    .min(3, "Minimum 3 symbols")
-    .max(50, "Maximum 50 symbols")
-    .required("Password is required"),
-  changepassword: Yup.string()
-    .min(3, "Minimum 3 symbols")
-    .max(50, "Maximum 50 symbols")
-    .required("Password confirmation is required")
-    .oneOf([Yup.ref("password")], "Password and Confirm Password didn't match"),
-  acceptTerms: Yup.bool().required("You must accept the terms and conditions"),
-});
-const Signup = () => {
-  const [loading, setLoading] = useState(false);
-  const { register } = useAuthContext();
+import { useEffect, useState } from "react";
+import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
+import { useNavigate } from "react-router-dom";
+
+export default function Signup() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { currentLayout } = useLayout();
-  const formik = useFormik({
-    initialValues,
-    validationSchema: signupSchema,
-    onSubmit: async (values, { setStatus, setSubmitting }) => {
-      setLoading(true);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  // ✅ Load all countries
+  // useEffect(() => {
+  //   fetchCountries()
+  //     .then((res) => {
+  //       if (res?.data?.data) setCountries(res.data.data);
+  //     })
+  //     .catch((err) => console.error("Error fetching countries:", err));
+  // }, []);
+
+ const formik = useFormik({
+    initialValues: {
+      address: "",
+      cityId: "",
+      clientId: 0,
+      companyEmail: "",
+      companyName: "",
+      contactNo: "",
+      countryCode: "+91",
+      countryId: "",
+      email: "",
+      firstName: "",
+      isAttendanceLeaveAccess: true,
+      isTaskAccess: true,
+      lastName: "",
+      officeNo: "",
+      planId: "",
+      reportingManagerId: 0,
+      roleId: 2,
+      stateId: "",
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("First name required"),
+      lastName: Yup.string().required("Last name required"),
+      email: Yup.string().email("Invalid email").required("Email required"),
+      contactNo: Yup.string().required("Phone required"),
+      companyName: Yup.string().required("Company required"),
+      companyEmail: Yup.string().email("Invalid email").required("Company email required"),
+      officeNo: Yup.string().required("Office number required"),
+      address: Yup.string().required("Address required"),
+      countryId: Yup.string().required("Select country"),
+      stateId: Yup.string().required("Select state"),
+      cityId: Yup.string().required("Select city"),
+      planId: Yup.string().required("Select plan"),
+    }),
+    onSubmit: async (values) => {
       try {
-        if (!register) {
-          throw new Error("JWTProvider is required for this form.");
+        const payload = {
+          ...values,
+          countryId: Number(values.countryId),
+          stateId: Number(values.stateId),
+          cityId: Number(values.cityId),
+          planId: Number(values.planId),
+        };
+
+        const res = await registerUser(payload);
+        if (res?.status === 200) {
+          alert("Signup successful!");
+          navigate("/auth/login");
+          console.log("Signup response:", res);
         }
-        await register(values.email, values.password, values.changepassword);
-        navigate(from, {
-          replace: true,
-        });
-      } catch (error) {
-        console.error(error);
-        setStatus("The sign up details are incorrect");
-        setSubmitting(false);
-        setLoading(false);
+      } catch (err) {
+        console.error("Signup error:", err);
+        alert("Signup failed!");
       }
     },
   });
 
-  const togglePassword = (event) => {
-    event.preventDefault();
-    setShowPassword(!showPassword);
+  // ✅ Fetch states when country changes
+useEffect(() => {
+  const loadCountries = async () => {
+    try {
+      const res = await fetchCountries();
+      // safely access Country Details
+      const countryList = res?.data?.data?.["Country Details"] || [];
+      setCountries(countryList);
+    } catch (error) {
+      console.error("Error loading countries:", error);
+      setCountries([]);
+    }
   };
-  const toggleConfirmPassword = (event) => {
-    event.preventDefault();
-    setShowConfirmPassword(!showConfirmPassword);
-  };
+  loadCountries();
+}, []);
+
+
+
+  // ✅ Fetch cities when state changes
+useEffect(() => {
+  if (formik.values.countryId) {
+    const loadStates = async () => {
+      const res = await fetchStatesByCountry(formik.values.countryId);
+      if (Array.isArray(res?.data?.data?.["state Details"])) {
+        setStates(res?.data?.data?.["state Details"]);
+        console.log(states);
+      } else if (res.data.data) {
+        setStates([res.data.data]);
+      } else {
+        setStates([]);
+      }
+    };
+    loadStates();
+  }
+}, [formik.values.countryId]);
+
+
+// useEffect(() => {
+//   if (formik.values.countryId) {
+//     const loadStates = async () => {
+//       try {
+//         const res = await fetchStatesByCountry(formik.values.countryId);
+//         const stateList = res?.data?.data?.["State Details"] || [];
+//         setStates(stateList);
+//         console.log(stateList);
+//       } catch (error) {
+//         console.error("Error loading states:", error);
+//         setStates([]);
+//       }
+//     };
+//     loadStates();
+//   }
+// }, [formik.values.countryId]);
+
+
+useEffect(() => {
+  if (formik.values.stateId) {
+    const loadCities = async () => {
+      const res = await fetchCitiesByState(formik.values.stateId);
+      if (Array.isArray(res?.data?.data?.["City Details"])) {
+        setCities(res?.data?.data?.["City Details"]);
+        console.log(cities);
+      } else if (res.data.data) {
+        setCities([res.data.data]);
+      } else {
+        setCities([]);
+      }
+    };
+    loadCities();
+  }
+}, [formik.values.stateId]);
+
+
   return (
-    <div className="card max-w-[460px] w-full">
-      <form
-        className="card-body flex flex-col gap-2 p-5 md:p-7"
-        noValidate
-        onSubmit={formik.handleSubmit}
-      >
-        <div className="mb-2.5">
-          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
-            Sign Up
-          </h3>
-          <span className="text-sm text-gray-700">
-            Please fill in all the information required to create your account
-            on JW.
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex flex-col">
-            <label className="form-label">First Name</label>
-            <label className="input">
-            <i className="ki-filled ki-user"></i>
-              <input placeholder="First name" type="text" />
-            </label>
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">Last Name</label>
-            <label className="input">
-                <i className="ki-filled ki-user"></i>
-              <input placeholder="Last name" type="text" />
-            </label>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex flex-col">
-            <label className="form-label">City</label>
-            <label className="input">
-              <i className="ki-filled ki-pointers"></i>
-              <input placeholder="Enter city" type="text" />
-            </label>
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">Company</label>
-            <div className="input">
-              <i className="ki-filled ki-bank"></i>
-              <input placeholder="Enter company" type="text" />
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col">
-            <label className="form-label">Type</label>
-            <div className="flex flex-wrap gap-1 mt-1">
-              <Badge class="badge badge-pill badge-success cursor-pointer text-xs" title="Banquet">
-                <span className="badge badge-dot size-2 me-1.5 bg-white"></span>
-                Banquet
-              </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Catering">
-                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Catering
-              </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Wedding Planner">
-                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Wedding Planner
-              </Badge>
-              <Badge class="badge badge-pill badge-outline cursor-pointer bg-white text-xs" title="Decoration">
-                {/* <span className="badge badge-dot size-2 me-1.5 bg-gray-300"></span> */}
-                Decoration
-              </Badge>
-          </div>
-        </div>        
-        <PhoneNumber />
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
-        <div className="flex flex-col">
-          <label className="form-label">Email Address</label>
-          <div className="input">
-            <i className="ki-filled ki-sms"></i>
-            <input
-              placeholder="Email address"
-              type="email"
-              autoComplete="off"
-              {...formik.getFieldProps("email")}
-              className={clsx(
-                "form-control bg-transparent",
-                {
-                  "is-invalid": formik.touched.email && formik.errors.email,
-                },
-                {
-                  "is-valid": formik.touched.email && !formik.errors.email,
-                }
-              )}
-            />
-          </div>
-          {formik.touched.email && formik.errors.email && (
-            <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.email}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col">
-          <label className="form-label">Password</label>
-          <div className="input">
-            <i className="ki-filled ki-lock-2"></i>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Create password"
-              autoComplete="off"
-              {...formik.getFieldProps("password")}
-              className={clsx(
-                "form-control bg-transparent",
-                {
-                  "is-invalid":
-                    formik.touched.password && formik.errors.password,
-                },
-                {
-                  "is-valid":
-                    formik.touched.password && !formik.errors.password,
-                }
-              )}
-            />
-            <button className="btn btn-icon" onClick={togglePassword}>
-              <KeenIcon
-                icon="eye"
-                className={clsx("text-gray-500", {
-                  hidden: showPassword,
-                })}
-              />
-              <KeenIcon
-                icon="eye-slash"
-                className={clsx("text-gray-500", {
-                  hidden: !showPassword,
-                })}
-              />
-            </button>
-          </div>
-          {formik.touched.password && formik.errors.password && (
-            <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.password}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col">
-          <label className="form-label">Confirm Password</label>
-          <div className="input">
-            <i className="ki-filled ki-lock-2"></i>
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm password"
-              autoComplete="off"
-              {...formik.getFieldProps("changepassword")}
-              className={clsx(
-                "form-control bg-transparent",
-                {
-                  "is-invalid":
-                    formik.touched.changepassword &&
-                    formik.errors.changepassword,
-                },
-                {
-                  "is-valid":
-                    formik.touched.changepassword &&
-                    !formik.errors.changepassword,
-                }
-              )}
-            />
-            <button className="btn btn-icon" onClick={toggleConfirmPassword}>
-              <KeenIcon
-                icon="eye"
-                className={clsx("text-gray-500", {
-                  hidden: showConfirmPassword,
-                })}
-              />
-              <KeenIcon
-                icon="eye-slash"
-                className={clsx("text-gray-500", {
-                  hidden: !showConfirmPassword,
-                })}
-              />
-            </button>
-          </div>
-          {formik.touched.changepassword && formik.errors.changepassword && (
-            <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.changepassword}
-            </span>
-          )}
-        </div>
-        {formik.touched.acceptTerms && formik.errors.acceptTerms && (
-          <span role="alert" className="text-danger text-xs mt-1">
-            {formik.errors.acceptTerms}
-          </span>
-        )}
-        <button
-          type="submit"
-          className="btn btn-primary flex justify-center grow mt-2"
-          disabled={loading || formik.isSubmitting}
-        >
-          {loading ? "Please wait..." : "Sign Up"}
-        </button>
-        <div className="flex items-center gap-2 my-3">
-          <span className="border-t border-gray-200 w-full"></span>
-          <span className="text-2xs text-gray-500 font-medium uppercase">
-            Or
-          </span>
-          <span className="border-t border-gray-200 w-full"></span>
-        </div>
-        <a href="#" className="btn btn-light btn-sm justify-center py-5">
-          <img
-            src={toAbsoluteUrl("/media/brand-logos/google.svg")}
-            className="size-3.5 shrink-0"
+   <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl">
+  <h2 className="text-3xl font-bold mb-8 text-center">Signup</h2>
+  <form onSubmit={formik.handleSubmit} className="space-y-10">
+    
+    {/* Personal Details */}
+    <div>
+      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Personal Details</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">First Name</label>
+          <input
+            name="firstName"
+            placeholder="First Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.firstName}
+            onChange={formik.handleChange}
           />
-          Sign up with Google
-        </a>
-        <div className="flex items-center justify-center mt-2">
-          <span className="text-sm text-gray-700 me-1.5">
-            Already have on account?{" "}
-          </span>
-          <Link
-            to={
-              currentLayout?.name === "auth-branded"
-                ? "/auth/login"
-                : "/auth/classic/login"
-            }
-            className="text-2sm link hover:underline font-medium no-underline"
-          >
-            Sign In
-          </Link>
+          {formik.errors.firstName && <p className="text-red-500 text-sm">{formik.errors.firstName}</p>}
         </div>
-      </form>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Last Name</label>
+          <input
+            name="lastName"
+            placeholder="Last Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.lastName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.lastName && <p className="text-red-500 text-sm">{formik.errors.lastName}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="border p-2 w-full rounded"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.email && <p className="text-red-500 text-sm">{formik.errors.email}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Phone</label>
+          <input
+            name="contactNo"
+            placeholder="Phone Number"
+            className="border p-2 w-full rounded"
+            value={formik.values.contactNo}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.contactNo && <p className="text-red-500 text-sm">{formik.errors.contactNo}</p>}
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Address</label>
+          <input
+            name="address"
+            placeholder="Address"
+            className="border p-2 w-full rounded"
+            value={formik.values.address}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.address && <p className="text-red-500 text-sm">{formik.errors.address}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Country</label>
+          <select
+            name="countryId"
+            value={formik.values.countryId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+          >
+            <option value="">Select Country</option>
+            {countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          {formik.errors.countryId && <p className="text-red-500 text-sm">{formik.errors.countryId}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">State</label>
+          <select
+            name="stateId"
+            value={formik.values.stateId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+            disabled={!states.length}
+          >
+            <option value="">Select State</option>
+            {states.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          {formik.errors.stateId && <p className="text-red-500 text-sm">{formik.errors.stateId}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">City</label>
+          <select
+            name="cityId"
+            value={formik.values.cityId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+            disabled={!cities.length}
+          >
+            <option value="">Select City</option>
+            {cities.map((ct) => <option key={ct.id} value={ct.id}>{ct.name}</option>)}
+          </select>
+          {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
+        </div>
+
+      </div>
     </div>
+
+    {/* Company Details */}
+    <div>
+      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Company Details</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Company Name</label>
+          <input
+            name="companyName"
+            placeholder="Company Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.companyName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Company Email</label>
+          <input
+            type="email"
+            name="companyEmail"
+            placeholder="Company Email"
+            className="border p-2 w-full rounded"
+            value={formik.values.companyEmail}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.companyEmail && <p className="text-red-500 text-sm">{formik.errors.companyEmail}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Office Number</label>
+          <input
+            name="officeNo"
+            placeholder="Office Number"
+            className="border p-2 w-full rounded"
+            value={formik.values.officeNo}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.officeNo && <p className="text-red-500 text-sm">{formik.errors.officeNo}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Plan</label>
+          <select
+            name="planId"
+            value={formik.values.planId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+          >
+            <option value="">Select Plan</option>
+            <option value="1">Lite</option>
+            <option value="4">ELTIT</option>
+            <option value="3">Premium</option>
+          </select>
+          {formik.errors.planId && <p className="text-red-500 text-sm">{formik.errors.planId}</p>}
+        </div>
+
+      </div>
+    </div>
+
+    {/* Submit */}
+    <div className="text-center">
+      <button
+        type="submit"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition"
+      >
+        Sign Up
+      </button>
+    </div>
+  </form>
+</div>
+
   );
-};
-export { Signup };
+}

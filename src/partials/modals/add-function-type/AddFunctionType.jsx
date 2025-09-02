@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { TimePicker, message } from "antd";
-import dayjs from "dayjs"; // ✅ needed for parsing time
-import { AddFunction, EditFunctionById } from "@/services/apiServices"; 
-import { GetAllFunctionsByUserId } from "@/services/apiServices";
+import dayjs from "dayjs"; 
+import { AddFunction, EditFunctionById, GetAllFunctionsByUserId } from "@/services/apiServices"; 
+import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
   const initialState = {
@@ -60,11 +60,9 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
       };
 
       if (selectedFunction) {
-        // ✅ EDIT
         await EditFunctionById(selectedFunction.id, payload);
         message.success("Function updated successfully!");
       } else {
-        // ✅ ADD
         await AddFunction(payload);
         message.success("Function added successfully!");
       }
@@ -94,27 +92,30 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
 
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <InputWithIcon
+          <InputToTextLang
             label="Name (English)*"
             value={formData.nameEnglish}
             onChange={(e) => handleChange("nameEnglish", e.target.value)}
+            lng="en-US"
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (ગુજરાતી)"
             value={formData.nameGujarati}
             onChange={(e) => handleChange("nameGujarati", e.target.value)}
+            lng="gu"
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (हिंदी)"
             value={formData.nameHindi}
             onChange={(e) => handleChange("nameHindi", e.target.value)}
+            lng="hi"
           />
         </div>
 
         {/* Time Pickers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col">
-            <label className="form-label">Start Time<span className="text-red-700 fs-5">  *</span></label>
+            <label className="form-label">Start Time<span className="text-red-700">*</span></label>
             <TimePicker
               className="input"
               format="HH:mm"
@@ -123,7 +124,7 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="form-label">End Time <span className="text-red-700"> *</span></label>
+            <label className="form-label">End Time <span className="text-red-700">*</span></label>
             <TimePicker
               className="input"
               format="HH:mm"
@@ -154,24 +155,5 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
     </div>
   );
 };
-
-const InputWithIcon = ({ label, value, onChange }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      value={value}
-      onChange={onChange}
-    />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
-  </div>
-);
 
 export default AddFunctionType;

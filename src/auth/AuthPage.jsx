@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router';
-import { Login, ResetPassword, ResetPasswordChange, ResetPasswordChanged, ResetPasswordCheckEmail, ResetPasswordEnterEmail, Signup, TwoFactorAuth, OtpLogin} from './pages/jwt';
+import { Login, ResetPassword, ResetPasswordChange, ResetPasswordChanged, ResetPasswordCheckEmail, ResetPasswordEnterEmail, TwoFactorAuth, OtpLogin} from './pages/jwt';
 import { AuthBrandedLayout } from '@/layouts/auth-branded';
+import Signup from './pages/jwt/Signup';
 import { AuthLayout } from '@/layouts/auth';
 import { CheckEmail } from '@/auth/pages/jwt';
 const AuthPage = () => <Routes>

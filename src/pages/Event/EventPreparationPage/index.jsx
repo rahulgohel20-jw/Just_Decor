@@ -106,10 +106,10 @@ const EventPreparationPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className=" gap-2 pb-2 mb-3">
+        <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
         </div>
-        <div className="border rounded mb-7">
+        <div className="border rounded mb-4">
           <div className="grid grid-cols-6 lg:grid-cols-12">
             {/* left */}
             <div className="col-span-9">
@@ -514,6 +514,14 @@ const EventPreparationPage = () => {
               </div>
             </div>
           </div>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <button class="btn btn-light" title="Cancel">
+            Cancel
+          </button>
+          <button class="btn btn-success" title="Save Menu">
+            <i class="ki-filled ki-save-2"></i> Save Menu
+          </button>
         </div>
       </Container>
     </Fragment>

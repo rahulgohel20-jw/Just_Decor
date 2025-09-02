@@ -11,7 +11,7 @@ import useStyle from "./style";
 
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
-
+import { FetchAllUser } from "@/services/apiServices";
 import AddMember from "@/partials/modals/add-member/AddMember";
 
 const AllMemberMaster = () => {
@@ -23,9 +23,13 @@ const [selectedMember, setSelectedMember] = useState(null);
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    Fetchalluser();
+  }, []);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+
 
   useEffect(() => {
     FetchMembers();
@@ -61,6 +65,41 @@ const [selectedMember, setSelectedMember] = useState(null);
     });
 };
 
+
+
+  const Fetchalluser = () => {
+    FetchAllUser(Id)
+      .then((res) => {
+        const formatted = res.data.data["User Details"].map((cust, index) => ({
+          sr_no: index + 1,
+          first_name: cust.firstName,
+          last_name: cust.lastName,
+          country: cust.userBasicDetails.country.name,
+          whatsapp: cust.contactNo,
+          role: cust.userBasicDetails.role.name,
+          email: cust.email,
+          task_access: cust.userBasicDetails.isTaskAccess,
+          leave_attendence_access:
+            cust.userBasicDetails.isAttendanceLeaveAccess,
+          eventid: cust.id,
+        }));
+
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error deleting customer:", error);
+      });
+  };
+  const DeleteUser = (id) => {
+    DeleteCategoryId(id)
+      .then((res) => {
+        Fetchalluser();
+        res.data?.msg && successMsgPopup(res.data.msg);
+      })
+      .catch((error) => {
+        console.error("Error deleting Event type:", error);
+      });
+  };
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {

@@ -318,6 +318,14 @@ module.exports = {
           clarity: "var(--tw-warning-clarity)",
           inverse: "var(--tw-warning-inverse)",
         },
+        indigo: {
+          DEFAULT: "var(--tw-indigo)",
+          active: "var(--tw-indigo-active)",
+          light: "var(--tw-indigo-light)",
+          lighter: "var(--tw-indigo-lighter)",
+          clarity: "var(--tw-indigo-clarity)",
+          inverse: "var(--tw-indigo-inverse)",
+        },
         danger: {
           DEFAULT: "var(--tw-danger)",
           active: "var(--tw-danger-active)",

@@ -2,16 +2,8 @@ import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import TabComponent from "@/components/tab/TabComponent";
-import { KeenIcon } from "@/components";
 import { CommonHexagonBadge } from "@/partials/common";
-import { Card, Select, Input, Button, Tag, Tabs } from "antd";
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
-  SyncOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+import { Select } from "antd";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import { toAbsoluteUrl } from "@/utils";
@@ -74,7 +66,7 @@ const TaskDashboard = () => {
     "All Time",
     "Custom",
   ];
-  const tavViewTabs = [
+  const taskViewTabs = [
     {
       label: (
         <>
@@ -190,7 +182,7 @@ const TaskDashboard = () => {
             </div>
           </div>
           <div className="filters__right flex flex-wrap items-center gap-2">
-            <TabComponent tabs={tavViewTabs} />
+            <TabComponent tabs={taskViewTabs} />
           </div>
         </div>
         {/* <div className="flex flex-wrap gap-2 justify-center mb-6">

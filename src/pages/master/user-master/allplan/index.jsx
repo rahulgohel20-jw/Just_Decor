@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { message, Spin } from "antd";
-import { fetchAllUsers } from "@/services/apiServices"; 
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { planColumns } from "./constant";
+import { getAllByRoleId } from "@/services/apiServices";
 
 const PlanTable = () => {
   const [plans, setPlans] = useState([]);
@@ -12,40 +12,53 @@ const PlanTable = () => {
   const [searchText, setSearchText] = useState("");
   const [filteredPlans, setFilteredPlans] = useState([]);
 
-  useEffect(() => {
-    const getPlans = async () => {
-      try {
-        const response = await fetchAllUsers();
-        if (response.data.success) {
-          const users = response.data.data["User Details"];
+useEffect(() => {
+  const fetchAdmins = async () => {
+    setLoading(true);
 
-          // Extract only plan details + customer name
-        const planData = users.map((user) => ({
+    try {
+      const response = await getAllByRoleId(1);
+      console.log("API Response:", response.data);
+
+      if (response.data.success) {
+        let admins = response?.data?.data?.["User Details"];
+
+        if (!Array.isArray(admins)) {
+          admins = [admins];
+        }
+
+        
+
+        const planData = admins.map((user) => ({
   id: user.id,
-  customerName: `${user.firstName} ${user.lastName}`,
+  customerName: `${user.firstName || "-"} ${user.lastName || "-"}`,
   planName: user.plan?.name || "-",
   planPrice: user.plan?.price || "-",
   billingCycle: user.plan?.billingCycle || "-",
   planDescription: user.plan?.description || "-",
-  isPopular: user.plan?.isPopular || false,
+  isPopular: user.plan?.isPopular ? "Yes" : "No",
 }));
 
 
-          setPlans(planData);
-          setFilteredPlans(planData); // initial table data
-        } else {
-          message.error(response.data.msg || "Failed to fetch plans");
-        }
-      } catch (err) {
-        console.error(err);
-        message.error("Error fetching plans");
-      } finally {
-        setLoading(false);
+        setPlans(planData);
+        setFilteredPlans(planData);
+      } else {
+        message.error(response.data.msg || "No admins found");
       }
-    };
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+      message.error("Error fetching admins");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    getPlans();
-  }, []);
+  fetchAdmins();
+}, []);
+
+
+
+
 
   // Handle search
   const handleSearch = (e) => {
@@ -61,7 +74,7 @@ const PlanTable = () => {
   return (
     <Container>
       <div className="gap-2 pb-2 mb-3">
-        <Breadcrumbs items={[{ title: "All Users" }]} />
+        <Breadcrumbs items={[{ title: "User Plans" }]} />
       </div>
 
       <div className="mb-4">
@@ -75,10 +88,10 @@ const PlanTable = () => {
       </div>
 
       <Spin spinning={loading}>
-        <TableComponent 
-          columns={planColumns} 
-          data={filteredPlans}   // ✅ use filteredPlans, not plans
-          paginationSize={10} 
+        <TableComponent
+          columns={planColumns}
+          data={filteredPlans} // ✅ show filtered plans
+          paginationSize={10}
         />
       </Spin>
     </Container>

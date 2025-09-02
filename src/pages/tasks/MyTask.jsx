@@ -1,6 +1,8 @@
 import { Fragment, useState } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Container } from "@/components/container";
+import TabComponent from "@/components/tab/TabComponent";
+import { CommonHexagonBadge } from "@/partials/common";
 import { Button, Select, Tabs, Tooltip } from "antd";
 import {
   PlusOutlined,
@@ -9,25 +11,45 @@ import {
   CalendarOutlined,
   FilterOutlined,
 } from "@ant-design/icons";
-
 const { Option } = Select;
-
 const MyTask = () => {
   const [view, setView] = useState("list");
   const [expandedTask, setExpandedTask] = useState(null);
-
   const taskStats = [
-    { key: "overdue", label: "OverDue", count: 7, color: "text-red-500" },
-    { key: "pending", label: "Pending", count: 0, color: "text-gray-400" },
+    {
+      key: "overdue",
+      label: "Overdue",
+      value: 32,
+      color: "danger",
+      icon: <i class="ki-filled ki-timer text-xl text-danger"></i>,
+      border: "border-s-red-500 ",
+    },
+    {
+      key: "pending",
+      label: "Pending",
+      value: 0,
+      color: "warning",
+      icon: <i class="ki-filled ki-abstract-18 text-xl text-warning"></i>,
+      border: "border-s-warning",
+    },
     {
       key: "inprogress",
       label: "In Progress",
-      count: 0,
-      color: "text-orange-500",
+      value: 0,
+      color: "info",
+      icon: <i class="ki-filled ki-arrows-circle text-xl text-info"></i>,
+      border: "border-s-info",
     },
-    { key: "completed", label: "Completed", count: 0, color: "text-green-500" },
-  ];
 
+    {
+      key: "completed",
+      label: "Completed",
+      value: 0,
+      color: "success",
+      icon: <i class="ki-filled ki-check-circle text-xl text-success"></i>,
+      border: "border-s-success",
+    },
+  ];
   const tasks = [
     { id: 1, title: "Task 1" },
     { id: 2, title: "Task 2" },
@@ -45,6 +67,38 @@ const MyTask = () => {
     { id: 8, title: "Chef Touch", ago: "6 months ago" },
     { id: 18, title: "Webinar for GMB @ 7 PM", ago: "6 months ago" },
     { id: 31, title: "test", ago: "3 months ago" },
+  ];
+  const TaskView = [
+    {
+      label: (
+        <>
+          <i className="ki-filled ki-row-horizontal"></i>
+          List
+        </>
+      ),
+      value: "list",
+      children: "",
+    },
+    {
+      label: (
+        <>
+          <i className="ki-filled ki-bar-chart"></i>
+          Bar
+        </>
+      ),
+      value: "bar",
+      children: "",
+    },
+    {
+      label: (
+        <>
+          <i className="ki-filled ki-calendar"></i>
+          Calendar
+        </>
+      ),
+      value: "calendar",
+      children: "",
+    },
   ];
 
   return (
@@ -66,11 +120,6 @@ const MyTask = () => {
               />
             </div>
             <div className="filItems">
-              {/* <Select defaultValue="This Month" className="w-40">
-                <Option value="today">Today</Option>
-                <Option value="thisWeek">This Week</Option>
-                <Option value="thisMonth">This Month</Option>
-              </Select> */}
               <select className="select pe-7.5">
                 <option value="0" selected>
                   This Month
@@ -87,27 +136,36 @@ const MyTask = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="filters__right flex flex-wrap items-center gap-2">
+              <TabComponent tabs={TaskView} />
+            </div>
             <button className="btn btn-primary" title="Assign Task">
               <i className="ki-filled ki-plus"></i>Assign Task
             </button>
           </div>
         </div>
+        {/* status */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 mb-4">
+          {taskStats.map((stat, index) => (
+            <div
+              key={index}
+              className={`col-span-1 flex items-center flex-wrap sm:flex-nowrap grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl gap-3 p-4 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
+            >
+              <div className="flex flex-col">
+                <div className="font-sm form-info text-gray-800">
+                  {stat.label}
+                </div>
+                <h3 className={`text-xl font-semibold text-${stat.color}`}>
+                  {stat.value}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="p-4 bg-gradient-to-b rounded-lg">
           <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
             <div className="flex items-center items-center gap-3">
-              {/* <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                className="bg-primary hover:bg-primary rounded-md"
-              >
-                Assign Task
-              </Button>
-              <Button
-                icon={<FilterOutlined />}
-                className="bg-primary text-white rounded-md"
-              >
-                Filter
-              </Button> */}
               <div className="flex items-center bg-white rounded-md border">
                 <Tooltip title="List View">
                   <Button
