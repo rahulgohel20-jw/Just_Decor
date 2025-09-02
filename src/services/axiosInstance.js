@@ -4,7 +4,6 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
-    "Content-Type": "application/json",
     "x-am-response-case": "noChange",
     "x-am-response-object-type": "no_action",
     "x-am-meta": "false",
@@ -15,7 +14,6 @@ const axiosInstance = axios.create({
     "x-am-cache-control": "no_action",
     "x-am-get-encrypted-data": "no_encryption",
     "x-no-compression": "true",
-    
   },
 
   timeout: 10000,
@@ -34,6 +32,11 @@ axiosInstance.interceptors.request.use(
       }
       const systemToken = localStorage.getItem("token");
       config.headers["x-am-authorization"] = systemToken || "__token__";
+    }
+    if (!(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    } else {
+      delete config.headers["Content-Type"];
     }
     return config;
   },
@@ -130,5 +133,11 @@ export const POST = (url, data) => axiosInstance.post(url, data);
 export const GET = (url, params) => axiosInstance.get(url, { params });
 export const PUT = (url, data) => axiosInstance.put(url, data);
 export const DELETE = (url) => axiosInstance.delete(url);
+export const UPLOAD = (url, formData, onUploadProgress) =>
+  axiosInstance.post(url, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
 export default axiosInstance;
