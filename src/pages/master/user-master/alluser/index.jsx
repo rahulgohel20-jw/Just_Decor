@@ -1,77 +1,82 @@
 import { useEffect, useState } from "react";
-import { message, Spin } from "antd";
+import { message, Spin, Input } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { fetchAllUsers } from "@/services/apiServices";
+import { getAllByRoleId } from "@/services/apiServices";
+import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 
 const AllUser = () => {
   const [loading, setLoading] = useState(false);
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState([]);       
+  const [filteredData, setFilteredData] = useState([]); 
   const [searchText, setSearchText] = useState("");
-  const [allUsers, setAllUsers] = useState([]);
+  const [editingUserId, setEditingUserId] = useState(null); // store user id for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const formatUsers = (users) =>
+    users.map((user, index) => ({
+      id: user.id, // ✅ added id
+      sr_no: index + 1,
+      first_name: user.firstName,
+      last_name: user.lastName,
+      email: user.email,
+      contactNo: user.contactNo,
+      companyName: user.userBasicDetails?.companyName || "-",
+      plan: user.plan?.name || "-",
+      isActive: user.isActive,
+      isApprove: user.isApprove,
+      createdAt: new Date(user.createdAt).toLocaleDateString(),
+    }));
+
+  const handleFetchByRoleId = async (roleId = 2) => {
+    try {
+      setLoading(true);
+      const response = await getAllByRoleId(roleId);
+      if (response.data.success) {
+        const users = response.data.data?.["User Details"] || response.data.data || [];
+        const formatted = formatUsers(users);
+        setTableData(formatted);
+        setFilteredData(formatted);
+      } else {
+        message.error(response.data.msg || "No users found");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Error fetching users");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchAllUsers();
-        console.log("API response:", response.data);
-
-        if (response.data.success) {
-          const users = response.data.data["User Details"]; 
-          if (!users || users.length === 0) {
-            message.info("No users found");
-            setTableData([]);
-            setAllUsers([]);
-            return;
-          }
-
-          const formattedData = users.map((user, index) => ({
-            sr_no: index + 1,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            email: user.email,
-            contactNo: user.contactNo,
-            companyName: user.userBasicDetails?.companyName || "-",
-            role: user.userBasicDetails?.role?.name || "-",
-            plan: user.plan?.name || "-",
-            isActive: user.isActive,
-            isApprove: user.isApprove,
-            createdAt: new Date(user.createdAt).toLocaleDateString(),
-          }));
-
-          setTableData(formattedData);
-          setAllUsers(formattedData);
-        } else {
-          message.error(response.data.msg || "Failed to fetch users");
-        }
-      } catch (err) {
-        console.error(err);
-        message.error("Error fetching users");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
+    handleFetchByRoleId();
   }, []);
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchText(value);
+  useEffect(() => {
+    if (!searchText) {
+      setFilteredData(tableData);
+    } else {
+      const lower = searchText.toLowerCase();
+      setFilteredData(
+        tableData.filter(
+          (u) =>
+            u.first_name?.toLowerCase().includes(lower) ||
+            u.last_name?.toLowerCase().includes(lower) ||
+            u.email?.toLowerCase().includes(lower) ||
+            u.companyName?.toLowerCase().includes(lower) ||
+            u.plan?.toLowerCase().includes(lower)
+        )
+      );
+    }
+  }, [searchText, tableData]);
 
-    const filtered = allUsers.filter((user) =>
-      user.first_name.toLowerCase().includes(value) ||
-      user.last_name.toLowerCase().includes(value) ||
-      user.email.toLowerCase().includes(value) ||
-      user.contactNo.toLowerCase().includes(value) ||
-      user.companyName.toLowerCase().includes(value) ||
-      user.role.toLowerCase().includes(value)
-    );
-
-    setTableData(filtered);
+  // 🔹 Open modal and set user id
+  const handleEdit = (user) => {
+    setEditingUserId(user);
+    console.log("Editing user:", user);
+    setIsModalOpen(true);
   };
 
   return (
@@ -80,19 +85,31 @@ const AllUser = () => {
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search Users"
-          value={searchText}
-          onChange={handleSearch}
-          className="border border-gray-300 rounded px-3 py-2 w-full md:w-1/3"
+      <div className="flex gap-2 mb-4">
+        <Input.Search
+          placeholder="Search users..."
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 250 }}
         />
       </div>
 
-      <Spin spinning={loading}>
-        <TableComponent columns={columns} data={tableData} paginationSize={10} />
-      </Spin>
+      {loading ? (
+        <Spin tip="Loading..." />
+      ) : (
+        <TableComponent
+          columns={columns(handleEdit)}
+          data={filteredData}
+          paginationSize={10}
+        />
+      )}
+
+      <EditUserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        refreshData={handleFetchByRoleId}
+        userId={editingUserId} // pass id here
+      />
     </Container>
   );
 };

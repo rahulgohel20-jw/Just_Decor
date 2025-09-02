@@ -80,6 +80,9 @@ export const DeleteCustomerApi = (Id) => {
 export const SearchCustomerApi = (data, Id) => {
   return GET(`/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`);
 };
+
+
+
 //GET All ContactCategory
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
@@ -199,11 +202,17 @@ export const EditFunctionById = (id, data) => {
   return PUT(`/functionmaster/update?id=${id}`, data);
 };
 
-// master
-export const fetchAllUsers = () => GET("/user/getall");
+// ✅ Get all users by UserId
+export const getAllByUserId = (userId) => {
+  return GET(`/user/getallbyuserid?userId=${userId}`);
+};
 
-// profile userbyid
+// ✅ Get all users by RoleId all user
+export const getAllByRoleId = (id) => {
+  return GET(`/user/getallbyroleid?roleId=${2}`);
+};
 
+// ✅ Get user by Id in profile
 export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
@@ -278,6 +287,15 @@ export const DeleteSubCategoryId = (Id) => {
 //status category Type
 export const UpdateSubStatus = (Id, status = true) => {
   return PUT(`/menusubcategory/updatestatus?id=${Id}&isActive=${status}`);
+};
+
+//registration/signup
+export const registerUser = (data) => {
+  return POST(`/auth/add`, data);
+};
+
+export const updateusermaster = (Id) => {
+  return PUT(`/auth/update?id=${Id}`);
 };
 
 //fetch user
