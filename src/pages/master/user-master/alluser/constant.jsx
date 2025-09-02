@@ -63,13 +63,15 @@ export const columns = (onEdit) => [
     cell: ({ getValue }) => {
     const value = getValue();
     return (
-      <span
-        className={`font-medium ${
-          value ? "text-primary" : "text-danger"
+      <button
+        className={`font-medium px-4 py-1  rounded text-white ${
+          value ? "bg-success" : "bg-[blue] " 
+        } ${
+          value ? "bg-green-900" : "bg-blue-900 " 
         }`}
       >
-        {value ? "Yes" : "No"}
-      </span>
+        {value ? "Approved" : "Approve"}
+      </button>
     );
   },
     meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
@@ -79,26 +81,26 @@ export const columns = (onEdit) => [
     header: "Created At",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: ({row}) => (
-      <div className="flex items-center justify-center gap-1">
-        <Tooltip title="Edit User">
-          <button className="btn btn-sm btn-icon btn-clear" onClick={() => onEdit(row.original.id)}>
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
-          </button>
-        </Tooltip>
-        <Tooltip title="Delete User">
-          <button
-            className="btn btn-sm btn-icon btn-clear"
-            onClick={underConstruction}
-          >
-            <i className="ki-filled ki-trash text-danger"></i>
-          </button>
-        </Tooltip>
-      </div>
-    ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
+  // {
+  //   accessorKey: "action",
+  //   header: "Action",
+  //   cell: ({row}) => (
+  //     <div className="flex items-center justify-center gap-1">
+  //       {/* <Tooltip title="Edit User">
+  //         <button className="btn btn-sm btn-icon btn-clear " onClick={() => onEdit(row.original.id)}>
+  //           <i className="ki-filled ki-notepad-edit text-primary"></i>
+  //         </button>
+  //       </Tooltip> */}
+  //       {/* <Tooltip title="Delete User">
+  //         <button
+  //           className="btn btn-sm btn-icon btn-clear"
+  //           onClick={underConstruction}
+  //         >
+  //           <i className="ki-filled ki-trash text-danger"></i>
+  //         </button>
+  //       </Tooltip> */}
+  //     </div>
+  //   ),
+  //   meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  // },
 ];

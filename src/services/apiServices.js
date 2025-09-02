@@ -80,9 +80,6 @@ export const DeleteCustomerApi = (Id) => {
 export const SearchCustomerApi = (data, Id) => {
   return GET(`/partymaster/getallbyuserid?partyName=${data}&userId=${Id}`);
 };
-
-
-
 //GET All ContactCategory
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
@@ -176,8 +173,8 @@ export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
 
-export const GetAllRole = () => {
-  return GET(`/rolemaster/getall`);
+export const GetAllRole = (id) => {
+  return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };
 
 export const AddFunction = (data) => {
@@ -202,17 +199,12 @@ export const EditFunctionById = (id, data) => {
   return PUT(`/functionmaster/update?id=${id}`, data);
 };
 
-// ✅ Get all users by UserId
-export const getAllByUserId = (userId) => {
-  return GET(`/user/getallbyuserid?userId=${userId}`);
-};
+// master
+export const fetchAllUsers = () => GET("/user/getall");
 
-// ✅ Get all users by RoleId all user
-export const getAllByRoleId = (id) => {
-  return GET(`/user/getallbyroleid?roleId=${2}`);
-};
 
-// ✅ Get user by Id in profile
+// profile userbyid
+
 export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
@@ -226,15 +218,8 @@ export const GetAllMemberByUserId = (id) => {
 
 
 //Get category Type
-
 export const GetAllCategory = (Id, isActive = true, searchQuery = '') => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menuCategoryName=${searchQuery}`);
-
-export const GetAllCategory = (Id, isActive = true, searchQuery = "") => {
-  return GET(
-    `/menucategory/getallbyuserid?isActive=true&menuCategoryName=Welcome%20Drinks&userid=1`
-  );
-
 };
 
 //Add category Type
@@ -258,15 +243,8 @@ export const UpdateStatus = (Id, status = true) => {
 };
 
 //Get Sub category Type
-
 export const GetAllSubCategory = (Id, isActive = true, searchQuery = '') => {
   return GET(`/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`);
-
-export const GetAllSubCategory = (Id, isActive = true, searchQuery = "") => {
-  return GET(
-    `/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`
-  );
-
 };
 
 //Add category Type
@@ -281,7 +259,7 @@ export const editSubCategory = (Id, data) => {
 
 //delete category Type
 export const DeleteSubCategoryId = (Id) => {
-  return DELETE(`/menusubcategory/deletebyid?id=${Id}`);
+  return PUT(`/menusubcategory/deletebyid?id=${Id}`);
 };
 
 //status category Type
@@ -289,16 +267,32 @@ export const UpdateSubStatus = (Id, status = true) => {
   return PUT(`/menusubcategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
-//registration/signup
+
+
+// Registration
+
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
 };
 
-export const updateusermaster = (Id) => {
-  return PUT(`/auth/update?id=${Id}`);
+export const FetchAllUser = (id) => {
+  return GET(`/user/getallbyuserid?userId=${id}`);
+}
+
+export const updateusermaster = (id, data) => {
+  return PUT(`/auth/update?id=${id}`, data);
 };
 
-//fetch user
-export const FetchAllUser = (Id) => {
-  return GET(`/user/getallbyuserid?userId=${Id}`);
+
+export const getAllByRoleId = () => {
+  return GET(`/user/getallbyroleid?roleId=${2}`);
 };
+
+
+
+
+// Kitchen Area
+
+export const GetAllKitchenAreaById = (id) => {
+  return GET(`/user/getallbyuserid?userId=${id}`);
+}

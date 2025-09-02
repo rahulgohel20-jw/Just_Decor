@@ -18,6 +18,13 @@ const EditUserModal = ({ isOpen, onClose, refreshData, userId }) => {
     stateId: "",
     cityId: "",
     planId: "",
+    countryCode: "+91",
+     isAttendanceLeaveAccess: true,
+      isTaskAccess: true,
+     
+      reportingManagerId: 0,
+      roleId: 2,
+    
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -43,11 +50,13 @@ const EditUserModal = ({ isOpen, onClose, refreshData, userId }) => {
             officeNo: user["userBasicDetails"].officeNo || "",
             address: user["userBasicDetails"].address || "",
             countryId: user["userBasicDetails"].country.id || "",
+            countryCode: user["userBasicDetails"].country.code || "",
             stateId: user["userBasicDetails"].state.id || "",
             cityId: user["userBasicDetails"].city.id || "",
             planId: user.plan.id || "",
           });
         }
+        console.log("User fetched successfully:", user); // 👈 debug
       } catch (err) {
         console.error("Error fetching user by ID:", err);
       }
@@ -95,10 +104,18 @@ const EditUserModal = ({ isOpen, onClose, refreshData, userId }) => {
     }
   }, [formData.stateId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  // convert IDs to numbers, keep others as string
+  const numericFields = ["countryId", "stateId", "cityId", "planId", "countryCode"];
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: numericFields.includes(name) ? Number(value) : value,
+  }));
+};
+
 
   const handleSubmit = async () => {
   if (!userId) {
@@ -114,17 +131,25 @@ const EditUserModal = ({ isOpen, onClose, refreshData, userId }) => {
       email: formData.email,
       contactNo: formData.contactNo,
       address: formData.address,
-      planId: formData.planId,
-      userBasicDetails: {
+      planId: Number(formData.planId),
+      
         companyName: formData.companyName,
         companyEmail: formData.companyEmail,
         officeNo: formData.officeNo,
-        countryId: formData.countryId,
-        stateId: formData.stateId,
-        cityId: formData.cityId,
-      },
-    };
+        countryId: Number(formData.countryId),
+        countryCode: "+91",
+        stateId: Number(formData.stateId),
+        cityId: Number(formData.cityId),
+        isAttendanceLeaveAccess: true,
+        isTaskAccess: true,
+        reportingManagerId: 0,
+        roleId: 2,
 
+      
+      
+    };
+    // console.log("Country Id:", payload.userBasicDetails.countryId); // 👈 debug
+    console.log("Submitting payload:", payload); // 👈 debug
     await updateusermaster(userId, payload); // send structured payload
     refreshData();
     onClose();

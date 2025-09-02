@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
 import { TimePicker, message } from "antd";
-import dayjs from "dayjs"; // ✅ needed for parsing time
-import { AddFunction, EditFunctionById } from "@/services/apiServices"; 
-import { GetAllFunctionsByUserId } from "@/services/apiServices";
-
+import dayjs from "dayjs"; 
+import { AddFunction, EditFunctionById, GetAllFunctionsByUserId } from "@/services/apiServices"; 
+import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
   const initialState = {
-
-import InputToTextLang from "@/components/form-inputs/InputToTextLang"
-const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
-  const [formData, setFormData] = useState({
-
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -66,11 +60,9 @@ const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
       };
 
       if (selectedFunction) {
-        // ✅ EDIT
         await EditFunctionById(selectedFunction.id, payload);
         message.success("Function updated successfully!");
       } else {
-        // ✅ ADD
         await AddFunction(payload);
         message.success("Function added successfully!");
       }
@@ -104,26 +96,26 @@ const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
             label="Name (English)*"
             value={formData.nameEnglish}
             onChange={(e) => handleChange("nameEnglish", e.target.value)}
-            lng={'en-US'}
+            lng="en-US"
           />
           <InputToTextLang
             label="Name (ગુજરાતી)"
             value={formData.nameGujarati}
             onChange={(e) => handleChange("nameGujarati", e.target.value)}
-            lng={'gu'}
+            lng="gu"
           />
           <InputToTextLang
             label="Name (हिंदी)"
             value={formData.nameHindi}
             onChange={(e) => handleChange("nameHindi", e.target.value)}
-            lng={'hi'}
+            lng="hi"
           />
         </div>
 
         {/* Time Pickers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col">
-            <label className="form-label">Start Time<span className="text-red-700 fs-5">  *</span></label>
+            <label className="form-label">Start Time<span className="text-red-700">*</span></label>
             <TimePicker
               className="input"
               format="HH:mm"
@@ -132,7 +124,7 @@ const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="form-label">End Time <span className="text-red-700"> *</span></label>
+            <label className="form-label">End Time <span className="text-red-700">*</span></label>
             <TimePicker
               className="input"
               format="HH:mm"
