@@ -173,8 +173,8 @@ export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
 
-export const GetAllRole = () => {
-  return GET(`/rolemaster/getall`);
+export const GetAllRole = (id) => {
+  return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };
 
 export const AddFunction = (data) => {
