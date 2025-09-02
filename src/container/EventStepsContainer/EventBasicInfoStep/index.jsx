@@ -63,7 +63,7 @@ const EventBasicInfoStep = ({
       <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-5">
           <div className="select__grp flex flex-col">
-            <label className="form-label">Inquiry Date </label>
+            <label className="form-label">Inquiry Date</label>
             <DatePicker
               className="input"
               format="DD/MM/YYYY"
@@ -142,7 +142,12 @@ const EventBasicInfoStep = ({
             )}
           </div>
           <div className="select__grp flex flex-col">
-            <label className="form-label">Venue</label>
+            <label className="form-label">
+              Venue
+              <span className="mandatory text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <SpeechToText
               type="text"
               name="venue"
@@ -157,7 +162,12 @@ const EventBasicInfoStep = ({
 
           {/* Event Type */}
           <div className="select__grp flex flex-col">
-            <label className="form-label">Event Type</label>
+            <label className="form-label">
+              Event Type
+              <span className="mandatory text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <div className="sg__inner flex items-center gap-1 relative">
               <UserDropdown
                 value={formData.eventTypeId}
@@ -179,7 +189,12 @@ const EventBasicInfoStep = ({
           </div>
           {/* Manager */}
           <div className="select__grp flex flex-col">
-            <label className="form-label">Manager</label>
+            <label className="form-label">
+              Manager
+              <span className="mandatory text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <div className="sg__inner flex items-center gap-1 relative">
               <ManagerDropdown
                 value={formData.managerId}
