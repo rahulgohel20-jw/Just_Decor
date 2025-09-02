@@ -13,21 +13,30 @@ export const columns = [
     },
   },
   {
-    accessorKey: "first_name",
-    header: "First Name",
+    accessorKey: "full_name",
+    header: "Full Name",
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
     },
   },
   {
-    accessorKey: "last_name",
-    header: "Last Name",
+    accessorKey: "city",
+    header: "City",
     meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
     },
   },
+  {
+    accessorKey: "state",
+    header: "State",
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  
   {
     accessorKey: "country",
     header: "Country",
@@ -37,8 +46,8 @@ export const columns = [
     },
   },
   {
-    accessorKey: "whatsapp",
-    header: "WhatsApp No",
+    accessorKey: "contact",
+    header: "Contact No",
     meta: {
       headerClassName: "w-[8]",
       cellClassName: "w-[8%]",
@@ -84,6 +93,13 @@ export const columns = [
     cell: ({ cell }) => {
       return (
         <div className="flex items-center justify-center gap-1">
+           <Tooltip className="cursor-pointer" title="Edit Member">
+            
+              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+                <i className="ki-filled ki-eye text-success"></i>
+              </button>
+            
+          </Tooltip>
           <Tooltip className="cursor-pointer" title="Edit Member">
             <button className="btn btn-sm btn-icon btn-clear" title="Edit">
               <i className="ki-filled ki-notepad-edit text-primary"></i>

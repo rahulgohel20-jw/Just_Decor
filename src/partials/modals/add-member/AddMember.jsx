@@ -93,7 +93,46 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
                 />
               </div>
             </div>
+            
           </div>
+
+            <div className="grid grid-cols-2 gap-x-4">
+              <div className="flex flex-col">
+              <label className="form-label">Company Name</label>
+              <div className="input">
+                <i className="ki-filled ki-home"></i>
+                <input
+                  type="text"
+                  className="h-full"
+                  placeholder="Company name"
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-col">
+              <label className="form-label">Office No</label>
+              <div className="input">
+                <i className="ki-filled ki-call"></i>
+                <input
+                  type="text"
+                  className="h-full"
+                  placeholder="WhatsApp no"
+                />
+              </div>
+            </div>
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label">Company Email</label>
+              <div className="input">
+                <i className="ki-filled ki-sms"></i>
+                <input
+                  type="text"
+                  className="h-full"
+                  placeholder="Company Email"
+                />
+              </div>
+            </div>
+            
           <div className="flex flex-col">
             <label className="form-label">Role</label>
             <select

@@ -1,5 +1,8 @@
 import { POST, GET, PUT, DELETE } from "./axiosInstance";
 
+export const GetMenuCategoryByUserId = (Id) => {
+  return GET(`/menucategory/getallbyuserid?userid=${Id}`);
+};
 // Create Role
 export const createRole = (data) => {
   return POST("/role_master/save-single-or-multiple", data);
@@ -25,20 +28,27 @@ export const fetchCountries = (countryName = "") =>
   GET(`/countrymaster/getall?countryName=${countryName}`);
 
 export const fetchCountryById = (id) =>
-  GET(`/v1/api/countrymaster/getbyid?id=${id}`);
+  GET(`/countrymaster/getbyid?id=${id}`);
 
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
-  GET(
-    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
-  );
+  GET(`/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`);
+// State APIs
+// export const fetchStatesByCountry = (countryId, stateName = "") =>
+//   GET(
+//     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+//   );
 
 export const fetchStateById = (id) =>
-  GET(`/v1/api/statemaster/getbyid?id=${id}`);
+  GET(`/statemaster/getbyid?id=${id}`);
+// export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
 
-//City APIs
+//City APIs 
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
+//City APIs
+// export const fetchCitiesByState = (stateId, cityName = "") =>
+//   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
 // export const fetchCityById = (id) =>
 //   GET(`/citymaster/getbyid?id=${id}`);
@@ -181,12 +191,12 @@ export const GetFunctionsByFunctionName = (functionName) => {
   );
 };
 
-export const DeleteFunctionById = (id) => {
-  return DELETE(`/functionmaster/deletebyid?id=${id}`);
+export const DeleteFunctionType = (Id) => {
+  return DELETE(`/functionmaster/deletebyid?id=${Id}`);
 };
 
-export const UpdateFunctionById = (id, data) => {
-  return PUT(`/functionmaster/updatebyid?id=${id}`, data);
+export const EditFunctionById = (id, data) => {
+  return PUT(`/functionmaster/update?id=${id}`, data);
 };
 
 // master
@@ -198,11 +208,24 @@ export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
 
+
+
+// ALL Member
+export const GetAllMemberByUserId = (id) => {
+  return GET(`/user/getallbyuserid?userId=${id}`);
+};
+
+
 //Get category Type
+
+export const GetAllCategory = (Id, isActive = true, searchQuery = '') => {
+  return GET(`/menucategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menuCategoryName=${searchQuery}`);
+
 export const GetAllCategory = (Id, isActive = true, searchQuery = "") => {
   return GET(
     `/menucategory/getallbyuserid?isActive=true&menuCategoryName=Welcome%20Drinks&userid=1`
   );
+
 };
 
 //Add category Type
@@ -226,10 +249,15 @@ export const UpdateStatus = (Id, status = true) => {
 };
 
 //Get Sub category Type
+
+export const GetAllSubCategory = (Id, isActive = true, searchQuery = '') => {
+  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`);
+
 export const GetAllSubCategory = (Id, isActive = true, searchQuery = "") => {
   return GET(
     `/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`
   );
+
 };
 
 //Add category Type
