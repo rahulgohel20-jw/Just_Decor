@@ -15,10 +15,11 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
     setIsModalOpen(false);
   };
   const [activeTab, setActiveTab] = useState("tab_1");
-
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
    useEffect(() => {
   if (isModalOpen) {
-    GetAllRole()
+    GetAllRole(Id)
       .then((res) => {
         console.log("Roles API response:", res.data.data["Role Details"]); // 👈 debug
         setRoles(res.data.data["Role Details"]);
@@ -83,6 +84,29 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
               </div>
             </div>
             <div className="flex flex-col">
+              <label className="form-label">State</label>
+              <div className="input">
+                <i className="ki-filled ki-abstract-20"></i>
+                <input
+                  type="text"
+                  className="h-full"
+                  placeholder="State"
+                />
+              </div>
+            </div>
+            
+          </div>
+
+          
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">City</label>
+              <div className="input">
+                <i className="ki-filled ki-pointers"></i>
+                <input type="text" className="h-full" placeholder="City" />
+              </div>
+            </div>
+            <div className="flex flex-col">
               <label className="form-label">WhatsApp No</label>
               <div className="input">
                 <i className="ki-filled ki-whatsapp"></i>
@@ -96,42 +120,8 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
             
           </div>
 
-            <div className="grid grid-cols-2 gap-x-4">
-              <div className="flex flex-col">
-              <label className="form-label">Company Name</label>
-              <div className="input">
-                <i className="ki-filled ki-home"></i>
-                <input
-                  type="text"
-                  className="h-full"
-                  placeholder="Company name"
-                />
-              </div>
-            </div>
             
-            <div className="flex flex-col">
-              <label className="form-label">Office No</label>
-              <div className="input">
-                <i className="ki-filled ki-call"></i>
-                <input
-                  type="text"
-                  className="h-full"
-                  placeholder="WhatsApp no"
-                />
-              </div>
-            </div>
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Company Email</label>
-              <div className="input">
-                <i className="ki-filled ki-sms"></i>
-                <input
-                  type="text"
-                  className="h-full"
-                  placeholder="Company Email"
-                />
-              </div>
-            </div>
+            
             
           <div className="flex flex-col">
             <label className="form-label">Role</label>
@@ -160,7 +150,7 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
                 />
               </div>
             </div>
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <label className="form-label">Password</label>
               <div className="input">
                 <i className="ki-filled ki-lock"></i>
@@ -170,7 +160,7 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
                   placeholder="Password no"
                 />
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center gap-2 mt-1">
             <label className="form-label">Task Access</label>

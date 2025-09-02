@@ -1,49 +1,10 @@
-
-  import { useRef, useState, useEffect, useCallback } from "react";
-  import {
-    AddCustomerapi,
-    GetAllContactCategory,
-    EditCustomerApi,
-  } from "@/services/apiServices";
-
-  const AddCustomer = ({
-    isModalOpen,
-    setIsModalOpen,
-    selectedCustomer,
-    refreshData,
-  }) => {
-    if (!isModalOpen) return null;
-
-    const [imagePreview, setImagePreview] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [categories, setCategories] = useState([]);
-    const fileInputRef = useRef();
-
-    // Initial form state
-    const initialFormState = {
-      id: "",
-      nameEnglish: "",
-      nameGujarati: "",
-      nameHindi: "",
-      addressEnglish: "",
-      addressGujarati: "",
-      addressHindi: "",
-      email: "",
-      mobileno: "",
-      altMobileno: "",
-      gst: "",
-      bdate: "",
-      contactCategoryId: "",
-      document: "",
-    };
-
 import { useRef, useState, useEffect, useCallback } from "react";
 import {
   AddCustomerapi,
   GetAllContactCategory,
   EditCustomerApi,
 } from "@/services/apiServices";
-import InputToTextLang from "@/components/form-inputs/InputToTextLang"
+import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 
 const AddCustomer = ({
   isModalOpen,
@@ -76,30 +37,26 @@ const AddCustomer = ({
     document: "",
   };
 
-
   const [formData, setFormData] = useState(initialFormState);
+
   const parseBirthdate = useCallback((birthdateString) => {
     if (!birthdateString || birthdateString === "-") return "";
     try {
       let dateStr = birthdateString.trim();
 
-      // Strip time if exists
       if (dateStr.includes(",")) {
         dateStr = dateStr.split(",")[0].trim();
       }
 
-      // dd/MM/yyyy → convert to yyyy-MM-dd
       if (dateStr.includes("/")) {
         const [day, month, year] = dateStr.split("/");
         return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
       }
 
-      // yyyy-MM-dd → already fine
       if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return dateStr;
       }
 
-      // Fallback: parse with Date
       const d = new Date(dateStr);
       if (!isNaN(d.getTime())) {
         const y = d.getFullYear();
@@ -126,6 +83,10 @@ const AddCustomer = ({
     if (isModalOpen) {
       if (selectedCustomer) {
         const parsedDate = parseBirthdate(selectedCustomer.birthdate);
+<<<<<<< HEAD
+=======
+
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
         setFormData({
           id: selectedCustomer.customerid || "",
           nameEnglish: selectedCustomer.customer || "",
@@ -142,6 +103,7 @@ const AddCustomer = ({
           document: selectedCustomer.document || "",
           contactCategoryId: selectedCustomer.contactCategoryId || "",
         });
+
         if (selectedCustomer.image) {
           setImagePreview(`/uploads/${selectedCustomer.image}`);
         }
@@ -169,7 +131,13 @@ const AddCustomer = ({
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
+<<<<<<< HEAD
     if (file) setImagePreview(URL.createObjectURL(file));
+=======
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
   };
 
   const handleChange = (e) => {
@@ -182,11 +150,20 @@ const AddCustomer = ({
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "";
+<<<<<<< HEAD
+=======
+
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       const day = String(date.getDate()).padStart(2, "0");
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
+<<<<<<< HEAD
     } catch {
+=======
+    } catch (error) {
+      console.error("Error formatting date:", error);
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       return "";
     }
   };
@@ -210,6 +187,10 @@ const AddCustomer = ({
 
       setIsModalOpen(false);
       refreshData();
+<<<<<<< HEAD
+=======
+
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       setFormData(initialFormState);
       setImagePreview(null);
     } catch (error) {
@@ -322,6 +303,10 @@ const AddCustomer = ({
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Email */}
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
             <InputSimple
               label="Email"
               name="email"
@@ -329,6 +314,7 @@ const AddCustomer = ({
               value={formData.email}
               onChange={handleChange}
             />
+<<<<<<< HEAD
             <InputSimple
               label="Mobile Number*"
               name="mobileno"
@@ -365,6 +351,46 @@ const AddCustomer = ({
               />
             </div>
 
+=======
+
+            {/* Mobile */}
+            <InputSimple
+              label="Mobile Number*"
+              name="mobileno"
+              type="tel"
+              value={formData.mobileno}
+              onChange={handleChange}
+              required
+            />
+            <InputSimple
+              label="Alternative Number"
+              name="altMobileno"
+              type="tel"
+              value={formData.altMobileno}
+              onChange={handleChange}
+            />
+            <InputSimple
+              label="GST Number"
+              name="gst"
+              value={formData.gst}
+              onChange={handleChange}
+            />
+
+            {/* Birth Date */}
+            <div className="relative">
+              <label htmlFor="birth_date" className="block text-gray-600 mb-1">
+                Birth Date
+              </label>
+              <input
+                type="date"
+                name="bdate"
+                className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
+                value={formData.bdate}
+                onChange={handleChange}
+              />
+            </div>
+
+>>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
             {/* Document Type */}
             <div className="flex flex-col w-full">
               <label className="text-gray-600">Select Document</label>

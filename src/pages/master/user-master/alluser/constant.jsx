@@ -2,7 +2,7 @@
 import { Tooltip } from "antd";
 import { underConstruction } from "@/underConstruction";
 
-export const columns = [
+export const columns = (onEdit) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -33,11 +33,7 @@ export const columns = [
     header: "Company",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "role",
-    header: "Role",
-    meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
-  },
+ 
   {
     accessorKey: "plan",
     header: "Plan",
@@ -67,13 +63,15 @@ export const columns = [
     cell: ({ getValue }) => {
     const value = getValue();
     return (
-      <span
-        className={`font-medium ${
-          value ? "text-primary" : "text-danger"
+      <button
+        className={`font-medium px-4 py-1  rounded text-white ${
+          value ? "bg-success" : "bg-[blue] " 
+        } ${
+          value ? "bg-green-900" : "bg-blue-900 " 
         }`}
       >
-        {value ? "Yes" : "No"}
-      </span>
+        {value ? "Approved" : "Approve"}
+      </button>
     );
   },
     meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
@@ -83,26 +81,26 @@ export const columns = [
     header: "Created At",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: () => (
-      <div className="flex items-center justify-center gap-1">
-        <Tooltip title="Edit User">
-          <button className="btn btn-sm btn-icon btn-clear">
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
-          </button>
-        </Tooltip>
-        <Tooltip title="Delete User">
-          <button
-            className="btn btn-sm btn-icon btn-clear"
-            onClick={underConstruction}
-          >
-            <i className="ki-filled ki-trash text-danger"></i>
-          </button>
-        </Tooltip>
-      </div>
-    ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
+  // {
+  //   accessorKey: "action",
+  //   header: "Action",
+  //   cell: ({row}) => (
+  //     <div className="flex items-center justify-center gap-1">
+  //       {/* <Tooltip title="Edit User">
+  //         <button className="btn btn-sm btn-icon btn-clear " onClick={() => onEdit(row.original.id)}>
+  //           <i className="ki-filled ki-notepad-edit text-primary"></i>
+  //         </button>
+  //       </Tooltip> */}
+  //       {/* <Tooltip title="Delete User">
+  //         <button
+  //           className="btn btn-sm btn-icon btn-clear"
+  //           onClick={underConstruction}
+  //         >
+  //           <i className="ki-filled ki-trash text-danger"></i>
+  //         </button>
+  //       </Tooltip> */}
+  //     </div>
+  //   ),
+  //   meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  // },
 ];
