@@ -1,3 +1,4 @@
+
   import { useRef, useState, useEffect, useCallback } from "react";
   import {
     AddCustomerapi,
@@ -35,6 +36,46 @@
       contactCategoryId: "",
       document: "",
     };
+
+import { useRef, useState, useEffect, useCallback } from "react";
+import {
+  AddCustomerapi,
+  GetAllContactCategory,
+  EditCustomerApi,
+} from "@/services/apiServices";
+import InputToTextLang from "@/components/form-inputs/InputToTextLang"
+
+const AddCustomer = ({
+  isModalOpen,
+  setIsModalOpen,
+  selectedCustomer,
+  refreshData,
+}) => {
+  if (!isModalOpen) return null;
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const fileInputRef = useRef();
+
+  // Initial form state
+  const initialFormState = {
+    id: "",
+    nameEnglish: "",
+    nameGujarati: "",
+    nameHindi: "",
+    addressEnglish: "",
+    addressGujarati: "",
+    addressHindi: "",
+    email: "",
+    mobileno: "",
+    altMobileno: "",
+    gst: "",
+    bdate: "",
+    contactCategoryId: "",
+    document: "",
+  };
+
 
   const [formData, setFormData] = useState(initialFormState);
   const parseBirthdate = useCallback((birthdateString) => {
@@ -256,6 +297,7 @@
                 onChange={handleChange}
               />
 
+
               {/* Contact Category */}
               <div className="flex flex-col gap-1">
                 <label className="text-gray-600">Contact Category*</label>
@@ -281,6 +323,81 @@
                     +
                   </button>
                 </div>
+
+        {/* Form */}
+        <div className="overflow-y-auto max-h-[90vh]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Name fields */}
+            <InputToTextLang
+              label="Name (English)*"
+              name="nameEnglish"
+              value={formData.nameEnglish}
+              onChange={handleChange}
+              lng={'en-US'}
+              required
+            />
+            <InputToTextLang
+              label="Name (ગુજરાતી)"
+              name="nameGujarati"
+              value={formData.nameGujarati}
+              onChange={handleChange}
+              lng={'gu'}
+            />
+            <InputToTextLang
+              label="Name (हिंदी)"
+              name="nameHindi"
+              value={formData.nameHindi}
+              onChange={handleChange}
+              lng={'hi'}
+            />
+
+            {/* Home Address */}
+            <InputToTextLang
+              label="Home Address (English)"
+              name="addressEnglish"
+              value={formData.addressEnglish}
+              onChange={handleChange}
+              lng={'en-US'}
+            />
+            <InputToTextLang
+              label="Home Address (ગુજરાતી)"
+              name="addressGujarati"
+              value={formData.addressGujarati}
+              onChange={handleChange}
+              lng={'gu'}
+            />
+            <InputToTextLang
+              label="Home Address (हिंदी)"
+              name="addressHindi"
+              value={formData.addressHindi}
+              onChange={handleChange}
+              lng={'hi'}
+            />
+
+            {/* Contact Category */}
+            <div className="flex flex-col gap-1">
+              <label className="text-gray-600">Contact Category*</label>
+              <div className="flex items-center gap-2">
+                <select
+                  className="border border-gray-300 rounded-lg p-2 w-full"
+                  name="contactCategoryId"
+                  value={formData.contactCategoryId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- Select Category --</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nameEnglish}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none"
+                >
+                  +
+                </button>
               </div>
 
               <InputSimple
@@ -433,6 +550,7 @@
     </div>
   );
 
+
   const InputSimple = ({
     label,
     name,
@@ -459,3 +577,33 @@
   );
 
   export default AddCustomer;
+
+};
+
+const InputSimple = ({
+  label,
+  name,
+  value,
+  onChange,
+  required,
+  type = "text",
+}) => (
+  <div>
+    <label className="block text-gray-600 mb-1">
+      {label}
+      {required && <span className="text-red-500 ml-1">*</span>}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="border border-gray-300 rounded-lg p-2 w-full"
+      placeholder={label}
+      required={required}
+    />
+  </div>
+);
+
+export default AddCustomer;
+

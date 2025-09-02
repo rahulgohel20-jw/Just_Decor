@@ -24,11 +24,7 @@ export default function InvoiceTable({ columns, data }) {
           <button className="btn btn-primary" title="Download">
             <i className="ki-filled ki-cloud-download"></i> Download
           </button>
-          <button
-            className="btn btn-primary"
-            // onClick={handleAddInvoice}
-            title="Add Invoice"
-          >
+          <button className="btn btn-primary" title="Add Invoice">
             <i className="ki-filled ki-plus"></i> Add Invoice
           </button>
         </div>

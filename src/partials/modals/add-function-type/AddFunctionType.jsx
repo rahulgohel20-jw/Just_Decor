@@ -4,8 +4,14 @@ import dayjs from "dayjs"; // ✅ needed for parsing time
 import { AddFunction, EditFunctionById } from "@/services/apiServices"; 
 import { GetAllFunctionsByUserId } from "@/services/apiServices";
 
+
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
   const initialState = {
+
+import InputToTextLang from "@/components/form-inputs/InputToTextLang"
+const AddFunctionType = ({ isOpen, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -94,20 +100,23 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
 
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <InputWithIcon
+          <InputToTextLang
             label="Name (English)*"
             value={formData.nameEnglish}
             onChange={(e) => handleChange("nameEnglish", e.target.value)}
+            lng={'en-US'}
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (ગુજરાતી)"
             value={formData.nameGujarati}
             onChange={(e) => handleChange("nameGujarati", e.target.value)}
+            lng={'gu'}
           />
-          <InputWithIcon
+          <InputToTextLang
             label="Name (हिंदी)"
             value={formData.nameHindi}
             onChange={(e) => handleChange("nameHindi", e.target.value)}
+            lng={'hi'}
           />
         </div>
 
@@ -154,24 +163,5 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
     </div>
   );
 };
-
-const InputWithIcon = ({ label, value, onChange }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      value={value}
-      onChange={onChange}
-    />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
-  </div>
-);
 
 export default AddFunctionType;
