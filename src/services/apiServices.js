@@ -284,3 +284,4 @@ export const UpdateSubStatus = (Id, status = true) => {
 export const FetchAllUser = (Id) => {
   return GET(`/user/getallbyuserid?userId=${Id}`);
 };
+};
