@@ -15,6 +15,11 @@ export const columns = (onEdit, onDelete, onStatus) => [
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
     },
+    cell: ({ row }) => {
+      return (
+        <img src={row.original.imagePath} alt={row.original.nameEnglish} />
+      );
+    },
   },
   {
     accessorKey: "nameEnglish",
@@ -47,14 +52,15 @@ export const columns = (onEdit, onDelete, onStatus) => [
       return (
         <div className="flex items-center  gap-1">
           <Popconfirm
-              title="Are you sure to change this status?"
-              onConfirm={() => onStatus(row.original.id , row.original.isActive ? false: true)
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <label className="switch switch-lg">
+            title="Are you sure to change this status?"
+            onConfirm={() =>
+              onStatus(row.original.id, row.original.isActive ? false : true)
+            }
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <label className="switch switch-lg">
               <input
                 type="checkbox"
                 value="1"
@@ -64,7 +70,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
                 checked={row.original.isActive}
               />
             </label>
-            </Popconfirm>
+          </Popconfirm>
         </div>
       );
     },
@@ -89,21 +95,17 @@ export const columns = (onEdit, onDelete, onStatus) => [
             </button>
           </Tooltip>
           <Popconfirm
-              title="Are you sure to delete this item?"
-              onConfirm={() => onDelete(row.original.id)
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <Tooltip title="Delete">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-            >
-              <i className="ki-filled ki-trash  text-danger"></i>
-            </button>
-          </Tooltip>
+            title="Are you sure to delete this item?"
+            onConfirm={() => onDelete(row.original.id)}
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip title="Delete">
+              <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+                <i className="ki-filled ki-trash  text-danger"></i>
+              </button>
+            </Tooltip>
           </Popconfirm>
         </div>
       );

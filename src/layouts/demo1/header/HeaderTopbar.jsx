@@ -30,7 +30,7 @@ const HeaderTopbar = () => {
     setSearchModalOpen(false);
   };
   return (
-    <div className="flex items-center gap-2 lg:gap-3.5">
+    <div className="flex items-center gap-2 lg:gap-3">
       <button
         onClick={() => {
           setPriceModal(true);

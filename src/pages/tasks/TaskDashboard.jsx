@@ -17,13 +17,12 @@ const TaskDashboard = () => {
       value: 32,
       color: "danger",
       icon: <i class="ki-filled ki-timer text-xl text-danger"></i>,
-      border: "border-s-red-500 ",
+      border: "border-s-danger",
     },
     {
       label: "Pending",
       value: 0,
       color: "warning",
-      icon: <i class="ki-filled ki-abstract-18 text-xl text-warning"></i>,
       border: "border-s-warning",
     },
     {
