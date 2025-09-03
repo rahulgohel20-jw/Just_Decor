@@ -4,6 +4,7 @@ import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { uploadFile } from "../../../services/apiServices";
+import { formValidation } from "../../../lib/utils";
 
 const AddMenuCategory = ({
   isModalOpen,
@@ -21,7 +22,9 @@ const AddMenuCategory = ({
     sequence: "",
     file: "",
   };
+  const requiredFields = ["nameEnglish", "price", "sequence"];
   const [formData, setFormData] = useState(initialFormState);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,46 +32,61 @@ const AddMenuCategory = ({
   };
 
   const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
-    if (editData) {
-      const payload = {
-        ...formData,
-        userId: userData.id,
-        slogan: formData.menuSlogan,
-      };
+    if (checkErrors()) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        alert("User data not found");
+        return;
+      }
+      if (editData) {
+        const payload = {
+          ...formData,
+          userId: userData.id,
+          slogan: formData.menuSlogan,
+        };
 
-      editCategory(editData.id, payload)
-        .then((res) => {
-          res.data?.msg && successMsgPopup(res.data.msg);
-          uploadImage({
-            ModuleId: res.data.ModuleId,
-            FileType: res.data.FileType,
-            ModuleName: res.data.ModuleName,
+        editCategory(editData.id, payload)
+          .then((res) => {
+            res.data?.msg && successMsgPopup(res.data.msg);
+            uploadImage({
+              ModuleId: res.data.ModuleId,
+              FileType: res.data.FileType,
+              ModuleName: res.data.ModuleName,
+            });
+          })
+          .catch((error) => {
+            error?.response?.data?.msg &&
+              errorMsgPopup(error.response.data.msg);
+            console.error("Error editing meal:", error);
           });
-        })
-        .catch((error) => {
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
-          console.error("Error editing meal:", error);
-        });
-    } else {
-      const payload = { ...formData, userId: userData.id };
-      AddCategory(payload)
-        .then((res) => {
-          uploadImage({
-            ModuleId: res.data.ModuleId,
-            FileType: res.data.FileType,
-            ModuleName: res.data.ModuleName,
+      } else {
+        const payload = { ...formData, userId: userData.id };
+        AddCategory(payload)
+          .then((res) => {
+            uploadImage({
+              ModuleId: res.data.ModuleId,
+              FileType: res.data.FileType,
+              ModuleName: res.data.ModuleName,
+            });
+          })
+          .catch((error) => {
+            error?.response?.data?.msg &&
+              errorMsgPopup(error.response.data.msg);
+            console.error("Error adding meal:", error);
           });
-        })
-        .catch((error) => {
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
-          console.error("Error adding meal:", error);
-        });
+      }
     }
+  };
+
+  const checkErrors = () => {
+    let errorObject = formValidation(requiredFields, formData);
+
+    if (Object.keys(errorObject).length > 0) {
+      setErrors(errorObject);
+      return false;
+    }
+    setErrors({});
+    return true;
   };
 
   const uploadImage = (uploadRequest) => {
@@ -133,7 +151,7 @@ const AddMenuCategory = ({
           setFormData={setFormData}
           name="name"
           label="Name"
-          required
+          error={errors.nameEnglish}
         />
         <div className="relative">
           <label className="block text-gray-600 mb-1">{"Slogun"}</label>
@@ -147,7 +165,10 @@ const AddMenuCategory = ({
           />
         </div>
         <div className="relative">
-          <label className="block text-gray-600 mb-1">{"Price"}</label>
+          <label className="block text-gray-600 mb-1">
+            {"Price"}
+            <span className="text-red-500 ml-1">*</span>
+          </label>
           <input
             type="number"
             name={"price"}
@@ -156,9 +177,15 @@ const AddMenuCategory = ({
             className="border border-gray-300 rounded-lg p-2 w-full"
             placeholder={"price"}
           />
+          {errors.price && (
+            <span className="text-red-500 text-sm">{errors.price}</span>
+          )}
         </div>
         <div className="relative">
-          <label className="block text-gray-600 mb-1">{"Priority"}</label>
+          <label className="block text-gray-600 mb-1">
+            {"Priority"}
+            <span className="text-red-500 ml-1">*</span>
+          </label>
           <input
             type="number"
             name={"sequence"}
@@ -166,7 +193,11 @@ const AddMenuCategory = ({
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
             placeholder={"Priority"}
+            re
           />
+          {errors.sequence && (
+            <span className="text-red-500 text-sm">{errors.sequence}</span>
+          )}
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">{"Image"}</label>
