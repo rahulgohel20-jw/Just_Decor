@@ -50,7 +50,7 @@ const HeaderTopbar = () => {
       </button>
       <button
         onClick={handleOpen}
-        className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-light hover:text-primary text-gray-500"
+        className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-clarity hover:text-primary text-gray-500"
       >
         <KeenIcon icon="magnifier" />
       </button>
@@ -74,7 +74,7 @@ const HeaderTopbar = () => {
             ],
           }}
         >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary dropdown-open:bg-primary-light dropdown-open:text-primary text-gray-500">
+          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
             <KeenIcon icon="ki-filled ki-whatsapp" />
           </MenuToggle>
           {DropdownChat({
@@ -101,7 +101,7 @@ const HeaderTopbar = () => {
             ],
           }}
         >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary dropdown-open:bg-primary-light dropdown-open:text-primary text-gray-500">
+          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
             <KeenIcon icon="ki-filled ki-sms" />
           </MenuToggle>
           {DropdownMails({
@@ -128,7 +128,7 @@ const HeaderTopbar = () => {
             ],
           }}
         >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary dropdown-open:bg-primary-light dropdown-open:text-primary text-gray-500">
+          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
             <KeenIcon icon="notification-status" />
           </MenuToggle>
           {DropdownNotifications({

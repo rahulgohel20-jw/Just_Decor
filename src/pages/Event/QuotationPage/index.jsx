@@ -514,30 +514,52 @@ const QuotationPage = () => {
                   <div class="flex items-center justify-between py-1">
                     <div class="text-base font-normal text-gray-700">
                       Discount
+                      <span className="ms-1 text-sm text-gray-500">(10%)</span>
                     </div>
-                    <div class="text-base font-semibold text-gray-900">
-                      - &#8377; 10,000.00
-                      <span className="ms-1.5 text-sm font-medium text-gray-600">
-                        (10% paid)
+                    <div className="input text-base text-gray-900 w-[140px]">
+                      <span className="text-base font-semibold text-gray-900">
+                        &#8377;
                       </span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1">
-                    <div class="text-base font-normal text-gray-700">CGST</div>
-                    <div class="text-base font-semibold text-gray-900">
-                      &#8377; 8,100.00
-                      <span className="ms-1.5 text-sm font-medium text-gray-600">
-                        (09% paid)
-                      </span>
+                      <input
+                        className="h-full text-gray-900 w-full"
+                        value="10,000.00"
+                        type="text"
+                        placeholder="SGST"
+                      />
                     </div>
                   </div>
                   <div class="flex items-center justify-between py-1">
-                    <div class="text-base font-normal text-gray-700">SGST</div>
-                    <div class="text-base font-semibold text-gray-900">
-                      &#8377; 8,100.00
-                      <span className="ms-1.5 text-sm font-medium text-gray-600">
-                        (09% paid)
+                    <div class="text-base font-normal text-gray-700">
+                      CGST
+                      <span className="ms-1 text-sm text-gray-500">(9%)</span>
+                    </div>
+                    <div className="input text-base text-gray-900 w-[140px]">
+                      <span className="text-base font-semibold text-gray-900">
+                        &#8377;
                       </span>
+                      <input
+                        className="h-full text-gray-900 w-full"
+                        value="8,100.00"
+                        type="text"
+                        placeholder="SGST"
+                      />
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <div class="text-base font-normal text-gray-700">
+                      SGST
+                      <span className="ms-1 text-sm text-gray-500">(9%)</span>
+                    </div>
+                    <div className="input text-base text-gray-900 w-[140px]">
+                      <span className="text-base font-semibold text-gray-900">
+                        &#8377;
+                      </span>
+                      <input
+                        className="h-full text-gray-900 w-full"
+                        value="8,100.00"
+                        type="text"
+                        placeholder="SGST"
+                      />
                     </div>
                   </div>
                 </div>

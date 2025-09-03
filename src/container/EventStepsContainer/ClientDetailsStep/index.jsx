@@ -75,7 +75,9 @@ const ClientDetailsStep = ({
       <div>
         <label className="text-sm font-normal text-black mb-1 block">
           1. Client's Name
-          <span className="text-red-500">*</span>
+          <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+            *
+          </span>
         </label>
 
         <div className="flex space-x-2">
@@ -106,7 +108,9 @@ const ClientDetailsStep = ({
           </div>
         </div>
         {errors.customer_name && (
-          <span className="text-red-500 ml-[80px]">{errors.customer_name}</span>
+          <span className="text-red-600 font-normal text-sm mt-0.50">
+            {errors.customer_name}
+          </span>
         )}
       </div>
 
@@ -131,7 +135,9 @@ const ClientDetailsStep = ({
         <div className="w-1/2">
           <label className="text-sm font-normal text-black mb-1 block">
             Mobile Number
-            <span className="text-red-500">*</span>
+            <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+              *
+            </span>
           </label>
           <div className="input">
             <i className="ki-filled ki-phone text-[rgba(0, 91, 168, 1)]"></i>
@@ -145,7 +151,9 @@ const ClientDetailsStep = ({
             />
           </div>
           {errors.mobileno && (
-            <span className="text-red-500">{errors.mobileno}</span>
+            <span className="text-red-600 font-normal text-sm mt-0.50">
+              {errors.mobileno}
+            </span>
           )}
         </div>
 
