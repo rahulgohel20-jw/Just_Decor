@@ -131,13 +131,13 @@ const AddMenuCategory = ({
         <button
           type="button"
           onClick={() => setIsModalOpen(false)}
-          className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 me-2"
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
         >
           Cancel
         </button>,
         <button
           type="button"
-          className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+          className="btn-success text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
           onClick={handleSubmit}
         >
           {editData ? "Update" : "Save"}
