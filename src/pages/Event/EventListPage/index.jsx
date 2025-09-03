@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
 import { Tooltip } from "antd";
-import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -10,7 +9,7 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
-
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 const EventListPage = () => {
   const classes = useStyle();
   useEffect(() => {
@@ -22,47 +21,48 @@ const EventListPage = () => {
   const FetchEvent = () => {
     GetEventMaster(Id)
       .then((res) => {
-        const formatted = res.data.data["Event Details"].map((cust, index) => ({
-          sr_no: index + 1,
-          eventid: cust.id,
-          event_id: cust.eventNo || "-",
-          event_date:
-            cust.eventStartDateTime.split(" ")[0] +
-            " To " +
-            cust.eventEndDateTime.split(" ")[0],
-          customer: cust.party.nameEnglish,
-          event_type: cust.eventType.nameEnglish,
-          proforma_invoice: (
-            // <Link to="/proforma-invoice">
-            <Tooltip className="cursor-pointer" title="Proforma Invoice">
-              <div
-                className="flex justify-center items-center w-full"
-                onClick={underConstruction}
-              >
-                <FileText className="w-5 h-5 text-primary" />
-              </div>
-            </Tooltip>
-            // </Link>
-          ),
-          invoice: (
-            <Link to="/invoice-dashboard">
-              <Tooltip className="cursor-pointer" title="Invoice">
-                <div className="flex justify-center items-center w-full">
-                  <Receipt className="w-5 h-5 text-success" />
+        const formatted = res.data.data["Event Details"]
+          .slice()
+          .reverse()
+          .map((cust, index) => ({
+            sr_no: index + 1,
+            eventid: cust.id,
+            event_id: cust.eventNo || "-",
+            event_date:
+              cust.eventStartDateTime.split(" ")[0] +
+              " To " +
+              cust.eventEndDateTime.split(" ")[0],
+            customer: cust.party.nameEnglish,
+            event_type: cust.eventType.nameEnglish,
+            proforma_invoice: (
+              <Tooltip className="cursor-pointer" title="Proforma Invoice">
+                <div
+                  className="flex justify-center items-center w-full"
+                  onClick={underConstruction}
+                >
+                  <FileText className="w-5 h-5 text-primary" />
                 </div>
               </Tooltip>
-            </Link>
-          ),
-          quotation: (
-            <Link to="/quotation">
-              <Tooltip className="cursor-pointer" title="Quotation">
-                <div className="flex justify-center items-center w-full">
-                  <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-                </div>
-              </Tooltip>
-            </Link>
-          ),
-        }));
+            ),
+            invoice: (
+              <Link to="/invoice-dashboard">
+                <Tooltip className="cursor-pointer" title="Invoice">
+                  <div className="flex justify-center items-center w-full">
+                    <Receipt className="w-5 h-5 text-success" />
+                  </div>
+                </Tooltip>
+              </Link>
+            ),
+            quotation: (
+              <Link to="/quotation">
+                <Tooltip className="cursor-pointer" title="Quotation">
+                  <div className="flex justify-center items-center w-full">
+                    <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+                  </div>
+                </Tooltip>
+              </Link>
+            ),
+          }));
 
         setTableData(formatted);
       })
@@ -72,10 +72,12 @@ const EventListPage = () => {
   };
   const DeleteEvent = (eventid) => {
     DeleteEventMaster(eventid)
-      .then(() => {
+      .then((response) => {
         FetchEvent();
+        response.data?.msg && successMsgPopup(response.data.msg);
       })
       .catch((error) => {
+        error.data?.msg && errorMsgPopup(error.data.msg);
         console.error("Error deleting event:", error);
       });
   };

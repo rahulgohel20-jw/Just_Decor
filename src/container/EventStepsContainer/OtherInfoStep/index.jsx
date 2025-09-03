@@ -60,7 +60,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
               <div className="sg__inner flex flex-col w-full gap-1">
-                <label className="form-label">Meal Type</label>
+                <label className="form-label">
+                  Meal Type <span className="text-red-500">*</span>
+                </label>
                 <div className="relative w-full">
                   <MealTypeDropdown
                     value={formData.mealTypeId || ""}

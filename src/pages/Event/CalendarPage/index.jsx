@@ -11,6 +11,7 @@ const CalendarPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalData, setEventModalData] = useState(false);
   const [data, setData] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const openEvent = (data) => {
     setEventModalData(data);
@@ -23,16 +24,17 @@ const CalendarPage = () => {
   const getStatusColor = (statusCode) => {
     switch (statusCode) {
       case 0:
-        return "#6366f1";
+        return "#6366f1"; // Inquiry
       case 1:
-        return "rgba(40, 167, 69, 1)";
+        return "rgba(40, 167, 69, 1)"; // Confirm
       case 2:
-        return "rgba(191, 34, 37, 1)";
+        return "rgba(191, 34, 37, 1)"; // Cancel
       default:
-        return "#6b7280";
+        return "#6b7280"; // Default grey
     }
   };
 
+  // helper: parse "15/09/2025 10:09 AM" into ISO date + time
   const splitDateTime = (dateTimeString) => {
     if (!dateTimeString) {
       const today = new Date();
@@ -82,6 +84,13 @@ const CalendarPage = () => {
     }
   };
 
+  // helper: add +1 day to make FullCalendar end date inclusive
+  const addOneDay = (dateStr) => {
+    const date = new Date(dateStr);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split("T")[0];
+  };
+
   useEffect(() => {
     FetchEventdetails();
   }, []);
@@ -90,24 +99,37 @@ const CalendarPage = () => {
     GetEventMaster(Id)
       .then((res) => {
         const eventdata = res?.data?.data?.["Event Details"] || [];
-        console.log("Event data loaded:", eventdata.length, "events");
+        console.log(eventdata, "event");
 
         setData(
           eventdata
             .map((item, index) => {
               try {
-                console.log(item.eventStartDateTime);
-                const { date, time12 } = splitDateTime(item.eventStartDateTime);
+                const { date: startDate, time12 } = splitDateTime(
+                  item.eventStartDateTime
+                );
+                const { date: endDate } = splitDateTime(
+                  item.eventEndDateTime || item.eventStartDateTime
+                ); // fallback if no end
+
                 const color = getStatusColor(item.status);
+
                 return {
-                  title: item.party?.nameEnglish || "Unknown",
-                  date: date,
+                  eventid: item.id,
+                  title:
+                    (item.prefix || "") +
+                    (item.party?.nameEnglish || "") +
+                    " - " +
+                    (item.eventType?.nameEnglish || ""),
+                  start: startDate,
+                  end: addOneDay(endDate),
                   time: time12,
                   mobile: item.party?.mobileno || "N/A",
                   statusCode: item.status,
                   address: item.address || "N/A",
                   event: item.eventType?.nameEnglish || "Event",
                   color: color,
+                  allDay: true,
                 };
               } catch (error) {
                 console.error(
@@ -120,6 +142,7 @@ const CalendarPage = () => {
             })
             .filter((item) => item !== null)
         );
+        setEvents(res.data);
       })
       .catch((error) => {
         console.log(error);
@@ -191,6 +214,7 @@ const CalendarPage = () => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           eventData={eventModalData}
+          onEventsUpdated={FetchEventdetails}
         />
       )}
     </Fragment>
