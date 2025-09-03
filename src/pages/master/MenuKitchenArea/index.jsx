@@ -2,31 +2,62 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import AddKitchenArea from "@/partials/modals/add-kitchen-area/AddKitchenArea";
+import {GetAllKitchenAreaById} from "@/services/apiServices";
 
 const MenuKitchenArea = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+
+
+
+  
   useEffect(() => {
     FetchCategoryData();
   }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-  const FetchCategoryData = () => {
-    const formatted = defaultData.map(
-          (item, index) => ({
-            ...item,
-            sr_no: index + 1,
-            category: item.category || "-",
-          })
-        );
 
-        setTableData(formatted);
-  };
+
+const FetchCategoryData = async () => {
+  try {
+    const res = await GetAllKitchenAreaById(Id);
+    console.log("API Raw Response:", res);
+
+    // ✅ Extract the correct array
+    let list = Array.isArray(res?.data?.data?.["KitchenAreas Details"])
+      ? res.data.data["KitchenAreas Details"]
+      : [];
+
+    // 🔎 Apply search filter
+    if (searchQuery) {
+      list = list.filter((item) =>
+        item.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // 📝 Format for table
+    const formatted = list.map((item, index) => ({
+      ...item,
+      sr_no: index + 1,
+      category: item.nameEnglish || "-",
+    }));
+
+    setTableData(formatted);
+    console.log("Kitchen area data fetched successfully:", formatted);
+  } catch (error) {
+    console.error("Error fetching kitchen area:", error);
+    setTableData([]);
+  }
+};
+
+
+
+
 
   const DeleteCategory = () => {
       FetchCategoryData();

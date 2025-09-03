@@ -270,11 +270,10 @@ export const UpdateSubStatus = (Id, status = true) => {
 
 
 // Registration
-
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
 };
-
+// profile data
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 }
@@ -283,16 +282,12 @@ export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
 
-
+// all user
 export const getAllByRoleId = () => {
   return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
-
-
-
 // Kitchen Area
-
 export const GetAllKitchenAreaById = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 }

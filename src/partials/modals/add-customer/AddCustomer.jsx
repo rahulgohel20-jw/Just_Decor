@@ -83,10 +83,7 @@ const AddCustomer = ({
     if (isModalOpen) {
       if (selectedCustomer) {
         const parsedDate = parseBirthdate(selectedCustomer.birthdate);
-<<<<<<< HEAD
-=======
 
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
         setFormData({
           id: selectedCustomer.customerid || "",
           nameEnglish: selectedCustomer.customer || "",
@@ -131,13 +128,9 @@ const AddCustomer = ({
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-<<<<<<< HEAD
-    if (file) setImagePreview(URL.createObjectURL(file));
-=======
     if (file) {
       setImagePreview(URL.createObjectURL(file));
     }
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
   };
 
   const handleChange = (e) => {
@@ -150,20 +143,13 @@ const AddCustomer = ({
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "";
-<<<<<<< HEAD
-=======
 
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       const day = String(date.getDate()).padStart(2, "0");
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
-<<<<<<< HEAD
-    } catch {
-=======
     } catch (error) {
       console.error("Error formatting date:", error);
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       return "";
     }
   };
@@ -171,26 +157,22 @@ const AddCustomer = ({
   const CustomerAddApi = async () => {
     setIsLoading(true);
     try {
-      if (!userData?.id) throw new Error("User data not found");
-
+      if (!userData?.id) {
+        throw new Error("User data not found");
+      }
       const payload = {
         ...formData,
         userId: userData.id,
         bdate: formatDateToDDMMYYYY(formData.bdate),
       };
-
       if (formData.id) {
         await EditCustomerApi(formData.id, payload);
       } else {
         await AddCustomerapi(payload);
       }
-
       setIsModalOpen(false);
       refreshData();
-<<<<<<< HEAD
-=======
 
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
       setFormData(initialFormState);
       setImagePreview(null);
     } catch (error) {
@@ -253,7 +235,7 @@ const AddCustomer = ({
               lng="hi"
             />
 
-            {/* Address fields */}
+            {/* Home Address */}
             <InputToTextLang
               label="Home Address (English)"
               name="addressEnglish"
@@ -303,10 +285,7 @@ const AddCustomer = ({
               </div>
             </div>
 
-<<<<<<< HEAD
-=======
             {/* Email */}
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
             <InputSimple
               label="Email"
               name="email"
@@ -314,44 +293,6 @@ const AddCustomer = ({
               value={formData.email}
               onChange={handleChange}
             />
-<<<<<<< HEAD
-            <InputSimple
-              label="Mobile Number*"
-              name="mobileno"
-              type="tel"
-              value={formData.mobileno}
-              onChange={handleChange}
-              required
-            />
-            <InputSimple
-              label="Alternative Number"
-              name="altMobileno"
-              type="tel"
-              value={formData.altMobileno}
-              onChange={handleChange}
-            />
-            <InputSimple
-              label="GST Number"
-              name="gst"
-              value={formData.gst}
-              onChange={handleChange}
-            />
-
-            {/* Birth Date */}
-            <div className="relative">
-              <label htmlFor="birth_date" className="block text-gray-600 mb-1">
-                Birth Date
-              </label>
-              <input
-                type="date"
-                name="bdate"
-                className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
-                value={formData.bdate}
-                onChange={handleChange}
-              />
-            </div>
-
-=======
 
             {/* Mobile */}
             <InputSimple
@@ -390,7 +331,6 @@ const AddCustomer = ({
               />
             </div>
 
->>>>>>> b6235d60b6ba11d1d7a0948f8373f6cf26bb5603
             {/* Document Type */}
             <div className="flex flex-col w-full">
               <label className="text-gray-600">Select Document</label>
@@ -468,8 +408,14 @@ const AddCustomer = ({
   );
 };
 
-// --- Helpers ---
-const InputSimple = ({ label, name, value, onChange, required, type = "text" }) => (
+const InputSimple = ({
+  label,
+  name,
+  value,
+  onChange,
+  required,
+  type = "text",
+}) => (
   <div>
     <label className="block text-gray-600 mb-1">
       {label}
