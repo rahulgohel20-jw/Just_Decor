@@ -75,7 +75,9 @@ const ClientDetailsStep = ({
       <div>
         <label className="text-sm font-normal text-black mb-1 block">
           1. Client's Name
+          <span className="text-red-500">*</span>
         </label>
+
         <div className="flex space-x-2">
           <select
             name="prefix"
@@ -129,6 +131,7 @@ const ClientDetailsStep = ({
         <div className="w-1/2">
           <label className="text-sm font-normal text-black mb-1 block">
             Mobile Number
+            <span className="text-red-500">*</span>
           </label>
           <div className="input">
             <i className="ki-filled ki-phone text-[rgba(0, 91, 168, 1)]"></i>
