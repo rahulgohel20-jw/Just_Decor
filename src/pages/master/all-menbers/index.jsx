@@ -90,16 +90,21 @@ const [selectedMember, setSelectedMember] = useState(null);
         console.error("Error deleting customer:", error);
       });
   };
-  const DeleteUser = (id) => {
-    DeleteCategoryId(id)
-      .then((res) => {
-        Fetchalluser();
-        res.data?.msg && successMsgPopup(res.data.msg);
-      })
-      .catch((error) => {
-        console.error("Error deleting Event type:", error);
-      });
+  const handleEdit = (member) => {
+    setSelectedMember(member);
+    setIsMemberModalOpen(true);
   };
+
+//   const handleDelete = (memberId) => {
+//   DeleteMember(memberId)  // direct API call
+//     .then(() => {
+//       FetchMembers();
+//     })
+//     .catch((error) => {
+//       console.error("Error deleting member:", error);
+//     });
+// };
+
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -176,13 +181,16 @@ const [selectedMember, setSelectedMember] = useState(null);
         </div>
         <AddMember
           isModalOpen={isMemberModalOpen}
+          refreshData={Fetchalluser}
           setIsModalOpen={setIsMemberModalOpen}
+          selectedMember={selectedMember} // ✅ pass selected member
         />
         <TableComponent
-          columns={columns} // just edit
+          columns={columns( handleEdit )}
           data={tableData}
           paginationSize={10}
-        />
+/>
+
       </Container>
     </Fragment>
   );

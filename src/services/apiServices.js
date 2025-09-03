@@ -216,6 +216,22 @@ export const GetAllMemberByUserId = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
 
+// Add Member
+
+export const AddMember = (data) => {
+  return POST(`/auth/add`, data);
+};
+
+// Delete Member
+export const DeleteMember = (Id) => {
+  return DELETE(`/user/deletebyid?id=${Id}`);
+};
+
+// Edit Member
+
+export const UpdateMember = (id, data) => {
+  return PUT(`/auth/update?id=${id}`, data);
+};
 
 //Get category Type
 export const GetAllCategory = (Id, isActive = true, searchQuery = '') => {
@@ -243,8 +259,8 @@ export const UpdateStatus = (Id, status = true) => {
 };
 
 //Get Sub category Type
-export const GetAllSubCategory = (Id, isActive = true, searchQuery = '') => {
-  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menusubCategoryName=${searchQuery}`);
+export const GetAllSubCategory = (Id, searchQuery = '') => {
+  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&menusubCategoryName=${searchQuery}`);
 };
 
 //Add category Type
@@ -291,8 +307,3 @@ export const getAllByRoleId = () => {
 
 
 
-// Kitchen Area
-
-export const GetAllKitchenAreaById = (id) => {
-  return GET(`/user/getallbyuserid?userId=${id}`);
-}
