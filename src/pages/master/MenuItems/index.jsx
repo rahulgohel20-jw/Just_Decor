@@ -2,40 +2,66 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData,categoryData } from "./constant";
+import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import { GetAllMenuItems } from "@/services/apiServices";
 
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  useEffect(() => {
-    FetchCategoryData();
-  }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchCategoryData = () => {
-    const formatted = defaultData.map(
+  let Id = userData?.id;
+
+  useEffect(() => {
+    FetchMenuItems();
+  }, [searchQuery]);
+
+  // ✅ Fetch menu items
+ const FetchMenuItems = () => {
+  GetAllMenuItems({ userId: Id, menuItemName: searchQuery }) // <-- fixed key
+    .then((res) => {
+      if (
+        res?.data?.data &&
+        Array.isArray(res.data.data["Menu Item Details"])
+      ) {
+        const formatted = res.data.data["Menu Item Details"].map(
           (item, index) => ({
-            ...item,
             sr_no: index + 1,
-            category: item.category || "-",
-            item: item.item
+            mealid: item.id,
+            name: item.nameEnglish || "-",
+            category: item.menuCategory?.nameEnglish || "-",
+            subCategory: item.menuSubCategory?.nameEnglish || "-",
+            kitchenArea: item.kitchenArea?.nameEnglish || "-",
+            price: item.price || "-",
+            priority: item.sequence || "-",
+            image: item.imagePath || "",
+            status: item.isActive,
           })
         );
-
         setTableData(formatted);
+      } else {
+        setTableData([]);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching menu items:", error);
+    });
+};
+
+
+  // ✅ delete then refresh table
+  const DeleteCategory = () => {
+    FetchMenuItems();
   };
 
-  const DeleteCategory = () => {
-      FetchCategoryData();
-  };
-  const handleEdit = (category) => {
-    setSelectedMenuItem(category);
+  const handleEdit = (menuItem) => {
+    setSelectedMenuItem(menuItem);
     setIsItemModalOpen(true);
   };
+
   return (
     <Fragment>
       <Container>
@@ -43,9 +69,10 @@ const MenuItems = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Items Master" }]} />
         </div>
+
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className={`flex flex-wrap items-center gap-2`}>
+          <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -67,13 +94,23 @@ const MenuItems = () => {
             </button>
           </div>
         </div>
+
+        {/* Add/Edit modal */}
         <AddMenuItem
           isModalOpen={isItemModalOpen}
-          setIsModalOpen={setIsItemModalOpen}
-          refreshData={FetchCategoryData}
+          setIsModalOpen={(val) => {
+            setIsItemModalOpen(val);
+            if (!val) {
+              setSelectedMenuItem(null); // clear selection when closing
+              FetchMenuItems(); // refresh table when modal closes
+            }
+          }}
+          refreshData={FetchMenuItems}
           selectedMenuItem={selectedMenuItem}
           categoryData={categoryData}
         />
+
+        {/* Table */}
         <TableComponent
           columns={columns(handleEdit, DeleteCategory)}
           data={tableData}
@@ -83,4 +120,5 @@ const MenuItems = () => {
     </Fragment>
   );
 };
+
 export default MenuItems;

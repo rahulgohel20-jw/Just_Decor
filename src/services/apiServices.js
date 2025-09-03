@@ -238,10 +238,16 @@ export const UpdateStatus = (Id, status = true) => {
   return PUT(`/menucategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
-//Get Sub category Type
+// Get Sub category Type 
 export const GetAllSubCategory = (data) => {
   return GET(`/menusubcategory/getallbyuserid`, data);
 };
+
+// Get Sub category Type
+// export const GetAllSubCategory = (id) => {
+//   return GET(`/menusubcategory/getallbyuserid?userId=${id}`);
+// };
+
 
 //Add category Type
 export const AddSubCategory = (data) => {
@@ -312,3 +318,7 @@ export const GetAllMenuItems = (data) => {
   return GET(`/menuitems/getallbyuserid`, data);
 };
 
+//addmenuitem
+export const AddMenuItems = (data) => {
+  return POST(`/menuitems/add`, data);
+};

@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { EditEventType, Addeventtype } from "@/services/apiServices";
+import { 
+  AddMenuItems, 
+  GetMenuCategoryByUserId, 
+  GetAllSubCategory, 
+  GetAllKitchenAreaById 
+} from "@/services/apiServices";
+
 const AddMenuItem = ({
   isModalOpen,
   setIsModalOpen,
   refreshData,
   selectedMenuItem,
-  categoryData
 }) => {
   if (!isModalOpen) return null;
 
@@ -13,17 +18,56 @@ const AddMenuItem = ({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+    menuSlogan: "",
+    price: "",
+    sequence: "",
+    file: "",
+    priority: "",
+    menuItemCategory: "",
+    menuSubItemCategory: "",
+    kitchenArea: "",
   };
+
   const [formData, setFormData] = useState(initialFormState);
+
+  // Dropdown state
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [kitchenAreas, setKitchenAreas] = useState([]);
+
+  // Load dropdown data when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) return;
+
+      Promise.all([
+        GetMenuCategoryByUserId(userData.id),
+        GetAllSubCategory({ userId: userData.id }),
+        GetAllKitchenAreaById(userData.id),
+      ])
+        .then(([catRes, subRes, kitchenRes]) => {
+          setCategories(catRes?.data || []);
+          setSubCategories(subRes?.data || []);
+          setKitchenAreas(kitchenRes?.data || []);
+        })
+        .catch((err) => console.error("Error loading dropdown data:", err));
+    }
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (selectedMenuItem) {
-      console.log(selectedMenuItem);
-
       setFormData({
-        nameEnglish: selectedMenuItem.event_type || "",
+        ...initialFormState,
+        nameEnglish: selectedMenuItem.nameEnglish || "",
         nameGujarati: selectedMenuItem.nameGujarati || "",
         nameHindi: selectedMenuItem.nameHindi || "",
+        menuSlogan: selectedMenuItem.menuSlogan || "",
+        price: selectedMenuItem.price || "",
+        priority: selectedMenuItem.priority || "",
+        menuItemCategory: selectedMenuItem.menuItemCategory || "",
+        menuSubItemCategory: selectedMenuItem.menuSubItemCategory || "",
+        kitchenArea: selectedMenuItem.kitchenArea || "",
       });
     } else {
       setFormData(initialFormState);
@@ -41,31 +85,22 @@ const AddMenuItem = ({
       alert("User data not found");
       return;
     }
-    refreshData();
-    setIsModalOpen();
-    if (selectedMenuItem) {
-      const payload = { ...formData, userId: userData.id };
 
-      // EditEventType(selectedMenuItem.eventid, payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error editing meal:", error);
-      //   });
+    const payload = { ...formData, userId: userData.id };
+
+    if (selectedMenuItem) {
+      console.log("Update menu item:", payload);
+      // TODO: call update API
     } else {
-      const payload = { ...formData, userId: userData.id };
-      // Addeventtype(payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error adding meal:", error);
-      //   });
+      AddMenuItems(payload)
+        .then(() => {
+          refreshData();
+          setIsModalOpen(false);
+        })
+        .catch((err) => console.error("Error saving menu item:", err));
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
@@ -81,9 +116,9 @@ const AddMenuItem = ({
             &times;
           </button>
         </div>
+
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputWithIcon
             label="Name (English)"
             name="nameEnglish"
@@ -105,120 +140,87 @@ const AddMenuItem = ({
             onChange={handleChange}
             required
           />
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Slogun'}</label>
+
+          {/* Slogan */}
+          <div className="relative col-span-2">
+            <label className="block text-gray-600 mb-1">Slogan</label>
             <textarea
-              type="text"
-              name={'slogun'}
-              value={formData.slogun}
+              name="menuSlogan"
+              value={formData.menuSlogan}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Slogun'}
+              placeholder="Menu Slogan"
             />
           </div>
+
+          {/* Price */}
           <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Price'}</label>
+            <label className="block text-gray-600 mb-1">Price</label>
             <input
               type="number"
-              name={'price'}
+              name="price"
               value={formData.price}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Price'}
+              placeholder="Price"
             />
           </div>
+
+          {/* Priority */}
           <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Priority'}</label>
+            <label className="block text-gray-600 mb-1">Priority</label>
             <input
               type="number"
-              name={'priority'}
+              name="priority"
               value={formData.priority}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Priority'}
+              placeholder="Priority"
             />
           </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Menu Item Category'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.category_id}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Category</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Menu Item Sub Category'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.sub_category_id}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Sub Category</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Kitchen Area'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.kitchen_area}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Kitchen Area</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Document'}</label>
+
+          {/* Category */}
+         <DropdownField
+  label="Menu Item Category"
+  name="menuItemCategory"
+  value={formData.menuItemCategory}
+  onChange={handleChange}
+  options={categories}
+  optionLabel="nameEnglish"   // ✅ matches API
+/>
+          {/* Sub Category */}
+          <DropdownField
+            label="Menu Item Sub Category"
+            name="menuSubItemCategory"
+            value={formData.menuSubItemCategory}
+            onChange={handleChange}
+            options={subCategories}
+            optionLabel="subcategory"
+          />
+
+          {/* Kitchen Area */}
+          <DropdownField
+            label="Kitchen Area"
+            name="kitchenArea"
+            value={formData.kitchenArea}
+            onChange={handleChange}
+            options={kitchenAreas}
+            optionLabel="kitchenArea"
+          />
+
+          {/* File upload */}
+          <div className="relative col-span-2">
+            <label className="block text-gray-600 mb-1">Document</label>
             <input
               type="file"
-              name={'document'}
-              value={formData.document}
+              name="file"
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'document'}
             />
           </div>
         </div>
+
+        {/* Buttons */}
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"
@@ -252,12 +254,26 @@ const InputWithIcon = ({ label, name, value, onChange, required }) => (
       placeholder={label}
       required={required}
     />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
+  </div>
+);
+
+const DropdownField = ({ label, name, value, onChange, options, optionLabel }) => (
+  <div className="relative">
+    <label className="block text-gray-600 mb-1">{label}</label>
+    <select
+      className="border border-gray-300 rounded-lg p-2 w-full"
+      name={name}
+      value={value}
+      onChange={onChange}
+      required
+    >
+      <option value="">Select {label}</option>
+      {options.map((item) => (
+        <option key={item.id} value={item.id}>
+          {item[optionLabel]}
+        </option>
+      ))}
+    </select>
   </div>
 );
 

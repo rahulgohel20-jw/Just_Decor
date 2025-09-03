@@ -5,6 +5,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 
+
 import {
   GetAllCategory,
   DeleteCategoryId,

@@ -5,6 +5,7 @@ import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { uploadFile } from "../../../services/apiServices";
 
+
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
