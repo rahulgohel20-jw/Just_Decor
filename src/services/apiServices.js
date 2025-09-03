@@ -282,11 +282,33 @@ export const getAllByRoleId = () => {
 
 // Kitchen Area
 export const GetAllKitchenAreaById = (id) => {
-  return GET(`/user/getallbyuserid?userId=${id}`);
+  return GET(`/kitchenarea/getallbyuserid?userId=${id}`);
+};
+// addkitechenarea
+export const AddKitchenArea = (data) => {
+    return POST(`/kitchenarea/add`, data);
+};
+//updatekitchenarea
+export const UpdateKitchenArea = (id, data) => {
+  return PUT(`/kitchenarea/update?id=${id}`, data);
+};
+// deletekitchenarea
+export const DeleteKitchenArea = (id) => {
+  return DELETE(`/kitchenarea/deletebyid?id=${id}`);
+};
+//upadtestatuskitecharea
+// ✅ services/apiServices.js
+export const UpdateStatusKitchenArea = (id, isActive = true) => {
+  return PUT(`/kitchenarea/updatestatus?id=${id}&isActive=${isActive}`);
 };
 
 // file upload
-
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
+
+//getmenuitem
+export const GetAllMenuItems = (data) => {
+  return GET(`/menuitems/getallbyuserid`, data);
+};
+

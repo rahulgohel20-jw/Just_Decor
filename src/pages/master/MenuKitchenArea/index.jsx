@@ -5,16 +5,14 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddKitchenArea from "@/partials/modals/add-kitchen-area/AddKitchenArea";
 import {GetAllKitchenAreaById} from "@/services/apiServices";
+import { DeleteKitchenArea , UpdateStatusKitchenArea } from "../../../services/apiServices";
 
 const MenuKitchenArea = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-
-
-  
   useEffect(() => {
     FetchCategoryData();
   }, [searchQuery]);
@@ -28,44 +26,65 @@ const FetchCategoryData = async () => {
     const res = await GetAllKitchenAreaById(Id);
     console.log("API Raw Response:", res);
 
-    // ✅ Extract the correct array
     let list = Array.isArray(res?.data?.data?.["KitchenAreas Details"])
       ? res.data.data["KitchenAreas Details"]
       : [];
 
-    // 🔎 Apply search filter
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       list = list.filter((item) =>
         item.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    // 📝 Format for table
     const formatted = list.map((item, index) => ({
-      ...item,
+     id: item.id,
       sr_no: index + 1,
       category: item.nameEnglish || "-",
+      hindi: item.nameHindi || "-",
+      gujarati: item.nameGujarati || "-",
+      createdAt: item.createdAt,
+      userName: `${item.user?.firstName || ""} ${item.user?.lastName || ""}`,
+      plan: item.user?.plan?.name || "-",
+      role: item.user?.userBasicDetails?.role?.name || "-",
+      isActive: item.isActive ?? item.status ?? false,
+      raw: item,
     }));
-
     setTableData(formatted);
     console.log("Kitchen area data fetched successfully:", formatted);
+
   } catch (error) {
     console.error("Error fetching kitchen area:", error);
     setTableData([]);
   }
 };
 
-
-
-
-
-  const DeleteCategory = () => {
+const statusKitchen = async (id, currentStatus) => {
+  try {
+    const newStatus = !currentStatus; // toggle
+    const res = await UpdateStatusKitchenArea(id, newStatus);
+console.log("Status updated response:", res);
+    FetchCategoryData();
+   
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
+};
+  const DeleteCategory = async (id) => {
+        try{
+      await DeleteKitchenArea(id);
+      console.log("Kitchen area deleted successfully:", id);
+      FetchCategoryData();
+    }catch(error){
+      console.error("Error deleting kitchen area:", error);
+    }
       FetchCategoryData();
   };
-  const handleEdit = (category) => {
-    setSelectedCategory(category);
+
+  const handleEdit = (categoryRow) => {
+    setSelectedCategory(categoryRow.raw);
     setIsCategoryModalOpen(true);
   };
+
   return (
     <Fragment>
       <Container>
@@ -90,7 +109,10 @@ const FetchCategoryData = async () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsCategoryModalOpen(true)}
+              onClick={() => {
+                setSelectedCategory(null);
+                setIsCategoryModalOpen(true);
+              }}
               title="Add Kitchen Area"
             >
               <i className="ki-filled ki-plus"></i> Add Kitchen Area
@@ -104,7 +126,7 @@ const FetchCategoryData = async () => {
           selectedMenuCategory={selectedMenuCategory}
         />
         <TableComponent
-          columns={columns(handleEdit, DeleteCategory)}
+          columns={columns(handleEdit, DeleteCategory, statusKitchen)}
           data={tableData}
           paginationSize={10}
         />

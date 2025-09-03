@@ -57,6 +57,7 @@ const MenuCategory = () => {
         console.error("Error deleting Event type:", error);
       });
   };
+  
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);
