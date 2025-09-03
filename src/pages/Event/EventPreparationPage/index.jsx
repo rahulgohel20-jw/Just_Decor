@@ -515,12 +515,12 @@ const EventPreparationPage = () => {
             </div>
           </div>
         </div>
-        <div class="flex items-center justify-between gap-2">
-          <button class="btn btn-light" title="Cancel">
+        <div className="flex items-center justify-between gap-2">
+          <button className="btn btn-light" title="Cancel">
             Cancel
           </button>
-          <button class="btn btn-success" title="Save Menu">
-            <i class="ki-filled ki-save-2"></i> Save Menu
+          <button className="btn btn-success" title="Save Menu">
+            <i className="ki-filled ki-save-2"></i> Save Menu
           </button>
         </div>
       </Container>

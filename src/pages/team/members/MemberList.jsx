@@ -62,12 +62,12 @@ const MemberList = () => {
             </div>
             <div className="filItems">
               <button
-              className="btn btn-primary"
-              onClick={underConstruction}
-              title="Clear Filter"
-            >
-              <i class="ki-filled ki-filter"></i> Clear Filter
-            </button>
+                className="btn btn-primary"
+                onClick={underConstruction}
+                title="Clear Filter"
+              >
+                <i className="ki-filled ki-filter"></i> Clear Filter
+              </button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
