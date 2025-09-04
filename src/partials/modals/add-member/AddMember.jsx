@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { GetAllRole, AddMember as AddMemberapi, UpdateMember } from "@/services/apiServices"; // <-- renamed API fn
-import { parse } from "qs";
+import { GetAllRole, AddMember as AddMemberapi, UpdateMember, getUserById } from "@/services/apiServices"; // <-- renamed API fn
+import Select from "react-select";
+import { fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices"; // <-- your APIs
 
 const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
+   const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
+  const [searchCountry, setSearchCountry] = useState("");
+  const [searchState, setSearchState] = useState("");
+  const [searchCity, setSearchCity] = useState("");
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
   const [formData, setFormData] = useState({
@@ -23,6 +30,33 @@ const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember })
     companyName: "",
   });
 
+
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchCountries(searchCountry)
+        .then((res) => setCountries(res?.data?.data?.["Country Details"] || []))
+        .catch(() => setCountries([]));
+    }
+  }, [isModalOpen, searchCountry]);
+
+  // ⬇️ Fetch States when country changes
+  useEffect(() => {
+    if (formData.countryId) {
+      fetchStatesByCountry(formData.countryId, searchState)
+        .then((res) => setStates(res?.data?.data?.["state Details"] || []))
+        .catch(() => setStates([]));
+    }
+  }, [formData.countryId, searchState]);
+
+  // ⬇️ Fetch Cities when state changes
+  useEffect(() => {
+    if (formData.stateId) {
+      fetchCitiesByState(formData.stateId, searchCity)
+        .then((res) => setCities(res?.data?.data?.["City Details"] || []))
+        .catch(() => setCities([]));
+    }
+  }, [formData.stateId, searchCity]);
+
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -31,9 +65,6 @@ const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember })
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData?.id;
 
   useEffect(() => {
   if (isModalOpen) {
@@ -53,61 +84,79 @@ const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember })
   }
 }, [isModalOpen]);
 
-// Prefill form when editing
 useEffect(() => {
-  if (selectedMember) {
-    console.log("Selected member for editing:", selectedMember);
-    setFormData({
-      firstName: selectedMember.full_name?.split(" ")[0] || "", // split from full_name
-      lastName: selectedMember.full_name?.split(" ")[1] || "",  // optional last name
-      email: selectedMember.email || "",
-      companyEmail: selectedMember.companyEmail || "", // if not present, keep blank
-      contactNo: selectedMember.contact || "",
-      officeNo: selectedMember.officeNo || "",
-      countryId: selectedMember.country || "",
-      stateId: selectedMember.state || "",
-      cityId: selectedMember.city || "",
-      address: selectedMember.address || "",
-      role: selectedMember.role || "",
-      companyName: selectedMember.companyName || "",
-    });
-    console.log("Prefilling form with:", formData);
+  const fetchMember = async () => {
+    if (!selectedMember?.id) {
+      // Reset form if no member selected
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        companyEmail: "",
+        contactNo: "",
+        officeNo: "",
+        countryId: "",
+        stateId: "",
+        cityId: "",
+        address: "",
+        companyName: "",
+      });
+      setSelectedRole("");
+      setTaskAccess(true);
+      setLeaveAccess(true);
+      return;
+    }
 
-    // role comes as string, match it with roleId if needed
-    setSelectedRole(selectedMember.role || "");
+    try {
+      const res = await getUserById(selectedMember.id);
+      const member = res?.data?.data?.["User Details"][0];
+      console.log("User data:", member);
 
-    // booleans
-    setTaskAccess(selectedMember.task_access ?? true);
-    setLeaveAccess(
-      selectedMember.leave_attendence_access === true ||
-      selectedMember.leave_attendence_access === "true"
-    );
-  } else {
-    // reset for add member
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      companyEmail: "",
-      contactNo: "",
-      officeNo: "",
-      countryId: "",
-      stateId: "",
-      cityId: "",
-      address: "",
-      companyName: "",
-    });
-    setSelectedRole("");
-    setTaskAccess(true);
-    setLeaveAccess(true);
-  }
+      if (member) {
+        const prefilled = {
+          memberid: member.id ?? "",
+          firstName: member.firstName ??  "",
+          lastName: member.lastName ??  "",
+          email: member.email ?? "sd",
+          companyEmail: member.userBasicDetails.companyEmail ?? "",
+          contactNo: member.contactNo ?? "",
+          officeEmail: member.userBasicDetails.officeEmail ?? "",
+          countryId: member.userBasicDetails.country.id ??  "",
+          stateId: member.userBasicDetails.state.id ?? "",
+          cityId: member.userBasicDetails.city.id ?? member.city.id ?? "",
+          address: member.address ?? "",
+          companyName: member.companyName ?? "",
+          role: member.userBasicDetails.role.name  ?? "",
+        };
+
+        setFormData(prefilled);
+        setSelectedRole(member.userBasicDetails.role?.name || "");
+
+        setTaskAccess(member.task_access ?? true);
+        setLeaveAccess(
+          member.leave_attendence_access === true ||
+          member.leave_attendence_access === "true"
+        );
+
+        // 🔥 If editing, fetch states & cities immediately
+        if (prefilled.countryId) {
+          fetchStatesByCountry(prefilled.countryId, "")
+            .then((res) => setStates(res?.data?.data?.["state Details"] || []));
+        }
+        if (prefilled.stateId) {
+          fetchCitiesByState(prefilled.stateId, "")
+            .then((res) => setCities(res?.data?.data?.["City Details"] || []));
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
+    }
+  };
+
+  if (isModalOpen) fetchMember();
 }, [selectedMember, isModalOpen]);
 
-
-
-
-
-  const handleSave = async () => {
+ const handleSave = async () => {
   try {
     const userData = localStorage.getItem("userData");
     if (!userData) {
@@ -130,9 +179,9 @@ useEffect(() => {
 
       // static values
       countryCode: "+91",
-      cityId: Number(formData.cityId) || 1,
-      stateId: Number(formData.stateId) || 1,
-      countryId: Number(formData.countryId) || 1,
+      cityId: Number(formData.cityId) ,
+      stateId: Number(formData.stateId) ,
+      countryId: Number(formData.countryId) ,
       reportingManagerId: 0,
 
       // localStorage values
@@ -155,7 +204,9 @@ useEffect(() => {
     let res;
     if (selectedMember?.memberid) {
       // EDIT
-      res = await UpdateMember(payload); // <-- your edit API
+      res = await UpdateMember(payload.memberId,payload);
+       refreshData();
+       // <-- your edit API
       console.log("✏️ Member updated:", res.data);
     } else {
       // ADD
@@ -168,10 +219,7 @@ useEffect(() => {
   } catch (err) {
     console.error("❌ Error saving member:", err.response?.data || err);
   }
-};
-
-
-
+ };
   return (
     isModalOpen && (
       <CustomModal
@@ -199,146 +247,152 @@ useEffect(() => {
           </div>,
         ]}
       >
-        <div className="flex flex-col gap-y-2">
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="First name"
-                className="input"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Last name"
-                className="input"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">Country</label>
-              <input
-                type="text"
-                name="countryId"
-                value={formData.countryId}
-                onChange={handleChange}
-                placeholder="Country "
-                className="input"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">State </label>
-              <input
-                type="text"
-                name="stateId"
-                value={formData.stateId}
-                onChange={handleChange}
-                placeholder="State "
-                className="input"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">City </label>
-              <input
-                type="text"
-                name="cityId"
-                value={formData.cityId}
-                onChange={handleChange}
-                placeholder="City "
-                className="input"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">WhatsApp No</label>
-              <input
-                type="text"
-                name="contactNo"
-                value={formData.contactNo}
-                onChange={handleChange}
-                placeholder="WhatsApp no"
-                className="input"
-              />
-            </div>
-          </div>
-
+      <div className="flex flex-col gap-y-2">
+        <div className="grid grid-cols-2 gap-x-4">
           <div className="flex flex-col">
-            <label className="form-label">Role</label>
-            <select
-              className="select"
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-            >
-              <option value="">Select Role</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+            <label className="form-label">First Name</label>
+            <input
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="First name"
+              className="input"
+            />
           </div>
-
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="input"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Office Email</label>
-              <input
-                type="email"
-                name="companyEmail"
-                value={formData.companyEmail}
-                onChange={handleChange}
-                placeholder="Office email"
-                className="input"
-              />
-            </div>
+          <div className="flex flex-col">
+            <label className="form-label">Last Name</label>
+            <input
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Last name"
+              className="input"
+            />
           </div>
+        </div>
 
-          <div className="flex items-center gap-2 mt-1">
-  <label className="form-label">Task Access</label>
-  <label className="switch switch-lg">
-    <input
-      type="checkbox"
-      checked={taskAccess}               // bind directly to state
-      onChange={() => setTaskAccess(!taskAccess)} // toggle state
-    />
-  </label>
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">Country</label>
+            <Select
+              options={countries.map((c) => ({ value: c.id, label: c.name }))}
+              value={countries.find((c) => c.id === formData.countryId) ? { value: formData.countryId, label: countries.find((c) => c.id === formData.countryId)?.name } : null}
+              onChange={(selected) =>
+                setFormData((prev) => ({ ...prev, countryId: selected?.value || "" }))
+              }
+              placeholder="Search & select country..."
+              isClearable
+            />
+
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">State </label>
+            <Select
+              options={states.map((s) => ({ value: s.id, label: s.name }))}
+              value={states.find((s) => s.id === formData.stateId) ? { value: formData.stateId, label: states.find((s) => s.id === formData.stateId)?.name } : null}
+              onChange={(selected) =>
+                setFormData((prev) => ({ ...prev, stateId: selected?.value || "" }))
+              }
+              placeholder="Search & select state..."
+              isClearable
+              isDisabled={!formData.countryId}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">City </label>
+            <Select
+              options={cities.map((ct) => ({ value: ct.id, label: ct.name }))}
+              value={cities.find((ct) => ct.id === formData.cityId) ? { value: formData.cityId, label: cities.find((ct) => ct.id === formData.cityId)?.name } : null}
+              onChange={(selected) =>
+                setFormData((prev) => ({ ...prev, cityId: selected?.value || "" }))
+              }
+              placeholder="Search & select city..."
+              isClearable
+              isDisabled={!formData.stateId}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">WhatsApp No</label>
+            <input
+              type="text"
+              name="contactNo"
+              value={formData.contactNo}
+              onChange={handleChange}
+              placeholder="WhatsApp no"
+              className="input"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="form-label">Role</label>
+          <select
+            className="select"
+             value={selectedRole}
+            onChange={handleChange}
+          >
+            <option value="">Select Role</option>
+            {roles.map((role) => (
+              <option key={role.id} value={role.name}>
+                {role.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email address"
+              className="input"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="form-label">Office Email</label>
+            <input
+              type="email"
+              name="companyEmail"
+              value={formData.companyEmail}
+              onChange={handleChange}
+              placeholder="Office email"
+              className="input"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-1">
+        <label className="form-label">Task Access</label>
+        <label className="switch switch-lg">
+          <input
+            type="checkbox"
+            checked={taskAccess}               // bind directly to state
+            onChange={() => setTaskAccess(!taskAccess)} // toggle state
+          />
+        </label>
 </div>
 
 <div className="flex items-center gap-2 mt-1">
-  <label className="form-label">Leave & Attendance Access</label>
-  <label className="switch switch-lg">
-    <input
-      type="checkbox"
-      checked={leaveAccess}
-      onChange={() => setLeaveAccess(!leaveAccess)}
-    />
-  </label>
+<label className="form-label">Leave & Attendance Access</label>
+<label className="switch switch-lg">
+  <input
+    type="checkbox"
+    checked={leaveAccess}
+    onChange={() => setLeaveAccess(!leaveAccess)}
+  />
+</label>
 </div>
 
-        </div>
+      </div>
       </CustomModal>
     )
   );

@@ -109,3 +109,7 @@ html,
 .filters__right .custTabs .custtNav {
   margin: 0;
 }
+
+.mandatory {
+  /* color: var(--tw-damger); */
+}

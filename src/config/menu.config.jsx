@@ -67,6 +67,10 @@ export const MENU_SIDEBAR = [
         title: "Menu Item",
         path: "/master/menu-item",
       },
+      {
+        title: "Role",
+        path: "/master/role",
+      },
        {
     title: "User Master",
     icon: "ki-filled ki-abstract-18 text-primary",

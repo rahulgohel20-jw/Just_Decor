@@ -5,8 +5,8 @@ import { TableComponent } from "@/components/table/TableComponent";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
 import {
   GetAllSubCategory,
- DeleteSubCategoryId,
- UpdateSubStatus
+  DeleteSubCategoryId,
+  UpdateSubStatus,
 } from "@/services/apiServices";
 import { columns } from "./constant";
 import { successMsgPopup } from "../../../underConstruction";
@@ -16,45 +16,45 @@ const MenuSubCategory = () => {
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchSubCategoryData = () => {
-    GetAllSubCategory(Id,true,searchQuery)
-          .then((res) => {
-            const formatted = res.data.data["Menu Sub Category Details"].map(
-              (item, index) => ({
-                ...item,
-                sr_no: index + 1,
-              })
-            );    
-            setTableData(formatted);
+    GetAllSubCategory({ userid: Id, menuSubCategoryName: searchQuery })
+      .then((res) => {
+        const formatted = res.data.data["Menu Sub Category Details"].map(
+          (item, index) => ({
+            ...item,
+            sr_no: index + 1,
           })
-          .catch((error) => {
-            console.error("Error deleting customer:", error);
-          });
+        );
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error deleting customer:", error);
+      });
   };
 
   const DeleteCategory = (id) => {
-         DeleteSubCategoryId(id)
-           .then((res) => {
-            res.data?.msg && successMsgPopup(res.data.msg)
-             FetchSubCategoryData();
-           })
-           .catch((error) => {
-             console.error("Error deleting Event type:", error);
-           });
-     };
+    DeleteSubCategoryId(id)
+      .then((res) => {
+        res.data?.msg && successMsgPopup(res.data.msg);
+        FetchSubCategoryData();
+      })
+      .catch((error) => {
+        console.error("Error deleting Event type:", error);
+      });
+  };
   const statusSubCategory = (id, status) => {
-         UpdateSubStatus(id, status)
-           .then((res) => {
-             FetchSubCategoryData();
-             res.data?.msg && successMsgPopup(res.data.msg)
-           })
-           .catch((error) => {
-             console.error("Error deleting Event type:", error);
-           });
-     };
+    UpdateSubStatus(id, status)
+      .then((res) => {
+        FetchSubCategoryData();
+        res.data?.msg && successMsgPopup(res.data.msg);
+      })
+      .catch((error) => {
+        console.error("Error deleting Event type:", error);
+      });
+  };
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);

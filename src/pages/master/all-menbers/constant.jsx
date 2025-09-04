@@ -109,11 +109,11 @@ export const columns = (onEdit, onDelete ) => [
   okText="Yes"
   cancelText="No"
 >
-  <Tooltip title="Delete Member">
+  {/* <Tooltip title="Delete Member">
     <button className="btn btn-sm btn-icon btn-clear" title="">
       <i className="ki-filled ki-trash text-danger"></i>
     </button>
-  </Tooltip>
+  </Tooltip> */}
 </Popconfirm>
 
 

@@ -1,4 +1,4 @@
-import { POST, GET, PUT, DELETE } from "./axiosInstance";
+import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
 
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
@@ -27,23 +27,23 @@ export const deleteRole = (roleId) => {
 export const fetchCountries = (countryName = "") =>
   GET(`/countrymaster/getall?countryName=${countryName}`);
 
-export const fetchCountryById = (id) =>
-  GET(`/countrymaster/getbyid?id=${id}`);
+export const fetchCountryById = (id) => GET(`/countrymaster/getbyid?id=${id}`);
 
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
-  GET(`/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`);
+  GET(
+    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+  );
 // State APIs
 // export const fetchStatesByCountry = (countryId, stateName = "") =>
 //   GET(
 //     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
 //   );
 
-export const fetchStateById = (id) =>
-  GET(`/statemaster/getbyid?id=${id}`);
+export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
 // export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
 
-//City APIs 
+//City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 //City APIs
@@ -177,6 +177,18 @@ export const GetAllRole = (id) => {
   return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };
 
+// Add Role
+
+export const AddRole = (data) => {
+  return POST(`/rolemaster/add`, data);
+};
+
+// GetRolebyId
+
+export const GetRoleById = (id) => {
+  return GET(`/rolemaster/getbyid?id=${id}`);
+};
+
 export const AddFunction = (data) => {
   return POST(`/functionmaster/add`, data);
 };
@@ -202,14 +214,11 @@ export const EditFunctionById = (id, data) => {
 // master
 export const fetchAllUsers = () => GET("/user/getall");
 
-
 // profile userbyid
 
 export const getUserById = (id) => {
   return GET(`/user/getbyid?id=${id}`);
 };
-
-
 
 // ALL Member
 export const GetAllMemberByUserId = (id) => {
@@ -234,8 +243,8 @@ export const UpdateMember = (id, data) => {
 };
 
 //Get category Type
-export const GetAllCategory = (Id, isActive = true, searchQuery = '') => {
-  return GET(`/menucategory/getallbyuserid?userid=${Id}&isActive=${isActive}&menuCategoryName=${searchQuery}`);
+export const GetAllCategory = (data) => {
+  return GET(`/menucategory/getallbyuserid`, data);
 };
 
 //Add category Type
@@ -250,17 +259,17 @@ export const editCategory = (Id, data) => {
 
 //delete category Type
 export const DeleteCategoryId = (Id) => {
-  return PUT(`/menucategory/deletebyid?id=${Id}`);
+  return DELETE(`/menucategory/deletebyid?id=${Id}`);
 };
 
 //status category Type
 export const UpdateStatus = (Id, status = true) => {
-  return PUT(`/menucategory/updatestatus?id=${Id}$isActive=${status}`);
+  return PUT(`/menucategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
 //Get Sub category Type
-export const GetAllSubCategory = (Id, searchQuery = '') => {
-  return GET(`/menusubcategory/getallbyuserid?userid=${Id}&menusubCategoryName=${searchQuery}`);
+export const GetAllSubCategory = (data) => {
+  return GET(`/menusubcategory/getallbyuserid`, data);
 };
 
 //Add category Type
@@ -275,15 +284,13 @@ export const editSubCategory = (Id, data) => {
 
 //delete category Type
 export const DeleteSubCategoryId = (Id) => {
-  return PUT(`/menusubcategory/deletebyid?id=${Id}`);
+  return DELETE(`/menusubcategory/deletebyid?id=${Id}`);
 };
 
 //status category Type
 export const UpdateSubStatus = (Id, status = true) => {
   return PUT(`/menusubcategory/updatestatus?id=${Id}&isActive=${status}`);
 };
-
-
 
 // Registration
 
@@ -293,17 +300,24 @@ export const registerUser = (data) => {
 
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
-}
+};
 
 export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
 
-
 export const getAllByRoleId = () => {
   return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
+// Kitchen Area
 
+export const GetAllKitchenAreaById = (id) => {
+  return GET(`/user/getallbyuserid?userId=${id}`);
+};
 
+// file upload
 
+export const uploadFile = (data) => {
+  return UPLOAD(`/file/uploadfile`, data);
+};

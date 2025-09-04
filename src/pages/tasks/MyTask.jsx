@@ -21,15 +21,13 @@ const MyTask = () => {
       label: "Overdue",
       value: 32,
       color: "danger",
-      icon: <i class="ki-filled ki-timer text-xl text-danger"></i>,
-      border: "border-s-red-500 ",
+      border: "border-s-danger",
     },
     {
       key: "pending",
       label: "Pending",
       value: 0,
       color: "warning",
-      icon: <i class="ki-filled ki-abstract-18 text-xl text-warning"></i>,
       border: "border-s-warning",
     },
     {
@@ -37,16 +35,13 @@ const MyTask = () => {
       label: "In Progress",
       value: 0,
       color: "info",
-      icon: <i class="ki-filled ki-arrows-circle text-xl text-info"></i>,
       border: "border-s-info",
     },
-
     {
       key: "completed",
       label: "Completed",
       value: 0,
       color: "success",
-      icon: <i class="ki-filled ki-check-circle text-xl text-success"></i>,
       border: "border-s-success",
     },
   ];
@@ -108,6 +103,24 @@ const MyTask = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "My Task" }]} />
         </div>
+        {/* status */}
+        <div className="flex items-center justify-start gap-3 lg:gap-4 mb-4">
+          {taskStats.map((stat, index) => (
+            <div
+              key={index}
+              className={`grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl py-2.5 px-3 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
+            >
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium text-gray-900">
+                  {stat.label}
+                </div>
+                <h3 className={`text-xl font-semibold text-${stat.color}`}>
+                  {stat.value}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -144,27 +157,8 @@ const MyTask = () => {
             </button>
           </div>
         </div>
-        {/* status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 mb-4">
-          {taskStats.map((stat, index) => (
-            <div
-              key={index}
-              className={`col-span-1 flex items-center flex-wrap sm:flex-nowrap grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl gap-3 p-4 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
-            >
-              <div className="flex flex-col">
-                <div className="font-sm form-info text-gray-800">
-                  {stat.label}
-                </div>
-                <h3 className={`text-xl font-semibold text-${stat.color}`}>
-                  {stat.value}
-                </h3>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="p-4 bg-gradient-to-b rounded-lg">
-          <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
+        <div className="">
+          {/* <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
             <div className="flex items-center items-center gap-3">
               <div className="flex items-center bg-white rounded-md border">
                 <Tooltip title="List View">
@@ -202,7 +196,7 @@ const MyTask = () => {
                 </span>
               </div>
             ))}
-          </div>
+          </div> */}
           {view === "list" && (
             <div className="flex flex-col gap-3">
               {tasks.map((task) => (
@@ -232,7 +226,6 @@ const MyTask = () => {
                           | {task.date} | {task.ago}
                         </p>
                       )}
-
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {task.tags?.map((tag, i) => (
                           <span
@@ -243,7 +236,6 @@ const MyTask = () => {
                           </span>
                         ))}
                       </div>
-
                       <div className="flex gap-2 mt-3">
                         <Button
                           size="small"
