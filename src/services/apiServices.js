@@ -3,6 +3,10 @@ import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
+export const GetMenuCategoryByUserIdmenuitem = (userId) => {
+  return GET(`/menucategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+};
+
 // Create Role
 export const createRole = (data) => {
   return POST("/role_master/save-single-or-multiple", data);
@@ -267,10 +271,15 @@ export const UpdateStatus = (Id, status = true) => {
   return PUT(`/menucategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
-//Get Sub category Type
+// Get Sub category Type 
 export const GetAllSubCategory = (data) => {
   return GET(`/menusubcategory/getallbyuserid`, data);
 };
+//for menu item
+export const GetAllSubCategorymenuitem = (userId) => {
+  return GET(`/menusubcategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+};
+
 
 //Add category Type
 export const AddSubCategory = (data) => {
@@ -293,11 +302,10 @@ export const UpdateSubStatus = (Id, status = true) => {
 };
 
 // Registration
-
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
 };
-
+// profile data
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
@@ -305,19 +313,34 @@ export const FetchAllUser = (id) => {
 export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
-
+// all user
 export const getAllByRoleId = () => {
   return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
 // Kitchen Area
-
 export const GetAllKitchenAreaById = (id) => {
-  return GET(`/user/getallbyuserid?userId=${id}`);
+  return GET(`/kitchenarea/getallbyuserid?userId=${id}`);
+};
+// addkitechenarea
+export const AddKitchenArea = (data) => {
+  return POST(`/kitchenarea/add`, data);
+};
+//updatekitchenarea
+export const UpdateKitchenArea = (id, data) => {
+  return PUT(`/kitchenarea/update?id=${id}`, data);
+};
+// deletekitchenarea
+export const DeleteKitchenArea = (id) => {
+  return DELETE(`/kitchenarea/deletebyid?id=${id}`);
+};
+//upadtestatuskitecharea
+// ✅ services/apiServices.js
+export const UpdateStatusKitchenArea = (id, isActive = true) => {
+  return PUT(`/kitchenarea/updatestatus?id=${id}&isActive=${isActive}`);
 };
 
 // file upload
-
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };

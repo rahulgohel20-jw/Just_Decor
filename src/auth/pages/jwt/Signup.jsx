@@ -151,54 +151,74 @@ useEffect(() => {
 
 
   return (
-   <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl">
-  <h2 className="text-3xl font-bold mb-8 text-center">Signup</h2>
-  <form onSubmit={formik.handleSubmit} className="space-y-10">
-    
+ <div className="card max-w-[900px] w-full">
+  <form onSubmit={formik.handleSubmit} className="card-body flex flex-col gap-6 p-5 md:p-7">
+
+    {/* Header */}
+    <div className="mb-2.5">
+      <h2 className="text-lg font-semibold text-gray-900 leading-none mb-2">Signup</h2>
+      <span className="text-sm text-gray-700">
+        Please fill in all the information required to create your account on JW.
+      </span>
+    </div>
+
     {/* Personal Details */}
     <div>
-      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Personal Details</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div>
-          <label className="block text-sm font-medium mb-1">First Name</label>
-          <input
-            name="firstName"
-            placeholder="First Name"
-            className="border p-2 w-full rounded"
-            value={formik.values.firstName}
-            onChange={formik.handleChange}
-          />
+      <h3 className="text-sm font-semibold mb-4 border-b pb-2">Personal Details</h3>
+      <div className="grid grid-cols-2 gap-4">
+
+        {/* First Name */}
+        <div className="flex flex-col">
+          <label className="form-label">First Name</label>
+          <label className="input">
+            <i className="ki-filled ki-user"></i>
+            <input
+              name="firstName"
+              placeholder="First Name"
+              className="border p-2 w-full rounded"
+              value={formik.values.firstName}
+              onChange={formik.handleChange}
+            />
+          </label>
           {formik.errors.firstName && <p className="text-red-500 text-sm">{formik.errors.firstName}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Last Name</label>
-          <input
-            name="lastName"
-            placeholder="Last Name"
-            className="border p-2 w-full rounded"
-            value={formik.values.lastName}
-            onChange={formik.handleChange}
-          />
+        {/* Last Name */}
+        <div className="flex flex-col">
+          <label className="form-label">Last Name</label>
+          <label className="input">
+            <i className="ki-filled ki-user"></i>
+            <input
+              name="lastName"
+              placeholder="Last Name"
+              className="border p-2 w-full rounded"
+              value={formik.values.lastName}
+              onChange={formik.handleChange}
+            />
+          </label>
           {formik.errors.lastName && <p className="text-red-500 text-sm">{formik.errors.lastName}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            className="border p-2 w-full rounded"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-          />
+        {/* Email */}
+        <div className="flex flex-col">
+          <label className="form-label">Email</label>
+          <label className="input">
+            <i className="ki-filled ki-sms"></i>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="border p-2 w-full rounded"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+            />
+          </label>
           {formik.errors.email && <p className="text-red-500 text-sm">{formik.errors.email}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Phone</label>
+        {/* Phone */}
+        <div className="flex flex-col">
+          <label className="form-label">Phone</label>
           <input
             name="contactNo"
             placeholder="Phone Number"
@@ -209,8 +229,9 @@ useEffect(() => {
           {formik.errors.contactNo && <p className="text-red-500 text-sm">{formik.errors.contactNo}</p>}
         </div>
 
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium mb-1">Address</label>
+        {/* Address */}
+        <div className="flex flex-col">
+          <label className="form-label">Address</label>
           <input
             name="address"
             placeholder="Address"
@@ -221,8 +242,9 @@ useEffect(() => {
           {formik.errors.address && <p className="text-red-500 text-sm">{formik.errors.address}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Country</label>
+        {/* Country */}
+        <div className="flex flex-col">
+          <label className="form-label">Country</label>
           <select
             name="countryId"
             value={formik.values.countryId}
@@ -230,13 +252,16 @@ useEffect(() => {
             className="border p-2 w-full rounded"
           >
             <option value="">Select Country</option>
-            {countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {countries.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
           </select>
           {formik.errors.countryId && <p className="text-red-500 text-sm">{formik.errors.countryId}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">State</label>
+        {/* State */}
+        <div className="flex flex-col">
+          <label className="form-label">State</label>
           <select
             name="stateId"
             value={formik.values.stateId}
@@ -245,13 +270,16 @@ useEffect(() => {
             disabled={!states.length}
           >
             <option value="">Select State</option>
-            {states.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {states.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
           </select>
           {formik.errors.stateId && <p className="text-red-500 text-sm">{formik.errors.stateId}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">City</label>
+        {/* City */}
+        <div className="flex flex-col">
+          <label className="form-label">City</label>
           <select
             name="cityId"
             value={formik.values.cityId}
@@ -260,21 +288,23 @@ useEffect(() => {
             disabled={!cities.length}
           >
             <option value="">Select City</option>
-            {cities.map((ct) => <option key={ct.id} value={ct.id}>{ct.name}</option>)}
+            {cities.map((ct) => (
+              <option key={ct.id} value={ct.id}>{ct.name}</option>
+            ))}
           </select>
           {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
         </div>
-
       </div>
     </div>
 
     {/* Company Details */}
     <div>
-      <h3 className="text-xl font-semibold mb-4 border-b pb-2">Company Details</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <h3 className="text-sm font-semibold mb-4 border-b pb-2">Company Details</h3>
+      <div className="grid grid-cols-2 gap-4">
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Company Name</label>
+        {/* Company Name */}
+        <div className="flex flex-col">
+          <label className="form-label">Company Name</label>
           <input
             name="companyName"
             placeholder="Company Name"
@@ -285,8 +315,9 @@ useEffect(() => {
           {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Company Email</label>
+        {/* Company Email */}
+        <div className="flex flex-col">
+          <label className="form-label">Company Email</label>
           <input
             type="email"
             name="companyEmail"
@@ -298,8 +329,9 @@ useEffect(() => {
           {formik.errors.companyEmail && <p className="text-red-500 text-sm">{formik.errors.companyEmail}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Office Number</label>
+        {/* Office Number */}
+        <div className="flex flex-col">
+          <label className="form-label">Office Number</label>
           <input
             name="officeNo"
             placeholder="Office Number"
@@ -310,8 +342,9 @@ useEffect(() => {
           {formik.errors.officeNo && <p className="text-red-500 text-sm">{formik.errors.officeNo}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Plan</label>
+        {/* Plan */}
+        <div className="flex flex-col">
+          <label className="form-label">Plan</label>
           <select
             name="planId"
             value={formik.values.planId}
@@ -325,7 +358,6 @@ useEffect(() => {
           </select>
           {formik.errors.planId && <p className="text-red-500 text-sm">{formik.errors.planId}</p>}
         </div>
-
       </div>
     </div>
 
