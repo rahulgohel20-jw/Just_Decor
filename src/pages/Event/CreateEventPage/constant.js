@@ -17,7 +17,7 @@ export const requiredFields = {
     reference: "",
   },
   functions: {
-    function_array: [],
+    eventFunction: [],
   },
   other: {
     mealTypeId: "",

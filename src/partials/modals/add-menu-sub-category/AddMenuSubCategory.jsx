@@ -3,6 +3,7 @@ import { editSubCategory, AddSubCategory } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
+import { formValidation } from "../../../lib/utils";
 const AddMenuSubCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -15,40 +16,57 @@ const AddMenuSubCategory = ({
     nameHindi: "",
   };
   const [formData, setFormData] = useState(initialFormState);
+  const [errors, setErrors] = useState({});
+  const requiredFields = ["nameEnglish"];
 
   const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
-    if (editData) {
-      const payload = { ...formData, userId: userData.id };
+    if (checkErrors()) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        alert("User data not found");
+        return;
+      }
+      if (editData) {
+        const payload = { ...formData, userId: userData.id };
 
-      editSubCategory(editData.id, payload)
-        .then((res) => {
-          refreshData();
-          setIsModalOpen();
-          res.data?.msg && successMsgPopup(res.data.msg);
-        })
-        .catch((error) => {
-          console.error("Error editing meal:", error);
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
-        });
-    } else {
-      const payload = { ...formData, userId: userData.id };
-      AddSubCategory(payload)
-        .then((res) => {
-          res.data?.msg && successMsgPopup(res.data.msg);
-          refreshData();
-          setIsModalOpen();
-          console.log("sss", res);
-        })
-        .catch((error) => {
-          error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
-          console.error("Error adding meal:", error);
-        });
+        editSubCategory(editData.id, payload)
+          .then((res) => {
+            refreshData();
+            setIsModalOpen();
+            res.data?.msg && successMsgPopup(res.data.msg);
+          })
+          .catch((error) => {
+            console.error("Error editing meal:", error);
+            error?.response?.data?.msg &&
+              errorMsgPopup(error.response.data.msg);
+          });
+      } else {
+        const payload = { ...formData, userId: userData.id };
+        AddSubCategory(payload)
+          .then((res) => {
+            res.data?.msg && successMsgPopup(res.data.msg);
+            refreshData();
+            setIsModalOpen();
+            console.log("sss", res);
+          })
+          .catch((error) => {
+            error?.response?.data?.msg &&
+              errorMsgPopup(error.response.data.msg);
+            console.error("Error adding meal:", error);
+          });
+      }
     }
+  };
+
+  const checkErrors = () => {
+    let errorObject = formValidation(requiredFields, formData);
+
+    if (Object.keys(errorObject).length > 0) {
+      setErrors(errorObject);
+      return false;
+    }
+    setErrors({});
+    return true;
   };
 
   useEffect(() => {
@@ -80,7 +98,7 @@ const AddMenuSubCategory = ({
             </button>
             <button
               type="button"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+              className="btn-success text-white px-4 py-2 rounded-md"
               onClick={handleSubmit}
             >
               {editData ? "Update" : "Create"}
@@ -95,6 +113,7 @@ const AddMenuSubCategory = ({
             setFormData={setFormData}
             name="name"
             label="Name"
+            error={errors.nameEnglish}
             required
           />
         </div>

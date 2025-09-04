@@ -9,7 +9,11 @@ import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoSt
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
 import Functionsdeatils from "@/container/EventStepsContainer/FunctionDetails";
-import { requiredFields } from "./constant";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
+import {
+  eventValidationSchema,
+  stepValidationSchemas,
+} from "./eventValidationSchema";
 import {
   CreateEventMaster,
   GetEventMasterById,
@@ -18,39 +22,29 @@ import {
 
 const STEP_KEYS = ["basic_info", "client_info", "functions", "other"];
 
-const FIELD_DISPLAY_NAMES = {
-  inquiryDate: "Inquiry Date",
-  eventStartDateTime: "Event Start Date",
-  eventEndDateTime: "Event End Date",
-  venue: "Venue",
-  eventTypeId: "Event Type",
-  managerId: "Manager Name",
-  customer_name: "Customer Name",
-  address: "Customer Address",
-  mobileno: "Customer Mobile",
-  function_array: "Functions",
-  mealTypeId: "Meal Type",
-  meal_notes: "Meal Notes",
-  service: "Service",
-  theme: "Theme",
-  remark: "Service Notes",
-};
-
-const MOBILE_REGEX = /^\d{10}$/;
-
 const CreateEventPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const mode = eventId ? "edit" : "create";
+
   const initialFormData = useMemo(
     () => ({
-      ...requiredFields.basic_info,
-      ...requiredFields.client_info,
-      ...requiredFields.functions,
-      ...requiredFields.other,
+      inquiryDate: dayjs().format("DD/MM/YYYY"),
       eventStartDateTime: "",
       eventEndDateTime: "",
-      inquiryDate: dayjs().format("DD/MM/YYYY"),
+      venue: "",
+      eventTypeId: "",
+      managerId: "",
+      partyId: "",
+      customer_name: "",
+      address: "",
+      mobileno: "",
+      eventFunction: [],
+      mealTypeId: "",
+      meal_notes: "",
+      service: "",
+      theme: "",
+      remark: "",
     }),
     []
   );
@@ -82,85 +76,117 @@ const CreateEventPage = () => {
             customer_name: event.party?.nameEnglish || "",
             address: event.address || event.party?.addressEnglish || "",
             mobileno: event.mobileno || event.party?.mobileno || "",
-            function_array: event.eventFunctions || [],
+
+            eventFunction: (event.eventFunctions || []).map((f) => ({
+              eventFuncId: f.eventId,
+              functionId: f.function?.nameEnglish || null,
+              functionStartDateTime: f.functionStartDateTime,
+              functionEndDateTime: f.functionEndDateTime,
+              pax: f.pax || "",
+              rate: f.rate || "",
+              function_venue: f.function_venue || "",
+              notesEnglish: f.notesEnglish || "",
+              notesGujarati: f.notesGujarati || "",
+              notesHindi: f.notesHindi || "",
+              id: f.id,
+            })),
+
             mealTypeId: event.mealType?.id || "",
             meal_notes: event.meal_notes || "",
             service: event.service || "",
             theme: event.theme || "",
             remark: event.remark || "",
           }));
+          console.log(event, "data");
         })
         .catch((err) => console.error("Error fetching event:", err))
         .finally(() => setLoading(false));
     }
   }, [mode, eventId]);
 
-  const getDisplayName = useCallback((field) => {
-    return FIELD_DISPLAY_NAMES[field] || field.replace(/_/g, " ");
-  }, []);
+  const validateWithYup = useCallback(async (data, schema) => {
+    try {
+      await schema.validate(data, { abortEarly: false });
+      return {};
+    } catch (err) {
+      console.log("Yup validation error:", err); // Debug log
 
-  const isFieldEmpty = useCallback((value, requiredValue) => {
-    if (requiredValue === "") {
-      return (
-        !value ||
-        (typeof value === "string" && value.trim() === "") ||
-        value === ""
-      );
-    }
-    if (Array.isArray(requiredValue)) {
-      return !value || value.length === 0;
-    }
-    return false;
-  }, []);
+      const validationErrors = {};
 
-  const validateFields = useCallback(
-    (stepKey = null) => {
-      const tempErrors = {};
-      const stepsToValidate = stepKey ? [stepKey] : STEP_KEYS;
-
-      stepsToValidate.forEach((key) => {
-        if (!requiredFields[key]) return;
-
-        const required = requiredFields[key];
-        Object.entries(required).forEach(([field, requiredValue]) => {
-          const value = formData[field];
-          const displayName = getDisplayName(field);
-
-          if (isFieldEmpty(value, requiredValue)) {
-            tempErrors[field] = `${displayName} is required`;
-          }
-
-          if (field === "mobileno" && value && !MOBILE_REGEX.test(value)) {
-            tempErrors[field] = "Mobile number must be 10 digits";
+      // Check if err.inner exists and is an array
+      if (err.inner && Array.isArray(err.inner)) {
+        err.inner.forEach((error) => {
+          if (error.path) {
+            validationErrors[error.path] = error.message;
           }
         });
-      });
+      } else if (err.path && err.message) {
+        // Handle single error case
+        validationErrors[err.path] = err.message;
+      } else {
+        // Fallback for unexpected error structure
+        console.error("Unexpected Yup error structure:", err);
+        validationErrors.general = "Validation failed";
+      }
 
-      return tempErrors;
-    },
-    [formData, getDisplayName, isFieldEmpty]
-  );
+      return validationErrors;
+    }
+  }, []);
 
   const validateStep = useCallback(
-    (step) => {
+    async (step) => {
       const stepKey = STEP_KEYS[step];
-      if (!stepKey || !requiredFields[stepKey]) return true;
+      console.log("Validating step:", stepKey, "with data:", formData); // Debug log
 
-      const tempErrors = validateFields(stepKey);
-      setErrors(tempErrors);
-      return Object.keys(tempErrors).length === 0;
+      if (!stepKey) {
+        console.log("Invalid step key:", stepKey);
+        return true;
+      }
+
+      const stepSchema = stepValidationSchemas[stepKey];
+      if (!stepSchema) {
+        console.log("No schema found for step:", stepKey);
+        return true;
+      }
+
+      try {
+        const validationErrors = await validateWithYup(formData, stepSchema);
+        console.log(
+          "Validation errors for step",
+          stepKey,
+          ":",
+          validationErrors
+        ); // Debug log
+
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+      } catch (error) {
+        console.error("Error during step validation:", error);
+        return false;
+      }
     },
-    [validateFields]
+    [formData, validateWithYup]
   );
 
-  const validateAllSteps = useCallback(() => {
-    const allErrors = validateFields();
-    setErrors(allErrors);
-    return Object.keys(allErrors).length === 0;
-  }, [validateFields]);
+  const validateAllSteps = useCallback(async () => {
+    try {
+      const validationErrors = await validateWithYup(
+        formData,
+        eventValidationSchema
+      );
+      console.log("All steps validation errors:", validationErrors); // Debug log
 
-  const handleNext = useCallback(() => {
-    if (!validateStep(current)) {
+      setErrors(validationErrors);
+      return Object.keys(validationErrors).length === 0;
+    } catch (error) {
+      console.error("Error during all steps validation:", error);
+      return false;
+    }
+  }, [formData, validateWithYup]);
+
+  const handleNext = useCallback(async () => {
+    const isValid = await validateStep(current);
+    if (!isValid) {
       console.log("Validation failed. Errors:", errors);
       return;
     }
@@ -172,7 +198,13 @@ const CreateEventPage = () => {
     setErrors({});
   }, []);
 
-  const handleFinish = useCallback(() => {
+  const handleFinish = useCallback(async () => {
+    const isValid = await validateAllSteps();
+    if (!isValid) {
+      console.log("Final validation failed. Errors:", errors);
+      return;
+    }
+
     const userData = JSON.parse(localStorage.getItem("userData"));
     const userId = userData?.id;
 
@@ -181,16 +213,43 @@ const CreateEventPage = () => {
       userId,
     };
 
-    if (mode === "edit" && eventId) {
-      UpdateEventMaster(eventId, payload)
-        .then(() => navigate("/calendar"))
-        .catch((err) => console.error("Error updating event:", err));
-    } else {
-      CreateEventMaster(payload)
-        .then(() => navigate("/calendar"))
-        .catch((err) => console.error("Error creating event:", err));
+    try {
+      let response;
+
+      if (mode === "edit" && eventId) {
+        response = await UpdateEventMaster(eventId, payload);
+      } else {
+        response = await CreateEventMaster(payload);
+      }
+      if (
+        response?.data?.msg?.toLowerCase().includes("Successfully") ||
+        response?.status === 200
+      ) {
+        response.data?.msg && successMsgPopup(response.data.msg);
+        navigate("/calendar");
+      } else {
+        response.data?.msg && errorMsgPopup(response.data.msg);
+        console.error("Backend returned an error:", response);
+      }
+    } catch (err) {
+      response.data?.msg && errorMsgPopup(response.data.msg);
+      console.error(
+        `Error ${mode === "edit" ? "updating" : "creating"} event:`,
+        err
+      );
     }
-  }, [formData, mode, eventId, navigate]);
+  }, [formData, mode, eventId, navigate, validateAllSteps, errors]);
+
+  const handleInputChange = useCallback(
+    ({ target: { value, name } }) => {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+
+      if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: undefined }));
+      }
+    },
+    [errors]
+  );
 
   const onInputChange = useCallback(
     (e, key) => {
@@ -199,17 +258,6 @@ const CreateEventPage = () => {
 
       if (errors[key]) {
         setErrors((prev) => ({ ...prev, [key]: undefined }));
-      }
-    },
-    [errors]
-  );
-
-  const handleInputChange = useCallback(
-    ({ target: { value, name } }) => {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-
-      if (errors[name]) {
-        setErrors((prev) => ({ ...prev, [name]: undefined }));
       }
     },
     [errors]
@@ -227,7 +275,7 @@ const CreateEventPage = () => {
             errors={errors}
           />
         ),
-        icon: <i className="ki-filled ki-security-user" />,
+        icon: <i className="ki-filled ki-calendar"></i>,
       },
       {
         title: "Client Details",

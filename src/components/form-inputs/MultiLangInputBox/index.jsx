@@ -1,11 +1,5 @@
 import InputToTextLang from "../InputToTextLang";
-const MultiLangInputBox = ({
-  formData,
-  setFormData,
-  name,
-  label,
-  required,
-}) => {
+const MultiLangInputBox = ({ formData, setFormData, name, label, error }) => {
   return (
     <>
       <InputToTextLang
@@ -18,8 +12,9 @@ const MultiLangInputBox = ({
         onChange={(e) =>
           setFormData({ ...formData, [`${name}English`]: e.target.value })
         }
-        required={required}
+        required
         lang={"en"}
+        error={error}
       />
       <InputToTextLang
         type="text"
@@ -31,7 +26,6 @@ const MultiLangInputBox = ({
         onChange={(e) =>
           setFormData({ ...formData, [`${name}Gujarati`]: e.target.value })
         }
-        required={required}
         lang={"gu"}
       />
       <InputToTextLang
@@ -44,7 +38,6 @@ const MultiLangInputBox = ({
         onChange={(e) =>
           setFormData({ ...formData, [`${name}Hindi`]: e.target.value })
         }
-        required={required}
         lang={"hi"}
       />
     </>

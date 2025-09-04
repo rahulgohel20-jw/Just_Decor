@@ -61,7 +61,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
     };
     setFormData({
       ...formData,
-      function_array: [...(formData.function_array || []), newFunction],
+      eventFunction: [...(formData.eventFunction || []), newFunction],
     });
   };
 
@@ -79,7 +79,7 @@ const FunctionsStep = ({ formData, setFormData }) => {
   const handleInputChange = ({ target: { value, name } }, index) => {
     setFormData({
       ...formData,
-      function_array: formData.function_array.map((f, i) =>
+      eventFunction: formData.eventFunction.map((f, i) =>
         i === index ? { ...f, [name]: value } : f
       ),
     });

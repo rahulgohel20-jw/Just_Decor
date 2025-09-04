@@ -1,5 +1,5 @@
 import { Popconfirm, Tooltip } from "antd";
-export const columns = (onEdit, onDelete, onStatus) => [
+export const columns = (onEdit, onDelete, onStatus, handleView) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -85,6 +85,15 @@ export const columns = (onEdit, onDelete, onStatus) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center  gap-1">
+          <Tooltip className="cursor-pointer" title="View Contact">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="View"
+              onClick={() => handleView(row.original)}
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip>
           <Tooltip className="cursor-pointer" title="Edit Contact">
             <button
               className="btn btn-sm btn-icon btn-clear"
