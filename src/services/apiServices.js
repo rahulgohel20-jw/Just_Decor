@@ -217,7 +217,23 @@ export const GetAllMemberByUserId = (id) => {
 export const GetAllCategory = (data) => {
   return GET(`/menucategory/getallbyuserid`, data);
 };
+//Get category Type
+export const GetAllCategoryformenu = (id) => {
+  return GET(`/menucategory/getallbyuserid?isActive=true&userid=${id}`);
+};
 
+//Get menu preparation items
+export const Getmenuprep = (
+  eventFunId,
+  menuCatId,
+  pageNo,
+  TotalRecord,
+  UserId
+) => {
+  return GET(
+    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+  );
+};
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);

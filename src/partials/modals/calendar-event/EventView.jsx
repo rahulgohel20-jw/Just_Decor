@@ -132,7 +132,7 @@ const EventViewModal = ({
         <hr className="mt-4 mb-5" />
         <div className="flex flex-col gap-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
-            <Link to="/menu-preparation">
+            <Link to={`/menu-preparation/${eventDataAll?.eventid}`}>
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Menu Preparation"
