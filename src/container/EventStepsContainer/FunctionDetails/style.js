@@ -3,17 +3,15 @@ const useStyles = makeStyles({
   customStyle: {
     "& .select__grp": {
       "& .sg__inner": {
-        border: "1px solid var(--tw-gray-400)",
         borderRadius: "6px",
         "& .ant-select": {
           height: "38px",
+          border: "0",
+          height: "38px",
+          paddingInlineStart: "0",
           "& .ant-select-selector": {
             border: "0",
           },
-        },
-        "& > .input ": {
-          border: "0",
-          height: "38px",
         },
         "& .formGrpCommon": {
           flex: "1",

@@ -295,7 +295,9 @@ const FunctionsDetails = ({
                       {/* Function Type */}
                       <td className="py-3 px-2 border-b border-gray-200">
                         <div className="select__grp flex flex-col">
-                          <div className="sg__inner flex items-center gap-1 relative">
+                          <div
+                            className={`sg__inner flex items-center gap-1 relative border border-gray-400 ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
+                          >
                             <FunctionTypeDropdown
                               className="input"
                               value={func.functionId}
@@ -309,12 +311,12 @@ const FunctionsDetails = ({
                               //     : ""
                               // }
                             />
-                            {getFunctionFieldError(index, "functionId") && (
-                              <span className="text-red-500 text-xs mt-1">
-                                {getFunctionFieldError(index, "functionId")}
-                              </span>
-                            )}
                           </div>
+                          {/* {getFunctionFieldError(index, "functionId") && (
+                            <span className="text-red-500 text-xs mt-1">
+                              {getFunctionFieldError(index, "functionId")}
+                            </span>
+                          )} */}
                         </div>
                       </td>
                       {/* Start Date */}
@@ -456,11 +458,11 @@ const FunctionsDetails = ({
                             )
                           }
                         />
-                        {getFunctionFieldError(index, "function_venue") && (
+                        {/* {getFunctionFieldError(index, "function_venue") && (
                           <span className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(index, "function_venue")}
                           </span>
-                        )}
+                        )} */}
                       </td>
                       {/* Actions */}
                       <td className="py-3 px-2 border-b border-gray-200 w-40">
