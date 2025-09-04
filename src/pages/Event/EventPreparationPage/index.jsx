@@ -2,17 +2,43 @@ import { useState, Fragment, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
-import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
+import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
+import { GetAllCategory } from "@/services/apiServices";
 const EventPreparationPage = () => {
+  const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  useEffect(() => {
+    FetchCategoryData();
+  }, [searchQuery]);
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+  const FetchCategoryData = () => {
+    GetAllCategory({ userid: Id, menuCategoryName: searchQuery })
+      .then((res) => {
+        const categories = res.data.data["Menu Category Details"].map(
+          (item, index) => ({
+            ...item,
+            name: item.nameEnglish,
+            sr_no: index + 1,
+          })
+        );
+        setCategories(categories);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  };
+
   const classes = useStyles();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   // Add "All" option to categories
   const allCategory = { id: null, name: "All" };
-  const categoriesWithAll = [allCategory, ...menuCategories];
+  const categoriesWithAll = [allCategory, ...categories];
+
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
@@ -38,12 +64,13 @@ const EventPreparationPage = () => {
     .map((id) => menuCategoryChildren.find((c) => c.id === id))
     .filter(Boolean);
   const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
-    const category = menuCategories.find((cat) => cat.id === item.parentId);
+    const category = categories.find((cat) => cat.id === item.parentId);
     const categoryName = category ? category.name : "Other";
     if (!acc[categoryName]) acc[categoryName] = [];
     acc[categoryName].push(item);
     return acc;
   }, {});
+
   // State for notes and per-item price
   const [itemNotes, setItemNotes] = useState({});
   const [itemRates, setItemRates] = useState({});
@@ -68,8 +95,7 @@ const EventPreparationPage = () => {
     eventDate: "06/02/2002",
     venue: "APEX PARTY PLOT",
   };
-  const [activeTab, setActiveTab] = useState("lunch");
-  const [selected, setSelected] = useState("custom");
+
   const menuPreparationsTabs = [
     {
       label: (
