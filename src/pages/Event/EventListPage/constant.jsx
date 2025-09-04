@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = (onDelete) => [
+export const columns = (onDelete, viewEvent) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -79,6 +79,15 @@ export const columns = (onDelete) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
+          <Tooltip className="cursor-pointer" title="View Event">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => viewEvent(row.original.eventid)}
+              title="View"
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip>
           <Tooltip className="cursor-pointer" title="Edit Event">
             <Link to={`/edit-event/${row.original.eventid}`}>
               <button className="btn btn-sm btn-icon btn-clear" title="Edit">

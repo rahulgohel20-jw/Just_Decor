@@ -1,6 +1,6 @@
 import { Tooltip } from "antd";
 
-export const columns = (onEdit, onDelete) => [
+export const columns = (onEdit, onDelete, handleViewCustomer) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -81,6 +81,15 @@ export const columns = (onEdit, onDelete) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
+          <Tooltip className="cursor-pointer" title="View Customer">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="View"
+              onClick={() => handleViewCustomer(row.original)}
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip>
           <Tooltip className="cursor-pointer" title="Edit Customer">
             <button
               className="btn btn-sm btn-icon btn-clear"

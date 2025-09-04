@@ -10,11 +10,13 @@ import {
   DeleteCustomerApi,
   SearchCustomerApi,
 } from "@/services/apiServices";
+import ViewCustomer from "../../../partials/modals/view-customer/ViewCustomer";
 
 const CustomerMaster = () => {
   const classes = useStyle();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tableData, setTableData] = useState();
 
@@ -111,6 +113,11 @@ const CustomerMaster = () => {
     setIsMemberModalOpen(true);
   };
 
+  const handleViewCustomer = (customer) => {
+    setSelectedCustomer(customer);
+    setIsViewMemberModalOpen(true);
+  };
+
   const handleAddCustomer = () => {
     setSelectedCustomer(null);
     setIsMemberModalOpen(true);
@@ -155,8 +162,17 @@ const CustomerMaster = () => {
           selectedCustomer={selectedCustomer}
           refreshData={FetchCustomer}
         />
+        <ViewCustomer
+          isModalOpen={isViewMemberModalOpen}
+          setIsModalOpen={setIsViewMemberModalOpen}
+          selectedCustomer={selectedCustomer}
+        />
         <TableComponent
-          columns={columns(handleEditCustomer, DeleteCustomer)}
+          columns={columns(
+            handleEditCustomer,
+            DeleteCustomer,
+            handleViewCustomer
+          )}
           data={tableData}
           paginationSize={10}
         />

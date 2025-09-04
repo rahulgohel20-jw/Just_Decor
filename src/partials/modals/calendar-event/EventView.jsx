@@ -1,12 +1,33 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { Button, Row, Col, Select } from "antd";
 import { underConstruction } from "@/underConstruction";
 import { Link } from "react-router-dom";
+import { UpdateEventMaster, DeleteEventMaster } from "@/services/apiServices";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 
-const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
+const EventViewModal = ({
+  isModalOpen,
+  setIsModalOpen,
+  eventData,
+  onEventsUpdated,
+}) => {
   let eventDataAll = eventData?.event?._def?.extendedProps;
+
   const handleModalClose = () => {
     setIsModalOpen(false);
+  };
+
+  const DeleteEvent = () => {
+    let eventId = eventDataAll.eventid;
+    DeleteEventMaster(eventId)
+      .then((response) => {
+        setIsModalOpen(false);
+        onEventsUpdated();
+        response.data?.msg && successMsgPopup(response.data.msg);
+      })
+      .catch((error) => {
+        error.data?.msg && errorMsgPopup(error.data.msg);
+        console.error("Error deleting event:", error);
+      });
   };
 
   return (
@@ -68,7 +89,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
                 <i className="ki-filled ki-copy me-1"></i> Copy Order
               </button>
             </Link>
-            <Link to="/add-event">
+            <Link to={`/edit-event/${eventDataAll?.eventid}`}>
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Edit Event"
@@ -80,7 +101,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
               key="cancel"
               className="btn btn-sm btn-danger justify-center w-full"
               title="Delete"
-              onClick={underConstruction}
+              onClick={DeleteEvent}
             >
               <i className="ki-filled ki-trash me-1"></i>
               Delete
@@ -129,13 +150,13 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
             </button>
             {/* </Link> */}
             <Link to="/raw-material-allocation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Raw Material Allocation"
-              // onClick={underConstruction}
-            >
-              Raw Material Allocation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Raw Material Allocation"
+                // onClick={underConstruction}
+              >
+                Raw Material Allocation
+              </button>
             </Link>
             {/* <Link to="/labour-and-other-management"> */}
             <button
@@ -165,21 +186,20 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
             </button>
             {/* </Link> */}
             <Link to="/quotation">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Quotation"
-            >
-              Quotation
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Quotation"
+              >
+                Quotation
+              </button>
             </Link>
             <Link to="/add-invoice">
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Invoice"
-              
-            >
-              Invoice
-            </button>
+              <button
+                className="btn btn-sm btn-primary justify-center w-full"
+                title="Invoice"
+              >
+                Invoice
+              </button>
             </Link>
             {/* <Link to="/proforma-invoice"> */}
             <button

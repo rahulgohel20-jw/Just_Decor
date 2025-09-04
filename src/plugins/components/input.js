@@ -73,7 +73,7 @@ export default plugin(({ addComponents, theme }) => {
       appearance: "none",
       "box-shadow": "none",
       outline: "none",
-      color: "var(--tw-gray-600)",
+      color: "var(--tw-gray-900)",
       input: {
         "flex-grow": "1",
         "background-color": "transparent",

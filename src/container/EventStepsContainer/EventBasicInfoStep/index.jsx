@@ -19,6 +19,8 @@ const EventBasicInfoStep = ({
   const classes = useStyles();
   const [eventTypes, setEventTypes] = useState([]);
   const [manager, setManager] = useState([]);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
@@ -44,6 +46,7 @@ const EventBasicInfoStep = ({
         console.log(error);
       });
   };
+
   const FetchManager = () => {
     Fetchmanager(Id).then((res) => {
       const manager = res.data.data["userDetails"].map((man, index) => ({
@@ -55,15 +58,23 @@ const EventBasicInfoStep = ({
     });
   };
 
-  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
+  // Helper function to handle form data changes
+  const handleFormDataChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <Form>
       <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-5">
+          {/* Inquiry Date */}
           <div className="select__grp flex flex-col">
-            <label className="form-label">Inquiry Date</label>
+            <label className="form-label">
+              Inquiry Date
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <DatePicker
               className="input"
               format="DD/MM/YYYY"
@@ -73,17 +84,20 @@ const EventBasicInfoStep = ({
                   : null
               }
               onChange={(date) =>
-                setFormData({
-                  ...formData,
-                  inquiryDate: date ? date.format("DD/MM/YYYY") : "",
-                })
+                handleFormDataChange(
+                  "inquiryDate",
+                  date ? date.format("DD/MM/YYYY") : ""
+                )
               }
             />
             {errors.inquiryDate && (
-              <span className="text-red-500">{errors.inquiryDate}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.inquiryDate}
+              </span>
             )}
           </div>
 
+          {/* Status */}
           <div className="flex flex-col">
             <label className="form-label">Status</label>
             <EventStatusDropdown
@@ -91,10 +105,21 @@ const EventBasicInfoStep = ({
               className="w-full"
               onChange={onInputChange}
             />
+            {errors.status && (
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.status}
+              </span>
+            )}
           </div>
 
+          {/* Start Event Date */}
           <div className="flex flex-col">
-            <label className="form-label">Start Event Date</label>
+            <label className="form-label">
+              Start Event Date
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <DatePicker
               className="input"
               showTime={{ use12Hours: true, format: "hh:mm A" }}
@@ -105,20 +130,30 @@ const EventBasicInfoStep = ({
                   : null
               }
               onChange={(date) =>
-                setFormData({
-                  ...formData,
-                  eventStartDateTime: date
-                    ? date.format("DD/MM/YYYY hh:mm A")
-                    : "",
-                })
+                handleFormDataChange(
+                  "eventStartDateTime",
+                  date ? date.format("DD/MM/YYYY hh:mm A") : ""
+                )
               }
+              disabledDate={(current) => {
+                return current && current < dayjs().startOf("day");
+              }}
             />
-            {errors.event_date && (
-              <span className="text-red-500">{errors.eventStartDateTime}</span>
+            {errors.eventStartDateTime && (
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.eventStartDateTime}
+              </span>
             )}
           </div>
+
+          {/* End Event Date */}
           <div className="flex flex-col">
-            <label className="form-label">End Event Date</label>
+            <label className="form-label">
+              End Event Date
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <DatePicker
               className="input"
               showTime={{ use12Hours: true, format: "hh:mm A" }}
@@ -129,22 +164,27 @@ const EventBasicInfoStep = ({
                   : null
               }
               onChange={(date) =>
-                setFormData({
-                  ...formData,
-                  eventEndDateTime: date
-                    ? date.format("DD/MM/YYYY hh:mm A")
-                    : "",
-                })
+                handleFormDataChange(
+                  "eventEndDateTime",
+                  date ? date.format("DD/MM/YYYY hh:mm A") : ""
+                )
               }
+              disabledDate={(current) => {
+                return current && current < dayjs().startOf("day");
+              }}
             />
-            {errors.event_date && (
-              <span className="text-red-500">{errors.eventEndDateTime}</span>
+            {errors.eventEndDateTime && (
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.eventEndDateTime}
+              </span>
             )}
           </div>
+
+          {/* Venue */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Venue
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -156,7 +196,9 @@ const EventBasicInfoStep = ({
               onChange={onInputChange}
             />
             {errors.venue && (
-              <span className="text-red-500">{errors.venue}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.venue}
+              </span>
             )}
           </div>
 
@@ -164,7 +206,7 @@ const EventBasicInfoStep = ({
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Event Type
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -173,25 +215,28 @@ const EventBasicInfoStep = ({
                 value={formData.eventTypeId}
                 onChange={onInputChange}
                 options={eventTypes}
+                name="eventTypeId"
               />
               <button
                 type="button"
                 onClick={() => setIsEventTypeModalOpen(true)}
-                title="Add"
+                title="Add Event Type"
                 className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
               >
                 <i className="ki-filled ki-plus"></i>
               </button>
             </div>
             {errors.eventTypeId && (
-              <span className="text-red-500">{errors.eventTypeId}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.eventTypeId}
+              </span>
             )}
           </div>
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Manager
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -200,18 +245,21 @@ const EventBasicInfoStep = ({
                 value={formData.managerId}
                 onChange={onInputChange}
                 options={manager}
+                name="managerId"
               />
               <button
                 type="button"
                 onClick={() => setIsMemberModalOpen(true)}
-                title="Add"
+                title="Add Manager"
                 className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
               >
                 <i className="ki-filled ki-plus"></i>
               </button>
             </div>
             {errors.managerId && (
-              <span className="text-red-500">{errors.managerId}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.managerId}
+              </span>
             )}
           </div>
         </div>
@@ -220,10 +268,12 @@ const EventBasicInfoStep = ({
         <AddMember
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
+          onSuccess={FetchManager}
         />
         <AddEventType
           isModalOpen={isEventTypeModalOpen}
           setIsModalOpen={setIsEventTypeModalOpen}
+          onSuccess={Fetcheventtype}
         />
       </div>
     </Form>

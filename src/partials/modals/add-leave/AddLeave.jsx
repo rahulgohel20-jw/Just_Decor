@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { DatePicker as AntDatePicker } from "antd"; 
+import { DatePicker as AntDatePicker } from "antd";
 import dayjs from "dayjs";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
 const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
-  const  [fromDate, setFromDate] = useState(null);
+  const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
   const handleModalClose = () => {
@@ -52,9 +52,11 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
               <AntDatePicker
                 className="input w-full"
                 value={fromDate ? dayjs(fromDate) : null}
-                onChange={(date) => setFromDate(date ? date.toISOString() : null)}
+                onChange={(date) =>
+                  setFromDate(date ? date.toISOString() : null)
+                }
                 getPopupContainer={() => document.body}
-                />
+              />
             </div>
             <div className="flex flex-col">
               <label className="form-label">To Date</label>
@@ -76,7 +78,6 @@ const AddLeave = ({ isModalOpen, setIsModalOpen }) => {
             </div>
           </div>
         </div>
-
         {/* 
         <label className="text-black">LTask Access</label>
         <label className="relative inline-flex items-center cursor-pointer">
