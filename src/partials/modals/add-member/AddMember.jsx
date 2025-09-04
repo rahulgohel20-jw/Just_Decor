@@ -13,7 +13,12 @@ import {
   fetchCitiesByState,
 } from "@/services/apiServices"; // <-- your APIs
 
-const AddMember = ({ isModalOpen, setIsModalOpen }) => {
+const AddMember = ({
+  isModalOpen,
+  setIsModalOpen,
+  refreshData,
+  selectedMember,
+}) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
   const [countries, setCountries] = useState([]);
@@ -38,6 +43,7 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
     address: "",
     companyName: "",
   });
+  const userData = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
     if (isModalOpen) {
@@ -77,7 +83,6 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
   useEffect(() => {
     if (isModalOpen) {
       // fetch roles on open
-      let userData = JSON.parse(localStorage.getItem("userData"));
       let Id = userData?.id;
 
       GetAllRole(Id)
@@ -211,7 +216,6 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
 
       console.log("🚀 Sending payload:", payload);
       const [activeTab, setActiveTab] = useState("tab_1");
-      let userData = JSON.parse(localStorage.getItem("userData"));
       let Id = userData.id;
       useEffect(() => {
         if (isModalOpen) {
@@ -247,55 +251,57 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
   return (
-    <CustomModal
-      open={isModalOpen}
-      onClose={handleModalClose}
-      title={selectedMember ? "Edit Member" : "New Member"}
-      footer={[
-        <div className="flex justify-between" key={"footer-buttons"}>
-          <button
-            key="cancel"
-            className="btn btn-light"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>
-          <button
-            key="save"
-            className="btn btn-success"
-            onClick={handleSave}
-            title="Save"
-          >
-            {selectedMember ? "Update" : "Save"}
-          </button>
-        </div>,
-      ]}
-    >
-      <div className="flex flex-col gap-y-2">
-        <div className="grid grid-cols-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="First name"
-              className="input"
-            />
-          </div>
+    isModalOpen && (
+      <CustomModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        title={selectedMember ? "Edit Member" : "New Member"}
+        footer={[
+          <div className="flex justify-between" key={"footer-buttons"}>
+            <button
+              key="cancel"
+              className="btn btn-light"
+              onClick={handleModalClose}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+            <button
+              key="save"
+              className="btn btn-success"
+              onClick={handleSave}
+              title="Save"
+            >
+              {selectedMember ? "Update" : "Save"}
+            </button>
+          </div>,
+        ]}
+      >
+        <div className="flex flex-col gap-y-2">
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">First Name</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="First name"
+                className="input"
+              />
+            </div>
 
-          <div className="flex flex-col">
-            <label className="form-label">Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Last name"
-              className="input"
-            />
+            <div className="flex flex-col">
+              <label className="form-label">Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Last name"
+                className="input"
+              />
+            </div>
           </div>
         </div>
 
@@ -303,7 +309,10 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
           <div className="flex flex-col">
             <label className="form-label">Country</label>
             <Select
-              options={countries.map((c) => ({ value: c.id, label: c.name }))}
+              options={countries.map((c) => ({
+                value: c.id,
+                label: c.name,
+              }))}
               value={
                 countries.find((c) => c.id === formData.countryId)
                   ? {
@@ -384,69 +393,6 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
               placeholder="WhatsApp no"
               className="input"
             />
-
-            <div className="grid grid-cols-2 gap-x-4">
-              <div className="flex flex-col">
-                <label className="form-label">Country</label>
-                <div className="input">
-                  <i className="ki-filled ki-flag"></i>
-                  <input type="text" className="h-full" placeholder="Country" />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <label className="form-label">State</label>
-                <div className="input">
-                  <i className="ki-filled ki-abstract-20"></i>
-                  <input type="text" className="h-full" placeholder="State" />
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4">
-              <div className="flex flex-col">
-                <label className="form-label">City</label>
-                <div className="input">
-                  <i className="ki-filled ki-pointers"></i>
-                  <input type="text" className="h-full" placeholder="City" />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <label className="form-label">WhatsApp No</label>
-                <div className="input">
-                  <i className="ki-filled ki-whatsapp"></i>
-                  <input
-                    type="text"
-                    className="h-full"
-                    placeholder="WhatsApp no"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Role</label>
-              <select
-                className="select pe-7.5"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Email Address</label>
-              <div className="input">
-                <i className="ki-filled ki-sms"></i>
-                <input
-                  type="email"
-                  className="h-full"
-                  placeholder="Email address"
-                />
-              </div>
-            </div>
           </div>
 
           <div className="flex flex-col">
@@ -464,56 +410,56 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="input"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label">Office Email</label>
-              <input
-                type="email"
-                name="companyEmail"
-                value={formData.companyEmail}
-                onChange={handleChange}
-                placeholder="Office email"
-                className="input"
-              />
-            </div>
+        <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email address"
+              className="input"
+            />
           </div>
-
-          <div className="flex items-center gap-2 mt-1">
-            <label className="form-label">Task Access</label>
-            <label className="switch switch-lg">
-              <input
-                type="checkbox"
-                checked={taskAccess} // bind directly to state
-                onChange={() => setTaskAccess(!taskAccess)} // toggle state
-              />
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2 mt-1">
-            <label className="form-label">Leave & Attendance Access</label>
-            <label className="switch switch-lg">
-              <input
-                type="checkbox"
-                checked={leaveAccess}
-                onChange={() => setLeaveAccess(!leaveAccess)}
-              />
-            </label>
+          <div className="flex flex-col">
+            <label className="form-label">Office Email</label>
+            <input
+              type="email"
+              name="companyEmail"
+              value={formData.companyEmail}
+              onChange={handleChange}
+              placeholder="Office email"
+              className="input"
+            />
           </div>
         </div>
-      </div>
-    </CustomModal>
+
+        <div className="flex items-center gap-2 mt-1">
+          <label className="form-label">Task Access</label>
+          <label className="switch switch-lg">
+            <input
+              type="checkbox"
+              checked={taskAccess} // bind directly to state
+              onChange={() => setTaskAccess(!taskAccess)} // toggle state
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center gap-2 mt-1">
+          <label className="form-label">Leave & Attendance Access</label>
+          <label className="switch switch-lg">
+            <input
+              type="checkbox"
+              checked={leaveAccess}
+              onChange={() => setLeaveAccess(!leaveAccess)}
+            />
+          </label>
+        </div>
+      </CustomModal>
+    )
   );
 };
 
