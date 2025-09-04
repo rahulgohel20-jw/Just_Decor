@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
-import { EditEventType, Addeventtype } from "@/services/apiServices";
+import {
+  AddMenuItems,
+  GetMenuCategoryByUserIdmenuitem,
+  GetAllSubCategorymenuitem,
+  GetAllKitchenAreaById,
+  UpdateMenuItem,
+  
+} from "@/services/apiServices";
+import { uploadFile } from "../../../services/apiServices";
+
+
 const AddMenuItem = ({
   isModalOpen,
   setIsModalOpen,
   refreshData,
   selectedMenuItem,
-  categoryData
 }) => {
   if (!isModalOpen) return null;
 
@@ -13,59 +22,218 @@ const AddMenuItem = ({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+    menuSlogan: "",
+    price: "",
+    sequence: 1,
+    file: "",
+    priority: "",
+    menuItemCategory: "",
+    menuSubItemCategory: "",
+    kitchenArea: "",
   };
+
   const [formData, setFormData] = useState(initialFormState);
 
-  useEffect(() => {
-    if (selectedMenuItem) {
-      console.log(selectedMenuItem);
+  // Dropdown state
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [kitchenAreas, setKitchenAreas] = useState([]);
 
-      setFormData({
-        nameEnglish: selectedMenuItem.event_type || "",
-        nameGujarati: selectedMenuItem.nameGujarati || "",
-        nameHindi: selectedMenuItem.nameHindi || "",
-      });
-    } else {
-      setFormData(initialFormState);
+
+  // Load dropdown data when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        console.error("User ID not found");
+        return;
+      }
+
+      Promise.all([
+        GetMenuCategoryByUserIdmenuitem(userData.id),
+        GetAllSubCategorymenuitem(userData.id),
+        GetAllKitchenAreaById(userData.id),
+      ])
+        .then(([catRes, subRes, kitchenRes]) => {
+          console.log("Category Response:", catRes);
+          console.log("SubCategory Response:", subRes);
+          console.log("Kitchen Area Response:", kitchenRes);
+
+          const catData = catRes?.data?.data?.["Menu Category Details"] || [];
+          const subData = subRes?.data?.data?.["Menu Sub Category Details"] || [];
+          const kitchenData = kitchenRes?.data?.data?.["KitchenAreas Details"] || [];
+
+          setCategories(catData);
+          setSubCategories(subData);
+          console.log("Sub Category:", subData);
+          setKitchenAreas(kitchenData);
+        })
+        .catch((err) => console.error("Error loading dropdown data:", err));
     }
-  }, [selectedMenuItem]);
+  }, [isModalOpen]);
+
+
+useEffect(() => {
+  if (selectedMenuItem) {
+    const matchedCategory = categories.find(
+      (cat) => cat.nameEnglish === selectedMenuItem.category
+    );
+    const matchedSubCategory = subCategories.find(
+      (sub) => sub.nameEnglish === selectedMenuItem.subCategory
+    );
+    const matchedKitchenArea = kitchenAreas.find(
+      (area) => area.nameEnglish === selectedMenuItem.kitchenArea
+    );
+
+    setFormData({
+      ...initialFormState,
+      nameEnglish: selectedMenuItem.name || "",
+      nameGujarati: selectedMenuItem.nameGujarati || "",
+      nameHindi: selectedMenuItem.nameHindi || "",
+menuSlogan: selectedMenuItem.slogan || "",
+
+      price: selectedMenuItem.price || "",
+      priority: selectedMenuItem.priority || "",
+      menuItemCategory: matchedCategory?.id || "",
+      menuSubItemCategory: matchedSubCategory?.id || "",
+      kitchenArea: matchedKitchenArea?.id || "",
+    });
+console.log(" slogan" , selectedMenuItem.slogan);
+    console.log("📝 Selected Menu Item:", selectedMenuItem);
+  } else {
+    setFormData(initialFormState);
+  }
+}, [selectedMenuItem, categories, subCategories, kitchenAreas]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
-    refreshData();
-    setIsModalOpen();
-    if (selectedMenuItem) {
-      const payload = { ...formData, userId: userData.id };
+const handleSubmit = () => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  if (!userData?.id) {
+    alert("User data not found");
+    return;
+  }
+const safeNumber = (value) => {
+  if (value === undefined || value === null || value === "" || value === "undefined") {
+    return null;
+  }
 
-      // EditEventType(selectedMenuItem.eventid, payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error editing meal:", error);
-      //   });
-    } else {
-      const payload = { ...formData, userId: userData.id };
-      // Addeventtype(payload)
-      //   .then(() => {
-      //     refreshData();
-      //     setIsModalOpen();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error adding meal:", error);
-      //   });
-    }
+  const n = Number(value);
+  return isNaN(n) ? null : n;
+};
+
+  const payload = {
+    nameEnglish: formData.nameEnglish,
+    nameGujarati: formData.nameGujarati,
+    nameHindi: formData.nameHindi,
+    slogan: formData.menuSlogan,
+    price: safeNumber(formData.price),
+    priority: safeNumber(formData.priority),
+    sequence: safeNumber(formData.sequence),
+    userId: userData.id,
+    menuCategoryId: safeNumber(formData.menuItemCategory),
+    menuSubCategoryId: safeNumber(formData.menuSubItemCategory),
+    kitchenAreaId: safeNumber(formData.kitchenArea),
   };
+console.log("🚨 SUBMITTING PAYLOAD:");
+Object.entries(payload).forEach(([key, val]) =>
+  console.log(`${key}:`, val, `(${typeof val})`)
+);
+
+  // ✅ EDIT MODE
+  if (selectedMenuItem) {
+     console.log("🧠 selectedMenuItem.id =", selectedMenuItem?.id, `(${typeof selectedMenuItem?.id})`);
+  console.log("📦 Final Payload:", payload);
+    UpdateMenuItem(selectedMenuItem.id, payload)
+      .then((res) => {
+        console.log("✅ Menu item updated:", res);
+
+        if (formData.file) {
+          const uploadRequest = {
+            ModuleId: selectedMenuItem.id,
+            ModuleName: "MenuItem",
+            FileType: "Image",
+          };
+          uploadImage(uploadRequest);
+        } else {
+          refreshData();
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Error updating menu item:", err);
+      });
+
+  } else {
+    // ✅ ADD MODE
+    AddMenuItems(payload)
+      .then((res) => {
+        console.log("🧾 Full AddMenuItems Response:", res);
+
+        const newMenuItemId = res?.data?.moduleId;
+        console.log("🆔 New Menu Item ID:", newMenuItemId);
+
+        if (formData.file && newMenuItemId) {
+          const uploadRequest = {
+            ModuleId: newMenuItemId,
+            ModuleName: "MenuItem",
+            FileType: "Image",
+          };
+          uploadImage(uploadRequest);
+        } else {
+          refreshData();
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Error saving menu item:", err);
+      });
+  }
+};
+
+
+const uploadImage = (uploadRequest) => {
+  if (!formData.file) {
+    console.warn("⚠️ No file found in formData.");
+    refreshData();
+    setIsModalOpen(false);
+    return;
+  }
+
+  const request = new FormData();
+  request.append("moduleId", uploadRequest.ModuleId);
+  request.append("moduleName", uploadRequest.ModuleName);
+  request.append("fileType", uploadRequest.FileType);
+  request.append("file", formData.file);
+
+  console.log("📦 Uploading file with FormData:", {
+    moduleId: uploadRequest.ModuleId,
+    moduleName: uploadRequest.ModuleName,
+    fileType: uploadRequest.FileType,
+    fileName: formData.file.name,
+  });
+
+  uploadFile(request)
+    .then((res) => {
+      console.log("✅ Image uploaded successfully:", res.data);
+      console.log("imgurl",)
+      res.data?.msg && alert(res.data.msg);
+      refreshData();
+      setIsModalOpen(false);
+    })
+    .catch((error) => {
+      console.error("❌ Error uploading image:", error);
+      error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
+    });
+};
+
+
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
@@ -81,9 +249,9 @@ const AddMenuItem = ({
             &times;
           </button>
         </div>
+
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputWithIcon
             label="Name (English)"
             name="nameEnglish"
@@ -105,120 +273,96 @@ const AddMenuItem = ({
             onChange={handleChange}
             required
           />
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Slogun'}</label>
+
+          {/* Slogan */}
+          <div className="relative col-span-2">
+            <label className="block text-gray-600 mb-1">Slogan</label>
             <textarea
-              type="text"
-              name={'slogun'}
-              value={formData.slogun}
+              name="menuSlogan"
+              value={formData.menuSlogan}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Slogun'}
+              placeholder="Menu Slogan"
             />
           </div>
+
+          {/* Price */}
           <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Price'}</label>
+            <label className="block text-gray-600 mb-1">Price</label>
             <input
               type="number"
-              name={'price'}
+              name="price"
               value={formData.price}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Price'}
+              placeholder="Price"
             />
           </div>
+
+          {/* Priority */}
           <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Priority'}</label>
+            <label className="block text-gray-600 mb-1">Priority</label>
             <input
               type="number"
-              name={'priority'}
+              name="priority"
               value={formData.priority}
               onChange={handleChange}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'Priority'}
+              placeholder="Priority"
             />
           </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Menu Item Category'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.category_id}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Category</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Menu Item Sub Category'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.sub_category_id}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Sub Category</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Kitchen Area'}</label>
-            <select
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              name="contactCategoryId"
-              value={formData.kitchen_area}
-              onChange={handleChange}
-              required
-            >
-              <option value=""> Select Kitchen Area</option>
-              {categoryData.map((items) => (
-                <option key={items.id} value={items.id}>
-                  {items.category}
-                </option>
-              ))}
-            </select>
-            {/* Mic icon */}
-            <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-              </svg>
-            </span>
-          </div>
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">{'Document'}</label>
+
+          {/* Category */}
+          <DropdownField
+            label="Menu Item Category"
+            name="menuItemCategory"
+            value={formData.menuItemCategory}
+            onChange={handleChange}
+            options={categories.filter(cat => cat.isActive)} // ✅ only active
+            optionLabel="nameEnglish"   // ✅ matches API
+          />
+          {/* Sub Category */}
+          <DropdownField
+            label="Menu Item Sub Category"
+            name="menuSubItemCategory"
+            value={formData.menuSubItemCategory}
+            onChange={handleChange}
+            options={subCategories.filter(sub => sub.isActive)} // ✅ only active
+            optionLabel="nameEnglish"
+          />
+
+          {/* Kitchen Area */}
+         <DropdownField
+  label="Kitchen Area"
+  name="kitchenArea"
+  value={formData.kitchenArea}
+  onChange={handleChange}
+  options={kitchenAreas.filter(area => area.isActive)}
+  optionLabel="nameEnglish"
+/>
+
+
+          {/* File upload */}
+          <div className="relative col-span-2">
+            <label className="block text-gray-600 mb-1">{"Image"}</label>
             <input
               type="file"
-              name={'document'}
-              value={formData.document}
-              onChange={handleChange}
+              name={"file"}
+              accept="image/*"
+             onChange={(e) => {
+              const file = e.target.files[0];
+              setFormData((prev) => ({
+                ...prev,
+                file: file,
+              }));
+            }}
               className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder={'document'}
+              placeholder={"image"}
             />
           </div>
         </div>
+
+        {/* Buttons */}
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"
@@ -252,13 +396,29 @@ const InputWithIcon = ({ label, name, value, onChange, required }) => (
       placeholder={label}
       required={required}
     />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
+  </div>
+);
+
+const DropdownField = ({ label, name, value, onChange, options, optionLabel }) => (
+  <div className="relative">
+    <label className="block text-gray-600 mb-1">{label}</label>
+    <select
+      className="border border-gray-300 rounded-lg p-2 w-full"
+      name={name}
+      value={value}
+      onChange={onChange}
+      required
+    >
+      <option value="">Select {label}</option>
+      {options.map((item) => (
+        <option key={item.id} value={item.id}>
+          {item[optionLabel]}
+        </option>
+      ))}
+    </select>
   </div>
 );
 
 export default AddMenuItem;
+
+

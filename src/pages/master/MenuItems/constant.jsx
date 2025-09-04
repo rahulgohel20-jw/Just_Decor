@@ -1,4 +1,4 @@
-import { Tooltip } from "antd";
+import { Tooltip,Popconfirm } from "antd";
 
 export const columns = (onEdit, onDelete) => [
   {
@@ -81,16 +81,22 @@ export const columns = (onEdit, onDelete) => [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
-
+ <Popconfirm
+            title="Are you sure to delete this kitchen area?"
+            onConfirm={() => onDelete(row.original.mealid)}
+            okText="Yes"
+            cancelText="No"
+          >
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => onDelete(row.original.mealid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
+
           </Tooltip>
+ </Popconfirm>
         </div>
       );
     },

@@ -6,6 +6,7 @@ import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox
 import { uploadFile } from "../../../services/apiServices";
 import { formValidation } from "../../../lib/utils";
 
+
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,

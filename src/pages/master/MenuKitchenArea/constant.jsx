@@ -1,6 +1,6 @@
-import { Tooltip } from "antd";
+import { Tooltip, Popconfirm } from "antd";
 
-export const columns = (onEdit, onDelete) => [
+export const columns = (onEdit, onDelete, onToggleStatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -17,56 +17,59 @@ export const columns = (onEdit, onDelete) => [
       cellClassName: "w-[8%]",
     },
   },
-{
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center  gap-1">
-          <label className="switch switch-lg">
-              <input
-                type="checkbox"
-                value="1"
-                name="check"
-                defaultChecked={row.original.status}
-                readOnly
-                checked={row.original.status}
-                // onChange={() => }
-              />
-            </label>
-        </div>
-      );
-    },
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
+  {
+  accessorKey: "isActive",
+  header: "Status",
+  cell: ({ row }) => {
+    const isActive = row.original.isActive;   // from formatted data
+    return (
+      <div className="flex items-center gap-1">
+        <label className="switch switch-lg">
+          <input
+            type="checkbox"
+            checked={!!isActive}   // reflect actual API value
+            onChange={() =>
+              onToggleStatus(row.original.id, isActive)  // pass current
+            }
+          />
+        </label>
+      </div>
+    );
   },
+  meta: {
+    headerClassName: "w-[10%]",
+    cellClassName: "w-[10%]",
+  },
+},
+
+
   {
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center  gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Contact">
+        <div className="flex items-center gap-1">
+          <Tooltip title="Edit Kitchen Area">
             <button
               className="btn btn-sm btn-icon btn-clear"
-              title="Edit"
               onClick={() => onEdit(row.original)}
             >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
-          <Tooltip title="Delete">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Delete"
-              onClick={() => onDelete(row.original.mealid)}
-            >
-              <i className="ki-filled ki-trash  text-danger"></i>
-            </button>
-          </Tooltip>
+          <Popconfirm
+            title="Are you sure to delete this kitchen area?"
+            onConfirm={() => onDelete(row.original.raw?.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip title="Delete">
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-trash text-danger"></i>
+              </button>
+            </Tooltip>
+          </Popconfirm>
         </div>
       );
     },
@@ -75,10 +78,4 @@ export const columns = (onEdit, onDelete) => [
       cellClassName: "w-[10%]",
     },
   },
-];
-
-export const defaultData = [
-  { sr_no: 1, category: "BANGALI SWEETS" , status: 1},
-  { sr_no: 2, category: "LIVE SWEETS", status:0 },
-  { sr_no: 2, category: "NONE", status:1 },
 ];
