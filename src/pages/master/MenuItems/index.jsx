@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
-import { GetAllMenuItems } from "@/services/apiServices";
+import { GetAllMenuItems , DeleteMenuItem } from "@/services/apiServices";
 
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -30,11 +30,12 @@ const MenuItems = () => {
         const formatted = res.data.data["Menu Item Details"].map(
           (item, index) => ({
             sr_no: index + 1,
-            mealid: item.id,
+            id: item.id,
             name: item.nameEnglish || "-",
             category: item.menuCategory?.nameEnglish || "-",
             subCategory: item.menuSubCategory?.nameEnglish || "-",
             kitchenArea: item.kitchenArea?.nameEnglish || "-",
+            slogan: item.slogan || "-",
             price: item.price || "-",
             priority: item.sequence || "-",
             image: item.imagePath || "",
@@ -53,11 +54,26 @@ const MenuItems = () => {
 
 
   // ✅ delete then refresh table
-  const DeleteCategory = () => {
-    FetchMenuItems();
-  };
+ const handleDelete = (id) => {
+  if (!id || isNaN(id)) {
+    console.error("❌ Invalid ID passed to delete:", id);
+    return;
+  }
+
+  console.log("✅ Deleting item with ID:", id);
+
+  DeleteMenuItem(id)
+    .then(() => {
+      FetchMenuItems();
+    })
+    .catch((err) => {
+      console.error("Delete error:", err);
+    });
+};
+
 
   const handleEdit = (menuItem) => {
+console.log("✏️ Edit clicked:", menuItem);
     setSelectedMenuItem(menuItem);
     setIsItemModalOpen(true);
   };
@@ -112,7 +128,7 @@ const MenuItems = () => {
 
         {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, DeleteCategory)}
+          columns={columns(handleEdit, handleDelete)}
           data={tableData}
           paginationSize={10}
         />

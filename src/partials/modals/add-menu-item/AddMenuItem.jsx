@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
-import { 
-  AddMenuItems, 
-  GetMenuCategoryByUserId, 
-  GetAllSubCategory, 
-  GetAllKitchenAreaById 
+import {
+  AddMenuItems,
+  GetMenuCategoryByUserIdmenuitem,
+  GetAllSubCategorymenuitem,
+  GetAllKitchenAreaById,
+  UpdateMenuItem,
+  
 } from "@/services/apiServices";
+import { uploadFile } from "../../../services/apiServices";
+
 
 const AddMenuItem = ({
   isModalOpen,
@@ -20,7 +24,7 @@ const AddMenuItem = ({
     nameHindi: "",
     menuSlogan: "",
     price: "",
-    sequence: "",
+    sequence: 1,
     file: "",
     priority: "",
     menuItemCategory: "",
@@ -35,71 +39,200 @@ const AddMenuItem = ({
   const [subCategories, setSubCategories] = useState([]);
   const [kitchenAreas, setKitchenAreas] = useState([]);
 
+
   // Load dropdown data when modal opens
   useEffect(() => {
     if (isModalOpen) {
       const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) return;
+      if (!userData?.id) {
+        console.error("User ID not found");
+        return;
+      }
 
       Promise.all([
-        GetMenuCategoryByUserId(userData.id),
-        GetAllSubCategory({ userId: userData.id }),
+        GetMenuCategoryByUserIdmenuitem(userData.id),
+        GetAllSubCategorymenuitem(userData.id),
         GetAllKitchenAreaById(userData.id),
       ])
         .then(([catRes, subRes, kitchenRes]) => {
-          setCategories(catRes?.data || []);
-          setSubCategories(subRes?.data || []);
-          setKitchenAreas(kitchenRes?.data || []);
+          console.log("Category Response:", catRes);
+          console.log("SubCategory Response:", subRes);
+          console.log("Kitchen Area Response:", kitchenRes);
+
+          const catData = catRes?.data?.data?.["Menu Category Details"] || [];
+          const subData = subRes?.data?.data?.["Menu Sub Category Details"] || [];
+          const kitchenData = kitchenRes?.data?.data?.["KitchenAreas Details"] || [];
+
+          setCategories(catData);
+          setSubCategories(subData);
+          console.log("Sub Category:", subData);
+          setKitchenAreas(kitchenData);
         })
         .catch((err) => console.error("Error loading dropdown data:", err));
     }
   }, [isModalOpen]);
 
-  useEffect(() => {
-    if (selectedMenuItem) {
-      setFormData({
-        ...initialFormState,
-        nameEnglish: selectedMenuItem.nameEnglish || "",
-        nameGujarati: selectedMenuItem.nameGujarati || "",
-        nameHindi: selectedMenuItem.nameHindi || "",
-        menuSlogan: selectedMenuItem.menuSlogan || "",
-        price: selectedMenuItem.price || "",
-        priority: selectedMenuItem.priority || "",
-        menuItemCategory: selectedMenuItem.menuItemCategory || "",
-        menuSubItemCategory: selectedMenuItem.menuSubItemCategory || "",
-        kitchenArea: selectedMenuItem.kitchenArea || "",
-      });
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [selectedMenuItem]);
+
+useEffect(() => {
+  if (selectedMenuItem) {
+    const matchedCategory = categories.find(
+      (cat) => cat.nameEnglish === selectedMenuItem.category
+    );
+    const matchedSubCategory = subCategories.find(
+      (sub) => sub.nameEnglish === selectedMenuItem.subCategory
+    );
+    const matchedKitchenArea = kitchenAreas.find(
+      (area) => area.nameEnglish === selectedMenuItem.kitchenArea
+    );
+
+    setFormData({
+      ...initialFormState,
+      nameEnglish: selectedMenuItem.name || "",
+      nameGujarati: selectedMenuItem.nameGujarati || "",
+      nameHindi: selectedMenuItem.nameHindi || "",
+menuSlogan: selectedMenuItem.slogan || "",
+
+      price: selectedMenuItem.price || "",
+      priority: selectedMenuItem.priority || "",
+      menuItemCategory: matchedCategory?.id || "",
+      menuSubItemCategory: matchedSubCategory?.id || "",
+      kitchenArea: matchedKitchenArea?.id || "",
+    });
+console.log(" slogan" , selectedMenuItem.slogan);
+    console.log("📝 Selected Menu Item:", selectedMenuItem);
+  } else {
+    setFormData(initialFormState);
+  }
+}, [selectedMenuItem, categories, subCategories, kitchenAreas]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
+const handleSubmit = () => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  if (!userData?.id) {
+    alert("User data not found");
+    return;
+  }
+const safeNumber = (value) => {
+  if (value === undefined || value === null || value === "" || value === "undefined") {
+    return null;
+  }
 
-    const payload = { ...formData, userId: userData.id };
+  const n = Number(value);
+  return isNaN(n) ? null : n;
+};
 
-    if (selectedMenuItem) {
-      console.log("Update menu item:", payload);
-      // TODO: call update API
-    } else {
-      AddMenuItems(payload)
-        .then(() => {
+  const payload = {
+    nameEnglish: formData.nameEnglish,
+    nameGujarati: formData.nameGujarati,
+    nameHindi: formData.nameHindi,
+    slogan: formData.menuSlogan,
+    price: safeNumber(formData.price),
+    priority: safeNumber(formData.priority),
+    sequence: safeNumber(formData.sequence),
+    userId: userData.id,
+    menuCategoryId: safeNumber(formData.menuItemCategory),
+    menuSubCategoryId: safeNumber(formData.menuSubItemCategory),
+    kitchenAreaId: safeNumber(formData.kitchenArea),
+  };
+console.log("🚨 SUBMITTING PAYLOAD:");
+Object.entries(payload).forEach(([key, val]) =>
+  console.log(`${key}:`, val, `(${typeof val})`)
+);
+
+  // ✅ EDIT MODE
+  if (selectedMenuItem) {
+     console.log("🧠 selectedMenuItem.id =", selectedMenuItem?.id, `(${typeof selectedMenuItem?.id})`);
+  console.log("📦 Final Payload:", payload);
+    UpdateMenuItem(selectedMenuItem.id, payload)
+      .then((res) => {
+        console.log("✅ Menu item updated:", res);
+
+        if (formData.file) {
+          const uploadRequest = {
+            ModuleId: selectedMenuItem.id,
+            ModuleName: "MenuItem",
+            FileType: "Image",
+          };
+          uploadImage(uploadRequest);
+        } else {
           refreshData();
           setIsModalOpen(false);
-        })
-        .catch((err) => console.error("Error saving menu item:", err));
-    }
-  };
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Error updating menu item:", err);
+      });
+
+  } else {
+    // ✅ ADD MODE
+    AddMenuItems(payload)
+      .then((res) => {
+        console.log("🧾 Full AddMenuItems Response:", res);
+
+        const newMenuItemId = res?.data?.moduleId;
+        console.log("🆔 New Menu Item ID:", newMenuItemId);
+
+        if (formData.file && newMenuItemId) {
+          const uploadRequest = {
+            ModuleId: newMenuItemId,
+            ModuleName: "MenuItem",
+            FileType: "Image",
+          };
+          uploadImage(uploadRequest);
+        } else {
+          refreshData();
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Error saving menu item:", err);
+      });
+  }
+};
+
+
+const uploadImage = (uploadRequest) => {
+  if (!formData.file) {
+    console.warn("⚠️ No file found in formData.");
+    refreshData();
+    setIsModalOpen(false);
+    return;
+  }
+
+  const request = new FormData();
+  request.append("moduleId", uploadRequest.ModuleId);
+  request.append("moduleName", uploadRequest.ModuleName);
+  request.append("fileType", uploadRequest.FileType);
+  request.append("file", formData.file);
+
+  console.log("📦 Uploading file with FormData:", {
+    moduleId: uploadRequest.ModuleId,
+    moduleName: uploadRequest.ModuleName,
+    fileType: uploadRequest.FileType,
+    fileName: formData.file.name,
+  });
+
+  uploadFile(request)
+    .then((res) => {
+      console.log("✅ Image uploaded successfully:", res.data);
+      console.log("imgurl",)
+      res.data?.msg && alert(res.data.msg);
+      refreshData();
+      setIsModalOpen(false);
+    })
+    .catch((error) => {
+      console.error("❌ Error uploading image:", error);
+      error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
+    });
+};
+
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -180,42 +313,51 @@ const AddMenuItem = ({
           </div>
 
           {/* Category */}
-         <DropdownField
-  label="Menu Item Category"
-  name="menuItemCategory"
-  value={formData.menuItemCategory}
-  onChange={handleChange}
-  options={categories}
-  optionLabel="nameEnglish"   // ✅ matches API
-/>
+          <DropdownField
+            label="Menu Item Category"
+            name="menuItemCategory"
+            value={formData.menuItemCategory}
+            onChange={handleChange}
+            options={categories.filter(cat => cat.isActive)} // ✅ only active
+            optionLabel="nameEnglish"   // ✅ matches API
+          />
           {/* Sub Category */}
           <DropdownField
             label="Menu Item Sub Category"
             name="menuSubItemCategory"
             value={formData.menuSubItemCategory}
             onChange={handleChange}
-            options={subCategories}
-            optionLabel="subcategory"
+            options={subCategories.filter(sub => sub.isActive)} // ✅ only active
+            optionLabel="nameEnglish"
           />
 
           {/* Kitchen Area */}
-          <DropdownField
-            label="Kitchen Area"
-            name="kitchenArea"
-            value={formData.kitchenArea}
-            onChange={handleChange}
-            options={kitchenAreas}
-            optionLabel="kitchenArea"
-          />
+         <DropdownField
+  label="Kitchen Area"
+  name="kitchenArea"
+  value={formData.kitchenArea}
+  onChange={handleChange}
+  options={kitchenAreas.filter(area => area.isActive)}
+  optionLabel="nameEnglish"
+/>
+
 
           {/* File upload */}
           <div className="relative col-span-2">
-            <label className="block text-gray-600 mb-1">Document</label>
+            <label className="block text-gray-600 mb-1">{"Image"}</label>
             <input
               type="file"
-              name="file"
-              onChange={handleChange}
+              name={"file"}
+              accept="image/*"
+             onChange={(e) => {
+              const file = e.target.files[0];
+              setFormData((prev) => ({
+                ...prev,
+                file: file,
+              }));
+            }}
               className="border border-gray-300 rounded-lg p-2 w-full"
+              placeholder={"image"}
             />
           </div>
         </div>
@@ -278,3 +420,5 @@ const DropdownField = ({ label, name, value, onChange, options, optionLabel }) =
 );
 
 export default AddMenuItem;
+
+

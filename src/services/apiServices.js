@@ -3,6 +3,10 @@ import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
+export const GetMenuCategoryByUserIdmenuitem = (userId) => {
+  return GET(`/menucategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+};
+
 // Create Role
 export const createRole = (data) => {
   return POST("/role_master/save-single-or-multiple", data);
@@ -242,11 +246,10 @@ export const UpdateStatus = (Id, status = true) => {
 export const GetAllSubCategory = (data) => {
   return GET(`/menusubcategory/getallbyuserid`, data);
 };
-
-// Get Sub category Type
-// export const GetAllSubCategory = (id) => {
-//   return GET(`/menusubcategory/getallbyuserid?userId=${id}`);
-// };
+//for menu item
+export const GetAllSubCategorymenuitem = (userId) => {
+  return GET(`/menusubcategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+};
 
 
 //Add category Type
@@ -321,4 +324,15 @@ export const GetAllMenuItems = (data) => {
 //addmenuitem
 export const AddMenuItems = (data) => {
   return POST(`/menuitems/add`, data);
+};
+
+//delete menu item
+export const DeleteMenuItem = (id) => {
+  return DELETE(`/menuitems/deletebyid?id=${id}`);
+};
+
+//edit menu item
+export const UpdateMenuItem = (id, data) => {
+  return PUT(`/menuitems/update?id=${id}`, data);
+ 
 };
