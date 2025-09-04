@@ -126,11 +126,11 @@ useEffect(() => {
           cityId: member.userBasicDetails.city.id ?? member.city.id ?? "",
           address: member.address ?? "",
           companyName: member.companyName ?? "",
-          role: member.userBasicDetails.role.name  ?? "",
+          role: member.userBasicDetails.role?.id ?? "",
         };
 
         setFormData(prefilled);
-        setSelectedRole(member.userBasicDetails.role?.name || "");
+       setSelectedRole(member.userBasicDetails.role?.id || "");
 
         setTaskAccess(member.task_access ?? true);
         setLeaveAccess(
@@ -330,20 +330,20 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-          <label className="form-label">Role</label>
-          <select
-            className="select"
-             value={selectedRole}
-            onChange={handleChange}
-          >
-            <option value="">Select Role</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.name}>
-                {role.name}
-              </option>
-            ))}
-          </select>
-        </div>
+  <label className="form-label">Role</label>
+  <select
+    className="select"
+    value={selectedRole}
+    onChange={(e) => setSelectedRole(e.target.value)}  // ✅ fix handler
+  >
+    <option value="">Select Role</option>
+    {roles.map((role) => (
+      <option key={role.id} value={role.id}>
+        {role.name}
+      </option>
+    ))}
+  </select>
+</div>
 
         <div className="grid grid-cols-2 gap-x-4">
           <div className="flex flex-col">

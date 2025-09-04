@@ -321,3 +321,27 @@ export const GetAllKitchenAreaById = (id) => {
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
+
+
+// Change Password
+
+import axios from "./axiosInstance";
+
+export const ChangePassword = (data) => {
+  return axios.post(`/auth/changepassword`, null, {
+    params: {
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+      conPassword: data.conPassword,
+      userId: data.userId,
+    },
+  });
+};
+
+
+
+export const requestPasswordResetLink = async (email) => {
+  return axios.post(`/auth/forgotpassword`, null, {
+    params: { email }, // query param
+  });
+};

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { underConstruction } from "@/underConstruction";
-import { GetEventMasterById } from "../../../services/apiServices";
+import { GetEventMasterById } from "@/services/apiServices";
 import dayjs from "dayjs";
 
 const ViewEventDetail = ({ isModalOpen, setIsModalOpen, eventId }) => {

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = (onEdit, onDelete ) => [
+export const columns = (onEdit, handleView) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -93,6 +93,15 @@ export const columns = (onEdit, onDelete ) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
+          <Tooltip className="cursor-pointer" title="View Member">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title=""
+              onClick={() => handleView(row.original)}
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip>
            <Tooltip className="cursor-pointer" title="Edit Member">
             <button
               className="btn btn-sm btn-icon btn-clear"

@@ -12,9 +12,11 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import AddMember from "@/partials/modals/add-member/AddMember";
+import ViewMemberDetails from "@/partials/modals/view-member-details/ViewMemberDetails";
 
 const AllMemberMaster = () => {
   const classes = useStyle();
+  const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -54,6 +56,8 @@ const [selectedMember, setSelectedMember] = useState(null);
         }));
         console.log("Formatted Member Data:", formatted);
         setTableData(formatted);
+
+        
       } else {
         setTableData([]);
       }
@@ -66,6 +70,12 @@ const [selectedMember, setSelectedMember] = useState(null);
   const handleEdit = (member) => {
     setSelectedMember(member);
     setIsMemberModalOpen(true);
+  };
+
+  const handleView = (member) => {
+    setSelectedMember(member);
+  
+    setIsViewMemberModalOpen(true);
   };
 
 //   const handleDelete = (memberId) => {
@@ -158,8 +168,15 @@ const [selectedMember, setSelectedMember] = useState(null);
           setIsModalOpen={setIsMemberModalOpen}
           selectedMember={selectedMember} // ✅ pass selected member
         />
+
+        <ViewMemberDetails
+          isModalOpen={isViewMemberModalOpen}
+          setIsModalOpen={setIsViewMemberModalOpen}
+          memberData={selectedMember}
+        />
+
         <TableComponent
-          columns={columns( handleEdit )}
+          columns={columns( handleEdit, handleView )}
           data={tableData}
           paginationSize={10}
 />
