@@ -71,7 +71,7 @@ const EventBasicInfoStep = ({
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Inquiry Date
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -91,7 +91,7 @@ const EventBasicInfoStep = ({
               }
             />
             {errors.inquiryDate && (
-              <span className="text-red-500 text-sm mt-1">
+              <span className="text-red-600 font-normal text-sm mt-0.50">
                 {errors.inquiryDate}
               </span>
             )}
@@ -106,7 +106,9 @@ const EventBasicInfoStep = ({
               onChange={onInputChange}
             />
             {errors.status && (
-              <span className="text-red-500 text-sm mt-1">{errors.status}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.status}
+              </span>
             )}
           </div>
 
@@ -114,7 +116,7 @@ const EventBasicInfoStep = ({
           <div className="flex flex-col">
             <label className="form-label">
               Start Event Date
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -138,7 +140,7 @@ const EventBasicInfoStep = ({
               }}
             />
             {errors.eventStartDateTime && (
-              <span className="text-red-500 text-sm mt-1">
+              <span className="text-red-600 font-normal text-sm mt-0.50">
                 {errors.eventStartDateTime}
               </span>
             )}
@@ -148,7 +150,7 @@ const EventBasicInfoStep = ({
           <div className="flex flex-col">
             <label className="form-label">
               End Event Date
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -172,7 +174,7 @@ const EventBasicInfoStep = ({
               }}
             />
             {errors.eventEndDateTime && (
-              <span className="text-red-500 text-sm mt-1">
+              <span className="text-red-600 font-normal text-sm mt-0.50">
                 {errors.eventEndDateTime}
               </span>
             )}
@@ -182,7 +184,7 @@ const EventBasicInfoStep = ({
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Venue
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -194,7 +196,9 @@ const EventBasicInfoStep = ({
               onChange={onInputChange}
             />
             {errors.venue && (
-              <span className="text-red-500 text-sm mt-1">{errors.venue}</span>
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.venue}
+              </span>
             )}
           </div>
 
@@ -202,7 +206,7 @@ const EventBasicInfoStep = ({
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Event Type
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -223,17 +227,16 @@ const EventBasicInfoStep = ({
               </button>
             </div>
             {errors.eventTypeId && (
-              <span className="text-red-500 text-sm mt-1">
+              <span className="text-red-600 font-normal text-sm mt-0.50">
                 {errors.eventTypeId}
               </span>
             )}
           </div>
-
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
               Manager
-              <span className="mandatory text-base text-red-500 font-medium">
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
             </label>
@@ -254,7 +257,7 @@ const EventBasicInfoStep = ({
               </button>
             </div>
             {errors.managerId && (
-              <span className="text-red-500 text-sm mt-1">
+              <span className="text-red-600 font-normal text-sm mt-0.50">
                 {errors.managerId}
               </span>
             )}

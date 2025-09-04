@@ -111,5 +111,5 @@ html,
 }
 
 .mandatory {
-  /* color: var(--tw-damger); */
+  line-height: unset;
 }

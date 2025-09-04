@@ -275,7 +275,7 @@ const CreateEventPage = () => {
             errors={errors}
           />
         ),
-        icon: <i className="ki-filled ki-security-user" />,
+        icon: <i className="ki-filled ki-calendar"></i>,
       },
       {
         title: "Client Details",

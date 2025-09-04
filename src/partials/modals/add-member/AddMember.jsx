@@ -3,7 +3,6 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { GetAllRole } from "@/services/apiServices"; // <-- adjust path if needed
 import { set } from "date-fns";
 
-
 const AddMember = ({ isModalOpen, setIsModalOpen }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
@@ -17,20 +16,19 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
   const [activeTab, setActiveTab] = useState("tab_1");
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-   useEffect(() => {
-  if (isModalOpen) {
-    GetAllRole(Id)
-      .then((res) => {
-        console.log("Roles API response:", res.data.data["Role Details"]); // 👈 debug
-        setRoles(res.data.data["Role Details"]);
-      })
-      .catch((err) => {
-        console.error("Error fetching roles:", err);
-        setRoles([]);
-      });
-  }
-}, [isModalOpen]);
-
+  useEffect(() => {
+    if (isModalOpen) {
+      GetAllRole(Id)
+        .then((res) => {
+          console.log("Roles API response:", res.data.data["Role Details"]); // 👈 debug
+          setRoles(res.data.data["Role Details"]);
+        })
+        .catch((err) => {
+          console.error("Error fetching roles:", err);
+          setRoles([]);
+        });
+    }
+  }, [isModalOpen]);
 
   return (
     isModalOpen && (
@@ -87,17 +85,10 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
               <label className="form-label">State</label>
               <div className="input">
                 <i className="ki-filled ki-abstract-20"></i>
-                <input
-                  type="text"
-                  className="h-full"
-                  placeholder="State"
-                />
+                <input type="text" className="h-full" placeholder="State" />
               </div>
             </div>
-            
           </div>
-
-          
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
               <label className="form-label">City</label>
@@ -117,50 +108,32 @@ const AddMember = ({ isModalOpen, setIsModalOpen }) => {
                 />
               </div>
             </div>
-            
           </div>
-
-            
-            
-            
           <div className="flex flex-col">
             <label className="form-label">Role</label>
             <select
-  className="select pe-7.5"
-  value={selectedRole}
-  onChange={(e) => setSelectedRole(e.target.value)}
->
-  <option value="">Select Role</option>
-  {roles.map((role) => (
-    <option key={role.id} value={role.name}>
-      {role.name}
-    </option>
-  ))}
-</select>
+              className="select pe-7.5"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <option value="">Select Role</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.name}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label className="form-label">Email Address</label>
-              <div className="input">
-                <i className="ki-filled ki-sms"></i>
-                <input
-                  type="email"
-                  className="h-full"
-                  placeholder="Email address"
-                />
-              </div>
+          <div className="flex flex-col">
+            <label className="form-label">Email Address</label>
+            <div className="input">
+              <i className="ki-filled ki-sms"></i>
+              <input
+                type="email"
+                className="h-full"
+                placeholder="Email address"
+              />
             </div>
-            {/* <div className="flex flex-col">
-              <label className="form-label">Password</label>
-              <div className="input">
-                <i className="ki-filled ki-lock"></i>
-                <input
-                  type="password"
-                  className="h-full"
-                  placeholder="Password no"
-                />
-              </div>
-            </div> */}
           </div>
           <div className="flex items-center gap-2 mt-1">
             <label className="form-label">Task Access</label>
