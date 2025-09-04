@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { DatePicker, TimePicker, Select, Button } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
@@ -29,24 +29,33 @@ export default function FunctionTable() {
           placeholder="Quick Search"
           className="border px-3 py-2 rounded w-1/3"
         />
-    <div className="flex items-center gap-2">
-  <Button >Estimate Summary</Button>
-  <Button type="primary" icon={<PlusOutlined />} onClick={addRow}>
-    Add Function
-  </Button>
-</div>
-
+        <div className="flex items-center gap-2">
+          <Button>Estimate Summary</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={addRow}>
+            Add Function
+          </Button>
+        </div>
       </div>
 
       <table className="w-full border">
         <thead className="bg-gray-100">
           <tr>
-            <th className="p-2 font-inter font-medium text-gray-700">Function Name & Description </th>
-            <th className="p-2  font-inter font-medium text-gray-700">Person</th>
+            <th className="p-2 font-inter font-medium text-gray-700">
+              Function Name & Description{" "}
+            </th>
+            <th className="p-2  font-inter font-medium text-gray-700">
+              Person
+            </th>
             <th className="p-2 font-inter font-medium text-gray-700">Extra</th>
-           <th className="p-2  font-inter font-medium text-gray-700">Rate (Per Plate)</th>
-            <th className="p-2  font-inter font-medium text-gray-700">Total price</th>
-            <th className="p-2 font-inter font-medium text-gray-700">Actions</th>
+            <th className="p-2  font-inter font-medium text-gray-700">
+              Rate (Per Plate)
+            </th>
+            <th className="p-2  font-inter font-medium text-gray-700">
+              Total price
+            </th>
+            <th className="p-2 font-inter font-medium text-gray-700">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -54,27 +63,37 @@ export default function FunctionTable() {
             <tr key={row.id} className="border-t">
               <td className="p-2">
                 <div className="flex gap-3">
-
-        <select className="select w-60">
-          <option value="0">Select Action</option>
-          <option value="1">lunch</option>
-          <option value="2">Dinner</option>
-          <option value="3">Breakfast</option>
-        </select>
-      
-        </div>
+                  <select className="select w-60">
+                    <option value="0">Select Action</option>
+                    <option value="1">lunch</option>
+                    <option value="2">Dinner</option>
+                    <option value="3">Breakfast</option>
+                  </select>
+                </div>
               </td>
               <td className="p-2">
-                <input type="number" className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm" />
-              </td>
-               <td className="p-2">
-                <input type="number" className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm" />
-              </td>
-              <td className="p-2">
-                <input type="number" className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm" />
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm"
+                />
               </td>
               <td className="p-2">
-                 <input type="number" className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm" />
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 text-xs px-1 py-1 rounded-sm"
+                />
               </td>
               <td className="p-2 text-center">
                 <Button
