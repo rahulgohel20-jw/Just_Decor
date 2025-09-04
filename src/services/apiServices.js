@@ -177,6 +177,18 @@ export const GetAllRole = (id) => {
   return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };
 
+// Add Role
+
+export const AddRole = (data) => {
+  return POST(`/rolemaster/add`, data);
+};
+
+// GetRolebyId
+
+export const GetRoleById = (id) => {
+  return GET(`/rolemaster/getbyid?id=${id}`);
+};
+
 export const AddFunction = (data) => {
   return POST(`/functionmaster/add`, data);
 };
@@ -211,6 +223,23 @@ export const getUserById = (id) => {
 // ALL Member
 export const GetAllMemberByUserId = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
+};
+
+// Add Member
+
+export const AddMember = (data) => {
+  return POST(`/auth/add`, data);
+};
+
+// Delete Member
+export const DeleteMember = (Id) => {
+  return DELETE(`/user/deletebyid?id=${Id}`);
+};
+
+// Edit Member
+
+export const UpdateMember = (id, data) => {
+  return PUT(`/auth/update?id=${id}`, data);
 };
 
 //Get category Type

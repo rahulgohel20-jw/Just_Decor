@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = [
+export const columns = (onEdit, onDelete ) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -90,21 +90,33 @@ export const columns = [
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
            <Tooltip className="cursor-pointer" title="Edit Member">
-            
-              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
-                <i className="ki-filled ki-eye text-success"></i>
-              </button>
-            
-          </Tooltip>
-          <Tooltip className="cursor-pointer" title="Edit Member">
-            <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title=""
+                    onClick={() =>onEdit(row.original)}
+            >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
+
+          <Popconfirm
+  title="Are you sure to delete this function?"
+  onConfirm={() => onDelete(row.original.id)}   // ✅ confirm triggers delete
+  okText="Yes"
+  cancelText="No"
+>
+  {/* <Tooltip title="Delete Member">
+    <button className="btn btn-sm btn-icon btn-clear" title="">
+      <i className="ki-filled ki-trash text-danger"></i>
+    </button>
+  </Tooltip> */}
+</Popconfirm>
+
+
         </div>
       );
     },
