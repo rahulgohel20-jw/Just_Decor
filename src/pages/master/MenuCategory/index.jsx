@@ -11,8 +11,10 @@ import {
   DeleteCategoryId,
   UpdateStatus,
 } from "@/services/apiServices";
+import ViewMenuCategory from "../../../partials/modals/view-menu-category/ViewMenuCategory";
 const MenuCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isViewCategoryModalOpen, setIsViewCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,6 +66,11 @@ const MenuCategory = () => {
     setIsCategoryModalOpen(true);
   };
 
+  const handleView = (category) => {
+    setSelectedCategory(category);
+    setIsViewCategoryModalOpen(true);
+  };
+
   useEffect(() => {
     FetchCategoryData();
   }, [searchQuery]);
@@ -104,8 +111,18 @@ const MenuCategory = () => {
           refreshData={FetchCategoryData}
           editData={selectedMenuCategory}
         />
+        <ViewMenuCategory
+          isModalOpen={isViewCategoryModalOpen}
+          setIsModalOpen={setIsViewCategoryModalOpen}
+          editData={selectedMenuCategory}
+        />
         <TableComponent
-          columns={columns(handleEdit, DeleteCategory, statusCategory)}
+          columns={columns(
+            handleEdit,
+            DeleteCategory,
+            statusCategory,
+            handleView
+          )}
           data={tableData}
           paginationSize={10}
         />

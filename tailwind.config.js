@@ -50,7 +50,7 @@ module.exports = {
                 default: "#FF6F1E",
                 active: "#F15700",
                 light: "#FFEFF0",
-                clarity: "rgba(184, 28, 44, 0.20)",
+                clarity: "rgba(184, 28, 44, 0.10)",
                 inverse: "#FFFFFF",
               },
               primary: {
@@ -59,7 +59,7 @@ module.exports = {
                 light: "rgba(51, 124, 185, 1)", // #e6eff6
                 lighter: "rgba(230, 239, 246, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(0, 91, 168, 0.20)",
+                clarity: "rgba(0, 91, 168, 0.10)",
               },
               success: {
                 default: "rgba(40, 167, 69, 1)", // #28A745
@@ -67,7 +67,7 @@ module.exports = {
                 light: "rgba(92, 209, 120, 1)", // #E6F4EA
                 lighter: "rgba(230, 244, 234, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(40, 167, 69, 0.20)",
+                clarity: "rgba(40, 167, 69, 0.10)",
               },
               info: {
                 default: "rgba(23, 162, 184, 1)", // #17A2B8
@@ -75,7 +75,7 @@ module.exports = {
                 light: "rgba(88, 197, 211, 1)", // #E6F6F8
                 lighter: "rgba(230, 246, 248, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(23, 162, 184, 0.20)",
+                clarity: "rgba(23, 162, 184, 0.10)",
               },
               danger: {
                 default: "rgba(191, 34, 37, 1)", // #BF2225
@@ -83,7 +83,7 @@ module.exports = {
                 light: "rgba(224, 92, 94, 1)", // #FDEBEC
                 lighter: "rgba(253, 235, 236, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(191, 34, 37, 0.20)",
+                clarity: "rgba(191, 34, 37, 0.10)",
               },
               warning: {
                 default: "rgba(255, 193, 7, 1)", // #FFC107
@@ -91,7 +91,7 @@ module.exports = {
                 light: "rgba(255, 212, 84, 1)", // #FFF8E1
                 lighter: "rgba(255, 248, 225, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(255, 193, 7, 0.20)",
+                clarity: "rgba(255, 193, 7, 0.10)",
               },
               dark: {
                 default: "rgba(30, 33, 41, 1)", // #1E2129
@@ -99,21 +99,21 @@ module.exports = {
                 light: "rgba(56, 59, 68, 1)", // #E6E6E8
                 lighter: "rgba(230, 230, 232, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(30, 33, 41, 0.20)",
+                clarity: "rgba(30, 33, 41, 0.10)",
               },
               light: {
                 default: "#ffffff",
                 active: "#FCFCFC",
                 light: "#ffffff",
                 // lighter: "rgba(255, 255, 255, 1)", // #e6eff6
-                clarity: "rgba(255, 255, 255, 0.20)",
+                clarity: "rgba(255, 255, 255, 0.10)",
                 inverse: "#4B5675",
               },
               secondary: {
                 default: "#F9F9F9",
                 active: "#F9F9F9",
                 light: "#F9F9F9",
-                clarity: "rgba(249, 249, 249, 0.20)",
+                clarity: "rgba(249, 249, 249, 0.10)",
                 inverse: "#4B5675",
 
                 //default: "rgba(108, 117, 125, 1)", // #6C757D
@@ -121,7 +121,7 @@ module.exports = {
                 //light: "rgba(241, 243, 244, 1)", // #F1F3F4
                 //lighter: "rgba(241, 243, 244, 1)", // #F1F3F4
                 //inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                //clarity: "rgba(108, 117, 125, 0.20)",
+                //clarity: "rgba(108, 117, 125, 0.10)",
               },
               indigo: {
                 default: "rgba(102, 16, 242, 1)", // #6610F2
@@ -129,7 +129,7 @@ module.exports = {
                 light: "rgba(136, 86, 245, 1)", // #8856F5
                 lighter: "rgba(239, 230, 252, 1)", // #EFE6FC
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(102, 16, 242, 0.20)",
+                clarity: "rgba(102, 16, 242, 0.10)",
               },
             },
             // dark theme
@@ -138,7 +138,7 @@ module.exports = {
                 default: "#D74E00",
                 active: "#F35700",
                 light: "#272320",
-                clarity: "rgba(215, 78, 0, 0.20)",
+                clarity: "rgba(215, 78, 0, 0.10)",
                 inverse: "#ffffff",
               },
               primary: {
@@ -147,7 +147,7 @@ module.exports = {
                 light: "rgba(51, 124, 185, 1)", // #e6eff6
                 lighter: "rgba(230, 239, 246, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(0, 91, 168, 0.20)",
+                clarity: "rgba(0, 91, 168, 0.10)",
               },
               success: {
                 default: "rgba(40, 167, 69, 1)", // #28A745
@@ -155,7 +155,7 @@ module.exports = {
                 light: "rgba(92, 209, 120, 1)", // #E6F4EA
                 lighter: "rgba(230, 244, 234, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(40, 167, 69, 0.20)",
+                clarity: "rgba(40, 167, 69, 0.10)",
               },
               info: {
                 default: "rgba(23, 162, 184, 1)", // #17A2B8
@@ -163,7 +163,7 @@ module.exports = {
                 light: "rgba(88, 197, 211, 1)", // #E6F6F8
                 lighter: "rgba(230, 246, 248, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(23, 162, 184, 0.20)",
+                clarity: "rgba(23, 162, 184, 0.10)",
               },
               danger: {
                 default: "rgba(191, 34, 37, 1)", // #BF2225
@@ -171,7 +171,7 @@ module.exports = {
                 light: "rgba(224, 92, 94, 1)", // #FDEBEC
                 lighter: "rgba(253, 235, 236, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(191, 34, 37, 0.20)",
+                clarity: "rgba(191, 34, 37, 0.10)",
               },
               warning: {
                 default: "rgba(255, 193, 7, 1)", // #FFC107
@@ -179,27 +179,27 @@ module.exports = {
                 light: "rgba(255, 212, 84, 1)", // #FFF8E1
                 lighter: "rgba(255, 248, 225, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(255, 193, 7, 0.20)",
+                clarity: "rgba(255, 193, 7, 0.10)",
               },
               dark: {
                 default: "#272A34",
                 active: "#2D2F39",
                 light: "#1E2027",
-                clarity: "rgba(39, 42, 52, 0.20)",
+                clarity: "rgba(39, 42, 52, 0.10)",
                 inverse: "#ffffff",
               },
               light: {
                 default: "#1F212A",
                 active: "#1F212A",
                 light: "#1F212A",
-                clarity: "rgba(31, 33, 42, 0.20)",
+                clarity: "rgba(31, 33, 42, 0.10)",
                 inverse: "#9A9CAE",
               },
               secondary: {
                 default: "#363843",
                 active: "#464852",
                 light: "#363843",
-                clarity: "rgba(54, 56, 67, 0.20)",
+                clarity: "rgba(54, 56, 67, 0.10)",
                 inverse: "#9A9CAE",
               },
               indigo: {
@@ -208,7 +208,7 @@ module.exports = {
                 light: "rgba(136, 86, 245, 1)", // #8856F5
                 lighter: "rgba(239, 230, 252, 1)", // #EFE6FC
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(102, 16, 242, 0.20)",
+                clarity: "rgba(102, 16, 242, 0.10)",
               },
             },
           },

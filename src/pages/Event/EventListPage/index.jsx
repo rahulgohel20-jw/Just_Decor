@@ -10,12 +10,16 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
+import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
 const EventListPage = () => {
   const classes = useStyle();
   useEffect(() => {
     FetchEvent();
   }, []);
   const [tableData, setTableData] = useState();
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [viewEventModal, setViewEventModal] = useState(false);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchEvent = () => {
@@ -81,6 +85,10 @@ const EventListPage = () => {
         console.error("Error deleting event:", error);
       });
   };
+  const viewEvent = (eventId) => {
+    setSelectedEventId(eventId);
+    setViewEventModal(true);
+  };
 
   return (
     <Fragment>
@@ -111,8 +119,13 @@ const EventListPage = () => {
             </Link>
           </div>
         </div>
+        <ViewEventDetail
+          isModalOpen={viewEventModal}
+          setIsModalOpen={setViewEventModal}
+          eventId={selectedEventId}
+        />
         <TableComponent
-          columns={columns(DeleteEvent)}
+          columns={columns(DeleteEvent, viewEvent)}
           data={tableData}
           paginationSize={10}
         />
