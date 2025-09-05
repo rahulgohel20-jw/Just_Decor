@@ -104,94 +104,94 @@ const CreateEventPage = () => {
     }
   }, [mode, eventId]);
 
-  // const validateWithYup = useCallback(async (data, schema) => {
-  //   try {
-  //     await schema.validate(data, { abortEarly: false });
-  //     return {};
-  //   } catch (err) {
-  //     console.log("Yup validation error:", err); // Debug log
+  const validateWithYup = useCallback(async (data, schema) => {
+    try {
+      await schema.validate(data, { abortEarly: false });
+      return {};
+    } catch (err) {
+      console.log("Yup validation error:", err); // Debug log
 
-  //     const validationErrors = {};
+      const validationErrors = {};
 
-  //     // Check if err.inner exists and is an array
-  //     if (err.inner && Array.isArray(err.inner)) {
-  //       err.inner.forEach((error) => {
-  //         if (error.path) {
-  //           validationErrors[error.path] = error.message;
-  //         }
-  //       });
-  //     } else if (err.path && err.message) {
-  //       // Handle single error case
-  //       validationErrors[err.path] = err.message;
-  //     } else {
-  //       // Fallback for unexpected error structure
-  //       console.error("Unexpected Yup error structure:", err);
-  //       validationErrors.general = "Validation failed";
-  //     }
+      // Check if err.inner exists and is an array
+      if (err.inner && Array.isArray(err.inner)) {
+        err.inner.forEach((error) => {
+          if (error.path) {
+            validationErrors[error.path] = error.message;
+          }
+        });
+      } else if (err.path && err.message) {
+        // Handle single error case
+        validationErrors[err.path] = err.message;
+      } else {
+        // Fallback for unexpected error structure
+        console.error("Unexpected Yup error structure:", err);
+        validationErrors.general = "Validation failed";
+      }
 
-  //     return validationErrors;
-  //   }
-  // }, []);
+      return validationErrors;
+    }
+  }, []);
 
-  // const validateStep = useCallback(
-  //   async (step) => {
-  //     const stepKey = STEP_KEYS[step];
-  //     console.log("Validating step:", stepKey, "with data:", formData); // Debug log
+  const validateStep = useCallback(
+    async (step) => {
+      const stepKey = STEP_KEYS[step];
+      console.log("Validating step:", stepKey, "with data:", formData); // Debug log
 
-  //     if (!stepKey) {
-  //       console.log("Invalid step key:", stepKey);
-  //       return true;
-  //     }
+      if (!stepKey) {
+        console.log("Invalid step key:", stepKey);
+        return true;
+      }
 
-  //     const stepSchema = stepValidationSchemas[stepKey];
-  //     if (!stepSchema) {
-  //       console.log("No schema found for step:", stepKey);
-  //       return true;
-  //     }
+      const stepSchema = stepValidationSchemas[stepKey];
+      if (!stepSchema) {
+        console.log("No schema found for step:", stepKey);
+        return true;
+      }
 
-  //     try {
-  //       const validationErrors = await validateWithYup(formData, stepSchema);
-  //       console.log(
-  //         "Validation errors for step",
-  //         stepKey,
-  //         ":",
-  //         validationErrors
-  //       ); // Debug log
+      try {
+        const validationErrors = await validateWithYup(formData, stepSchema);
+        console.log(
+          "Validation errors for step",
+          stepKey,
+          ":",
+          validationErrors
+        ); // Debug log
 
-  //       setErrors(validationErrors);
-  //       return Object.keys(validationErrors).length === 0;
-  //     } catch (error) {
-  //       console.error("Error during step validation:", error);
-  //       return false;
-  //     }
-  //   },
-  //   [formData, validateWithYup]
-  // );
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+      } catch (error) {
+        console.error("Error during step validation:", error);
+        return false;
+      }
+    },
+    [formData, validateWithYup]
+  );
 
-  // const validateAllSteps = useCallback(async () => {
-  //   try {
-  //     const validationErrors = await validateWithYup(
-  //       formData,
-  //       eventValidationSchema
-  //     );
-  //     console.log("All steps validation errors:", validationErrors); // Debug log
+  const validateAllSteps = useCallback(async () => {
+    try {
+      const validationErrors = await validateWithYup(
+        formData,
+        eventValidationSchema
+      );
+      console.log("All steps validation errors:", validationErrors); // Debug log
 
-  //     setErrors(validationErrors);
-  //     return Object.keys(validationErrors).length === 0;
-  //   } catch (error) {
-  //     console.error("Error during all steps validation:", error);
-  //     return false;
-  //   }
-  // }, [formData, validateWithYup]);
+      setErrors(validationErrors);
+      return Object.keys(validationErrors).length === 0;
+    } catch (error) {
+      console.error("Error during all steps validation:", error);
+      return false;
+    }
+  }, [formData, validateWithYup]);
 
   const handleNext = useCallback(async () => {
-    // const isValid = await validateStep(current);
-    // if (!isValid) {
-    //   console.log("Validation failed. Errors:", errors);
-    //   return;
-    // }
+    const isValid = await validateStep(current);
+    if (!isValid) {
+      console.log("Validation failed. Errors:", errors);
+      return;
+    }
     setCurrent((prev) => prev + 1);
-  }, [current, errors]);
+  }, [current, validateStep, errors]);
 
   const handlePrev = useCallback(() => {
     setCurrent((prev) => prev - 1);
@@ -199,11 +199,11 @@ const CreateEventPage = () => {
   }, []);
 
   const handleFinish = useCallback(async () => {
-    // const isValid = await validateAllSteps();
-    // if (!isValid) {
-    //   console.log("Final validation failed. Errors:", errors);
-    //   return;
-    // }
+    const isValid = await validateAllSteps();
+    if (!isValid) {
+      console.log("Final validation failed. Errors:", errors);
+      return;
+    }
 
     const userData = JSON.parse(localStorage.getItem("userData"));
     const userId = userData?.id;
@@ -238,7 +238,7 @@ const CreateEventPage = () => {
         err
       );
     }
-  }, [formData, mode, eventId, errors]);
+  }, [formData, mode, eventId, navigate, validateAllSteps, errors]);
 
   const handleInputChange = useCallback(
     ({ target: { value, name } }) => {
@@ -337,7 +337,7 @@ const CreateEventPage = () => {
           steps={steps}
           onNext={handleNext}
           onPrev={handlePrev}
-          // onFinish={handleFinish}
+          onFinish={handleFinish}
         />
       </Container>
     </Fragment>

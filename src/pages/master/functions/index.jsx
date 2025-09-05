@@ -9,11 +9,8 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
-import {
-  GetAllFunctionsByUserId,
-  DeleteFunctionType,
-  GetFunctionsByFunctionName,
-} from "@/services/apiServices";
+import { GetAllFunctionsByUserId, DeleteFunctionType,  GetFunctionsByFunctionName } from "@/services/apiServices";
+
 
 const FunctionsMaster = () => {
   const classes = useStyle();
@@ -22,19 +19,19 @@ const FunctionsMaster = () => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // ✅ state for search
 
+
+
+  
   const formatData = (apiData) =>
     apiData.map((item, index) => ({
       sr_no: index + 1,
-      id: item.id,
+      id:item.id,
       function_name: item.nameEnglish,
       start_time: item.startTime,
       end_time: item.endTime,
       proforma_invoice: (
         <Tooltip className="cursor-pointer" title="Proforma Invoice">
-          <div
-            className="flex justify-center items-center w-full"
-            onClick={underConstruction}
-          >
+          <div className="flex justify-center items-center w-full" onClick={underConstruction}>
             <FileText className="w-5 h-5 text-primary" />
           </div>
         </Tooltip>
@@ -61,9 +58,7 @@ const FunctionsMaster = () => {
 
   // ✅ Fetch functions (all or by search)
   const fetchFunctions = (name = "") => {
-    const apiCall = name
-      ? GetFunctionsByFunctionName(name)
-      : GetAllFunctionsByUserId();
+    const apiCall = name ? GetFunctionsByFunctionName(name) : GetAllFunctionsByUserId();
 
     apiCall
       .then((res) => {
@@ -96,14 +91,16 @@ const FunctionsMaster = () => {
   };
 
   const handleDelete = (functionId) => {
-    DeleteFunctionType(functionId) // direct API call
-      .then(() => {
-        fetchFunctions();
-      })
-      .catch((error) => {
-        console.error("Error deleting function:", error);
-      });
-  };
+  DeleteFunctionType(functionId)  // direct API call
+    .then(() => {
+      fetchFunctions();
+    })
+    .catch((error) => {
+      console.error("Error deleting function:", error);
+    });
+};
+
+
 
   return (
     <Fragment>
@@ -115,9 +112,7 @@ const FunctionsMaster = () => {
 
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
+          <div className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}>
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -145,20 +140,16 @@ const FunctionsMaster = () => {
         </div>
 
         {/* Modal */}
-        <AddFunctionType
-          isOpen={isMemberModalOpen}
-          selectedFunction={selectedFunction}
-          paginationSize={10}
-          onClose={setIsMemberModalOpen}
-        />
+        <AddFunctionType isOpen={isMemberModalOpen}  selectedFunction={selectedFunction}
+  paginationSize={10} onClose={setIsMemberModalOpen} />
 
         {/* Table */}
-        <TableComponent
-          columns={columns(handleEdit, handleDelete)} // ✅ pass actions
-          data={tableData}
-          paginationSize={10}
-        />
-      </Container>
+<TableComponent
+  columns={columns(handleEdit, handleDelete)} // ✅ pass actions
+  data={tableData}
+ paginationSize={10}
+/>
+        </Container>
     </Fragment>
   );
 };
