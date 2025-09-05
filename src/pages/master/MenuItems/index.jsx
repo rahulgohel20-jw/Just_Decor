@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
-import { GetAllMenuItems , DeleteMenuItem } from "@/services/apiServices";
+import { GetAllMenuItems , DeleteMenuItem , updatestatusmneuitem } from "@/services/apiServices";
 
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -27,8 +27,9 @@ const MenuItems = () => {
         res?.data?.data &&
         Array.isArray(res.data.data["Menu Item Details"])
       ) {
-        const formatted = res.data.data["Menu Item Details"].map(
-          (item, index) => ({
+        const formatted = res.data.data["Menu Item Details"]
+         .sort((a, b) => b.id - a.id)
+        .map((item, index) => ({
             sr_no: index + 1,
             id: item.id,
             name: item.nameEnglish || "-",
@@ -38,7 +39,7 @@ const MenuItems = () => {
             slogan: item.slogan || "-",
             price: item.price || "-",
             priority: item.sequence || "-",
-            image: item.imagePath || "",
+         image: item.imagePath?.replace("jcupload", "uploads") || "",
             status: item.isActive,
           })
         );
@@ -77,6 +78,19 @@ console.log("✏️ Edit clicked:", menuItem);
     setSelectedMenuItem(menuItem);
     setIsItemModalOpen(true);
   };
+
+const statusmenuitem = async (id, currentStatus) => {
+  try {
+    const newStatus = !currentStatus; // toggle
+    const res = await updatestatusmneuitem(id, newStatus); // ✅ use correct API
+    console.log("Status updated response:", res);
+
+    FetchMenuItems(); // refresh table after update
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
+};
+
 
   return (
     <Fragment>
@@ -128,7 +142,7 @@ console.log("✏️ Edit clicked:", menuItem);
 
         {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, handleDelete)}
+          columns={columns(handleEdit, handleDelete,statusmenuitem)}
           data={tableData}
           paginationSize={10}
         />

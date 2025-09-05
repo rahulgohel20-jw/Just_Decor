@@ -5,7 +5,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { getAllByRoleId } from "@/services/apiServices";
+import { getAllByRoleId ,updateStatusApprove } from "@/services/apiServices";
 import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 
 const AllUser = () => {
@@ -80,6 +80,25 @@ const AllUser = () => {
     setIsModalOpen(true);
   };
 
+  
+const handleApprove = async (userId) => {
+  try {
+    setLoading(true);
+    const res = await updateStatusApprove(userId);
+    if (res.data.success) {
+      message.success("User approved successfully");
+      handleFetchByRoleId(); 
+    } else {
+      message.error(res.data.msg || "Failed to approve user");
+    }
+  } catch (err) {
+    console.error(err);
+    message.error("Error approving user");
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <Container>
       <div className="gap-2 pb-2 mb-3">
@@ -108,7 +127,7 @@ const AllUser = () => {
         <Spin tip="Loading..." />
       ) : (
         <TableComponent
-          columns={columns(handleEdit)}
+          columns={columns(handleEdit ,handleApprove)}
           data={filteredData}
           paginationSize={10}
         />

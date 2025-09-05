@@ -2,7 +2,7 @@
 import { Tooltip } from "antd";
 import { underConstruction } from "@/underConstruction";
 
-export const columns = (onEdit) => [
+export const columns = (onEdit ,handleApprove) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -57,25 +57,43 @@ export const columns = (onEdit) => [
   meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
 }
 ,
-  {
-    accessorKey: "isApprove",
-    header: "Approved",
-    cell: ({ getValue }) => {
-    const value = getValue();
+{
+  accessorKey: "isApprove",
+  header: "Approved",
+  cell: ({ row }) => {
+    const value = row.original.isApprove; 
+    const userId = row.original.id;
+
+    if (value) {
+
+      return (
+        <span className="font-medium px-4 py-1 rounded text-white bg-green-600">
+          Approved
+        </span>
+      );
+    }
+    const handleClick = async () => {
+      try {
+        await handleApprove(userId, true); 
+ 
+      } catch (err) {
+        console.error("Approval failed", err);
+      }
+    };
+
     return (
       <button
-        className={`font-medium px-4 py-1  rounded text-white ${
-          value ? "bg-success" : "bg-[blue] " 
-        } ${
-          value ? "bg-green-900" : "bg-blue-900 " 
-        }`}
+        onClick={handleClick}
+        className="font-medium px-4 py-1 rounded text-white bg-blue-600"
       >
-        {value ? "Approved" : "Approve"}
+        Approve
       </button>
     );
   },
-    meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
-  },
+  meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
+}
+,
+
   {
     accessorKey: "createdAt",
     header: "Created At",

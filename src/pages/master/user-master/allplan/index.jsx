@@ -4,7 +4,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { planColumns } from "./constant";
-import { getAllByRoleId } from "@/services/apiServices";
+import { getAllByRoleId  } from "@/services/apiServices";
 
 const PlanTable = () => {
   const [plans, setPlans] = useState([]);
@@ -55,10 +55,6 @@ useEffect(() => {
 
   fetchAdmins();
 }, []);
-
-
-
-
 
   // Handle search
   const handleSearch = (e) => {
