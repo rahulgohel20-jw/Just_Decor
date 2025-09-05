@@ -6,6 +6,7 @@ import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { useParams } from "react-router-dom";
 import {
   GetAllCategoryformenu,
@@ -13,6 +14,7 @@ import {
   Getmenuprep,
   AddMenuprep,
 } from "@/services/apiServices";
+
 const EventPreparationPage = () => {
   const [categories, setCategories] = useState([]);
   const { eventId } = useParams();
@@ -23,17 +25,30 @@ const EventPreparationPage = () => {
   const [pax, setPax] = useState(0);
   const [dateandtime, setDateandtime] = useState("");
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
-  const [menuPrepItems, setMenuPrepItems] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-  const [allMenuPrepItems, setAllMenuPrepItems] = useState({});
+
+  // Optimized state management
+  const [functionMenuData, setFunctionMenuData] = useState({}); // Store menu items per function
+  const [functionSelectionData, setFunctionSelectionData] = useState({}); // Store selections per function
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    FetchCategoryData();
-    FetchEventData();
+    initializeData();
   }, []);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+
+  const initializeData = async () => {
+    try {
+      await Promise.all([FetchCategoryData(), FetchEventData()]);
+    } catch (error) {
+      console.error("Error initializing data:", error);
+    }
+  };
+
   const FetchCategoryData = () => {
-    GetAllCategoryformenu(Id)
+    return GetAllCategoryformenu(Id)
       .then((res) => {
         const categories = res.data.data["Menu Category Details"].map(
           (item, index) => ({
@@ -43,14 +58,16 @@ const EventPreparationPage = () => {
           })
         );
         setCategories(categories);
+        return categories;
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
+        throw error;
       });
   };
 
   const FetchEventData = () => {
-    GetEventMasterById(eventId)
+    return GetEventMasterById(eventId)
       .then((res) => {
         const alleventdata = res?.data?.data["Event Details"].map((item) => {
           return {
@@ -82,13 +99,6 @@ const EventPreparationPage = () => {
             venue: firstEvent.venue,
           });
 
-          if (firstEvent.eventFunctions.length > 0) {
-            const firstFnId = firstEvent.eventFunctions[0].id;
-            setSelectedFunctionId(firstFnId);
-            // fetch all items for first function
-            FetchMenuPrep(firstFnId, 0);
-          }
-
           const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
             label: (
               <>
@@ -100,20 +110,88 @@ const EventPreparationPage = () => {
           }));
           setMenuPreparationsTabs(dynamicTabs);
 
-          // ✅ set default functionId
+          // Initialize function selection data
+          const initialFunctionData = {};
+          firstEvent.eventFunctions.forEach((fn) => {
+            initialFunctionData[fn.id] = {
+              selectedItems: [],
+              itemNotes: {},
+              itemRates: {},
+              isSaved: false,
+              pax: fn.pax,
+              rate: fn.rate,
+            };
+          });
+          setFunctionSelectionData(initialFunctionData);
+
           if (firstEvent.eventFunctions.length > 0) {
-            setSelectedFunctionId(firstEvent.eventFunctions[0].id);
+            const firstFnId = firstEvent.eventFunctions[0].id;
+            setSelectedFunctionId(firstFnId);
+            setPax(firstEvent.eventFunctions[0].pax || 0);
+            setRate(firstEvent.eventFunctions[0].rate || 0);
+            // Load menu data for first function
+            loadFunctionMenuData(firstFnId, 0);
           }
         }
 
-        setDateandtime(alleventdata[0]?.eventStartDateTime || " ");
-        setPax(alleventdata[0]?.eventFunctions[0]?.pax || 0);
-        setRate(alleventdata[0]?.eventFunctions[0]?.rate || 0);
+        setDateandtime(alleventdata[0]?.eventStartDateTime || "");
         setEventAllData(alleventdata);
+        return alleventdata;
       })
       .catch((error) => {
         console.error("Error fetching event data:", error);
+        throw error;
       });
+  };
+
+  const loadFunctionMenuData = async (
+    functionId,
+    categoryId = selectedCategoryId
+  ) => {
+    setLoading(true);
+    try {
+      const cacheKey = `${functionId}-${categoryId}`;
+
+      // Check if data is already cached
+      if (functionMenuData[cacheKey]) {
+        setLoading(false);
+        return;
+      }
+
+      const responseData = await FetchMenuPrep(functionId, categoryId);
+
+      // Cache the menu items
+      setFunctionMenuData((prev) => ({
+        ...prev,
+        [cacheKey]: responseData.menuItems || [],
+      }));
+
+      // Process selected items if they exist
+      if (responseData.selectedItems && responseData.selectedItems.length > 0) {
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [functionId]: {
+            ...prev[functionId],
+            selectedItems: responseData.selectedItems.map(
+              (item) => item.menuItemId
+            ),
+            itemNotes: responseData.selectedItems.reduce((acc, item) => {
+              acc[item.menuItemId] = item.itemNotes || "";
+              return acc;
+            }, {}),
+            itemRates: responseData.selectedItems.reduce((acc, item) => {
+              acc[item.menuItemId] = item.itemPrice || rate;
+              return acc;
+            }, {}),
+            isSaved: true,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading function menu data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const FetchMenuPrep = (
@@ -122,41 +200,92 @@ const EventPreparationPage = () => {
     pageNo = 1,
     totalRecord = 50
   ) => {
-    Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
+    return Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
       .then((res) => {
-        const items = (res?.data?.data["menuPreparationItems"] || []).map(
+        const responseData = res?.data?.data;
+        const menuItems = (responseData["menuPreparationItems"] || []).map(
           (item) => ({
             id: item.menuItemId,
             parentId: item.menuCategoryId,
             name: item.menuItemName,
             image: item.imagePath,
             price: item.itemPrice,
+            isSelected: item.isSelected || false,
           })
         );
 
-        setAllMenuPrepItems((prev) => {
-          const updated = { ...prev };
-          items.forEach((it) => {
-            updated[it.id] = it;
-          });
-          return updated;
-        });
-        setItemRates((prev) => {
-          const newRates = { ...prev };
-          items.forEach((it) => {
-            if (!newRates[it.id]) {
-              newRates[it.id] = it.price || rate || 0;
+        // Process selected menu preparation items
+        const selectedMenuCategories =
+          responseData["selectedMenuPreparationItems"] || [];
+        let selectedItems = [];
+
+        if (selectedMenuCategories.length > 0) {
+          selectedMenuCategories.forEach((category) => {
+            if (category.selectedMenuPreparationItems) {
+              selectedItems.push(...category.selectedMenuPreparationItems);
             }
           });
-          return newRates;
-        });
+        }
+
+        return {
+          menuItems,
+          selectedItems,
+          responseData,
+        };
       })
       .catch((error) => {
         console.error("Error fetching menu prep data:", error);
+        throw error;
       });
   };
 
+  const handleTabChange = async (newFunctionId) => {
+    if (selectedFunctionId === newFunctionId) return;
+
+    setLoading(true);
+
+    // Update selected function
+    setSelectedFunctionId(newFunctionId);
+
+    // Update pax and rate based on selected function
+    const selectedFunction = eventAllData[0]?.eventFunctions?.find(
+      (fn) => fn.id === newFunctionId
+    );
+    if (selectedFunction) {
+      setPax(selectedFunction.pax || 0);
+      setRate(selectedFunction.rate || 0);
+    }
+
+    // Load menu data for the new function
+    await loadFunctionMenuData(newFunctionId, selectedCategoryId);
+
+    setLoading(false);
+  };
+
+  const handleCategoryChange = async (categoryId) => {
+    setSelectedCategoryId(categoryId);
+    if (selectedFunctionId) {
+      await loadFunctionMenuData(selectedFunctionId, categoryId);
+    }
+  };
+
   const handleSave = () => {
+    const currentFunctionData = functionSelectionData[selectedFunctionId];
+    if (
+      !currentFunctionData ||
+      currentFunctionData.selectedItems.length === 0
+    ) {
+      errorMsgPopup("Please select at least one item");
+      return;
+    }
+
+    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+    const allMenuItems = functionMenuData[cacheKey] || [];
+
+    const selectedItems = currentFunctionData.selectedItems
+      .map((id) => allMenuItems.find((item) => item.id === id))
+      .filter(Boolean);
+
     const payload = {
       defaultPrice: rate || 0,
       eventFunctionId: selectedFunctionId,
@@ -165,8 +294,9 @@ const EventPreparationPage = () => {
         const category = categories.find((cat) => cat.id === item.parentId);
         return {
           id: 0,
-          itemNotes: itemNotes[item.id] || "",
-          itemPrice: Number(itemRates[item.id]) || Number(rate) || 0,
+          itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemPrice:
+            Number(currentFunctionData.itemRates[item.id]) || Number(rate) || 0,
           itemSortOrder: index + 1,
           menuCategoryId: item.parentId,
           menuCategoryName: category?.name || "",
@@ -178,53 +308,119 @@ const EventPreparationPage = () => {
         };
       }),
       pax: Number(pax) || 0,
-      price: totalPrice,
+      price: calculateTotalPrice(),
       sortorder: 0,
     };
 
     AddMenuprep(payload)
       .then((res) => {
         console.log("✅ Saved:", res.data);
-        alert("Menu preparation saved successfully!");
+        if (res.data?.msg) {
+          successMsgPopup(res.data.msg);
+        }
+
+        // Mark this function as saved
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [selectedFunctionId]: {
+            ...prev[selectedFunctionId],
+            isSaved: true,
+          },
+        }));
+
+        // Refresh data to get the latest selectedMenuPreparationItems
+        loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
       })
       .catch((err) => {
         console.error("❌ Save failed:", err);
-        alert("Failed to save menu preparation");
+        errorMsgPopup("Failed to save menu preparation");
       });
   };
 
   const classes = useStyles();
   const [search, setSearch] = useState("");
-  // Add "All" option to categories
+  const [childSearch, setChildSearch] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
+
   const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
-  // State for selected children (multi-select)
-  const [selectedChildren, setSelectedChildren] = useState([]);
-  const [childSearch, setChildSearch] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
-  // Filter children by selected category and child search
-  const menuPrepItemsArray = Object.values(allMenuPrepItems);
 
-  const filteredChildren = menuPrepItemsArray.filter(
-    (child) =>
-      (selectedCategoryId === 0 || child.parentId === selectedCategoryId) &&
-      child.name.toLowerCase().includes(childSearch.toLowerCase())
+  // Get current function's menu items
+  const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+  const currentMenuItems = functionMenuData[cacheKey] || [];
+
+  const filteredChildren = currentMenuItems.filter((child) =>
+    child.name.toLowerCase().includes(childSearch.toLowerCase())
   );
 
-  // Toggle child selection
-  const toggleChildSelection = (id) => {
-    setSelectedChildren((prev) =>
-      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
-    );
+  // Get current function's selection data
+  const currentFunctionData = functionSelectionData[selectedFunctionId] || {
+    selectedItems: [],
+    itemNotes: {},
+    itemRates: {},
   };
-  // Helper: Group selected items by category
-  const selectedItems = selectedChildren
-    .map((id) => allMenuPrepItems[id])
+
+  const toggleChildSelection = (id) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        selectedItems: prev[selectedFunctionId]?.selectedItems?.includes(id)
+          ? prev[selectedFunctionId].selectedItems.filter(
+              (itemId) => itemId !== id
+            )
+          : [...(prev[selectedFunctionId]?.selectedItems || []), id],
+        isSaved: false, // Mark as unsaved when making changes
+      },
+    }));
+  };
+
+  const handleNoteChange = (id, note) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        itemNotes: {
+          ...prev[selectedFunctionId]?.itemNotes,
+          [id]: note,
+        },
+        isSaved: false,
+      },
+    }));
+  };
+
+  const handleItemRateChange = (id, value) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        itemRates: {
+          ...prev[selectedFunctionId]?.itemRates,
+          [id]: value,
+        },
+        isSaved: false,
+      },
+    }));
+  };
+
+  const calculateTotalPrice = () => {
+    if (!currentFunctionData.selectedItems) return 0;
+
+    return currentFunctionData.selectedItems.reduce((sum, itemId) => {
+      const itemRate =
+        Number(currentFunctionData.itemRates[itemId]) || Number(rate) || 0;
+      return sum + itemRate * pax;
+    }, 0);
+  };
+
+  const selectedItems = currentFunctionData.selectedItems
+    .map((id) => currentMenuItems.find((item) => item.id === id))
     .filter(Boolean);
+
   const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
     const category = categories.find((cat) => cat.id === item.parentId);
     const categoryName = category?.name || "Uncategorized";
@@ -233,23 +429,18 @@ const EventPreparationPage = () => {
     return acc;
   }, {});
 
-  // State for notes and per-item price
-  const [itemNotes, setItemNotes] = useState({});
-  const [itemRates, setItemRates] = useState({});
-  // Handler for note change
-  const handleNoteChange = (id, note) => {
-    setItemNotes((prev) => ({ ...prev, [id]: note }));
+  const removeSelectedItem = (itemId) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        selectedItems: prev[selectedFunctionId].selectedItems.filter(
+          (id) => id !== itemId
+        ),
+        isSaved: false,
+      },
+    }));
   };
-  // Handler for per-item rate change
-  const handleItemRateChange = (id, value) => {
-    setItemRates((prev) => ({ ...prev, [id]: value }));
-  };
-  // Calculate total price (per item or fallback to global rate)
-  const totalPrice = selectedItems.reduce(
-    (sum, item) =>
-      sum + (Number(itemRates[item.id]) || Number(rate) || 0) * 300,
-    0
-  );
 
   return (
     <Fragment>
@@ -318,6 +509,52 @@ const EventPreparationPage = () => {
                       </span>
                     </span>
                   </Tooltip>
+                  <div className="flex flex-row gap-8">
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Person:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <i className="ki-filled ki-user text-sm text-primary"></i>
+                      </strong>
+                      <input
+                        type="number"
+                        min={1}
+                        className="input input-sm w-20"
+                        value={pax}
+                        onChange={(e) => setPax(e.target.value)}
+                      />
+                    </p>
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Date &amp; Time:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
+                      </strong>
+                      <input
+                        type="text"
+                        className="input input-sm w-36"
+                        disabled
+                        value={dateandtime}
+                        onChange={(e) => setDateandtime(e.target.value)}
+                      />
+                    </p>
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Default Rate:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <span className="text-sm text-primary">&#8377;</span>
+                      </strong>
+                      <input
+                        type="number"
+                        value={rate}
+                        onChange={(e) => setRate(e.target.value)}
+                        className="input input-sm w-20"
+                      />
+                    </p>
+                  </div>
                   <Tooltip title="Collapse">
                     <button
                       type="button"
@@ -337,12 +574,7 @@ const EventPreparationPage = () => {
               >
                 <TabComponent
                   tabs={menuPreparationsTabs}
-                  onTabChange={(id) => {
-                    setSelectedFunctionId(id);
-                    if (id && selectedCategoryId) {
-                      FetchMenuPrep(id, selectedCategoryId);
-                    }
-                  }}
+                  onTabChange={handleTabChange}
                 />
               </div>
               <div
@@ -372,12 +604,7 @@ const EventPreparationPage = () => {
                           filteredCategories.map(({ name, id }) => (
                             <button
                               key={id}
-                              onClick={() => {
-                                setSelectedCategoryId(id);
-                                if (selectedFunctionId) {
-                                  FetchMenuPrep(selectedFunctionId, id);
-                                }
-                              }}
+                              onClick={() => handleCategoryChange(id)}
                               className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
                                 selectedCategoryId === id
                                   ? "bg-blue-50 text-primary"
@@ -407,21 +634,21 @@ const EventPreparationPage = () => {
                               onChange={(e) => setChildSearch(e.target.value)}
                             />
                           </div>
-                          <Tooltip title="Start speech to text">
+                          <Tooltip title="Add menu item">
                             <button
                               type="button"
-                              onClick={() => handleAddClick("Manager")}
+                              onClick={() => console.log("Add clicked")}
                               title="Add"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
                               <i className="ki-filled ki-plus"></i>
                             </button>
                           </Tooltip>
-                          <Tooltip title="Add menu item">
+                          <Tooltip title="Start speech to text">
                             <button
                               type="button"
-                              onClick={() => handleAddClick("Manager")}
-                              title="Add"
+                              onClick={() => console.log("Mic clicked")}
+                              title="Mic"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
                               <Mic size={18} />
@@ -431,7 +658,11 @@ const EventPreparationPage = () => {
                       </div>
                     </div>
                     <div className="flex-1 p-3 max-h-[520px] overflow-auto scrollable-y">
-                      {filteredChildren.length === 0 ? (
+                      {loading ? (
+                        <div className="p-4 text-center text-gray-500">
+                          Loading menu items...
+                        </div>
+                      ) : filteredChildren.length === 0 ? (
                         <div className="p-2 text-gray-400 text-xs text-center">
                           No items found
                         </div>
@@ -441,8 +672,10 @@ const EventPreparationPage = () => {
                             ({ parentId, id, name, image }) => (
                               <div
                                 key={id}
-                                className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative transition ${
-                                  selectedChildren.includes(id)
+                                className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
+                                  currentFunctionData.selectedItems?.includes(
+                                    id
+                                  )
                                     ? "border-success bg-green-300/10 text-success"
                                     : "hover:bg-blue-500/10 hover:border-blue-500/15"
                                 }`}
@@ -458,10 +691,11 @@ const EventPreparationPage = () => {
                                 <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
                                   {name}
                                 </div>
-                                {selectedChildren.includes(id) && (
+                                {currentFunctionData.selectedItems?.includes(
+                                  id
+                                ) && (
                                   <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
                                     <i className="ki-filled ki-check text-sm text-light"></i>
-                                    {/* &#10003; */}
                                   </span>
                                 )}
                               </div>
@@ -491,57 +725,9 @@ const EventPreparationPage = () => {
                       </button>
                     </Tooltip>
                   </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Person:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-user text-sm text-primary"></i>
-                        {/* 300 */}
-                      </strong>
-                      <input
-                        type="number"
-                        min={1}
-                        className="input input-sm w-20"
-                        value={pax}
-                        onChange={(e) => setPax(e.target.value)}
-                      />
-                    </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Date &amp; Time:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
-                        {/* 27/07/2025 11:00 AM */}
-                      </strong>
-                      <input
-                        type="text"
-                        className="input input-sm w-36"
-                        disabled
-                        value={dateandtime}
-                        onChange={(e) => setDateandtime(e.target.value)}
-                      />
-                    </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Default Rate:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <span className="text-sm text-primary">&#8377;</span>
-                      </strong>
-                      <input
-                        type="number"
-                        value={rate}
-                        onChange={(e) => setRate(e.target.value)}
-                        className="input input-sm w-20"
-                      />
-                    </p>
-                  </div>
                 </div>
                 <div className="flex-1 p-3 max-h-[516px] h-full overflow-auto scrollable-y bg-white">
-                  {selectedChildren.length === 0 ? (
+                  {currentFunctionData.selectedItems?.length === 0 ? (
                     <div className="text-xs text-gray-400 p-2 text-center">
                       No items selected
                     </div>
@@ -582,22 +768,27 @@ const EventPreparationPage = () => {
                                         {item.name}
                                       </span>
                                     </div>
-                                    <Tooltip title="Remove">
+                                    <div>
                                       <button
-                                        className="ml-2 text-gray-400 hover:text-red-500"
-                                        title="Remove"
-                                        onClick={() =>
-                                          setSelectedChildren((prev) =>
-                                            prev.filter(
-                                              (cid) => cid !== item.id
-                                            )
-                                          )
-                                        }
+                                        className="ml-2 text-gray-400 hover:text-gray-500"
+                                        title="Info"
                                       >
-                                        <i className="ki-filled ki-trash"></i>
+                                        <i className="ki-filled ki-information-1"></i>
                                       </button>
-                                    </Tooltip>
+                                      <Tooltip title="Remove">
+                                        <button
+                                          className="ml-2 text-gray-400 hover:text-red-500"
+                                          title="Remove"
+                                          onClick={() =>
+                                            removeSelectedItem(item.id)
+                                          }
+                                        >
+                                          <i className="ki-filled ki-trash"></i>
+                                        </button>
+                                      </Tooltip>
+                                    </div>
                                   </div>
+
                                   {showDetails && (
                                     <div className="flex items-center justify-between mt-1 gap-2">
                                       <div className="flex items-center gap-2">
@@ -606,7 +797,11 @@ const EventPreparationPage = () => {
                                         </span>
                                         <input
                                           type="number"
-                                          value={itemRates[item.id] ?? rate}
+                                          value={
+                                            currentFunctionData.itemRates?.[
+                                              item.id
+                                            ] ?? rate
+                                          }
                                           onChange={(e) =>
                                             handleItemRateChange(
                                               item.id,
@@ -619,15 +814,27 @@ const EventPreparationPage = () => {
                                       </div>
                                     </div>
                                   )}
-                                  <textarea
-                                    placeholder="Add note..."
-                                    value={itemNotes[item.id] || ""}
-                                    onChange={(e) =>
-                                      handleNoteChange(item.id, e.target.value)
-                                    }
-                                    className="textarea textarea-sm w-full mt-1 resize-none"
-                                    rows={1}
-                                  />
+
+                                  {showDetails && (
+                                    <div className="mt-2">
+                                      <textarea
+                                        placeholder="Add notes..."
+                                        value={
+                                          currentFunctionData.itemNotes?.[
+                                            item.id
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleNoteChange(
+                                            item.id,
+                                            e.target.value
+                                          )
+                                        }
+                                        className="textarea textarea-sm w-full text-xs"
+                                        rows="2"
+                                      />
+                                    </div>
+                                  )}
                                 </li>
                               ))}
                             </ul>
@@ -643,19 +850,18 @@ const EventPreparationPage = () => {
                       Total Items:
                     </span>
                     <span className="font-bold text-xs text-gray-900">
-                      {selectedChildren.length}
+                      {currentFunctionData.selectedItems?.length || 0}
                     </span>
                   </div>
-                  {showDetails && (
-                    <div className="flex items-center gap-1">
-                      <span className="font-semibold text-xs text-gray-700">
-                        Total:
-                      </span>
-                      <span className="font-bold text-xs text-gray-900">
-                        &#8377; {totalPrice}
-                      </span>
-                    </div>
-                  )}
+
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-xs text-gray-700">
+                      Total:
+                    </span>
+                    <span className="font-bold text-xs text-gray-900">
+                      &#8377; {calculateTotalPrice()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -669,12 +875,18 @@ const EventPreparationPage = () => {
             className="btn btn-success"
             title="Save Menu"
             onClick={handleSave}
+            disabled={loading || !currentFunctionData.selectedItems?.length}
           >
-            <i className="ki-filled ki-save-2"></i> Save Menu
+            <i className="ki-filled ki-save-2"></i>
+            Save Menu
+            {currentFunctionData.isSaved && (
+              <span className="ml-2 text-xs">(Saved)</span>
+            )}
           </button>
         </div>
       </Container>
     </Fragment>
   );
 };
+
 export default EventPreparationPage;
