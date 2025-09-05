@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { message } from "antd";
 import {
   AddMenuItems,
   GetMenuCategoryByUserIdmenuitem,
@@ -147,12 +148,13 @@ Object.entries(payload).forEach(([key, val]) =>
 
   // ✅ EDIT MODE
   if (selectedMenuItem) {
-     console.log("🧠 selectedMenuItem.id =", selectedMenuItem?.id, `(${typeof selectedMenuItem?.id})`);
-  console.log("📦 Final Payload:", payload);
+  //    console.log("🧠 selectedMenuItem.id =", selectedMenuItem?.id, `(${typeof selectedMenuItem?.id})`);
+  // console.log("📦 Final Payload:", payload);
+
     UpdateMenuItem(selectedMenuItem.id, payload)
       .then((res) => {
-        console.log("✅ Menu item updated:", res);
-
+        // console.log("✅ Menu item updated:", res);
+   message.success("✅ Menu item updated successfully!");
         if (formData.file) {
           const uploadRequest = {
             ModuleId: selectedMenuItem.id,
@@ -173,8 +175,8 @@ Object.entries(payload).forEach(([key, val]) =>
     // ✅ ADD MODE
     AddMenuItems(payload)
       .then((res) => {
-        console.log("🧾 Full AddMenuItems Response:", res);
-
+       console.log("🧾 Full AddMenuItems Response:", res);
+  message.success("✅ Menu item added successfully!");
         const newMenuItemId = res?.data?.moduleId;
         console.log("🆔 New Menu Item ID:", newMenuItemId);
 
@@ -218,14 +220,13 @@ const uploadImage = (uploadRequest) => {
     fileName: formData.file.name,
   });
 
-  uploadFile(request)
-    .then((res) => {
-      console.log("✅ Image uploaded successfully:", res.data);
-      console.log("imgurl",)
-      res.data?.msg && alert(res.data.msg);
-      refreshData();
-      setIsModalOpen(false);
-    })
+uploadFile(request)
+  .then((res) => {
+    message.success("Image uploaded successfully!");
+    refreshData();
+    setIsModalOpen(false);
+  })
+
     .catch((error) => {
       console.error("❌ Error uploading image:", error);
       error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);

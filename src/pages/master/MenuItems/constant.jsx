@@ -1,6 +1,6 @@
-import { Tooltip,Popconfirm } from "antd";
+import { Tooltip,Popconfirm,message  } from "antd";
 
-export const columns = (onEdit, onDelete) => [
+export const columns = (onEdit, onDelete,onstatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -10,13 +10,23 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "image",
-    header: "Image",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
+  accessorKey: "image",
+  header: "Image",
+  cell: ({ row }) => {
+    return (
+      <img
+        src={row.original.image || "/no-image.png"} // fallback image if empty
+        alt={row.original.name}
+        className="w-12 h-12 object-cover rounded-md"
+      />
+    );
   },
+  meta: {
+    headerClassName: "w-[8%]",
+    cellClassName: "w-[8%]",
+  },
+},
+
   {
     accessorKey: "name",
     header: "Name",
@@ -45,22 +55,31 @@ export const columns = (onEdit, onDelete) => [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center  gap-1">
-          <label className="switch switch-lg">
+  return (
+   <Popconfirm
+          title={`Are you sure you want to ${
+            row.original.status ? "Deactivate" : "Activate"
+          } this menu item?`}
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() => {
+            onstatus(row.original.id, row.original.status);
+            message.success("✅ Status updated successfully!");
+          }}
+        >
+          <div className="flex items-center gap-1 cursor-pointer">
+            <label className="switch switch-lg">
               <input
                 type="checkbox"
-                value="1"
-                name="check"
-                defaultChecked={row.original.status}
-                readOnly
                 checked={row.original.status}
-                // onChange={() => }
+                readOnly
               />
             </label>
-        </div>
-      );
-    },
+          </div>
+        </Popconfirm>
+  );
+},
+
     meta: {
       headerClassName: "w-[10%]",
       cellClassName: "w-[10%]",
@@ -83,7 +102,7 @@ export const columns = (onEdit, onDelete) => [
           </Tooltip>
  <Popconfirm
             title="Are you sure to delete this kitchen area?"
-            onConfirm={() => onDelete(row.original.mealid)}
+            onConfirm={() => onDelete(row.original.id)}
             okText="Yes"
             cancelText="No"
           >

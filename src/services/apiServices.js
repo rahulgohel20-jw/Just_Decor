@@ -337,8 +337,8 @@ export const registerUser = (data) => {
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
-
-export const updateusermaster = (id, data) => {
+//update usermaster
+ export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
 // all user
@@ -346,22 +346,30 @@ export const getAllByRoleId = () => {
   return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
+export const updateStatusApprove = (id) => {
+  return PUT(`/auth/isapproved?isApprove=true&userId=${id}`);
+};
+
 // Kitchen Area
 export const GetAllKitchenAreaById = (id) => {
   return GET(`/kitchenarea/getallbyuserid?userId=${id}`);
 };
+
 // addkitechenarea
 export const AddKitchenArea = (data) => {
   return POST(`/kitchenarea/add`, data);
 };
+
 //updatekitchenarea
 export const UpdateKitchenArea = (id, data) => {
   return PUT(`/kitchenarea/update?id=${id}`, data);
 };
+
 // deletekitchenarea
 export const DeleteKitchenArea = (id) => {
   return DELETE(`/kitchenarea/deletebyid?id=${id}`);
 };
+
 //upadtestatuskitecharea
 // ✅ services/apiServices.js
 export const UpdateStatusKitchenArea = (id, isActive = true) => {
@@ -392,6 +400,12 @@ export const DeleteMenuItem = (id) => {
 export const UpdateMenuItem = (id, data) => {
   return PUT(`/menuitems/update?id=${id}`, data);
 };
+
+//stautsmeniitem
+export const updatestatusmneuitem = (id, isActive = true) => {
+  return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
+};
+
 
 // Change Password
 
