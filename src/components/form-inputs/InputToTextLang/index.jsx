@@ -12,7 +12,11 @@ const InputToTextLang = ({
   <div className="select__grp">
     <label className="block text-gray-600 mb-1">
       {label}
-      {required && <span className="text-red-500 ml-1">*</span>}
+      {required && (
+        <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
+          *
+        </span>
+      )}
     </label>
 
     <SpeechToText

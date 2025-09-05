@@ -81,44 +81,45 @@ const AddInvoicePage = () => {
               </div>
             </div>
 
-           <div className="flex items-center gap-2">
-  <Button
-    type="text"
-    icon={<SaveOutlined />}
-    className="bg-[#003366] text-white font-semibold rounded-lg 
+            <div className="flex items-center gap-2">
+              <Button
+                type="text"
+                icon={<SaveOutlined />}
+                className="bg-[#003366] text-white font-semibold rounded-lg 
                hover:!bg-[#E6F3FA] hover:!text-[#003366] hover:!border-[#003366] 
                shadow-md flex items-center gap-2"
-  >
-    Save
-  </Button>
+              >
+                Save
+              </Button>
 
-  <Button
-    type="text"
-    icon={<EyeOutlined />}
-    className="bg-[#005B99] text-white font-semibold rounded-lg 
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                className="bg-[#005B99] text-white font-semibold rounded-lg 
                hover:!bg-[#E6F3FA] hover:!text-[#005B99] hover:!border-[#005B99] 
                shadow-md flex items-center gap-2"
-  >
-    Preview
-  </Button>
+              >
+                Preview
+              </Button>
 
-  <Button
-    type="text"
-    icon={<DownloadOutlined />}
-    className="bg-[#007ACC] text-white font-semibold rounded-lg 
+              <Button
+                type="text"
+                icon={<DownloadOutlined />}
+                className="bg-[#007ACC] text-white font-semibold rounded-lg 
                hover:!bg-[#E6F3FA] hover:!text-[#007ACC] hover:!border-[#007ACC] 
                shadow-md flex items-center gap-2"
-  >
-    Download
-  </Button>
-</div>
-
-
+              >
+                Download
+              </Button>
+            </div>
           </div>
 
           <div className="mb-6 flex flex-row items-center gap-4">
             <label className="font-semibold text-[#464E5F]">
-              Customer Name<span className="text-red-500">*</span>
+              Customer Name
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
             </label>
             <Input
               placeholder="Search Name (ex. Swapnil Ghodaswar)"

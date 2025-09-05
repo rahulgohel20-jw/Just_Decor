@@ -261,7 +261,12 @@ const AddCustomer = ({
 
             {/* Contact Category */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600">Contact Category*</label>
+              <label className="text-gray-600">
+                Contact Category
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </label>
               <div className="flex items-center gap-2">
                 <select
                   className="border border-gray-300 rounded-lg p-2 w-full"
@@ -420,7 +425,11 @@ const InputSimple = ({
   <div>
     <label className="block text-gray-600 mb-1">
       {label}
-      {required && <span className="text-red-500 ml-1">*</span>}
+      {required && (
+        <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
+          *
+        </span>
+      )}
     </label>
     <input
       type={type}

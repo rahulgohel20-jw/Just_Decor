@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { CloseOutlined, SaveOutlined, SendOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  SaveOutlined,
+  SendOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Button, Select, Radio, Input } from "antd";
 
 const { TextArea } = Input;
@@ -12,7 +17,10 @@ const InvoiceFooter = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-semibold mb-1 text-[#464E5F]">
-            Customers Notes<span className="text-red-500">*</span>
+            Customers Notes
+            <span className="tmandatory ms-0.5 text-base text-red-500 font-medium">
+              *
+            </span>
           </label>
           <TextArea
             placeholder="Thanks for your Business..."
@@ -62,7 +70,10 @@ const InvoiceFooter = () => {
       <div className="p-4 mt-5 flex items-center justify-between gap-8 w-fit shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] rounded-lg bg-white">
         <div className="w-full">
           <label className="block font-semibold mb-1">
-            Terms & Conditions<span className="text-red-500">*</span>
+            Terms & Conditions
+            <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+              *
+            </span>
           </label>
           <div className="border rounded-lg p-3 whitespace-pre-line w-[400px] text-sm border-[#004986]">
             HDFC BANK
@@ -89,40 +100,35 @@ const InvoiceFooter = () => {
             </p>
           </div>
 
-          
+          <div className="flex gap-8">
+            {/* Save as Draft */}
 
-<div className="flex gap-8">
-  {/* Save as Draft */}
-  
+            {/* Save & Send */}
 
-  {/* Save & Send */}
-  
-
-  {/* Cancel */}
-  <Button
-    icon={<CloseOutlined />}
-    className="border border-danger text-danger font-semibold rounded-lg 
+            {/* Cancel */}
+            <Button
+              icon={<CloseOutlined />}
+              className="border border-danger text-danger font-semibold rounded-lg 
                 hover:!text-[#EF4444] hover:!border-[#DC2626] 
                flex items-center gap-2 shadow-md"
-  >
-    Cancel
-  </Button>
-  <Button
-    icon={<SendOutlined />}
-    className="bg-[#2563EB] text-white font-semibold rounded-lg 
+            >
+              Cancel
+            </Button>
+            <Button
+              icon={<SendOutlined />}
+              className="bg-[#2563EB] text-white font-semibold rounded-lg 
                hover:!bg-[#1E40AF] flex items-center gap-2 shadow-md"
-  >
-    Save & Send
-  </Button>
-  <Button
-    icon={<SaveOutlined />}
-    className="bg-[#003366] text-white font-semibold rounded-lg 
+            >
+              Save & Send
+            </Button>
+            <Button
+              icon={<SaveOutlined />}
+              className="bg-[#003366] text-white font-semibold rounded-lg 
                hover:!bg-[#2563EB] flex items-center gap-2 shadow-md"
-  >
-    Save as Draft
-  </Button>
-</div>
-
+            >
+              Save as Draft
+            </Button>
+          </div>
         </div>
       </div>
     </div>

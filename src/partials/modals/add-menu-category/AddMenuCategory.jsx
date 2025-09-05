@@ -6,7 +6,6 @@ import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox
 import { uploadFile } from "../../../services/apiServices";
 import { formValidation } from "../../../lib/utils";
 
-
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -168,7 +167,9 @@ const AddMenuCategory = ({
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             {"Price"}
-            <span className="text-red-500 ml-1">*</span>
+            <span className="mandatory ms-0.5 text-base text-red-500 font-mediumml-1">
+              *
+            </span>
           </label>
           <input
             type="number"
@@ -185,7 +186,9 @@ const AddMenuCategory = ({
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             {"Priority"}
-            <span className="text-red-500 ml-1">*</span>
+            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
+              *
+            </span>
           </label>
           <input
             type="number"

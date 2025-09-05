@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input, DatePicker } from "antd";
 import dayjs from "dayjs";
+import { Tooltip } from "antd";
 import { MapPin, StickyNote, Trash2, Plus, Search } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
@@ -40,7 +41,11 @@ const SortableRow = ({ id, children }) => {
 
   return (
     <tr ref={setNodeRef} style={style}>
-      <td className="p-3 cursor-grab" {...attributes} {...listeners}>
+      <td
+        className="p-3 border-b border-gray-200 cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <span
           className="text-gray-400 hover:text-gray-600"
           title="Drag to reorder"
@@ -206,34 +211,38 @@ const FunctionsDetails = ({
   };
 
   return (
-    <div className="rounded-md border border-[#C3C3C3] bg-white">
+    <div className="rounded-md border border-gray-200 bg-white">
       {/* Header */}
       <div className="p-3 flex justify-end items-center">
-        <button
-          className="btn-primary text-white px-4 py-2 rounded-md flex items-center gap-2"
-          onClick={handleAddFunction}
-        >
-          Add Function <Plus size={16} />
-        </button>
+        <Tooltip title="Add Function">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleAddFunction}
+          >
+            <Plus size={16} /> Add Function
+          </button>
+        </Tooltip>
       </div>
-
       {/* General function errors */}
       {errors.eventFunction && typeof errors.eventFunction === "string" && (
         <div className="mx-3 mb-2 text-red-500 text-sm">
           {errors.eventFunction}
         </div>
       )}
-
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border-[#C3C3C3] border-t">
-          <thead className="text-black font-bold border-b border-[#C3C3C3]">
+        <table className="w-full text-sm text-left border-gray-200 border-t">
+          <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
             <tr>
-              <th className="p-3 w-10"></th>
-              <th className="p-3">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-10"></th>
+              <th className="text-sm font-semibold text-gray-900 p-3">
                 <div className="flex items-center gap-2">
-                  Function Type
-                  <span className="text-red-500">*</span>
+                  <span className="flex items-center">
+                    Function Type
+                    <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                      *
+                    </span>
+                  </span>
                   <button
                     type="button"
                     onClick={handleAddClick}
@@ -244,15 +253,27 @@ const FunctionsDetails = ({
                   </button>
                 </div>
               </th>
-              <th className="p-3">Start Date</th>
-              <th className="p-3">End Date</th>
-              <th className="p-3">Person</th>
-              <th className="p-3">Rate</th>
-              <th className="p-3">
-                Function Venue
-                <span className="text-red-500">*</span>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                Start Date
               </th>
-              <th className="p-3 text-center">Actions</th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                End Date
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+                Person
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+                Rate
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                Function Venue
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
+                Actions
+              </th>
             </tr>
           </thead>
           <DndContext
@@ -268,44 +289,35 @@ const FunctionsDetails = ({
                 {formData?.eventFunction?.map((func, index) => (
                   <SortableRow key={func.id || index} id={func.id || index}>
                     {/* Function Type */}
-                    <td className="py-3 px-2 border-b border-gray-200">
-                      <div className="select__grp flex flex-col">
-                        <div
-                          className={`sg__inner flex items-center gap-1 relative border border-gray-400 ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
-                        >
-                          <FunctionTypeDropdown
-                            className="input"
-                            value={func.functionId}
-                            onChange={(value) =>
-                              handleFunctionSelect(index, value)
-                            }
-                            options={options}
-                            // className={
-                            //   getFunctionFieldError(index, "functionId")
-                            //     ? "border-red-500"
-                            //     : ""
-                            // }
-                          />
-                        </div>
-                        {/* {getFunctionFieldError(index, "functionId") && (
+                    <td className="p-3 border-b border-gray-200">
+                      <FunctionTypeDropdown
+                        value={func.functionId}
+                        onChange={(value) => handleFunctionSelect(index, value)}
+                        options={options}
+                        className={
+                          getFunctionFieldError(index, "functionId")
+                            ? "border-red-500"
+                            : ""
+                        }
+                      />
+                      {/* {getFunctionFieldError(index, "functionId") && (
                           <span className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(index, "functionId")}
                           </span>
                         )} */}
-                      </div>
                     </td>
                     {/* Start Date */}
-                    <td className="py-3 px-2 border-b border-gray-200 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <DatePicker
-                        // style={{
-                        //   width: "175px",
-                        //   borderColor: getFunctionFieldError(
-                        //     index,
-                        //     "functionStartDateTime"
-                        //   )
-                        //     ? "#ef4444"
-                        //     : undefined,
-                        // }}
+                        style={{
+                          width: "175px",
+                          borderColor: getFunctionFieldError(
+                            index,
+                            "functionStartDateTime"
+                          )
+                            ? "#ef4444"
+                            : undefined,
+                        }}
                         showTime={{ format: "hh:mm A" }}
                         format="DD/MM/YYYY hh:mm A"
                         value={
@@ -319,8 +331,8 @@ const FunctionsDetails = ({
                         options={options}
                         className={
                           getFunctionFieldError(index, "functionId")
-                            ? "input border-red-500"
-                            : "input"
+                            ? "border-red-500"
+                            : ""
                         }
                       />
                       {getFunctionFieldError(index, "functionId") && (
@@ -329,62 +341,18 @@ const FunctionsDetails = ({
                         </span>
                       )}
                     </td>
-                    {/* Start Date */}
-                    <td className="p-3 w-40">
-                      <DatePicker
-                        // style={{
-                        //   width: "175px",
-                        //   borderColor: getFunctionFieldError(
-                        //     index,
-                        //     "functionStartDateTime"
-                        //   )
-                        //     ? "#ef4444"
-                        //     : undefined,
-                        // }}
-                        showTime={{ format: "hh:mm A" }}
-                        format="DD/MM/YYYY hh:mm A"
-                        value={
-                          func.functionStartDateTime
-                            ? dayjs(
-                                func.functionStartDateTime,
-                                "DD/MM/YYYY hh:mm A"
-                              )
-                            : null
-                        }
-                        onChange={(date) =>
-                          handleInputChange(
-                            index,
-                            "functionStartDateTime",
-                            date
-                              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-                              : null
-                          )
-                        }
-                      />
-                      {getFunctionFieldError(
-                        index,
-                        "functionStartDateTime"
-                      ) && (
-                        <div className="text-red-500 text-xs mt-1">
-                          {getFunctionFieldError(
-                            index,
-                            "functionStartDateTime"
-                          )}
-                        </div>
-                      )}
-                    </td>
                     {/* End Date */}
-                    <td className="p-3 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <DatePicker
-                        // style={{
-                        //   width: "175px",
-                        //   borderColor: getFunctionFieldError(
-                        //     index,
-                        //     "functionEndDateTime"
-                        //   )
-                        //     ? "#ef4444"
-                        //     : undefined,
-                        // }}
+                        style={{
+                          width: "175px",
+                          borderColor: getFunctionFieldError(
+                            index,
+                            "functionEndDateTime"
+                          )
+                            ? "#ef4444"
+                            : undefined,
+                        }}
                         showTime={{ format: "hh:mm A" }}
                         format="DD/MM/YYYY hh:mm A"
                         value={
@@ -412,7 +380,7 @@ const FunctionsDetails = ({
                       )}
                     </td>
                     {/* Person */}
-                    <td className="p-3 w-24">
+                    <td className="p-3 border-b border-gray-200 w-24">
                       <Input
                         className={`w-full text-center ${getFunctionFieldError(index, "pax") ? "border-red-500" : ""}`}
                         value={func.pax}
@@ -428,7 +396,7 @@ const FunctionsDetails = ({
                       )}
                     </td>
                     {/* Rate */}
-                    <td className="p-3 w-24">
+                    <td className="p-3 border-b border-gray-200 w-24">
                       <Input
                         className={`w-full text-center ${getFunctionFieldError(index, "rate") ? "border-red-500" : ""}`}
                         value={func.rate}
@@ -445,7 +413,7 @@ const FunctionsDetails = ({
                       )}
                     </td>
                     {/* Venue - REQUIRED FIELD */}
-                    <td className="p-3 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <Input
                         className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
                         value={func.function_venue}
@@ -459,14 +427,14 @@ const FunctionsDetails = ({
                           )
                         }
                       />
-                      {/* {getFunctionFieldError(index, "function_venue") && (
-                          <span className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(index, "function_venue")}
-                          </span>
-                        )} */}
+                      {getFunctionFieldError(index, "function_venue") && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(index, "function_venue")}
+                        </span>
+                      )}
                     </td>
                     {/* Actions */}
-                    <td className="py-3 px-2 border-b border-gray-200 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <div className="text-center">
                         <Tooltip title="Delete item">
                           <button className="btn btn-sm btn-icon btn-clear btn-primary">
@@ -505,20 +473,17 @@ const FunctionsDetails = ({
             </SortableContext>
           </DndContext>
         </table>
-        <div className="relative py-4">
-          <div className="absolute left-0 right-0 -bottom-4 text-center">
-            <Tooltip title="Add More Function">
-              <button
-                className="btn btn-sm btn-success rounded-full"
-                onClick={handleAddFunction}
-              >
-                <i className="ki-filled ki-plus"></i> Add Function
-              </button>
-            </Tooltip>
-          </div>
-        </div>
       </div>
-
+      <div className="p-3 flex justify-center">
+        <Tooltip title="Add Function">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleAddFunction}
+          >
+            <Plus size={16} /> Add Function
+          </button>
+        </Tooltip>
+      </div>
       {/* Modals */}
       <AddNotes
         isOpen={showNoteModal}
