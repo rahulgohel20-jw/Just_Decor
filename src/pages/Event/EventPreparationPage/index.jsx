@@ -27,9 +27,9 @@ const EventPreparationPage = () => {
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
 
-  // Optimized state management
-  const [functionMenuData, setFunctionMenuData] = useState({}); // Store menu items per function
-  const [functionSelectionData, setFunctionSelectionData] = useState({}); // Store selections per function
+  const [functionMenuData, setFunctionMenuData] = useState({});
+  const [functionSelectionData, setFunctionSelectionData] = useState({});
+  const [allMenuItems, setAllMenuItems] = useState({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -129,7 +129,8 @@ const EventPreparationPage = () => {
             setSelectedFunctionId(firstFnId);
             setPax(firstEvent.eventFunctions[0].pax || 0);
             setRate(firstEvent.eventFunctions[0].rate || 0);
-            // Load menu data for first function
+            // Load menu data for first function and load all categories
+            loadAllMenuDataForFunction(firstFnId);
             loadFunctionMenuData(firstFnId, 0);
           }
         }
@@ -142,6 +143,42 @@ const EventPreparationPage = () => {
         console.error("Error fetching event data:", error);
         throw error;
       });
+  };
+
+  // New function to load all menu items for a function (across all categories)
+  const loadAllMenuDataForFunction = async (functionId) => {
+    try {
+      // Load menu items from all categories for this function
+      const allCategoriesData = await Promise.all([
+        // Load "All" category (categoryId = 0)
+        FetchMenuPrep(functionId, 0),
+        // Load individual categories
+        ...categories.map((category) => FetchMenuPrep(functionId, category.id)),
+      ]);
+
+      // Combine all menu items from all categories
+      const combinedMenuItems = [];
+      const seenIds = new Set(); // To avoid duplicates
+
+      allCategoriesData.forEach((categoryData) => {
+        if (categoryData.menuItems) {
+          categoryData.menuItems.forEach((item) => {
+            if (!seenIds.has(item.id)) {
+              combinedMenuItems.push(item);
+              seenIds.add(item.id);
+            }
+          });
+        }
+      });
+
+      // Store all menu items for this function
+      setAllMenuItems((prev) => ({
+        ...prev,
+        [functionId]: combinedMenuItems,
+      }));
+    } catch (error) {
+      console.error("Error loading all menu data for function:", error);
+    }
   };
 
   const loadFunctionMenuData = async (
@@ -256,6 +293,11 @@ const EventPreparationPage = () => {
       setRate(selectedFunction.rate || 0);
     }
 
+    // Load all menu data for the new function if not already loaded
+    if (!allMenuItems[newFunctionId]) {
+      await loadAllMenuDataForFunction(newFunctionId);
+    }
+
     // Load menu data for the new function
     await loadFunctionMenuData(newFunctionId, selectedCategoryId);
 
@@ -279,11 +321,11 @@ const EventPreparationPage = () => {
       return;
     }
 
-    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
-    const allMenuItems = functionMenuData[cacheKey] || [];
+    // Use allMenuItems instead of currentMenuItems for save
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
 
     const selectedItems = currentFunctionData.selectedItems
-      .map((id) => allMenuItems.find((item) => item.id === id))
+      .map((id) => allFunctionMenuItems.find((item) => item.id === id))
       .filter(Boolean);
 
     const payload = {
@@ -328,6 +370,12 @@ const EventPreparationPage = () => {
           },
         }));
 
+        // Update existing items list to include newly saved items
+        setExistingMenuItems((prev) => ({
+          ...prev,
+          [selectedFunctionId]: currentFunctionData.selectedItems,
+        }));
+
         // Refresh data to get the latest selectedMenuPreparationItems
         loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
       })
@@ -349,7 +397,7 @@ const EventPreparationPage = () => {
     name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Get current function's menu items
+  // Get current function's menu items (for left side display - category specific)
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
 
@@ -410,15 +458,28 @@ const EventPreparationPage = () => {
   const calculateTotalPrice = () => {
     if (!currentFunctionData.selectedItems) return 0;
 
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
     return currentFunctionData.selectedItems.reduce((sum, itemId) => {
+      // Find the item to get its original price
+      const item = allFunctionMenuItems.find(
+        (menuItem) => menuItem.id === itemId
+      );
+
+      // Use custom rate if set, otherwise use original item price, fallback to default rate
       const itemRate =
-        Number(currentFunctionData.itemRates[itemId]) || Number(rate) || 0;
-      return sum + itemRate * pax;
+        Number(currentFunctionData.itemRates?.[itemId]) ||
+        Number(item?.price) ||
+        Number(rate) ||
+        0;
+      return sum + itemRate;
     }, 0);
   };
 
+  // FIXED: Use allMenuItems instead of currentMenuItems for selected items display
+  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
   const selectedItems = currentFunctionData.selectedItems
-    .map((id) => currentMenuItems.find((item) => item.id === id))
+    .map((id) => allFunctionMenuItems.find((item) => item.id === id))
     .filter(Boolean);
 
   const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
@@ -800,7 +861,9 @@ const EventPreparationPage = () => {
                                           value={
                                             currentFunctionData.itemRates?.[
                                               item.id
-                                            ] ?? rate
+                                            ] ??
+                                            item.price ??
+                                            rate
                                           }
                                           onChange={(e) =>
                                             handleItemRateChange(
