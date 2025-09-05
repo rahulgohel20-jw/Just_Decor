@@ -6,17 +6,34 @@ import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
-import { GetAllCategory } from "@/services/apiServices";
+import { useParams } from "react-router-dom";
+import {
+  GetAllCategoryformenu,
+  GetEventMasterById,
+  Getmenuprep,
+  AddMenuprep,
+} from "@/services/apiServices";
 const EventPreparationPage = () => {
   const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { eventId } = useParams();
+  const [eventAllData, setEventAllData] = useState({});
+  const [orderDetails, setOrderDetails] = useState({});
+  const [menuPreparationsTabs, setMenuPreparationsTabs] = useState([]);
+  const [rate, setRate] = useState(0);
+  const [pax, setPax] = useState(0);
+  const [dateandtime, setDateandtime] = useState("");
+  const [selectedFunctionId, setSelectedFunctionId] = useState(null);
+  const [menuPrepItems, setMenuPrepItems] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const [allMenuPrepItems, setAllMenuPrepItems] = useState({});
   useEffect(() => {
     FetchCategoryData();
-  }, [searchQuery]);
+    FetchEventData();
+  }, []);
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchCategoryData = () => {
-    GetAllCategory({ userid: Id, menuCategoryName: searchQuery })
+    GetAllCategoryformenu(Id)
       .then((res) => {
         const categories = res.data.data["Menu Category Details"].map(
           (item, index) => ({
@@ -32,11 +49,154 @@ const EventPreparationPage = () => {
       });
   };
 
+  const FetchEventData = () => {
+    GetEventMasterById(eventId)
+      .then((res) => {
+        const alleventdata = res?.data?.data["Event Details"].map((item) => {
+          return {
+            userid: item.user.id,
+            party: item.party.nameEnglish,
+            eventType: item.eventType.nameEnglish,
+            eventStartDateTime: item.eventStartDateTime,
+            venue: item.venue,
+            eventFunctions: item.eventFunctions.map((f) => ({
+              id: f.id,
+              name: f.function.nameEnglish,
+              startTime: f.function.startTime,
+              endTime: f.function.endTime,
+              pax: f.pax,
+              rate: f.rate,
+              venue: f.function_venue,
+            })),
+          };
+        });
+
+        if (alleventdata.length > 0) {
+          const firstEvent = alleventdata[0];
+
+          setOrderDetails({
+            id: eventId,
+            customer: firstEvent.party,
+            eventType: firstEvent.eventType,
+            eventDate: firstEvent.eventStartDateTime,
+            venue: firstEvent.venue,
+          });
+
+          if (firstEvent.eventFunctions.length > 0) {
+            const firstFnId = firstEvent.eventFunctions[0].id;
+            setSelectedFunctionId(firstFnId);
+            // fetch all items for first function
+            FetchMenuPrep(firstFnId, 0);
+          }
+
+          const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
+            label: (
+              <>
+                <i className="ki-filled ki-disk"></i> {fn.name}
+              </>
+            ),
+            value: fn.id,
+            children: "",
+          }));
+          setMenuPreparationsTabs(dynamicTabs);
+
+          // ✅ set default functionId
+          if (firstEvent.eventFunctions.length > 0) {
+            setSelectedFunctionId(firstEvent.eventFunctions[0].id);
+          }
+        }
+
+        setDateandtime(alleventdata[0]?.eventStartDateTime || " ");
+        setPax(alleventdata[0]?.eventFunctions[0]?.pax || 0);
+        setRate(alleventdata[0]?.eventFunctions[0]?.rate || 0);
+        setEventAllData(alleventdata);
+      })
+      .catch((error) => {
+        console.error("Error fetching event data:", error);
+      });
+  };
+
+  const FetchMenuPrep = (
+    eventFunId,
+    menuCatId,
+    pageNo = 1,
+    totalRecord = 50
+  ) => {
+    Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
+      .then((res) => {
+        const items = (res?.data?.data["menuPreparationItems"] || []).map(
+          (item) => ({
+            id: item.menuItemId,
+            parentId: item.menuCategoryId,
+            name: item.menuItemName,
+            image: item.imagePath,
+            price: item.itemPrice,
+          })
+        );
+
+        setAllMenuPrepItems((prev) => {
+          const updated = { ...prev };
+          items.forEach((it) => {
+            updated[it.id] = it;
+          });
+          return updated;
+        });
+        setItemRates((prev) => {
+          const newRates = { ...prev };
+          items.forEach((it) => {
+            if (!newRates[it.id]) {
+              newRates[it.id] = it.price || rate || 0;
+            }
+          });
+          return newRates;
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching menu prep data:", error);
+      });
+  };
+
+  const handleSave = () => {
+    const payload = {
+      defaultPrice: rate || 0,
+      eventFunctionId: selectedFunctionId,
+      id: 0,
+      menuPreparationDetails: selectedItems.map((item, index) => {
+        const category = categories.find((cat) => cat.id === item.parentId);
+        return {
+          id: 0,
+          itemNotes: itemNotes[item.id] || "",
+          itemPrice: Number(itemRates[item.id]) || Number(rate) || 0,
+          itemSortOrder: index + 1,
+          menuCategoryId: item.parentId,
+          menuCategoryName: category?.name || "",
+          menuItemId: item.id,
+          menuItemName: item.name,
+          menuNotes: "",
+          menuSortOrder: index + 1,
+          startTime: dateandtime,
+        };
+      }),
+      pax: Number(pax) || 0,
+      price: totalPrice,
+      sortorder: 0,
+    };
+
+    AddMenuprep(payload)
+      .then((res) => {
+        console.log("✅ Saved:", res.data);
+        alert("Menu preparation saved successfully!");
+      })
+      .catch((err) => {
+        console.error("❌ Save failed:", err);
+        alert("Failed to save menu preparation");
+      });
+  };
+
   const classes = useStyles();
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
   // Add "All" option to categories
-  const allCategory = { id: null, name: "All" };
+  const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
@@ -46,13 +206,15 @@ const EventPreparationPage = () => {
   const [selectedChildren, setSelectedChildren] = useState([]);
   const [childSearch, setChildSearch] = useState("");
   const [showDetails, setShowDetails] = useState(false);
-  const [rate, setRate] = useState(0);
   // Filter children by selected category and child search
-  const filteredChildren = menuCategoryChildren.filter(
+  const menuPrepItemsArray = Object.values(allMenuPrepItems);
+
+  const filteredChildren = menuPrepItemsArray.filter(
     (child) =>
-      (!selectedCategory || child.parentId === selectedCategory) &&
+      (selectedCategoryId === 0 || child.parentId === selectedCategoryId) &&
       child.name.toLowerCase().includes(childSearch.toLowerCase())
   );
+
   // Toggle child selection
   const toggleChildSelection = (id) => {
     setSelectedChildren((prev) =>
@@ -61,11 +223,11 @@ const EventPreparationPage = () => {
   };
   // Helper: Group selected items by category
   const selectedItems = selectedChildren
-    .map((id) => menuCategoryChildren.find((c) => c.id === id))
+    .map((id) => allMenuPrepItems[id])
     .filter(Boolean);
   const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
     const category = categories.find((cat) => cat.id === item.parentId);
-    const categoryName = category ? category.name : "Other";
+    const categoryName = category?.name || "Uncategorized";
     if (!acc[categoryName]) acc[categoryName] = [];
     acc[categoryName].push(item);
     return acc;
@@ -88,54 +250,15 @@ const EventPreparationPage = () => {
       sum + (Number(itemRates[item.id]) || Number(rate) || 0) * 300,
     0
   );
-  const orderDetails = {
-    id: "1762",
-    customer: "MR KAUSHAL BHAI KUKADIYA",
-    eventType: "Wedding",
-    eventDate: "06/02/2002",
-    venue: "APEX PARTY PLOT",
-  };
 
-  const menuPreparationsTabs = [
-    {
-      label: (
-        <>
-          <i className="ki-filled ki-element-6"></i>
-          Mandap
-        </>
-      ),
-      value: "mandap",
-      children: "",
-    },
-    {
-      label: (
-        <>
-          <i className="ki-filled ki-disguise"></i>
-          Lunch
-        </>
-      ),
-      value: "lunch",
-      children: "",
-    },
-    {
-      label: (
-        <>
-          <i className="ki-filled ki-disk"></i>
-          Dinner
-        </>
-      ),
-      value: "dinner",
-      children: "",
-    },
-  ];
   return (
     <Fragment>
-      <Container>
+      <Container className="flex flex-col min-h-screen">
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
         </div>
-        <div className="border rounded mb-4">
+        <div className="border rounded mb-4 flex-1">
           <div className="grid grid-cols-6 lg:grid-cols-12">
             {/* left */}
             <div className="col-span-9">
@@ -212,20 +335,15 @@ const EventPreparationPage = () => {
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
               >
-                <TabComponent tabs={menuPreparationsTabs} />
-                {/* {["mandap", "lunch", "dinner"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`col-span-2 px-12 py-3 font-semibold border-t-3 rounded-t-lg text-sm transition-all ${
-                      activeTab === tab
-                        ? "bg-white text-primary border-t-3 border-primary"
-                        : "text-gray-500 hover:text-blue-600"
-                    }`}
-                  >
-                    {tab.toUpperCase()}
-                  </button>
-                ))} */}
+                <TabComponent
+                  tabs={menuPreparationsTabs}
+                  onTabChange={(id) => {
+                    setSelectedFunctionId(id);
+                    if (id && selectedCategoryId) {
+                      FetchMenuPrep(id, selectedCategoryId);
+                    }
+                  }}
+                />
               </div>
               <div
                 className={`grid grid-cols-1 lg:grid-cols-9 ${classes.customStyle}`}
@@ -254,9 +372,14 @@ const EventPreparationPage = () => {
                           filteredCategories.map(({ name, id }) => (
                             <button
                               key={id}
-                              onClick={() => setSelectedCategory(id)}
+                              onClick={() => {
+                                setSelectedCategoryId(id);
+                                if (selectedFunctionId) {
+                                  FetchMenuPrep(selectedFunctionId, id);
+                                }
+                              }}
                               className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
-                                selectedCategory === id
+                                selectedCategoryId === id
                                   ? "bg-blue-50 text-primary"
                                   : "hover:bg-gray-100 text-gray-700"
                               }`}
@@ -381,6 +504,8 @@ const EventPreparationPage = () => {
                         type="number"
                         min={1}
                         className="input input-sm w-20"
+                        value={pax}
+                        onChange={(e) => setPax(e.target.value)}
                       />
                     </p>
                     <p className="flex items-center gap-2 mb-1">
@@ -391,7 +516,13 @@ const EventPreparationPage = () => {
                         <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
                         {/* 27/07/2025 11:00 AM */}
                       </strong>
-                      <input type="text" className="input input-sm w-36" />
+                      <input
+                        type="text"
+                        className="input input-sm w-36"
+                        disabled
+                        value={dateandtime}
+                        onChange={(e) => setDateandtime(e.target.value)}
+                      />
                     </p>
                     <p className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-medium text-gray-700 w-24">
@@ -475,7 +606,7 @@ const EventPreparationPage = () => {
                                         </span>
                                         <input
                                           type="number"
-                                          value={itemRates[item.id] || rate}
+                                          value={itemRates[item.id] ?? rate}
                                           onChange={(e) =>
                                             handleItemRateChange(
                                               item.id,
@@ -485,17 +616,6 @@ const EventPreparationPage = () => {
                                           min={0}
                                           className="input input-sm w-20"
                                         />
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-gray-500">
-                                          Price:
-                                        </span>
-                                        <span className="font-semibold text-xs">
-                                          ₹{" "}
-                                          {(Number(itemRates[item.id]) ||
-                                            Number(rate) ||
-                                            0) * 300}
-                                        </span>
                                       </div>
                                     </div>
                                   )}
@@ -545,7 +665,11 @@ const EventPreparationPage = () => {
           <button className="btn btn-light" title="Cancel">
             Cancel
           </button>
-          <button className="btn btn-success" title="Save Menu">
+          <button
+            className="btn btn-success"
+            title="Save Menu"
+            onClick={handleSave}
+          >
             <i className="ki-filled ki-save-2"></i> Save Menu
           </button>
         </div>

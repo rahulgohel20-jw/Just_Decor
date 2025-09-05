@@ -234,6 +234,11 @@ export const Getmenuprep = (
     `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
   );
 };
+
+//Get menu preparation items
+export const AddMenuprep = (data) => {
+  return POST(`/menupreparation/addOrUpdate`);
+};
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
