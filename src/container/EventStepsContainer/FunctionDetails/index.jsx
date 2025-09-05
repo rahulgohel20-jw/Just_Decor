@@ -255,7 +255,6 @@ const FunctionsDetails = ({
               <th className="p-3 text-center">Actions</th>
             </tr>
           </thead>
-
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -269,40 +268,80 @@ const FunctionsDetails = ({
                 {formData?.eventFunction?.map((func, index) => (
                   <SortableRow key={func.id || index} id={func.id || index}>
                     {/* Function Type */}
-                    <td className="p-2">
-                      <div className="flex flex-col">
-                        <FunctionTypeDropdown
-                          value={func.functionId}
-                          onChange={(value) =>
-                            handleFunctionSelect(index, value)
-                          }
-                          options={options}
-                          className={
-                            getFunctionFieldError(index, "functionId")
-                              ? "border-red-500"
-                              : ""
-                          }
-                        />
-                        {getFunctionFieldError(index, "functionId") && (
+                    <td className="py-3 px-2 border-b border-gray-200">
+                      <div className="select__grp flex flex-col">
+                        <div
+                          className={`sg__inner flex items-center gap-1 relative border border-gray-400 ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
+                        >
+                          <FunctionTypeDropdown
+                            className="input"
+                            value={func.functionId}
+                            onChange={(value) =>
+                              handleFunctionSelect(index, value)
+                            }
+                            options={options}
+                            // className={
+                            //   getFunctionFieldError(index, "functionId")
+                            //     ? "border-red-500"
+                            //     : ""
+                            // }
+                          />
+                        </div>
+                        {/* {getFunctionFieldError(index, "functionId") && (
                           <span className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(index, "functionId")}
                           </span>
-                        )}
+                        )} */}
                       </div>
                     </td>
-
+                    {/* Start Date */}
+                    <td className="py-3 px-2 border-b border-gray-200 w-40">
+                      <DatePicker
+                        className="input "
+                        // style={{
+                        //   width: "175px",
+                        //   borderColor: getFunctionFieldError(
+                        //     index,
+                        //     "functionStartDateTime"
+                        //   )
+                        //     ? "#ef4444"
+                        //     : undefined,
+                        // }}
+                        showTime={{ format: "hh:mm A" }}
+                        format="DD/MM/YYYY hh:mm A"
+                        value={
+                          func.functionStartDateTime
+                            ? dayjs(
+                                func.functionStartDateTime,
+                                "DD/MM/YYYY hh:mm A"
+                              )
+                            : null
+                        }
+                        options={options}
+                        className={
+                          getFunctionFieldError(index, "functionId")
+                            ? "border-red-500"
+                            : ""
+                        }
+                      />
+                      {getFunctionFieldError(index, "functionId") && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(index, "functionId")}
+                        </span>
+                      )}
+                    </td>
                     {/* Start Date */}
                     <td className="p-3 w-40">
                       <DatePicker
-                        style={{
-                          width: "175px",
-                          borderColor: getFunctionFieldError(
-                            index,
-                            "functionStartDateTime"
-                          )
-                            ? "#ef4444"
-                            : undefined,
-                        }}
+                        // style={{
+                        //   width: "175px",
+                        //   borderColor: getFunctionFieldError(
+                        //     index,
+                        //     "functionStartDateTime"
+                        //   )
+                        //     ? "#ef4444"
+                        //     : undefined,
+                        // }}
                         showTime={{ format: "hh:mm A" }}
                         format="DD/MM/YYYY hh:mm A"
                         value={
@@ -335,7 +374,6 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
-
                     {/* End Date */}
                     <td className="p-3 w-40">
                       <DatePicker
@@ -374,7 +412,6 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
-
                     {/* Person */}
                     <td className="p-3 w-24">
                       <Input
@@ -391,7 +428,6 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
-
                     {/* Rate */}
                     <td className="p-3 w-24">
                       <Input
@@ -409,60 +445,59 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
-
                     {/* Venue - REQUIRED FIELD */}
                     <td className="p-3 w-40">
-                      <div className="flex flex-col">
-                        <Input
-                          className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
-                          value={func.function_venue}
-                          type="text"
-                          placeholder="Function Venue *"
-                          onChange={(e) =>
-                            handleInputChange(
-                              index,
-                              "function_venue",
-                              e.target.value
-                            )
-                          }
-                        />
-                        {getFunctionFieldError(index, "function_venue") && (
+                      <Input
+                        className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
+                        value={func.function_venue}
+                        type="text"
+                        placeholder="Function Venue *"
+                        onChange={(e) =>
+                          handleInputChange(
+                            index,
+                            "function_venue",
+                            e.target.value
+                          )
+                        }
+                      />
+                      {/* {getFunctionFieldError(index, "function_venue") && (
                           <span className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(index, "function_venue")}
                           </span>
-                        )}
-                      </div>
+                        )} */}
                     </td>
-
                     {/* Actions */}
-                    <td className="p-3 text-center w-28">
-                      <div className="flex justify-center items-center gap-2">
-                        <button type="button" title="Location">
-                          <MapPin size={18} className="text-primary" />
-                        </button>
-                        <button
-                          type="button"
-                          title="Notes"
-                          onClick={() => {
-                            setSelectedFunctionIndex(index);
-                            setShowNoteModal(true);
-                          }}
-                        >
-                          <StickyNote size={18} className="text-primary" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFunction(index)}
-                          title="Remove"
-                          disabled={formData.eventFunction.length === 1}
-                          className={
-                            formData.eventFunction.length === 1
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }
-                        >
-                          <Trash2 size={18} className="text-red-500" />
-                        </button>
+                    <td className="py-3 px-2 border-b border-gray-200 w-40">
+                      <div className="text-center">
+                        <Tooltip title="Delete item">
+                          <button className="btn btn-sm btn-icon btn-clear btn-primary">
+                            <i class="ki-filled ki-geolocation"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Add Notes">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-success"
+                            onClick={() => {
+                              setSelectedFunctionIndex(index);
+                              setShowNoteModal(true);
+                            }}
+                          >
+                            <i class="ki-filled ki-add-files"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            onClick={() => handleRemoveFunction(index)}
+                            disabled={formData.eventFunction.length === 1}
+                            className={
+                              formData.eventFunction.length === 1
+                                ? "btn btn-sm btn-icon btn-clear btn-danger opacity-50 cursor-not-allowed"
+                                : "btn btn-sm btn-icon btn-clear btn-danger"
+                            }
+                          >
+                            <i class="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </SortableRow>
@@ -471,14 +506,21 @@ const FunctionsDetails = ({
             </SortableContext>
           </DndContext>
         </table>
+        <div className="relative py-4">
+          <div className="absolute left-0 right-0 -bottom-4 text-center">
+            <Tooltip title="Add More Function">
+              <button
+                className="btn btn-sm btn-success rounded-full"
+                onClick={handleAddFunction}
+              >
+                <i className="ki-filled ki-plus"></i> Add Function
+              </button>
+            </Tooltip>
+          </div>
+        </div>
       </div>
 
       {/* Modals */}
-      <AddFunctionType
-        isOpen={showFunctionModal}
-        onClose={() => setShowFunctionModal(false)}
-        onSuccess={FetchFunction} // Refresh function list after adding
-      />
       <AddNotes
         isOpen={showNoteModal}
         onClose={() => setShowNoteModal(false)}
