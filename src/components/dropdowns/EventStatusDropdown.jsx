@@ -13,6 +13,7 @@ const EventStatusDropdown = ({ value, onChange, ...rest }) => {
     <SelectDropdown
       value={value}
       onChange={handleChange}
+      defaultValue={"0"}
       staticOptions={[
         { label: "Inquriy", value: "0" },
         { label: "Confirm", value: "1" },

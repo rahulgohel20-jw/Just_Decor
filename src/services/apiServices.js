@@ -169,6 +169,14 @@ export const GetEventMasterById = (Id) => {
 export const DeleteEventMaster = (Id) => {
   return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
 };
+
+// Update Status of Event
+export const UpdateEventStatus = (Id, statusId) => {
+  return PUT(`/eventmaster/updatestatus?id=${Id}&statusId=${statusId}`);
+};
+
+
+
 //get all manager and admin
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);

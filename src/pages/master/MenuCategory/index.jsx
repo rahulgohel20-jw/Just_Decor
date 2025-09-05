@@ -29,6 +29,7 @@ const MenuCategory = () => {
           (item, index) => ({
             ...item,
             sr_no: index + 1,
+            imagePath: item.imagePath?.replace("jcupload", "uploads")||"",
           })
         );
 

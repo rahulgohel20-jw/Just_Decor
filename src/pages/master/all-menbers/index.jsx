@@ -18,7 +18,6 @@ const AllMemberMaster = () => {
   const classes = useStyle();
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
 
@@ -74,10 +73,7 @@ const AllMemberMaster = () => {
     setSelectedMember(member);
     setIsMemberModalOpen(true);
   };
-  const handleView = (member) => {
-    setSelectedMember(member);
-    setIsViewMemberModalOpen(true);
-  };
+  
 
   const handleView = (member) => {
     setSelectedMember(member);
