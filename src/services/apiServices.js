@@ -270,7 +270,7 @@ export const Getmenuprep = (
 
 //Get menu preparation items
 export const AddMenuprep = (data) => {
-  return POST(`/menupreparation/addOrUpdate`);
+  return POST(`/menupreparation/addOrUpdate`, data);
 };
 //Add category Type
 export const AddCategory = (data) => {
@@ -292,7 +292,7 @@ export const UpdateStatus = (Id, status = true) => {
   return PUT(`/menucategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
-// Get Sub category Type 
+// Get Sub category Type
 export const GetAllSubCategory = (data) => {
   return GET(`/menusubcategory/getallbyuserid`, data);
 };
@@ -300,7 +300,6 @@ export const GetAllSubCategory = (data) => {
 export const GetAllSubCategorymenuitem = (userId) => {
   return GET(`/menusubcategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
 };
-
 
 //Add category Type
 export const AddSubCategory = (data) => {
@@ -345,7 +344,7 @@ export const GetAllKitchenAreaById = (id) => {
 };
 // addkitechenarea
 export const AddKitchenArea = (data) => {
-    return POST(`/kitchenarea/add`, data);
+  return POST(`/kitchenarea/add`, data);
 };
 //updatekitchenarea
 export const UpdateKitchenArea = (id, data) => {
@@ -384,5 +383,4 @@ export const DeleteMenuItem = (id) => {
 //edit menu item
 export const UpdateMenuItem = (id, data) => {
   return PUT(`/menuitems/update?id=${id}`, data);
- 
 };
