@@ -163,29 +163,4 @@ const ViewCustomer = ({ isModalOpen, setIsModalOpen, selectedCustomer }) => {
   );
 };
 
-const InputSimple = ({
-  label,
-  name,
-  value,
-  onChange,
-  required,
-  type = "text",
-}) => (
-  <div>
-    <label className="block text-gray-600 mb-1">
-      {label}
-      {required && <span className="text-red-500 ml-1">*</span>}
-    </label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      required={required}
-    />
-  </div>
-);
-
 export default ViewCustomer;

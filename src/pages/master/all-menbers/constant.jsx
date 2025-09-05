@@ -36,7 +36,7 @@ export const columns = (onEdit, handleView) => [
       cellClassName: "w-[8%]",
     },
   },
-  
+
   {
     accessorKey: "country",
     header: "Country",
@@ -102,30 +102,37 @@ export const columns = (onEdit, handleView) => [
               <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip>
-           <Tooltip className="cursor-pointer" title="Edit Member">
+          <Tooltip className="cursor-pointer" title="View Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title=""
-                    onClick={() =>onEdit(row.original)}
+              onClick={() => onView(row.original)}
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip>
+          <Tooltip className="cursor-pointer" title="Edit Member">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title=""
+              onClick={() => onEdit(row.original)}
             >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
           <Popconfirm
-  title="Are you sure to delete this function?"
-  onConfirm={() => onDelete(row.original.id)}   // ✅ confirm triggers delete
-  okText="Yes"
-  cancelText="No"
->
-  {/* <Tooltip title="Delete Member">
+            title="Are you sure to delete this function?"
+            onConfirm={() => onDelete(row.original.id)} // ✅ confirm triggers delete
+            okText="Yes"
+            cancelText="No"
+          >
+            {/* <Tooltip title="Delete Member">
     <button className="btn btn-sm btn-icon btn-clear" title="">
       <i className="ki-filled ki-trash text-danger"></i>
     </button>
   </Tooltip> */}
-</Popconfirm>
-
-
+          </Popconfirm>
         </div>
       );
     },
