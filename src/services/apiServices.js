@@ -169,6 +169,14 @@ export const GetEventMasterById = (Id) => {
 export const DeleteEventMaster = (Id) => {
   return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
 };
+
+// Update Status of Event
+export const UpdateEventStatus = (Id, statusId) => {
+  return PUT(`/eventmaster/updatestatus?id=${Id}&statusId=${statusId}`);
+};
+
+
+
 //get all manager and admin
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
@@ -250,7 +258,28 @@ export const UpdateMember = (id, data) => {
 export const GetAllCategory = (data) => {
   return GET(`/menucategory/getallbyuserid`, data);
 };
+//Get category Type
+export const GetAllCategoryformenu = (id) => {
+  return GET(`/menucategory/getallbyuserid?isActive=true&userid=${id}`);
+};
 
+//Get menu preparation items
+export const Getmenuprep = (
+  eventFunId,
+  menuCatId,
+  pageNo,
+  TotalRecord,
+  UserId
+) => {
+  return GET(
+    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+  );
+};
+
+//Get menu preparation items
+export const AddMenuprep = (data) => {
+  return POST(`/menupreparation/addOrUpdate`, data);
+};
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
@@ -271,7 +300,7 @@ export const UpdateStatus = (Id, status = true) => {
   return PUT(`/menucategory/updatestatus?id=${Id}&isActive=${status}`);
 };
 
-// Get Sub category Type 
+// Get Sub category Type
 export const GetAllSubCategory = (data) => {
   return GET(`/menusubcategory/getallbyuserid`, data);
 };
@@ -279,7 +308,6 @@ export const GetAllSubCategory = (data) => {
 export const GetAllSubCategorymenuitem = (userId) => {
   return GET(`/menusubcategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
 };
-
 
 //Add category Type
 export const AddSubCategory = (data) => {
@@ -363,9 +391,7 @@ export const DeleteMenuItem = (id) => {
 //edit menu item
 export const UpdateMenuItem = (id, data) => {
   return PUT(`/menuitems/update?id=${id}`, data);
-
 };
-
 
 // Change Password
 
@@ -393,12 +419,9 @@ export const requestPasswordResetLink = async (email) => {
 //Otp Verification
 export const verifyOtp = async ({ email, phone, otp }) => {
   return axios.post(`/auth/verifyotp`, null, {
-    params: email
-      ? { email, otp }
-      : { phone, otp }, // dynamically send email or phone
+    params: email ? { email, otp } : { phone, otp }, // dynamically send email or phone
   });
 };
-
 
 // reset password API
 export const resetPassword = async (emailId, newPassword, conPassword) => {

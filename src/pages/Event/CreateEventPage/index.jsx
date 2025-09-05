@@ -78,7 +78,7 @@ const CreateEventPage = () => {
             mobileno: event.mobileno || event.party?.mobileno || "",
 
             eventFunction: (event.eventFunctions || []).map((f) => ({
-              eventFuncId: f.id,
+              eventFuncId: f.eventId,
               functionId: f.function?.nameEnglish || null,
               functionStartDateTime: f.functionStartDateTime,
               functionEndDateTime: f.functionEndDateTime,

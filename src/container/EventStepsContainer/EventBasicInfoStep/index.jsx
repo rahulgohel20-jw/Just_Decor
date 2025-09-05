@@ -112,6 +112,38 @@ const EventBasicInfoStep = ({
             )}
           </div>
 
+
+          {/* Event Type */}
+          <div className="select__grp flex flex-col">
+            <label className="form-label">
+              Event Type
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
+            <div className="sg__inner flex items-center gap-1 relative">
+              <UserDropdown
+                value={formData.eventTypeId}
+                onChange={onInputChange}
+                options={eventTypes}
+                name="eventTypeId"
+              />
+              <button
+                type="button"
+                onClick={() => setIsEventTypeModalOpen(true)}
+                title="Add Event Type"
+                className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
+            {errors.eventTypeId && (
+              <span className="text-red-600 font-normal text-sm mt-0.50">
+                {errors.eventTypeId}
+              </span>
+            )}
+          </div>
+
           {/* Start Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
@@ -202,36 +234,7 @@ const EventBasicInfoStep = ({
             )}
           </div>
 
-          {/* Event Type */}
-          <div className="select__grp flex flex-col">
-            <label className="form-label">
-              Event Type
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
-            </label>
-            <div className="sg__inner flex items-center gap-1 relative">
-              <UserDropdown
-                value={formData.eventTypeId}
-                onChange={onInputChange}
-                options={eventTypes}
-                name="eventTypeId"
-              />
-              <button
-                type="button"
-                onClick={() => setIsEventTypeModalOpen(true)}
-                title="Add Event Type"
-                className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-              >
-                <i className="ki-filled ki-plus"></i>
-              </button>
-            </div>
-            {errors.eventTypeId && (
-              <span className="text-red-600 font-normal text-sm mt-0.50">
-                {errors.eventTypeId}
-              </span>
-            )}
-          </div>
+          
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">

@@ -352,6 +352,7 @@ useEffect(() => {
             className="border p-2 w-full rounded"
           >
             <option value="">Select Plan</option>
+            <option value="5">7 Day Trial</option>
             <option value="1">Lite</option>
             <option value="4">ELTIT</option>
             <option value="3">Premium</option>
