@@ -12,12 +12,12 @@ import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import AddMember from "@/partials/modals/add-member/AddMember";
-import ViewMember from "@/partials/modals/view-member/ViewMember";
+import ViewMemberDetails from "@/partials/modals/view-member-details/ViewMemberDetails";
 
 const AllMemberMaster = () => {
   const classes = useStyle();
-  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
 
@@ -58,6 +58,8 @@ const AllMemberMaster = () => {
           }));
           console.log("Formatted Member Data:", formatted);
           setTableData(formatted);
+
+        
         } else {
           setTableData([]);
         }
@@ -71,20 +73,24 @@ const AllMemberMaster = () => {
     setSelectedMember(member);
     setIsMemberModalOpen(true);
   };
+  
+
   const handleView = (member) => {
     setSelectedMember(member);
+  
     setIsViewMemberModalOpen(true);
   };
 
-  //   const handleDelete = (memberId) => {
-  //   DeleteMember(memberId)  // direct API call
-  //     .then(() => {
-  //       FetchMembers();
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error deleting member:", error);
-  //     });
-  // };
+//   const handleDelete = (memberId) => {
+//   DeleteMember(memberId)  // direct API call
+//     .then(() => {
+//       FetchMembers();
+//     })
+//     .catch((error) => {
+//       console.error("Error deleting member:", error);
+//     });
+// };
+
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -168,13 +174,15 @@ const AllMemberMaster = () => {
           setIsModalOpen={setIsMemberModalOpen}
           selectedMember={selectedMember} // ✅ pass selected member
         />
-        <ViewMember
+
+        <ViewMemberDetails
           isModalOpen={isViewMemberModalOpen}
           setIsModalOpen={setIsViewMemberModalOpen}
-          selectedMember={selectedMember} // ✅ pass selected member
+          memberData={selectedMember}
         />
+
         <TableComponent
-          columns={columns(handleEdit, handleView)}
+          columns={columns( handleEdit, handleView )}
           data={tableData}
           paginationSize={10}
         />

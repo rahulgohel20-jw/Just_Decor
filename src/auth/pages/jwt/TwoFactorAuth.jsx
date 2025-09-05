@@ -5,13 +5,15 @@ import { KeenIcon } from "@/components";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAuthContext } from "../../useAuthContext";
+import { verifyOtp } from "@/services/apiServices"; // <-- import service
+import { da } from "@faker-js/faker";
+
 const TwoFactorAuth = () => {
-  const {
-    login
-  } = useAuthContext();
+  const { login } = useAuthContext();
   const navigate = useNavigate();
   const [codeInputs, setCodeInputs] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
+
   const handleInputChange = (index, value) => {
     if (value.length > 1 || isNaN(value)) return;
     const updatedInputs = [...codeInputs];
@@ -19,8 +21,8 @@ const TwoFactorAuth = () => {
     setCodeInputs(updatedInputs);
 
     const otp = updatedInputs.join("");
-    formik.setFieldValue("otp", otp); // <-- Add this line
-    // Automatically focus the next input
+    formik.setFieldValue("otp", otp);
+
     if (value && index < codeInputs.length - 1) {
       document.getElementById(`otp-input-${index + 1}`).focus();
     }
@@ -41,22 +43,43 @@ const TwoFactorAuth = () => {
         .length(6, "OTP must be exactly 6 digits")
         .required("OTP is required"),
     }),
+
+
+
     onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true);
-
       try {
         const otp = codeInputs.join("");
         if (otp.length !== 6) {
           throw new Error("Please enter a valid 6-digit OTP.");
         }
-        await login('demo@keenthemes.com', 'demo1234');
-        // Simulate API call or validation
-        navigate('/', {
-          replace: true,
-        });
-        // Navigate or handle success
+
+        const email = localStorage.getItem("email");
+        const phone = localStorage.getItem("phone");
+
+        // ✅ Use axios service function
+        const { data } = await verifyOtp({ email, phone, otp });
+        console.log("OTP verification response:", data);
+
+        if(data.success){
+          navigate("/auth/reset-password/change");
+        }
+
+        if (!data.success) {
+          throw new Error(data.message || "Invalid OTP");
+        }
+
+        if (data.token) {
+          localStorage.setItem("authToken", data.token);
+        }
+
+        if (login) {
+          await login(email || phone, otp);
+        }
+
+        navigate("/auth/reset-password/change", { replace: true });
       } catch (error) {
-        setStatus(error.message);
+        setStatus(error.message || "OTP verification failed");
         setSubmitting(false);
       }
       setLoading(false);
@@ -80,15 +103,19 @@ const TwoFactorAuth = () => {
           alt=""
         />
         <div className="mb-2.5">
-          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">OTP Verification</h3>
+          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2">
+            OTP Verification
+          </h3>
           <div className="flex flex-col">
-            <span className="text-sm text-gray-700">Please enter the one time password to verify your account.</span>
+            <span className="text-sm text-gray-700">
+              Please enter the one time password to verify your account.
+            </span>
             <span className="text-sm text-gray-700 mt-2">
               A code has been sent to
-               <span className="ms-1">
-                {localStorage.getItem("phone")
-                  ? localStorage.getItem("phone")
-                  : localStorage.getItem("email")}
+              <span className="ms-1">
+                {localStorage.getItem("email")
+                  ? localStorage.getItem("email")
+                  : localStorage.getItem("phone")}
               </span>
             </span>
           </div>
@@ -116,7 +143,12 @@ const TwoFactorAuth = () => {
           <span className="text-sm text-gray-700 me-1.5">
             Didn't receive a code? (37s)
           </span>
-          <Link to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"} className="text-sm link hover:underline no-underline">
+          <Link
+            to={
+              localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"
+            }
+            className="text-sm link hover:underline no-underline"
+          >
             Resend OTP
           </Link>
         </div>
@@ -129,7 +161,9 @@ const TwoFactorAuth = () => {
         </button>
         <div className="text-center w-full">
           <Link
-            to={localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"}
+            to={
+              localStorage.getItem("phone") ? "/auth/otp-login" : "/auth/login"
+            }
             className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary mt-2"
           >
             <KeenIcon icon="black-left" />
@@ -140,4 +174,5 @@ const TwoFactorAuth = () => {
     </div>
   );
 };
+
 export { TwoFactorAuth };

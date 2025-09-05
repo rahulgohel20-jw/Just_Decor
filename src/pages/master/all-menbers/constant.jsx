@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = (onEdit, onView, onDelete) => [
+export const columns = (onEdit, handleView) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -97,11 +97,20 @@ export const columns = (onEdit, onView, onDelete) => [
             <button
               className="btn btn-sm btn-icon btn-clear"
               title=""
-              onClick={() => onView(row.original)}
+              onClick={() => handleView(row.original)}
             >
               <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip>
+          {/* <Tooltip className="cursor-pointer" title="View Member">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title=""
+              onClick={() => onView(row.original)}
+            >
+              <i className="ki-filled ki-eye text-success"></i>
+            </button>
+          </Tooltip> */}
           <Tooltip className="cursor-pointer" title="Edit Member">
             <button
               className="btn btn-sm btn-icon btn-clear"

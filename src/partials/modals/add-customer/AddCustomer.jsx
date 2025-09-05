@@ -157,6 +157,8 @@ const AddCustomer = ({
   const CustomerAddApi = async () => {
     setIsLoading(true);
     try {
+      console.log("1");
+
       if (!userData?.id) {
         throw new Error("User data not found");
       }
@@ -168,8 +170,10 @@ const AddCustomer = ({
       if (formData.id) {
         await EditCustomerApi(formData.id, payload);
       } else {
+        console.log("2");
         await AddCustomerapi(payload);
       }
+      console.log("3");
       setIsModalOpen(false);
       refreshData();
 
@@ -177,9 +181,6 @@ const AddCustomer = ({
       setImagePreview(null);
     } catch (error) {
       console.error("Error saving customer:", error);
-      alert(
-        `Error ${formData.id ? "updating" : "adding"} customer. Please try again.`
-      );
     } finally {
       setIsLoading(false);
     }
