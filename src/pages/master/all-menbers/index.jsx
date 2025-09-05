@@ -11,25 +11,22 @@ import useStyle from "./style";
 
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
-import { FetchAllUser } from "@/services/apiServices";
 import AddMember from "@/partials/modals/add-member/AddMember";
+import ViewMember from "@/partials/modals/view-member/ViewMember";
 
 const AllMemberMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-const [selectedMember, setSelectedMember] = useState(null);
+  const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-  useEffect(() => {
-    Fetchalluser();
-  }, []);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-
 
   useEffect(() => {
     FetchMembers();
@@ -37,69 +34,57 @@ const [selectedMember, setSelectedMember] = useState(null);
 
   // ✅ Fetch all members
   const FetchMembers = () => {
-  GetAllMemberByUserId(Id)
-    .then((res) => {
-      const userDetails = res?.data?.data?.["User Details"];
-      if (userDetails && Array.isArray(userDetails)) {
-        const formatted = userDetails.map((member, index) => ({
-          sr_no: index + 1,
-          email: member.email || "-",
-          full_name: `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-",
-          memberid: member.id,
-          country: member["userBasicDetails"].country.name || "-",
-          contact: member.contactNo || "-",
-          role: member["userBasicDetails"].role.name || "-",
-          task_access: member["userBasicDetails"].isTaskAccess || "-",
-          leave_attendence_access: member["userBasicDetails"].isAttendanceLeaveAccess || "-",
-          city: member["userBasicDetails"].city.name || "-",
-          state: member["userBasicDetails"].state.name || "-",
-        }));
-        console.log("Formatted Member Data:", formatted);
-        setTableData(formatted);
-      } else {
-        setTableData([]);
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching members:", error);
-    });
-};
-
-
-
-  const Fetchalluser = () => {
-    FetchAllUser(Id)
+    GetAllMemberByUserId(Id)
       .then((res) => {
-        const formatted = res.data.data["User Details"].map((cust, index) => ({
-          sr_no: index + 1,
-          first_name: cust.firstName,
-          last_name: cust.lastName,
-          country: cust.userBasicDetails.country.name,
-          whatsapp: cust.contactNo,
-          role: cust.userBasicDetails.role.name,
-          email: cust.email,
-          task_access: cust.userBasicDetails.isTaskAccess,
-          leave_attendence_access:
-            cust.userBasicDetails.isAttendanceLeaveAccess,
-          eventid: cust.id,
-        }));
-
-        setTableData(formatted);
+        const userDetails = res?.data?.data?.["User Details"];
+        if (userDetails && Array.isArray(userDetails)) {
+          const formatted = userDetails.map((member, index) => ({
+            id: member.id,
+            sr_no: index + 1,
+            email: member.email || "-",
+            full_name:
+              `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
+              "-",
+            memberid: member.id,
+            country: member["userBasicDetails"].country.name || "-",
+            contact: member.contactNo || "-",
+            role: member["userBasicDetails"].role.name || "-",
+            task_access: member["userBasicDetails"].isTaskAccess || "-",
+            leave_attendence_access:
+              member["userBasicDetails"].isAttendanceLeaveAccess || "-",
+            city: member["userBasicDetails"].city.name || "-",
+            state: member["userBasicDetails"].state.name || "-",
+            companyEmail: member["userBasicDetails"].companyEmail || "-",
+          }));
+          console.log("Formatted Member Data:", formatted);
+          setTableData(formatted);
+        } else {
+          setTableData([]);
+        }
       })
       .catch((error) => {
-        console.error("Error deleting customer:", error);
+        console.error("Error fetching members:", error);
       });
   };
-  const DeleteUser = (id) => {
-    DeleteCategoryId(id)
-      .then((res) => {
-        Fetchalluser();
-        res.data?.msg && successMsgPopup(res.data.msg);
-      })
-      .catch((error) => {
-        console.error("Error deleting Event type:", error);
-      });
+
+  const handleEdit = (member) => {
+    setSelectedMember(member);
+    setIsMemberModalOpen(true);
   };
+  const handleView = (member) => {
+    setSelectedMember(member);
+    setIsViewMemberModalOpen(true);
+  };
+
+  //   const handleDelete = (memberId) => {
+  //   DeleteMember(memberId)  // direct API call
+  //     .then(() => {
+  //       FetchMembers();
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error deleting member:", error);
+  //     });
+  // };
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -115,7 +100,7 @@ const [selectedMember, setSelectedMember] = useState(null);
               <FileText className="w-5 h-5 text-primary" />
             </div>
           </Tooltip>
-          // </Link>  
+          // </Link>
         ),
         invoice: (
           <Link to="/invoice-dashboard">
@@ -167,7 +152,10 @@ const [selectedMember, setSelectedMember] = useState(null);
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsMemberModalOpen(true)}
+              onClick={() => {
+                setIsMemberModalOpen(true);
+                setSelectedMember(null);
+              }}
               title="Add Member"
             >
               <i className="ki-filled ki-plus"></i> Add Member
@@ -176,10 +164,17 @@ const [selectedMember, setSelectedMember] = useState(null);
         </div>
         <AddMember
           isModalOpen={isMemberModalOpen}
+          refreshData={FetchMembers}
           setIsModalOpen={setIsMemberModalOpen}
+          selectedMember={selectedMember} // ✅ pass selected member
+        />
+        <ViewMember
+          isModalOpen={isViewMemberModalOpen}
+          setIsModalOpen={setIsViewMemberModalOpen}
+          selectedMember={selectedMember} // ✅ pass selected member
         />
         <TableComponent
-          columns={columns} // just edit
+          columns={columns(handleEdit, handleView)}
           data={tableData}
           paginationSize={10}
         />

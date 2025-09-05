@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { message, Spin, Input } from "antd";
+import { Link } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -85,14 +86,23 @@ const AllUser = () => {
         <Breadcrumbs items={[{ title: "All Users" }]} />
       </div>
 
-      <div className="flex gap-2 mb-4">
-        <Input.Search
-          placeholder="Search users..."
-          allowClear
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 250 }}
-        />
-      </div>
+      <div className="flex items-center justify-between mb-4">
+  {/* Left side → Search input */}
+  <Input.Search
+    placeholder="Search users..."
+    allowClear
+    onChange={(e) => setSearchText(e.target.value)}
+    style={{ width: 250 }}
+  />
+
+  {/* Right side → Add User button */}
+  <Link to="/auth/signup">
+    <button className="btn btn-primary flex items-center gap-1">
+      <i className="ki-filled ki-plus"></i> Add User
+    </button>
+  </Link>
+</div>
+
 
       {loading ? (
         <Spin tip="Loading..." />

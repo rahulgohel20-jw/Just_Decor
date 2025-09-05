@@ -5,6 +5,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 
+
 import {
   GetAllCategory,
   DeleteCategoryId,
@@ -59,6 +60,7 @@ const MenuCategory = () => {
         console.error("Error deleting Event type:", error);
       });
   };
+  
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);

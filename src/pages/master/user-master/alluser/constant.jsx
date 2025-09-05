@@ -81,26 +81,31 @@ export const columns = (onEdit) => [
     header: "Created At",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  // {
-  //   accessorKey: "action",
-  //   header: "Action",
-  //   cell: ({row}) => (
-  //     <div className="flex items-center justify-center gap-1">
-  //       {/* <Tooltip title="Edit User">
-  //         <button className="btn btn-sm btn-icon btn-clear " onClick={() => onEdit(row.original.id)}>
-  //           <i className="ki-filled ki-notepad-edit text-primary"></i>
-  //         </button>
-  //       </Tooltip> */}
-  //       {/* <Tooltip title="Delete User">
-  //         <button
-  //           className="btn btn-sm btn-icon btn-clear"
-  //           onClick={underConstruction}
-  //         >
-  //           <i className="ki-filled ki-trash text-danger"></i>
-  //         </button>
-  //       </Tooltip> */}
-  //     </div>
-  //   ),
-  //   meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  // },
+  {
+    accessorKey: "action",
+    header: "Action",
+    cell: ({row}) => (
+      <div className="flex items-center justify-center gap-1">
+        {/* <Tooltip title="Edit User">
+          <button className="btn btn-sm btn-icon btn-clear " onClick={() => onEdit(row.original.id)}>
+            <i className="ki-filled ki-notepad-edit text-primary"></i>
+          </button>
+        </Tooltip>  */}
+        {/* <Tooltip title="Delete User">
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            onClick={underConstruction}
+          >
+            <i className="ki-filled ki-trash text-danger"></i>
+          </button>
+        </Tooltip> */}
+        <Tooltip title="View User">
+          <button className="btn btn-sm btn-icon btn-clear" onClick={() => onView(row.original.id)}>
+            <i className="ki-filled ki-eye text-primary"></i>
+          </button>
+        </Tooltip>
+      </div>
+    ),
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
 ];

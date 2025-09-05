@@ -457,7 +457,7 @@ const QuotationPage = () => {
             </div>
           </div>
         </div>
-        {/* Description */}
+        {/* Estimate Summary */}
         <div className="card min-w-full mb-7">
           <div className="flex flex-col flex-1">
             <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">

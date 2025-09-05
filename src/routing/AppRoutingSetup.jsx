@@ -152,6 +152,7 @@ import { Contact } from "lucide-react";
 import StateSearchForm from "../pages/StateSearch";
 import AllUser from "../pages/master/user-master/alluser";
 import AllPlan from "../pages/master/user-master/allplan";
+import RoleMaster from "@/pages/master/role";
 
 const AppRoutingSetup = () => {
   return (
@@ -243,6 +244,7 @@ const AppRoutingSetup = () => {
             element={<MenuKitchenArea />}
           />
           <Route path="/master/menu-item" element={<MenuItemsMaster />} />
+          <Route path="/master/role" element={<RoleMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
