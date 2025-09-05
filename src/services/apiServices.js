@@ -345,6 +345,27 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+//getmenuitem
+export const GetAllMenuItems = (data) => {
+  return GET(`/menuitems/getallbyuserid`, data);
+};
+
+//addmenuitem
+export const AddMenuItems = (data) => {
+  return POST(`/menuitems/add`, data);
+};
+
+//delete menu item
+export const DeleteMenuItem = (id) => {
+  return DELETE(`/menuitems/deletebyid?id=${id}`);
+};
+
+//edit menu item
+export const UpdateMenuItem = (id, data) => {
+  return PUT(`/menuitems/update?id=${id}`, data);
+
+};
+
 
 // Change Password
 
@@ -361,10 +382,27 @@ export const ChangePassword = (data) => {
   });
 };
 
-
+// Forgot Password - Request Reset Link
 
 export const requestPasswordResetLink = async (email) => {
   return axios.post(`/auth/forgotpassword`, null, {
     params: { email }, // query param
+  });
+};
+
+//Otp Verification
+export const verifyOtp = async ({ email, phone, otp }) => {
+  return axios.post(`/auth/verifyotp`, null, {
+    params: email
+      ? { email, otp }
+      : { phone, otp }, // dynamically send email or phone
+  });
+};
+
+
+// reset password API
+export const resetPassword = async (emailId, newPassword, conPassword) => {
+  return axios.post(`/auth/resetpassword`, null, {
+    params: { emailId, newPassword, conPassword }, // query params
   });
 };

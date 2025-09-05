@@ -42,11 +42,11 @@ const ResetPassword = () => {
         // Pass email to next screen
         const params = new URLSearchParams();
         params.append("email", values.email);
-
+        localStorage.setItem("email", values.email); // Store email for 2FA step
         navigate({
           pathname:
             currentLayout?.name === "auth-branded"
-              ? "/auth/reset-password/check-email"
+              ? "/auth/2fa"
               : "/auth/classic/reset-password/check-email",
           search: params.toString(),
         });
