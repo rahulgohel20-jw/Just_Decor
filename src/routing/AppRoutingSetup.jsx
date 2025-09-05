@@ -191,6 +191,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route
+            path="/menu-preparation/:eventId"
+            element={<EventPreparationPage mode="menu" />}
+          />
+          <Route
             path="/menu-allocation"
             element={<EventMenuAllocationPage />}
           />

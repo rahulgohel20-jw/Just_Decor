@@ -102,7 +102,7 @@ export const columns = (onEdit, handleView) => [
               <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip>
-          <Tooltip className="cursor-pointer" title="View Member">
+          {/* <Tooltip className="cursor-pointer" title="View Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title=""
@@ -110,7 +110,7 @@ export const columns = (onEdit, handleView) => [
             >
               <i className="ki-filled ki-eye text-success"></i>
             </button>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip className="cursor-pointer" title="Edit Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
