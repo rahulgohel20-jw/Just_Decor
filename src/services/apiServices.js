@@ -384,3 +384,40 @@ export const DeleteMenuItem = (id) => {
 export const UpdateMenuItem = (id, data) => {
   return PUT(`/menuitems/update?id=${id}`, data);
 };
+
+// Change Password
+
+import axios from "./axiosInstance";
+
+export const ChangePassword = (data) => {
+  return axios.post(`/auth/changepassword`, null, {
+    params: {
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+      conPassword: data.conPassword,
+      userId: data.userId,
+    },
+  });
+};
+
+// Forgot Password - Request Reset Link
+
+export const requestPasswordResetLink = async (email) => {
+  return axios.post(`/auth/forgotpassword`, null, {
+    params: { email }, // query param
+  });
+};
+
+//Otp Verification
+export const verifyOtp = async ({ email, phone, otp }) => {
+  return axios.post(`/auth/verifyotp`, null, {
+    params: email ? { email, otp } : { phone, otp }, // dynamically send email or phone
+  });
+};
+
+// reset password API
+export const resetPassword = async (emailId, newPassword, conPassword) => {
+  return axios.post(`/auth/resetpassword`, null, {
+    params: { emailId, newPassword, conPassword }, // query params
+  });
+};

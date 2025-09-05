@@ -1,4 +1,4 @@
-import { CustomModal } from "../../../components/custom-modal/CustomModal";
+import { CustomModal } from "@/components/custom-modal/CustomModal";
 
 const ViewMenuCategory = ({ isModalOpen, setIsModalOpen, editData }) => {
   if (!isModalOpen) return null;

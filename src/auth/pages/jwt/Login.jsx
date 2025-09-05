@@ -20,8 +20,8 @@ const loginSchema = Yup.object().shape({
   remember: Yup.boolean(),
 });
 const initialValues = {
-  email: "rahul.shree0101@gmail.com",
-  password: "Vivek@123",
+  email: "",
+  password: "",
   remember: false,
 };
 const Login = () => {

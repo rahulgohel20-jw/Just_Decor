@@ -53,7 +53,7 @@ const AddMember = ({
     }
   }, [isModalOpen, searchCountry]);
 
-  // ⬇️ Fetch States when country changes
+  // ⬇ Fetch States when country changes
   useEffect(() => {
     if (formData.countryId) {
       fetchStatesByCountry(formData.countryId, searchState)
@@ -62,7 +62,7 @@ const AddMember = ({
     }
   }, [formData.countryId, searchState]);
 
-  // ⬇️ Fetch Cities when state changes
+  // ⬇ Fetch Cities when state changes
   useEffect(() => {
     if (formData.stateId) {
       fetchCitiesByState(formData.stateId, searchCity)
@@ -237,7 +237,7 @@ const AddMember = ({
         res = await UpdateMember(payload.memberId, payload);
         refreshData();
         // <-- your edit API
-        console.log("✏️ Member updated:", res.data);
+        console.log("✏ Member updated:", res.data);
       } else {
         // ADD
         res = await AddMemberapi(payload);

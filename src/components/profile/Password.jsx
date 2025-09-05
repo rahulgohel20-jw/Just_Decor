@@ -1,13 +1,27 @@
 import { Input, Button, Form } from "antd";
 import { LockOutlined } from "@ant-design/icons";
-
-const { TextArea } = Input;
+import { ChangePassword } from "@/services/apiServices"; // adjust path
 
 export default function Password() {
   const [form] = Form.useForm();
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log("Form Values:", values);
+
+    const payload = {
+      oldPassword: values.oldPassword,   // ✅ must match API
+      newPassword: values.newPassword,   // ✅ must match API
+      conPassword: values.conPassword,   // ✅ must match API
+      userId: 1, // or get from localStorage/session
+    };
+
+    try {
+      const res = await ChangePassword(payload);
+      console.log("Password change response:", res.data);
+      alert(res.data.msg);
+    } catch (err) {
+      console.error("Error:", err);
+    }
   };
 
   return (
@@ -28,65 +42,29 @@ export default function Password() {
           requiredMark="optional"
         >
           <Form.Item
-            label={
-              <span>
-                Current Password <span className="text-red-500">*</span>
-              </span>
-            }
-            name="Current_Password"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your Current password ",
-              },
-              {
-                type: "password",
-                message: "Please enter a valid Current password",
-              },
-            ]}
+            label={<span>Current Password <span className="text-red-500">*</span></span>}
+            name="oldPassword"  // ✅ changed
+            rules={[{ required: true, message: "Please enter your current password" }]}
           >
-            <Input className="p-2" placeholder="Current Password" />
+            <Input.Password className="p-2" placeholder="Current Password" />
           </Form.Item>
+
           <Form.Item
-            label={
-              <span>
-                New Password <span className="text-red-500">*</span>
-              </span>
-            }
-            name="New_Password"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your New Password password ",
-              },
-              {
-                type: "password",
-                message: "Please enter a valid password",
-              },
-            ]}
+            label={<span>New Password <span className="text-red-500">*</span></span>}
+            name="newPassword"  // ✅ changed
+            rules={[{ required: true, message: "Please enter your new password" }]}
           >
-            <Input className="p-2" placeholder="New Password" />
+            <Input.Password className="p-2" placeholder="New Password" />
           </Form.Item>
+
           <Form.Item
-            label={
-              <span>
-                Confirm Password <span className="text-red-500">*</span>
-              </span>
-            }
-            name="Confirm_Password"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your Confirm Password * ",
-              },
-              {
-                type: "password",
-                message: "Please enter a valid password",
-              },
-            ]}
+            label={<span>Confirm Password <span className="text-red-500">*</span></span>}
+            name="conPassword"  // ✅ changed
+            rules={[{ required: true, message: "Please confirm your password" }]}
           >
-            <Input className="p-2" placeholder="Confirm Password" />
+            <Input.Password className="p-2" placeholder="Confirm Password" />
           </Form.Item>
+
           <Form.Item>
             <Button
               type="primary"
