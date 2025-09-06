@@ -5,20 +5,26 @@ import { menuCategories, menuCategoryChildren } from "./constant";
 import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
-import { Tooltip } from "antd";
+import { Tooltip, Popconfirm } from "antd";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { useParams } from "react-router-dom";
+import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
+
 import {
   GetAllCategoryformenu,
   GetEventMasterById,
   Getmenuprep,
   AddMenuprep,
+  Deleteiteminmenu,
 } from "@/services/apiServices";
 
 const EventPreparationPage = () => {
   const [categories, setCategories] = useState([]);
   const { eventId } = useParams();
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [eventAllData, setEventAllData] = useState({});
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
   const [menuPreparationsTabs, setMenuPreparationsTabs] = useState([]);
   const [rate, setRate] = useState(0);
@@ -31,9 +37,11 @@ const EventPreparationPage = () => {
   const [functionSelectionData, setFunctionSelectionData] = useState({});
   const [allMenuItems, setAllMenuItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState({});
 
   // New state to store menu preparation IDs for each function
   const [menuPreparationIds, setMenuPreparationIds] = useState({});
+  const [expandedItems, setExpandedItems] = useState({});
 
   useEffect(() => {
     initializeData();
@@ -739,17 +747,36 @@ const EventPreparationPage = () => {
     return acc;
   }, {});
 
-  const removeSelectedItem = (itemId) => {
-    setFunctionSelectionData((prev) => ({
-      ...prev,
-      [selectedFunctionId]: {
-        ...prev[selectedFunctionId],
-        selectedItems: prev[selectedFunctionId].selectedItems.filter(
-          (id) => id !== itemId
-        ),
-        isSaved: false,
-      },
-    }));
+  const removeSelectedItem = async (itemId, menuCatId, menuPrepId) => {
+    try {
+      if (!menuPrepId) {
+        console.error("❌ Menu Preparation ID is missing");
+        errorMsgPopup("Menu preparation not found. Please save first.");
+        return;
+      }
+
+      // Call API
+      const res = await Deleteiteminmenu(itemId, menuCatId, menuPrepId);
+
+      if (res.data?.msg) {
+        successMsgPopup(res.data.msg);
+      }
+
+      // Update state only after successful delete
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          selectedItems: prev[selectedFunctionId].selectedItems.filter(
+            (id) => id !== itemId
+          ),
+          isSaved: false,
+        },
+      }));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      errorMsgPopup("Failed to delete item");
+    }
   };
 
   // Determine if this is an update or create operation
@@ -895,18 +922,29 @@ const EventPreparationPage = () => {
               >
                 <div className="col-span-3">
                   <div className="h-full lg:border-e lg:border-e-border">
-                    <div className="border-b p-3 rounded-t-lg">
-                      <div className="relative">
-                        <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input
-                          type="text"
-                          className="input pl-8"
-                          placeholder="Search categories"
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
-                        />
-                      </div>
+                    <div className="border-b p-3 rounded-t-lg sg__inner relative w-full">
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute left-3 top-1/2 -translate-y-1/2"></i>
+
+                      <input
+                        type="text"
+                        className="input pl-10 pr-12 w-full"
+                        placeholder="Search categories"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+
+                      <Tooltip title="Add menu category">
+                        <button
+                          type="button"
+                          onClick={() => setIsCategoryModalOpen(true)}
+                          title="Add"
+                          className="absolute top-1/2 right-4 -translate-y-1/2 btn btn-primary w-8 h-8 flex items-center justify-center rounded-full"
+                        >
+                          <i className="ki-filled ki-plus text-md"></i>
+                        </button>
+                      </Tooltip>
                     </div>
+
                     <div className="flex-1 max-h-[520px] overflow-auto scrollable-y">
                       <div className="h-full">
                         {filteredCategories.length === 0 ? (
@@ -950,7 +988,7 @@ const EventPreparationPage = () => {
                           <Tooltip title="Add menu item">
                             <button
                               type="button"
-                              onClick={() => console.log("Add clicked")}
+                              onClick={() => setIsItemModalOpen(true)}
                               title="Add"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
@@ -1042,116 +1080,207 @@ const EventPreparationPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {Object.entries(selectedItemsByCategory).map(
-                        ([categoryName, items]) => (
-                          <div key={categoryName} className="mb-2">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="font-semibold text-xs text-gray-900">
-                                {categoryName}
-                              </span>
-                              <Tooltip title="Expand">
-                                <button className="p-0 w-6 h-6" title="Expand">
-                                  <i className="ki-filled ki-down text-md"></i>
-                                </button>
-                              </Tooltip>
-                            </div>
-                            <ul className="bg-white rounded border shadow-sm">
-                              {items.map((item) => (
-                                <li
-                                  key={item.id}
-                                  className="flex flex-col border-b last:border-0 p-3"
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span
-                                        className="w-8 h-8 rounded overflow-hidden"
-                                        style={{ flex: "0 0 2rem" }}
-                                      >
-                                        <img
-                                          src={item.image}
-                                          alt={item.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      </span>
-                                      <span className="text-xs font-medium">
-                                        {item.name}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <button
-                                        className="ml-2 text-gray-400 hover:text-gray-500"
-                                        title="Info"
-                                      >
-                                        <i className="ki-filled ki-information-1"></i>
-                                      </button>
-                                      <Tooltip title="Remove">
+                      {categoriesWithAll
+                        .map((cat) => cat.name)
+                        .filter(
+                          (categoryName) =>
+                            selectedItemsByCategory[categoryName]?.length
+                        )
+                        .map((categoryName) => {
+                          const items = selectedItemsByCategory[categoryName];
+                          return (
+                            <div key={categoryName} className="mb-2">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="font-semibold text-xs text-gray-900">
+                                  {categoryName}
+                                </span>
+                                <Tooltip title="Expand">
+                                  <button
+                                    className="p-0 w-6 h-6"
+                                    title="Expand"
+                                    onClick={() =>
+                                      setExpandedCategories((prev) => ({
+                                        ...prev,
+                                        [categoryName]: !prev[categoryName],
+                                      }))
+                                    }
+                                  >
+                                    <i
+                                      className={`ki-filled ${expandedCategories[categoryName] ? "ki-up" : "ki-down"} text-md`}
+                                    ></i>
+                                  </button>
+                                </Tooltip>
+                              </div>
+                              <ul className="bg-white rounded border shadow-sm">
+                                {items.map((item) => (
+                                  <li
+                                    key={item.id}
+                                    className="flex flex-col border-b last:border-0 p-3"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span
+                                          className="w-8 h-8 rounded overflow-hidden"
+                                          style={{ flex: "0 0 2rem" }}
+                                        >
+                                          <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </span>
+                                        <span className="text-xs font-medium">
+                                          {item.name}
+                                        </span>
+                                      </div>
+                                      <div>
                                         <button
-                                          className="ml-2 text-gray-400 hover:text-red-500"
-                                          title="Remove"
+                                          className="ml-2 text-gray-400 hover:text-gray-500"
+                                          title="Info"
                                           onClick={() =>
-                                            removeSelectedItem(item.id)
+                                            setExpandedItems((prev) => ({
+                                              ...prev,
+                                              [item.id]: !prev[item.id],
+                                            }))
                                           }
                                         >
-                                          <i className="ki-filled ki-trash"></i>
+                                          <i className="ki-filled ki-information-1"></i>
                                         </button>
-                                      </Tooltip>
+                                        <Popconfirm
+                                          title="Are you sure to delete this item?"
+                                          onConfirm={() =>
+                                            removeSelectedItem(
+                                              item.id,
+                                              item.parentId,
+                                              menuPreparationIds[
+                                                selectedFunctionId
+                                              ]
+                                            )
+                                          }
+                                          onCancel={() =>
+                                            console.log("Cancelled")
+                                          }
+                                          okText="Yes"
+                                          cancelText="No"
+                                        >
+                                          <Tooltip title="Remove">
+                                            <button
+                                              className="ml-2 text-gray-400 hover:text-red-500"
+                                              title="Remove"
+                                            >
+                                              <i className="ki-filled ki-trash"></i>
+                                            </button>
+                                          </Tooltip>
+                                        </Popconfirm>
+                                      </div>
                                     </div>
-                                  </div>
 
-                                  {showDetails && (
-                                    <div className="flex items-center justify-between mt-1 gap-2">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-gray-500">
-                                          Rate:
-                                        </span>
-                                        <input
-                                          type="number"
+                                    {showDetails && (
+                                      <div className="flex items-center justify-between mt-1 gap-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-gray-500">
+                                            Rate:
+                                          </span>
+                                          <input
+                                            type="number"
+                                            value={
+                                              currentFunctionData.itemRates?.[
+                                                item.id
+                                              ] ??
+                                              item.price ??
+                                              rate
+                                            }
+                                            onChange={(e) =>
+                                              handleItemRateChange(
+                                                item.id,
+                                                e.target.value
+                                              )
+                                            }
+                                            min={0}
+                                            className="input input-sm w-20"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {showDetails && (
+                                      <div className="mt-2">
+                                        <textarea
+                                          placeholder="Add notes..."
                                           value={
-                                            currentFunctionData.itemRates?.[
+                                            currentFunctionData.itemNotes?.[
                                               item.id
-                                            ] ??
-                                            item.price ??
-                                            rate
+                                            ] || ""
                                           }
                                           onChange={(e) =>
-                                            handleItemRateChange(
+                                            handleNoteChange(
                                               item.id,
                                               e.target.value
                                             )
                                           }
-                                          min={0}
-                                          className="input input-sm w-20"
+                                          className="textarea textarea-sm w-full text-xs"
+                                          rows="2"
                                         />
                                       </div>
-                                    </div>
-                                  )}
+                                    )}
 
-                                  {showDetails && (
-                                    <div className="mt-2">
-                                      <textarea
-                                        placeholder="Add notes..."
-                                        value={
-                                          currentFunctionData.itemNotes?.[
-                                            item.id
-                                          ] || ""
-                                        }
-                                        onChange={(e) =>
-                                          handleNoteChange(
-                                            item.id,
-                                            e.target.value
-                                          )
-                                        }
-                                        className="textarea textarea-sm w-full text-xs"
-                                        rows="2"
-                                      />
-                                    </div>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )
-                      )}
+                                    {expandedItems[item.id] && (
+                                      <div className="flex items-center justify-between mt-1 gap-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-gray-500">
+                                            Rate:
+                                          </span>
+                                          <input
+                                            type="number"
+                                            value={
+                                              currentFunctionData.itemRates?.[
+                                                item.id
+                                              ] ??
+                                              item.price ??
+                                              rate
+                                            }
+                                            onChange={(e) =>
+                                              handleItemRateChange(
+                                                item.id,
+                                                e.target.value
+                                              )
+                                            }
+                                            min={0}
+                                            className="input input-sm w-20"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {expandedItems[item.id] && (
+                                      <div className="mt-2">
+                                        <label htmlFor="" className="text-xs">
+                                          Notes:
+                                        </label>
+                                        <textarea
+                                          placeholder="Add notes..."
+                                          value={
+                                            currentFunctionData.itemNotes?.[
+                                              item.id
+                                            ] || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleNoteChange(
+                                              item.id,
+                                              e.target.value
+                                            )
+                                          }
+                                          className="textarea textarea-sm w-full text-xs"
+                                          rows="2"
+                                        />
+                                      </div>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
@@ -1197,6 +1326,18 @@ const EventPreparationPage = () => {
             )}
           </button>
         </div>
+        <AddMenuItem
+          isModalOpen={isItemModalOpen}
+          setIsModalOpen={(val) => {
+            setIsItemModalOpen(val);
+          }}
+          refreshData={initializeData}
+        />
+        <AddMenuCategory
+          isModalOpen={isCategoryModalOpen}
+          setIsModalOpen={setIsCategoryModalOpen}
+          refreshData={initializeData}
+        />
       </Container>
     </Fragment>
   );

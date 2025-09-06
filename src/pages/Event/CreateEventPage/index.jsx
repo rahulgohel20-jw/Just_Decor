@@ -53,6 +53,12 @@ const CreateEventPage = () => {
   const [current, setCurrent] = useState(0);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  let STATUS_NAME_TO_ID = {
+    Inquiry: "0",
+    Inquriy: "0",
+    Confirm: "1",
+    Cancel: "2",
+  };
 
   useEffect(() => {
     if (mode === "edit" && eventId) {
@@ -61,13 +67,17 @@ const CreateEventPage = () => {
         .then((res) => {
           const event = res.data.data["Event Details"][0];
           console.log(event, "event");
-
+          const statusId =
+            event?.status?.id != null
+              ? String(event.status.id)
+              : (STATUS_NAME_TO_ID[event?.status] ?? "0");
           setFormData((prev) => ({
             ...prev,
             inquiryDate: event.inquiryDate
               ? dayjs(event.inquiryDate, "DD/MM/YYYY").format("DD/MM/YYYY")
               : prev.inquiryDate,
             eventStartDateTime: event.eventStartDateTime || "",
+            status: statusId,
             eventEndDateTime: event.eventEndDateTime || "",
             venue: event.venue || "",
             eventTypeId: event.eventType?.id || "",
@@ -79,7 +89,8 @@ const CreateEventPage = () => {
 
             eventFunction: (event.eventFunctions || []).map((f) => ({
               eventFuncId: f.eventId,
-              functionId: f.function?.nameEnglish || null,
+              functionId: f.function?.id ?? f.functionId ?? null,
+              functionName: f.function?.nameEnglish ?? "",
               functionStartDateTime: f.functionStartDateTime,
               functionEndDateTime: f.functionEndDateTime,
               pax: f.pax || "",
@@ -210,6 +221,11 @@ const CreateEventPage = () => {
 
     const payload = {
       ...formData,
+      status: Number(formData.status),
+      eventFunction: (formData.eventFunction || []).map((f) => ({
+        ...f,
+        functionId: f.functionId != null ? Number(f.functionId) : null,
+      })),
       userId,
     };
 

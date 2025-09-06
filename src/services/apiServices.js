@@ -175,8 +175,6 @@ export const UpdateEventStatus = (Id, statusId) => {
   return PUT(`/eventmaster/updatestatus?id=${Id}&statusId=${statusId}`);
 };
 
-
-
 //get all manager and admin
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
@@ -277,6 +275,12 @@ export const Getmenuprep = (
 };
 
 //Get menu preparation items
+export const Deleteiteminmenu = (itemId, menuCatId, MenuprepId) => {
+  return DELETE(
+    `/menupreparation/deletemenupreparationitem?itemId=${itemId}&menuCategoryId=${menuCatId}&menuPreparationId=${MenuprepId}`
+  );
+};
+//Get menu preparation items
 export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
@@ -338,7 +342,7 @@ export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
 //update usermaster
- export const updateusermaster = (id, data) => {
+export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
 // all user
@@ -405,7 +409,6 @@ export const UpdateMenuItem = (id, data) => {
 export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
 };
-
 
 // Change Password
 
