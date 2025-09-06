@@ -96,7 +96,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* Status */}
           <div className="flex flex-col">
             <label className="form-label">Status</label>
@@ -111,8 +110,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
-
           {/* Event Type */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
@@ -234,7 +231,6 @@ const EventBasicInfoStep = ({
             )}
           </div>
 
-          
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
