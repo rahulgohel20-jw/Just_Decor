@@ -1,4 +1,4 @@
-import { useState, Fragment, useEffect } from "react";
+import { useState, Fragment, useEffect, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
@@ -31,6 +31,9 @@ const EventPreparationPage = () => {
   const [functionSelectionData, setFunctionSelectionData] = useState({});
   const [allMenuItems, setAllMenuItems] = useState({});
   const [loading, setLoading] = useState(false);
+
+  // New state to store menu preparation IDs for each function
+  const [menuPreparationIds, setMenuPreparationIds] = useState({});
 
   useEffect(() => {
     initializeData();
@@ -110,7 +113,7 @@ const EventPreparationPage = () => {
           }));
           setMenuPreparationsTabs(dynamicTabs);
 
-          // Initialize function selection data
+          // Initialize function selection data with proper defaults
           const initialFunctionData = {};
           firstEvent.eventFunctions.forEach((fn) => {
             initialFunctionData[fn.id] = {
@@ -118,20 +121,23 @@ const EventPreparationPage = () => {
               itemNotes: {},
               itemRates: {},
               isSaved: false,
-              pax: fn.pax,
-              rate: fn.rate,
+              pax: fn.pax || 0,
+              rate: fn.rate || 0,
             };
           });
           setFunctionSelectionData(initialFunctionData);
 
+          // Initialize first function
           if (firstEvent.eventFunctions.length > 0) {
             const firstFnId = firstEvent.eventFunctions[0].id;
             setSelectedFunctionId(firstFnId);
             setPax(firstEvent.eventFunctions[0].pax || 0);
             setRate(firstEvent.eventFunctions[0].rate || 0);
-            // Load menu data for first function and load all categories
-            loadAllMenuDataForFunction(firstFnId);
-            loadFunctionMenuData(firstFnId, 0);
+
+            // Load data for first function - this will handle both menu items and selections
+            loadAllMenuDataForFunction(firstFnId).then(() => {
+              loadFunctionMenuData(firstFnId, 0);
+            });
           }
         }
 
@@ -187,28 +193,42 @@ const EventPreparationPage = () => {
   ) => {
     setLoading(true);
     try {
-      const cacheKey = `${functionId}-${categoryId}`;
+      console.log(
+        `🔄 Loading menu data for Function: ${functionId}, Category: ${categoryId}`
+      );
 
-      // Check if data is already cached
-      if (functionMenuData[cacheKey]) {
-        setLoading(false);
-        return;
-      }
-
+      // Always fetch fresh data - no caching for tab switches
       const responseData = await FetchMenuPrep(functionId, categoryId);
 
-      // Cache the menu items
+      const cacheKey = `${functionId}-${categoryId}`;
+
+      // Store menu items in cache
       setFunctionMenuData((prev) => ({
         ...prev,
         [cacheKey]: responseData.menuItems || [],
       }));
 
-      // Process selected items if they exist
+      // Store menu preparation ID if it exists
+      if (responseData.responseData?.menuPreparation?.id) {
+        setMenuPreparationIds((prev) => ({
+          ...prev,
+          [functionId]: responseData.responseData.menuPreparation.id,
+        }));
+
+        console.log(
+          `📝 Found existing menu prep ID: ${responseData.responseData.menuPreparation.id} for function ${functionId}`
+        );
+      }
+
+      // CRITICAL: Update the function selection data based on API response
       if (responseData.selectedItems && responseData.selectedItems.length > 0) {
+        console.log(
+          `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
+        );
+
         setFunctionSelectionData((prev) => ({
           ...prev,
           [functionId]: {
-            ...prev[functionId],
             selectedItems: responseData.selectedItems.map(
               (item) => item.menuItemId
             ),
@@ -217,18 +237,60 @@ const EventPreparationPage = () => {
               return acc;
             }, {}),
             itemRates: responseData.selectedItems.reduce((acc, item) => {
-              acc[item.menuItemId] = item.itemPrice || rate;
+              acc[item.menuItemId] = item.itemPrice || 0;
               return acc;
             }, {}),
             isSaved: true,
+            pax: responseData.responseData?.menuPreparation?.pax || pax,
+            rate:
+              responseData.responseData?.menuPreparation?.defaultPrice || rate,
+          },
+        }));
+
+        // Update global pax and rate if this is the selected function
+        if (functionId === selectedFunctionId) {
+          if (responseData.responseData?.menuPreparation?.pax) {
+            setPax(responseData.responseData.menuPreparation.pax);
+          }
+          if (
+            responseData.responseData?.menuPreparation?.defaultPrice !==
+            undefined
+          ) {
+            setRate(responseData.responseData.menuPreparation.defaultPrice);
+          }
+        }
+      } else {
+        console.log(`📭 No selected items found for function ${functionId}`);
+
+        // Ensure clean state for functions with no selections
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [functionId]: {
+            selectedItems: [],
+            itemNotes: {},
+            itemRates: {},
+            isSaved: false,
+            pax: prev[functionId]?.pax || 0,
+            rate: prev[functionId]?.rate || 0,
           },
         }));
       }
     } catch (error) {
-      console.error("Error loading function menu data:", error);
+      console.error("❌ Error loading function menu data:", error);
     } finally {
       setLoading(false);
     }
+  };
+  const clearFunctionCache = (functionId) => {
+    setFunctionMenuData((prev) => {
+      const newData = { ...prev };
+      Object.keys(newData).forEach((key) => {
+        if (key.startsWith(`${functionId}-`)) {
+          delete newData[key];
+        }
+      });
+      return newData;
+    });
   };
 
   const FetchMenuPrep = (
@@ -237,17 +299,28 @@ const EventPreparationPage = () => {
     pageNo = 1,
     totalRecord = 50
   ) => {
+    console.log(`🌐 API Call: FetchMenuPrep(${eventFunId}, ${menuCatId})`);
+
     return Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
       .then((res) => {
         const responseData = res?.data?.data;
+        console.log("📡 API Response:", {
+          menuPreparationItems:
+            responseData["menuPreparationItems"]?.length || 0,
+          selectedItems:
+            responseData["selectedMenuPreparationItems"]?.length || 0,
+          hasMenuPreparation: !!responseData["menuPreparation"],
+        });
+
+        // Process menu items
         const menuItems = (responseData["menuPreparationItems"] || []).map(
           (item) => ({
             id: item.menuItemId,
             parentId: item.menuCategoryId,
             name: item.menuItemName,
-            image: item.imagePath,
+            image: item.imagePath?.replace("jcupload", "uploads") || "",
             price: item.itemPrice,
-            isSelected: item.isSelected || false,
+            isSelected: false, // Will be updated below
           })
         );
 
@@ -264,52 +337,116 @@ const EventPreparationPage = () => {
           });
         }
 
+        console.log(`🎯 Processed ${selectedItems.length} selected items`);
+
+        // Update isSelected property
+        const updatedMenuItems = menuItems.map((item) => ({
+          ...item,
+          isSelected: selectedItems.some(
+            (selectedItem) => selectedItem.menuItemId === item.id
+          ),
+        }));
+
         return {
-          menuItems,
+          menuItems: updatedMenuItems,
           selectedItems,
           responseData,
         };
       })
       .catch((error) => {
-        console.error("Error fetching menu prep data:", error);
+        console.error("❌ Error fetching menu prep data:", error);
         throw error;
       });
   };
 
   const handleTabChange = async (newFunctionId) => {
-    if (selectedFunctionId === newFunctionId) return;
+    if (selectedFunctionId === newFunctionId) {
+      console.log("🚫 Same tab clicked, ignoring");
+      return;
+    }
 
+    console.log(`🔄 Tab change: ${selectedFunctionId} → ${newFunctionId}`);
     setLoading(true);
 
-    // Update selected function
-    setSelectedFunctionId(newFunctionId);
+    try {
+      // 1. Update the selected function ID first
+      setSelectedFunctionId(newFunctionId);
 
-    // Update pax and rate based on selected function
-    const selectedFunction = eventAllData[0]?.eventFunctions?.find(
-      (fn) => fn.id === newFunctionId
-    );
-    if (selectedFunction) {
-      setPax(selectedFunction.pax || 0);
-      setRate(selectedFunction.rate || 0);
+      // 2. Get function details from event data
+      const selectedFunction = eventAllData[0]?.eventFunctions?.find(
+        (fn) => fn.id === newFunctionId
+      );
+
+      // 3. Update pax and rate from function data (fallback values)
+      if (selectedFunction) {
+        setPax(selectedFunction.pax || 0);
+        setRate(selectedFunction.rate || 0);
+      }
+
+      // 4. Load all menu items for the function if not cached
+      if (!allMenuItems[newFunctionId]) {
+        console.log(`📦 Loading all menu items for function ${newFunctionId}`);
+        await loadAllMenuDataForFunction(newFunctionId);
+      }
+
+      // 5. FORCE clear any existing cache for this function/category combo
+      const currentCacheKey = `${newFunctionId}-${selectedCategoryId}`;
+      setFunctionMenuData((prev) => {
+        const newData = { ...prev };
+        delete newData[currentCacheKey];
+        console.log(`🗑️ Cleared cache for key: ${currentCacheKey}`);
+        return newData;
+      });
+
+      // 6. Load fresh menu data with selected items
+      await loadFunctionMenuData(newFunctionId, selectedCategoryId);
+
+      console.log(`✅ Tab change completed for function ${newFunctionId}`);
+    } catch (error) {
+      console.error("❌ Error in handleTabChange:", error);
+    } finally {
+      setLoading(false);
     }
-
-    // Load all menu data for the new function if not already loaded
-    if (!allMenuItems[newFunctionId]) {
-      await loadAllMenuDataForFunction(newFunctionId);
-    }
-
-    // Load menu data for the new function
-    await loadFunctionMenuData(newFunctionId, selectedCategoryId);
-
-    setLoading(false);
   };
 
   const handleCategoryChange = async (categoryId) => {
+    console.log(`🏷️ Category change: ${selectedCategoryId} → ${categoryId}`);
+
     setSelectedCategoryId(categoryId);
+
     if (selectedFunctionId) {
+      // Clear cache for the new category
+      const cacheKey = `${selectedFunctionId}-${categoryId}`;
+      setFunctionMenuData((prev) => {
+        const newData = { ...prev };
+        delete newData[cacheKey];
+        return newData;
+      });
+
+      // Load fresh data
       await loadFunctionMenuData(selectedFunctionId, categoryId);
     }
   };
+
+  const debugCurrentState = () => {
+    console.log("🐛 DEBUG STATE:", {
+      selectedFunctionId,
+      selectedCategoryId,
+      functionSelectionData: functionSelectionData[selectedFunctionId],
+      cacheKey: `${selectedFunctionId}-${selectedCategoryId}`,
+      menuItemsCount:
+        functionMenuData[`${selectedFunctionId}-${selectedCategoryId}`]
+          ?.length || 0,
+      allMenuItemsCount: allMenuItems[selectedFunctionId]?.length || 0,
+    });
+  };
+
+  useEffect(() => {
+    if (selectedFunctionId) {
+      console.log(`👀 Function changed to: ${selectedFunctionId}`);
+      debugCurrentState(); // Remove this after testing
+    }
+  }, [selectedFunctionId, functionSelectionData]);
 
   const handleSave = () => {
     const currentFunctionData = functionSelectionData[selectedFunctionId];
@@ -328,10 +465,13 @@ const EventPreparationPage = () => {
       .map((id) => allFunctionMenuItems.find((item) => item.id === id))
       .filter(Boolean);
 
+    // Get existing menu preparation ID for this function (0 if new)
+    const existingId = menuPreparationIds[selectedFunctionId] || 0;
+
     const payload = {
       defaultPrice: rate || 0,
       eventFunctionId: selectedFunctionId,
-      id: 0,
+      id: existingId, // Use existing ID for updates, 0 for new records
       menuPreparationDetails: selectedItems.map((item, index) => {
         const category = categories.find((cat) => cat.id === item.parentId);
         return {
@@ -354,11 +494,24 @@ const EventPreparationPage = () => {
       sortorder: 0,
     };
 
+    console.log(
+      `${existingId === 0 ? "Creating" : "Updating"} menu preparation:`,
+      payload
+    );
+
     AddMenuprep(payload)
       .then((res) => {
         console.log("✅ Saved:", res.data);
         if (res.data?.msg) {
           successMsgPopup(res.data.msg);
+        }
+
+        // Store the menu preparation ID if it's a new record
+        if (existingId === 0 && res.data?.data?.menuPreparation?.id) {
+          setMenuPreparationIds((prev) => ({
+            ...prev,
+            [selectedFunctionId]: res.data.data.menuPreparation.id,
+          }));
         }
 
         // Mark this function as saved
@@ -369,12 +522,7 @@ const EventPreparationPage = () => {
             isSaved: true,
           },
         }));
-
-        // Update existing items list to include newly saved items
-        setExistingMenuItems((prev) => ({
-          ...prev,
-          [selectedFunctionId]: currentFunctionData.selectedItems,
-        }));
+        clearFunctionCache(selectedFunctionId);
 
         // Refresh data to get the latest selectedMenuPreparationItems
         loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
@@ -455,6 +603,35 @@ const EventPreparationPage = () => {
     }));
   };
 
+  // New handlers for pax and rate changes
+  const handlePaxChange = (newPax) => {
+    setPax(newPax);
+    // Mark current function as unsaved if it has selections
+    if (currentFunctionData.selectedItems?.length > 0) {
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          isSaved: false,
+        },
+      }));
+    }
+  };
+
+  const handleRateChange = (newRate) => {
+    setRate(newRate);
+    // Mark current function as unsaved if it has selections
+    if (currentFunctionData.selectedItems?.length > 0) {
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          isSaved: false,
+        },
+      }));
+    }
+  };
+
   const calculateTotalPrice = () => {
     if (!currentFunctionData.selectedItems) return 0;
 
@@ -503,6 +680,8 @@ const EventPreparationPage = () => {
     }));
   };
 
+  // Determine if this is an update or create operation
+  const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
@@ -583,7 +762,7 @@ const EventPreparationPage = () => {
                         min={1}
                         className="input input-sm w-20"
                         value={pax}
-                        onChange={(e) => setPax(e.target.value)}
+                        onChange={(e) => handlePaxChange(e.target.value)}
                       />
                     </p>
                     <p className="flex items-center gap-2 mb-1">
@@ -611,7 +790,7 @@ const EventPreparationPage = () => {
                       <input
                         type="number"
                         value={rate}
-                        onChange={(e) => setRate(e.target.value)}
+                        onChange={(e) => handleRateChange(e.target.value)}
                         className="input input-sm w-20"
                       />
                     </p>
@@ -935,13 +1114,15 @@ const EventPreparationPage = () => {
             Cancel
           </button>
           <button
-            className="btn btn-success"
-            title="Save Menu"
+            className={`btn ${isUpdateOperation ? "btn-warning" : "btn-success"}`}
+            title={isUpdateOperation ? "Update Menu" : "Save Menu"}
             onClick={handleSave}
             disabled={loading || !currentFunctionData.selectedItems?.length}
           >
-            <i className="ki-filled ki-save-2"></i>
-            Save Menu
+            <i
+              className={`ki-filled ${isUpdateOperation ? "ki-pencil" : "ki-save-2"}`}
+            ></i>
+            {isUpdateOperation ? "Update Menu" : "Save Menu"}
             {currentFunctionData.isSaved && (
               <span className="ml-2 text-xs">(Saved)</span>
             )}
