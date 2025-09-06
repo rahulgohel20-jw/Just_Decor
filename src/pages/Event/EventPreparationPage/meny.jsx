@@ -104,13 +104,20 @@ const EventPreparationPage = () => {
 
           const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
             label: (
-              <>
+              <div
+                onClick={() => {
+                  console.log("Clicked tab:", fn.id);
+                  handleTabChange(fn.id); // ✅ use your existing handler
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 <i className="ki-filled ki-disk"></i> {fn.name}
-              </>
+              </div>
             ),
             value: fn.id,
             children: "",
           }));
+
           setMenuPreparationsTabs(dynamicTabs);
 
           // Initialize function selection data with proper defaults
@@ -294,16 +301,19 @@ const EventPreparationPage = () => {
   };
 
   const FetchMenuPrep = (
-    eventFunId,
-    menuCatId,
+    eventFunctionId,
+    menuCategoryId = null,
     pageNo = 1,
     totalRecord = 50
   ) => {
-    console.log(`🌐 API Call: FetchMenuPrep(${eventFunId}, ${menuCatId})`);
+    console.log(
+      `🌐 API Call: FetchMenuPrep(${eventFunctionId}, ${menuCategoryId})`
+    );
 
-    return Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
+    return Getmenuprep(eventFunctionId, menuCategoryId, pageNo, totalRecord, Id)
       .then((res) => {
         const responseData = res?.data?.data;
+
         console.log("📡 API Response:", {
           menuPreparationItems:
             responseData["menuPreparationItems"]?.length || 0,
@@ -312,7 +322,7 @@ const EventPreparationPage = () => {
           hasMenuPreparation: !!responseData["menuPreparation"],
         });
 
-        // Process menu items
+        // same processing logic as before...
         const menuItems = (responseData["menuPreparationItems"] || []).map(
           (item) => ({
             id: item.menuItemId,
@@ -320,11 +330,10 @@ const EventPreparationPage = () => {
             name: item.menuItemName,
             image: item.imagePath?.replace("jcupload", "uploads") || "",
             price: item.itemPrice,
-            isSelected: false, // Will be updated below
+            isSelected: false,
           })
         );
 
-        // Process selected menu preparation items
         const selectedMenuCategories =
           responseData["selectedMenuPreparationItems"] || [];
         let selectedItems = [];
@@ -337,9 +346,6 @@ const EventPreparationPage = () => {
           });
         }
 
-        console.log(`🎯 Processed ${selectedItems.length} selected items`);
-
-        // Update isSelected property
         const updatedMenuItems = menuItems.map((item) => ({
           ...item,
           isSelected: selectedItems.some(

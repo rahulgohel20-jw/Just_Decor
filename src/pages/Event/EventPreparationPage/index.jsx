@@ -196,7 +196,8 @@ const EventPreparationPage = () => {
 
   const loadFunctionMenuData = async (
     functionId,
-    categoryId = selectedCategoryId
+    categoryId = selectedCategoryId,
+    preserveSelections = false // New parameter to preserve existing selections
   ) => {
     setLoading(true);
     try {
@@ -227,60 +228,118 @@ const EventPreparationPage = () => {
         );
       }
 
-      // CRITICAL: Update the function selection data based on API response
-      if (responseData.selectedItems && responseData.selectedItems.length > 0) {
-        console.log(
-          `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
-        );
+      // CRITICAL: Only update selection data if NOT preserving selections or if no existing data
+      const hasExistingSelections =
+        functionSelectionData[functionId]?.selectedItems?.length > 0;
 
-        setFunctionSelectionData((prev) => ({
-          ...prev,
-          [functionId]: {
-            selectedItems: responseData.selectedItems.map(
-              (item) => item.menuItemId
-            ),
-            itemNotes: responseData.selectedItems.reduce((acc, item) => {
-              acc[item.menuItemId] = item.itemNotes || "";
-              return acc;
-            }, {}),
-            itemRates: responseData.selectedItems.reduce((acc, item) => {
-              acc[item.menuItemId] = item.itemPrice || 0;
-              return acc;
-            }, {}),
-            isSaved: true,
-            pax: responseData.responseData?.menuPreparation?.pax || pax,
-            rate:
-              responseData.responseData?.menuPreparation?.defaultPrice || rate,
-          },
-        }));
+      if (!preserveSelections || !hasExistingSelections) {
+        // Original logic for initial load or when we want to reset selections
+        if (
+          responseData.selectedItems &&
+          responseData.selectedItems.length > 0
+        ) {
+          console.log(
+            `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
+          );
 
-        // Update global pax and rate if this is the selected function
-        if (functionId === selectedFunctionId) {
-          if (responseData.responseData?.menuPreparation?.pax) {
-            setPax(responseData.responseData.menuPreparation.pax);
+          setFunctionSelectionData((prev) => ({
+            ...prev,
+            [functionId]: {
+              selectedItems: responseData.selectedItems.map(
+                (item) => item.menuItemId
+              ),
+              itemNotes: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemNotes || "";
+                return acc;
+              }, {}),
+              itemRates: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemPrice || 0;
+                return acc;
+              }, {}),
+              isSaved: true,
+              pax: responseData.responseData?.menuPreparation?.pax || pax,
+              rate:
+                responseData.responseData?.menuPreparation?.defaultPrice ||
+                rate,
+            },
+          }));
+
+          // Update global pax and rate if this is the selected function
+          if (functionId === selectedFunctionId) {
+            if (responseData.responseData?.menuPreparation?.pax) {
+              setPax(responseData.responseData.menuPreparation.pax);
+            }
+            if (
+              responseData.responseData?.menuPreparation?.defaultPrice !==
+              undefined
+            ) {
+              setRate(responseData.responseData.menuPreparation.defaultPrice);
+            }
           }
-          if (
-            responseData.responseData?.menuPreparation?.defaultPrice !==
-            undefined
-          ) {
-            setRate(responseData.responseData.menuPreparation.defaultPrice);
-          }
+        } else {
+          console.log(`📭 No selected items found for function ${functionId}`);
+
+          // Ensure clean state for functions with no selections
+          setFunctionSelectionData((prev) => ({
+            ...prev,
+            [functionId]: {
+              selectedItems: [],
+              itemNotes: {},
+              itemRates: {},
+              isSaved: false,
+              pax: prev[functionId]?.pax || 0,
+              rate: prev[functionId]?.rate || 0,
+            },
+          }));
         }
       } else {
-        console.log(`📭 No selected items found for function ${functionId}`);
+        console.log(
+          `🔒 Preserving existing selections for function ${functionId}`
+        );
+        // When preserving selections, we still need to merge any new saved data from API
+        if (
+          responseData.selectedItems &&
+          responseData.selectedItems.length > 0
+        ) {
+          setFunctionSelectionData((prev) => {
+            const currentSelections = prev[functionId]?.selectedItems || [];
+            const currentNotes = prev[functionId]?.itemNotes || {};
+            const currentRates = prev[functionId]?.itemRates || {};
 
-        // Ensure clean state for functions with no selections
-        setFunctionSelectionData((prev) => ({
-          ...prev,
-          [functionId]: {
-            selectedItems: [],
-            itemNotes: {},
-            itemRates: {},
-            isSaved: false,
-            pax: prev[functionId]?.pax || 0,
-            rate: prev[functionId]?.rate || 0,
-          },
-        }));
+            // Merge API selections with current selections
+            const apiSelections = responseData.selectedItems.map(
+              (item) => item.menuItemId
+            );
+            const mergedSelections = [
+              ...new Set([...currentSelections, ...apiSelections]),
+            ];
+
+            // Merge notes and rates (API data takes precedence for items that exist in API)
+            const mergedNotes = { ...currentNotes };
+            const mergedRates = { ...currentRates };
+
+            responseData.selectedItems.forEach((item) => {
+              if (item.itemNotes) {
+                mergedNotes[item.menuItemId] = item.itemNotes;
+              }
+              if (item.itemPrice) {
+                mergedRates[item.menuItemId] = item.itemPrice;
+              }
+            });
+
+            return {
+              ...prev,
+              [functionId]: {
+                ...prev[functionId],
+                selectedItems: mergedSelections,
+                itemNotes: mergedNotes,
+                itemRates: mergedRates,
+                // Keep isSaved status as false if user has made changes
+                isSaved: prev[functionId]?.isSaved !== false ? true : false,
+              },
+            };
+          });
+        }
       }
     } catch (error) {
       console.error("❌ Error loading function menu data:", error);
@@ -288,6 +347,7 @@ const EventPreparationPage = () => {
       setLoading(false);
     }
   };
+
   const clearFunctionCache = (functionId) => {
     setFunctionMenuData((prev) => {
       const newData = { ...prev };
@@ -429,8 +489,8 @@ const EventPreparationPage = () => {
         return newData;
       });
 
-      // Load fresh data
-      await loadFunctionMenuData(selectedFunctionId, categoryId);
+      // Load fresh data WITHOUT overriding existing selections
+      await loadFunctionMenuData(selectedFunctionId, categoryId, true); // Add preserveSelections flag
     }
   };
 
@@ -551,13 +611,9 @@ const EventPreparationPage = () => {
     name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Get current function's menu items (for left side display - category specific)
+  // FIXED: Get current function's menu items with selection state
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
-
-  const filteredChildren = currentMenuItems.filter((child) =>
-    child.name.toLowerCase().includes(childSearch.toLowerCase())
-  );
 
   // Get current function's selection data
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
@@ -565,6 +621,16 @@ const EventPreparationPage = () => {
     itemNotes: {},
     itemRates: {},
   };
+
+  // FIXED: Update menu items with current selection state
+  const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
+    ...item,
+    isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
+  }));
+
+  const filteredChildren = menuItemsWithSelectionState.filter((child) =>
+    child.name.toLowerCase().includes(childSearch.toLowerCase())
+  );
 
   const toggleChildSelection = (id) => {
     setFunctionSelectionData((prev) => ({
@@ -688,6 +754,7 @@ const EventPreparationPage = () => {
 
   // Determine if this is an update or create operation
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
+
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
@@ -915,13 +982,11 @@ const EventPreparationPage = () => {
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                           {filteredChildren.map(
-                            ({ parentId, id, name, image }) => (
+                            ({ parentId, id, name, image, isSelected }) => (
                               <div
                                 key={id}
                                 className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
-                                  currentFunctionData.selectedItems?.includes(
-                                    id
-                                  )
+                                  isSelected
                                     ? "border-success bg-green-300/10 text-success"
                                     : "hover:bg-blue-500/10 hover:border-blue-500/15"
                                 }`}
@@ -937,9 +1002,7 @@ const EventPreparationPage = () => {
                                 <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
                                   {name}
                                 </div>
-                                {currentFunctionData.selectedItems?.includes(
-                                  id
-                                ) && (
+                                {isSelected && (
                                   <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
                                     <i className="ki-filled ki-check text-sm text-light"></i>
                                   </span>
