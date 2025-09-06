@@ -297,6 +297,7 @@ const FunctionsDetails = ({
                     {/* Start Date */}
                     <td className="py-3 px-2 border-b border-gray-200 w-40">
                       <DatePicker
+                        className="input "
                         // style={{
                         //   width: "175px",
                         //   borderColor: getFunctionFieldError(
@@ -319,8 +320,8 @@ const FunctionsDetails = ({
                         options={options}
                         className={
                           getFunctionFieldError(index, "functionId")
-                            ? "input border-red-500"
-                            : "input"
+                            ? "border-red-500"
+                            : ""
                         }
                       />
                       {getFunctionFieldError(index, "functionId") && (
@@ -376,15 +377,15 @@ const FunctionsDetails = ({
                     {/* End Date */}
                     <td className="p-3 w-40">
                       <DatePicker
-                        // style={{
-                        //   width: "175px",
-                        //   borderColor: getFunctionFieldError(
-                        //     index,
-                        //     "functionEndDateTime"
-                        //   )
-                        //     ? "#ef4444"
-                        //     : undefined,
-                        // }}
+                        style={{
+                          width: "175px",
+                          borderColor: getFunctionFieldError(
+                            index,
+                            "functionEndDateTime"
+                          )
+                            ? "#ef4444"
+                            : undefined,
+                        }}
                         showTime={{ format: "hh:mm A" }}
                         format="DD/MM/YYYY hh:mm A"
                         value={
