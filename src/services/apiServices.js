@@ -289,6 +289,19 @@ export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
 };
 
+//Add category Type
+export const MenuReportData = (
+  eventId,
+  catImg,
+  catIns,
+  catSlogan,
+  itemSlogan
+) => {
+  return GET(
+    `/menupreparation/generateexclusivereport?eventFunctionId=-1&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemSlogan=${itemSlogan}`
+  );
+};
+
 //Edit category Type
 export const editCategory = (Id, data) => {
   return PUT(`/menucategory/update?id=${Id}`, data);

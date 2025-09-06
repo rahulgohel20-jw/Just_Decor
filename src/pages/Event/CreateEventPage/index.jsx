@@ -66,7 +66,7 @@ const CreateEventPage = () => {
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "event");
+          console.log(event, "event hello");
           const statusId =
             event?.status?.id != null
               ? String(event.status.id)
@@ -76,9 +76,15 @@ const CreateEventPage = () => {
             inquiryDate: event.inquiryDate
               ? dayjs(event.inquiryDate, "DD/MM/YYYY").format("DD/MM/YYYY")
               : prev.inquiryDate,
-            eventStartDateTime: event.eventStartDateTime || "",
+            eventStartDateTime: event.eventStartDateTime.replace(
+              /am|pm/i,
+              (match) => match.toUpperCase()
+            ),
+            eventEndDateTime: event.eventEndDateTime.replace(
+              /am|pm/i,
+              (match) => match.toUpperCase()
+            ),
             status: statusId,
-            eventEndDateTime: event.eventEndDateTime || "",
             venue: event.venue || "",
             eventTypeId: event.eventType?.id || "",
             managerId: event.manager?.id || "",
@@ -91,8 +97,14 @@ const CreateEventPage = () => {
               eventFuncId: f.eventId,
               functionId: f.function?.id ?? f.functionId ?? null,
               functionName: f.function?.nameEnglish ?? "",
-              functionStartDateTime: f.functionStartDateTime,
-              functionEndDateTime: f.functionEndDateTime,
+              functionStartDateTime: f.functionStartDateTime.replace(
+                /am|pm/i,
+                (match) => match.toUpperCase()
+              ),
+              functionEndDateTime: f.functionEndDateTime.replace(
+                /am|pm/i,
+                (match) => match.toUpperCase()
+              ),
               pax: f.pax || "",
               rate: f.rate || "",
               function_venue: f.function_venue || "",

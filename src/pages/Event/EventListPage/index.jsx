@@ -11,6 +11,7 @@ import { underConstruction } from "@/underConstruction";
 import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
 const EventListPage = () => {
   const classes = useStyle();
   useEffect(() => {
@@ -19,7 +20,8 @@ const EventListPage = () => {
   const [tableData, setTableData] = useState();
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [viewEventModal, setViewEventModal] = useState(false);
-
+  const [isMenuReport, setIsMenuReport] = useState(false);
+  const [menuReportEventId, setMenuReportEventId] = useState(null);
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
   const FetchEvent = () => {
@@ -89,6 +91,10 @@ const EventListPage = () => {
     setSelectedEventId(eventId);
     setViewEventModal(true);
   };
+  const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
 
   return (
     <Fragment>
@@ -125,9 +131,14 @@ const EventListPage = () => {
           eventId={selectedEventId}
         />
         <TableComponent
-          columns={columns(DeleteEvent, viewEvent)}
+          columns={columns(DeleteEvent, viewEvent, openMenuReport)}
           data={tableData}
           paginationSize={10}
+        />
+        <MenuReport
+          isModalOpen={isMenuReport}
+          setIsModalOpen={setIsMenuReport}
+          eventId={menuReportEventId}
         />
       </Container>
     </Fragment>
