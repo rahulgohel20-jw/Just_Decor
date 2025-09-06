@@ -121,7 +121,7 @@ export const columns = (onDelete, viewEvent) => [
             </Tooltip>
           </Popconfirm>
           <Tooltip title="Menu Preparation">
-            <Link to="/menu-preparation">
+            <Link to={`/menu-preparation/${row.original.eventid}`}>
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 title="Menu Preparation"
