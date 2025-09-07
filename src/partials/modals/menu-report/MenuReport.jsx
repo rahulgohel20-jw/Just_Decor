@@ -13,7 +13,6 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
     itemSlogan: false,
   });
   const [loading, setLoading] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
 
   const allChecked = useMemo(
     () =>
@@ -35,9 +34,27 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
   const toggleOne = (key) =>
     setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const handleClose = () => {
-    setIsModalOpen(false);
-    setPdfUrl(null);
+  const handleClose = () => setIsModalOpen(false);
+
+  // open a URL in new tab (more reliable than window.open in async handlers)
+  const openInNewTab = (url) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  // fallback: fetch as blob and open
+  const openAsBlob = async (url) => {
+    const res = await fetch(url, { credentials: "include" }); // adjust if auth not needed
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    openInNewTab(blobUrl);
+    // optionally revoke after a delay
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
   };
 
   const handleReport = async () => {
@@ -95,7 +112,6 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
         categoryImage: false,
         itemSlogan: false,
       });
-      setPdfUrl(null);
     }
   }, [isModalOpen]);
 
@@ -104,98 +120,73 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
       open={isModalOpen}
       title="Menu Report"
       onClose={handleClose}
-      width={pdfUrl ? "80%" : "40%"} // wider modal when showing PDF
-      footer={
-        pdfUrl
-          ? [
-              <button
-                key="close"
-                type="button"
-                onClick={handleClose}
-                className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
-              >
-                Close
-              </button>,
-            ]
-          : [
-              <div key="footer" className="flex flex-row justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleReport}
-                  className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
-                  disabled={loading}
-                >
-                  {loading ? "Reporting..." : "Report"}
-                </button>
-              </div>,
-            ]
-      }
+      footer={[
+        <div key="footer" className="flex flex-row justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleReport}
+            className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
+            disabled={loading}
+          >
+            {loading ? "Reporting..." : "Report"}
+          </button>
+        </div>,
+      ]}
     >
-      {!pdfUrl ? (
-        <div className="flex flex-col gap-3">
-          {/* Check All */}
-          <label className="flex items-center gap-3 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              checked={allChecked}
-              onChange={(e) => toggleAll(e.target.checked)}
-            />
-            <span className="font-medium">Check All</span>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              checked={options.categorySlogan}
-              onChange={() => toggleOne("categorySlogan")}
-            />
-            <span>Add Category Slogan</span>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              checked={options.categoryInstruction}
-              onChange={() => toggleOne("categoryInstruction")}
-            />
-            <span>Add Category Instruction</span>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              checked={options.categoryImage}
-              onChange={() => toggleOne("categoryImage")}
-            />
-            <span>Add Category Image</span>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              checked={options.itemSlogan}
-              onChange={() => toggleOne("itemSlogan")}
-            />
-            <span>Add Item Slogan</span>
-          </label>
-        </div>
-      ) : (
-        <div className="w-full h-[80vh]">
-          <iframe
-            src={pdfUrl}
-            title="Menu Report PDF"
-            className="w-full h-[1200px] border-0 rounded-md"
+      <div className="flex flex-col gap-3">
+        <label className="flex items-center gap-3 p-3 border rounded-lg">
+          <input
+            type="checkbox"
+            checked={allChecked}
+            onChange={(e) => toggleAll(e.target.checked)}
           />
-        </div>
-      )}
+          <span className="font-medium">Check All</span>
+        </label>
+
+        <label className="flex items-center gap-3 p-3 border rounded-lg">
+          <input
+            type="checkbox"
+            checked={options.categorySlogan}
+            onChange={() => toggleOne("categorySlogan")}
+          />
+          <span>Add Category Slogan</span>
+        </label>
+
+        <label className="flex items-center gap-3 p-3 border rounded-lg">
+          <input
+            type="checkbox"
+            checked={options.categoryInstruction}
+            onChange={() => toggleOne("categoryInstruction")}
+          />
+          <span>Add Category Instruction</span>
+        </label>
+
+        <label className="flex items-center gap-3 p-3 border rounded-lg">
+          <input
+            type="checkbox"
+            checked={options.categoryImage}
+            onChange={() => toggleOne("categoryImage")}
+          />
+          <span>Add Category Image</span>
+        </label>
+
+        <label className="flex items-center gap-3 p-3 border rounded-lg">
+          <input
+            type="checkbox"
+            checked={options.itemSlogan}
+            onChange={() => toggleOne("itemSlogan")}
+          />
+          <span>Add Item Slogan</span>
+        </label>
+      </div>
     </CustomModal>
   );
 };
