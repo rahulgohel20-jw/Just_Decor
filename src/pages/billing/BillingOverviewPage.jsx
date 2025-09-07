@@ -23,7 +23,6 @@ const BillingOverviewPage = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Billing Overview" }]} />
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4">
           <div className="card min-w-full py-7 px-5 rtl:[background-position:-240px_center] [background-position:240px_center] bg-no-repeat bg-[length:500px] user-access-bg">
             <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow gap-2">

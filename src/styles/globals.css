@@ -113,3 +113,35 @@ html,
 .mandatory {
   line-height: unset;
 }
+
+/* ant-table */
+.ant-table-wrapper .ant-table-cell,
+.ant-table-wrapper .ant-table-thead>tr>th,
+.ant-table-wrapper .ant-table-tbody>tr>th,
+.ant-table-wrapper .ant-table-tbody>tr>td,
+.ant-table-wrapper tfoot>tr>th,
+.ant-table-wrapper tfoot>tr>td {
+  padding: 10px;
+}
+
+.ant-table-thead>tr>th {
+  background-color: #f9f9f9 !important;
+}
+
+/* .ant-picker {
+  display: block;
+  width: 100%;
+  appearance: none;
+  box-shadow: none;
+  outline: none;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: 1;
+  background-color: var(--tw-light);
+  border-radius: 0.375rem;
+  height: 2.5rem;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 0.75rem;
+  border: 1px solid var(--tw-gray-400);
+  color: var(--tw-gray-900);
+} */

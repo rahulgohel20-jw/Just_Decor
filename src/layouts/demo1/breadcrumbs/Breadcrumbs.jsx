@@ -81,19 +81,35 @@ const Breadcrumbs = ({ items }) => {
 
   const menuItems = [
     {
-      label: <div onClick={() => setIsLeadModalOpen(true)}><i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead</div>,
+      label: (
+        <div onClick={() => setIsLeadModalOpen(true)}>
+          <i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead
+        </div>
+      ),
       key: "0",
     },
     {
-      label: <div onClick={() => setIsFollowUpModalOpen(true)}><i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up</div>,
+      label: (
+        <div onClick={() => setIsFollowUpModalOpen(true)}>
+          <i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up
+        </div>
+      ),
       key: "1",
     },
     {
-      label: <div onClick={() => setIsContactModalOpen(true)}><i className="ki-filled ki-user me-1.5"></i>Contact</div>,
+      label: (
+        <div onClick={() => setIsContactModalOpen(true)}>
+          <i className="ki-filled ki-user me-1.5"></i>Contact
+        </div>
+      ),
       key: "2",
     },
     {
-      label: <div onClick={() => setIsCompanyModalOpen(true)}><i className="ki-filled ki-bank me-1.5"></i>Company</div>,
+      label: (
+        <div onClick={() => setIsCompanyModalOpen(true)}>
+          <i className="ki-filled ki-bank me-1.5"></i>Company
+        </div>
+      ),
       key: "3",
     },
   ];
@@ -114,7 +130,7 @@ const Breadcrumbs = ({ items }) => {
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>
-              <button className="btn btn-sm btn-primary" title="Create New">
+              <button className="btn btn-sm btn-success" title="Create New">
                 <i className="ki-filled ki-plus"></i>
                 Create New
               </button>

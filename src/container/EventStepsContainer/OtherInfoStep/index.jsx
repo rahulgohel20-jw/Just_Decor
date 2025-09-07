@@ -49,7 +49,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
 
   return (
     <>
-      <div className="flex flex-col gap-3 lg:gap-4">
+      <div className={`flex flex-col gap-3 lg:gap-4 ${classes.customStyle}`}>
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -59,28 +59,33 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
-              <div className="sg__inner flex flex-col w-full gap-1">
+              <div className="sg__inner  ssssssssssssss flex flex-col w-full gap-1">
                 <label className="form-label">
-                  Meal Type <span className="text-red-500">*</span>
+                  Meal Typeas
+                  <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                    *
+                  </span>
                 </label>
-                <div className="relative w-full">
-                  <MealTypeDropdown
-                    value={formData.mealTypeId || ""}
-                    name="mealTypeId"
-                    onChange={handleMealTypeChange}
-                    createBtn={true}
-                    options={options}
-                    className="w-full pr-14"
-                    setCreateModalOpen={setShowCustomerModal}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddClick}
-                    title="Add"
-                    className="absolute inset-y-1 right-2 flex items-center justify-center rounded-full bg-blue-600 text-white w-8 h-8"
-                  >
-                    <i className="ki-filled ki-plus text-sm"></i>
-                  </button>
+                <div className="select__grp flex flex-col">
+                  <div className="sg__inner flex items-center gap-1 relative">
+                    <MealTypeDropdown
+                      value={formData.mealTypeId || ""}
+                      name="mealTypeId"
+                      onChange={handleMealTypeChange}
+                      createBtn={true}
+                      options={options}
+                      className="w-full pr-14"
+                      setCreateModalOpen={setShowCustomerModal}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddClick}
+                      title="Add"
+                      className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                    >
+                      <i className="ki-filled ki-plus text-sm"></i>
+                    </button>
+                  </div>
                 </div>
                 {errors.mealTypeId && (
                   <span className="text-red-500 text-sm">
@@ -110,7 +115,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
-
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -173,7 +177,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
-
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -212,7 +215,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Birth Date</label>
                 <DatePicker
@@ -226,7 +228,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   }
                 />
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Community</label>
                 <div className="input">
@@ -241,7 +242,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Phone Number</label>
                 <div className="input">
@@ -259,7 +259,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
-
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -283,7 +282,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Instagram Link</label>
                 <div className="input">
@@ -298,7 +296,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Birth Date</label>
                 <DatePicker
@@ -312,7 +309,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   }
                 />
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Community</label>
                 <div className="input">
@@ -327,7 +323,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <label className="form-label">Phone Number</label>
                 <div className="input">
@@ -345,7 +340,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
-
         <AddMeal
           isOpen={showCustomerModal}
           onClose={() => setShowCustomerModal(false)}
