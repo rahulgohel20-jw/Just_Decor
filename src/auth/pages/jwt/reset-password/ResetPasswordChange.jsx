@@ -69,6 +69,8 @@ const ResetPasswordChange = () => {
             : "/auth/classic/reset-password/changed"
         );
         message.success("Password reset successfully. Please login with your new password");
+        localStorage.removeItem("email");
+        localStorage.removeItem("successMsg");
       } catch (error) {
         if (error instanceof AxiosError && error.response) {
           setStatus(error.response.data.message);

@@ -5,8 +5,9 @@ import { KeenIcon } from "@/components";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAuthContext } from "../../useAuthContext";
-import { verifyOtp } from "@/services/apiServices"; // <-- import service
-import { da } from "@faker-js/faker";
+import { verifyOtp, verifyMobileOtp } from "@/services/apiServices"; // <-- import service
+import { da, tr } from "@faker-js/faker";
+import { message } from "antd";
 
 const TwoFactorAuth = () => {
   const { login } = useAuthContext();
@@ -46,44 +47,65 @@ const TwoFactorAuth = () => {
 
 
 
-    onSubmit: async (values, { setStatus, setSubmitting }) => {
-      setLoading(true);
-      try {
-        const otp = codeInputs.join("");
-        if (otp.length !== 6) {
-          throw new Error("Please enter a valid 6-digit OTP.");
-        }
+   onSubmit: async (values, { setStatus, setSubmitting }) => {
+  setLoading(true);
+  try {
+    const otp = codeInputs.join("");
+    if (otp.length !== 6) {
+      throw new Error("Please enter a valid 6-digit OTP.");
+    }
 
-        const email = localStorage.getItem("email");
-        const phone = localStorage.getItem("phone");
+    const email = localStorage.getItem("email");
+    const phone = localStorage.getItem("phone");
+    console.log("Verifying OTP for:", email || phone);
 
-        // ✅ Use axios service function
-        const { data } = await verifyOtp({ email, phone, otp });
-        console.log("OTP verification response:", data);
+    let data;
 
-        if(data.success){
-          navigate("/auth/reset-password/change");
-        }
+    if (phone) {
+      // ✅ Mobile OTP login flow
+      const response = await verifyMobileOtp({ phone, otp });
+      data = response.data;
 
-        if (!data.success) {
-          throw new Error(data.message || "Invalid OTP");
-        }
+      if (!data.success) throw new Error(data.msg || "Invalid OTP");
 
-        if (data.token) {
-          localStorage.setItem("authToken", data.token);
-        }
-
-        if (login) {
-          await login(email || phone, otp);
-        }
-
-        navigate("/auth/reset-password/change", { replace: true });
-      } catch (error) {
-        setStatus(error.message || "OTP verification failed");
-        setSubmitting(false);
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
       }
-      setLoading(false);
-    },
+      console.log("Mobile OTP verification response:", data);
+      message.success(data.msg || "Mobile login successful ✅");
+      localStorage.setItem("userData", JSON.stringify(data));
+      localStorage.removeItem("phone");
+
+      // 🔥 Redirect to dashboard
+      navigate("/", { replace: true });
+    } else if (email) {
+      // ✅ Email OTP flow (forgot password)
+      const response = await verifyOtp({ email, otp });
+      data = response.data;
+
+      if (!data.success) throw new Error(data.msg || "Invalid OTP");
+
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+      }
+
+      message.success(data.msg || "OTP verified successfully ✅");
+
+      // 🔥 Redirect to reset-password page
+      navigate("/auth/reset-password/change", { replace: true });
+    } else {
+      throw new Error("No phone or email found in localStorage");
+    }
+  } catch (error) {
+    console.error("OTP verification error:", error);
+    setStatus(error.message || "OTP verification failed");
+    setSubmitting(false);
+  }
+  setLoading(false);
+},
+
+
+
   });
 
   return (

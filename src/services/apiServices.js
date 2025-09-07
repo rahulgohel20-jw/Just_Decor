@@ -175,8 +175,6 @@ export const UpdateEventStatus = (Id, statusId) => {
   return PUT(`/eventmaster/updatestatus?id=${Id}&statusId=${statusId}`);
 };
 
-
-
 //get all manager and admin
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
@@ -277,12 +275,31 @@ export const Getmenuprep = (
 };
 
 //Get menu preparation items
+export const Deleteiteminmenu = (itemId, menuCatId, MenuprepId) => {
+  return DELETE(
+    `/menupreparation/deletemenupreparationitem?itemId=${itemId}&menuCategoryId=${menuCatId}&menuPreparationId=${MenuprepId}`
+  );
+};
+//Get menu preparation items
 export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
+};
+
+//Add category Type
+export const MenuReportData = (
+  eventId,
+  catImg,
+  catIns,
+  catSlogan,
+  itemSlogan
+) => {
+  return GET(
+    `/menupreparation/generateexclusivereport?eventFunctionId=-1&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemSlogan=${itemSlogan}`
+  );
 };
 
 //Edit category Type
@@ -405,7 +422,6 @@ export const UpdateMenuItem = (id, data) => {
 export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
 };
-
 
 // Change Password
 

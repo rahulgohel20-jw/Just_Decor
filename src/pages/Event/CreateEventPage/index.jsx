@@ -53,6 +53,12 @@ const CreateEventPage = () => {
   const [current, setCurrent] = useState(0);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  let STATUS_NAME_TO_ID = {
+    Inquiry: "0",
+    Inquriy: "0",
+    Confirm: "1",
+    Cancel: "2",
+  };
 
   useEffect(() => {
     if (mode === "edit" && eventId) {
@@ -60,15 +66,25 @@ const CreateEventPage = () => {
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "event");
-
+          console.log(event, "event hello");
+          const statusId =
+            event?.status?.id != null
+              ? String(event.status.id)
+              : (STATUS_NAME_TO_ID[event?.status] ?? "0");
           setFormData((prev) => ({
             ...prev,
             inquiryDate: event.inquiryDate
               ? dayjs(event.inquiryDate, "DD/MM/YYYY").format("DD/MM/YYYY")
               : prev.inquiryDate,
-            eventStartDateTime: event.eventStartDateTime || "",
-            eventEndDateTime: event.eventEndDateTime || "",
+            eventStartDateTime: event.eventStartDateTime.replace(
+              /am|pm/i,
+              (match) => match.toUpperCase()
+            ),
+            eventEndDateTime: event.eventEndDateTime.replace(
+              /am|pm/i,
+              (match) => match.toUpperCase()
+            ),
+            status: statusId,
             venue: event.venue || "",
             eventTypeId: event.eventType?.id || "",
             managerId: event.manager?.id || "",
@@ -79,9 +95,16 @@ const CreateEventPage = () => {
 
             eventFunction: (event.eventFunctions || []).map((f) => ({
               eventFuncId: f.eventId,
-              functionId: f.function?.nameEnglish || null,
-              functionStartDateTime: f.functionStartDateTime,
-              functionEndDateTime: f.functionEndDateTime,
+              functionId: f.function?.id ?? f.functionId ?? null,
+              functionName: f.function?.nameEnglish ?? "",
+              functionStartDateTime: f.functionStartDateTime.replace(
+                /am|pm/i,
+                (match) => match.toUpperCase()
+              ),
+              functionEndDateTime: f.functionEndDateTime.replace(
+                /am|pm/i,
+                (match) => match.toUpperCase()
+              ),
               pax: f.pax || "",
               rate: f.rate || "",
               function_venue: f.function_venue || "",
@@ -210,6 +233,11 @@ const CreateEventPage = () => {
 
     const payload = {
       ...formData,
+      status: Number(formData.status),
+      eventFunction: (formData.eventFunction || []).map((f) => ({
+        ...f,
+        functionId: f.functionId != null ? Number(f.functionId) : null,
+      })),
       userId,
     };
 

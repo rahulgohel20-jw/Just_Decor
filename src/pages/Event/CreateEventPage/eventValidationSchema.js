@@ -63,6 +63,7 @@ export const eventValidationSchema = yup.object().shape({
 // FIXED: Step-specific validation schemas
 export const stepValidationSchemas = {
   basic_info: yup.object().shape({
+    status: yup.string().required("Status is required"),
     inquiryDate: yup.string().required("Inquiry Date is required"),
     eventStartDateTime: yup.string().required("Event Start Date is required"),
     eventEndDateTime: yup
