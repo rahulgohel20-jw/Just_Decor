@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { Alert, KeenIcon } from "@/components";
 import { useLayout } from "@/providers";
 import { requestPasswordResetLink } from "@/services/apiServices"; // ✅ import your API
+import { message } from "antd";
 
 const initialValues = {
   email: "",
@@ -21,7 +22,8 @@ const forgotPasswordSchema = Yup.object().shape({
 
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
-  const [hasErrors, setHasErrors] = useState(undefined);
+  const [hasErrors, setHasErrors] = useState(null); // null | string
+
   const { currentLayout } = useLayout();
   const navigate = useNavigate();
 
@@ -33,33 +35,53 @@ const ResetPassword = () => {
       setHasErrors(undefined);
 
       try {
-        // ✅ Call your API
-        await requestPasswordResetLink(values.email);
+  const response = await requestPasswordResetLink(values.email);
 
-        setHasErrors(false);
-        setLoading(false);
+  console.log("API Response:", response);
 
-        // Pass email to next screen
-        const params = new URLSearchParams();
-        params.append("email", values.email);
-        localStorage.setItem("email", values.email); // Store email for 2FA step
-        navigate({
-          pathname:
-            currentLayout?.name === "auth-branded"
-              ? "/auth/2fa"
-              : "/auth/classic/reset-password/check-email",
-          search: params.toString(),
-        });
-      } catch (error) {
-        if (error.response?.data?.message) {
-          setStatus(error.response.data.message);
-        } else {
-          setStatus("Password reset failed. Please try again.");
-        }
-        setHasErrors(true);
-        setLoading(false);
-        setSubmitting(false);
-      }
+  // ✅ Backend returns { success: true/false, msg: "..." }
+  if (response?.data?.success) {
+    console.log("✅ Success:", response.data.msg);
+    message.success(response.data.msg);
+  localStorage.setItem("successMsg", response.data.msg);
+  setHasErrors(null); // no error
+
+    // Save email + navigate
+    const params = new URLSearchParams();
+    params.append("email", values.email);
+    localStorage.setItem("email", values.email);
+
+    navigate({
+      pathname:
+        currentLayout?.name === "auth-branded"
+          ? "/auth/2fa"
+          : "/auth/classic/reset-password/check-email",
+      search: params.toString(),
+    });
+  } else {
+  console.log("❌ Failed:", response?.data?.msg || "Something went wrong");
+  const failMsg = response?.data?.msg || "Password reset failed. Please try again.";
+  // message.error(failMsg);
+  setHasErrors(failMsg); // store error message
+}
+
+  setLoading(false);
+} catch (error) {
+  console.error("🚨 API Error:", error);
+
+  const errorMsg =
+    error.response?.data?.msg ||
+    error.response?.data?.message ||
+    "Something went wrong. Please try again.";
+
+  setStatus(errorMsg);
+  message.error(errorMsg);
+  setHasErrors(errorMsg); // store error message
+  setLoading(false);
+  setSubmitting(false);
+}
+
+
     },
   });
 
@@ -79,13 +101,13 @@ const ResetPassword = () => {
             with your account
           </span>
         </div>
+{hasErrors && <Alert variant="danger">{hasErrors}</Alert>}
+{/* {hasErrors === null && (
+  <Alert variant="success">
+    Password reset link sent. Please check your email to proceed
+  </Alert>
+)} */}
 
-        {hasErrors && <Alert variant="danger">{formik.status}</Alert>}
-        {hasErrors === false && (
-          <Alert variant="success">
-            Password reset link sent. Please check your email to proceed
-          </Alert>
-        )}
 
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>

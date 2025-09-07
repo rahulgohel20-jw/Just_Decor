@@ -328,18 +328,29 @@ console.log("Final Signup Payload:", payload);
         <h3 className="text-sm font-semibold mb-4 border-b pb-2">Company Details</h3>
         <div className="grid grid-cols-2 gap-4">
 
-          {/* Company Name */}
-          <div className="flex flex-col">
-            <label className="form-label">Company Name</label>
-            <input
-              name="companyName"
-              placeholder="Company Name"
-              className="border p-2 w-full rounded"
-              value={formik.values.companyName}
-              onChange={formik.handleChange}
-            />
-            {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
-          </div>
+        {/* Company Name */}
+        <div className="flex flex-col">
+          <label className="form-label">Company Name</label>
+          <input
+            name="companyName"
+            placeholder="Company Name"
+            className="border p-2 w-full rounded"
+            value={formik.values.companyName}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
+        </div>
+        <div className="flex flex-col">
+          <label className="form-label">Remarks</label>
+          <input
+            name="remarks"
+            placeholder="Remarks"
+            className="border p-2 w-full rounded"
+            value={formik.values.remarks}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.remarks && <p className="text-red-500 text-sm">{formik.errors.remarks}</p>}
+        </div>
 
           {/* Company Email */}
           {/* <div className="flex flex-col">

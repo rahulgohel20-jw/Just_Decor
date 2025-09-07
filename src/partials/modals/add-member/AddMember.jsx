@@ -5,22 +5,16 @@ import {
   AddMember as AddMemberapi,
   UpdateMember,
   getUserById,
-} from "@/services/apiServices"; // <-- renamed API fn
-import Select from "react-select";
-import {
   fetchCountries,
   fetchStatesByCountry,
   fetchCitiesByState,
-} from "@/services/apiServices"; // <-- your APIs
+} from "@/services/apiServices";
+import Select from "react-select";
 
-const AddMember = ({
-  isModalOpen,
-  setIsModalOpen,
-  refreshData,
-  selectedMember,
-}) => {
+const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
+
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -28,8 +22,10 @@ const AddMember = ({
   const [searchCountry, setSearchCountry] = useState("");
   const [searchState, setSearchState] = useState("");
   const [searchCity, setSearchCity] = useState("");
+
   const [roles, setRoles] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRole, setSelectedRole] = useState(""); // roleId will be stored here
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -43,8 +39,33 @@ const AddMember = ({
     address: "",
     companyName: "",
   });
-  const userData = JSON.parse(localStorage.getItem("userData"));
 
+  // ✅ Close modal
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  // ✅ Input change handler
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ Fetch roles when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const Id = userData?.id;
+
+      GetAllRole(Id)
+        .then((res) => {
+          setRoles(res.data.data["Role Details"]);
+        })
+        .catch(() => setRoles([]));
+    }
+  }, [isModalOpen]);
+
+  // ✅ Fetch countries when modal opens
   useEffect(() => {
     if (isModalOpen) {
       fetchCountries(searchCountry)
@@ -53,7 +74,7 @@ const AddMember = ({
     }
   }, [isModalOpen, searchCountry]);
 
-  // ⬇ Fetch States when country changes
+  // ✅ Fetch states when country changes
   useEffect(() => {
     if (formData.countryId) {
       fetchStatesByCountry(formData.countryId, searchState)
@@ -62,7 +83,7 @@ const AddMember = ({
     }
   }, [formData.countryId, searchState]);
 
-  // ⬇ Fetch Cities when state changes
+  // ✅ Fetch cities when state changes
   useEffect(() => {
     if (formData.stateId) {
       fetchCitiesByState(formData.stateId, searchCity)
@@ -71,36 +92,11 @@ const AddMember = ({
     }
   }, [formData.stateId, searchCity]);
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  useEffect(() => {
-    if (isModalOpen) {
-      // fetch roles on open
-      let Id = userData?.id;
-
-      GetAllRole(Id)
-        .then((res) => {
-          console.log("Roles API response:", res.data.data["Role Details"]);
-          setRoles(res.data.data["Role Details"]);
-        })
-        .catch((err) => {
-          console.error("Error fetching roles:", err);
-          setRoles([]);
-        });
-    }
-  }, [isModalOpen]);
-
+  // ✅ Fetch member details when editing
   useEffect(() => {
     const fetchMember = async () => {
       if (!selectedMember?.id) {
-        // Reset form if no member selected
+        // reset form if adding new member
         setFormData({
           firstName: "",
           lastName: "",
@@ -123,44 +119,38 @@ const AddMember = ({
       try {
         const res = await getUserById(selectedMember.id);
         const member = res?.data?.data?.["User Details"][0];
-        console.log("User data:", member);
 
         if (member) {
           const prefilled = {
             memberid: member.id ?? "",
             firstName: member.firstName ?? "",
             lastName: member.lastName ?? "",
-            email: member.email ?? "sd",
+            email: member.email ?? "",
             companyEmail: member.userBasicDetails.companyEmail ?? "",
             contactNo: member.contactNo ?? "",
-            officeEmail: member.userBasicDetails.officeEmail ?? "",
+            officeNo: member.userBasicDetails.officeEmail ?? "",
             countryId: member.userBasicDetails.country.id ?? "",
             stateId: member.userBasicDetails.state.id ?? "",
-            cityId: member.userBasicDetails.city.id ?? member.city.id ?? "",
+            cityId: member.userBasicDetails.city.id ?? "",
             address: member.address ?? "",
             companyName: member.companyName ?? "",
-            role: member.userBasicDetails.role.name ?? "",
           };
 
           setFormData(prefilled);
-          setSelectedRole(member.userBasicDetails.role?.name || "");
+          setSelectedRole(member.userBasicDetails.role?.id || ""); // ✅ store id
+          // Prefill
+setTaskAccess(member.userBasicDetails.isTaskAccess ?? false);
+setLeaveAccess(member.userBasicDetails.isAttendanceLeaveAccess ?? false);
 
-          setTaskAccess(member.task_access ?? true);
-          setLeaveAccess(
-            member.leave_attendence_access === true ||
-              member.leave_attendence_access === "true"
-          );
 
-          // 🔥 If editing, fetch states & cities immediately
+          // fetch dependent state/city immediately
           if (prefilled.countryId) {
-            fetchStatesByCountry(prefilled.countryId, "").then((res) =>
-              setStates(res?.data?.data?.["state Details"] || [])
-            );
+            fetchStatesByCountry(prefilled.countryId, "")
+              .then((res) => setStates(res?.data?.data?.["state Details"] || []));
           }
           if (prefilled.stateId) {
-            fetchCitiesByState(prefilled.stateId, "").then((res) =>
-              setCities(res?.data?.data?.["City Details"] || [])
-            );
+            fetchCitiesByState(prefilled.stateId, "")
+              .then((res) => setCities(res?.data?.data?.["City Details"] || []));
           }
         }
       } catch (err) {
@@ -171,8 +161,10 @@ const AddMember = ({
     if (isModalOpen) fetchMember();
   }, [selectedMember, isModalOpen]);
 
+  // ✅ Save Member
   const handleSave = async () => {
     try {
+      const userData = localStorage.getItem("userData");
       if (!userData) {
         console.error("No userData in localStorage");
         return;
@@ -180,7 +172,6 @@ const AddMember = ({
 
       const parsedData = JSON.parse(userData);
 
-      // Common payload fields
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -189,8 +180,7 @@ const AddMember = ({
         contactNo: formData.contactNo,
         address: formData.address || parsedData.userBasicDetails.address,
         officeNo: formData.officeNo || parsedData.userBasicDetails.officeNo,
-        companyName:
-          formData.companyName || parsedData.userBasicDetails.companyName,
+        companyName: formData.companyName || parsedData.userBasicDetails.companyName,
 
         // static values
         countryCode: "+91",
@@ -203,46 +193,21 @@ const AddMember = ({
         clientId: parsedData.id,
         planId: parsedData.plan.id,
 
-        // role & access toggles
-        roleId: Number(selectedRole),
-        isTaskAccess: taskAccess,
-        isAttendanceLeaveAccess: leaveAccess,
+        // role & access
+       roleId: Number(selectedRole),
+isTaskAccess: taskAccess,
+isAttendanceLeaveAccess: leaveAccess,
+
       };
 
-      // 👉 Add memberId if editing
-      if (selectedMember?.memberid) {
-        payload.memberId = selectedMember.memberid;
-      }
+      if (formData.memberid) {
+  payload.memberId = formData.memberid;
+  const res = await UpdateMember(payload.memberId, payload);
+  console.log("Updating member with payload:", res);
+} else {
+  await AddMemberapi(payload);
+}
 
-      console.log("🚀 Sending payload:", payload);
-      const [activeTab, setActiveTab] = useState("tab_1");
-      let Id = userData.id;
-      useEffect(() => {
-        if (isModalOpen) {
-          GetAllRole(Id)
-            .then((res) => {
-              console.log("Roles API response:", res.data.data["Role Details"]); // 👈 debug
-              setRoles(res.data.data["Role Details"]);
-            })
-            .catch((err) => {
-              console.error("Error fetching roles:", err);
-              setRoles([]);
-            });
-        }
-      }, [isModalOpen]);
-
-      let res;
-      if (selectedMember?.memberid) {
-        // EDIT
-        res = await UpdateMember(payload.memberId, payload);
-        refreshData();
-        // <-- your edit API
-        console.log("✏ Member updated:", res.data);
-      } else {
-        // ADD
-        res = await AddMemberapi(payload);
-        console.log("✅ Member added:", res.data);
-      }
 
       refreshData();
       handleModalClose();
@@ -250,6 +215,7 @@ const AddMember = ({
       console.error("❌ Error saving member:", err.response?.data || err);
     }
   };
+
   return (
     isModalOpen && (
       <CustomModal
@@ -257,27 +223,18 @@ const AddMember = ({
         onClose={handleModalClose}
         title={selectedMember ? "Edit Member" : "New Member"}
         footer={[
-          <div className="flex justify-between" key={"footer-buttons"}>
-            <button
-              key="cancel"
-              className="btn btn-light"
-              onClick={handleModalClose}
-              title="Cancel"
-            >
+          <div className="flex justify-between" key="footer-buttons">
+            <button className="btn btn-light" onClick={handleModalClose}>
               Cancel
             </button>
-            <button
-              key="save"
-              className="btn btn-success"
-              onClick={handleSave}
-              title="Save"
-            >
+            <button className="btn btn-success" onClick={handleSave}>
               {selectedMember ? "Update" : "Save"}
             </button>
           </div>,
         ]}
       >
         <div className="flex flex-col gap-y-2">
+          {/* First & Last Name */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
               <label className="form-label">First Name</label>
@@ -303,141 +260,141 @@ const AddMember = ({
               />
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">Country</label>
-            <Select
-              options={countries.map((c) => ({
-                value: c.id,
-                label: c.name,
-              }))}
-              value={
-                countries.find((c) => c.id === formData.countryId)
-                  ? {
-                      value: formData.countryId,
-                      label: countries.find((c) => c.id === formData.countryId)
-                        ?.name,
-                    }
-                  : null
-              }
-              onChange={(selected) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  countryId: selected?.value || "",
-                }))
-              }
-              placeholder="Search & select country..."
-              isClearable
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">State </label>
-            <Select
-              options={states.map((s) => ({ value: s.id, label: s.name }))}
-              value={
-                states.find((s) => s.id === formData.stateId)
-                  ? {
-                      value: formData.stateId,
-                      label: states.find((s) => s.id === formData.stateId)
-                        ?.name,
-                    }
-                  : null
-              }
-              onChange={(selected) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  stateId: selected?.value || "",
-                }))
-              }
-              placeholder="Search & select state..."
-              isClearable
-              isDisabled={!formData.countryId}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">City </label>
-            <Select
-              options={cities.map((ct) => ({ value: ct.id, label: ct.name }))}
-              value={
-                cities.find((ct) => ct.id === formData.cityId)
-                  ? {
-                      value: formData.cityId,
-                      label: cities.find((ct) => ct.id === formData.cityId)
-                        ?.name,
-                    }
-                  : null
-              }
-              onChange={(selected) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  cityId: selected?.value || "",
-                }))
-              }
-              placeholder="Search & select city..."
-              isClearable
-              isDisabled={!formData.stateId}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="form-label">WhatsApp No</label>
-            <input
-              type="text"
-              name="contactNo"
-              value={formData.contactNo}
-              onChange={handleChange}
-              placeholder="WhatsApp no"
-              className="input"
-            />
+          {/* Country, State */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">Country</label>
+              <Select
+                options={countries.map((c) => ({ value: c.id, label: c.name }))}
+                value={
+                  countries.find((c) => c.id === formData.countryId)
+                    ? {
+                        value: formData.countryId,
+                        label: countries.find((c) => c.id === formData.countryId)
+                          ?.name,
+                      }
+                    : null
+                }
+                onChange={(selected) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    countryId: selected?.value || "",
+                  }))
+                }
+                placeholder="Select country..."
+                isClearable
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label">State</label>
+              <Select
+                options={states.map((s) => ({ value: s.id, label: s.name }))}
+                value={
+                  states.find((s) => s.id === formData.stateId)
+                    ? {
+                        value: formData.stateId,
+                        label: states.find((s) => s.id === formData.stateId)
+                          ?.name,
+                      }
+                    : null
+                }
+                onChange={(selected) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    stateId: selected?.value || "",
+                  }))
+                }
+                placeholder="Select state..."
+                isClearable
+                isDisabled={!formData.countryId}
+              />
+            </div>
           </div>
 
+          {/* City & WhatsApp */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">City</label>
+              <Select
+                options={cities.map((ct) => ({ value: ct.id, label: ct.name }))}
+                value={
+                  cities.find((ct) => ct.id === formData.cityId)
+                    ? {
+                        value: formData.cityId,
+                        label: cities.find((ct) => ct.id === formData.cityId)
+                          ?.name,
+                      }
+                    : null
+                }
+                onChange={(selected) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    cityId: selected?.value || "",
+                  }))
+                }
+                placeholder="Select city..."
+                isClearable
+                isDisabled={!formData.stateId}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label">Mobile No</label>
+              <input
+                type="text"
+                name="contactNo"
+                value={formData.contactNo}
+                onChange={handleChange}
+                className="input"
+                placeholder="Mobile No"
+              />
+            </div>
+          </div>
+
+          {/* Role */}
           <div className="flex flex-col">
             <label className="form-label">Role</label>
             <select
               className="select"
               value={selectedRole}
-              onChange={handleChange}
+              onChange={(e) => setSelectedRole(e.target.value)}
             >
               <option value="">Select Role</option>
               {roles.map((role) => (
-                <option key={role.id} value={role.name}>
+                <option key={role.id} value={role.id}>
                   {role.name}
                 </option>
               ))}
             </select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-x-4">
-          <div className="flex flex-col">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email address"
-              className="input"
-            />
+          {/* Email fields */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="input"
+                placeholder="Email"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label">Office Email</label>
+              <input
+                type="email"
+                name="companyEmail"
+                value={formData.companyEmail}
+                onChange={handleChange}
+                className="input"
+                placeholder="Office Email"
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label className="form-label">Office Email</label>
-            <input
-              type="email"
-              name="companyEmail"
-              value={formData.companyEmail}
-              onChange={handleChange}
-              placeholder="Office email"
-              className="input"
-            />
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1">
           <label className="form-label">Task Access</label>
           <label className="switch switch-lg">
             <input
@@ -457,6 +414,7 @@ const AddMember = ({
               onChange={() => setLeaveAccess(!leaveAccess)}
             />
           </label>
+        </div>
         </div>
       </CustomModal>
     )

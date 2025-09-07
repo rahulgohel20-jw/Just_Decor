@@ -1,3 +1,8 @@
+// const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+// const isAdmin = userData?.userBasicDetails.role.name === "Admin"; // adjust based on your role property
+// console.log("User Role:", userData, "isAdmin:", isAdmin);
+
+
 export const MENU_SIDEBAR = [
 
 
@@ -75,25 +80,18 @@ export const MENU_SIDEBAR = [
         title: "Role",
         path: "/master/role",
       },
-       {
-    title: "User Master",
-    icon: "ki-filled ki-abstract-18 text-primary",
-    children: [
-      {
-        title: "All User",
-        path: "/master/user-master/",
-        roles: ["superadmin"]
-      },
-      {
-        title: "User Plan",
-        path: "/master/user-master/plan",
-      },
-      
-      
-     
-      
-    ],
-  },
+      //  ...(!isAdmin
+      //   ? [
+            {
+              title: "User Master",
+              icon: "ki-filled ki-abstract-18 text-primary",
+              children: [
+                { title: "All User", path: "/master/user-master/" },
+                { title: "User Plan", path: "/master/user-master/plan" },
+              ],
+            },
+        //   ]
+        // : []),
     ],
   },
   {
