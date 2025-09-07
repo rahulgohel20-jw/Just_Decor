@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useLayout } from "@/providers";
 import { AxiosError } from "axios";
 import { resetPassword } from "@/services/apiServices"; // ✅ import service
+import { message } from "antd";
 
 const passwordSchema = Yup.object().shape({
   newPassword: Yup.string()
@@ -67,6 +68,7 @@ const ResetPasswordChange = () => {
             ? "/auth/reset-password/changed"
             : "/auth/classic/reset-password/changed"
         );
+        message.success("Password reset successfully. Please login with your new password");
       } catch (error) {
         if (error instanceof AxiosError && error.response) {
           setStatus(error.response.data.message);

@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { Alert, KeenIcon } from "@/components";
 import { useLayout } from "@/providers";
 import { requestPasswordResetLink } from "@/services/apiServices"; // ✅ import your API
+import { message } from "antd";
 
 const initialValues = {
   email: "",
@@ -50,6 +51,7 @@ const ResetPassword = () => {
               : "/auth/classic/reset-password/check-email",
           search: params.toString(),
         });
+        message.success("Otp sent successfully. Please check your email or mobile");
       } catch (error) {
         if (error.response?.data?.message) {
           setStatus(error.response.data.message);
