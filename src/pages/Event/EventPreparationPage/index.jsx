@@ -1018,19 +1018,19 @@ const EventPreparationPage = () => {
                           No items found
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
                           {filteredChildren.map(
                             ({ parentId, id, name, image, isSelected }) => (
                               <div
                                 key={id}
-                                className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
+                                className={`flex flex-col items-start border rounded-lg cursor-pointer  transition-all relative ${
                                   isSelected
                                     ? "border-success bg-green-300/10 text-success"
                                     : "hover:bg-blue-500/10 hover:border-blue-500/15"
                                 }`}
                                 onClick={() => toggleChildSelection(id)}
                               >
-                                <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
+                                <div className="w-full h-20 rounded overflow-hidden flex items-center justify-center">
                                   <img
                                     src={image}
                                     alt={name}
