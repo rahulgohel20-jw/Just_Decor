@@ -1,4 +1,4 @@
-import { useState, Fragment, useEffect } from "react";
+import { useState, Fragment, useEffect, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { menuCategories, menuCategoryChildren } from "./constant";
@@ -6,17 +6,17 @@ import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
-import { GetAllCategory } from "@/services/apiServices";
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { useParams } from "react-router-dom";
 import {
   GetAllCategoryformenu,
   GetEventMasterById,
   Getmenuprep,
+  AddMenuprep,
 } from "@/services/apiServices";
 
 const EventPreparationPage = () => {
   const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const { eventId } = useParams();
   const [eventAllData, setEventAllData] = useState({});
   const [orderDetails, setOrderDetails] = useState({});
@@ -25,18 +25,33 @@ const EventPreparationPage = () => {
   const [pax, setPax] = useState(0);
   const [dateandtime, setDateandtime] = useState("");
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
-  const [menuPrepItems, setMenuPrepItems] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+
+  const [functionMenuData, setFunctionMenuData] = useState({});
+  const [functionSelectionData, setFunctionSelectionData] = useState({});
+  const [allMenuItems, setAllMenuItems] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // New state to store menu preparation IDs for each function
+  const [menuPreparationIds, setMenuPreparationIds] = useState({});
+
   useEffect(() => {
-    FetchCategoryData();
-  }, [searchQuery]);
-  useEffect(() => {
-    FetchEventData();
+    initializeData();
   }, []);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+
+  const initializeData = async () => {
+    try {
+      await Promise.all([FetchCategoryData(), FetchEventData()]);
+    } catch (error) {
+      console.error("Error initializing data:", error);
+    }
+  };
+
   const FetchCategoryData = () => {
-    GetAllCategory({ userid: Id, menuCategoryName: searchQuery })
+    return GetAllCategoryformenu(Id)
       .then((res) => {
         const categories = res.data.data["Menu Category Details"].map(
           (item, index) => ({
@@ -46,14 +61,16 @@ const EventPreparationPage = () => {
           })
         );
         setCategories(categories);
+        return categories;
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
+        throw error;
       });
   };
 
   const FetchEventData = () => {
-    GetEventMasterById(eventId)
+    return GetEventMasterById(eventId)
       .then((res) => {
         const alleventdata = res?.data?.data["Event Details"].map((item) => {
           return {
@@ -87,118 +104,598 @@ const EventPreparationPage = () => {
 
           const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
             label: (
-              <>
+              <div
+                onClick={() => {
+                  console.log("Clicked tab:", fn.id);
+                  handleTabChange(fn.id); // ✅ use your existing handler
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 <i className="ki-filled ki-disk"></i> {fn.name}
-              </>
+              </div>
             ),
             value: fn.id,
             children: "",
           }));
+
           setMenuPreparationsTabs(dynamicTabs);
 
-          // ✅ set default functionId
+          // Initialize function selection data with proper defaults
+          const initialFunctionData = {};
+          firstEvent.eventFunctions.forEach((fn) => {
+            initialFunctionData[fn.id] = {
+              selectedItems: [],
+              itemNotes: {},
+              itemRates: {},
+              isSaved: false,
+              pax: fn.pax || 0,
+              rate: fn.rate || 0,
+            };
+          });
+          setFunctionSelectionData(initialFunctionData);
+
+          // Initialize first function
           if (firstEvent.eventFunctions.length > 0) {
-            setSelectedFunctionId(firstEvent.eventFunctions[0].id);
+            const firstFnId = firstEvent.eventFunctions[0].id;
+            setSelectedFunctionId(firstFnId);
+            setPax(firstEvent.eventFunctions[0].pax || 0);
+            setRate(firstEvent.eventFunctions[0].rate || 0);
+
+            // Load data for first function - this will handle both menu items and selections
+            loadAllMenuDataForFunction(firstFnId).then(() => {
+              loadFunctionMenuData(firstFnId, 0);
+            });
           }
         }
 
-        setDateandtime(alleventdata[0]?.eventStartDateTime || " ");
-        setPax(alleventdata[0]?.eventFunctions[0]?.pax || 0);
-        setRate(alleventdata[0]?.eventFunctions[0]?.rate || 0);
+        setDateandtime(alleventdata[0]?.eventStartDateTime || "");
         setEventAllData(alleventdata);
+        return alleventdata;
       })
       .catch((error) => {
         console.error("Error fetching event data:", error);
+        throw error;
       });
   };
 
+  // New function to load all menu items for a function (across all categories)
+  const loadAllMenuDataForFunction = async (functionId) => {
+    try {
+      // Load menu items from all categories for this function
+      const allCategoriesData = await Promise.all([
+        // Load "All" category (categoryId = 0)
+        FetchMenuPrep(functionId, 0),
+        // Load individual categories
+        ...categories.map((category) => FetchMenuPrep(functionId, category.id)),
+      ]);
+
+      // Combine all menu items from all categories
+      const combinedMenuItems = [];
+      const seenIds = new Set(); // To avoid duplicates
+
+      allCategoriesData.forEach((categoryData) => {
+        if (categoryData.menuItems) {
+          categoryData.menuItems.forEach((item) => {
+            if (!seenIds.has(item.id)) {
+              combinedMenuItems.push(item);
+              seenIds.add(item.id);
+            }
+          });
+        }
+      });
+
+      // Store all menu items for this function
+      setAllMenuItems((prev) => ({
+        ...prev,
+        [functionId]: combinedMenuItems,
+      }));
+    } catch (error) {
+      console.error("Error loading all menu data for function:", error);
+    }
+  };
+
+  const loadFunctionMenuData = async (
+    functionId,
+    categoryId = selectedCategoryId
+  ) => {
+    setLoading(true);
+    try {
+      console.log(
+        `🔄 Loading menu data for Function: ${functionId}, Category: ${categoryId}`
+      );
+
+      // Always fetch fresh data - no caching for tab switches
+      const responseData = await FetchMenuPrep(functionId, categoryId);
+
+      const cacheKey = `${functionId}-${categoryId}`;
+
+      // Store menu items in cache
+      setFunctionMenuData((prev) => ({
+        ...prev,
+        [cacheKey]: responseData.menuItems || [],
+      }));
+
+      // Store menu preparation ID if it exists
+      if (responseData.responseData?.menuPreparation?.id) {
+        setMenuPreparationIds((prev) => ({
+          ...prev,
+          [functionId]: responseData.responseData.menuPreparation.id,
+        }));
+
+        console.log(
+          `📝 Found existing menu prep ID: ${responseData.responseData.menuPreparation.id} for function ${functionId}`
+        );
+      }
+
+      // CRITICAL: Update the function selection data based on API response
+      if (responseData.selectedItems && responseData.selectedItems.length > 0) {
+        console.log(
+          `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
+        );
+
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [functionId]: {
+            selectedItems: responseData.selectedItems.map(
+              (item) => item.menuItemId
+            ),
+            itemNotes: responseData.selectedItems.reduce((acc, item) => {
+              acc[item.menuItemId] = item.itemNotes || "";
+              return acc;
+            }, {}),
+            itemRates: responseData.selectedItems.reduce((acc, item) => {
+              acc[item.menuItemId] = item.itemPrice || 0;
+              return acc;
+            }, {}),
+            isSaved: true,
+            pax: responseData.responseData?.menuPreparation?.pax || pax,
+            rate:
+              responseData.responseData?.menuPreparation?.defaultPrice || rate,
+          },
+        }));
+
+        // Update global pax and rate if this is the selected function
+        if (functionId === selectedFunctionId) {
+          if (responseData.responseData?.menuPreparation?.pax) {
+            setPax(responseData.responseData.menuPreparation.pax);
+          }
+          if (
+            responseData.responseData?.menuPreparation?.defaultPrice !==
+            undefined
+          ) {
+            setRate(responseData.responseData.menuPreparation.defaultPrice);
+          }
+        }
+      } else {
+        console.log(`📭 No selected items found for function ${functionId}`);
+
+        // Ensure clean state for functions with no selections
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [functionId]: {
+            selectedItems: [],
+            itemNotes: {},
+            itemRates: {},
+            isSaved: false,
+            pax: prev[functionId]?.pax || 0,
+            rate: prev[functionId]?.rate || 0,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error("❌ Error loading function menu data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const clearFunctionCache = (functionId) => {
+    setFunctionMenuData((prev) => {
+      const newData = { ...prev };
+      Object.keys(newData).forEach((key) => {
+        if (key.startsWith(`${functionId}-`)) {
+          delete newData[key];
+        }
+      });
+      return newData;
+    });
+  };
+
   const FetchMenuPrep = (
-    eventFunId,
-    menuCatId,
+    eventFunctionId,
+    menuCategoryId = null,
     pageNo = 1,
     totalRecord = 50
   ) => {
-    Getmenuprep(eventFunId, menuCatId, pageNo, totalRecord, Id)
+    console.log(
+      `🌐 API Call: FetchMenuPrep(${eventFunctionId}, ${menuCategoryId})`
+    );
+
+    return Getmenuprep(eventFunctionId, menuCategoryId, pageNo, totalRecord, Id)
       .then((res) => {
-        console.log("Menu prep data", res?.data?.data["menuPreparationItems"]);
-        setMenuPrepItems(res?.data?.data["menuPreparationItems"] || []);
+        const responseData = res?.data?.data;
+
+        console.log("📡 API Response:", {
+          menuPreparationItems:
+            responseData["menuPreparationItems"]?.length || 0,
+          selectedItems:
+            responseData["selectedMenuPreparationItems"]?.length || 0,
+          hasMenuPreparation: !!responseData["menuPreparation"],
+        });
+
+        // same processing logic as before...
+        const menuItems = (responseData["menuPreparationItems"] || []).map(
+          (item) => ({
+            id: item.menuItemId,
+            parentId: item.menuCategoryId,
+            name: item.menuItemName,
+            image: item.imagePath?.replace("jcupload", "uploads") || "",
+            price: item.itemPrice,
+            isSelected: false,
+          })
+        );
+
+        const selectedMenuCategories =
+          responseData["selectedMenuPreparationItems"] || [];
+        let selectedItems = [];
+
+        if (selectedMenuCategories.length > 0) {
+          selectedMenuCategories.forEach((category) => {
+            if (category.selectedMenuPreparationItems) {
+              selectedItems.push(...category.selectedMenuPreparationItems);
+            }
+          });
+        }
+
+        const updatedMenuItems = menuItems.map((item) => ({
+          ...item,
+          isSelected: selectedItems.some(
+            (selectedItem) => selectedItem.menuItemId === item.id
+          ),
+        }));
+
+        return {
+          menuItems: updatedMenuItems,
+          selectedItems,
+          responseData,
+        };
       })
       .catch((error) => {
-        console.error("Error fetching menu prep data:", error);
+        console.error("❌ Error fetching menu prep data:", error);
+        throw error;
+      });
+  };
+
+  const handleTabChange = async (newFunctionId) => {
+    if (selectedFunctionId === newFunctionId) {
+      console.log("🚫 Same tab clicked, ignoring");
+      return;
+    }
+
+    console.log(`🔄 Tab change: ${selectedFunctionId} → ${newFunctionId}`);
+    setLoading(true);
+
+    try {
+      // 1. Update the selected function ID first
+      setSelectedFunctionId(newFunctionId);
+
+      // 2. Get function details from event data
+      const selectedFunction = eventAllData[0]?.eventFunctions?.find(
+        (fn) => fn.id === newFunctionId
+      );
+
+      // 3. Update pax and rate from function data (fallback values)
+      if (selectedFunction) {
+        setPax(selectedFunction.pax || 0);
+        setRate(selectedFunction.rate || 0);
+      }
+
+      // 4. Load all menu items for the function if not cached
+      if (!allMenuItems[newFunctionId]) {
+        console.log(`📦 Loading all menu items for function ${newFunctionId}`);
+        await loadAllMenuDataForFunction(newFunctionId);
+      }
+
+      // 5. FORCE clear any existing cache for this function/category combo
+      const currentCacheKey = `${newFunctionId}-${selectedCategoryId}`;
+      setFunctionMenuData((prev) => {
+        const newData = { ...prev };
+        delete newData[currentCacheKey];
+        console.log(`🗑️ Cleared cache for key: ${currentCacheKey}`);
+        return newData;
+      });
+
+      // 6. Load fresh menu data with selected items
+      await loadFunctionMenuData(newFunctionId, selectedCategoryId);
+
+      console.log(`✅ Tab change completed for function ${newFunctionId}`);
+    } catch (error) {
+      console.error("❌ Error in handleTabChange:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategoryChange = async (categoryId) => {
+    console.log(`🏷️ Category change: ${selectedCategoryId} → ${categoryId}`);
+
+    setSelectedCategoryId(categoryId);
+
+    if (selectedFunctionId) {
+      // Clear cache for the new category
+      const cacheKey = `${selectedFunctionId}-${categoryId}`;
+      setFunctionMenuData((prev) => {
+        const newData = { ...prev };
+        delete newData[cacheKey];
+        return newData;
+      });
+
+      // Load fresh data
+      await loadFunctionMenuData(selectedFunctionId, categoryId);
+    }
+  };
+
+  const debugCurrentState = () => {
+    console.log("🐛 DEBUG STATE:", {
+      selectedFunctionId,
+      selectedCategoryId,
+      functionSelectionData: functionSelectionData[selectedFunctionId],
+      cacheKey: `${selectedFunctionId}-${selectedCategoryId}`,
+      menuItemsCount:
+        functionMenuData[`${selectedFunctionId}-${selectedCategoryId}`]
+          ?.length || 0,
+      allMenuItemsCount: allMenuItems[selectedFunctionId]?.length || 0,
+    });
+  };
+
+  useEffect(() => {
+    if (selectedFunctionId) {
+      console.log(`👀 Function changed to: ${selectedFunctionId}`);
+      debugCurrentState(); // Remove this after testing
+    }
+  }, [selectedFunctionId, functionSelectionData]);
+
+  const handleSave = () => {
+    const currentFunctionData = functionSelectionData[selectedFunctionId];
+    if (
+      !currentFunctionData ||
+      currentFunctionData.selectedItems.length === 0
+    ) {
+      errorMsgPopup("Please select at least one item");
+      return;
+    }
+
+    // Use allMenuItems instead of currentMenuItems for save
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
+    const selectedItems = currentFunctionData.selectedItems
+      .map((id) => allFunctionMenuItems.find((item) => item.id === id))
+      .filter(Boolean);
+
+    // Get existing menu preparation ID for this function (0 if new)
+    const existingId = menuPreparationIds[selectedFunctionId] || 0;
+
+    const payload = {
+      defaultPrice: rate || 0,
+      eventFunctionId: selectedFunctionId,
+      id: existingId, // Use existing ID for updates, 0 for new records
+      menuPreparationDetails: selectedItems.map((item, index) => {
+        const category = categories.find((cat) => cat.id === item.parentId);
+        return {
+          id: 0,
+          itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemPrice:
+            Number(currentFunctionData.itemRates[item.id]) || Number(rate) || 0,
+          itemSortOrder: index + 1,
+          menuCategoryId: item.parentId,
+          menuCategoryName: category?.name || "",
+          menuItemId: item.id,
+          menuItemName: item.name,
+          menuNotes: "",
+          menuSortOrder: index + 1,
+          startTime: dateandtime,
+        };
+      }),
+      pax: Number(pax) || 0,
+      price: calculateTotalPrice(),
+      sortorder: 0,
+    };
+
+    console.log(
+      `${existingId === 0 ? "Creating" : "Updating"} menu preparation:`,
+      payload
+    );
+
+    AddMenuprep(payload)
+      .then((res) => {
+        console.log("✅ Saved:", res.data);
+        if (res.data?.msg) {
+          successMsgPopup(res.data.msg);
+        }
+
+        // Store the menu preparation ID if it's a new record
+        if (existingId === 0 && res.data?.data?.menuPreparation?.id) {
+          setMenuPreparationIds((prev) => ({
+            ...prev,
+            [selectedFunctionId]: res.data.data.menuPreparation.id,
+          }));
+        }
+
+        // Mark this function as saved
+        setFunctionSelectionData((prev) => ({
+          ...prev,
+          [selectedFunctionId]: {
+            ...prev[selectedFunctionId],
+            isSaved: true,
+          },
+        }));
+        clearFunctionCache(selectedFunctionId);
+
+        // Refresh data to get the latest selectedMenuPreparationItems
+        loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
+      })
+      .catch((err) => {
+        console.error("❌ Save failed:", err);
+        errorMsgPopup("Failed to save menu preparation");
       });
   };
 
   const classes = useStyles();
   const [search, setSearch] = useState("");
-  // Add "All" option to categories
+  const [childSearch, setChildSearch] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
+
   const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
-  // State for selected children (multi-select)
-  const [selectedChildren, setSelectedChildren] = useState([]);
-  const [childSearch, setChildSearch] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
-  // Filter children by selected category and child search
-  // Toggle child selection
-  const toggleChildSelection = (id) => {
-    setSelectedChildren((prev) =>
-      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
-    );
+
+  // Get current function's menu items (for left side display - category specific)
+  const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+  const currentMenuItems = functionMenuData[cacheKey] || [];
+
+  const filteredChildren = currentMenuItems.filter((child) =>
+    child.name.toLowerCase().includes(childSearch.toLowerCase())
+  );
+
+  // Get current function's selection data
+  const currentFunctionData = functionSelectionData[selectedFunctionId] || {
+    selectedItems: [],
+    itemNotes: {},
+    itemRates: {},
   };
 
-  // Helper: Group selected items by category
-  const selectedItems = selectedChildren
-    .map((id) => {
-      const item = menuPrepItems.find((c) => c.menuItemId === id);
-      if (!item) return null;
+  const toggleChildSelection = (id) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        selectedItems: prev[selectedFunctionId]?.selectedItems?.includes(id)
+          ? prev[selectedFunctionId].selectedItems.filter(
+              (itemId) => itemId !== id
+            )
+          : [...(prev[selectedFunctionId]?.selectedItems || []), id],
+        isSaved: false, // Mark as unsaved when making changes
+      },
+    }));
+  };
 
-      return {
-        id: item.menuItemId,
-        name: item.menuItemName,
-        image: item.imagePath,
-        parentId: item.parentId, // used for grouping
-      };
-    })
+  const handleNoteChange = (id, note) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        itemNotes: {
+          ...prev[selectedFunctionId]?.itemNotes,
+          [id]: note,
+        },
+        isSaved: false,
+      },
+    }));
+  };
+
+  const handleItemRateChange = (id, value) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        itemRates: {
+          ...prev[selectedFunctionId]?.itemRates,
+          [id]: value,
+        },
+        isSaved: false,
+      },
+    }));
+  };
+
+  // New handlers for pax and rate changes
+  const handlePaxChange = (newPax) => {
+    setPax(newPax);
+    // Mark current function as unsaved if it has selections
+    if (currentFunctionData.selectedItems?.length > 0) {
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          isSaved: false,
+        },
+      }));
+    }
+  };
+
+  const handleRateChange = (newRate) => {
+    setRate(newRate);
+    // Mark current function as unsaved if it has selections
+    if (currentFunctionData.selectedItems?.length > 0) {
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          isSaved: false,
+        },
+      }));
+    }
+  };
+
+  const calculateTotalPrice = () => {
+    if (!currentFunctionData.selectedItems) return 0;
+
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
+    return currentFunctionData.selectedItems.reduce((sum, itemId) => {
+      // Find the item to get its original price
+      const item = allFunctionMenuItems.find(
+        (menuItem) => menuItem.id === itemId
+      );
+
+      // Use custom rate if set, otherwise use original item price, fallback to default rate
+      const itemRate =
+        Number(currentFunctionData.itemRates?.[itemId]) ||
+        Number(item?.price) ||
+        Number(rate) ||
+        0;
+      return sum + itemRate;
+    }, 0);
+  };
+
+  // FIXED: Use allMenuItems instead of currentMenuItems for selected items display
+  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+  const selectedItems = currentFunctionData.selectedItems
+    .map((id) => allFunctionMenuItems.find((item) => item.id === id))
     .filter(Boolean);
 
   const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
     const category = categories.find((cat) => cat.id === item.parentId);
-    const categoryName = category ? category.name : "Other";
-
+    const categoryName = category?.name || "Uncategorized";
     if (!acc[categoryName]) acc[categoryName] = [];
     acc[categoryName].push(item);
-
     return acc;
   }, {});
-  // State for notes and per-item price
-  const [itemNotes, setItemNotes] = useState({});
-  const [itemRates, setItemRates] = useState({});
-  // Handler for note change
-  const handleNoteChange = (id, note) => {
-    setItemNotes((prev) => ({ ...prev, [id]: note }));
-  };
-  // Handler for per-item rate change
-  const handleItemRateChange = (id, value) => {
-    setItemRates((prev) => ({ ...prev, [id]: value }));
-  };
-  // Calculate total price (per item or fallback to global rate)
-  const totalPrice = selectedItems.reduce(
-    (sum, item) =>
-      sum + (Number(itemRates[item.id]) || Number(rate) || 0) * 300,
-    0
-  );
 
+  const removeSelectedItem = (itemId) => {
+    setFunctionSelectionData((prev) => ({
+      ...prev,
+      [selectedFunctionId]: {
+        ...prev[selectedFunctionId],
+        selectedItems: prev[selectedFunctionId].selectedItems.filter(
+          (id) => id !== itemId
+        ),
+        isSaved: false,
+      },
+    }));
+  };
+
+  // Determine if this is an update or create operation
+  const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
   return (
     <Fragment>
-      <Container>
+      <Container className="flex flex-col min-h-screen">
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
         </div>
-        <div className="border rounded mb-4">
+        <div className="border rounded mb-4 flex-1">
           <div className="grid grid-cols-6 lg:grid-cols-12">
             {/* left */}
             <div className="col-span-9">
@@ -258,6 +755,52 @@ const EventPreparationPage = () => {
                       </span>
                     </span>
                   </Tooltip>
+                  <div className="flex flex-row gap-8">
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Person:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <i className="ki-filled ki-user text-sm text-primary"></i>
+                      </strong>
+                      <input
+                        type="number"
+                        min={1}
+                        className="input input-sm w-20"
+                        value={pax}
+                        onChange={(e) => handlePaxChange(e.target.value)}
+                      />
+                    </p>
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Date &amp; Time:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
+                      </strong>
+                      <input
+                        type="text"
+                        className="input input-sm w-36"
+                        disabled
+                        value={dateandtime}
+                        onChange={(e) => setDateandtime(e.target.value)}
+                      />
+                    </p>
+                    <p className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        Default Rate:
+                      </span>
+                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                        <span className="text-sm text-primary">&#8377;</span>
+                      </strong>
+                      <input
+                        type="number"
+                        value={rate}
+                        onChange={(e) => handleRateChange(e.target.value)}
+                        className="input input-sm w-20"
+                      />
+                    </p>
+                  </div>
                   <Tooltip title="Collapse">
                     <button
                       type="button"
@@ -277,12 +820,7 @@ const EventPreparationPage = () => {
               >
                 <TabComponent
                   tabs={menuPreparationsTabs}
-                  onTabChange={(id) => {
-                    setSelectedFunctionId(id);
-                    if (id && selectedCategoryId) {
-                      FetchMenuPrep(id, selectedCategoryId);
-                    }
-                  }}
+                  onTabChange={handleTabChange}
                 />
               </div>
               <div
@@ -312,12 +850,7 @@ const EventPreparationPage = () => {
                           filteredCategories.map(({ name, id }) => (
                             <button
                               key={id}
-                              onClick={() => {
-                                setSelectedCategoryId(id);
-                                if (selectedFunctionId) {
-                                  FetchMenuPrep(selectedFunctionId, id);
-                                }
-                              }}
+                              onClick={() => handleCategoryChange(id)}
                               className={`w-full text-left py-3 px-4 border-b last:border-b-0 transition-colors font-semibold text-sm ${
                                 selectedCategoryId === id
                                   ? "bg-blue-50 text-primary"
@@ -347,21 +880,21 @@ const EventPreparationPage = () => {
                               onChange={(e) => setChildSearch(e.target.value)}
                             />
                           </div>
-                          <Tooltip title="Start speech to text">
+                          <Tooltip title="Add menu item">
                             <button
                               type="button"
-                              onClick={() => handleAddClick("Manager")}
+                              onClick={() => console.log("Add clicked")}
                               title="Add"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
                               <i className="ki-filled ki-plus"></i>
                             </button>
                           </Tooltip>
-                          <Tooltip title="Add menu item">
+                          <Tooltip title="Start speech to text">
                             <button
                               type="button"
-                              onClick={() => handleAddClick("Manager")}
-                              title="Add"
+                              onClick={() => console.log("Mic clicked")}
+                              title="Mic"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
                               <Mic size={18} />
@@ -371,34 +904,42 @@ const EventPreparationPage = () => {
                       </div>
                     </div>
                     <div className="flex-1 p-3 max-h-[520px] overflow-auto scrollable-y">
-                      {menuPrepItems.length === 0 ? (
+                      {loading ? (
+                        <div className="p-4 text-center text-gray-500">
+                          Loading menu items...
+                        </div>
+                      ) : filteredChildren.length === 0 ? (
                         <div className="p-2 text-gray-400 text-xs text-center">
                           No items found
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                          {menuPrepItems.map(
-                            ({ menuItemId, menuItemName, imagePath }) => (
+                          {filteredChildren.map(
+                            ({ parentId, id, name, image }) => (
                               <div
-                                key={menuItemId}
+                                key={id}
                                 className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
-                                  selectedChildren.includes(menuItemId)
+                                  currentFunctionData.selectedItems?.includes(
+                                    id
+                                  )
                                     ? "border-success bg-green-300/10 text-success"
                                     : "hover:bg-blue-500/10 hover:border-blue-500/15"
                                 }`}
-                                onClick={() => toggleChildSelection(menuItemId)}
+                                onClick={() => toggleChildSelection(id)}
                               >
                                 <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
                                   <img
-                                    src={imagePath}
-                                    alt={menuItemName}
+                                    src={image}
+                                    alt={name}
                                     className="w-full h-full object-cover"
                                   />
                                 </div>
                                 <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
-                                  {menuItemName}
+                                  {name}
                                 </div>
-                                {selectedChildren.includes(menuItemId) && (
+                                {currentFunctionData.selectedItems?.includes(
+                                  id
+                                ) && (
                                   <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
                                     <i className="ki-filled ki-check text-sm text-light"></i>
                                   </span>
@@ -430,157 +971,124 @@ const EventPreparationPage = () => {
                       </button>
                     </Tooltip>
                   </div>
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Person:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-user text-sm text-primary"></i>
-                        {/* 300 */}
-                      </strong>
-                      <input
-                        type="number"
-                        min={1}
-                        className="input input-sm w-20"
-                        value={pax}
-                        onChange={(e) => setPax(e.target.value)}
-                      />
-                    </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Date &amp; Time:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
-                        {/* 27/07/2025 11:00 AM */}
-                      </strong>
-                      <input
-                        type="text"
-                        className="input input-sm w-36"
-                        value={dateandtime}
-                        disabled
-                        onChange={(e) => setDateandtime(e.target.value)}
-                      />
-                    </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-700 w-24">
-                        Default Rate:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <span className="text-sm text-primary">&#8377;</span>
-                      </strong>
-                      <input
-                        type="number"
-                        value={rate}
-                        onChange={(e) => setRate(e.target.value)}
-                        className="input input-sm w-20"
-                      />
-                    </p>
-                  </div>
                 </div>
                 <div className="flex-1 p-3 max-h-[516px] h-full overflow-auto scrollable-y bg-white">
-                  {selectedChildren.length === 0 ? (
+                  {currentFunctionData.selectedItems?.length === 0 ? (
                     <div className="text-xs text-gray-400 p-2 text-center">
                       No items selected
                     </div>
                   ) : (
-                    <div>
-                      <div className="space-y-2">
-                        {Object.entries(selectedItemsByCategory).map(
-                          ([categoryName, items]) => (
-                            <div key={categoryName} className="mb-2">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="font-semibold text-xs text-gray-900">
-                                  {categoryName}
-                                </span>
-                                <Tooltip title="Expand">
-                                  <button
-                                    className="p-0 w-6 h-6"
-                                    title="Expand"
-                                  >
-                                    <i className="ki-filled ki-down text-md"></i>
-                                  </button>
-                                </Tooltip>
-                              </div>
-                              <ul className="bg-white rounded border shadow-sm">
-                                {items.map((item) => (
-                                  <li
-                                    key={item.id}
-                                    className="flex flex-col border-b last:border-0 p-3"
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span
-                                          className="w-8 h-8 rounded overflow-hidden"
-                                          style={{ flex: "0 0 2rem" }}
-                                        >
-                                          <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </span>
-                                        <span className="text-xs font-medium">
-                                          {item.name}
-                                        </span>
-                                      </div>
+                    <div className="space-y-2">
+                      {Object.entries(selectedItemsByCategory).map(
+                        ([categoryName, items]) => (
+                          <div key={categoryName} className="mb-2">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-semibold text-xs text-gray-900">
+                                {categoryName}
+                              </span>
+                              <Tooltip title="Expand">
+                                <button className="p-0 w-6 h-6" title="Expand">
+                                  <i className="ki-filled ki-down text-md"></i>
+                                </button>
+                              </Tooltip>
+                            </div>
+                            <ul className="bg-white rounded border shadow-sm">
+                              {items.map((item) => (
+                                <li
+                                  key={item.id}
+                                  className="flex flex-col border-b last:border-0 p-3"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className="w-8 h-8 rounded overflow-hidden"
+                                        style={{ flex: "0 0 2rem" }}
+                                      >
+                                        <img
+                                          src={item.image}
+                                          alt={item.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </span>
+                                      <span className="text-xs font-medium">
+                                        {item.name}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <button
+                                        className="ml-2 text-gray-400 hover:text-gray-500"
+                                        title="Info"
+                                      >
+                                        <i className="ki-filled ki-information-1"></i>
+                                      </button>
                                       <Tooltip title="Remove">
                                         <button
                                           className="ml-2 text-gray-400 hover:text-red-500"
                                           title="Remove"
                                           onClick={() =>
-                                            setSelectedChildren((prev) =>
-                                              prev.filter(
-                                                (cid) => cid !== item.id
-                                              )
-                                            )
+                                            removeSelectedItem(item.id)
                                           }
                                         >
                                           <i className="ki-filled ki-trash"></i>
                                         </button>
                                       </Tooltip>
                                     </div>
-                                    {showDetails && (
-                                      <div className="flex items-center justify-between mt-1 gap-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xs text-gray-500">
-                                            Rate:
-                                          </span>
-                                          <input
-                                            type="number"
-                                            value={rate}
-                                            onChange={(e) =>
-                                              handleItemRateChange(
-                                                item.id,
-                                                e.target.value
-                                              )
-                                            }
-                                            min={0}
-                                            className="input input-sm w-20"
-                                          />
-                                        </div>
+                                  </div>
+
+                                  {showDetails && (
+                                    <div className="flex items-center justify-between mt-1 gap-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-500">
+                                          Rate:
+                                        </span>
+                                        <input
+                                          type="number"
+                                          value={
+                                            currentFunctionData.itemRates?.[
+                                              item.id
+                                            ] ??
+                                            item.price ??
+                                            rate
+                                          }
+                                          onChange={(e) =>
+                                            handleItemRateChange(
+                                              item.id,
+                                              e.target.value
+                                            )
+                                          }
+                                          min={0}
+                                          className="input input-sm w-20"
+                                        />
                                       </div>
-                                    )}
-                                    <textarea
-                                      placeholder="Add note..."
-                                      value={itemNotes[item.id] || ""}
-                                      onChange={(e) =>
-                                        handleNoteChange(
-                                          item.id,
-                                          e.target.value
-                                        )
-                                      }
-                                      className="textarea textarea-sm w-full mt-1 resize-none"
-                                      rows={1}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )
-                        )}
-                      </div>
+                                    </div>
+                                  )}
+
+                                  {showDetails && (
+                                    <div className="mt-2">
+                                      <textarea
+                                        placeholder="Add notes..."
+                                        value={
+                                          currentFunctionData.itemNotes?.[
+                                            item.id
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleNoteChange(
+                                            item.id,
+                                            e.target.value
+                                          )
+                                        }
+                                        className="textarea textarea-sm w-full text-xs"
+                                        rows="2"
+                                      />
+                                    </div>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
+                      )}
                     </div>
                   )}
                 </div>
@@ -590,19 +1098,18 @@ const EventPreparationPage = () => {
                       Total Items:
                     </span>
                     <span className="font-bold text-xs text-gray-900">
-                      {selectedChildren.length}
+                      {currentFunctionData.selectedItems?.length || 0}
                     </span>
                   </div>
-                  {showDetails && (
-                    <div className="flex items-center gap-1">
-                      <span className="font-semibold text-xs text-gray-700">
-                        Total:
-                      </span>
-                      <span className="font-bold text-xs text-gray-900">
-                        &#8377; {totalPrice}
-                      </span>
-                    </div>
-                  )}
+
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-xs text-gray-700">
+                      Total:
+                    </span>
+                    <span className="font-bold text-xs text-gray-900">
+                      &#8377; {calculateTotalPrice()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -612,12 +1119,24 @@ const EventPreparationPage = () => {
           <button className="btn btn-light" title="Cancel">
             Cancel
           </button>
-          <button className="btn btn-success" title="Save Menu">
-            <i className="ki-filled ki-save-2"></i> Save Menu
+          <button
+            className={`btn ${isUpdateOperation ? "btn-warning" : "btn-success"}`}
+            title={isUpdateOperation ? "Update Menu" : "Save Menu"}
+            onClick={handleSave}
+            disabled={loading || !currentFunctionData.selectedItems?.length}
+          >
+            <i
+              className={`ki-filled ${isUpdateOperation ? "ki-pencil" : "ki-save-2"}`}
+            ></i>
+            {isUpdateOperation ? "Update Menu" : "Save Menu"}
+            {currentFunctionData.isSaved && (
+              <span className="ml-2 text-xs">(Saved)</span>
+            )}
           </button>
         </div>
       </Container>
     </Fragment>
   );
 };
+
 export default EventPreparationPage;

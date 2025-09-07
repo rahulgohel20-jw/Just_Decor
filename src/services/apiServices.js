@@ -175,8 +175,6 @@ export const UpdateEventStatus = (Id, statusId) => {
   return PUT(`/eventmaster/updatestatus?id=${Id}&statusId=${statusId}`);
 };
 
-
-
 //get all manager and admin
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
@@ -277,12 +275,31 @@ export const Getmenuprep = (
 };
 
 //Get menu preparation items
+export const Deleteiteminmenu = (itemId, menuCatId, MenuprepId) => {
+  return DELETE(
+    `/menupreparation/deletemenupreparationitem?itemId=${itemId}&menuCategoryId=${menuCatId}&menuPreparationId=${MenuprepId}`
+  );
+};
+//Get menu preparation items
 export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
+};
+
+//Add category Type
+export const MenuReportData = (
+  eventId,
+  catImg,
+  catIns,
+  catSlogan,
+  itemSlogan
+) => {
+  return GET(
+    `/menupreparation/generateexclusivereport?eventFunctionId=-1&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemSlogan=${itemSlogan}`
+  );
 };
 
 //Edit category Type
@@ -338,7 +355,7 @@ export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
 //update usermaster
- export const updateusermaster = (id, data) => {
+export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
 // all user
@@ -406,7 +423,6 @@ export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
 };
 
-
 // Change Password
 
 import axios from "./axiosInstance";
@@ -431,11 +447,22 @@ export const requestPasswordResetLink = async (email) => {
 };
 
 //Otp Verification
-export const verifyOtp = async ({ email, phone, otp }) => {
+
+
+// Email OTP verification
+export const verifyOtp = async ({ email, otp }) => {
   return axios.post(`/auth/verifyotp`, null, {
-    params: email ? { email, otp } : { phone, otp }, // dynamically send email or phone
+    params: { email, otp },
   });
 };
+
+// Mobile OTP verification
+export const verifyMobileOtp = async ({ phone, otp }) => {
+  return axios.post(`/auth/verifyotpformobile`, null, {
+    params: { mobileNo: phone, otp }, // use `mobileNo` if backend requires this
+  });
+};
+
 
 // reset password API
 export const resetPassword = async (emailId, newPassword, conPassword) => {
@@ -443,3 +470,19 @@ export const resetPassword = async (emailId, newPassword, conPassword) => {
     params: { emailId, newPassword, conPassword }, // query params
   });
 };
+
+
+
+
+// ✅ Correct API call with query param `mobileNo`
+export const LoginWithOtp = async (phone) => {
+  return axios.post(
+    "http://103.1.101.244:9091/v1/api/auth/loginwithotp",
+    null,
+    {
+      params: { mobileNo: phone },
+    }
+  );
+};
+
+

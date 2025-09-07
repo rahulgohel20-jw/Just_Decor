@@ -2,6 +2,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { Select } from "antd";
 import { Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
+import { Download } from "lucide-react";
 export default function InvoiceTable({ columns, data }) {
   console.log("TableData:", data, columns);
   return (
@@ -22,7 +23,7 @@ export default function InvoiceTable({ columns, data }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button className="btn btn-primary" title="Download">
-            <i className="ki-filled ki-cloud-download"></i> Download
+            <Download style={{ width: "18", height: "18" }} /> Download
           </button>
           <button className="btn btn-primary" title="Add Invoice">
             <i className="ki-filled ki-plus"></i> Add Invoice

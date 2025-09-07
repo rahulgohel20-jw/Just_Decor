@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = (onDelete, viewEvent) => [
+export const columns = (onDelete, viewEvent, openMenuReport) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -121,7 +121,7 @@ export const columns = (onDelete, viewEvent) => [
             </Tooltip>
           </Popconfirm>
           <Tooltip title="Menu Preparation">
-            <Link to="/menu-preparation">
+            <Link to={`/menu-preparation/${row.original.eventid}`}>
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 title="Menu Preparation"
@@ -139,6 +139,17 @@ export const columns = (onDelete, viewEvent) => [
               onClick={underConstruction}
             >
               <i className="ki-filled ki-grid  text-info"></i>
+            </button>
+            {/* </Link> */}
+          </Tooltip>
+          <Tooltip title="Menu Report">
+            {/* <Link to="/menu-allocation"> */}
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Menu Report"
+              onClick={() => openMenuReport(row.original.eventid)}
+            >
+              <i className="ki-filled ki-notepad text-gray-500"></i>
             </button>
             {/* </Link> */}
           </Tooltip>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Input, DatePicker } from "antd";
+import { Input, DatePicker, Tooltip } from "antd";
 import dayjs from "dayjs";
-import { Tooltip } from "antd";
 import { MapPin, StickyNote, Trash2, Plus, Search } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
@@ -276,6 +275,7 @@ const FunctionsDetails = ({
               </th>
             </tr>
           </thead>
+
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -379,6 +379,7 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
+
                     {/* Person */}
                     <td className="p-3 border-b border-gray-200 w-24">
                       <Input
@@ -395,6 +396,7 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
+
                     {/* Rate */}
                     <td className="p-3 border-b border-gray-200 w-24">
                       <Input
@@ -412,6 +414,7 @@ const FunctionsDetails = ({
                         </div>
                       )}
                     </td>
+
                     {/* Venue - REQUIRED FIELD */}
                     <td className="p-3 border-b border-gray-200 w-40">
                       <Input
@@ -433,6 +436,7 @@ const FunctionsDetails = ({
                         </span>
                       )}
                     </td>
+
                     {/* Actions */}
                     <td className="p-3 border-b border-gray-200 w-40">
                       <div className="text-center">
@@ -485,6 +489,11 @@ const FunctionsDetails = ({
         </Tooltip>
       </div>
       {/* Modals */}
+      <AddFunctionType
+        isOpen={showFunctionModal}
+        onClose={() => setShowFunctionModal(false)}
+        onSuccess={FetchFunction} // Refresh function list after adding
+      />
       <AddNotes
         isOpen={showNoteModal}
         onClose={() => setShowNoteModal(false)}

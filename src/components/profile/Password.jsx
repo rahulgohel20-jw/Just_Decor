@@ -1,4 +1,4 @@
-import { Input, Button, Form } from "antd";
+import { Input, Button, Form, message } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 import { ChangePassword } from "@/services/apiServices"; // adjust path
 
@@ -18,7 +18,8 @@ export default function Password() {
     try {
       const res = await ChangePassword(payload);
       console.log("Password change response:", res.data);
-      alert(res.data.msg);
+      message.success("Password changed successfully");
+      form.resetFields();
     } catch (err) {
       console.error("Error:", err);
     }
