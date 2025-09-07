@@ -39,6 +39,7 @@ export default function Signup() {
       reportingManagerId: 0,
       roleId: 2,
       stateId: "",
+      remarks: "",
     },
     validationSchema: Yup.object({
       firstName: Yup.string().required("First name required"),
@@ -62,7 +63,9 @@ export default function Signup() {
           stateId: Number(values.stateId),
           cityId: Number(values.cityId),
           planId: Number(values.planId),
+          
         };
+        console.log("Submitting signup with payload:", payload);
 
         const res = await registerUser(payload);
         if (res?.status === 200) {
@@ -313,6 +316,17 @@ useEffect(() => {
             onChange={formik.handleChange}
           />
           {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
+        </div>
+        <div className="flex flex-col">
+          <label className="form-label">Remarks</label>
+          <input
+            name="remarks"
+            placeholder="Remarks"
+            className="border p-2 w-full rounded"
+            value={formik.values.remarks}
+            onChange={formik.handleChange}
+          />
+          {formik.errors.remarks && <p className="text-red-500 text-sm">{formik.errors.remarks}</p>}
         </div>
 
         {/* Company Email */}

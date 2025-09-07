@@ -3,28 +3,31 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { KeenIcon } from "@/components";
-import { toAbsoluteUrl } from "@/utils";
+import { Alert } from "@/components";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
-import { Alert } from "@/components";
+import { message } from "antd";
+import { LoginWithOtp } from "@/services/apiServices"; // ✅ API call
+
 const loginSchema = Yup.object().shape({
   phone: Yup.string()
     .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
     .required("Phone number is required"),
 });
+
 const initialValues = {
   phone: "",
   remember: false,
 };
+
 const OtpLogin = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/auth/2fa";
-  const [showPassword, setShowPassword] = useState(false);
   const { currentLayout } = useLayout();
+
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
@@ -34,22 +37,31 @@ const OtpLogin = () => {
         if (!login) {
           throw new Error("JWTProvider is required for this form.");
         }
-        // await login(values.phone);
-        localStorage.setItem("phone", values.phone);
-        navigate(from, {
-          replace: true,
-        });
-      } catch {
+
+        // ✅ Call your API
+        console.log("Sending OTP request for:", values.phone);
+        const response = await LoginWithOtp(values.phone);
+        console.log("LoginWithOtp response:", response);
+        
+        
+
+        if (response?.data?.success) {
+          localStorage.setItem("phone", values.phone); // store for verify step
+          message.success("OTP sent to your mobile number");
+          navigate(from, { replace: true }); // redirect to OTP verify page
+        } else {
+          setStatus(response?.data?.msg || "Unable to send OTP");
+        }
+      } catch (error) {
+        console.error("OTP Login error:", error);
         setStatus("The login details are incorrect");
+      } finally {
         setSubmitting(false);
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
-  const togglePassword = (event) => {
-    event.preventDefault();
-    setShowPassword(!showPassword);
-  };
+
   return (
     <div className="card max-w-[390px] w-full">
       <form
@@ -62,11 +74,13 @@ const OtpLogin = () => {
             Login with OTP instead
           </h3>
           <span className="text-sm text-gray-700">
-            Enter your phone number to receive an OTP code for
-            accountverification.
+            Enter your phone number to receive an OTP code for account
+            verification.
           </span>
         </div>
+
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+
         <div className="flex flex-col">
           <label className="form-label">Phone Number</label>
           <div className="input">
@@ -86,6 +100,7 @@ const OtpLogin = () => {
             </span>
           )}
         </div>
+
         <div className="flex items-center justify-between gap-1">
           <Link
             to={"/auth/login"}
@@ -94,6 +109,7 @@ const OtpLogin = () => {
             Login with Email instead
           </Link>
         </div>
+
         <button
           type="submit"
           className="btn btn-primary flex justify-center grow mt-3"
@@ -101,6 +117,7 @@ const OtpLogin = () => {
         >
           {loading ? "Please wait..." : "Send your OTP"}
         </button>
+
         <div className="flex items-center justify-center mt-3">
           <span className="text-sm text-gray-700 me-1.5">
             Don't have an account?
@@ -120,4 +137,5 @@ const OtpLogin = () => {
     </div>
   );
 };
+
 export { OtpLogin };

@@ -13,6 +13,8 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
     itemSlogan: false,
   });
   const [loading, setLoading] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+
 
   const allChecked = useMemo(
     () =>
@@ -80,9 +82,13 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
       );
 
       if (data?.success && data?.filePath) {
-        successMsgPopup(data?.msg || "Report generated");
-        setPdfUrl(data.filePath);
-      } else {
+  successMsgPopup(data?.msg || "Report generated");
+  setPdfUrl(data.filePath);
+
+  // open in new tab immediately
+  openInNewTab(data.filePath);
+}
+else {
         // 👇 override error message if it matches
         if (data?.msg === "Failed to get Event Menu Report") {
           errorMsgPopup("Menu preparation is not done");

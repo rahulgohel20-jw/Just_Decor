@@ -1,4 +1,4 @@
-import { Tooltip, Popconfirm } from "antd";
+import { Tooltip, Popconfirm, message } from "antd";
 
 export const columns = (onEdit, onDelete, onToggleStatus) => [
   {
@@ -23,17 +23,34 @@ export const columns = (onEdit, onDelete, onToggleStatus) => [
   cell: ({ row }) => {
     const isActive = row.original.isActive;   // from formatted data
     return (
-      <div className="flex items-center gap-1">
-        <label className="switch switch-lg">
-          <input
-            type="checkbox"
-            checked={!!isActive}   // reflect actual API value
-            onChange={() =>
-              onToggleStatus(row.original.id, isActive)  // pass current
-            }
+      <Popconfirm
+        title="Are you sure to change this status?"
+        onConfirm={() =>{
+          onToggleStatus(row.original.id, isActive ? true : false)
+                      message.success("Status updated successfully!");
+
+        }
+          
+          
+          
+        }
+        onCancel={() => console.log("Cancelled")}
+        okText="Yes"
+        cancelText="No"
+      >
+        <div className="flex justify-center items-center gap-1 cursor-pointer">
+          <label className="switch switch-lg">
+            <input
+              type="checkbox"
+            value="1"
+            name="check"
+            defaultChecked={row.original.isActive}
+            readOnly
+            checked={row.original.isActive}
           />
         </label>
       </div>
+      </Popconfirm>
     );
   },
   meta: {

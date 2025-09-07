@@ -3,7 +3,7 @@ import { editCategory, AddCategory } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
-import { uploadFile } from "../../../services/apiServices";
+import { uploadFile } from "@/services/apiServices";
 import { formValidation } from "../../../lib/utils";
 
 

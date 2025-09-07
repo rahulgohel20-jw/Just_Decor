@@ -447,11 +447,22 @@ export const requestPasswordResetLink = async (email) => {
 };
 
 //Otp Verification
-export const verifyOtp = async ({ email, phone, otp }) => {
+
+
+// Email OTP verification
+export const verifyOtp = async ({ email, otp }) => {
   return axios.post(`/auth/verifyotp`, null, {
-    params: email ? { email, otp } : { phone, otp }, // dynamically send email or phone
+    params: { email, otp },
   });
 };
+
+// Mobile OTP verification
+export const verifyMobileOtp = async ({ phone, otp }) => {
+  return axios.post(`/auth/verifyotpformobile`, null, {
+    params: { mobileNo: phone, otp }, // use `mobileNo` if backend requires this
+  });
+};
+
 
 // reset password API
 export const resetPassword = async (emailId, newPassword, conPassword) => {
@@ -459,3 +470,19 @@ export const resetPassword = async (emailId, newPassword, conPassword) => {
     params: { emailId, newPassword, conPassword }, // query params
   });
 };
+
+
+
+
+// ✅ Correct API call with query param `mobileNo`
+export const LoginWithOtp = async (phone) => {
+  return axios.post(
+    "http://103.1.101.244:9091/v1/api/auth/loginwithotp",
+    null,
+    {
+      params: { mobileNo: phone },
+    }
+  );
+};
+
+
