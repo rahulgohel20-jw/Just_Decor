@@ -1,4 +1,8 @@
 export const MENU_SIDEBAR = [
+
+
+
+
   {
     title: "MyApp",
     icon: "element-11 text-primary",
@@ -78,6 +82,7 @@ export const MENU_SIDEBAR = [
       {
         title: "All User",
         path: "/master/user-master/",
+        roles: ["superadmin"]
       },
       {
         title: "User Plan",
