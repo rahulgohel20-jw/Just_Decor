@@ -1,16 +1,17 @@
-  import { useFormik } from "formik";
-  import * as Yup from "yup";
-  import { useEffect, useState } from "react";
-  import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState,GetAllPlans } from "@/services/apiServices";
-  import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useEffect, useState } from "react";
+import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
+import { useNavigate } from "react-router-dom";
+import { use } from "react";
+import { Fetchmanager } from "../../../services/apiServices";
 
-  export default function Signup() {
-    const navigate = useNavigate();
-    const [countries, setCountries] = useState([]);
-    const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [plans, setPlans] = useState([]);
-
+export default function Signup() {
+  const navigate = useNavigate();
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [reportingManagers, setReportingManagers] = useState([]);
 
     // ✅ Load all countries
     // useEffect(() => {
@@ -21,53 +22,53 @@
     //     .catch((err) => console.error("Error fetching countries:", err));
     // }, []);
 
-  const formik = useFormik({
-      initialValues: {
-        address: "",
-        cityId: "",
-        clientId: 0,
-        companyEmail: "",
-        companyName: "",
-        contactNo: "",
-        countryCode: "+91",
-        countryId: "",
-        email: "",
-        firstName: "",
-        isAttendanceLeaveAccess: true,
-        isTaskAccess: true,
-        lastName: "",
-        officeNo: "",
-        planId: "",
-        reportingManagerId: 0,
-        roleId: 2,
-        stateId: "",
-        remarks:"",
-      },
-      validationSchema: Yup.object({
-        firstName: Yup.string().required("First name required"),
-        lastName: Yup.string().required("Last name required"),
-        email: Yup.string().email("Invalid email").required("Email required"),
-        contactNo: Yup.string().required("Phone required"),
-        companyName: Yup.string().required("Company required"),
-        companyEmail: Yup.string().email("Invalid email").required("Company email required"),
-        officeNo: Yup.string().required("Office number required"),
-        address: Yup.string().required("Address required"),
-        countryId: Yup.string().required("Select country"),
-        stateId: Yup.string().required("Select state"),
-        cityId: Yup.string().required("Select city"),
-        planId: Yup.string().required("Select plan"),
-      }),
-      onSubmit: async (values) => {
-        try {
-          const payload = {
-            ...values,
-            countryId: Number(values.countryId),
-            stateId: Number(values.stateId),
-            cityId: Number(values.cityId),
-               planId: Number(values.planId), 
-               remarks: values.remarks, 
-          };
-console.log("Final Signup Payload:", payload);
+ const formik = useFormik({
+    initialValues: {
+      address: "",
+      cityId: "",
+      clientId: 0,
+      companyEmail: "",
+      companyName: "",
+      contactNo: "",
+      countryCode: "+91",
+      countryId: "",
+      email: "",
+      firstName: "",
+      isAttendanceLeaveAccess: true,
+      isTaskAccess: true,
+      lastName: "",
+      officeNo: "",
+      planId: "",
+      reportingManagerId: "",
+      roleId: 2,
+      stateId: "",
+      remarks: "",
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("First name required"),
+      lastName: Yup.string().required("Last name required"),
+      email: Yup.string().email("Invalid email").required("Email required"),
+      contactNo: Yup.string().required("Phone required"),
+      companyName: Yup.string().required("Company required"),
+      companyEmail: Yup.string().email("Invalid email").required("Company email required"),
+      officeNo: Yup.string().required("Office number required"),
+      address: Yup.string().required("Address required"),
+      countryId: Yup.string().required("Select country"),
+      stateId: Yup.string().required("Select state"),
+      cityId: Yup.string().required("Select city"),
+      planId: Yup.string().required("Select plan"),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const payload = {
+          ...values,
+          countryId: Number(values.countryId),
+          stateId: Number(values.stateId),
+          cityId: Number(values.cityId),
+          planId: Number(values.planId),
+          reportingManagerId: Number(values.reportingManagerId),
+        };
+        console.log("Submitting signup with payload:", payload);
 
           const res = await registerUser(payload);
           if (res?.status === 200) {
@@ -123,22 +124,37 @@ console.log("Final Signup Payload:", payload);
   }, [formik.values.countryId]);
 
 
-  // useEffect(() => {
-  //   if (formik.values.countryId) {
-  //     const loadStates = async () => {
-  //       try {
-  //         const res = await fetchStatesByCountry(formik.values.countryId);
-  //         const stateList = res?.data?.data?.["State Details"] || [];
-  //         setStates(stateList);
-  //         console.log(stateList);
-  //       } catch (error) {
-  //         console.error("Error loading states:", error);
-  //         setStates([]);
-  //       }
-  //     };
-  //     loadStates();
-  //   }
-  // }, [formik.values.countryId]);
+// useEffect(() => {
+//   if (formik.values.countryId) {
+//     const loadStates = async () => {
+//       try {
+//         const res = await fetchStatesByCountry(formik.values.countryId);
+//         const stateList = res?.data?.data?.["State Details"] || [];
+//         setStates(stateList);
+//         console.log(stateList);
+//       } catch (error) {
+//         console.error("Error loading states:", error);
+//         setStates([]);
+//       }
+//     };
+//     loadStates();
+//   }
+// }, [formik.values.countryId]);
+
+useEffect(() => {
+  const loadReportingManagers = async () => {
+    try {
+      const res = await Fetchmanager(1); // clientUserId
+      const managerList = res?.data?.data.userDetails || []; // direct array
+      setReportingManagers(managerList);
+      console.log("Managers/Admins:", managerList);
+    } catch (error) {
+      console.error("Error loading reporting managers:", error);
+      setReportingManagers([]);
+    }
+  };
+  loadReportingManagers();
+}, []);
 
 
   useEffect(() => {
@@ -303,25 +319,45 @@ console.log("Final Signup Payload:", payload);
             {formik.errors.stateId && <p className="text-red-500 text-sm">{formik.errors.stateId}</p>}
           </div>
 
-          {/* City */}
-          <div className="flex flex-col">
-            <label className="form-label">City</label>
-            <select
-              name="cityId"
-              value={formik.values.cityId}
-              onChange={formik.handleChange}
-              className="border p-2 w-full rounded"
-              disabled={!cities.length}
-            >
-              <option value="">Select City</option>
-              {cities.map((ct) => (
-                <option key={ct.id} value={ct.id}>{ct.name}</option>
-              ))}
-            </select>
-            {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
-          </div>
+        {/* City */}
+        <div className="flex flex-col">
+          <label className="form-label">City</label>
+          <select
+            name="cityId"
+            value={formik.values.cityId}
+            onChange={formik.handleChange}
+            className="border p-2 w-full rounded"
+            disabled={!cities.length}
+          >
+            <option value="">Select City</option>
+            {cities.map((ct) => (
+              <option key={ct.id} value={ct.id}>{ct.name}</option>
+            ))}
+          </select>
+          {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
+        </div>
+
+        <div className="flex flex-col">
+          <label className="form-label">Reported Manager</label>
+          <select
+  name="reportingManagerId"
+  value={formik.values.reportingManagerId}
+  onChange={formik.handleChange}
+  className="border p-2 w-full rounded"
+  disabled={!reportingManagers.length}
+>
+  <option value="">Select Manager</option>
+  {reportingManagers.map((rm) => (
+    <option key={rm.id} value={rm.id}>
+      {rm.firstName} {rm.lastName} ({rm.userBasicDetails.role.name})
+    </option>
+  ))}
+</select>
+
+          {formik.errors.reportingManagerId && <p className="text-red-500 text-sm">{formik.errors.reportingManagerId}</p>}
         </div>
       </div>
+    </div>
 
       {/* Company Details */}
       <div>
