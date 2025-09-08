@@ -3,12 +3,15 @@ import * as Yup from "yup";
 import { useEffect, useState } from "react";
 import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
 import { useNavigate } from "react-router-dom";
+import { use } from "react";
+import { Fetchmanager } from "../../../services/apiServices";
 
 export default function Signup() {
   const navigate = useNavigate();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [reportingManagers, setReportingManagers] = useState([]);
 
   // ✅ Load all countries
   // useEffect(() => {
@@ -36,7 +39,7 @@ export default function Signup() {
       lastName: "",
       officeNo: "",
       planId: "",
-      reportingManagerId: 0,
+      reportingManagerId: "",
       roleId: 2,
       stateId: "",
       remarks: "",
@@ -63,7 +66,7 @@ export default function Signup() {
           stateId: Number(values.stateId),
           cityId: Number(values.cityId),
           planId: Number(values.planId),
-          
+          reportingManagerId: Number(values.reportingManagerId),
         };
         console.log("Submitting signup with payload:", payload);
 
@@ -133,6 +136,21 @@ useEffect(() => {
 //     loadStates();
 //   }
 // }, [formik.values.countryId]);
+
+useEffect(() => {
+  const loadReportingManagers = async () => {
+    try {
+      const res = await Fetchmanager(1); // clientUserId
+      const managerList = res?.data?.data.userDetails || []; // direct array
+      setReportingManagers(managerList);
+      console.log("Managers/Admins:", managerList);
+    } catch (error) {
+      console.error("Error loading reporting managers:", error);
+      setReportingManagers([]);
+    }
+  };
+  loadReportingManagers();
+}, []);
 
 
 useEffect(() => {
@@ -296,6 +314,26 @@ useEffect(() => {
             ))}
           </select>
           {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
+        </div>
+
+        <div className="flex flex-col">
+          <label className="form-label">Reported Manager</label>
+          <select
+  name="reportingManagerId"
+  value={formik.values.reportingManagerId}
+  onChange={formik.handleChange}
+  className="border p-2 w-full rounded"
+  disabled={!reportingManagers.length}
+>
+  <option value="">Select Manager</option>
+  {reportingManagers.map((rm) => (
+    <option key={rm.id} value={rm.id}>
+      {rm.firstName} {rm.lastName} ({rm.userBasicDetails.role.name})
+    </option>
+  ))}
+</select>
+
+          {formik.errors.reportingManagerId && <p className="text-red-500 text-sm">{formik.errors.reportingManagerId}</p>}
         </div>
       </div>
     </div>

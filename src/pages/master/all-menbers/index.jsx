@@ -27,6 +27,7 @@ const AllMemberMaster = () => {
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+  console.log("User ID:", Id);
 
   useEffect(() => {
     FetchMembers();
