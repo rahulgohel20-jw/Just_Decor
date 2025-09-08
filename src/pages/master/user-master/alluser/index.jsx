@@ -16,22 +16,35 @@ const AllUser = () => {
   const [editingUserId, setEditingUserId] = useState(null); // store user id for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const formatUsers = (users) =>
-    users.map((user, index) => ({
-      id: user.id, // ✅ added id
-      sr_no: index + 1,
-      first_name: user.firstName,
-      last_name: user.lastName,
+const formatUsers = (users) => {
+  // create map of userId -> fullName
+  const managerMap = {};
+  users.forEach(u => {
+    managerMap[u.id] = `${u.firstName} ${u.lastName}`;
+  });
+  return users
+    .sort((a,b) => b.id - a.id) // newest first
+    .map(user => ({
+      id: user.id,
+      fullName: `${user.firstName} ${user.lastName}`,
+      city: user.userBasicDetails?.city?.name || "-",
       email: user.email,
       contactNo: user.contactNo,
       companyName: user.userBasicDetails?.companyName || "-",
       plan: user.plan?.name || "-",
       isActive: user.isActive,
       isApprove: user.isApprove,
-      createdAt: new Date(user.createdAt).toLocaleDateString(),
+      createdAt: user.createdAt,
+      reportingManager: user.userBasicDetails?.reportingManagerId  || "-",
+  
+      userCode: user.userCode || "-",
+      remark:user.remarks ||"-"
     }));
+};
 
-  const handleFetchByRoleId = async (roleId = 2) => {
+
+
+    const handleFetchByRoleId = async (roleId = 2) => {
     try {
       setLoading(true);
       const response = await getAllByRoleId(roleId);
@@ -79,8 +92,6 @@ const AllUser = () => {
     console.log("Editing user:", user);
     setIsModalOpen(true);
   };
-
-  
 const handleApprove = async (userId) => {
   try {
     setLoading(true);

@@ -11,6 +11,32 @@ const PlanTable = () => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filteredPlans, setFilteredPlans] = useState([]);
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+useEffect(() => {
+  // If not superadmin, stop fetching
+  if (!currentUser || currentUser.role !== "superadmin") {
+    message.error("Access denied. Only superadmin can view this page.");
+    setLoading(false);
+    return;
+  }
+
+  const fetchAdmins = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllByRoleId(1);
+      // ... rest of your existing fetch logic
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+      message.error("Error fetching admins");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAdmins();
+}, [currentUser]);
+
 
 useEffect(() => {
   const fetchAdmins = async () => {
