@@ -37,6 +37,17 @@
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
+  accessorKey: "reportingManager",
+  header: "Reporting Manager",
+  meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+},
+{
+  accessorKey: "remark",
+  header: "Remark",
+  meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+},
+
+  {
     accessorKey: "isActive",
     header: "Active",
     cell: ({ getValue }) => {
@@ -90,23 +101,23 @@
     header: "Created At",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center gap-1">
-        <Tooltip title="View User">
-          <button
-            className="btn btn-sm btn-icon btn-clear"
-            onClick={() => onView(row.original.id)}
-          >
-            <i className="ki-filled ki-eye text-primary"></i>
-          </button>
-        </Tooltip>
-      </div>
-    ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
+  // {
+  //   accessorKey: "action",
+  //   header: "Action",
+  //   cell: ({ row }) => (
+  //     <div className="flex items-center justify-center gap-1">
+  //       <Tooltip title="View User">
+  //         <button
+  //           className="btn btn-sm btn-icon btn-clear"
+  //           onClick={() => onView(row.original.id)}
+  //         >
+  //           <i className="ki-filled ki-eye text-primary"></i>
+  //         </button>
+  //       </Tooltip>
+  //     </div>
+  //   ),
+  //   meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  // },
 ];
 
 

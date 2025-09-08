@@ -17,8 +17,14 @@ const AllUser = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 const formatUsers = (users) => {
+  // create map of userId -> fullName
+  const managerMap = {};
+  users.forEach(u => {
+    managerMap[u.id] = `${u.firstName} ${u.lastName}`;
+  });
   return users
-    .map((user) => ({
+    .sort((a,b) => b.id - a.id) // newest first
+    .map(user => ({
       id: user.id,
       fullName: `${user.firstName} ${user.lastName}`,
       city: user.userBasicDetails?.city?.name || "-",
@@ -29,10 +35,14 @@ const formatUsers = (users) => {
       isActive: user.isActive,
       isApprove: user.isApprove,
       createdAt: user.createdAt,
-      userCode: user.userCode || "-", // // keep original for sorting
-    }))
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // ✅ oldest first
+      reportingManager: user.userBasicDetails?.reportingManagerId  || "-",
+  
+      userCode: user.userCode || "-",
+      remark:user.remarks ||"-"
+    }));
 };
+
+
 
     const handleFetchByRoleId = async (roleId = 2) => {
     try {
