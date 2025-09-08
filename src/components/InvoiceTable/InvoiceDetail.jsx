@@ -72,7 +72,10 @@ const InvoiceDetail = () => {
         </div>
 
         <div className="ml-auto">
-          <Button icon={<SettingOutlined className="fw-xlbold" />} className="bg-blue-100 text-blue-900 font-bold border-[#004986]">
+          <Button
+            icon={<SettingOutlined className="fw-xlbold" />}
+            className="bg-blue-100 text-blue-900 font-bold border-[#004986]"
+          >
             Customized
           </Button>
         </div>
@@ -139,8 +142,8 @@ const InvoiceDetail = () => {
         </p>
       </div>
 
-      <div className="mt-6 ">
-        <h4 className=" p-4 font-bold text-[#464E5F] border-b bg-blue-100">
+      <div className="mt-6">
+        <h4 className="p-4 font-bold text-[#464E5F] border-b bg-blue-100">
           Item Table
         </h4>
         <Table
@@ -161,7 +164,7 @@ const InvoiceDetail = () => {
             <strong>Notes</strong> <br />
             Thanks for your business.
           </p>
-            {/* <p className="mt-3 flex justify-between">
+          {/* <p className="mt-3 flex justify-between">
                 <strong>Payment Options</strong> <br />
                 <img
                 src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_74x46.jpg"

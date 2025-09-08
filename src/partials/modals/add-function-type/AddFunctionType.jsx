@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { TimePicker, message } from "antd";
-import dayjs from "dayjs"; 
-import { AddFunction, EditFunctionById, GetAllFunctionsByUserId } from "@/services/apiServices"; 
+import dayjs from "dayjs";
+import {
+  AddFunction,
+  EditFunctionById,
+  GetAllFunctionsByUserId,
+} from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
@@ -70,7 +74,6 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
       GetAllFunctionsByUserId(); // refresh list
       onClose(false);
       if (onSuccess) onSuccess();
-
     } catch (err) {
       console.error("Error saving function:", err);
       message.error("Failed to save function");
@@ -85,7 +88,10 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
           <h2 className="text-xl font-semibold">
             {selectedFunction ? "Edit Function" : "New Function"}
           </h2>
-          <button onClick={() => onClose(false)} className="text-2xl text-gray-600">
+          <button
+            onClick={() => onClose(false)}
+            className="text-2xl text-gray-600"
+          >
             &times;
           </button>
         </div>
@@ -115,7 +121,12 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
         {/* Time Pickers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col">
-            <label className="form-label">Start Time<span className="text-red-700">*</span></label>
+            <label className="form-label">
+              Start Time
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <TimePicker
               className="input"
               format="HH:mm"
@@ -124,7 +135,12 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="form-label">End Time <span className="text-red-700">*</span></label>
+            <label className="form-label">
+              End Time{" "}
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <TimePicker
               className="input"
               format="HH:mm"

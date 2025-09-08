@@ -40,7 +40,11 @@ const SortableRow = ({ id, children }) => {
 
   return (
     <tr ref={setNodeRef} style={style}>
-      <td className="p-3 cursor-grab" {...attributes} {...listeners}>
+      <td
+        className="p-3 border-b border-gray-200 cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <span
           className="text-gray-400 hover:text-gray-600"
           title="Drag to reorder"
@@ -206,34 +210,38 @@ const FunctionsDetails = ({
   };
 
   return (
-    <div className="rounded-md border border-[#C3C3C3] bg-white">
+    <div className="rounded-md border border-gray-200 bg-white">
       {/* Header */}
       <div className="p-3 flex justify-end items-center">
-        <button
-          className="btn-primary text-white px-4 py-2 rounded-md flex items-center gap-2"
-          onClick={handleAddFunction}
-        >
-          Add Function <Plus size={16} />
-        </button>
+        <Tooltip title="Add Function">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleAddFunction}
+          >
+            <Plus size={16} /> Add Function
+          </button>
+        </Tooltip>
       </div>
-
       {/* General function errors */}
       {errors.eventFunction && typeof errors.eventFunction === "string" && (
         <div className="mx-3 mb-2 text-red-500 text-sm">
           {errors.eventFunction}
         </div>
       )}
-
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border-[#C3C3C3] border-t">
-          <thead className="text-black font-bold border-b border-[#C3C3C3]">
+        <table className="w-full text-sm text-left border-gray-200 border-t">
+          <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
             <tr>
-              <th className="p-3 w-10"></th>
-              <th className="p-3">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-10"></th>
+              <th className="text-sm font-semibold text-gray-900 p-3">
                 <div className="flex items-center gap-2">
-                  Function Type
-                  <span className="text-red-500">*</span>
+                  <span className="flex items-center">
+                    Function Type
+                    <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                      *
+                    </span>
+                  </span>
                   <button
                     type="button"
                     onClick={handleAddClick}
@@ -244,15 +252,27 @@ const FunctionsDetails = ({
                   </button>
                 </div>
               </th>
-              <th className="p-3">Start Date</th>
-              <th className="p-3">End Date</th>
-              <th className="p-3">Person</th>
-              <th className="p-3">Rate</th>
-              <th className="p-3">
-                Function Venue
-                <span className="text-red-500">*</span>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                Start Date
               </th>
-              <th className="p-3 text-center">Actions</th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                End Date
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+                Person
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+                Rate
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+                Function Venue
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </th>
+              <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
+                Actions
+              </th>
             </tr>
           </thead>
 
@@ -269,30 +289,25 @@ const FunctionsDetails = ({
                 {formData?.eventFunction?.map((func, index) => (
                   <SortableRow key={func.id || index} id={func.id || index}>
                     {/* Function Type */}
-                    <td className="p-2">
-                      <div className="flex flex-col">
-                        <FunctionTypeDropdown
-                          value={func.functionId}
-                          onChange={(value) =>
-                            handleFunctionSelect(index, value)
-                          }
-                          options={options}
-                          className={
-                            getFunctionFieldError(index, "functionId")
-                              ? "border-red-500"
-                              : ""
-                          }
-                        />
-                        {getFunctionFieldError(index, "functionId") && (
+                    <td className="p-3 border-b border-gray-200">
+                      <FunctionTypeDropdown
+                        value={func.functionId}
+                        onChange={(value) => handleFunctionSelect(index, value)}
+                        options={options}
+                        className={
+                          getFunctionFieldError(index, "functionId")
+                            ? "border-red-500"
+                            : ""
+                        }
+                      />
+                      {/* {getFunctionFieldError(index, "functionId") && (
                           <span className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(index, "functionId")}
                           </span>
-                        )}
-                      </div>
+                        )} */}
                     </td>
-
                     {/* Start Date */}
-                    <td className="p-3 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <DatePicker
                         style={{
                           width: "175px",
@@ -313,31 +328,21 @@ const FunctionsDetails = ({
                               )
                             : null
                         }
-                        onChange={(date) =>
-                          handleInputChange(
-                            index,
-                            "functionStartDateTime",
-                            date
-                              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-                              : null
-                          )
+                        options={options}
+                        className={
+                          getFunctionFieldError(index, "functionId")
+                            ? "border-red-500"
+                            : ""
                         }
                       />
-                      {getFunctionFieldError(
-                        index,
-                        "functionStartDateTime"
-                      ) && (
-                        <div className="text-red-500 text-xs mt-1">
-                          {getFunctionFieldError(
-                            index,
-                            "functionStartDateTime"
-                          )}
-                        </div>
+                      {getFunctionFieldError(index, "functionId") && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(index, "functionId")}
+                        </span>
                       )}
                     </td>
-
                     {/* End Date */}
-                    <td className="p-3 w-40">
+                    <td className="p-3 border-b border-gray-200 w-40">
                       <DatePicker
                         style={{
                           width: "175px",
@@ -376,7 +381,7 @@ const FunctionsDetails = ({
                     </td>
 
                     {/* Person */}
-                    <td className="p-3 w-24">
+                    <td className="p-3 border-b border-gray-200 w-24">
                       <Input
                         className={`w-full text-center ${getFunctionFieldError(index, "pax") ? "border-red-500" : ""}`}
                         value={func.pax}
@@ -393,7 +398,7 @@ const FunctionsDetails = ({
                     </td>
 
                     {/* Rate */}
-                    <td className="p-3 w-24">
+                    <td className="p-3 border-b border-gray-200 w-24">
                       <Input
                         className={`w-full text-center ${getFunctionFieldError(index, "rate") ? "border-red-500" : ""}`}
                         value={func.rate}
@@ -411,58 +416,59 @@ const FunctionsDetails = ({
                     </td>
 
                     {/* Venue - REQUIRED FIELD */}
-                    <td className="p-3 w-40">
-                      <div className="flex flex-col">
-                        <Input
-                          className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
-                          value={func.function_venue}
-                          type="text"
-                          placeholder="Function Venue *"
-                          onChange={(e) =>
-                            handleInputChange(
-                              index,
-                              "function_venue",
-                              e.target.value
-                            )
-                          }
-                        />
-                        {getFunctionFieldError(index, "function_venue") && (
-                          <span className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(index, "function_venue")}
-                          </span>
-                        )}
-                      </div>
+                    <td className="p-3 border-b border-gray-200 w-40">
+                      <Input
+                        className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
+                        value={func.function_venue}
+                        type="text"
+                        placeholder="Function Venue *"
+                        onChange={(e) =>
+                          handleInputChange(
+                            index,
+                            "function_venue",
+                            e.target.value
+                          )
+                        }
+                      />
+                      {getFunctionFieldError(index, "function_venue") && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(index, "function_venue")}
+                        </span>
+                      )}
                     </td>
 
                     {/* Actions */}
-                    <td className="p-3 text-center w-28">
-                      <div className="flex justify-center items-center gap-2">
-                        <button type="button" title="Location">
-                          <MapPin size={18} className="text-primary" />
-                        </button>
-                        <button
-                          type="button"
-                          title="Notes"
-                          onClick={() => {
-                            setSelectedFunctionIndex(index);
-                            setShowNoteModal(true);
-                          }}
-                        >
-                          <StickyNote size={18} className="text-primary" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFunction(index)}
-                          title="Remove"
-                          disabled={formData.eventFunction.length === 1}
-                          className={
-                            formData.eventFunction.length === 1
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }
-                        >
-                          <Trash2 size={18} className="text-red-500" />
-                        </button>
+                    <td className="p-3 border-b border-gray-200 w-40">
+                      <div className="text-center">
+                        <Tooltip title="Delete item">
+                          <button className="btn btn-sm btn-icon btn-clear btn-primary">
+                            <i class="ki-filled ki-geolocation"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Add Notes">
+                          <button
+                            className="btn btn-sm btn-icon btn-clear btn-success"
+                            onClick={() => {
+                              setSelectedFunctionIndex(index);
+                              setShowNoteModal(true);
+                            }}
+                          >
+                            <i class="ki-filled ki-add-files"></i>
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <button
+                            onClick={() => handleRemoveFunction(index)}
+                            disabled={formData.eventFunction.length === 1}
+                            className={
+                              formData.eventFunction.length === 1
+                                ? "btn btn-sm btn-icon btn-clear btn-danger opacity-50 cursor-not-allowed"
+                                : "btn btn-sm btn-icon btn-clear btn-danger"
+                            }
+                          >
+                            <i class="ki-filled ki-trash"></i>
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </SortableRow>
@@ -472,7 +478,16 @@ const FunctionsDetails = ({
           </DndContext>
         </table>
       </div>
-
+      <div className="p-3 flex justify-center">
+        <Tooltip title="Add Function">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleAddFunction}
+          >
+            <Plus size={16} /> Add Function
+          </button>
+        </Tooltip>
+      </div>
       {/* Modals */}
       <AddFunctionType
         isOpen={showFunctionModal}

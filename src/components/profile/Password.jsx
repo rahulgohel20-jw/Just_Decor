@@ -9,9 +9,9 @@ export default function Password() {
     console.log("Form Values:", values);
 
     const payload = {
-      oldPassword: values.oldPassword,   // ✅ must match API
-      newPassword: values.newPassword,   // ✅ must match API
-      conPassword: values.conPassword,   // ✅ must match API
+      oldPassword: values.oldPassword, // ✅ must match API
+      newPassword: values.newPassword, // ✅ must match API
+      conPassword: values.conPassword, // ✅ must match API
       userId: 1, // or get from localStorage/session
     };
 
@@ -43,25 +43,52 @@ export default function Password() {
           requiredMark="optional"
         >
           <Form.Item
-            label={<span>Current Password <span className="text-red-500">*</span></span>}
-            name="oldPassword"  // ✅ changed
-            rules={[{ required: true, message: "Please enter your current password" }]}
+            label={
+              <span>
+                Current Password{" "}
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </span>
+            }
+            name="oldPassword" // ✅ changed
+            rules={[
+              { required: true, message: "Please enter your current password" },
+            ]}
           >
             <Input.Password className="p-2" placeholder="Current Password" />
           </Form.Item>
 
           <Form.Item
-            label={<span>New Password <span className="text-red-500">*</span></span>}
-            name="newPassword"  // ✅ changed
-            rules={[{ required: true, message: "Please enter your new password" }]}
+            label={
+              <span>
+                New Password{" "}
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </span>
+            }
+            name="newPassword" // ✅ changed
+            rules={[
+              { required: true, message: "Please enter your new password" },
+            ]}
           >
             <Input.Password className="p-2" placeholder="New Password" />
           </Form.Item>
 
           <Form.Item
-            label={<span>Confirm Password <span className="text-red-500">*</span></span>}
-            name="conPassword"  // ✅ changed
-            rules={[{ required: true, message: "Please confirm your password" }]}
+            label={
+              <span>
+                Confirm Password{" "}
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </span>
+            }
+            name="conPassword" // ✅ changed
+            rules={[
+              { required: true, message: "Please confirm your password" },
+            ]}
           >
             <Input.Password className="p-2" placeholder="Confirm Password" />
           </Form.Item>

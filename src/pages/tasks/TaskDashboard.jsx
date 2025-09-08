@@ -109,7 +109,7 @@ const TaskDashboard = () => {
           {taskStats.map((stat, index) => (
             <div
               key={index}
-              className={`col-span-1 flex items-center flex-wrap sm:flex-nowrap grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl gap-3 py-5 px-5 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
+              className={`col-span-1 flex items-center flex-wrap sm:flex-nowrap grow border border-y-gray-200 border-e-gray-200 ${stat.border} border-l-4 rounded-xl gap-3 py-5 px-4 rtl:[background-position:-10px_center] [background-position:10px_center] bg-no-repeat bg-[length:400px] user-access-bg`}
             >
               <CommonHexagonBadge
                 stroke={`stroke-${stat.color}-clarity`}
