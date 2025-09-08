@@ -141,7 +141,7 @@ const SidebarMenu = () => {
   };
   const buildMenuSoon = () => {
     return <MenuBadge className={rightOffset}>
-        <span className="badge badge-xs">Soon</span>
+        <span className="badge badge-xs">Coming Soon</span>
       </MenuBadge>;
   };
   const {

@@ -203,8 +203,8 @@ export const AddFunction = (data) => {
   return POST(`/functionmaster/add`, data);
 };
 
-export const GetAllFunctionsByUserId = () => {
-  return GET(`/functionmaster/getallbyuserid?userId=1`);
+export const GetAllFunctionsByUserId = (id) => {
+  return GET(`/functionmaster/getallbyuserid?userId=${id}`);
 };
 
 export const GetFunctionsByFunctionName = (functionName) => {
