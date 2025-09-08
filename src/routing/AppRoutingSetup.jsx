@@ -230,9 +230,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
 
-          <Route element={<RequireAuth allowedRoles={[1, 2]} />}>
-          <Route path="/master/user-master" element={<AllUser />} />
-          <Route path="/master/user-master/plan" element={<AllPlan />} /></Route>
+  <Route path="/master/user-master" element={<AllUser />} />
+  <Route path="/master/user-master/plan" element={<AllPlan />} />
+
+
           <Route
             path="/master/menu-category"
             element={<MenuCategoryMaster />}

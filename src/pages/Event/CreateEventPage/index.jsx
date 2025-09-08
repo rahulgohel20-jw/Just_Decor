@@ -19,6 +19,7 @@ import {
   GetEventMasterById,
   UpdateEventMaster,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 const STEP_KEYS = ["basic_info", "client_info", "functions", "other"];
 
@@ -253,7 +254,35 @@ const CreateEventPage = () => {
         response?.data?.msg?.toLowerCase().includes("Successfully") ||
         response?.status === 200
       ) {
-        response.data?.msg && successMsgPopup(response.data.msg);
+        Swal.fire({
+  title: "Event Created Successfully!",
+  text: "Your event has been added to the calendar.",
+  icon: "success",
+  background: "#f5faff",
+  color: "#003f73",
+  confirmButtonText: "Okay",
+  confirmButtonColor: "#005BA8",
+  showClass: {
+    popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `
+  },
+  hideClass: {
+    popup: `
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `
+  },
+  customClass: {
+    popup: "rounded-2xl shadow-xl",
+    title: "text-2xl font-bold",
+    confirmButton: "px-6 py-2 text-white font-semibold rounded-lg"
+  }
+});
+
         navigate("/calendar");
       } else {
         response.data?.msg && errorMsgPopup(response.data.msg);

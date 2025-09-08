@@ -1,9 +1,15 @@
-// const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-// const isAdmin = userData?.userBasicDetails.role.name === "Admin"; // adjust based on your role property
-// console.log("User Role:", userData, "isAdmin:", isAdmin);
+import { tr } from "@faker-js/faker";
 
+const userData = JSON.parse(localStorage.getItem("userData"));
+const roleId = userData?.userBasicDetails?.role?.id == 1;
+console.log("User Role:", roleId);
 
+console.log("User Role:", roleId);
 export const MENU_SIDEBAR = [
+
+
+
+
   {
     title: "MyApp",
     icon: "element-11 text-primary",
@@ -76,23 +82,26 @@ export const MENU_SIDEBAR = [
         title: "Role",
         path: "/master/role",
       },
-      //  ...(!isAdmin
-      //   ? [
-            {
-              title: "User Master",
-              icon: "ki-filled ki-abstract-18 text-primary",
-              children: [
-                { title: "All User", path: "/master/user-master/" },
-                { title: "User Plan", path: "/master/user-master/plan" },
-              ],
-            },
-        //   ]
-        // : []),
+      
+            ...(roleId
+    ? [
+        {
+          title: "User Master",
+          icon: "ki-filled ki-abstract-18 text-primary",
+          children: [
+            { title: "All User", path: "/master/user-master/" },
+            { title: "User Plan", path: "/master/user-master/plan" },
+          ],
+        },
+      ]
+    : []),
+        
     ],
   },
   {
     title: "Leads",
     icon: "ki-filled ki-abstract-18 text-primary",
+     disabled: true,
     children: [
       {
         title: "Overview",
@@ -123,6 +132,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Tasks",
     icon: "ki-filled ki-abstract-16 text-primary",
+    disabled: true,
     children: [
       {
         title: "Dashboard",
@@ -150,6 +160,7 @@ export const MENU_SIDEBAR = [
   {
     title: "leaves",
     icon: "ki-filled ki-abstract-17 text-primary",
+    disabled: true,
     children: [
       {
         title: "Dashboard",
@@ -203,11 +214,13 @@ export const MENU_SIDEBAR = [
   {
     title: "Links",
     icon: "ki-filled ki-disconnect text-primary",
+    disabled: true,
     path: "/links",
   },
   {
     title: "Team",
     icon: "ki-filled ki-users text-primary",
+    disabled: true,
     children: [
       {
         title: "Sales Team",
@@ -226,6 +239,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
+    disabled: true,
     children: [
       {
         title: "General",
@@ -248,6 +262,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Support",
     icon: "ki-filled ki-support text-primary",
+    disabled: true,
     children: [
       { title: "Events", path: "/support/events" },
       { title: "Tutorials", path: "/support/tutorials" },
@@ -260,6 +275,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Billing",
     icon: "ki-filled ki-cheque text-primary",
+    disabled: true,
     children: [
       {
         title: "Overview",

@@ -39,6 +39,8 @@ const Login = () => {
       setStatus(null);
 
       try {
+        
+        
         if (!login) {
           throw new Error("JWTProvider is required for this form.");
         }
@@ -49,6 +51,13 @@ const Login = () => {
           localStorage.setItem("rememberedEmail", values.email);
         } else {
           localStorage.removeItem("rememberedEmail");
+        }
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        const firstTimeLogin = userData ? userData.isFirstTime : null;
+        console.log("First Time Login:", firstTimeLogin);
+        if (firstTimeLogin === true) {
+          navigate("/auth/reset-password/change", { replace: true });
+          return;
         }
 
         localStorage.setItem("email", values.email);

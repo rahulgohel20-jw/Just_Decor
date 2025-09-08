@@ -93,7 +93,7 @@ export const columns = (onEdit, handleView) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip className="cursor-pointer" title="View Member">
+          {/* <Tooltip className="cursor-pointer" title="View Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title=""
@@ -101,7 +101,7 @@ export const columns = (onEdit, handleView) => [
             >
               <i className="ki-filled ki-eye text-success"></i>
             </button>
-          </Tooltip>
+          </Tooltip> */}
           {/* <Tooltip className="cursor-pointer" title="View Member">
             <button
               className="btn btn-sm btn-icon btn-clear"

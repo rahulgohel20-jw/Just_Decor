@@ -58,7 +58,8 @@ const FunctionsMaster = () => {
 
   // ✅ Fetch functions (all or by search)
   const fetchFunctions = (name = "") => {
-    const apiCall = name ? GetFunctionsByFunctionName(name) : GetAllFunctionsByUserId();
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const apiCall = name ? GetFunctionsByFunctionName(name) : GetAllFunctionsByUserId(userData.id);
 
     apiCall
       .then((res) => {

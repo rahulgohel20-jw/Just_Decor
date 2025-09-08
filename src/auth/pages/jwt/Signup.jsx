@@ -1,7 +1,9 @@
 import { useFormik } from "formik";
+import Swal from "sweetalert2";
+
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
-import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState } from "@/services/apiServices";
+import { registerUser, fetchCountries, fetchStatesByCountry, fetchCitiesByState,GetAllPlans  } from "@/services/apiServices";
 import { useNavigate } from "react-router-dom";
 import { use } from "react";
 import { Fetchmanager } from "../../../services/apiServices";
@@ -11,6 +13,7 @@ export default function Signup() {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+    const [plans, setPlans] = useState([]); 
   const [reportingManagers, setReportingManagers] = useState([]);
 
   // ✅ Load all countries
@@ -50,8 +53,8 @@ export default function Signup() {
       email: Yup.string().email("Invalid email").required("Email required"),
       contactNo: Yup.string().required("Phone required"),
       companyName: Yup.string().required("Company required"),
-      companyEmail: Yup.string().email("Invalid email").required("Company email required"),
-      officeNo: Yup.string().required("Office number required"),
+      // companyEmail: Yup.string().email("Invalid email").required("Company email required"),
+      // officeNo: Yup.string().required("Office number required"),
       address: Yup.string().required("Address required"),
       countryId: Yup.string().required("Select country"),
       stateId: Yup.string().required("Select state"),
@@ -59,28 +62,42 @@ export default function Signup() {
       planId: Yup.string().required("Select plan"),
     }),
     onSubmit: async (values) => {
-      try {
-        const payload = {
-          ...values,
-          countryId: Number(values.countryId),
-          stateId: Number(values.stateId),
-          cityId: Number(values.cityId),
-          planId: Number(values.planId),
-          reportingManagerId: Number(values.reportingManagerId),
-        };
-        console.log("Submitting signup with payload:", payload);
+  try {
+    const payload = {
+      ...values,
+      countryId: Number(values.countryId),
+      stateId: Number(values.stateId),
+      cityId: Number(values.cityId),
+      planId: Number(values.planId),
+      reportingManagerId: Number(values.reportingManagerId),
+      companyEmail: values.email || `${values.firstName}.${values.lastName}@example.com`,
+      officeNo: values.contactNo || "N/A",
+    };
+    console.log("Submitting signup with payload:", payload);
 
-        const res = await registerUser(payload);
-        if (res?.status === 200) {
-          alert("Signup successful!");
-          navigate("/auth/login");
-          console.log("Signup response:", res);
-        }
-      } catch (err) {
-        console.error("Signup error:", err);
-        alert("Signup failed!");
-      }
-    },
+    const res = await registerUser(payload);
+    if (res?.status === 200) {
+      Swal.fire({
+        title: "Success!",
+        text: "Signup successful!",
+        icon: "success",
+        confirmButtonText: "OK"
+      }).then(() => {
+        navigate("/master/user-master/"); // redirect after OK
+      });
+      console.log("Signup response:", res);
+    }
+  } catch (err) {
+    console.error("Signup error:", err);
+    Swal.fire({
+      title: "Error!",
+      text: "Signup failed! Please try again.",
+      icon: "error",
+      confirmButtonText: "OK"
+    });
+  }
+}
+
   });
 
   // ✅ Fetch states when country changes
@@ -170,6 +187,24 @@ useEffect(() => {
   }
 }, [formik.values.stateId]);
 
+  // ✅ Load Plans
+ useEffect(() => {
+  const loadPlans = async () => {
+    try {
+      const res = await GetAllPlans();
+      console.log("Plans API response:", res);
+
+      // ✅ safely extract array
+      const planList = res?.data?.data?.["Plan Details"];
+      setPlans(Array.isArray(planList) ? planList : []);
+    } catch (error) {
+      console.error("Error loading plans:", error);
+      setPlans([]); // fallback empty array
+    }
+  };
+  loadPlans();
+}, []);
+
 
   return (
  <div className="card max-w-[900px] w-full">
@@ -240,49 +275,56 @@ useEffect(() => {
         {/* Phone */}
         <div className="flex flex-col">
           <label className="form-label">Phone</label>
+            <label className="input">
+              <i className="ki-filled ki-phone">
+</i>
           <input
             name="contactNo"
             placeholder="Phone Number"
             className="border p-2 w-full rounded"
             value={formik.values.contactNo}
             onChange={formik.handleChange}
-          />
+          /></label>
           {formik.errors.contactNo && <p className="text-red-500 text-sm">{formik.errors.contactNo}</p>}
         </div>
 
         {/* Address */}
         <div className="flex flex-col">
           <label className="form-label">Address</label>
+           <label className="input">
+           <i class="ki-filled ki-address-book"></i>
           <input
             name="address"
             placeholder="Address"
             className="border p-2 w-full rounded"
             value={formik.values.address}
             onChange={formik.handleChange}
-          />
+          /></label>
           {formik.errors.address && <p className="text-red-500 text-sm">{formik.errors.address}</p>}
         </div>
 
         {/* Country */}
         <div className="flex flex-col">
           <label className="form-label">Country</label>
+            <label className="input">
           <select
             name="countryId"
             value={formik.values.countryId}
             onChange={formik.handleChange}
-            className="border p-2 w-full rounded"
+            className=" p-2 w-full rounded"
           >
             <option value="">Select Country</option>
             {countries.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
-          </select>
+          </select></label>
           {formik.errors.countryId && <p className="text-red-500 text-sm">{formik.errors.countryId}</p>}
         </div>
 
         {/* State */}
         <div className="flex flex-col">
           <label className="form-label">State</label>
+            <label className="input">
           <select
             name="stateId"
             value={formik.values.stateId}
@@ -294,13 +336,14 @@ useEffect(() => {
             {states.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
-          </select>
+          </select></label>
           {formik.errors.stateId && <p className="text-red-500 text-sm">{formik.errors.stateId}</p>}
         </div>
 
         {/* City */}
         <div className="flex flex-col">
           <label className="form-label">City</label>
+            <label className="input">
           <select
             name="cityId"
             value={formik.values.cityId}
@@ -312,12 +355,13 @@ useEffect(() => {
             {cities.map((ct) => (
               <option key={ct.id} value={ct.id}>{ct.name}</option>
             ))}
-          </select>
+          </select></label>
           {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
         </div>
 
         <div className="flex flex-col">
           <label className="form-label">Reported Manager</label>
+          <label className="input">
           <select
   name="reportingManagerId"
   value={formik.values.reportingManagerId}
@@ -331,13 +375,31 @@ useEffect(() => {
       {rm.firstName} {rm.lastName} ({rm.userBasicDetails.role.name})
     </option>
   ))}
-</select>
+</select></label>
 
           {formik.errors.reportingManagerId && <p className="text-red-500 text-sm">{formik.errors.reportingManagerId}</p>}
         </div>
+         <div className="flex flex-col">
+               <label className="form-label">Plan</label>
+                  <label className="input">
+         <select
+  name="planId"
+  value={formik.values.planId}
+  onChange={formik.handleChange}
+  className="border p-2 w-full rounded">
+  <option value="">Select Plan</option>
+  {Array.isArray(plans) &&
+    plans.map((plan) => (
+      <option key={plan.id} value={plan.id}>
+        {plan.name}
+      </option>
+    ))}
+</select>
+</label>
+</div>
       </div>
     </div>
-
+ 
     {/* Company Details */}
     <div>
       <h3 className="text-sm font-semibold mb-4 border-b pb-2">Company Details</h3>
@@ -346,29 +408,33 @@ useEffect(() => {
         {/* Company Name */}
         <div className="flex flex-col">
           <label className="form-label">Company Name</label>
+            <label className="input">
+              <i class="ki-filled ki-badge"></i>
           <input
             name="companyName"
             placeholder="Company Name"
             className="border p-2 w-full rounded"
             value={formik.values.companyName}
             onChange={formik.handleChange}
-          />
+          /></label>
           {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
         </div>
         <div className="flex flex-col">
           <label className="form-label">Remarks</label>
+            <label className="input">
+         <i class="ki-filled ki-notepad-edit"></i>
           <input
             name="remarks"
             placeholder="Remarks"
             className="border p-2 w-full rounded"
             value={formik.values.remarks}
             onChange={formik.handleChange}
-          />
+          /></label>
           {formik.errors.remarks && <p className="text-red-500 text-sm">{formik.errors.remarks}</p>}
         </div>
 
         {/* Company Email */}
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <label className="form-label">Company Email</label>
           <input
             type="email"
@@ -379,10 +445,10 @@ useEffect(() => {
             onChange={formik.handleChange}
           />
           {formik.errors.companyEmail && <p className="text-red-500 text-sm">{formik.errors.companyEmail}</p>}
-        </div>
+        </div> */}
 
         {/* Office Number */}
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <label className="form-label">Office Number</label>
           <input
             name="officeNo"
@@ -392,25 +458,12 @@ useEffect(() => {
             onChange={formik.handleChange}
           />
           {formik.errors.officeNo && <p className="text-red-500 text-sm">{formik.errors.officeNo}</p>}
-        </div>
+        </div> */}
 
         {/* Plan */}
-        <div className="flex flex-col">
-          <label className="form-label">Plan</label>
-          <select
-            name="planId"
-            value={formik.values.planId}
-            onChange={formik.handleChange}
-            className="border p-2 w-full rounded"
-          >
-            <option value="">Select Plan</option>
-            <option value="5">7 Day Trial</option>
-            <option value="1">Lite</option>
-            <option value="4">ELTIT</option>
-            <option value="3">Premium</option>
-          </select>
-          {formik.errors.planId && <p className="text-red-500 text-sm">{formik.errors.planId}</p>}
-        </div>
+     
+
+
       </div>
     </div>
 
@@ -418,7 +471,7 @@ useEffect(() => {
     <div className="text-center">
       <button
         type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition"
+        className="btn btn-primary "
       >
         Sign Up
       </button>
