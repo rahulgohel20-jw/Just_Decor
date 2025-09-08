@@ -1,7 +1,7 @@
-import { fileURLToPath, URL } from 'node:url';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import tailwindcss from 'tailwindcss';
+import { fileURLToPath, URL } from "node:url";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import tailwindcss from "tailwindcss";
 
 export default defineConfig({
   plugins: [react()],
@@ -10,10 +10,10 @@ export default defineConfig({
       plugins: [tailwindcss()],
     },
   },
-  base: '/',
+  base: "/justcaterings/",
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   build: {
@@ -29,6 +29,4 @@ export default defineConfig({
       },
     },
   },
-
-
 });
