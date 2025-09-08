@@ -23,6 +23,9 @@ const EventListPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   let userData = JSON.parse(localStorage.getItem("userData"));
+  const [allTableData, setAllTableData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
   let Id = userData.id;
   const FetchEvent = () => {
     GetEventMaster(Id)
@@ -70,12 +73,28 @@ const EventListPage = () => {
             ),
           }));
 
+        setAllTableData(formatted);
         setTableData(formatted);
       })
       .catch((error) => {
-        console.error("Error deleting customer:", error);
+        console.error("Error fetching events:", error);
       });
   };
+  const handleSearch = (e) => {
+    const value = e.target.value.toUpperCase();
+    setSearchTerm(value);
+
+    const filtered = allTableData.filter(
+      (row) =>
+        row.event_id.toUpperCase().includes(value) ||
+        row.customer.toUpperCase().includes(value) ||
+        row.event_type.toUpperCase().includes(value) ||
+        row.event_date.toUpperCase().includes(value)
+    );
+
+    setTableData(filtered);
+  };
+
   const DeleteEvent = (eventid) => {
     DeleteEventMaster(eventid)
       .then((response) => {
@@ -114,6 +133,8 @@ const EventListPage = () => {
                 className="input pl-8"
                 placeholder="Search event"
                 type="text"
+                value={searchTerm}
+                onChange={handleSearch}
               />
             </div>
           </div>

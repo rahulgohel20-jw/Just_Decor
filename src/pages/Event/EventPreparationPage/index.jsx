@@ -1,8 +1,7 @@
 import { useState, Fragment, useEffect, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { menuCategories, menuCategoryChildren } from "./constant";
-import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
+import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip, Popconfirm } from "antd";
@@ -10,7 +9,9 @@ import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { useParams } from "react-router-dom";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
-
+import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
+import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
+import { useNavigate } from "react-router-dom";
 import {
   GetAllCategoryformenu,
   GetEventMasterById,
@@ -18,8 +19,10 @@ import {
   AddMenuprep,
   Deleteiteminmenu,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 const EventPreparationPage = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const { eventId } = useParams();
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -32,17 +35,32 @@ const EventPreparationPage = () => {
   const [dateandtime, setDateandtime] = useState("");
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-
   const [functionMenuData, setFunctionMenuData] = useState({});
   const [functionSelectionData, setFunctionSelectionData] = useState({});
   const [allMenuItems, setAllMenuItems] = useState({});
   const [loading, setLoading] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
-
-  // New state to store menu preparation IDs for each function
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [menuPreparationIds, setMenuPreparationIds] = useState({});
   const [expandedItems, setExpandedItems] = useState({});
+  const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
+  const [categoryNotes, setCategoryNotes] = useState({
+    categoryNotes: "",
+    categorySlogan: "",
+  });
+  const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
+  const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
+  const [itemNotes, setItemNotes] = useState({
+    itemsNotes: "",
+    itemSlogan: "",
+  });
+  const classes = useStyles();
+  const [search, setSearch] = useState("");
+  const [childSearch, setChildSearch] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
 
+  const allCategory = { id: 0, name: "All" };
+  const categoriesWithAll = [allCategory, ...categories];
   useEffect(() => {
     initializeData();
   }, []);
@@ -114,8 +132,7 @@ const EventPreparationPage = () => {
             label: (
               <div
                 onClick={() => {
-                  console.log("Clicked tab:", fn.id);
-                  handleTabChange(fn.id); // ✅ use your existing handler
+                  handleTabChange(fn.id);
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -134,7 +151,10 @@ const EventPreparationPage = () => {
             initialFunctionData[fn.id] = {
               selectedItems: [],
               itemNotes: {},
+              itemSlogans: {},
               itemRates: {},
+              categoryNotes: {},
+              categorySlogans: {},
               isSaved: false,
               pax: fn.pax || 0,
               rate: fn.rate || 0,
@@ -165,8 +185,64 @@ const EventPreparationPage = () => {
         throw error;
       });
   };
+  const toggleCategoryExpand = (categoryName) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryName]: !prev[categoryName],
+    }));
+  };
 
-  // New function to load all menu items for a function (across all categories)
+  // Add this function in EventPreparationPage component:
+  const handleNoteSave = (savedNotes) => {
+    if (currentItemForNotes) {
+      // Update the item notes in functionSelectionData
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          itemNotes: {
+            ...prev[selectedFunctionId]?.itemNotes,
+            [currentItemForNotes]: savedNotes.itemsNotes || "",
+          },
+          itemSlogans: {
+            ...(prev[selectedFunctionId]?.itemSlogans || {}),
+            [currentItemForNotes]: savedNotes.itemSlogan || "",
+          },
+          isSaved: false,
+        },
+      }));
+    }
+    setShowNoteModal(false);
+    setCurrentItemForNotes(null);
+  };
+  // Add this function in EventPreparationPage component:
+  // In handleCategoryNoteSave, add logging:
+  const handleCategoryNoteSave = (savedNotes) => {
+    if (currentCategoryForNotes !== null) {
+      setFunctionSelectionData((prev) => {
+        const updated = {
+          ...prev,
+          [selectedFunctionId]: {
+            ...prev[selectedFunctionId],
+            categoryNotes: {
+              ...(prev[selectedFunctionId]?.categoryNotes || {}),
+              [currentCategoryForNotes]: savedNotes.categoryNotes || "",
+            },
+            categorySlogans: {
+              ...(prev[selectedFunctionId]?.categorySlogans || {}),
+              [currentCategoryForNotes]: savedNotes.categorySlogan || "",
+            },
+            isSaved: false,
+          },
+        };
+
+        return updated;
+      });
+    }
+    setShowCategoryNoteModal(false);
+    setCurrentCategoryForNotes(null);
+  };
+
   const loadAllMenuDataForFunction = async (functionId) => {
     try {
       // Load menu items from all categories for this function
@@ -209,11 +285,6 @@ const EventPreparationPage = () => {
   ) => {
     setLoading(true);
     try {
-      console.log(
-        `🔄 Loading menu data for Function: ${functionId}, Category: ${categoryId}`
-      );
-
-      // Always fetch fresh data - no caching for tab switches
       const responseData = await FetchMenuPrep(functionId, categoryId);
 
       const cacheKey = `${functionId}-${categoryId}`;
@@ -230,10 +301,6 @@ const EventPreparationPage = () => {
           ...prev,
           [functionId]: responseData.responseData.menuPreparation.id,
         }));
-
-        console.log(
-          `📝 Found existing menu prep ID: ${responseData.responseData.menuPreparation.id} for function ${functionId}`
-        );
       }
 
       // CRITICAL: Only update selection data if NOT preserving selections or if no existing data
@@ -246,10 +313,6 @@ const EventPreparationPage = () => {
           responseData.selectedItems &&
           responseData.selectedItems.length > 0
         ) {
-          console.log(
-            `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
-          );
-
           setFunctionSelectionData((prev) => ({
             ...prev,
             [functionId]: {
@@ -260,6 +323,25 @@ const EventPreparationPage = () => {
                 acc[item.menuItemId] = item.itemNotes || "";
                 return acc;
               }, {}),
+              itemSlogans: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemSlogan || ""; // Add this block
+                return acc;
+              }, {}),
+              categoryNotes: responseData.selectedItems.reduce((acc, item) => {
+                if (item.menuNotes) {
+                  acc[item.menuCategoryId] = item.menuNotes;
+                }
+                return acc;
+              }, {}),
+              categorySlogans: responseData.selectedItems.reduce(
+                (acc, item) => {
+                  if (item.menuSlogan) {
+                    acc[item.menuCategoryId] = item.menuSlogan;
+                  }
+                  return acc;
+                },
+                {}
+              ),
               itemRates: responseData.selectedItems.reduce((acc, item) => {
                 acc[item.menuItemId] = item.itemPrice || 0;
                 return acc;
@@ -285,8 +367,6 @@ const EventPreparationPage = () => {
             }
           }
         } else {
-          console.log(`📭 No selected items found for function ${functionId}`);
-
           // Ensure clean state for functions with no selections
           setFunctionSelectionData((prev) => ({
             ...prev,
@@ -294,6 +374,8 @@ const EventPreparationPage = () => {
               selectedItems: [],
               itemNotes: {},
               itemRates: {},
+              categoryNotes: {},
+              categorySlogans: {},
               isSaved: false,
               pax: prev[functionId]?.pax || 0,
               rate: prev[functionId]?.rate || 0,
@@ -301,10 +383,6 @@ const EventPreparationPage = () => {
           }));
         }
       } else {
-        console.log(
-          `🔒 Preserving existing selections for function ${functionId}`
-        );
-        // When preserving selections, we still need to merge any new saved data from API
         if (
           responseData.selectedItems &&
           responseData.selectedItems.length > 0
@@ -314,17 +392,15 @@ const EventPreparationPage = () => {
             const currentNotes = prev[functionId]?.itemNotes || {};
             const currentRates = prev[functionId]?.itemRates || {};
 
-            // Merge API selections with current selections
             const apiSelections = responseData.selectedItems.map(
               (item) => item.menuItemId
             );
             const mergedSelections = [
               ...new Set([...currentSelections, ...apiSelections]),
             ];
-
-            // Merge notes and rates (API data takes precedence for items that exist in API)
             const mergedNotes = { ...currentNotes };
             const mergedRates = { ...currentRates };
+            const mergedSlogans = { ...(prev[functionId]?.itemSlogans || {}) };
 
             responseData.selectedItems.forEach((item) => {
               if (item.itemNotes) {
@@ -332,6 +408,9 @@ const EventPreparationPage = () => {
               }
               if (item.itemPrice) {
                 mergedRates[item.menuItemId] = item.itemPrice;
+              }
+              if (item.itemSlogan) {
+                mergedSlogans[item.menuItemId] = item.itemSlogan;
               }
             });
 
@@ -341,8 +420,8 @@ const EventPreparationPage = () => {
                 ...prev[functionId],
                 selectedItems: mergedSelections,
                 itemNotes: mergedNotes,
+                itemSlogans: mergedSlogans,
                 itemRates: mergedRates,
-                // Keep isSaved status as false if user has made changes
                 isSaved: prev[functionId]?.isSaved !== false ? true : false,
               },
             };
@@ -374,21 +453,9 @@ const EventPreparationPage = () => {
     pageNo = 1,
     totalRecord = 50
   ) => {
-    console.log(
-      `🌐 API Call: FetchMenuPrep(${eventFunctionId}, ${menuCategoryId})`
-    );
-
     return Getmenuprep(eventFunctionId, menuCategoryId, pageNo, totalRecord, Id)
       .then((res) => {
         const responseData = res?.data?.data;
-
-        console.log("📡 API Response:", {
-          menuPreparationItems:
-            responseData["menuPreparationItems"]?.length || 0,
-          selectedItems:
-            responseData["selectedMenuPreparationItems"]?.length || 0,
-          hasMenuPreparation: !!responseData["menuPreparation"],
-        });
 
         // same processing logic as before...
         const menuItems = (responseData["menuPreparationItems"] || []).map(
@@ -435,11 +502,9 @@ const EventPreparationPage = () => {
 
   const handleTabChange = async (newFunctionId) => {
     if (selectedFunctionId === newFunctionId) {
-      console.log("🚫 Same tab clicked, ignoring");
       return;
     }
 
-    console.log(`🔄 Tab change: ${selectedFunctionId} → ${newFunctionId}`);
     setLoading(true);
 
     try {
@@ -459,7 +524,6 @@ const EventPreparationPage = () => {
 
       // 4. Load all menu items for the function if not cached
       if (!allMenuItems[newFunctionId]) {
-        console.log(`📦 Loading all menu items for function ${newFunctionId}`);
         await loadAllMenuDataForFunction(newFunctionId);
       }
 
@@ -468,14 +532,12 @@ const EventPreparationPage = () => {
       setFunctionMenuData((prev) => {
         const newData = { ...prev };
         delete newData[currentCacheKey];
-        console.log(`🗑️ Cleared cache for key: ${currentCacheKey}`);
+
         return newData;
       });
 
       // 6. Load fresh menu data with selected items
       await loadFunctionMenuData(newFunctionId, selectedCategoryId);
-
-      console.log(`✅ Tab change completed for function ${newFunctionId}`);
     } catch (error) {
       console.error("❌ Error in handleTabChange:", error);
     } finally {
@@ -484,12 +546,9 @@ const EventPreparationPage = () => {
   };
 
   const handleCategoryChange = async (categoryId) => {
-    console.log(`🏷️ Category change: ${selectedCategoryId} → ${categoryId}`);
-
     setSelectedCategoryId(categoryId);
 
     if (selectedFunctionId) {
-      // Clear cache for the new category
       const cacheKey = `${selectedFunctionId}-${categoryId}`;
       setFunctionMenuData((prev) => {
         const newData = { ...prev };
@@ -497,30 +556,9 @@ const EventPreparationPage = () => {
         return newData;
       });
 
-      // Load fresh data WITHOUT overriding existing selections
-      await loadFunctionMenuData(selectedFunctionId, categoryId, true); // Add preserveSelections flag
+      await loadFunctionMenuData(selectedFunctionId, categoryId, true);
     }
   };
-
-  const debugCurrentState = () => {
-    console.log("🐛 DEBUG STATE:", {
-      selectedFunctionId,
-      selectedCategoryId,
-      functionSelectionData: functionSelectionData[selectedFunctionId],
-      cacheKey: `${selectedFunctionId}-${selectedCategoryId}`,
-      menuItemsCount:
-        functionMenuData[`${selectedFunctionId}-${selectedCategoryId}`]
-          ?.length || 0,
-      allMenuItemsCount: allMenuItems[selectedFunctionId]?.length || 0,
-    });
-  };
-
-  useEffect(() => {
-    if (selectedFunctionId) {
-      console.log(`👀 Function changed to: ${selectedFunctionId}`);
-      debugCurrentState(); // Remove this after testing
-    }
-  }, [selectedFunctionId, functionSelectionData]);
 
   const handleSave = () => {
     const currentFunctionData = functionSelectionData[selectedFunctionId];
@@ -532,33 +570,34 @@ const EventPreparationPage = () => {
       return;
     }
 
-    // Use allMenuItems instead of currentMenuItems for save
     const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-
     const selectedItems = currentFunctionData.selectedItems
       .map((id) => allFunctionMenuItems.find((item) => item.id === id))
       .filter(Boolean);
 
-    // Get existing menu preparation ID for this function (0 if new)
     const existingId = menuPreparationIds[selectedFunctionId] || 0;
 
     const payload = {
       defaultPrice: rate || 0,
       eventFunctionId: selectedFunctionId,
-      id: existingId, // Use existing ID for updates, 0 for new records
+      id: existingId,
       menuPreparationDetails: selectedItems.map((item, index) => {
         const category = categories.find((cat) => cat.id === item.parentId);
+
         return {
           id: 0,
           itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
           itemPrice:
             Number(currentFunctionData.itemRates[item.id]) || Number(rate) || 0,
           itemSortOrder: index + 1,
+          menuNotes: currentFunctionData.categoryNotes?.[item.parentId] || "",
+          menuSlogan:
+            currentFunctionData.categorySlogans?.[item.parentId] || "",
           menuCategoryId: item.parentId,
           menuCategoryName: category?.name || "",
           menuItemId: item.id,
           menuItemName: item.name,
-          menuNotes: "",
           menuSortOrder: index + 1,
           startTime: dateandtime,
         };
@@ -568,19 +607,27 @@ const EventPreparationPage = () => {
       sortorder: 0,
     };
 
-    console.log(
-      `${existingId === 0 ? "Creating" : "Updating"} menu preparation:`,
-      payload
-    );
-
     AddMenuprep(payload)
       .then((res) => {
-        console.log("✅ Saved:", res.data);
         if (res.data?.msg) {
-          successMsgPopup(res.data.msg);
+          Swal.fire({
+            title: `${res.data?.msg}`,
+            text: "",
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+            },
+          });
         }
 
-        // Store the menu preparation ID if it's a new record
         if (existingId === 0 && res.data?.data?.menuPreparation?.id) {
           setMenuPreparationIds((prev) => ({
             ...prev,
@@ -588,7 +635,6 @@ const EventPreparationPage = () => {
           }));
         }
 
-        // Mark this function as saved
         setFunctionSelectionData((prev) => ({
           ...prev,
           [selectedFunctionId]: {
@@ -597,8 +643,6 @@ const EventPreparationPage = () => {
           },
         }));
         clearFunctionCache(selectedFunctionId);
-
-        // Refresh data to get the latest selectedMenuPreparationItems
         loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
       })
       .catch((err) => {
@@ -607,30 +651,19 @@ const EventPreparationPage = () => {
       });
   };
 
-  const classes = useStyles();
-  const [search, setSearch] = useState("");
-  const [childSearch, setChildSearch] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
-
-  const allCategory = { id: 0, name: "All" };
-  const categoriesWithAll = [allCategory, ...categories];
-
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // FIXED: Get current function's menu items with selection state
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
 
-  // Get current function's selection data
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
     selectedItems: [],
     itemNotes: {},
     itemRates: {},
   };
 
-  // FIXED: Update menu items with current selection state
   const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
     ...item,
     isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
@@ -650,7 +683,7 @@ const EventPreparationPage = () => {
               (itemId) => itemId !== id
             )
           : [...(prev[selectedFunctionId]?.selectedItems || []), id],
-        isSaved: false, // Mark as unsaved when making changes
+        isSaved: false,
       },
     }));
   };
@@ -683,10 +716,8 @@ const EventPreparationPage = () => {
     }));
   };
 
-  // New handlers for pax and rate changes
   const handlePaxChange = (newPax) => {
     setPax(newPax);
-    // Mark current function as unsaved if it has selections
     if (currentFunctionData.selectedItems?.length > 0) {
       setFunctionSelectionData((prev) => ({
         ...prev,
@@ -700,7 +731,6 @@ const EventPreparationPage = () => {
 
   const handleRateChange = (newRate) => {
     setRate(newRate);
-    // Mark current function as unsaved if it has selections
     if (currentFunctionData.selectedItems?.length > 0) {
       setFunctionSelectionData((prev) => ({
         ...prev,
@@ -718,12 +748,10 @@ const EventPreparationPage = () => {
     const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
 
     return currentFunctionData.selectedItems.reduce((sum, itemId) => {
-      // Find the item to get its original price
       const item = allFunctionMenuItems.find(
         (menuItem) => menuItem.id === itemId
       );
 
-      // Use custom rate if set, otherwise use original item price, fallback to default rate
       const itemRate =
         Number(currentFunctionData.itemRates?.[itemId]) ||
         Number(item?.price) ||
@@ -733,7 +761,6 @@ const EventPreparationPage = () => {
     }, 0);
   };
 
-  // FIXED: Use allMenuItems instead of currentMenuItems for selected items display
   const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
   const selectedItems = currentFunctionData.selectedItems
     .map((id) => allFunctionMenuItems.find((item) => item.id === id))
@@ -759,7 +786,22 @@ const EventPreparationPage = () => {
       const res = await Deleteiteminmenu(itemId, menuCatId, menuPrepId);
 
       if (res.data?.msg) {
-        successMsgPopup(res.data.msg);
+        Swal.fire({
+          title: `${res.data?.msg}`,
+          text: "",
+          icon: "success",
+          background: "#f5faff",
+          color: "#003f73",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#005BA8",
+          showClass: {
+            popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+          },
+        });
       }
 
       // Update state only after successful delete
@@ -1093,191 +1135,162 @@ const EventPreparationPage = () => {
                               <div className="flex items-center justify-between gap-2 mb-1">
                                 <span className="font-semibold text-xs text-gray-900">
                                   {categoryName}
+
+                                  <Tooltip title="Category Notes">
+                                    <button
+                                      className="ml-2 text-gray-400 hover:text-gray-500"
+                                      title="Info"
+                                      onClick={() => {
+                                        const firstItem = items[0];
+                                        const actualCategoryId = firstItem
+                                          ? firstItem.parentId
+                                          : 0;
+
+                                        setCurrentCategoryForNotes(
+                                          actualCategoryId
+                                        );
+                                        setCategoryNotes({
+                                          categoryNotes:
+                                            currentFunctionData.categoryNotes?.[
+                                              actualCategoryId
+                                            ] || "",
+                                          categorySlogan:
+                                            currentFunctionData
+                                              .categorySlogans?.[
+                                              actualCategoryId
+                                            ] || "",
+                                        });
+                                        setShowCategoryNoteModal(true);
+                                      }}
+                                    >
+                                      <i className="ki-filled ki-notepad"></i>
+                                    </button>
+                                  </Tooltip>
                                 </span>
                                 <Tooltip title="Expand">
                                   <button
                                     className="p-0 w-6 h-6"
                                     title="Expand"
                                     onClick={() =>
-                                      setExpandedCategories((prev) => ({
-                                        ...prev,
-                                        [categoryName]: !prev[categoryName],
-                                      }))
+                                      toggleCategoryExpand(categoryName)
                                     }
                                   >
                                     <i
-                                      className={`ki-filled ${expandedCategories[categoryName] ? "ki-up" : "ki-down"} text-md`}
+                                      className={`ki-filled ${
+                                        expandedCategories[categoryName]
+                                          ? "ki-up"
+                                          : "ki-down"
+                                      } text-md`}
                                     ></i>
                                   </button>
                                 </Tooltip>
                               </div>
-                              <ul className="bg-white rounded border shadow-sm">
-                                {items.map((item) => (
-                                  <li
-                                    key={item.id}
-                                    className="flex flex-col border-b last:border-0 p-3"
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span
-                                          className="w-8 h-8 rounded overflow-hidden"
-                                          style={{ flex: "0 0 2rem" }}
-                                        >
-                                          <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </span>
-                                        <span className="text-xs font-medium">
-                                          {item.name}
-                                        </span>
-                                      </div>
-                                      <div>
-                                        <button
-                                          className="ml-2 text-gray-400 hover:text-gray-500"
-                                          title="Info"
-                                          onClick={() =>
-                                            setExpandedItems((prev) => ({
-                                              ...prev,
-                                              [item.id]: !prev[item.id],
-                                            }))
-                                          }
-                                        >
-                                          <i className="ki-filled ki-information-1"></i>
-                                        </button>
-                                        <Popconfirm
-                                          title="Are you sure to delete this item?"
-                                          onConfirm={() =>
-                                            removeSelectedItem(
-                                              item.id,
-                                              item.parentId,
-                                              menuPreparationIds[
-                                                selectedFunctionId
-                                              ]
-                                            )
-                                          }
-                                          onCancel={() =>
-                                            console.log("Cancelled")
-                                          }
-                                          okText="Yes"
-                                          cancelText="No"
-                                        >
-                                          <Tooltip title="Remove">
+                              {expandedCategories[categoryName] && (
+                                <ul className="bg-white rounded border shadow-sm">
+                                  {items.map((item) => (
+                                    <li
+                                      key={item.id}
+                                      className="flex flex-col border-b last:border-0 p-3"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <span
+                                            className="w-8 h-8 rounded overflow-hidden"
+                                            style={{ flex: "0 0 2rem" }}
+                                          >
+                                            <img
+                                              src={item.image}
+                                              alt={item.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </span>
+                                          <span className="text-xs font-medium">
+                                            {item.name}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <Tooltip title="Notes">
                                             <button
-                                              className="ml-2 text-gray-400 hover:text-red-500"
-                                              title="Remove"
+                                              className="ml-2 text-gray-400 hover:text-gray-500"
+                                              title="Info"
+                                              onClick={() => {
+                                                setCurrentItemForNotes(item.id);
+                                                setItemNotes({
+                                                  itemsNotes:
+                                                    currentFunctionData
+                                                      .itemNotes?.[item.id] ||
+                                                    "",
+                                                  itemSlogan:
+                                                    currentFunctionData
+                                                      .itemSlogans?.[item.id] ||
+                                                    "",
+                                                });
+                                                setShowNoteModal(true);
+                                              }}
                                             >
-                                              <i className="ki-filled ki-trash"></i>
+                                              <i className="ki-filled ki-notepad"></i>
                                             </button>
                                           </Tooltip>
-                                        </Popconfirm>
-                                      </div>
-                                    </div>
-
-                                    {showDetails && (
-                                      <div className="flex items-center justify-between mt-1 gap-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xs text-gray-500">
-                                            Rate:
-                                          </span>
-                                          <input
-                                            type="number"
-                                            value={
-                                              currentFunctionData.itemRates?.[
-                                                item.id
-                                              ] ??
-                                              item.price ??
-                                              rate
-                                            }
-                                            onChange={(e) =>
-                                              handleItemRateChange(
+                                          <Popconfirm
+                                            title="Are you sure to delete this item?"
+                                            onConfirm={() =>
+                                              removeSelectedItem(
                                                 item.id,
-                                                e.target.value
+                                                item.parentId,
+                                                menuPreparationIds[
+                                                  selectedFunctionId
+                                                ]
                                               )
                                             }
-                                            min={0}
-                                            className="input input-sm w-20"
-                                          />
+                                            onCancel={() =>
+                                              console.log("Cancelled")
+                                            }
+                                            okText="Yes"
+                                            cancelText="No"
+                                          >
+                                            <Tooltip title="Remove">
+                                              <button
+                                                className="ml-2 text-gray-400 hover:text-red-500"
+                                                title="Remove"
+                                              >
+                                                <i className="ki-filled ki-trash"></i>
+                                              </button>
+                                            </Tooltip>
+                                          </Popconfirm>
                                         </div>
                                       </div>
-                                    )}
 
-                                    {showDetails && (
-                                      <div className="mt-2">
-                                        <textarea
-                                          placeholder="Add notes..."
-                                          value={
-                                            currentFunctionData.itemNotes?.[
-                                              item.id
-                                            ] || ""
-                                          }
-                                          onChange={(e) =>
-                                            handleNoteChange(
-                                              item.id,
-                                              e.target.value
-                                            )
-                                          }
-                                          className="textarea textarea-sm w-full text-xs"
-                                          rows="2"
-                                        />
-                                      </div>
-                                    )}
-
-                                    {expandedItems[item.id] && (
-                                      <div className="flex items-center justify-between mt-1 gap-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xs text-gray-500">
-                                            Rate:
-                                          </span>
-                                          <input
-                                            type="number"
-                                            value={
-                                              currentFunctionData.itemRates?.[
-                                                item.id
-                                              ] ??
-                                              item.price ??
-                                              rate
-                                            }
-                                            onChange={(e) =>
-                                              handleItemRateChange(
-                                                item.id,
-                                                e.target.value
-                                              )
-                                            }
-                                            min={0}
-                                            className="input input-sm w-20"
-                                          />
+                                      {showDetails && (
+                                        <div className="flex items-center justify-between mt-1 gap-2">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-500">
+                                              Rate:
+                                            </span>
+                                            <input
+                                              type="number"
+                                              value={
+                                                currentFunctionData.itemRates?.[
+                                                  item.id
+                                                ] ??
+                                                item.price ??
+                                                rate
+                                              }
+                                              onChange={(e) =>
+                                                handleItemRateChange(
+                                                  item.id,
+                                                  e.target.value
+                                                )
+                                              }
+                                              min={0}
+                                              className="input input-sm w-20"
+                                            />
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-
-                                    {expandedItems[item.id] && (
-                                      <div className="mt-2">
-                                        <label htmlFor="" className="text-xs">
-                                          Notes:
-                                        </label>
-                                        <textarea
-                                          placeholder="Add notes..."
-                                          value={
-                                            currentFunctionData.itemNotes?.[
-                                              item.id
-                                            ] || ""
-                                          }
-                                          onChange={(e) =>
-                                            handleNoteChange(
-                                              item.id,
-                                              e.target.value
-                                            )
-                                          }
-                                          className="textarea textarea-sm w-full text-xs"
-                                          rows="2"
-                                        />
-                                      </div>
-                                    )}
-                                  </li>
-                                ))}
-                              </ul>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
                           );
                         })}
@@ -1308,7 +1321,11 @@ const EventPreparationPage = () => {
           </div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <button className="btn btn-light" title="Cancel">
+          <button
+            className="btn btn-light"
+            title="Cancel"
+            onClick={() => navigate("/event")}
+          >
             Cancel
           </button>
           <button
@@ -1337,6 +1354,28 @@ const EventPreparationPage = () => {
           isModalOpen={isCategoryModalOpen}
           setIsModalOpen={setIsCategoryModalOpen}
           refreshData={initializeData}
+        />
+        <MenuNotes
+          isOpen={showNoteModal}
+          onClose={() => {
+            setShowNoteModal(false);
+            setCurrentItemForNotes(null);
+          }}
+          itemId={currentItemForNotes}
+          notes={itemNotes}
+          onSave={handleNoteSave}
+        />
+
+        <CategoryNotes
+          isOpen={showCategoryNoteModal}
+          onClose={() => {
+            setShowCategoryNoteModal(false);
+            setCurrentCategoryForNotes(null);
+          }}
+          categoryId={currentCategoryForNotes}
+          notes={categoryNotes}
+          onSave={handleCategoryNoteSave}
+          categories={categoriesWithAll}
         />
       </Container>
     </Fragment>
