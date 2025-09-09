@@ -48,95 +48,96 @@ const HeaderTopbar = () => {
         <i className="ki-filled ki-face-id me-0.5"></i>
         Check In
       </button>
-      <button
-        onClick={handleOpen}
-        className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-clarity hover:text-primary text-gray-500"
-      >
-        <KeenIcon icon="magnifier" />
-      </button>
-      {/* Search */}
-      <ModalSearch open={searchModalOpen} onOpenChange={handleClose} />
-      {/* whatsapp */}
-      <Menu>
-        <MenuItem
-          ref={itemNotificationsRef}
-          toggle="dropdown"
-          trigger="click"
-          dropdownProps={{
-            placement: isRTL() ? "bottom-start" : "bottom-end",
-            modifiers: [
-              {
-                name: "offset",
-                options: {
-                  offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
-                },
-              },
-            ],
-          }}
-        >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
-            <KeenIcon icon="ki-filled ki-whatsapp" />
-          </MenuToggle>
-          {DropdownChat({
-            menuTtemRef: itemChatRef,
-          })}
-        </MenuItem>
-      </Menu>
-
-      {/* Mail */}
-      <Menu>
-        <MenuItem
-          ref={itemNotificationsRef}
-          toggle="dropdown"
-          trigger="click"
-          dropdownProps={{
-            placement: isRTL() ? "bottom-start" : "bottom-end",
-            modifiers: [
-              {
-                name: "offset",
-                options: {
-                  offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
-                },
-              },
-            ],
-          }}
-        >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
-            <KeenIcon icon="ki-filled ki-sms" />
-          </MenuToggle>
-          {DropdownMails({
-            menuTtemRef: itemNotificationsRef,
-          })}
-        </MenuItem>
-      </Menu>
-
-      {/* Notifications */}
-      <Menu>
-        <MenuItem
-          ref={itemNotificationsRef}
-          toggle="dropdown"
-          trigger="click"
-          dropdownProps={{
-            placement: isRTL() ? "bottom-start" : "bottom-end",
-            modifiers: [
-              {
-                name: "offset",
-                options: {
-                  offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
-                },
-              },
-            ],
-          }}
-        >
-          <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
-            <KeenIcon icon="notification-status" />
-          </MenuToggle>
-          {DropdownNotifications({
-            menuTtemRef: itemNotificationsRef,
-          })}
-        </MenuItem>
-      </Menu>
-
+      <div className="fixed left-0 right-0 bottom-10 flex justify-center justify-center md:static">
+        <div className="flex items-center gap-2 lg:gap-3 shadow-lg md:shadow-none py-3 md:py-0 px-7 md:px-0 rounded-full md:rounded-0 bg-white md:bg-transparent border md:border-0">
+          <button
+            onClick={handleOpen}
+            className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-clarity hover:text-primary text-gray-500"
+          >
+            <KeenIcon icon="magnifier" />
+          </button>
+          {/* Search */}
+          <ModalSearch open={searchModalOpen} onOpenChange={handleClose} />
+          {/* whatsapp */}
+          <Menu>
+            <MenuItem
+              ref={itemNotificationsRef}
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? "bottom-start" : "bottom-end",
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
+                    },
+                  },
+                ],
+              }}
+            >
+              <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
+                <KeenIcon icon="ki-filled ki-whatsapp" />
+              </MenuToggle>
+              {DropdownChat({
+                menuTtemRef: itemChatRef,
+              })}
+            </MenuItem>
+          </Menu>
+          {/* Mail */}
+          <Menu>
+            <MenuItem
+              ref={itemNotificationsRef}
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? "bottom-start" : "bottom-end",
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
+                    },
+                  },
+                ],
+              }}
+            >
+              <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
+                <KeenIcon icon="ki-filled ki-sms" />
+              </MenuToggle>
+              {DropdownMails({
+                menuTtemRef: itemNotificationsRef,
+              })}
+            </MenuItem>
+          </Menu>
+          {/* Notifications */}
+          <Menu>
+            <MenuItem
+              ref={itemNotificationsRef}
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? "bottom-start" : "bottom-end",
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: isRTL() ? [-70, 10] : [70, 10], // [skid, distance]
+                    },
+                  },
+                ],
+              }}
+            >
+              <MenuToggle className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-clarity hover:text-primary dropdown-open:bg-primary-clarity dropdown-open:text-primary text-gray-500">
+                <KeenIcon icon="notification-status" />
+              </MenuToggle>
+              {DropdownNotifications({
+                menuTtemRef: itemNotificationsRef,
+              })}
+            </MenuItem>
+          </Menu>
+        </div>
+      </div>
       {/* user profile */}
       <Menu>
         <MenuItem

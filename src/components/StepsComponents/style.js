@@ -13,17 +13,6 @@ const useStyles = makeStyles({
       background: "var(--tw-gray-100)",
       border: "1px solid var(--tw-gray-200)",
       position: "relative",
-      // "&:after": {
-      //   position: "absolute",
-      //   bottom: "20px",
-      //   left: "0",
-      //   right: "0",
-      //   margin: "0 auto",
-      //   height: "2px",
-      //   width: "calc(100% - 60px)",
-      //   backgroundColor: "var(--tw-primary)",
-      //   content: '""',
-      // },
       "& .ant-steps-item": {
         padding: "0 !important",
         "&:before": {

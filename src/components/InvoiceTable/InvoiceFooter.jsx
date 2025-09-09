@@ -114,7 +114,6 @@ const InvoiceFooter = () => {
           <i class="ki-outline ki-printer"></i> Save as Draft
         </button>
       </div>
-
       {/* <div className="space-y-4 mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         <div className="p-4 mt-5 flex items-center justify-between gap-8 w-fit shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] rounded-lg bg-white">
