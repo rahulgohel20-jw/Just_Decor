@@ -7,17 +7,16 @@ import useStyles from "./style";
 import { Tooltip } from "antd";
 import { useParams } from "react-router-dom";
 import { GetQuotation } from "@/services/apiServices";
-
 const QuotationPage = () => {
   const { eventId } = useParams();
   const classes = useStyles();
 
-  // Dynamic state that will be populated from API
+  // Static Data
   const [quotationData, setQuotationData] = useState({
-    eventName: "",
-    partyName: "",
-    venueName: "",
-    estimateDate: "",
+    eventName: "Wedding Reception",
+    partyName: "Kiran Bhandari",
+    venueName: "Bhacantha Resort",
+    estimateDate: "04 August 2025",
     functions: [
       {
         id: 1,
@@ -29,13 +28,17 @@ const QuotationPage = () => {
         totalPrice: "",
       },
     ],
-    summaryItems: [],
-    taxDetails: [
-      { label: "Discount", percentage: "0", amount: "0.00" },
-      { label: "CGST", percentage: "9", amount: "0.00" },
-      { label: "SGST", percentage: "9", amount: "0.00" },
+    summaryItems: [
+      { label: "Haldi Carnival Total", amount: "15,000.00" },
+      { label: "Mayra Groom Side", amount: "25,000.00" },
+      { label: "Wedding Reception Total", amount: "60,000.00" },
     ],
-    grandTotal: "0.00",
+    taxDetails: [
+      { label: "Discount", percentage: "10", amount: "10,000.00" },
+      { label: "CGST", percentage: "9", amount: "8,100.00" },
+      { label: "SGST", percentage: "9", amount: "8,100.00" },
+    ],
+    grandTotal: "1,06,200.00",
     payments: [
       {
         label: "Advance Payment 1",
@@ -48,170 +51,24 @@ const QuotationPage = () => {
         description: "Paid Via UPI ON 23th June, 2025. Confirmed",
       },
     ],
-    totalPaid: "0.00",
-    remainingPayment: "0.00",
+    totalPaid: "50,000.00",
+    remainingPayment: "56,200.00",
     notes: "",
   });
-
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     FetchGetQuotation();
   }, []);
 
   const FetchGetQuotation = () => {
-    setLoading(true);
     GetQuotation(eventId)
       .then((res) => {
-        const apiData = res?.data?.data?.["Event Functions Quotation Details"];
-        if (apiData && apiData.length > 0) {
-          const quotationInfo = apiData[0];
-
-          // Map API response to component state
-          const mappedData = {
-            // Basic event information
-            eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
-            partyName: quotationInfo.event?.party?.nameEnglish || "",
-            venueName: quotationInfo.event?.venue || "",
-            estimateDate: quotationInfo.event?.eventStartDateTime
-              ? new Date(
-                  quotationInfo.event.eventStartDateTime
-                ).toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : "",
-
-            // Functions from eventFunctions array
-            functions:
-              quotationInfo.event?.eventFunctions?.length > 0
-                ? quotationInfo.event.eventFunctions.map(
-                    (eventFunc, index) => ({
-                      id: eventFunc.id || Date.now() + index,
-                      name: eventFunc.function?.nameEnglish || "",
-                      date: eventFunc.functionStartDateTime
-                        ? new Date(
-                            eventFunc.functionStartDateTime
-                          ).toLocaleDateString("en-GB")
-                        : "",
-                      persons: eventFunc.pax?.toString() || "",
-                      extra: eventFunc.function_venue || "",
-                      rate: eventFunc.rate?.toString() || "",
-                      totalPrice:
-                        eventFunc.pax && eventFunc.rate
-                          ? (eventFunc.pax * eventFunc.rate).toFixed(2)
-                          : "0.00",
-                    })
-                  )
-                : [
-                    {
-                      id: 1,
-                      name: "",
-                      date: "",
-                      persons: "",
-                      extra: "",
-                      rate: "",
-                      totalPrice: "",
-                    },
-                  ],
-            summaryItems:
-              quotationInfo.event?.eventFunctions?.length > 0
-                ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
-                    label: `Total`,
-                    amount:
-                      eventFunc.pax && eventFunc.rate
-                        ? (eventFunc.pax * eventFunc.rate).toFixed(2)
-                        : "0.00",
-                  }))
-                : [{ label: "No functions added", amount: "0.00" }],
-
-            // Tax details with dynamic calculations
-            taxDetails: [
-              {
-                label: "Discount",
-                percentage: "10",
-                amount: (quotationInfo.discount || 0).toFixed(2),
-              },
-              {
-                label: "CGST",
-                percentage: "9",
-                amount: ((quotationInfo.gstAmnt || 0) / 2).toFixed(2),
-              },
-              {
-                label: "SGST",
-                percentage: "9",
-                amount: ((quotationInfo.gstAmnt || 0) / 2).toFixed(2),
-              },
-            ],
-
-            // Financial totals
-            grandTotal: (quotationInfo.grandTotal || 0).toFixed(2),
-            totalPaid: (quotationInfo.advancePayment || 0).toFixed(2),
-            remainingPayment: (quotationInfo.remainingAmount || 0).toFixed(2),
-            payments:
-              quotationInfo.advancePayment > 0
-                ? [
-                    {
-                      label: "Advance Payment",
-                      amount: (quotationInfo.advancePayment || 0).toFixed(2),
-                      description: `Advance payment received. Confirmed on ${new Date().toLocaleDateString("en-GB")}`,
-                    },
-                  ]
-                : [],
-
-            // Notes
-            notes: quotationInfo.notes || "",
-          };
-
-          setQuotationData(mappedData);
-        }
+        console.log(res?.data?.data["Event Functions Quotation Details"]);
       })
       .catch((error) => {
-        console.log("Error fetching quotation:", error);
-      })
-      .finally(() => {
-        setLoading(false);
+        console.log(error);
       });
   };
-
-  // Calculate totals dynamically
-  const calculateTotals = () => {
-    const subtotal = quotationData.functions.reduce((sum, func) => {
-      const total = parseFloat(func.totalPrice) || 0;
-      return sum + total;
-    }, 0);
-
-    const discount =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "Discount")?.amount
-      ) || 0;
-    const cgst =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount
-      ) || 0;
-    const sgst =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount
-      ) || 0;
-
-    const grandTotal = subtotal - discount + cgst + sgst;
-    const totalPaid = quotationData.payments.reduce(
-      (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-      0
-    );
-    const remaining = grandTotal - totalPaid;
-
-    return {
-      subtotal: subtotal.toFixed(2),
-      grandTotal: grandTotal.toFixed(2),
-      totalPaid: totalPaid.toFixed(2),
-      remainingPayment: remaining.toFixed(2),
-    };
-  };
-
-  const totals = calculateTotals();
-
   const handleAddFunction = () => {
     setQuotationData((prev) => ({
       ...prev,
@@ -238,23 +95,6 @@ const QuotationPage = () => {
     }));
   };
 
-  const handleFunctionChange = (index, field, value) => {
-    const newFunctions = [...quotationData.functions];
-    newFunctions[index][field] = value;
-
-    // Auto-calculate total price when persons or rate changes
-    if (field === "persons" || field === "rate") {
-      const persons = parseFloat(newFunctions[index].persons) || 0;
-      const rate = parseFloat(newFunctions[index].rate) || 0;
-      newFunctions[index].totalPrice = (persons * rate).toFixed(2);
-    }
-
-    setQuotationData((prev) => ({
-      ...prev,
-      functions: newFunctions,
-    }));
-  };
-
   const handleNotesChange = (e) => {
     const value = e.target.value;
     setQuotationData((prev) => ({ ...prev, notes: value }));
@@ -262,18 +102,7 @@ const QuotationPage = () => {
 
   const handleSaveNotes = () => {
     console.log("Notes saved:", quotationData.notes);
-    // Here you can add API call to save notes
   };
-
-  if (loading) {
-    return (
-      <Container>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-lg">Loading quotation...</div>
-        </div>
-      </Container>
-    );
-  }
 
   return (
     <Fragment>
@@ -403,9 +232,14 @@ const QuotationPage = () => {
                     <input
                       className="input"
                       value={fn.name}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "name", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].name = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Function"
                       type="text"
                     />
@@ -414,9 +248,14 @@ const QuotationPage = () => {
                     <input
                       className="input"
                       value={fn.date}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "date", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].date = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Date"
                       type="text"
                     />
@@ -425,20 +264,30 @@ const QuotationPage = () => {
                     <input
                       className="input"
                       value={fn.persons}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "persons", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].persons = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Pax"
-                      type="number"
+                      type="text"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
                     <input
                       className="input"
                       value={fn.extra}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "extra", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].extra = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Extra"
                       type="text"
                     />
@@ -447,27 +296,32 @@ const QuotationPage = () => {
                     <input
                       className="input"
                       value={fn.rate}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "rate", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].rate = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Rate"
-                      type="number"
+                      type="text"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
                     <input
                       className="input"
                       value={fn.totalPrice}
-                      onChange={(e) =>
-                        handleFunctionChange(
-                          index,
-                          "totalPrice",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => {
+                        const newFunctions = [...quotationData.functions];
+                        newFunctions[index].totalPrice = e.target.value;
+                        setQuotationData((prev) => ({
+                          ...prev,
+                          functions: newFunctions,
+                        }));
+                      }}
                       placeholder="Total Price"
-                      type="number"
-                      step="0.01"
+                      type="text"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
@@ -548,8 +402,7 @@ const QuotationPage = () => {
                       <input
                         className="h-full text-gray-900 w-full"
                         value={tax.amount}
-                        type="number"
-                        step="0.01"
+                        type="text"
                         onChange={(e) => {
                           const newTaxDetails = [...quotationData.taxDetails];
                           newTaxDetails[idx].amount = e.target.value;
@@ -569,7 +422,7 @@ const QuotationPage = () => {
                   Grand Total
                 </div>
                 <div className="text-lg font-bold text-primary px-2">
-                  &#8377; {totals.grandTotal}
+                  &#8377; {quotationData.grandTotal}
                 </div>
               </div>
 
@@ -595,8 +448,7 @@ const QuotationPage = () => {
                           <input
                             className="h-full text-gray-900 w-full border border-gray-200 rounded "
                             value={payment.amount}
-                            type="number"
-                            step="0.01"
+                            type="text"
                             onChange={(e) => {
                               const newPayments = [...quotationData.payments];
                               newPayments[idx].amount = e.target.value;
@@ -614,12 +466,6 @@ const QuotationPage = () => {
                     </div>
                   </div>
                 ))}
-
-                {quotationData.payments.length === 0 && (
-                  <div className="text-gray-500 text-sm py-2">
-                    No advance payments recorded
-                  </div>
-                )}
               </div>
 
               <div className="flex items-center justify-between py-5 px-2">
@@ -627,7 +473,7 @@ const QuotationPage = () => {
                   Total Paid
                 </div>
                 <div className="text-base font-bold text-success px-2">
-                  &#8377; {totals.totalPaid}
+                  &#8377; {quotationData.totalPaid}
                 </div>
               </div>
 
@@ -637,7 +483,7 @@ const QuotationPage = () => {
                   Payment
                 </div>
                 <div className="text-lg font-bold text-orange-700 px-2">
-                  &#8377; {totals.remainingPayment}
+                  &#8377; {quotationData.remainingPayment}
                 </div>
               </div>
 
