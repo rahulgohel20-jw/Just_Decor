@@ -21,6 +21,14 @@ export const GetQuotation = (id) => {
   return GET(`/quotation/getbyeventid?eventId=${id}`);
 };
 
+export const UpdateQuotation = (id, data) => {
+  return PUT(`/quotation/update?id=${id}`, data);
+};
+
+export const DeleteQuotation = (id) => {
+  return DELETE(`/quotation/deletebyquotationitemid?quotationItemId=${id}`);
+};
+
 // Update Role
 export const updateRole = (roleId, data) => {
   return PUT(`/role_master/update-by-id/${roleId}`, data);

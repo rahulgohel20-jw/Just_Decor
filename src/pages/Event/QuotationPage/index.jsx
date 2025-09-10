@@ -1,18 +1,24 @@
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import useStyles from "./style";
-import { Tooltip } from "antd";
+import { Tooltip, DatePicker, Popconfirm } from "antd";
 import { useParams } from "react-router-dom";
-import { GetQuotation } from "@/services/apiServices";
-
+import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
+import {
+  GetQuotation,
+  UpdateQuotation,
+  DeleteQuotation,
+} from "@/services/apiServices";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import Swal from "sweetalert2";
+dayjs.extend(customParseFormat);
 const QuotationPage = () => {
+  const [quotationId, setQuotationId] = useState(null);
   const { eventId } = useParams();
-  const classes = useStyles();
 
-  // Dynamic state that will be populated from API
   const [quotationData, setQuotationData] = useState({
     eventName: "",
     partyName: "",
@@ -22,32 +28,23 @@ const QuotationPage = () => {
       {
         id: 1,
         name: "",
-        date: "",
+        date: null,
         persons: "",
         extra: "",
         rate: "",
         totalPrice: "",
       },
     ],
-    summaryItems: [],
     taxDetails: [
-      { label: "Discount", percentage: "0", amount: "0.00" },
-      { label: "CGST", percentage: "9", amount: "0.00" },
-      { label: "SGST", percentage: "9", amount: "0.00" },
+      { label: "Discount", percentage: "", amount: "0.00" },
+      { label: "GST", percentage: "", amount: "0.00" },
     ],
     grandTotal: "0.00",
-    payments: [
-      {
-        label: "Advance Payment 1",
-        amount: "20,000.00",
-        description: "Paid Via UPI ON 23th June, 2025. Confirmed",
-      },
-      {
-        label: "Advance Payment 2",
-        amount: "30,000.00",
-        description: "Paid Via UPI ON 23th June, 2025. Confirmed",
-      },
-    ],
+    advancePayment: {
+      amount: "0.00",
+      date: dayjs(),
+      description: "Advance payment received. Confirmed",
+    },
     totalPaid: "0.00",
     remainingPayment: "0.00",
     notes: "",
@@ -67,9 +64,12 @@ const QuotationPage = () => {
         if (apiData && apiData.length > 0) {
           const quotationInfo = apiData[0];
 
-          // Map API response to component state
+          const hasFunctionQuotationItems =
+            quotationInfo.functionQuotationItems &&
+            quotationInfo.functionQuotationItems.length > 0;
+
           const mappedData = {
-            // Basic event information
+            quotationId: quotationInfo.id,
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             venueName: quotationInfo.event?.venue || "",
@@ -82,21 +82,30 @@ const QuotationPage = () => {
                   year: "numeric",
                 })
               : "",
-
-            // Functions from eventFunctions array
-            functions:
-              quotationInfo.event?.eventFunctions?.length > 0
+            functions: hasFunctionQuotationItems
+              ? quotationInfo.functionQuotationItems.map((item, index) => ({
+                  id: item.id || 0,
+                  name: item.functionName || "",
+                  date:
+                    item.functionDate &&
+                    dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
+                      ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
+                      : null,
+                  persons: item.pax?.toString() || "",
+                  extra: item.extraPax?.toString() || "0",
+                  rate: item.ratePerPlate?.toString() || "",
+                  totalPrice: item.amount?.toFixed(2) || "0.00",
+                }))
+              : quotationInfo.event?.eventFunctions?.length > 0
                 ? quotationInfo.event.eventFunctions.map(
                     (eventFunc, index) => ({
-                      id: eventFunc.id || Date.now() + index,
+                      id: 0,
                       name: eventFunc.function?.nameEnglish || "",
                       date: eventFunc.functionStartDateTime
-                        ? new Date(
-                            eventFunc.functionStartDateTime
-                          ).toLocaleDateString("en-GB")
-                        : "",
+                        ? dayjs(eventFunc.functionStartDateTime)
+                        : null,
                       persons: eventFunc.pax?.toString() || "",
-                      extra: eventFunc.function_venue || "",
+                      extra: eventFunc.extra || "0",
                       rate: eventFunc.rate?.toString() || "",
                       totalPrice:
                         eventFunc.pax && eventFunc.rate
@@ -108,62 +117,53 @@ const QuotationPage = () => {
                     {
                       id: 1,
                       name: "",
-                      date: "",
+                      date: null,
                       persons: "",
                       extra: "",
                       rate: "",
-                      totalPrice: "",
+                      totalPrice: "0.00",
                     },
                   ],
-            summaryItems:
-              quotationInfo.event?.eventFunctions?.length > 0
-                ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
-                    label: `Total`,
-                    amount:
-                      eventFunc.pax && eventFunc.rate
-                        ? (eventFunc.pax * eventFunc.rate).toFixed(2)
-                        : "0.00",
-                  }))
-                : [{ label: "No functions added", amount: "0.00" }],
 
-            // Tax details with dynamic calculations
             taxDetails: [
               {
                 label: "Discount",
-                percentage: "10",
+                percentage: "0",
                 amount: (quotationInfo.discount || 0).toFixed(2),
               },
               {
-                label: "CGST",
-                percentage: "9",
-                amount: ((quotationInfo.gstAmnt || 0) / 2).toFixed(2),
-              },
-              {
-                label: "SGST",
-                percentage: "9",
-                amount: ((quotationInfo.gstAmnt || 0) / 2).toFixed(2),
+                label: "GST",
+                percentage: quotationInfo.gst || "0",
+                amount: (quotationInfo.gstAmnt || 0).toFixed(2),
               },
             ],
 
-            // Financial totals
             grandTotal: (quotationInfo.grandTotal || 0).toFixed(2),
             totalPaid: (quotationInfo.advancePayment || 0).toFixed(2),
             remainingPayment: (quotationInfo.remainingAmount || 0).toFixed(2),
-            payments:
-              quotationInfo.advancePayment > 0
-                ? [
-                    {
-                      label: "Advance Payment",
-                      amount: (quotationInfo.advancePayment || 0).toFixed(2),
-                      description: `Advance payment received. Confirmed on ${new Date().toLocaleDateString("en-GB")}`,
-                    },
-                  ]
-                : [],
 
-            // Notes
+            advancePayment: {
+              amount: (quotationInfo.advancePayment || 0).toFixed(2),
+              date:
+                quotationInfo.advancePaymentDate &&
+                dayjs(
+                  quotationInfo.advancePaymentDate,
+                  "DD/MM/YYYY hh:mm A"
+                ).isValid()
+                  ? dayjs(
+                      quotationInfo.advancePaymentDate,
+                      "DD/MM/YYYY hh:mm A"
+                    )
+                  : null,
+
+              description:
+                quotationInfo.advancePaymentDescription ||
+                "Advance payment received. Confirmed",
+            },
+
             notes: quotationInfo.notes || "",
           };
-
+          setQuotationId(mappedData.quotationId);
           setQuotationData(mappedData);
         }
       })
@@ -175,35 +175,31 @@ const QuotationPage = () => {
       });
   };
 
-  // Calculate totals dynamically
   const calculateTotals = () => {
     const subtotal = quotationData.functions.reduce((sum, func) => {
       const total = parseFloat(func.totalPrice) || 0;
       return sum + total;
     }, 0);
 
-    const discount =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "Discount")?.amount
-      ) || 0;
-    const cgst =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount
-      ) || 0;
-    const sgst =
-      parseFloat(
-        quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount
-      ) || 0;
-
-    const grandTotal = subtotal - discount + cgst + sgst;
-    const totalPaid = quotationData.payments.reduce(
-      (sum, payment) => sum + (parseFloat(payment.amount) || 0),
-      0
+    const discountAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "Discount")
+        ?.amount || 0
     );
-    const remaining = grandTotal - totalPaid;
+
+    const gstPercentage = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "GST")?.percentage ||
+        0
+    );
+
+    const gstAmount = (subtotal * gstPercentage) / 100 || 0;
+
+    const grandTotal = subtotal - discountAmount + gstAmount;
+    const totalPaid = parseFloat(quotationData.advancePayment.amount) || 0;
+    const remaining = Math.max(0, grandTotal - totalPaid);
 
     return {
       subtotal: subtotal.toFixed(2),
+      gstAmount: gstAmount.toFixed(2),
       grandTotal: grandTotal.toFixed(2),
       totalPaid: totalPaid.toFixed(2),
       remainingPayment: remaining.toFixed(2),
@@ -218,35 +214,52 @@ const QuotationPage = () => {
       functions: [
         ...prev.functions,
         {
-          id: Date.now(),
+          id: 0,
           name: "",
-          date: "",
+          date: null,
           persons: "",
           extra: "",
           rate: "",
-          totalPrice: "",
+          totalPrice: "0.00",
         },
       ],
     }));
   };
 
-  const handleDeleteFunction = (index) => {
+  const handleDeleteFunction = (itemId, index) => {
     if (index === 0) return;
-    setQuotationData((prev) => ({
-      ...prev,
-      functions: prev.functions.filter((_, idx) => idx !== index),
-    }));
+
+    if (itemId && itemId !== 0) {
+      DeleteQuotation(itemId)
+        .then((response) => {
+          FetchGetQuotation();
+          response.data?.msg && successMsgPopup(response.data.msg);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setQuotationData((prev) => ({
+        ...prev,
+        functions: prev.functions.filter((_, idx) => idx !== index),
+      }));
+    }
   };
 
   const handleFunctionChange = (index, field, value) => {
     const newFunctions = [...quotationData.functions];
     newFunctions[index][field] = value;
 
-    // Auto-calculate total price when persons or rate changes
-    if (field === "persons" || field === "rate") {
+    if (field === "persons" || field === "rate" || field === "extra") {
       const persons = parseFloat(newFunctions[index].persons) || 0;
+      const extra = parseFloat(newFunctions[index].extra) || 0;
       const rate = parseFloat(newFunctions[index].rate) || 0;
-      newFunctions[index].totalPrice = (persons * rate).toFixed(2);
+
+      newFunctions[index].totalPrice = ((persons + extra) * rate).toFixed(2);
+    }
+
+    if (field === "totalPrice") {
+      newFunctions[index].totalPrice = parseFloat(value || 0).toFixed(2);
     }
 
     setQuotationData((prev) => ({
@@ -259,10 +272,142 @@ const QuotationPage = () => {
     const value = e.target.value;
     setQuotationData((prev) => ({ ...prev, notes: value }));
   };
+  const buildPayload = () => {
+    const subtotal = quotationData.functions.reduce((sum, fn) => {
+      const total = parseFloat(fn.totalPrice) || 0;
+      return sum + total;
+    }, 0);
+
+    const discount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "Discount")
+        ?.amount || 0
+    );
+
+    const gstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "GST"
+    );
+
+    const gstPercentage = parseFloat(gstDetail?.percentage || 0);
+    const gstAmnt = ((subtotal * gstPercentage) / 100).toFixed(2);
+
+    const totalAmount = subtotal - discount + parseFloat(gstAmnt);
+    const remainingAmount =
+      totalAmount - parseFloat(quotationData.advancePayment.amount);
+
+    return {
+      advancePayment: parseFloat(quotationData.advancePayment.amount) || 0,
+      advancePaymentDate: quotationData.advancePayment.date
+        ? quotationData.advancePayment.date.format("DD/MM/YYYY hh:mm A")
+        : null,
+
+      discount: discount,
+      eventId: parseInt(eventId),
+      functionQuotationItems: quotationData.functions.map((fn) => ({
+        amount: parseFloat(fn.totalPrice) || 0,
+        extraPax: fn.extra,
+        functionDate: fn.date ? fn.date.format("DD/MM/YYYY hh:mm A") : null,
+        functionName: fn.name,
+        id: fn.id && fn.id !== 0 ? fn.id : 0,
+        pax: parseInt(fn.persons) || 0,
+        ratePerPlate: parseFloat(fn.rate) || 0,
+      })),
+      grandTotal: parseFloat(totalAmount),
+      gst: `${gstPercentage}`,
+      gstAmnt: parseFloat(gstAmnt),
+      notes: quotationData.notes,
+      remainingAmount: remainingAmount,
+      roundOff: 0,
+      totalAmount: totalAmount,
+    };
+  };
 
   const handleSaveNotes = () => {
-    console.log("Notes saved:", quotationData.notes);
-    // Here you can add API call to save notes
+    const payload = buildPayload();
+    if (!quotationId) {
+      console.error("No quotationId available to save notes");
+      return;
+    }
+    UpdateQuotation(quotationId, payload)
+      .then((response) => {
+        if (
+          response?.data?.msg?.toLowerCase().includes("Successfully") ||
+          response?.status === 200
+        ) {
+          Swal.fire({
+            title: response?.data?.msg,
+            text: "",
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
+             animate__animated
+             animate__fadeInDown
+             animate__faster
+           `,
+            },
+            hideClass: {
+              popup: `
+             animate__animated
+             animate__fadeOutUp
+             animate__faster
+           `,
+            },
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving quotation:", error);
+      });
+  };
+
+  const handleAdvancePaymentChange = (field, value) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      advancePayment: {
+        ...prev.advancePayment,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleTaxChange = (index, field, value) => {
+    const newTaxDetails = [...quotationData.taxDetails];
+    const subtotal = quotationData.functions.reduce((sum, func) => {
+      const total = parseFloat(func.totalPrice) || 0;
+      return sum + total;
+    }, 0);
+
+    if (field === "percentage" && newTaxDetails[index].label === "GST") {
+      newTaxDetails[index].percentage = value;
+      const percentage = parseFloat(value) || 0;
+      const calculatedAmount = ((subtotal * percentage) / 100).toFixed(2);
+      newTaxDetails[index].amount = calculatedAmount;
+    } else if (field === "amount") {
+      newTaxDetails[index].amount = value;
+
+      if (subtotal > 0) {
+        const enteredAmount = parseFloat(value) || 0;
+        const percentage = ((enteredAmount / subtotal) * 100).toFixed(2);
+        newTaxDetails[index].percentage = percentage;
+      } else {
+        newTaxDetails[index].percentage = "0.00";
+      }
+    } else {
+      newTaxDetails[index][field] = value;
+    }
+
+    setQuotationData((prev) => ({
+      ...prev,
+      taxDetails: newTaxDetails,
+    }));
   };
 
   if (loading) {
@@ -411,14 +556,14 @@ const QuotationPage = () => {
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[220px]">
-                    <input
-                      className="input"
+                    <DatePicker
+                      showTime={{ use12Hours: true, format: "hh:mm A" }}
+                      format="DD/MM/YYYY hh:mm A"
                       value={fn.date}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "date", e.target.value)
+                      onChange={(date) =>
+                        handleFunctionChange(index, "date", date)
                       }
-                      placeholder="Date"
-                      type="text"
+                      placeholder="Select date & time"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -430,6 +575,7 @@ const QuotationPage = () => {
                       }
                       placeholder="Pax"
                       type="number"
+                      min="0"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -452,6 +598,8 @@ const QuotationPage = () => {
                       }
                       placeholder="Rate"
                       type="number"
+                      min="0"
+                      step="0.01"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -467,6 +615,7 @@ const QuotationPage = () => {
                       }
                       placeholder="Total Price"
                       type="number"
+                      min="0"
                       step="0.01"
                     />
                   </div>
@@ -478,13 +627,21 @@ const QuotationPage = () => {
                           : "Delete item"
                       }
                     >
-                      <button
-                        disabled={index === 0}
-                        className={`btn btn-sm btn-icon btn-clear btn-danger ${index === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-                        onClick={() => handleDeleteFunction(index)}
+                      <Popconfirm
+                        title="Are you sure to delete this item?"
+                        onConfirm={() => handleDeleteFunction(fn.id, index)}
+                        okText="Yes"
+                        cancelText="No"
                       >
-                        <KeenIcon icon="trash" />
-                      </button>
+                        <button
+                          disabled={index === 0}
+                          className={`btn btn-sm btn-icon btn-clear btn-danger ${
+                            index === 0 ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          <KeenIcon icon="trash" />
+                        </button>
+                      </Popconfirm>
                     </Tooltip>
                   </div>
                 </div>
@@ -515,19 +672,15 @@ const QuotationPage = () => {
             </div>
 
             <div className="flex flex-col w-full">
-              {quotationData.summaryItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between border-t border-gray-200 py-3 px-2"
-                >
-                  <div className="text-base font-normal text-gray-700 px-2">
-                    {item.label}
-                  </div>
-                  <div className="text-base font-semibold text-gray-900 px-2">
-                    &#8377; {item.amount}
-                  </div>
+              {/* Subtotal Row */}
+              <div className="flex items-center justify-between border-t border-gray-200 py-3 px-2">
+                <div className="text-base font-normal text-gray-700 px-2">
+                  Subtotal
                 </div>
-              ))}
+                <div className="text-base font-semibold text-gray-900 px-2">
+                  &#8377; {totals.subtotal}
+                </div>
+              </div>
 
               <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
                 {quotationData.taxDetails.map((tax, idx) => (
@@ -536,29 +689,40 @@ const QuotationPage = () => {
                     className="flex items-center justify-between py-1"
                   >
                     <div className="text-base font-normal text-gray-700">
-                      {tax.label}{" "}
-                      <span className="ms-1 text-sm text-gray-500">
-                        ({tax.percentage}%)
-                      </span>
+                      {tax.label}
                     </div>
-                    <div className="input text-base text-gray-900 w-[140px]">
-                      <span className="text-base font-semibold text-gray-900">
-                        &#8377;
-                      </span>
-                      <input
-                        className="h-full text-gray-900 w-full"
-                        value={tax.amount}
-                        type="number"
-                        step="0.01"
-                        onChange={(e) => {
-                          const newTaxDetails = [...quotationData.taxDetails];
-                          newTaxDetails[idx].amount = e.target.value;
-                          setQuotationData((prev) => ({
-                            ...prev,
-                            taxDetails: newTaxDetails,
-                          }));
-                        }}
-                      />
+                    <div className="flex items-center input text-base text-gray-900 w-[200px]">
+                      {tax.label === "GST" ? (
+                        <>
+                          <input
+                            className="h-full text-gray-900 w-[10px]"
+                            value={tax.percentage}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            onChange={(e) =>
+                              handleTaxChange(idx, "percentage", e.target.value)
+                            }
+                          />
+                          <span className="text-gray-500">%</span>
+                          <span className="ml-3">
+                            &#8377; {totals.gstAmount}
+                          </span>
+                        </>
+                      ) : (
+                        <input
+                          className="h-full text-gray-900 w-[50px]"
+                          value={tax.amount}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          onChange={(e) =>
+                            handleTaxChange(idx, "amount", e.target.value)
+                          }
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -573,53 +737,80 @@ const QuotationPage = () => {
                 </div>
               </div>
 
+              {/* Single Advance Payment Section */}
               <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
                 <div className="text-base font-semibold text-gray-900 pb-2">
                   Payment Details
                 </div>
 
-                {quotationData.payments.map((payment, idx) => (
-                  <div key={idx} className="flex gap-5 py-1">
-                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
-                      <i className="ki-filled ki-check text-white"></i>
+                <div className="flex gap-5 py-3">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
+                    <i className="ki-filled ki-check text-white"></i>
+                  </div>
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="flex items-center justify-between">
+                      <div className="text-base font-normal text-gray-700">
+                        Advance Payment
+                      </div>
+                      <div className="input text-base text-gray-900 w-[140px]">
+                        <span className="text-base font-semibold text-gray-900">
+                          &#8377;
+                        </span>
+                        <input
+                          className="h-full text-gray-900 w-full"
+                          value={quotationData.advancePayment.amount}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          onChange={(e) => {
+                            handleAdvancePaymentChange(
+                              "amount",
+                              e.target.value
+                            );
+                          }}
+                          placeholder="0.00"
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 w-full">
-                      <div className="flex items-center justify-between">
-                        <div className="text-base font-normal text-gray-700">
-                          {payment.label}
+                    <div
+                      className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
+                      onClick={() =>
+                        document.getElementById("advance-payment-date").focus()
+                      }
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3 w-[250px]">
+                          <i className="ki-filled ki-calendar text-gray-500"></i>
+                          <DatePicker
+                            showTime={{ use12Hours: true, format: "hh:mm A" }}
+                            format="DD/MM/YYYY hh:mm A"
+                            value={quotationData.advancePayment.date}
+                            onChange={(date) =>
+                              handleAdvancePaymentChange("date", date)
+                            }
+                            placeholder="Payment date & time"
+                            style={{ width: "200px" }}
+                          />
                         </div>
-                        <div className="input text-base text-gray-900 w-[140px]">
-                          <span className="text-base font-semibold text-gray-900">
-                            &#8377;
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <i className="ki-filled ki-notepad text-gray-500"></i>
                           <input
-                            className="h-full text-gray-900 w-full border border-gray-200 rounded "
-                            value={payment.amount}
-                            type="number"
-                            step="0.01"
-                            onChange={(e) => {
-                              const newPayments = [...quotationData.payments];
-                              newPayments[idx].amount = e.target.value;
-                              setQuotationData((prev) => ({
-                                ...prev,
-                                payments: newPayments,
-                              }));
-                            }}
+                            className="flex-1 text-xs font-normal text-gray-700 bg-transparent border-none outline-none"
+                            value={quotationData.advancePayment.description}
+                            onChange={(e) =>
+                              handleAdvancePaymentChange(
+                                "description",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Payment description"
+                            type="text"
                           />
                         </div>
                       </div>
-                      <span className="bg-white py-3 px-5 rounded-lg text-xs font-normal text-gray-700 border border-gray-200">
-                        {payment.description}
-                      </span>
                     </div>
                   </div>
-                ))}
-
-                {quotationData.payments.length === 0 && (
-                  <div className="text-gray-500 text-sm py-2">
-                    No advance payments recorded
-                  </div>
-                )}
+                </div>
               </div>
 
               <div className="flex items-center justify-between py-5 px-2">
@@ -643,7 +834,7 @@ const QuotationPage = () => {
 
               <div className="flex items-center justify-between font-bold py-5 px-4">
                 <input
-                  className="input  w-[500px] "
+                  className="input w-[500px]"
                   placeholder="Add notes"
                   value={quotationData.notes}
                   onChange={handleNotesChange}
