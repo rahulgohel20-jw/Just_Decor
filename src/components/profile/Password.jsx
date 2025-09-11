@@ -5,25 +5,42 @@ import { ChangePassword } from "@/services/apiServices"; // adjust path
 export default function Password() {
   const [form] = Form.useForm();
 
-  const onFinish = async (values) => {
-    console.log("Form Values:", values);
-
-    const payload = {
-      oldPassword: values.oldPassword, // ✅ must match API
-      newPassword: values.newPassword, // ✅ must match API
-      conPassword: values.conPassword, // ✅ must match API
-      userId: 1, // or get from localStorage/session
-    };
-
-    try {
-      const res = await ChangePassword(payload);
-      console.log("Password change response:", res.data);
-      message.success("Password changed successfully");
-      form.resetFields();
-    } catch (err) {
-      console.error("Error:", err);
-    }
+ const onFinish = async (values) => {
+  const payload = {
+    oldPassword: values.oldPassword,
+    newPassword: values.newPassword,
+    conPassword: values.conPassword,
+    userId: 1, // or get it from localStorage/session
   };
+
+  try {
+    const res = await ChangePassword(payload);
+
+    // ✅ Show backend-provided success message
+    if (res?.data?.msg) {
+      message.success(res.data.msg);
+    } else {
+      message.success("Password changed successfully"); // fallback
+    }
+
+    form.resetFields();
+  } catch (err) {
+    // ✅ Handle backend-provided error messages
+    const response = err?.response?.data;
+
+    if (response?.msg) {
+      message.error(response.msg);
+    } else if (response?.errors) {
+      const allErrors = Object.values(response.errors).flat();
+      allErrors.forEach((e) => message.error(e));
+    } else {
+      message.error("Something went wrong while changing password.");
+    }
+
+    console.error("Change Password Error:", err);
+  }
+};
+
 
   return (
     <div className=" bg-white rounded-lg shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)]">

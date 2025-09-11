@@ -354,7 +354,8 @@ export const registerUser = (data) => {
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
 };
-//update usermaster
+
+//update usermaster // also in profile
 export const updateusermaster = (id, data) => {
   return PUT(`/auth/update?id=${id}`, data);
 };
