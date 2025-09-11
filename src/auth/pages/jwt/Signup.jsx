@@ -73,18 +73,39 @@ export default function Signup() {
       companyEmail: values.email || `${values.firstName}.${values.lastName}@example.com`,
       officeNo: values.contactNo || "N/A",
     };
-    console.log("Submitting signup with payload:", payload);
+    console.log("Submitting signup with payload:", payload);        
 
     const res = await registerUser(payload);
     if (res?.status === 200) {
-      Swal.fire({
-        title: "Success!",
-        text: "Signup successful!",
-        icon: "success",
-        confirmButtonText: "OK"
-      }).then(() => {
-        navigate("/master/user-master/"); // redirect after OK
-      });
+       Swal.fire({
+  title: "Event Created Successfully!",
+text: "  Signup successful!", 
+ icon: "success",
+  background: "#f5faff",
+  color: "#003f73",
+  confirmButtonText: "Okay",
+  confirmButtonColor: "#005BA8",
+  showClass: {
+    popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `
+  },
+  hideClass: {
+    popup: `
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `
+  },
+  customClass: {
+    popup: "rounded-2xl shadow-xl",
+    title: "text-2xl font-bold",
+    confirmButton: "px-6 py-2 text-white font-semibold rounded-lg"
+  }
+});
+
       console.log("Signup response:", res);
     }
   } catch (err) {

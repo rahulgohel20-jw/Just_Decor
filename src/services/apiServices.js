@@ -119,6 +119,35 @@ export const EditContactCategory = (Id, data) => {
 export const DeleteContactCategory = (Id) => {
   return DELETE(`/contactcategory/deletebyid?id=${Id}`);
 };
+
+//Contact Type
+export const GetAllContactType = (Id) => {
+  return GET(`/contacttype/getallbyuserid?userId=${Id}`);
+};
+
+
+// Add Contact Type
+export const AddContactMasterType = (data) => {
+  return POST("/contacttype/add", data);
+};
+
+// Delete Contact Type
+export const DeleteContactTypeMaster = (Id) => {
+  return DELETE(`/contacttype/delete?id=${Id}`);
+};
+
+//Edit Contact Type
+export const EditContactType = (Id, data) => {
+  return PUT(`/contacttype/update?id=${Id}`, data);
+};
+
+// Update Status of Contact Type
+export const updateContactTypeStatus = (Id, statusId) => {
+  return PUT(`/contacttype/updatestatus?id=${Id}&isActive=${statusId}`);
+};
+
+
+
 //Add Meal Type
 export const AddMealType = (data) => {
   return POST("/mealtype/add", data);

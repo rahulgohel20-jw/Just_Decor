@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  Addcontactcategory,
-  EditContactCategory,
-  GetAllContactType, // ✅ import your API
-} from "@/services/apiServices";
+import { GetAllContactType,AddContactMasterType,EditContactType } from "@/services/apiServices";
 
-const AddContactCategory = ({
+const AddContactType = ({
   isOpen,
   onClose,
-  contactCategory,
+  contactType, // If editing, this will have the existing data
   refreshData,
 }) => {
   if (!isOpen) return null;
@@ -17,8 +13,8 @@ const AddContactCategory = ({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
-    sequence: "",
-    contcatTypeId: "", // for dropdown
+    isActive: true,
+    
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -40,18 +36,17 @@ const AddContactCategory = ({
   }, []);
 
   useEffect(() => {
-    if (contactCategory) {
+    if (contactType) {
       setFormData({
-        nameEnglish: contactCategory.contact_name || "",
-        nameGujarati: contactCategory.nameGujarati || "",
-        nameHindi: contactCategory.nameHindi || "",
-        sequence: contactCategory.sequence || "",
-        contcatTypeId: contactCategory.contcatTypeId || "",
+        nameEnglish: contactType.contact_type || "",
+        nameGujarati: contactType.nameGujarati || "",
+        nameHindi: contactType.nameHindi || "",
+        isActive: contactType.isActive || false,
       });
     } else {
       setFormData(initialFormState);
     }
-  }, [contactCategory]);
+  }, [contactType]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,9 +61,10 @@ const AddContactCategory = ({
     }
 
     const payload = { ...formData, userId: userData.id };
+    console.log("Payload:", payload);
 
-    if (contactCategory) {
-      EditContactCategory(contactCategory.contactid, payload)
+    if (contactType) {
+      EditContactType(contactType.contacttypeid, payload)
         .then(() => {
           refreshData();
           onClose();
@@ -77,7 +73,7 @@ const AddContactCategory = ({
           console.error("Error editing category:", error);
         });
     } else {
-      Addcontactcategory(payload)
+      AddContactMasterType(payload)
         .then(() => {
           refreshData();
           onClose();
@@ -94,7 +90,7 @@ const AddContactCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {contactCategory ? "Edit Contact Category" : "New Contact Category"}
+            {contactType ? "Edit Contact Type" : "New Contact Type"}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -128,39 +124,10 @@ const AddContactCategory = ({
             required
           />
 
-          {/* ✅ Dropdown for Contact Type */}
-          <div>
-  <label className="block text-gray-600 mb-1">Contact Type</label>
-  <select
-    name="contcatTypeId"
-    value={formData.contcatTypeId}
-    onChange={handleChange}
-    className="border border-gray-300 rounded-lg p-2 w-full"
-    required
-  >
-    <option value="">-- Select Contact Type --</option>
-    {contactTypes.filter((type) => type.isActive).map((type) => (
-      <option key={type.id} value={type.id}>
-        {type.nameEnglish || "Unnamed"}
-      </option>
-    ))}
-  </select>
-</div>
+          
 
 
-          {/* Priority Field */}
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">Priority</label>
-            <input
-              type="tel"
-              name="sequence"
-              value={formData.sequence}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder="Priority"
-              required
-            />
-          </div>
+          
         </div>
 
         {/* Actions */}
@@ -177,7 +144,7 @@ const AddContactCategory = ({
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {contactCategory ? "Update" : "Save"}
+            {contactType ? "Update" : "Save"}
           </button>
         </div>
       </div>
@@ -200,4 +167,4 @@ const InputWithIcon = ({ label, name, value, onChange, required }) => (
   </div>
 );
 
-export default AddContactCategory;
+export default AddContactType;

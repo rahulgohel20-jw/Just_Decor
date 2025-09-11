@@ -4,38 +4,38 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
-  GetAllContactCategory,
-  DeleteContactCategory,
-  SearchContactCategory,
+  GetAllContactType, DeleteContactTypeMaster,updateContactTypeStatus
+  
 } from "@/services/apiServices";
 import useStyle from "./style";
+import AddContactType from "@/partials/modals/add-contact-type/AddContactType";
 
-import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 
-const ContactCategoryMaster = () => {
+
+const ContactTypeMaster = () => {
   const classes = useStyle();
-  const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedconatctCategory, setSelectedconatctCategory] = useState(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedcontactType, setSelectedcontactType] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
-    FetchConatctCategory();
+    FetchContactType();
   }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
-        FetchConatctCategory();
+        FetchContactType();
         return;
       }
 
       SearchContactCategory(searchQuery, Id)
         .then(({ data: { data } }) => {
-          if (data && data["Contact Category Details"]) {
-            const formatted = data["Contact Category Details"].map(
+          if (data && data["Contact Type Details"]) {
+            const formatted = data["Contact Type Details"].map(
               (cust, index) => ({
                 sr_no: index + 1,
-                contact_name: cust.nameEnglish || "-",
+                contact_type: cust.nameEnglish || "-",
                 contactid: cust.id,
               })
             );
@@ -53,18 +53,19 @@ const ContactCategoryMaster = () => {
   }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
+  console.log("userData",userData);
   let Id = userData.id;
-  const FetchConatctCategory = () => {
-    GetAllContactCategory(Id)
+  const FetchContactType = () => {
+    GetAllContactType(Id)
       .then((res) => {
         console.log(res);
-        const formatted = res.data.data["Contact Category Details"].map(
+        const formatted = res.data.data["Contact Type Details"].map(
           (cust, index) => ({
             sr_no: index + 1,
-            contact_name: cust.nameEnglish || "-",
-            contactid: cust.id,
-            sequence: cust.sequence || "-",
-            contcatTypeId: cust.contactType.nameEnglish || "-",
+            contact_type: cust.nameEnglish || "-",
+            contacttypeid: cust.id,
+            isActive: cust.isActive,
+           
           })
         );
 
@@ -75,13 +76,13 @@ const ContactCategoryMaster = () => {
       });
   };
 
-  const DeleteEventtype = (contactid) => {
-    console.log(contactid);
+  const DeleteContactType = (contacttypeid) => {
+    console.log("contactis",contacttypeid);
 
-    if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteContactCategory(contactid)
+    if (window.confirm("Are you sure you want to delete this Contact type?")) {
+      DeleteContactTypeMaster(contacttypeid)
         .then(() => {
-          FetchConatctCategory();
+          FetchContactType();
         })
         .catch((error) => {
           console.error("Error deleting Event type:", error);
@@ -90,8 +91,21 @@ const ContactCategoryMaster = () => {
   };
 
   const handleEdit = (event) => {
-    setSelectedconatctCategory(event);
+    console.log("Editing contact type:", event);
+    setSelectedcontactType(event);
     setIsContactModalOpen(true);
+    
+  };
+
+  const statusCategory = (id, status) => {
+    updateContactTypeStatus(id, status)
+      .then((res) => {
+        FetchContactType();
+        res.data?.msg && successMsgPopup(res.data.msg);
+      })
+      .catch((error) => {
+        console.error("Error deleting Event type:", error);
+      });
   };
 
   return (
@@ -99,7 +113,7 @@ const ContactCategoryMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Contact Category Master" }]} />
+          <Breadcrumbs items={[{ title: "Contact Type Master" }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -120,21 +134,24 @@ const ContactCategoryMaster = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsContactModalOpen(true)}
+              onClick={() => {setIsContactModalOpen(true);
+                                setSelectedcontactType(null);}
+              }
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Contact Category
+              <i className="ki-filled ki-plus"></i> Add Contact Type
             </button>
           </div>
         </div>
-        <AddContactCategory
-          isOpen={isconatctModalOpen}
-          onClose={setIsContactModalOpen}
-          refreshData={FetchConatctCategory}
-          contactCategory={selectedconatctCategory}
-        />
+        <AddContactType
+  isOpen={isContactModalOpen}
+  onClose={setIsContactModalOpen}
+  refreshData={FetchContactType}
+  contactType={selectedcontactType}
+/>
+
         <TableComponent
-          columns={columns(handleEdit, DeleteEventtype)}
+          columns={columns(handleEdit, DeleteContactType,statusCategory)}
           data={tableData}
           paginationSize={10}
         />
@@ -142,4 +159,4 @@ const ContactCategoryMaster = () => {
     </Fragment>
   );
 };
-export default ContactCategoryMaster;
+export default ContactTypeMaster;

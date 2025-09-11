@@ -153,6 +153,7 @@ import StateSearchForm from "../pages/StateSearch";
 import AllUser from "../pages/master/user-master/alluser";
 import AllPlan from "../pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
+import ContactTypeMaster from "@/pages/master/Contact-master";
 
 const AppRoutingSetup = () => {
   return (
@@ -248,6 +249,7 @@ const AppRoutingSetup = () => {
           />
           <Route path="/master/menu-item" element={<MenuItemsMaster />} />
           <Route path="/master/role" element={<RoleMaster />} />
+          <Route path="/master/contact-type" element={<ContactTypeMaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

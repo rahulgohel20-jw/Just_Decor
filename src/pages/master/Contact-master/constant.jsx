@@ -1,6 +1,6 @@
 import { Popconfirm, Tooltip } from "antd";
 
-export const columns = (onEdit, onDelete) => [
+export const columns = (onEdit, onDelete,onStatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -10,30 +10,48 @@ export const columns = (onEdit, onDelete) => [
     },
   },
   {
-    accessorKey: "contact_name",
-    header: "Contact Category Type",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
-  },
-  {
-    accessorKey: "sequence",
-    header: "Priority",
-    meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
-    },
-  },
-  {
-    accessorKey: "contcatTypeId",
+    accessorKey: "contact_type",
     header: "Contact Type",
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
     },
   },
-
+  {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center  gap-1">
+          <Popconfirm
+            title="Are you sure to change this status?"
+            onConfirm={() =>
+              onStatus(row.original.contacttypeid, row.original.isActive ? false : true)
+            }
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <label className="switch switch-lg">
+              <input
+                type="checkbox"
+                value="1"
+                name="check"
+                defaultChecked={row.original.isActive}
+                readOnly
+                checked={row.original.isActive}
+              />
+            </label>
+          </Popconfirm>
+        </div>
+      );
+    },
+    meta: {
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
+    },
+  },
+  
   {
     accessorKey: "action",
     header: "Action",
@@ -55,7 +73,7 @@ export const columns = (onEdit, onDelete) => [
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => onDelete(row.original.contactid)}
+              onClick={() => onDelete(row.original.contacttypeid)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>

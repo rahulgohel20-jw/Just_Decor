@@ -59,6 +59,10 @@ export const MENU_SIDEBAR = [
         path: "/master/contact-categories",
       },
       {
+        title: "Contact Type",
+        path: "/master/contact-type",
+      },
+      {
         title: "Event Type",
         path: "/master/event-type",
       },
