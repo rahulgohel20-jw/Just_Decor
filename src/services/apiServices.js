@@ -17,6 +17,18 @@ export const getAllRoles = () => {
   return GET("/role_master");
 };
 
+export const GetQuotation = (id) => {
+  return GET(`/quotation/getbyeventid?eventId=${id}`);
+};
+
+export const UpdateQuotation = (id, data) => {
+  return PUT(`/quotation/update?id=${id}`, data);
+};
+
+export const DeleteQuotation = (id) => {
+  return DELETE(`/quotation/deletebyquotationitemid?quotationItemId=${id}`);
+};
+
 // Update Role
 export const updateRole = (roleId, data) => {
   return PUT(`/role_master/update-by-id/${roleId}`, data);
@@ -448,7 +460,6 @@ export const requestPasswordResetLink = async (email) => {
 
 //Otp Verification
 
-
 // Email OTP verification
 export const verifyOtp = async ({ email, otp }) => {
   return axios.post(`/auth/verifyotp`, null, {
@@ -463,16 +474,12 @@ export const verifyMobileOtp = async ({ phone, otp }) => {
   });
 };
 
-
 // reset password API
 export const resetPassword = async (emailId, newPassword, conPassword) => {
   return axios.post(`/auth/resetpassword`, null, {
     params: { emailId, newPassword, conPassword }, // query params
   });
 };
-
-
-
 
 // ✅ Correct API call with query param `mobileNo`
 export const LoginWithOtp = async (phone) => {
@@ -484,5 +491,3 @@ export const LoginWithOtp = async (phone) => {
     }
   );
 };
-
-

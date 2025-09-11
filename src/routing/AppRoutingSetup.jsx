@@ -212,6 +212,7 @@ const AppRoutingSetup = () => {
           />
           <Route path="/dish-costing" element={<DishCostingPage />} />
           <Route path="/quotation" element={<QuotationPage />} />
+          <Route path="/quotation/:eventId" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />
           <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
@@ -230,9 +231,8 @@ const AppRoutingSetup = () => {
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
 
-  <Route path="/master/user-master" element={<AllUser />} />
-  <Route path="/master/user-master/plan" element={<AllPlan />} />
-
+          <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/master/user-master/plan" element={<AllPlan />} />
 
           <Route
             path="/master/menu-category"
