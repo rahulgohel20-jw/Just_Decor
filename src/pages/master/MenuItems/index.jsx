@@ -126,19 +126,20 @@ const statusmenuitem = async (id, currentStatus) => {
         </div>
 
         {/* Add/Edit modal */}
-        <AddMenuItem
-          isModalOpen={isItemModalOpen}
-          setIsModalOpen={(val) => {
-            setIsItemModalOpen(val);
-            if (!val) {
-              setSelectedMenuItem(null); // clear selection when closing
-              FetchMenuItems(); // refresh table when modal closes
-            }
-          }}
-          refreshData={FetchMenuItems}
-          selectedMenuItem={selectedMenuItem}
-          categoryData={categoryData}
-        />
+   {isItemModalOpen && (() => {
+  console.log("✅ Modal Open State:", isItemModalOpen);
+  return (
+    <AddMenuItem
+      isModalOpen={isItemModalOpen}
+      setIsModalOpen={setIsItemModalOpen}
+      refreshData={FetchMenuItems}
+      selectedMenuItem={selectedMenuItem}
+    />
+  );
+})()}
+
+
+
 
         {/* Table */}
         <TableComponent
