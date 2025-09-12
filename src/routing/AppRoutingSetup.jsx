@@ -154,6 +154,7 @@ import AllUser from "../pages/master/user-master/alluser";
 import AllPlan from "../pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import ContactTypeMaster from "@/pages/master/Contact-master";
+import RawMaterial from "@/pages/master/Raw-Material";
 
 const AppRoutingSetup = () => {
   return (
@@ -250,6 +251,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/menu-item" element={<MenuItemsMaster />} />
           <Route path="/master/role" element={<RoleMaster />} />
           <Route path="/master/contact-type" element={<ContactTypeMaster />} />
+          <Route path="/master/raw-material" element={<RawMaterial />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

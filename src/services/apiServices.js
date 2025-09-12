@@ -146,6 +146,12 @@ export const updateContactTypeStatus = (Id, statusId) => {
   return PUT(`/contacttype/updatestatus?id=${Id}&isActive=${statusId}`);
 };
 
+// Get All Raw Material
+
+export const GetAllRawMaterial = (Id) => {
+  return GET(`/rawmaterial/getallbyuserid?userid=${Id}&rawMateriaCatlId=0`);
+};
+
 
 
 //Add Meal Type

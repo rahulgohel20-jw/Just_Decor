@@ -83,6 +83,10 @@ export const MENU_SIDEBAR = [
         path: "/master/menu-item",
       },
       {
+        title: "Raw Material",
+        path: "/master/raw-material",
+      },
+      {
         title: "Role",
         path: "/master/role",
       },
