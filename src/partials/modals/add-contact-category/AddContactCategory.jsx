@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Addcontactcategory,
   EditContactCategory,
+  GetAllContactType, // ✅ import your API
 } from "@/services/apiServices";
 
 const AddContactCategory = ({
@@ -16,17 +17,36 @@ const AddContactCategory = ({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+    sequence: "",
+    contcatTypeId: "", // for dropdown
   };
+
   const [formData, setFormData] = useState(initialFormState);
+  const [contactTypes, setContactTypes] = useState([]); // ✅ state for dropdown
+
+  useEffect(() => {
+    // ✅ Fetch Contact Types
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData?.id) {
+      GetAllContactType(userData.id)
+        .then((res) => {
+          // Assuming API returns res.data as array
+          setContactTypes(res?.data?.data?.["Contact Type Details"] || []);
+        })
+        .catch((err) => {
+          console.error("Error fetching contact types:", err);
+        });
+    }
+  }, []);
 
   useEffect(() => {
     if (contactCategory) {
-      console.log(contactCategory);
-
       setFormData({
         nameEnglish: contactCategory.contact_name || "",
         nameGujarati: contactCategory.nameGujarati || "",
         nameHindi: contactCategory.nameHindi || "",
+        sequence: contactCategory.sequence || "",
+        contcatTypeId: contactCategory.contcatTypeId || "",
       });
     } else {
       setFormData(initialFormState);
@@ -45,26 +65,25 @@ const AddContactCategory = ({
       return;
     }
 
-    if (contactCategory) {
-      const payload = { ...formData, userId: userData.id };
+    const payload = { ...formData, userId: userData.id };
 
+    if (contactCategory) {
       EditContactCategory(contactCategory.contactid, payload)
         .then(() => {
           refreshData();
           onClose();
         })
         .catch((error) => {
-          console.error("Error editing meal:", error);
+          console.error("Error editing category:", error);
         });
     } else {
-      const payload = { ...formData, userId: userData.id };
       Addcontactcategory(payload)
         .then(() => {
           refreshData();
           onClose();
         })
         .catch((error) => {
-          console.error("Error adding meal:", error);
+          console.error("Error adding category:", error);
         });
     }
   };
@@ -75,7 +94,6 @@ const AddContactCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {" "}
             {contactCategory ? "Edit Contact Category" : "New Contact Category"}
           </h2>
           <button
@@ -85,9 +103,9 @@ const AddContactCategory = ({
             &times;
           </button>
         </div>
+
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
           <InputWithIcon
             label="Name (English)"
             name="nameEnglish"
@@ -109,7 +127,43 @@ const AddContactCategory = ({
             onChange={handleChange}
             required
           />
+
+          {/* ✅ Dropdown for Contact Type */}
+          <div>
+  <label className="block text-gray-600 mb-1">Contact Type</label>
+  <select
+    name="contcatTypeId"
+    value={formData.contcatTypeId}
+    onChange={handleChange}
+    className="border border-gray-300 rounded-lg p-2 w-full"
+    required
+  >
+    <option value="">-- Select Contact Type --</option>
+    {contactTypes.filter((type) => type.isActive).map((type) => (
+      <option key={type.id} value={type.id}>
+        {type.nameEnglish || "Unnamed"}
+      </option>
+    ))}
+  </select>
+</div>
+
+
+          {/* Priority Field */}
+          <div className="relative">
+            <label className="block text-gray-600 mb-1">Priority</label>
+            <input
+              type="tel"
+              name="sequence"
+              value={formData.sequence}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-lg p-2 w-full"
+              placeholder="Priority"
+              required
+            />
+          </div>
         </div>
+
+        {/* Actions */}
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"
@@ -143,12 +197,6 @@ const InputWithIcon = ({ label, name, value, onChange, required }) => (
       placeholder={label}
       required={required}
     />
-    {/* Mic icon */}
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 14a4 4 0 004-4V5a4 4 0 10-8 0v5a4 4 0 004 4zm1 2.93a7 7 0 01-5.2-2.11A1 1 0 104.8 16.8 9 9 0 0010 19a9 9 0 005.2-2.2 1 1 0 00-1.4-1.4A7 7 0 0111 16.93z" />
-      </svg>
-    </span>
   </div>
 );
 
