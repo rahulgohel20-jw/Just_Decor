@@ -1,177 +1,264 @@
-
-// ProfileForm.jsx
-import { Input, Select, Button, Form, message ,Spin} from "antd";
+import { Input, Select, Button, Form, message, Spin } from "antd";
 import { toAbsoluteUrl } from "@/utils";
-import { useState, useEffect, useCallback, useMemo } from "react";
-import {  isEqual } from "lodash"; 
+import { useState, useEffect, useCallback } from "react";
+import { isEqual } from "lodash";
 import ReactCountryFlag from "react-country-flag";
-
-const { TextArea } = Input;
-const { Option } = Select;
-
 import {
   fetchCountries,
   fetchStatesByCountry,
   fetchCitiesByState,
   getUserById,
+  updateusermaster,
 } from "@/services/apiServices";
 
-export default function ProfileForm({ userMasterId = 1 }) {
-  const [form] = Form.useForm();
-  const [userData, setUserData] = useState(null);
-  const [initialValues, setInitialValues] = useState(null); 
-  const [isChanged, setIsChanged] = useState(false); 
+const { TextArea } = Input;
+const { Option } = Select;
 
-//dropdowns
+const LOCAL_STORAGE_KEY = "userProfileForm";
+
+const getUserIdFromLocalStorage = () => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    return userData?.id || null;
+  } catch {
+    return null;
+  }
+};
+
+const getPlanAndRoleFromLocalStorage = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("userData"));
+    return {
+      planId: parsed?.plan?.id || 0,
+      roleId: parsed?.userBasicDetails?.role?.id || 0,
+    };
+  } catch {
+    return { planId: 0, roleId: 0 };
+  }
+};
+
+const ProfileForm = () => {
+  const [form] = Form.useForm();
+  const userMasterId = getUserIdFromLocalStorage();
+
+  const [initialValues, setInitialValues] = useState(null);
+  const [isChanged, setIsChanged] = useState(false);
+  const [userData, setUserData] = useState(null);
+
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const [loadingCountry, setLoadingCountry] = useState(false);
-  const [loadingState, setLoadingState] = useState(false);
-  const [loadingCity, setLoadingCity] = useState(false);
+  const [loading, setLoading] = useState({
+    country: false,
+    state: false,
+    city: false,
+  });
 
-   const handleCountrySelect = (id) => {
-    form.setFieldsValue({ state: undefined, city: undefined });
-    setStates([]);
-    setCities([]);
-    loadStates(id);
-  };
-
-  const handleStateSelect = (id) => {
-    form.setFieldsValue({ city: undefined });
-    setCities([]);
-    loadCities(id);
-  };
-//country
-  const loadCountries = useCallback(async (search = "") => {
-    setLoadingCountry(true);
+  const loadCountries = useCallback(async () => {
+    setLoading(prev => ({ ...prev, country: true }));
     try {
-      const res = await fetchCountries(search);
+      const res = await fetchCountries();
       const list = res?.data?.data?.["Country Details"] || [];
-      setCountries(list.map(c => ({ id: c.id, name: c.name, code: c.code })));
+      setCountries(list.map(({ id, name, code }) => ({ id, name, code })));
     } catch {
       message.error("Failed to load countries");
     } finally {
-      setLoadingCountry(false);
+      setLoading(prev => ({ ...prev, country: false }));
     }
   }, []);
 
-//state
-  const loadStates = useCallback(async (countryId, search = "") => {
+  const loadStates = useCallback(async (countryId) => {
     if (!countryId) return;
-    setLoadingState(true);
+    setLoading(prev => ({ ...prev, state: true }));
     try {
-      const res = await fetchStatesByCountry(countryId, search);
+      const res = await fetchStatesByCountry(countryId);
       const list = res?.data?.data?.["state Details"] || [];
-      setStates(list.map(s => ({ id: s.id, name: s.name })));
+      setStates(list.map(({ id, name }) => ({ id, name })));
     } catch {
       message.error("Failed to load states");
     } finally {
-      setLoadingState(false);
+      setLoading(prev => ({ ...prev, state: false }));
     }
   }, []);
 
-//city
-  const loadCities = useCallback(async (stateId, search = "") => {
+  const loadCities = useCallback(async (stateId) => {
     if (!stateId) return;
-    setLoadingCity(true);
+    setLoading(prev => ({ ...prev, city: true }));
     try {
-      const res = await fetchCitiesByState(stateId, search);
+      const res = await fetchCitiesByState(stateId);
       const list = res?.data?.data?.["City Details"] || [];
-      setCities(list.map(c => ({ id: c.id, name: c.name })));
+      setCities(list.map(({ id, name }) => ({ id, name })));
     } catch {
       message.error("Failed to load cities");
     } finally {
-      setLoadingCity(false);
+      setLoading(prev => ({ ...prev, city: false }));
     }
   }, []);
-//getuser
+
   useEffect(() => {
-    const fetchAndPrefill = async () => {
+    const loadInitialData = async () => {
+      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setInitialValues(parsed);
+        form.setFieldsValue(parsed);
+      }
+
       try {
-        const response = await getUserById(userMasterId);
-        console.log("API Response:", response);
+        const res = await getUserById(userMasterId);
+        const user = res?.data?.data?.["User Details"]?.[0];
 
-        if (response?.data?.data) {
-          const user = response.data.data["User Details"]?.[0];
-          if (user) {
-            setUserData(user);
+        if (user) {
+          setUserData(user);
 
-            const values = {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              phone: user.contactNo,
+          const values = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phone: user.contactNo,
+            companyName: user.userBasicDetails?.companyName,
+            companyEmail: user.userBasicDetails?.companyEmail,
+            companyAddress: user.userBasicDetails?.address,
+            officePhone: user.userBasicDetails?.officeNo,
+            country: {
+              value: user.userBasicDetails?.country?.id,
+              label: user.userBasicDetails?.country?.name,
+              code: user.userBasicDetails?.country?.code,
+            },
+            state: {
+              value: user.userBasicDetails?.state?.id,
+              label: user.userBasicDetails?.state?.name,
+            },
+            city: {
+              value: user.userBasicDetails?.city?.id,
+              label: user.userBasicDetails?.city?.name,
+            },
+            bio: user.userBasicDetails?.bio,
+          };
 
-              //companydetaik
-              companyName: user.userBasicDetails?.companyName,
-              companyEmail: user.userBasicDetails?.companyEmail,
-              companyAddress: user.userBasicDetails?.address,
-              officePhone: user.userBasicDetails?.officeNo,
+          setInitialValues(values);
+          form.setFieldsValue(values);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
 
-             //country,city,state
-              country: user.userBasicDetails?.country?.name,
-              state: user.userBasicDetails?.state?.name,
-              city: user.userBasicDetails?.city?.name,
-
-              bio: user.userBasicDetails?.bio,
-            };
-
-            setInitialValues(values); 
-            form.setFieldsValue(values);
-          }
+          // pre-load states & cities
+          if (values.country?.value) await loadStates(values.country.value);
+          if (values.state?.value) await loadCities(values.state.value);
         }
-      } catch (err) {
-        console.error("❌ API error:", err);
+      } catch {
         message.error("Failed to fetch user details");
       }
     };
 
-    fetchAndPrefill();
-  }, [userMasterId, form]);
-
+    loadInitialData();
+  }, [userMasterId, form, loadStates, loadCities]);
 
   const handleValuesChange = (_, allValues) => {
     if (!initialValues) return;
-    setIsChanged(!isEqual(initialValues, allValues)); 
+    setIsChanged(!isEqual(initialValues, allValues));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allValues));
   };
 
-//submit
-  const onFinish = (values) => {
-    console.log("Form submitted:", values);
-    message.success("Profile saved successfully!");
-    setInitialValues(values); 
-    setIsChanged(false); 
+  const onFinish = async (values) => {
+    const { planId, roleId } = getPlanAndRoleFromLocalStorage();
+
+    if (!planId || !roleId) {
+      message.error("Missing Plan or Role ID.");
+      return;
+    }
+
+    const payload = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      contactNo: values.phone,
+      companyName: values.companyName,
+      companyEmail: values.companyEmail,
+      address: values.companyAddress,
+      officeNo: values.officePhone,
+      countryId: values.country?.value || 101,
+      countryCode: values.country?.code?.startsWith("+") ? values.country.code : `+${values.country?.code || "91"}`,
+
+      stateId: values.state?.value || 0,
+      cityId: values.city?.value || 0,
+      planId,
+      roleId,
+      remarks: values.bio || "",
+      isAttendanceLeaveAccess: true,
+      isTaskAccess: true,
+      clientId: 0,
+      reportingManagerId: 0,
+    };
+
+    try {
+      await updateusermaster(userMasterId, payload);
+      message.success("Profile updated successfully");
+      setInitialValues(values);
+      setIsChanged(false);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
+    } catch (err) {
+      const response = err?.response?.data;
+      if (response?.msg) {
+        message.error(response.msg);
+      } else if (response?.errors) {
+        Object.values(response.errors).flat().forEach(msg => message.error(msg));
+      } else {
+        message.error("Update failed.");
+      }
+    }
   };
+
+  const renderLocationSelect = (label, name, data, loadingKey, onFocus, onSelect, disabled = false) => (
+    <Form.Item label={label} name={name}>
+      <Select
+        showSearch
+        labelInValue
+        placeholder={`Select ${label}`}
+        loading={loading[loadingKey]}
+        disabled={disabled}
+        filterOption={false}
+        onFocus={onFocus}
+        onSelect={onSelect}
+        notFoundContent={loading[loadingKey] ? <Spin size="small" /> : `No ${label}`}
+      >
+        {data.map((item) => (
+          <Option key={item.id} value={item.id} label={item.name} code={item.code}>
+            {name === "country" ? (
+              <div className="flex items-center gap-2">
+                <ReactCountryFlag countryCode={item.code} svg style={{ width: 20, height: 15 }} />
+                {item.name}
+              </div>
+            ) : item.name}
+          </Option>
+        ))}
+      </Select>
+    </Form.Item>
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      {/* Header */}
-      <div className="p-6 pb-0 flex flex-row items-center gap-4">
+      <div className="p-6 pb-0 flex items-center gap-4">
         <img
           className="w-16 h-16 rounded-full border-4 border-white object-cover"
           src={toAbsoluteUrl("/images/user_img.jpg")}
           alt="profile"
         />
-        <div className="flex flex-col">
-          <span className="text-black font-normal">
-            {userData?.firstName} {userData?.lastName}
-          </span>
+        <div>
+          <span className="text-black">{userData?.firstName} {userData?.lastName}</span>
+          <br />
           <span className="text-sm text-grey">{userData?.email}</span>
         </div>
       </div>
 
-      {/* Form */}
       <div className="p-6">
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
           requiredMark="optional"
-          onValuesChange={handleValuesChange} 
+          onValuesChange={handleValuesChange}
         >
-          {/* Personal Details */}
+          {/* Personal Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item label="First Name" name="firstName" rules={[{ required: true }]}>
               <Input placeholder="First Name" />
@@ -179,105 +266,44 @@ export default function ProfileForm({ userMasterId = 1 }) {
             <Form.Item label="Last Name" name="lastName" rules={[{ required: true }]}>
               <Input placeholder="Last Name" />
             </Form.Item>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item label="Email ID" name="email" rules={[{ required: true, type: "email" }]}>
-              <Input placeholder="Email" />
+              <Input />
             </Form.Item>
             <Form.Item label="Phone Number" name="phone" rules={[{ required: true }]}>
-              <Input placeholder="Phone Number" />
+              <Input />
             </Form.Item>
           </div>
 
-          {/* Company Details */}
+          {/* Company Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item label="Company Name" name="companyName">
-              <Input placeholder="Company Name" />
+              <Input />
             </Form.Item>
             <Form.Item label="Company Email" name="companyEmail">
-              <Input placeholder="Company Email" />
+              <Input />
             </Form.Item>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Item label="Company Address" name="companyAddress">
-              <Input placeholder="Company Address" />
+              <Input />
             </Form.Item>
             <Form.Item label="Office Number" name="officePhone">
-              <Input placeholder="Office Number" />
+              <Input />
             </Form.Item>
           </div>
 
           {/* Location */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-         <Form.Item label="Country" name="country">
-  <Select
-    showSearch
-    placeholder="Select Country"
-    defaultActiveFirstOption={false}
-    loading={loadingCountry}
-    filterOption={false}
-    notFoundContent={loadingCountry ? <Spin size="small" /> : "No country"}
-    onFocus={() => loadCountries()} 
-    onSelect={handleCountrySelect}
-    optionLabelProp="label"
-  >
-    {countries.map((c) => (
-      <Option key={c.id} value={c.id} label={c.name}>
-        <div className="flex items-center gap-2">
-          <ReactCountryFlag countryCode={c.code} svg style={{ width: 20, height: 15 }} />
-          {c.name}
-        </div>
-      </Option>
-    ))}
-  </Select>
-</Form.Item>
-
-
-          <Form.Item label="State" name="state">
-  <Select
-    showSearch
-    placeholder="Select State"
-    defaultActiveFirstOption={false}
-    loading={loadingState}
-    disabled={!form.getFieldValue("country")}
-    filterOption={false}
-    notFoundContent={loadingState ? <Spin size="small" /> : "No state"}
-    onFocus={() => loadStates(form.getFieldValue("country"))}
-    onSelect={handleStateSelect}
-    optionLabelProp="label"
-  >
-    {states.map((s) => (
-      <Option key={s.id} value={s.id} label={s.name}>
-        {s.name}
-      </Option>
-    ))}
-  </Select>
-</Form.Item>
-           <Form.Item label="City" name="city">
-  <Select
-    showSearch
-    placeholder="Select City"
-    defaultActiveFirstOption={false}
-    loading={loadingCity}
-    disabled={!form.getFieldValue("state")}
-    filterOption={false}
-    notFoundContent={loadingCity ? <Spin size="small" /> : "No city"}
-    onFocus={() => loadCities(form.getFieldValue("state"))}
-    optionLabelProp="label"
-  >
-    {cities.map((c) => (
-      <Option key={c.id} value={c.id} label={c.name}>
-        {c.name}
-      </Option>
-    ))}
-  </Select>
-</Form.Item>
+            {renderLocationSelect("Country", "country", countries, "country", loadCountries, (val, opt) =>
+              form.setFieldsValue({ country: { value: opt.value, label: opt.label, code: opt.code } }) || loadStates(opt.value)
+            )}
+            {renderLocationSelect("State", "state", states, "state", () =>
+              loadStates(form.getFieldValue("country")?.value), val => loadCities(val)
+            , !form.getFieldValue("country"))}
+            {renderLocationSelect("City", "city", cities, "city", () =>
+              loadCities(form.getFieldValue("state")?.value), () => {}, !form.getFieldValue("state"))}
           </div>
 
           <Form.Item label="Bio" name="bio">
-            <TextArea rows={4} placeholder="Write your bio..." />
+            <TextArea rows={4} />
           </Form.Item>
 
           <Form.Item>
@@ -289,7 +315,10 @@ export default function ProfileForm({ userMasterId = 1 }) {
       </div>
     </div>
   );
-}
+};
+
+export default ProfileForm;
+
 
 
 

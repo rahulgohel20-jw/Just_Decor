@@ -101,7 +101,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Leads",
     icon: "ki-filled ki-abstract-18 text-primary",
-     disabled: true,
+     disabled: false,
     children: [
       {
         title: "Overview",
@@ -132,7 +132,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Tasks",
     icon: "ki-filled ki-abstract-16 text-primary",
-    disabled: true,
+    disabled: false,
     children: [
       {
         title: "Dashboard",
@@ -160,7 +160,7 @@ export const MENU_SIDEBAR = [
   {
     title: "leaves",
     icon: "ki-filled ki-abstract-17 text-primary",
-    disabled: true,
+    disabled: false,
     children: [
       {
         title: "Dashboard",
@@ -214,7 +214,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Links",
     icon: "ki-filled ki-disconnect text-primary",
-    disabled: true,
+    disabled: false,
     path: "/links",
   },
   {
@@ -239,7 +239,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
-    disabled: true,
+    disabled: false,
     children: [
       {
         title: "General",
@@ -262,7 +262,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Support",
     icon: "ki-filled ki-support text-primary",
-    disabled: true,
+    disabled: false,
     children: [
       { title: "Events", path: "/support/events" },
       { title: "Tutorials", path: "/support/tutorials" },
@@ -275,7 +275,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Billing",
     icon: "ki-filled ki-cheque text-primary",
-    disabled: true,
+    disabled: false,
     children: [
       {
         title: "Overview",
