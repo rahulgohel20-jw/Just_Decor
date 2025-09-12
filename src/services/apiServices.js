@@ -512,6 +512,7 @@ export const updatestatusrawmaterialtype = (id, currentStatus) => {
     `/rawmaterialcattype/updatestatus?id=${id}&isActive=${currentStatus}`
   );
 };
+//raw material category
 
 export const GetRawMaterialcategory = (id) => {
   return GET(
