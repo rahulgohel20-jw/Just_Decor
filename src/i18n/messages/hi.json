@@ -1,0 +1,16 @@
+{
+  "USER.MENU.PUBLIC_PROFILE": "सार्वजनिक प्रोफ़ाइल",
+  "USER.MENU.MY_PROFILE": "मेरी प्रोफ़ाइल",
+  "USER.MENU.MY_ACCOUNT": "मेरा खाता",
+  "USER.MENU.GET_STARTED": "शुरू करें",
+  "USER.MENU.BILLING": "बिलिंग",
+  "USER.MENU.SECURITY": "सुरक्षा",
+  "USER.MENU.MEMBERS_&_ROLES": "सदस्य और भूमिकाएँ",
+  "USER.MENU.INTEGRATIONS": "एकीकरण",
+  "USER.MENU.NOTIFICATIONS": "सूचनाएँ",
+  "USER.MENU.DEV_FORUM": "डेव फोरम",
+  "USER.MENU.PAYMENT_&_SUBSCRIPTION_INFO": "भुगतान और सदस्यता जानकारी",
+  "USER.MENU.DARK_MODE": "डार्क मोड",
+  "USER.MENU.LOGOUT": "लॉग आउट",
+  "USER.MENU.LANGUAGE": "भाषा"
+}

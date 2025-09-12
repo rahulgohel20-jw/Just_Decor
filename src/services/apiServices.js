@@ -491,3 +491,45 @@ export const LoginWithOtp = async (phone) => {
     }
   );
 };
+
+//raw material type
+export const GetRawType = (id) => {
+  return GET(`/rawmaterialcattype/getallbyuserid?userId=${id}`);
+};
+export const DeleteRawType = (id) => {
+  return DELETE(`/rawmaterialcattype/delete?id=${id}`);
+};
+
+export const AddRawType = (data) => {
+  return POST(`/rawmaterialcattype/add`, data);
+};
+export const EditRawType = (id, data) => {
+  return PUT(`/rawmaterialcattype/update?id=${id}`, data);
+};
+export const updatestatusrawmaterialtype = (id, currentStatus) => {
+  return PUT(
+    `/rawmaterialcattype/updatestatus?id=${id}&isActive=${currentStatus}`
+  );
+};
+
+export const GetRawMaterialcategory = (id) => {
+  return GET(
+    `/rawmaterialcategory/getallbyuserid?categoryTypeId=0&userid=${id}`
+  );
+};
+
+export const DeleteRawMaterialcategory = (id) => {
+  return DELETE(`/rawmaterialcategory/delete?id=${id}`);
+};
+
+export const AddRawMaterialCat = (data) => {
+  return POST(`/rawmaterialcategory/add`, data);
+};
+export const EditRawMaterialCat = (id, data) => {
+  return PUT(`/rawmaterialcategory/update?id=${id}`, data);
+};
+export const updatestatusrawmatrialcat = (id, currentStatus) => {
+  return PUT(
+    `/rawmaterialcategory/updatestatus?id=${id}&isActive=${currentStatus}`
+  );
+};

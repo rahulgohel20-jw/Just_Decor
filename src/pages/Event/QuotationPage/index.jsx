@@ -95,14 +95,19 @@ const QuotationPage = () => {
                   extra: item.extraPax?.toString() || "0",
                   rate: item.ratePerPlate?.toString() || "",
                   totalPrice: item.amount?.toFixed(2) || "0.00",
+                  isFromQuotationItems: item.isEventFunction,
                 }))
               : quotationInfo.event?.eventFunctions?.length > 0
                 ? quotationInfo.event.eventFunctions.map(
                     (eventFunc, index) => ({
                       id: 0,
                       name: eventFunc.function?.nameEnglish || "",
+
                       date: eventFunc.functionStartDateTime
-                        ? dayjs(eventFunc.functionStartDateTime)
+                        ? dayjs(
+                            eventFunc.functionStartDateTime,
+                            "DD/MM/YYYY hh:mm A"
+                          )
                         : null,
                       persons: eventFunc.pax?.toString() || "",
                       extra: eventFunc.extra || "0",
@@ -111,6 +116,7 @@ const QuotationPage = () => {
                         eventFunc.pax && eventFunc.rate
                           ? (eventFunc.pax * eventFunc.rate).toFixed(2)
                           : "0.00",
+                      isFromQuotationItems: true,
                     })
                   )
                 : [
@@ -122,6 +128,7 @@ const QuotationPage = () => {
                       extra: "",
                       rate: "",
                       totalPrice: "0.00",
+                      isFromQuotationItems: false,
                     },
                   ],
 
@@ -221,6 +228,7 @@ const QuotationPage = () => {
           extra: "",
           rate: "",
           totalPrice: "0.00",
+          isFromQuotationItems: false,
         },
       ],
     }));
@@ -310,6 +318,7 @@ const QuotationPage = () => {
         id: fn.id && fn.id !== 0 ? fn.id : 0,
         pax: parseInt(fn.persons) || 0,
         ratePerPlate: parseFloat(fn.rate) || 0,
+        isEventFunction: fn.isFromQuotationItems === true,
       })),
       grandTotal: parseFloat(totalAmount),
       gst: `${gstPercentage}`,
@@ -622,8 +631,8 @@ const QuotationPage = () => {
                   <div className="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
                     <Tooltip
                       title={
-                        index === 0
-                          ? "Cannot delete first function"
+                        fn.isFromQuotationItems
+                          ? "Cannot delete function from quotation items"
                           : "Delete item"
                       }
                     >
@@ -632,11 +641,14 @@ const QuotationPage = () => {
                         onConfirm={() => handleDeleteFunction(fn.id, index)}
                         okText="Yes"
                         cancelText="No"
+                        disabled={fn.isFromQuotationItems}
                       >
                         <button
-                          disabled={index === 0}
+                          disabled={fn.isFromQuotationItems}
                           className={`btn btn-sm btn-icon btn-clear btn-danger ${
-                            index === 0 ? "opacity-50 cursor-not-allowed" : ""
+                            fn.isFromQuotationItems
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
                           }`}
                         >
                           <KeenIcon icon="trash" />
