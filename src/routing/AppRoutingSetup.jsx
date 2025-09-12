@@ -153,7 +153,8 @@ import StateSearchForm from "../pages/StateSearch";
 import AllUser from "../pages/master/user-master/alluser";
 import AllPlan from "../pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
-import ContactTypeMaster from "@/pages/master/Contact-master";
+import RawMaterialMaster from "@/pages/master/raw-material-category";
+import RawMaterialTypeMaster from "@/pages/master/raw-material-type";import ContactTypeMaster from "@/pages/master/Contact-master";
 import RawMaterial from "@/pages/master/Raw-Material";
 
 const AppRoutingSetup = () => {
@@ -224,6 +225,14 @@ const AppRoutingSetup = () => {
 
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
+          <Route
+            path="/master/raw-material-master"
+            element={<RawMaterialMaster />}
+          />
+          <Route
+            path="/master/raw-material-type-master"
+            element={<RawMaterialTypeMaster />}
+          />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />
           <Route path="/master/meals" element={<MealMaster />} />

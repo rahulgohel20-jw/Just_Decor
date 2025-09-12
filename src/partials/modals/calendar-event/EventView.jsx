@@ -205,7 +205,7 @@ const EventViewModal = ({
               Dish Costing
             </button>
 
-            <Link to="/quotation">
+            <Link to={`/quotation/${safeEventId}`}>
               <button
                 className="btn btn-sm btn-primary justify-center w-full"
                 title="Quotation"
