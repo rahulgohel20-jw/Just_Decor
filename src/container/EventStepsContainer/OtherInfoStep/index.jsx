@@ -343,6 +343,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
         <AddMeal
           isOpen={showCustomerModal}
           onClose={() => setShowCustomerModal(false)}
+          refreshData={FetchMealtype}
         />
       </div>
     </>

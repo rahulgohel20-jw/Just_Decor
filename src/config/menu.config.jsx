@@ -6,10 +6,6 @@ console.log("User Role:", roleId);
 
 console.log("User Role:", roleId);
 export const MENU_SIDEBAR = [
-
-
-
-
   {
     title: "MyApp",
     icon: "element-11 text-primary",
@@ -59,6 +55,14 @@ export const MENU_SIDEBAR = [
         path: "/master/contact-categories",
       },
       {
+        title: "Raw Material Master",
+        path: "/master/raw-material-master",
+      },
+      {
+        title: "Raw Material Type Master",
+        path: "/master/raw-material-type-master",
+      },
+      {
         title: "Event Type",
         path: "/master/event-type",
       },
@@ -82,26 +86,25 @@ export const MENU_SIDEBAR = [
         title: "Role",
         path: "/master/role",
       },
-      
-            ...(roleId
-    ? [
-        {
-          title: "User Master",
-          icon: "ki-filled ki-abstract-18 text-primary",
-          children: [
-            { title: "All User", path: "/master/user-master/" },
-            { title: "User Plan", path: "/master/user-master/plan" },
-          ],
-        },
-      ]
-    : []),
-        
+
+      ...(roleId
+        ? [
+            {
+              title: "User Master",
+              icon: "ki-filled ki-abstract-18 text-primary",
+              children: [
+                { title: "All User", path: "/master/user-master/" },
+                { title: "User Plan", path: "/master/user-master/plan" },
+              ],
+            },
+          ]
+        : []),
     ],
   },
   {
     title: "Leads",
     icon: "ki-filled ki-abstract-18 text-primary",
-     disabled: false,
+    disabled: false,
     children: [
       {
         title: "Overview",
@@ -287,7 +290,6 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-   
 ];
 export const MENU_MEGA = [
   {

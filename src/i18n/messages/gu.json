@@ -1,0 +1,16 @@
+{
+  "USER.MENU.PUBLIC_PROFILE": "સાર્વજનિક પ્રોફાઇલ",
+  "USER.MENU.MY_PROFILE": "મારી પ્રોફાઇલ",
+  "USER.MENU.MY_ACCOUNT": "મારું એકાઉન્ટ",
+  "USER.MENU.GET_STARTED": "શરૂ કરો",
+  "USER.MENU.BILLING": "બિલિંગ",
+  "USER.MENU.SECURITY": "સુરક્ષા",
+  "USER.MENU.MEMBERS_&_ROLES": "સભ્યો અને ભૂમિકા",
+  "USER.MENU.INTEGRATIONS": "ઇન્ટિગ્રેશન્સ",
+  "USER.MENU.NOTIFICATIONS": "સૂચનાઓ",
+  "USER.MENU.DEV_FORUM": "ડેવ ફોરમ",
+  "USER.MENU.PAYMENT_&_SUBSCRIPTION_INFO": "પેમેન્ટ અને સબ્સ્ક્રિપ્શન માહિતી",
+  "USER.MENU.DARK_MODE": "ડાર્ક મોડ",
+  "USER.MENU.LOGOUT": "લોગ આઉટ",
+  "USER.MENU.LANGUAGE": "ભાષા"
+}
