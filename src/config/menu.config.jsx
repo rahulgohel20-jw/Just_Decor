@@ -63,6 +63,10 @@ export const MENU_SIDEBAR = [
         path: "/master/raw-material-type-master",
       },
       {
+        title: "Contact Type",
+        path: "/master/contact-type",
+      },
+      {
         title: "Event Type",
         path: "/master/event-type",
       },
@@ -81,6 +85,10 @@ export const MENU_SIDEBAR = [
       {
         title: "Menu Item",
         path: "/master/menu-item",
+      },
+      {
+        title: "Raw Material",
+        path: "/master/raw-material",
       },
       {
         title: "Role",

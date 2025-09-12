@@ -63,6 +63,8 @@ const ContactCategoryMaster = () => {
             sr_no: index + 1,
             contact_name: cust.nameEnglish || "-",
             contactid: cust.id,
+            sequence: cust.sequence || "-",
+            contcatTypeId: cust.contactType.nameEnglish || "-",
           })
         );
 
