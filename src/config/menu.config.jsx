@@ -7,13 +7,13 @@ console.log("User Role:", roleId);
 console.log("User Role:", roleId);
 export const MENU_SIDEBAR = [
   {
-    title: "MyApp",
+    title: "Dashboard",
     icon: "element-11 text-primary",
     path: "/",
   },
   {
     // title: "Event Management",
-    title: "Schedule",
+    title: "Events",
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
@@ -21,7 +21,7 @@ export const MENU_SIDEBAR = [
         path: "/calendar",
       },
       {
-        title: "Events",
+        title: "Event List",
         path: "/event",
       },
       {
@@ -39,54 +39,71 @@ export const MENU_SIDEBAR = [
         path: "/master/customers",
       },
       {
-        title: "All Members",
-        path: "/master/all-members",
-      },
-      {
-        title: "Functions",
-        path: "/master/functions",
-      },
-      {
-        title: "Meals",
-        path: "/master/meals",
-      },
-      {
         title: "Contact Categories",
         path: "/master/contact-categories",
       },
       {
-        title: "Raw Material Master",
-        path: "/master/raw-material-master",
+        title: "Function Type Master",
+        path: "/master/functions",
       },
       {
-        title: "Raw Material Type Master",
-        path: "/master/raw-material-type-master",
+        title: "Meal Type Master",
+        path: "/master/meals",
       },
       {
-        title: "Event Type",
+        title: "Event Type Master",
         path: "/master/event-type",
       },
       {
-        title: "Menu Item Category",
-        path: "/master/menu-category",
+        title: "Member Master",
+        icon: "ki-filled ki-abstract-18 text-primary",
+        children: [
+          {
+            title: "All Members",
+            path: "/master/all-members",
+          },
+          {
+            title: "Role",
+            path: "/master/role",
+          },
+        ],
       },
       {
-        title: "Menu Item Sub Category",
-        path: "/master/menu-sub-category",
+        title: "Raw Material Master",
+        icon: "ki-filled ki-abstract-18 text-primary",
+        children: [
+          {
+            title: "Raw Material Category Master",
+            path: "/master/raw-material-master",
+          },
+          {
+            title: "Raw Material Type Master",
+            path: "/master/raw-material-type-master",
+          },
+        ],
       },
       {
-        title: "Kitchen Area",
-        path: "/master/menu-kitchan-area",
+        title: "Menu Item Master",
+        icon: "ki-filled ki-abstract-18 text-primary",
+        children: [
+          {
+            title: "Menu Item Category",
+            path: "/master/menu-category",
+          },
+          {
+            title: "Menu Item Sub Category",
+            path: "/master/menu-sub-category",
+          },
+          {
+            title: "Kitchen Area",
+            path: "/master/menu-kitchan-area",
+          },
+          {
+            title: "Menu Item",
+            path: "/master/menu-item",
+          },
+        ],
       },
-      {
-        title: "Menu Item",
-        path: "/master/menu-item",
-      },
-      {
-        title: "Role",
-        path: "/master/role",
-      },
-
       ...(roleId
         ? [
             {
