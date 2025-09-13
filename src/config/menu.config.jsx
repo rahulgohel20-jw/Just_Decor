@@ -35,13 +35,18 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
-        title: "Customers",
-        path: "/master/customers",
+        title: "Contact Type",
+        path: "/master/contact-type",
       },
       {
         title: "Contact Categories",
         path: "/master/contact-categories",
       },
+      {
+        title: "Customers",
+        path: "/master/customers",
+      },
+
       {
         title: "Function Type Master",
         path: "/master/functions",
@@ -81,8 +86,8 @@ export const MENU_SIDEBAR = [
             path: "/master/raw-material-type-master",
           },
           {
-            title: "Contact Type",
-            path: "/master/contact-type",
+            title: "Raw Material",
+            path: "/master/raw-material",
           },
         ],
       },
@@ -105,10 +110,6 @@ export const MENU_SIDEBAR = [
           {
             title: "Menu Item",
             path: "/master/menu-item",
-          },
-          {
-            title: "Raw Material",
-            path: "/master/raw-material",
           },
         ],
       },

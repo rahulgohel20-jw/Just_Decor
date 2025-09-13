@@ -1,6 +1,6 @@
 import { Popconfirm, Tooltip } from "antd";
 
-export const columns = (onEdit, onDelete,onStatus) => [
+export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -33,14 +33,7 @@ export const columns = (onEdit, onDelete,onStatus) => [
       cellClassName: "w-[4%]",
     },
   },
-  {
-    accessorKey: "supplier_rate",
-    header: "Supplier Rate",
-    meta: {
-      headerClassName: "w-[4%]",
-      cellClassName: "w-[4%]",
-    },
-  },
+
   {
     accessorKey: "priority",
     header: "Priority",
@@ -83,7 +76,7 @@ export const columns = (onEdit, onDelete,onStatus) => [
       cellClassName: "w-[10%]",
     },
   },
-  
+
   {
     accessorKey: "action",
     header: "Action",
@@ -219,12 +212,68 @@ export const columns = (onEdit, onDelete,onStatus) => [
 ];
 
 export const defaultData = [
-  { sr_no: 1, contact_name: "Friend",raw_material_name:"Sugar",raw_material_category:"General",unit:"Kg",priority:"1" },
-  { sr_no: 2, contact_name: "Colleague",raw_material_name:"Salt",raw_material_category:"General",unit:"Kg",priority:"2" },
-  { sr_no: 3, contact_name: "Relative",raw_material_name:"Rice",raw_material_category:"Grains",unit:"Kg",priority:"3" },
-  { sr_no: 4, contact_name: "Business Manager",raw_material_name:"Wheat",raw_material_category:"Grains",unit:"Kg",priority:"4" },
-  { sr_no: 5, contact_name: "Friend",raw_material_name:"Oil",raw_material_category:"Fats",unit:"Litre",priority:"5" },
-  { sr_no: 6, contact_name: "Friend",raw_material_name:"Butter",raw_material_category:"Fats",unit:"Kg",priority:"6" },
-  { sr_no: 7, contact_name: "Colleague",raw_material_name:"Cheese",raw_material_category:"Dairy",unit:"Kg",priority:"7" },
-  { sr_no: 8, contact_name: "Sales Man",raw_material_name:"Chicken",raw_material_category:"Meat",unit:"Kg",priority:"8" },
+  {
+    sr_no: 1,
+    contact_name: "Friend",
+    raw_material_name: "Sugar",
+    raw_material_category: "General",
+    unit: "Kg",
+    priority: "1",
+  },
+  {
+    sr_no: 2,
+    contact_name: "Colleague",
+    raw_material_name: "Salt",
+    raw_material_category: "General",
+    unit: "Kg",
+    priority: "2",
+  },
+  {
+    sr_no: 3,
+    contact_name: "Relative",
+    raw_material_name: "Rice",
+    raw_material_category: "Grains",
+    unit: "Kg",
+    priority: "3",
+  },
+  {
+    sr_no: 4,
+    contact_name: "Business Manager",
+    raw_material_name: "Wheat",
+    raw_material_category: "Grains",
+    unit: "Kg",
+    priority: "4",
+  },
+  {
+    sr_no: 5,
+    contact_name: "Friend",
+    raw_material_name: "Oil",
+    raw_material_category: "Fats",
+    unit: "Litre",
+    priority: "5",
+  },
+  {
+    sr_no: 6,
+    contact_name: "Friend",
+    raw_material_name: "Butter",
+    raw_material_category: "Fats",
+    unit: "Kg",
+    priority: "6",
+  },
+  {
+    sr_no: 7,
+    contact_name: "Colleague",
+    raw_material_name: "Cheese",
+    raw_material_category: "Dairy",
+    unit: "Kg",
+    priority: "7",
+  },
+  {
+    sr_no: 8,
+    contact_name: "Sales Man",
+    raw_material_name: "Chicken",
+    raw_material_category: "Meat",
+    unit: "Kg",
+    priority: "8",
+  },
 ];

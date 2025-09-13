@@ -1,10 +1,10 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { useState } from "react";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant"; // ✅ import table columns + sample data
+import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
-const AddRawMaterial = ({ isOpen, onClose,  }) => {
+const AddRawMaterial = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     nameEnglish: "",
     nameGujarati: "",
@@ -14,9 +14,9 @@ const AddRawMaterial = ({ isOpen, onClose,  }) => {
     priority: "",
     generalFixAccess: false,
   });
-const classes = useStyle();
-const [searchQuery, setSearchQuery] = useState("");
-  const [tableData] = useState(defaultData); // ✅ sample data for table
+  const classes = useStyle();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tableData] = useState(defaultData);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
 
   const handleChange = (e) => {
@@ -25,7 +25,10 @@ const [searchQuery, setSearchQuery] = useState("");
   };
 
   const handleCheckboxChange = () => {
-    setFormData((prev) => ({ ...prev, generalFixAccess: !prev.generalFixAccess }));
+    setFormData((prev) => ({
+      ...prev,
+      generalFixAccess: !prev.generalFixAccess,
+    }));
   };
 
   const handleSave = () => {
@@ -161,55 +164,53 @@ const [searchQuery, setSearchQuery] = useState("");
               </div>
 
               {/* Table inside modal */}
-              
             </div>
           )}
           <div>
             <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
-            <div className="filItems relative">
-              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input
-                className="input pl-8"
-                placeholder="Search Supplier"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <div
+                className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
+              >
+                <div className="filItems relative">
+                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                  <input
+                    className="input pl-8"
+                    placeholder="Search Supplier"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setIsSupplierModalOpen(true)}
+                  title="Add Supplier"
+                >
+                  <i className="ki-filled ki-plus"></i> Add Supplier
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-  className="btn btn-primary"
-  onClick={() => setIsSupplierModalOpen(true)} // ✅ open supplier modal
-  title="Add Supplier"
->
-  <i className="ki-filled ki-plus"></i> Add Supplier
-</button>
-
-          </div>
-        </div>
             <TableComponent
-                columns={columns(() => {}, () => {}, () => {})}
-                data={tableData}
-                paginationSize={5}
-              />
+              columns={columns(
+                () => {},
+                () => {},
+                () => {}
+              )}
+              data={tableData}
+              paginationSize={5}
+            />
           </div>
-          <div>
-            
-          </div>
+          <div></div>
           <div>
             <AddSupplier
-  isOpen={isSupplierModalOpen}
-  onClose={setIsSupplierModalOpen}
-/>
-
+              isOpen={isSupplierModalOpen}
+              onClose={setIsSupplierModalOpen}
+            />
           </div>
         </div>
       </CustomModal>
-      
     )
   );
 };

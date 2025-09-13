@@ -4,14 +4,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import {
-  GetAllRawMaterial, DeleteContactTypeMaster,updateContactTypeStatus
-  
+  GetAllRawMaterial,
+  DeleteContactTypeMaster,
+  updateContactTypeStatus,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
-
-
-
 
 const RawMaterial = () => {
   const classes = useStyle();
@@ -37,11 +35,11 @@ const RawMaterial = () => {
               (raw, index) => ({
                 sr_no: index + 1,
                 raw_material_name: raw.nameEnglish || "-",
-            raw_material_category: raw.id,
-            isActive: raw.isActive,
+                raw_material_category: raw.id,
+                isActive: raw.isActive,
 
-            unit:raw.unit,
-            priority:raw.sequence,
+                unit: raw.unit,
+                priority: raw.sequence,
               })
             );
             setTableData(formatted);
@@ -51,7 +49,7 @@ const RawMaterial = () => {
         })
         .catch((error) => {
           console.error("Error searching customer:", error);
-           setTableData(defaultData); // fallback
+          setTableData(defaultData); // fallback
         });
     }, 500);
 
@@ -59,22 +57,21 @@ const RawMaterial = () => {
   }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
-  console.log("userData",userData);
+  console.log("userData", userData);
   let Id = userData.id;
   const FetchRawMaterial = () => {
     GetAllRawMaterial(Id)
       .then((res) => {
-        console.log("raw Material",res);
+        console.log("raw Material", res);
         const formatted = res.data.data["Raw Material Details"].map(
           (raw, index) => ({
             sr_no: index + 1,
             raw_material_name: raw.nameEnglish || "-",
-            raw_material_category: raw.categoryName ,
+            raw_material_category: raw.rawMaterialCat.nameEnglish,
             isActive: raw.isActive,
-            unit:raw.unit,
-            priority:raw.sequence,
-            rate:raw.supplierRate
-           
+            unit: raw.unit,
+            priority: raw.sequence,
+            rate: raw.supplierRate,
           })
         );
 
@@ -86,7 +83,7 @@ const RawMaterial = () => {
   };
 
   const DeleteContactType = (id) => {
-    console.log("contactis",id);
+    console.log("contactis", id);
 
     if (window.confirm("Are you sure you want to delete this Contact type?")) {
       DeleteContactTypeMaster(id)
@@ -103,7 +100,6 @@ const RawMaterial = () => {
     console.log("Editing contact type:", event);
     setSelectedcontactType(event);
     setIsRawMaterialModalOpen(true);
-    
   };
 
   const statusCategory = (id, status) => {
@@ -143,9 +139,7 @@ const RawMaterial = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsRawMaterialModalOpen(true)
-                                
-              }
+              onClick={() => setIsRawMaterialModalOpen(true)}
               title="Add Contact Category"
             >
               <i className="ki-filled ki-plus"></i> Add Raw Material
@@ -153,16 +147,15 @@ const RawMaterial = () => {
           </div>
         </div>
         <AddRawMaterial
-  isOpen={isRawMaterialModalOpen}
-  onClose={setIsRawMaterialModalOpen}
-  refreshData={FetchRawMaterial}
-  contactType={selectedcontactType}
-/>
-{/* Supplier Modal */}
-      
+          isOpen={isRawMaterialModalOpen}
+          onClose={setIsRawMaterialModalOpen}
+          refreshData={FetchRawMaterial}
+          contactType={selectedcontactType}
+        />
+        {/* Supplier Modal */}
 
         <TableComponent
-          columns={columns(handleEdit, DeleteContactType,statusCategory)}
+          columns={columns(handleEdit, DeleteContactType, statusCategory)}
           data={tableData && tableData.length ? tableData : defaultData}
           paginationSize={10}
         />
