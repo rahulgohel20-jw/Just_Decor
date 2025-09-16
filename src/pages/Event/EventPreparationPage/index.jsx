@@ -144,8 +144,6 @@ const EventPreparationPage = () => {
           }));
 
           setMenuPreparationsTabs(dynamicTabs);
-
-          // Initialize function selection data with proper defaults
           const initialFunctionData = {};
           firstEvent.eventFunctions.forEach((fn) => {
             initialFunctionData[fn.id] = {
@@ -162,14 +160,12 @@ const EventPreparationPage = () => {
           });
           setFunctionSelectionData(initialFunctionData);
 
-          // Initialize first function
           if (firstEvent.eventFunctions.length > 0) {
             const firstFnId = firstEvent.eventFunctions[0].id;
             setSelectedFunctionId(firstFnId);
             setPax(firstEvent.eventFunctions[0].pax || 0);
             setRate(firstEvent.eventFunctions[0].rate || 0);
 
-            // Load data for first function - this will handle both menu items and selections
             loadAllMenuDataForFunction(firstFnId).then(() => {
               loadFunctionMenuData(firstFnId, 0);
             });
@@ -192,10 +188,8 @@ const EventPreparationPage = () => {
     }));
   };
 
-  // Add this function in EventPreparationPage component:
   const handleNoteSave = (savedNotes) => {
     if (currentItemForNotes) {
-      // Update the item notes in functionSelectionData
       setFunctionSelectionData((prev) => ({
         ...prev,
         [selectedFunctionId]: {
@@ -215,8 +209,7 @@ const EventPreparationPage = () => {
     setShowNoteModal(false);
     setCurrentItemForNotes(null);
   };
-  // Add this function in EventPreparationPage component:
-  // In handleCategoryNoteSave, add logging:
+
   const handleCategoryNoteSave = (savedNotes) => {
     if (currentCategoryForNotes !== null) {
       setFunctionSelectionData((prev) => {
@@ -245,17 +238,13 @@ const EventPreparationPage = () => {
 
   const loadAllMenuDataForFunction = async (functionId) => {
     try {
-      // Load menu items from all categories for this function
       const allCategoriesData = await Promise.all([
-        // Load "All" category (categoryId = 0)
         FetchMenuPrep(functionId, 0),
-        // Load individual categories
         ...categories.map((category) => FetchMenuPrep(functionId, category.id)),
       ]);
 
-      // Combine all menu items from all categories
       const combinedMenuItems = [];
-      const seenIds = new Set(); // To avoid duplicates
+      const seenIds = new Set();
 
       allCategoriesData.forEach((categoryData) => {
         if (categoryData.menuItems) {
@@ -268,7 +257,6 @@ const EventPreparationPage = () => {
         }
       });
 
-      // Store all menu items for this function
       setAllMenuItems((prev) => ({
         ...prev,
         [functionId]: combinedMenuItems,
@@ -281,34 +269,27 @@ const EventPreparationPage = () => {
   const loadFunctionMenuData = async (
     functionId,
     categoryId = selectedCategoryId,
-    preserveSelections = false // New parameter to preserve existing selections
+    preserveSelections = false
   ) => {
     setLoading(true);
     try {
       const responseData = await FetchMenuPrep(functionId, categoryId);
-
       const cacheKey = `${functionId}-${categoryId}`;
-
-      // Store menu items in cache
       setFunctionMenuData((prev) => ({
         ...prev,
         [cacheKey]: responseData.menuItems || [],
       }));
 
-      // Store menu preparation ID if it exists
       if (responseData.responseData?.menuPreparation?.id) {
         setMenuPreparationIds((prev) => ({
           ...prev,
           [functionId]: responseData.responseData.menuPreparation.id,
         }));
       }
-
-      // CRITICAL: Only update selection data if NOT preserving selections or if no existing data
       const hasExistingSelections =
         functionSelectionData[functionId]?.selectedItems?.length > 0;
 
       if (!preserveSelections || !hasExistingSelections) {
-        // Original logic for initial load or when we want to reset selections
         if (
           responseData.selectedItems &&
           responseData.selectedItems.length > 0
@@ -324,7 +305,7 @@ const EventPreparationPage = () => {
                 return acc;
               }, {}),
               itemSlogans: responseData.selectedItems.reduce((acc, item) => {
-                acc[item.menuItemId] = item.itemSlogan || ""; // Add this block
+                acc[item.menuItemId] = item.itemSlogan || "";
                 return acc;
               }, {}),
               categoryNotes: responseData.selectedItems.reduce((acc, item) => {
@@ -354,7 +335,6 @@ const EventPreparationPage = () => {
             },
           }));
 
-          // Update global pax and rate if this is the selected function
           if (functionId === selectedFunctionId) {
             if (responseData.responseData?.menuPreparation?.pax) {
               setPax(responseData.responseData.menuPreparation.pax);
@@ -367,7 +347,6 @@ const EventPreparationPage = () => {
             }
           }
         } else {
-          // Ensure clean state for functions with no selections
           setFunctionSelectionData((prev) => ({
             ...prev,
             [functionId]: {
@@ -457,7 +436,6 @@ const EventPreparationPage = () => {
       .then((res) => {
         const responseData = res?.data?.data;
 
-        // same processing logic as before...
         const menuItems = (responseData["menuPreparationItems"] || []).map(
           (item) => ({
             id: item.menuItemId,
@@ -508,26 +486,20 @@ const EventPreparationPage = () => {
     setLoading(true);
 
     try {
-      // 1. Update the selected function ID first
       setSelectedFunctionId(newFunctionId);
-
-      // 2. Get function details from event data
       const selectedFunction = eventAllData[0]?.eventFunctions?.find(
         (fn) => fn.id === newFunctionId
       );
 
-      // 3. Update pax and rate from function data (fallback values)
       if (selectedFunction) {
         setPax(selectedFunction.pax || 0);
         setRate(selectedFunction.rate || 0);
       }
 
-      // 4. Load all menu items for the function if not cached
       if (!allMenuItems[newFunctionId]) {
         await loadAllMenuDataForFunction(newFunctionId);
       }
 
-      // 5. FORCE clear any existing cache for this function/category combo
       const currentCacheKey = `${newFunctionId}-${selectedCategoryId}`;
       setFunctionMenuData((prev) => {
         const newData = { ...prev };
@@ -536,7 +508,6 @@ const EventPreparationPage = () => {
         return newData;
       });
 
-      // 6. Load fresh menu data with selected items
       await loadFunctionMenuData(newFunctionId, selectedCategoryId);
     } catch (error) {
       console.error("❌ Error in handleTabChange:", error);
@@ -782,7 +753,6 @@ const EventPreparationPage = () => {
         return;
       }
 
-      // Call API
       const res = await Deleteiteminmenu(itemId, menuCatId, menuPrepId);
 
       if (res.data?.msg) {
@@ -804,7 +774,6 @@ const EventPreparationPage = () => {
         });
       }
 
-      // Update state only after successful delete
       setFunctionSelectionData((prev) => ({
         ...prev,
         [selectedFunctionId]: {
@@ -821,7 +790,6 @@ const EventPreparationPage = () => {
     }
   };
 
-  // Determine if this is an update or create operation
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
 
   return (

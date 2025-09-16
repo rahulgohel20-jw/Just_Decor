@@ -4,77 +4,46 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import {
-  GetAllRawMaterial, DeleteContactTypeMaster,updateContactTypeStatus
-  
+  GetAllRawMaterial,
+  Deleterawmaterial,
+  updateRawMaterialStatus,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
-
-
-
-
+import Swal from "sweetalert2";
 const RawMaterial = () => {
   const classes = useStyle();
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
-  const [selectedcontactType, setSelectedcontactType] = useState(null);
+  const [selectedRawMaterial, setSelectedRawMaterial] = useState(null);
   const [tableData, setTableData] = useState(defaultData);
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     FetchRawMaterial();
   }, []);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (!searchQuery.trim()) {
-        FetchRawMaterial();
-        return;
-      }
-
-      SearchRawMaterial(searchQuery, Id)
-        .then(({ data: { data } }) => {
-          if (data && data["Raw Material Details"]) {
-            const formatted = data["Raw Material Details"].map(
-              (raw, index) => ({
-                sr_no: index + 1,
-                raw_material_name: raw.nameEnglish || "-",
-            raw_material_category: raw.id,
-            isActive: raw.isActive,
-
-            unit:raw.unit,
-            priority:raw.sequence,
-              })
-            );
-            setTableData(formatted);
-          } else {
-            setTableData([]);
-          }
-        })
-        .catch((error) => {
-          console.error("Error searching customer:", error);
-           setTableData(defaultData); // fallback
-        });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-
   let userData = JSON.parse(localStorage.getItem("userData"));
-  console.log("userData",userData);
+
   let Id = userData.id;
   const FetchRawMaterial = () => {
     GetAllRawMaterial(Id)
       .then((res) => {
-        console.log("raw Material",res);
+        console.log("Raw Material Data:", res.data);
+
         const formatted = res.data.data["Raw Material Details"].map(
           (raw, index) => ({
             sr_no: index + 1,
+            raw_material_id: raw.id,
+            raw_material_cat_id: raw.rawMaterialCat.id,
             raw_material_name: raw.nameEnglish || "-",
-            raw_material_category: raw.categoryName ,
+            raw_material_category: raw.rawMaterialCat.nameEnglish,
             isActive: raw.isActive,
-            unit:raw.unit,
-            priority:raw.sequence,
-            rate:raw.supplierRate
-           
+            unit: raw.unit.nameEnglish,
+            unitId: raw.unit.id,
+            priority: raw.sequence,
+            rate: raw.supplierRate,
+            suppliers: raw.rawMaterialSuppliers,
+            weightPer100Pax: raw.weightPer100Pax,
+            isGeneralFix: raw.isGeneralFix,
           })
         );
 
@@ -85,13 +54,29 @@ const RawMaterial = () => {
       });
   };
 
-  const DeleteContactType = (id) => {
-    console.log("contactis",id);
-
-    if (window.confirm("Are you sure you want to delete this Contact type?")) {
-      DeleteContactTypeMaster(id)
-        .then(() => {
-          FetchContactType();
+  const DeleteRawMaterial = (raw_material_id) => {
+    if (window.confirm("Are you sure you want to delete this raw material?")) {
+      Deleterawmaterial(raw_material_id)
+        .then((res) => {
+          if (res.data?.msg) {
+            Swal.fire({
+              title: `${res.data?.msg}`,
+              text: "",
+              icon: "success",
+              background: "#f5faff",
+              color: "#003f73",
+              confirmButtonText: "Okay",
+              confirmButtonColor: "#005BA8",
+              showClass: {
+                popup: `
+                animate__animated
+                animate__fadeInDown
+                animate__faster
+              `,
+              },
+            });
+          }
+          FetchRawMaterial();
         })
         .catch((error) => {
           console.error("Error deleting Event type:", error);
@@ -99,17 +84,15 @@ const RawMaterial = () => {
     }
   };
 
-  const handleEdit = (event) => {
-    console.log("Editing contact type:", event);
-    setSelectedcontactType(event);
+  const handleEdit = (raw_material_id) => {
+    setSelectedRawMaterial(raw_material_id);
     setIsRawMaterialModalOpen(true);
-    
   };
 
-  const statusCategory = (id, status) => {
-    updateContactTypeStatus(id, status)
+  const statusRaw = (raw_material_id, status) => {
+    updateRawMaterialStatus(raw_material_id, status)
       .then((res) => {
-        FetchContactType();
+        FetchRawMaterial();
         res.data?.msg && successMsgPopup(res.data.msg);
       })
       .catch((error) => {
@@ -143,9 +126,10 @@ const RawMaterial = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsRawMaterialModalOpen(true)
-                                
-              }
+              onClick={() => {
+                setSelectedRawMaterial(null);
+                setIsRawMaterialModalOpen(true);
+              }}
               title="Add Contact Category"
             >
               <i className="ki-filled ki-plus"></i> Add Raw Material
@@ -153,16 +137,15 @@ const RawMaterial = () => {
           </div>
         </div>
         <AddRawMaterial
-  isOpen={isRawMaterialModalOpen}
-  onClose={setIsRawMaterialModalOpen}
-  refreshData={FetchRawMaterial}
-  contactType={selectedcontactType}
-/>
-{/* Supplier Modal */}
-      
+          isOpen={isRawMaterialModalOpen}
+          onClose={setIsRawMaterialModalOpen}
+          refreshData={FetchRawMaterial}
+          rawmaterial={selectedRawMaterial}
+        />
+        {/* Supplier Modal */}
 
         <TableComponent
-          columns={columns(handleEdit, DeleteContactType,statusCategory)}
+          columns={columns(handleEdit, DeleteRawMaterial, statusRaw)}
           data={tableData && tableData.length ? tableData : defaultData}
           paginationSize={10}
         />

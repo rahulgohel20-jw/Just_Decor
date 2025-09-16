@@ -125,7 +125,6 @@ export const GetAllContactType = (Id) => {
   return GET(`/contacttype/getallbyuserid?userId=${Id}`);
 };
 
-
 // Add Contact Type
 export const AddContactMasterType = (data) => {
   return POST("/contacttype/add", data);
@@ -149,10 +148,17 @@ export const updateContactTypeStatus = (Id, statusId) => {
 // Get All Raw Material
 
 export const GetAllRawMaterial = (Id) => {
-  return GET(`/rawmaterial/getallbyuserid?userid=${Id}&rawMateriaCatlId=0`);
+  return GET(
+    `rawmaterial/getallbyuserid?rawMateriaCatlId=0&unitid=0&userid=${Id}`
+  );
 };
 
-
+export const GetUnit = (Id) => {
+  return GET(`/unit/getallbyuserid?userid=${Id}`);
+};
+export const GetSuplier = (id) => {
+  return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);
+};
 
 //Add Meal Type
 export const AddMealType = (data) => {
@@ -569,4 +575,22 @@ export const updatestatusrawmatrialcat = (id, currentStatus) => {
   return PUT(
     `/rawmaterialcategory/updatestatus?id=${id}&isActive=${currentStatus}`
   );
+};
+
+export const DeleteSuplier = (id) => {
+  return DELETE(`/rawmaterialsupplier/deletebyid?id=${id}`);
+};
+
+export const Addrawmaterial = (data) => {
+  return POST(`/rawmaterial/add`, data);
+};
+
+export const Deleterawmaterial = (id) => {
+  return DELETE(`/rawmaterial/delete?id=${id}`);
+};
+export const EditRawMaterial = (id, data) => {
+  return PUT(`/rawmaterial/update?id=${id}`, data);
+};
+export const updateRawMaterialStatus = (id, data) => {
+  return PUT(`/rawmaterial/updatestatus?id=${id}&isActive=${data}`);
 };

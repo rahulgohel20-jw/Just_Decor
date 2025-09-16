@@ -1,34 +1,75 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { useState } from "react";
-import { TableComponent } from "@/components/table/TableComponent";
-import useStyle from "./style";
+import { useEffect, useState } from "react";
+import { GetSuplier } from "@/services/apiServices";
 
-const AddSupplier = ({ isOpen, onClose }) => {
+const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
   const [formData, setFormData] = useState({
-    nameEnglish: "",
-    nameGujarati: "",
-    nameHindi: "",
-    rawCategoryId: "",
-    supplierRate: "",
-    priority: "",
-    generalFixAccess: false,
+    suplierlistid: "",
   });
-
-  const classes = useStyle();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [suplierList, setSuplierList] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = () => {
-    setFormData((prev) => ({ ...prev, generalFixAccess: !prev.generalFixAccess }));
+  useEffect(() => {
+    if (isOpen) {
+      FetchSuplier();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (supplierData) {
+      // If editing, set the supplier ID
+      setFormData({
+        suplierlistid: supplierData.supplierId || "",
+      });
+    } else {
+      // If adding new, reset form
+      setFormData({ suplierlistid: "" });
+    }
+  }, [supplierData]);
+
+  let userdata = JSON.parse(localStorage.getItem("userData"));
+  let id = userdata.id;
+
+  const FetchSuplier = () => {
+    GetSuplier(id).then((response) => {
+      const data = response?.data?.data["Party Details"];
+      console.log(data);
+
+      const suplier = data.map((item) => {
+        return {
+          label: item.nameEnglish,
+          value: String(item.id),
+        };
+      });
+      setSuplierList(suplier);
+    });
   };
 
   const handleSave = () => {
-    console.log("Saving Supplier:", formData);
-    onClose(false);
+    if (!formData.suplierlistid) {
+      alert("Please select a supplier");
+      return;
+    }
+
+    const selectedSupplier = suplierList.find(
+      (s) => s.value === formData.suplierlistid
+    );
+
+    if (selectedSupplier) {
+      const supplierData = {
+        id: selectedSupplier.value,
+        name: selectedSupplier.label,
+      };
+
+      onAddSupplier(supplierData);
+      onClose(false);
+    } else {
+      alert("Please select a supplier");
+    }
   };
 
   return (
@@ -36,14 +77,14 @@ const AddSupplier = ({ isOpen, onClose }) => {
       <CustomModal
         open={isOpen}
         onClose={() => onClose(false)}
-        title={"New Supplier"}
+        title={supplierData ? "Edit Supplier" : "New Supplier"}
         footer={[
           <div className="flex justify-between " key="footer-buttons">
             <button className="btn btn-light" onClick={() => onClose(false)}>
               Cancel
             </button>
             <button className="btn btn-success" onClick={handleSave}>
-              Save
+              {supplierData ? "Update" : "Save"}
             </button>
           </div>,
         ]}
@@ -54,18 +95,18 @@ const AddSupplier = ({ isOpen, onClose }) => {
             <label className="form-label">Supplier</label>
             <select
               className="select"
-              name="rawCategoryId"
-              value={formData.rawCategoryId}
+              name="suplierlistid"
+              value={formData.suplierlistid}
               onChange={handleChange}
             >
-              <option value="">Supplier</option>
-              <option value="1">Manoj</option>
-              <option value="2">Kirtan</option>
-              <option value="3">Jaimin</option>
+              <option value="">Select Supplier</option>
+              {suplierList.map((suplier) => (
+                <option key={suplier.value} value={suplier.value}>
+                  {suplier.label}
+                </option>
+              ))}
             </select>
           </div>
-
-          
         </div>
       </CustomModal>
     )
