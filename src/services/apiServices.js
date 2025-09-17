@@ -153,8 +153,8 @@ export const GetAllRawMaterial = (Id) => {
   );
 };
 
-export const GetUnit = (Id) => {
-  return GET(`/unit/getallbyuserid?userid=${Id}`);
+export const GetUnitData = (Id) => {
+  return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}}`);
 };
 export const GetSuplier = (id) => {
   return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);
@@ -593,4 +593,26 @@ export const EditRawMaterial = (id, data) => {
 };
 export const updateRawMaterialStatus = (id, data) => {
   return PUT(`/rawmaterial/updatestatus?id=${id}&isActive=${data}`);
+};
+
+export const Getunit = (id) => {
+  return GET(`/unit/getallbyuserid?userid=${id}`);
+};
+
+export const SearchUnit = (data, id) => {
+  return GET(`/unit/getallbyuserid?unitName=${data}&userid=${id}`);
+};
+
+export const DeleteUnit = (id) => {
+  return DELETE(`/unit/deletebyid?id=${id}`);
+};
+export const AddUnitdata = (data) => {
+  return POST(`/unit/add`, data);
+};
+
+export const EditUnit = (id, data) => {
+  return PUT(`/unit/update?id=${id}`, data);
+};
+export const updateunit = (id, data) => {
+  return PUT(`unit/updatestatusbyid?id=${id}&isActive=${data}`);
 };
