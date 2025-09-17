@@ -6,7 +6,7 @@ import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
 import {
   GetRawMaterialcategory,
-  GetUnit,
+  GetUnitData,
   DeleteSuplier,
   Addrawmaterial,
   EditRawMaterial,
@@ -103,7 +103,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   };
 
   const FetchUnit = () => {
-    GetUnit(id).then((response) => {
+    GetUnitData(id).then((response) => {
       const data = response?.data?.data["Unit Details"];
       const unitlist = data.map((item) => ({
         label: item.nameEnglish,

@@ -143,6 +143,7 @@ import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
 import EventTypeMaster from "@/pages/master/Event-type";
+import UnitMaster from "@/pages/master/unit";
 import MenuCategoryMaster from "@/pages/master/MenuCategory";
 import MenuSubCategory from "@/pages/master/MenuSubCategory";
 import MenuKitchenArea from "@/pages/master/MenuKitchenArea";
@@ -154,7 +155,8 @@ import AllUser from "../pages/master/user-master/alluser";
 import AllPlan from "../pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import RawMaterialMaster from "@/pages/master/raw-material-category";
-import RawMaterialTypeMaster from "@/pages/master/raw-material-type";import ContactTypeMaster from "@/pages/master/Contact-master";
+import RawMaterialTypeMaster from "@/pages/master/raw-material-type";
+import ContactTypeMaster from "@/pages/master/Contact-master";
 import RawMaterial from "@/pages/master/Raw-Material";
 
 const AppRoutingSetup = () => {
@@ -241,6 +243,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
+          <Route path="/master/unit" element={<UnitMaster />} />
 
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />

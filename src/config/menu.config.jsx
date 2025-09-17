@@ -60,6 +60,10 @@ export const MENU_SIDEBAR = [
         path: "/master/event-type",
       },
       {
+        title: "Unit Master",
+        path: "/master/unit",
+      },
+      {
         title: "Member Master",
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
