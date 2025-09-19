@@ -21,7 +21,7 @@ const EventBasicInfoStep = ({
   const [manager, setManager] = useState([]);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
-
+  const [selectedEvent, setSelectedEvent] = useState(null);
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
 
@@ -62,6 +62,10 @@ const EventBasicInfoStep = ({
   const handleFormDataChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+  const handleOpenEventTypeModal = () => {
+    setSelectedEvent(null);
+    setIsEventTypeModalOpen(true);
+  };
 
   return (
     <Form>
@@ -99,7 +103,12 @@ const EventBasicInfoStep = ({
 
           {/* Status */}
           <div className="flex flex-col">
-            <label className="form-label">Status</label>
+            <label className="form-label">
+              Status
+              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                *
+              </span>
+            </label>
             <EventStatusDropdown
               value={formData.status}
               className="w-full"
@@ -111,7 +120,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
 
           {/* Event Type */}
           <div className="select__grp flex flex-col">
@@ -130,7 +138,7 @@ const EventBasicInfoStep = ({
               />
               <button
                 type="button"
-                onClick={() => setIsEventTypeModalOpen(true)}
+                onClick={handleOpenEventTypeModal}
                 title="Add Event Type"
                 className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
               >
@@ -154,7 +162,11 @@ const EventBasicInfoStep = ({
             </label>
             <DatePicker
               className="input"
-              showTime={{ use12Hours: true, format: "hh:mm A" }}
+              showTime={{
+                use12Hours: true,
+                format: "hh:mm A",
+                minuteStep: 30,
+              }}
               format="DD/MM/YYYY hh:mm A"
               value={
                 formData.eventStartDateTime
@@ -188,7 +200,11 @@ const EventBasicInfoStep = ({
             </label>
             <DatePicker
               className="input"
-              showTime={{ use12Hours: true, format: "hh:mm A" }}
+              showTime={{
+                use12Hours: true,
+                format: "hh:mm A",
+                minuteStep: 30,
+              }}
               format="DD/MM/YYYY hh:mm A"
               value={
                 formData.eventEndDateTime
@@ -234,7 +250,6 @@ const EventBasicInfoStep = ({
             )}
           </div>
 
-          
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
@@ -271,12 +286,13 @@ const EventBasicInfoStep = ({
         <AddMember
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
-          onSuccess={FetchManager}
+          refreshData={FetchManager}
         />
         <AddEventType
           isModalOpen={isEventTypeModalOpen}
           setIsModalOpen={setIsEventTypeModalOpen}
-          onSuccess={Fetcheventtype}
+          refreshData={Fetcheventtype}
+          selectedEvent={selectedEvent}
         />
       </div>
     </Form>

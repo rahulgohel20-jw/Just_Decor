@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { EditEventType, Addeventtype } from "@/services/apiServices";
-import InputToTextLang from "@/components/form-inputs/InputToTextLang"
+import InputToTextLang from "@/components/form-inputs/InputToTextLang";
+import Swal from "sweetalert2";
+import * as Yup from "yup";
+
 const AddEventType = ({
   isModalOpen,
   setIsModalOpen,
@@ -14,12 +17,16 @@ const AddEventType = ({
     nameGujarati: "",
     nameHindi: "",
   };
+
   const [formData, setFormData] = useState(initialFormState);
+  const [errors, setErrors] = useState({});
+
+  const validationSchema = Yup.object().shape({
+    nameEnglish: Yup.string().required("Name is required"),
+  });
 
   useEffect(() => {
     if (selectedEvent) {
-      console.log(selectedEvent);
-
       setFormData({
         nameEnglish: selectedEvent.event_type || "",
         nameGujarati: selectedEvent.nameGujarati || "",
@@ -28,43 +35,59 @@ const AddEventType = ({
     } else {
       setFormData(initialFormState);
     }
+    setErrors({});
   }, [selectedEvent]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
+  const handleSubmit = async () => {
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
 
-    if (selectedEvent) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        Swal.fire("Error", "User data not found", "error");
+        return;
+      }
+
       const payload = { ...formData, userId: userData.id };
 
-      EditEventType(selectedEvent.eventid, payload)
-        .then(() => {
-          refreshData();
-          setIsModalOpen();
-        })
-        .catch((error) => {
-          console.error("Error editing meal:", error);
+      if (selectedEvent) {
+        const res = await EditEventType(selectedEvent.eventid, payload);
+        if (res?.data.success === false) {
+          Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+          return;
+        }
+        Swal.fire("Success", "Event updated successfully!", "success");
+      } else {
+        const res = await Addeventtype(payload);
+        if (res?.data.success === false) {
+          Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+          return;
+        }
+        Swal.fire("Success", "Event added successfully!", "success");
+      }
+
+      refreshData();
+      setIsModalOpen(false);
+    } catch (err) {
+      if (err.inner) {
+        // Collect Yup validation errors
+        const formErrors = {};
+        err.inner.forEach((validationError) => {
+          formErrors[validationError.path] = validationError.message;
         });
-    } else {
-      const payload = { ...formData, userId: userData.id };
-      Addeventtype(payload)
-        .then(() => {
-          refreshData();
-          setIsModalOpen();
-        })
-        .catch((error) => {
-          console.error("Error adding meal:", error);
-        });
+        setErrors(formErrors);
+      }
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
@@ -80,34 +103,44 @@ const AddEventType = ({
             &times;
           </button>
         </div>
+
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
-          <InputToTextLang
-            label="Name (English)"
-            name="nameEnglish"
-            value={formData.nameEnglish}
-            onChange={handleChange}
-            lang={'en-US'}
-            required
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* English */}
+          <div>
+            <InputToTextLang
+              label="Name (English)"
+              name="nameEnglish"
+              value={formData.nameEnglish}
+              onChange={handleChange}
+              lang={"en-US"}
+              required
+            />
+            {errors.nameEnglish && (
+              <p className="text-red-500 text-sm mt-1">{errors.nameEnglish}</p>
+            )}
+          </div>
+
+          {/* Gujarati */}
           <InputToTextLang
             label="Name (ગુજરાતી)"
             name="nameGujarati"
             value={formData.nameGujarati}
             onChange={handleChange}
-            required
-            lng={'gu-US'}
+            lng={"gu-US"}
           />
+
+          {/* Hindi */}
           <InputToTextLang
             label="Name (हिंदी)"
             name="nameHindi"
             value={formData.nameHindi}
             onChange={handleChange}
-            required
-            lng={'hi'}
+            lng={"hi"}
           />
         </div>
+
+        {/* Buttons */}
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"

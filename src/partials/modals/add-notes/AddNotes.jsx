@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SpeechToText from "@/components/form-inputs/SpeechToText";
 
 const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   const [notes, setNotes] = useState(
@@ -26,10 +27,10 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
           </button>
         </div>
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name fields */}
           <InputWithIcon
-            label="Notes (English)*"
+            label="Notes (English)"
             value={notes.notesEnglish}
             onChange={(e) => handleChange("notesEnglish", e.target.value)}
           />
@@ -65,19 +66,27 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   );
 };
 
-const InputWithIcon = ({ label, value, onChange }) => (
+const InputWithIcon = ({
+  label,
+  value,
+  onChange,
+  name,
+  required,
+  lang,
+  className,
+}) => (
   <div className="relative">
     <label className="block text-gray-600 mb-1">{label}</label>
-    <input
+    <SpeechToText
       type="text"
-      className="border border-gray-300 rounded-lg p-2 w-full"
+      name={name}
       placeholder={label}
       value={value}
+      className={className}
       onChange={onChange}
+      required={required}
+      lang={lang}
     />
-    <span className="absolute right-2 top-9 text-blue-500 cursor-pointer">
-      🎤
-    </span>
   </div>
 );
 

@@ -88,7 +88,10 @@ const MenuSubCategory = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsCategoryModalOpen(true)}
+              onClick={() => {
+                setSelectedCategory(null);
+                setIsCategoryModalOpen(true);
+              }}
               title="Add Category"
             >
               <i className="ki-filled ki-plus"></i> Add Sub Category

@@ -11,19 +11,23 @@ import {
   UpdateQuotation,
   DeleteQuotation,
 } from "@/services/apiServices";
+import useStyles from "./style";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 dayjs.extend(customParseFormat);
+
 const QuotationPage = () => {
+  const classes = useStyles();
   const [quotationId, setQuotationId] = useState(null);
   const { eventId } = useParams();
-
+  const todayDate = new Date().toLocaleDateString("en-GB");
   const [quotationData, setQuotationData] = useState({
     eventName: "",
     partyName: "",
     venueName: "",
     estimateDate: "",
+    mobileNumber: "",
     functions: [
       {
         id: 1,
@@ -37,30 +41,30 @@ const QuotationPage = () => {
     ],
     taxDetails: [
       { label: "Discount", percentage: "", amount: "0.00" },
-      { label: "GST", percentage: "", amount: "0.00" },
+      { label: "CGST", percentage: "", amount: "0.00" },
+      { label: "SGST", percentage: "", amount: "0.00" },
+      { label: "IGST", percentage: "", amount: "0.00" },
     ],
     grandTotal: "0.00",
     advancePayment: {
       amount: "0.00",
       date: dayjs(),
-      description: "Advance payment received. Confirmed",
+      description: "",
     },
     totalPaid: "0.00",
     remainingPayment: "0.00",
     notes: "",
   });
 
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     FetchGetQuotation();
   }, []);
 
   const FetchGetQuotation = () => {
-    setLoading(true);
     GetQuotation(eventId)
       .then((res) => {
         const apiData = res?.data?.data?.["Event Functions Quotation Details"];
+
         if (apiData && apiData.length > 0) {
           const quotationInfo = apiData[0];
 
@@ -73,6 +77,7 @@ const QuotationPage = () => {
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             venueName: quotationInfo.event?.venue || "",
+            mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
               ? new Date(
                   quotationInfo.event.eventStartDateTime
@@ -139,9 +144,19 @@ const QuotationPage = () => {
                 amount: (quotationInfo.discount || 0).toFixed(2),
               },
               {
-                label: "GST",
-                percentage: quotationInfo.gst || "0",
-                amount: (quotationInfo.gstAmnt || 0).toFixed(2),
+                label: "CGST",
+                percentage: quotationInfo.cgst || "0",
+                amount: (quotationInfo.cgstAmnt || 0).toFixed(2),
+              },
+              {
+                label: "SGST",
+                percentage: quotationInfo.sgst || "0",
+                amount: (quotationInfo.sgstAmnt || 0).toFixed(2),
+              },
+              {
+                label: "IGST",
+                percentage: quotationInfo.igst || "0",
+                amount: (quotationInfo.igstAmnt || 0).toFixed(2),
               },
             ],
 
@@ -163,22 +178,18 @@ const QuotationPage = () => {
                     )
                   : null,
 
-              description:
-                quotationInfo.advancePaymentDescription ||
-                "Advance payment received. Confirmed",
+              description: quotationInfo.advancePaymentDescription || "",
             },
 
             notes: quotationInfo.notes || "",
           };
+
           setQuotationId(mappedData.quotationId);
           setQuotationData(mappedData);
         }
       })
       .catch((error) => {
         console.log("Error fetching quotation:", error);
-      })
-      .finally(() => {
-        setLoading(false);
       });
   };
 
@@ -193,20 +204,29 @@ const QuotationPage = () => {
         ?.amount || 0
     );
 
-    const gstPercentage = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "GST")?.percentage ||
-        0
+    const cgstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0
     );
 
-    const gstAmount = (subtotal * gstPercentage) / 100 || 0;
+    const sgstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0
+    );
 
-    const grandTotal = subtotal - discountAmount + gstAmount;
+    const igstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0
+    );
+
+    const totalTaxAmount = cgstAmount + sgstAmount + igstAmount;
+    const grandTotal = subtotal - discountAmount + totalTaxAmount;
     const totalPaid = parseFloat(quotationData.advancePayment.amount) || 0;
     const remaining = Math.max(0, grandTotal - totalPaid);
 
     return {
       subtotal: subtotal.toFixed(2),
-      gstAmount: gstAmount.toFixed(2),
+      cgstAmount: cgstAmount.toFixed(2),
+      sgstAmount: sgstAmount.toFixed(2),
+      igstAmount: igstAmount.toFixed(2),
+      totalTaxAmount: totalTaxAmount.toFixed(2),
       grandTotal: grandTotal.toFixed(2),
       totalPaid: totalPaid.toFixed(2),
       remainingPayment: remaining.toFixed(2),
@@ -280,6 +300,7 @@ const QuotationPage = () => {
     const value = e.target.value;
     setQuotationData((prev) => ({ ...prev, notes: value }));
   };
+
   const buildPayload = () => {
     const subtotal = quotationData.functions.reduce((sum, fn) => {
       const total = parseFloat(fn.totalPrice) || 0;
@@ -291,14 +312,25 @@ const QuotationPage = () => {
         ?.amount || 0
     );
 
-    const gstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "GST"
+    const cgstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "CGST"
+    );
+    const sgstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "SGST"
+    );
+    const igstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "IGST"
     );
 
-    const gstPercentage = parseFloat(gstDetail?.percentage || 0);
-    const gstAmnt = ((subtotal * gstPercentage) / 100).toFixed(2);
+    const cgstPercentage = parseFloat(cgstDetail?.percentage || 0);
+    const sgstPercentage = parseFloat(sgstDetail?.percentage || 0);
+    const igstPercentage = parseFloat(igstDetail?.percentage || 0);
 
-    const totalAmount = subtotal - discount + parseFloat(gstAmnt);
+    const cgstAmnt = parseFloat(cgstDetail?.amount || 0);
+    const sgstAmnt = parseFloat(sgstDetail?.amount || 0);
+    const igstAmnt = parseFloat(igstDetail?.amount || 0);
+
+    const totalAmount = subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt;
     const remainingAmount =
       totalAmount - parseFloat(quotationData.advancePayment.amount);
 
@@ -321,8 +353,12 @@ const QuotationPage = () => {
         isEventFunction: fn.isFromQuotationItems === true,
       })),
       grandTotal: parseFloat(totalAmount),
-      gst: `${gstPercentage}`,
-      gstAmnt: parseFloat(gstAmnt),
+      cgst: `${cgstPercentage}`,
+      cgstAmnt: cgstAmnt,
+      sgst: `${sgstPercentage}`,
+      sgstAmnt: sgstAmnt,
+      igst: `${igstPercentage}`,
+      igstAmnt: igstAmnt,
       notes: quotationData.notes,
       remainingAmount: remainingAmount,
       roundOff: 0,
@@ -394,7 +430,12 @@ const QuotationPage = () => {
       return sum + total;
     }, 0);
 
-    if (field === "percentage" && newTaxDetails[index].label === "GST") {
+    if (
+      field === "percentage" &&
+      (newTaxDetails[index].label === "CGST" ||
+        newTaxDetails[index].label === "SGST" ||
+        newTaxDetails[index].label === "IGST")
+    ) {
       newTaxDetails[index].percentage = value;
       const percentage = parseFloat(value) || 0;
       const calculatedAmount = ((subtotal * percentage) / 100).toFixed(2);
@@ -402,11 +443,20 @@ const QuotationPage = () => {
     } else if (field === "amount") {
       newTaxDetails[index].amount = value;
 
-      if (subtotal > 0) {
+      if (
+        subtotal > 0 &&
+        (newTaxDetails[index].label === "CGST" ||
+          newTaxDetails[index].label === "SGST" ||
+          newTaxDetails[index].label === "IGST")
+      ) {
         const enteredAmount = parseFloat(value) || 0;
         const percentage = ((enteredAmount / subtotal) * 100).toFixed(2);
         newTaxDetails[index].percentage = percentage;
-      } else {
+      } else if (
+        newTaxDetails[index].label === "CGST" ||
+        newTaxDetails[index].label === "SGST" ||
+        newTaxDetails[index].label === "IGST"
+      ) {
         newTaxDetails[index].percentage = "0.00";
       }
     } else {
@@ -418,16 +468,6 @@ const QuotationPage = () => {
       taxDetails: newTaxDetails,
     }));
   };
-
-  if (loading) {
-    return (
-      <Container>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-lg">Loading quotation...</div>
-        </div>
-      </Container>
-    );
-  }
 
   return (
     <Fragment>
@@ -476,9 +516,27 @@ const QuotationPage = () => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-calendar-tick text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Estimate Date:</span>
+                    <span className="text-xs">Event Date:</span>
                     <span className="text-sm font-medium text-gray-900">
                       {quotationData.estimateDate}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-phone text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs">Mobile Number:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {quotationData.mobileNumber}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs">Quotation Date:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {todayDate}
                     </span>
                   </div>
                 </div>
@@ -562,6 +620,7 @@ const QuotationPage = () => {
                       }
                       placeholder="Function"
                       type="text"
+                      readOnly={fn.isFromQuotationItems}
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[220px]">
@@ -573,6 +632,8 @@ const QuotationPage = () => {
                         handleFunctionChange(index, "date", date)
                       }
                       placeholder="Select date & time"
+                      disabled={fn.isFromQuotationItems}
+                      className={`input ${classes.customDatePicker}`}
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -585,6 +646,7 @@ const QuotationPage = () => {
                       placeholder="Pax"
                       type="number"
                       min="0"
+                      readOnly={fn.isFromQuotationItems}
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -595,7 +657,7 @@ const QuotationPage = () => {
                         handleFunctionChange(index, "extra", e.target.value)
                       }
                       placeholder="Extra"
-                      type="text"
+                      type="number"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -608,7 +670,7 @@ const QuotationPage = () => {
                       placeholder="Rate"
                       type="number"
                       min="0"
-                      step="0.01"
+                      step="0"
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
@@ -625,7 +687,8 @@ const QuotationPage = () => {
                       placeholder="Total Price"
                       type="number"
                       min="0"
-                      step="0.01"
+                      step="0"
+                      readOnly={fn.isFromQuotationItems}
                     />
                   </div>
                   <div className="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
@@ -704,10 +767,12 @@ const QuotationPage = () => {
                       {tax.label}
                     </div>
                     <div className="flex items-center input text-base text-gray-900 w-[200px]">
-                      {tax.label === "GST" ? (
+                      {tax.label === "CGST" ||
+                      tax.label === "SGST" ||
+                      tax.label === "IGST" ? (
                         <>
                           <input
-                            className="h-full text-gray-900 w-[10px]"
+                            className="h-full text-gray-900 w-[20px]"
                             value={tax.percentage}
                             type="number"
                             step="0.01"
@@ -719,12 +784,19 @@ const QuotationPage = () => {
                           />
                           <span className="text-gray-500">%</span>
                           <span className="ml-3">
-                            &#8377; {totals.gstAmount}
+                            &#8377;{" "}
+                            {tax.label === "CGST"
+                              ? totals.cgstAmount
+                              : tax.label === "SGST"
+                                ? totals.sgstAmount
+                                : tax.label === "IGST"
+                                  ? totals.igstAmount
+                                  : tax.amount}
                           </span>
                         </>
                       ) : (
                         <input
-                          className="h-full text-gray-900 w-[50px]"
+                          className="h-full text-gray-900 w-[80px]"
                           value={tax.amount}
                           type="number"
                           step="0.01"
@@ -794,6 +866,7 @@ const QuotationPage = () => {
                         <div className="flex items-center gap-3 w-[250px]">
                           <i className="ki-filled ki-calendar text-gray-500"></i>
                           <DatePicker
+                            className="input"
                             showTime={{ use12Hours: true, format: "hh:mm A" }}
                             format="DD/MM/YYYY hh:mm A"
                             value={quotationData.advancePayment.date}
@@ -807,7 +880,7 @@ const QuotationPage = () => {
                         <div className="flex items-center gap-3">
                           <i className="ki-filled ki-notepad text-gray-500"></i>
                           <input
-                            className="flex-1 text-xs font-normal text-gray-700 bg-transparent border-none outline-none"
+                            className="flex-1 mt-2 input text-xs font-normal text-gray-700 bg-transparent "
                             value={quotationData.advancePayment.description}
                             onChange={(e) =>
                               handleAdvancePaymentChange(

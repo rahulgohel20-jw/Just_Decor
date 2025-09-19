@@ -1,4 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
 import {
   AddCustomerapi,
   GetAllContactCategory,
@@ -17,7 +19,21 @@ const AddCustomer = ({
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
   const fileInputRef = useRef();
+
+  // Yup validation schema
+  const validationSchema = Yup.object().shape({
+    nameEnglish: Yup.string().required("Name (English) is required"),
+
+    mobileno: Yup.string()
+      .required("Mobile number is required")
+      .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Please enter a valid email address"),
+    contactCategoryId: Yup.string().required("Contact category is required"),
+  });
 
   // Initial form state
   const initialFormState = {
@@ -108,6 +124,8 @@ const AddCustomer = ({
         setFormData(initialFormState);
         setImagePreview(null);
       }
+      // Clear errors when modal opens/closes
+      setErrors({});
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
 
@@ -119,6 +137,13 @@ const AddCustomer = ({
       setCategories(data["Contact Category Details"] || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch categories. Please try again.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
     }
   };
 
@@ -136,6 +161,11 @@ const AddCustomer = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear specific field error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const formatDateToDDMMYYYY = (dateString) => {
@@ -154,42 +184,120 @@ const AddCustomer = ({
     }
   };
 
+  const validateForm = async () => {
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const errorObject = {};
+      validationErrors.inner.forEach((error) => {
+        errorObject[error.path] = error.message;
+      });
+      setErrors(errorObject);
+
+      return false;
+    }
+  };
+
   const CustomerAddApi = async () => {
+    // Validate form before submission
+    const isValid = await validateForm();
+    if (!isValid) return;
+
     setIsLoading(true);
     try {
-      console.log("1");
-
       if (!userData?.id) {
         throw new Error("User data not found");
       }
+
       const payload = {
         ...formData,
         userId: userData.id,
         bdate: formatDateToDDMMYYYY(formData.bdate),
       };
+
       if (formData.id) {
         await EditCustomerApi(formData.id, payload);
+
+        // Success alert for edit
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Customer updated successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
-        console.log("2");
         await AddCustomerapi(payload);
+
+        // Success alert for add
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Customer added successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
-      console.log("3");
+
       setIsModalOpen(false);
       refreshData();
-
       setFormData(initialFormState);
       setImagePreview(null);
+      setErrors({});
     } catch (error) {
       console.error("Error saving customer:", error);
+
+      // Error alert
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.message || "Failed to save customer. Please try again.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
-    setFormData(initialFormState);
-    setImagePreview(null);
+    // Show confirmation dialog if form has data
+    const hasFormData = Object.values(formData).some(
+      (value) =>
+        value &&
+        value !== "" &&
+        value !==
+          initialFormState[
+            Object.keys(formData).find((key) => formData[key] === value)
+          ]
+    );
+
+    if (hasFormData && !formData.id) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You have unsaved changes. Do you want to close without saving?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, close it!",
+        cancelButtonText: "Cancel",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setIsModalOpen(false);
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setErrors({});
+        }
+      });
+    } else {
+      setIsModalOpen(false);
+      setFormData(initialFormState);
+      setImagePreview(null);
+      setErrors({});
+    }
   };
 
   return (
@@ -213,14 +321,22 @@ const AddCustomer = ({
         <div className="overflow-y-auto max-h-[90vh]">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Name fields */}
-            <InputToTextLang
-              label="Name (English)*"
-              name="nameEnglish"
-              value={formData.nameEnglish}
-              onChange={handleChange}
-              lng="en-US"
-              required
-            />
+            <div>
+              <InputToTextLang
+                label="Name (English)"
+                name="nameEnglish"
+                value={formData.nameEnglish}
+                onChange={handleChange}
+                lng="en-US"
+                required
+              />
+              {errors.nameEnglish && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.nameEnglish}
+                </p>
+              )}
+            </div>
+
             <InputToTextLang
               label="Name (ગુજરાતી)"
               name="nameGujarati"
@@ -269,7 +385,11 @@ const AddCustomer = ({
               </label>
               <div className="flex items-center gap-2">
                 <select
-                  className="border border-gray-300 rounded-lg p-2 w-full"
+                  className={`border rounded-lg p-2 w-full ${
+                    errors.contactCategoryId
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   name="contactCategoryId"
                   value={formData.contactCategoryId}
                   onChange={handleChange}
@@ -289,39 +409,73 @@ const AddCustomer = ({
                   +
                 </button>
               </div>
+              {errors.contactCategoryId && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.contactCategoryId}
+                </p>
+              )}
             </div>
 
             {/* Email */}
-            <InputSimple
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
+            <div>
+              <InputSimple
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                error={errors.email}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
 
             {/* Mobile */}
-            <InputSimple
-              label="Mobile Number*"
-              name="mobileno"
-              type="tel"
-              value={formData.mobileno}
-              onChange={handleChange}
-              required
-            />
-            <InputSimple
-              label="Alternative Number"
-              name="altMobileno"
-              type="tel"
-              value={formData.altMobileno}
-              onChange={handleChange}
-            />
-            <InputSimple
-              label="GST Number"
-              name="gst"
-              value={formData.gst}
-              onChange={handleChange}
-            />
+            <div>
+              <InputSimple
+                label="Mobile Number"
+                name="mobileno"
+                type="tel"
+                value={formData.mobileno}
+                onChange={handleChange}
+                required
+                error={errors.mobileno}
+              />
+              {errors.mobileno && (
+                <p className="text-red-500 text-sm mt-1">{errors.mobileno}</p>
+              )}
+            </div>
+
+            <div>
+              <InputSimple
+                label="Alternative Number"
+                name="altMobileno"
+                type="tel"
+                value={formData.altMobileno}
+                onChange={handleChange}
+                error={errors.altMobileno}
+              />
+              {errors.altMobileno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.altMobileno}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <InputSimple
+                label="GST Number"
+                name="gst"
+                value={formData.gst}
+                onChange={handleChange}
+                error={errors.gst}
+              />
+              {errors.gst && (
+                <p className="text-red-500 text-sm mt-1">{errors.gst}</p>
+              )}
+            </div>
 
             {/* Birth Date */}
             <div className="relative">
@@ -421,6 +575,7 @@ const InputSimple = ({
   onChange,
   required,
   type = "text",
+  error,
 }) => (
   <div>
     <label className="block text-gray-600 mb-1">
@@ -436,7 +591,9 @@ const InputSimple = ({
       name={name}
       value={value}
       onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
+      className={`border rounded-lg p-2 w-full ${
+        error ? "border-red-500" : "border-gray-300"
+      }`}
       placeholder={label}
       required={required}
     />

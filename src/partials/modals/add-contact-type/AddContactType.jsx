@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { GetAllContactType,AddContactMasterType,EditContactType } from "@/services/apiServices";
+import { AddContactMasterType, EditContactType } from "@/services/apiServices";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
 
-const AddContactType = ({
-  isOpen,
-  onClose,
-  contactType, // If editing, this will have the existing data
-  refreshData,
-}) => {
+const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
   if (!isOpen) return null;
 
   const initialFormState = {
@@ -14,73 +11,38 @@ const AddContactType = ({
     nameGujarati: "",
     nameHindi: "",
     isActive: true,
-    
   };
 
-  const [formData, setFormData] = useState(initialFormState);
-  const [contactTypes, setContactTypes] = useState([]); // ✅ state for dropdown
+  const validationSchema = Yup.object().shape({
+    nameEnglish: Yup.string().required("Name is required"),
+  });
 
-  useEffect(() => {
-    // ✅ Fetch Contact Types
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (userData?.id) {
-      GetAllContactType(userData.id)
-        .then((res) => {
-          // Assuming API returns res.data as array
-          setContactTypes(res?.data?.data?.["Contact Type Details"] || []);
-        })
-        .catch((err) => {
-          console.error("Error fetching contact types:", err);
-        });
-    }
-  }, []);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        alert("User data not found");
+        return;
+      }
 
-  useEffect(() => {
-    if (contactType) {
-      setFormData({
-        nameEnglish: contactType.contact_type || "",
-        nameGujarati: contactType.nameGujarati || "",
-        nameHindi: contactType.nameHindi || "",
-        isActive: contactType.isActive || false,
-      });
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [contactType]);
+      const payload = { ...values, userId: userData.id };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+      if (contactType) {
+        await EditContactType(contactType.contacttypeid, payload);
+        Swal.fire("Updated!", "Contact type updated successfully.", "success");
+      } else {
+        await AddContactMasterType(payload);
+        Swal.fire("Saved!", "Contact type added successfully.", "success");
+      }
 
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
-
-    const payload = { ...formData, userId: userData.id };
-    console.log("Payload:", payload);
-
-    if (contactType) {
-      EditContactType(contactType.contacttypeid, payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error editing category:", error);
-        });
-    } else {
-      AddContactMasterType(payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error adding category:", error);
-        });
+      refreshData();
+      onClose();
+      resetForm();
+    } catch (error) {
+      console.error("Error saving contact type:", error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -101,68 +63,70 @@ const AddContactType = ({
         </div>
 
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <InputWithIcon
-            label="Name (English)"
-            name="nameEnglish"
-            value={formData.nameEnglish}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            label="Name (ગુજરાતી)"
-            name="nameGujarati"
-            value={formData.nameGujarati}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            label="Name (हिंदी)"
-            name="nameHindi"
-            value={formData.nameHindi}
-            onChange={handleChange}
-            required
-          />
+        <Formik
+          initialValues={
+            contactType
+              ? {
+                  nameEnglish: contactType.contact_type || "",
+                  nameGujarati: contactType.nameGujarati || "",
+                  nameHindi: contactType.nameHindi || "",
+                  isActive: contactType.isActive || false,
+                }
+              : initialFormState
+          }
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputWithFormik label="Name (English)" name="nameEnglish" />
+                <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+                <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
+              </div>
 
-          
-
-
-          
-        </div>
-
-        {/* Actions */}
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => onClose(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-            onClick={handleSubmit}
-          >
-            {contactType ? "Update" : "Save"}
-          </button>
-        </div>
+              {/* Actions */}
+              <div className="flex w-full justify-end mt-6 gap-3">
+                <button
+                  type="button"
+                  onClick={() => onClose(false)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+                >
+                  {contactType ? "Update" : "Save"}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </div>
     </div>
   );
 };
 
-const InputWithIcon = ({ label, name, value, onChange, required }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
+const InputWithFormik = ({ label, name }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">
+      {label}
+      <span className="text-red-500">*</span>
+    </label>
+    <Field
       type="text"
       name={name}
-      value={value}
-      onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
       placeholder={label}
-      required={required}
+      className="border border-gray-300 rounded-lg p-2 w-full"
+    />
+    <ErrorMessage
+      name={name}
+      component="div"
+      className="text-red-500 text-sm mt-1"
     />
   </div>
 );

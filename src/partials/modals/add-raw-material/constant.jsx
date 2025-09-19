@@ -63,7 +63,7 @@ export const columns = (
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => handleRemoveSupplier(row.original.deleteId)}
+              onClick={() => handleRemoveSupplier(row.original)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>

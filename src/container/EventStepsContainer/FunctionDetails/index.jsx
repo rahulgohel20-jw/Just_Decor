@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input, DatePicker, Tooltip } from "antd";
 import dayjs from "dayjs";
-import { MapPin, StickyNote, Trash2, Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
 import AddNotes from "@/partials/modals/add-notes/AddNotes";
@@ -261,15 +261,15 @@ const FunctionsDetails = ({
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
                 Person
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
                 Rate
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
                 Function Venue
-                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                  *
-                </span>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
                 Actions
@@ -295,17 +295,12 @@ const FunctionsDetails = ({
                         value={func.functionId}
                         onChange={(value) => handleFunctionSelect(index, value)}
                         options={options}
-                        className={
-                          getFunctionFieldError(index, "functionId")
-                            ? "border-red-500"
-                            : ""
-                        }
                       />
-                      {/* {getFunctionFieldError(index, "functionId") && (
-                          <span className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(index, "functionId")}
-                          </span>
-                        )} */}
+                      {getFunctionFieldError(index, "functionId") && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(index, "functionId")}
+                        </span>
+                      )}
                     </td>
                     {/* Start Date */}
                     <td className="p-3 border-b border-gray-200 w-40">
@@ -330,17 +325,7 @@ const FunctionsDetails = ({
                             : null
                         }
                         options={options}
-                        className={
-                          getFunctionFieldError(index, "functionId")
-                            ? "border-red-500"
-                            : ""
-                        }
                       />
-                      {getFunctionFieldError(index, "functionId") && (
-                        <span className="text-red-500 text-xs mt-1">
-                          {getFunctionFieldError(index, "functionId")}
-                        </span>
-                      )}
                     </td>
                     {/* End Date */}
                     <td className="p-3 border-b border-gray-200 w-40">
@@ -384,12 +369,13 @@ const FunctionsDetails = ({
                     {/* Person */}
                     <td className="p-3 border-b border-gray-200 w-24">
                       <Input
-                        className={`w-full text-center ${getFunctionFieldError(index, "pax") ? "border-red-500" : ""}`}
+                        className={`w-full text-center `}
                         value={func.pax}
                         type="number"
                         onChange={(e) =>
                           handleInputChange(index, "pax", e.target.value)
                         }
+                        required
                       />
                       {getFunctionFieldError(index, "pax") && (
                         <div className="text-red-500 text-xs mt-1">
@@ -398,10 +384,9 @@ const FunctionsDetails = ({
                       )}
                     </td>
 
-                    {/* Rate */}
                     <td className="p-3 border-b border-gray-200 w-24">
                       <Input
-                        className={`w-full text-center ${getFunctionFieldError(index, "rate") ? "border-red-500" : ""}`}
+                        className={`w-full text-center `}
                         value={func.rate}
                         type="number"
                         placeholder="Rate"
@@ -409,20 +394,14 @@ const FunctionsDetails = ({
                           handleInputChange(index, "rate", e.target.value)
                         }
                       />
-                      {getFunctionFieldError(index, "rate") && (
-                        <div className="text-red-500 text-xs mt-1">
-                          {getFunctionFieldError(index, "rate")}
-                        </div>
-                      )}
                     </td>
 
-                    {/* Venue - REQUIRED FIELD */}
                     <td className="p-3 border-b border-gray-200 w-40">
                       <Input
-                        className={`w-full ${getFunctionFieldError(index, "function_venue") ? "border-red-500" : ""}`}
+                        className={`w-full `}
                         value={func.function_venue}
                         type="text"
-                        placeholder="Function Venue *"
+                        placeholder="Function Venue"
                         onChange={(e) =>
                           handleInputChange(
                             index,
@@ -431,17 +410,12 @@ const FunctionsDetails = ({
                           )
                         }
                       />
-                      {getFunctionFieldError(index, "function_venue") && (
-                        <span className="text-red-500 text-xs mt-1">
-                          {getFunctionFieldError(index, "function_venue")}
-                        </span>
-                      )}
                     </td>
 
                     {/* Actions */}
                     <td className="p-3 border-b border-gray-200 w-40">
                       <div className="text-center">
-                        <Tooltip title="Delete item">
+                        <Tooltip title="Map">
                           <button className="btn btn-sm btn-icon btn-clear btn-primary">
                             <i class="ki-filled ki-geolocation"></i>
                           </button>
@@ -493,7 +467,7 @@ const FunctionsDetails = ({
       <AddFunctionType
         isOpen={showFunctionModal}
         onClose={() => setShowFunctionModal(false)}
-        onSuccess={FetchFunction} // Refresh function list after adding
+        onSuccess={FetchFunction}
       />
       <AddNotes
         isOpen={showNoteModal}

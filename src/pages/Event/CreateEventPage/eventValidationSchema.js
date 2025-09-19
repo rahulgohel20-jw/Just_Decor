@@ -3,17 +3,9 @@ import dayjs from "dayjs";
 
 const functionItemSchema = yup.object().shape({
   functionId: yup.string().required("Function Type is required"),
-  function_venue: yup.string().required("Function Venue is required"),
-  functionStartDateTime: yup.string().nullable(),
-  functionEndDateTime: yup.string().nullable(),
-  pax: yup.string(),
-  rate: yup.string(),
-  notesEnglish: yup.string(),
-  notesGujarati: yup.string(),
-  notesHindi: yup.string(),
+  pax: yup.string().required("Pax is required"),
 });
 
-// Base validation schema with all fields
 export const eventValidationSchema = yup.object().shape({
   inquiryDate: yup.string().required("Inquiry Date is required"),
   status: yup.string().required("Status is required"),
@@ -28,7 +20,6 @@ export const eventValidationSchema = yup.object().shape({
         const { eventStartDateTime } = this.parent;
         if (!eventStartDateTime || !value) return true;
 
-        // Parse dates with dayjs for comparison
         const startDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
         const endDate = dayjs(value, "DD/MM/YYYY hh:mm A");
 
@@ -46,7 +37,6 @@ export const eventValidationSchema = yup.object().shape({
     .required("Customer Mobile is required")
     .matches(/^\d{10}$/, "Mobile number must be 10 digits"),
 
-  // FIXED: Use the proper functionItemSchema for each item validation
   eventFunction: yup
     .array()
     .of(functionItemSchema)
@@ -54,10 +44,6 @@ export const eventValidationSchema = yup.object().shape({
     .required("Functions is required"),
 
   mealTypeId: yup.string().required("Meal Type is required"),
-  meal_notes: yup.string().nullable(),
-  service: yup.string().nullable(),
-  theme: yup.string().nullable(),
-  remark: yup.string().nullable(),
 });
 
 // FIXED: Step-specific validation schemas
@@ -103,10 +89,6 @@ export const stepValidationSchemas = {
       .of(functionItemSchema)
       .min(1, "At least one function is required")
       .required("Functions is required"),
-  }),
-
-  other: yup.object().shape({
-    mealTypeId: yup.string().required("Meal Type is required"),
   }),
 };
 
