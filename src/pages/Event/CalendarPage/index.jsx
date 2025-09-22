@@ -99,7 +99,6 @@ const CalendarPage = () => {
     GetEventMaster(Id)
       .then((res) => {
         const eventdata = res?.data?.data?.["Event Details"] || [];
-        console.log(eventdata, "event");
 
         setData(
           eventdata

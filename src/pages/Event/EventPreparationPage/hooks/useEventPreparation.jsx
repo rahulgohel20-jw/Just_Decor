@@ -1,0 +1,539 @@
+import { useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import {
+  GetAllCategoryformenu,
+  GetEventMasterById,
+  Getmenuprep,
+  AddMenuprep,
+} from "@/services/apiServices";
+import { errorMsgPopup } from "@/underConstruction";
+import Swal from "sweetalert2";
+
+const useEventData = () => {
+  const { eventId } = useParams();
+  const [eventAllData, setEventAllData] = useState({});
+  const [orderDetails, setOrderDetails] = useState({});
+  const [menuPreparationsTabs, setMenuPreparationsTabs] = useState([]);
+  const [dateandtime, setDateandtime] = useState("");
+
+  const fetchEventData = useCallback(async () => {
+    try {
+      const res = await GetEventMasterById(eventId);
+      const alleventdata = res?.data?.data["Event Details"].map((item) => ({
+        userid: item.user.id,
+        party: item.party.nameEnglish,
+        eventType: item.eventType.nameEnglish,
+        eventStartDateTime: item.eventStartDateTime,
+        venue: item.venue,
+        eventFunctions: item.eventFunctions.map((f) => ({
+          id: f.id,
+          name: f.function.nameEnglish,
+          startTime: f.function.startTime,
+          endTime: f.function.endTime,
+          pax: f.pax,
+          rate: f.rate,
+          venue: f.function_venue,
+        })),
+      }));
+
+      if (alleventdata.length > 0) {
+        const firstEvent = alleventdata[0];
+
+        setOrderDetails({
+          id: eventId,
+          customer: firstEvent.party,
+          eventType: firstEvent.eventType,
+          eventDate: firstEvent.eventStartDateTime,
+          venue: firstEvent.venue,
+        });
+
+        const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
+          label: (
+            <div style={{ cursor: "pointer" }}>
+              <i className="ki-filled ki-disk"></i> {fn.name}
+            </div>
+          ),
+          value: fn.id,
+          children: "",
+        }));
+
+        setMenuPreparationsTabs(dynamicTabs);
+        setDateandtime(firstEvent.eventStartDateTime || "");
+        setEventAllData(alleventdata);
+
+        return {
+          eventData: alleventdata,
+          functions: firstEvent.eventFunctions,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+      throw error;
+    }
+  }, [eventId]);
+
+  return {
+    eventAllData,
+    orderDetails,
+    menuPreparationsTabs,
+    dateandtime,
+    fetchEventData,
+  };
+};
+
+const useCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData.id;
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await GetAllCategoryformenu(userId);
+      const categories = res.data.data["Menu Category Details"].map(
+        (item, index) => ({
+          ...item,
+          name: item.nameEnglish,
+          sr_no: index + 1,
+        })
+      );
+      setCategories(categories);
+      return categories;
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      throw error;
+    }
+  }, [userId]);
+
+  const allCategory = { id: 0, name: "All" };
+  const categoriesWithAll = [allCategory, ...categories];
+
+  return {
+    categories,
+    categoriesWithAll,
+    fetchCategories,
+  };
+};
+
+const functionDataReducer = (state, action) => {
+  switch (action.type) {
+    case "INITIALIZE_FUNCTION":
+      return {
+        ...state,
+        [action.functionId]: {
+          selectedItems: [],
+          itemNotes: {},
+          itemSlogans: {},
+          itemRates: {},
+          categoryNotes: {},
+          categorySlogans: {},
+          isSaved: false,
+          pax: action.pax || 0,
+          rate: action.rate || 0,
+        },
+      };
+
+    case "UPDATE_SELECTIONS":
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          selectedItems: action.selectedItems,
+          itemNotes: {
+            ...state[action.functionId]?.itemNotes,
+            ...action.itemNotes,
+          },
+          itemSlogans: {
+            ...state[action.functionId]?.itemSlogans,
+            ...action.itemSlogans,
+          },
+          categoryNotes: {
+            ...state[action.functionId]?.categoryNotes,
+            ...action.categoryNotes,
+          },
+          categorySlogans: {
+            ...state[action.functionId]?.categorySlogans,
+            ...action.categorySlogans,
+          },
+          itemRates: {
+            ...state[action.functionId]?.itemRates,
+            ...action.itemRates,
+          },
+          isSaved: action.isSaved,
+          pax: action.pax || state[action.functionId]?.pax,
+          rate: action.rate || state[action.functionId]?.rate,
+        },
+      };
+
+    case "TOGGLE_ITEM_SELECTION":
+      const currentItems = state[action.functionId]?.selectedItems || [];
+      const newItems = currentItems.includes(action.itemId)
+        ? currentItems.filter((id) => id !== action.itemId)
+        : [...currentItems, action.itemId];
+
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          selectedItems: newItems,
+          isSaved: false,
+        },
+      };
+
+    case "UPDATE_ITEM_RATE":
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          itemRates: {
+            ...state[action.functionId]?.itemRates,
+            [action.itemId]: action.rate,
+          },
+          isSaved: false,
+        },
+      };
+
+    case "UPDATE_NOTES":
+      // Handle special case for isSaved which is not nested
+      if (action.noteType === "isSaved") {
+        return {
+          ...state,
+          [action.functionId]: {
+            ...state[action.functionId],
+            isSaved: action.value,
+          },
+        };
+      }
+
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          [action.noteType]: {
+            ...state[action.functionId]?.[action.noteType],
+            [action.id]: action.value,
+          },
+          isSaved: false,
+        },
+      };
+
+    case "UPDATE_ITEM_CATEGORY":
+      // This is a new case to handle drag and drop category changes
+      // Note: This mainly marks the data as unsaved since the actual item update
+      // is handled in the parent component's allMenuItems state
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          isSaved: false,
+        },
+      };
+
+    case "MARK_SAVED":
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          isSaved: true,
+        },
+      };
+
+    default:
+      return state;
+  }
+};
+
+const useMenuData = () => {
+  const [functionMenuData, setFunctionMenuData] = useState({});
+  const [allMenuItems, setAllMenuItems] = useState({});
+  const [menuPreparationIds, setMenuPreparationIds] = useState({});
+  const [loading, setLoading] = useState(false);
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData.id;
+
+  const fetchMenuPrep = useCallback(
+    async (
+      eventFunctionId,
+      menuCategoryId = null,
+      pageNo = 1,
+      totalRecord = 50
+    ) => {
+      try {
+        const res = await Getmenuprep(
+          eventFunctionId,
+          menuCategoryId,
+          pageNo,
+          totalRecord,
+          userId
+        );
+        const responseData = res?.data?.data;
+
+        const menuItems = (responseData["menuPreparationItems"] || []).map(
+          (item) => ({
+            id: item.menuItemId,
+            parentId: item.menuCategoryId,
+            name: item.menuItemName,
+            image: item.imagePath?.replace("jcupload", "uploads") || "",
+            price: item.itemPrice,
+            isSelected: false,
+          })
+        );
+
+        const selectedMenuCategories =
+          responseData["selectedMenuPreparationItems"] || [];
+        let selectedItems = [];
+
+        selectedMenuCategories.forEach((category) => {
+          if (category.selectedMenuPreparationItems) {
+            selectedItems.push(...category.selectedMenuPreparationItems);
+          }
+        });
+
+        const updatedMenuItems = menuItems.map((item) => ({
+          ...item,
+          isSelected: selectedItems.some(
+            (selectedItem) => selectedItem.menuItemId === item.id
+          ),
+        }));
+
+        return {
+          menuItems: updatedMenuItems,
+          selectedItems,
+          responseData,
+        };
+      } catch (error) {
+        console.error("Error fetching menu prep data:", error);
+        throw error;
+      }
+    },
+    [userId]
+  );
+
+  const loadFunctionMenuData = useCallback(
+    async (functionId, categoryId, categories) => {
+      setLoading(true);
+      try {
+        const responseData = await fetchMenuPrep(functionId, categoryId);
+        const cacheKey = `${functionId}-${categoryId}`;
+
+        setFunctionMenuData((prev) => ({
+          ...prev,
+          [cacheKey]: responseData.menuItems || [],
+        }));
+
+        if (responseData.responseData?.menuPreparation?.id) {
+          setMenuPreparationIds((prev) => ({
+            ...prev,
+            [functionId]: responseData.responseData.menuPreparation.id,
+          }));
+        }
+
+        return responseData;
+      } catch (error) {
+        console.error("Error loading function menu data:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchMenuPrep]
+  );
+
+  const loadAllMenuDataForFunction = useCallback(
+    async (functionId, categories) => {
+      try {
+        const allCategoriesData = await Promise.all([
+          fetchMenuPrep(functionId, 0),
+          ...categories.map((category) =>
+            fetchMenuPrep(functionId, category.id)
+          ),
+        ]);
+
+        const combinedMenuItems = [];
+        const seenIds = new Set();
+
+        allCategoriesData.forEach((categoryData) => {
+          if (categoryData.menuItems) {
+            categoryData.menuItems.forEach((item) => {
+              if (!seenIds.has(item.id)) {
+                combinedMenuItems.push(item);
+                seenIds.add(item.id);
+              }
+            });
+          }
+        });
+
+        setAllMenuItems((prev) => ({
+          ...prev,
+          [functionId]: combinedMenuItems,
+        }));
+      } catch (error) {
+        console.error("Error loading all menu data for function:", error);
+      }
+    },
+    [fetchMenuPrep]
+  );
+
+  const clearFunctionCache = useCallback((functionId) => {
+    setFunctionMenuData((prev) => {
+      const newData = { ...prev };
+      Object.keys(newData).forEach((key) => {
+        if (key.startsWith(`${functionId}-`)) {
+          delete newData[key];
+        }
+      });
+      return newData;
+    });
+  }, []);
+
+  return {
+    functionMenuData,
+    allMenuItems,
+    menuPreparationIds,
+    loading,
+    loadFunctionMenuData,
+    loadAllMenuDataForFunction,
+    clearFunctionCache,
+  };
+};
+
+const useSaveMenu = (
+  functionSelectionData,
+  allMenuItems,
+  menuPreparationIds,
+  categories,
+  dateandtime,
+  clearFunctionCache,
+  loadFunctionMenuData
+) => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+
+  const saveMenu = useCallback(
+    async (selectedFunctionId, selectedCategoryId, pax, rate) => {
+      const currentFunctionData = functionSelectionData[selectedFunctionId];
+      console.log(currentFunctionData, "data");
+
+      if (
+        !currentFunctionData ||
+        currentFunctionData.selectedItems.length === 0
+      ) {
+        errorMsgPopup("Please select at least one item");
+        return false;
+      }
+
+      const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+      const selectedItems = currentFunctionData.selectedItems
+        .map((id) => allFunctionMenuItems.find((item) => item.id === id))
+        .filter(Boolean);
+
+      const existingId = menuPreparationIds[selectedFunctionId] || 0;
+
+      const calculateTotalPrice = () => {
+        return currentFunctionData.selectedItems.reduce((sum, itemId) => {
+          const item = allFunctionMenuItems.find(
+            (menuItem) => menuItem.id === itemId
+          );
+
+          let itemRate;
+          if (currentFunctionData.itemRates?.[itemId] !== undefined) {
+            // Case 3: User manually changed the price
+            itemRate = Number(currentFunctionData.itemRates[itemId]);
+          } else if (rate > 0) {
+            // Case 1: Default rate exists
+            itemRate = Number(rate);
+          } else {
+            // Case 2: Default rate is 0, use item price
+            itemRate = Number(item?.price) || 0;
+          }
+
+          return sum + itemRate;
+        }, 0);
+      };
+
+      const payload = {
+        defaultPrice: rate || 0,
+        eventFunctionId: selectedFunctionId,
+        id: existingId,
+        menuPreparationDetails: selectedItems.map((item, index) => {
+          const category = categories.find((cat) => cat.id === item.parentId);
+
+          let itemPrice;
+          if (currentFunctionData.itemRates?.[item.id] !== undefined) {
+            // Case 3: User manually changed the price
+            itemPrice = Number(currentFunctionData.itemRates[item.id]);
+          } else if (rate > 0) {
+            // Case 1: Default rate exists
+            itemPrice = Number(rate);
+          } else {
+            // Case 2: Default rate is 0, use item price
+            itemPrice = Number(item.price) || 0;
+          }
+
+          return {
+            id: 0,
+            itemNotes: currentFunctionData.itemNotes[item.id] || "",
+            itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
+            itemPrice: itemPrice,
+            itemSortOrder: index + 1,
+            menuNotes: currentFunctionData.categoryNotes?.[item.parentId] || "",
+            menuSlogan:
+              currentFunctionData.categorySlogans?.[item.parentId] || "",
+            menuCategoryId: item.parentId,
+            menuCategoryName: category?.name || "",
+            menuItemId: item.id,
+            menuItemName: item.name,
+            menuSortOrder: index + 1,
+            startTime: dateandtime,
+          };
+        }),
+        pax: Number(pax) || 0,
+        price: calculateTotalPrice(),
+        sortorder: 0,
+      };
+
+      console.log(payload, "data payload");
+
+      try {
+        const res = await AddMenuprep(payload);
+
+        if (res.data?.msg) {
+          Swal.fire({
+            title: `${res.data?.msg}`,
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+          });
+        }
+
+        clearFunctionCache(selectedFunctionId);
+        await loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
+
+        return true;
+      } catch (err) {
+        console.error("Save failed:", err);
+        errorMsgPopup("Failed to save menu preparation");
+        return false;
+      }
+    },
+    [
+      functionSelectionData,
+      allMenuItems,
+      menuPreparationIds,
+      categories,
+      dateandtime,
+      clearFunctionCache,
+      loadFunctionMenuData,
+    ]
+  );
+
+  return { saveMenu };
+};
+
+export {
+  useEventData,
+  useCategories,
+  useMenuData,
+  useSaveMenu,
+  functionDataReducer,
+};

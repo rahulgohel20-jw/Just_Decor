@@ -67,7 +67,8 @@ const CreateEventPage = () => {
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "event hello");
+          console.log(event, "datatatat");
+
           const statusId =
             event?.status?.id != null
               ? String(event.status.id)
@@ -93,9 +94,9 @@ const CreateEventPage = () => {
             customer_name: event.party?.nameEnglish || "",
             address: event.address || event.party?.addressEnglish || "",
             mobileno: event.mobileno || event.party?.mobileno || "",
-
+            isHighPriority: event.isHighPriority,
             eventFunction: (event.eventFunctions || []).map((f) => ({
-              eventFuncId: f.eventId,
+              eventFuncId: f.id,
               functionId: f.function?.id ?? f.functionId ?? null,
               functionName: f.function?.nameEnglish ?? "",
               functionStartDateTime: f.functionStartDateTime.replace(
@@ -121,7 +122,6 @@ const CreateEventPage = () => {
             theme: event.theme || "",
             remark: event.remark || "",
           }));
-          console.log(event, "data");
         })
         .catch((err) => console.error("Error fetching event:", err))
         .finally(() => setLoading(false));
