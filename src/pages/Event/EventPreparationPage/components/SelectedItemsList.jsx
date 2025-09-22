@@ -215,18 +215,15 @@ const SelectedItemsList = ({
     const activeId = active.id;
     const overId = over.id;
 
-    // Get the dragged item
     const draggedItem = Object.values(selectedItemsByCategory)
       .flat()
       .find((item) => item.id === activeId);
 
     if (!draggedItem) return;
 
-    // Determine target category
     let targetCategoryId = null;
     let targetCategoryName = null;
 
-    // Check if dropped over another item (get its category)
     const targetItem = Object.values(selectedItemsByCategory)
       .flat()
       .find((item) => item.id === overId);
@@ -238,11 +235,8 @@ const SelectedItemsList = ({
       );
       targetCategoryName = targetCategory?.name || "Uncategorized";
     } else {
-      // Check if dropped over a category container
       Object.entries(selectedItemsByCategory).forEach(([catName, items]) => {
         if (items.length === 0) {
-          // For empty categories, we need to identify by category name
-          // This requires additional logic based on your category structure
           const category = categories.find((cat) => cat.name === catName);
           if (category) {
             targetCategoryId = category.id;
@@ -252,9 +246,7 @@ const SelectedItemsList = ({
       });
     }
 
-    // Only proceed if we have a valid target and it's different from current
     if (targetCategoryId && targetCategoryId !== draggedItem.parentId) {
-      // Call the callback to handle the category change
       if (onItemCategoryChange) {
         onItemCategoryChange(activeId, targetCategoryId, targetCategoryName);
       }

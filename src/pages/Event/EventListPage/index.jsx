@@ -12,6 +12,7 @@ import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
+import Swal from "sweetalert2";
 const EventListPage = () => {
   const classes = useStyle();
   useEffect(() => {
@@ -96,15 +97,38 @@ const EventListPage = () => {
   };
 
   const DeleteEvent = (eventid) => {
-    DeleteEventMaster(eventid)
-      .then((response) => {
-        FetchEvent();
-        response.data?.msg && successMsgPopup(response.data.msg);
-      })
-      .catch((error) => {
-        error.data?.msg && errorMsgPopup(error.data.msg);
-        console.error("Error deleting event:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteEventMaster(eventid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchEvent();
+              Swal.fire({
+                title: "Removed!",
+                text: "Event has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            error.data?.msg && errorMsgPopup(error.data.msg);
+            console.error("Error deleting event:", error);
+          });
+      }
+    });
   };
   const viewEvent = (eventId) => {
     setSelectedEventId(eventId);

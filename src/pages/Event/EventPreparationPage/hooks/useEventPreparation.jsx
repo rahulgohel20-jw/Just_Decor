@@ -217,9 +217,6 @@ const functionDataReducer = (state, action) => {
       };
 
     case "UPDATE_ITEM_CATEGORY":
-      // This is a new case to handle drag and drop category changes
-      // Note: This mainly marks the data as unsaved since the actual item update
-      // is handled in the parent component's allMenuItems state
       return {
         ...state,
         [action.functionId]: {

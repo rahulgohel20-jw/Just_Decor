@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { DeleteEventMaster } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
-
+import Swal from "sweetalert2";
 const EventViewModal = ({
   isModalOpen,
   setIsModalOpen,
@@ -32,21 +32,44 @@ const EventViewModal = ({
   };
 
   const DeleteEvent = () => {
-    const eventId = safeEventId;
-    if (!eventId) {
-      errorMsgPopup("Event ID missing.");
-      return;
-    }
-    DeleteEventMaster(eventId)
-      .then((response) => {
-        setIsModalOpen(false);
-        onEventsUpdated?.();
-        response.data?.msg && successMsgPopup(response.data.msg);
-      })
-      .catch((error) => {
-        error?.data?.msg && errorMsgPopup(error.data.msg);
-        console.error("Error deleting event:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const eventId = safeEventId;
+        if (!eventId) {
+          errorMsgPopup("Event ID missing.");
+          return;
+        }
+        DeleteEventMaster(eventId)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              setIsModalOpen(false);
+              onEventsUpdated?.();
+              Swal.fire({
+                title: "Removed!",
+                text: "Event has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            error?.data?.msg && errorMsgPopup(error.data.msg);
+            console.error("Error deleting event:", error);
+          });
+      }
+    });
   };
 
   return (

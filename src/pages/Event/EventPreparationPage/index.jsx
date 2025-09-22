@@ -409,7 +409,7 @@ const EventPreparationPage = () => {
             {/* Left Panel */}
             <div className="col-span-9">
               <div className="border-b p-3 shrink-0 bg-muted/25">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <Tooltip
                     placement="right"
                     color="white"
@@ -464,8 +464,9 @@ const EventPreparationPage = () => {
                       </span>
                     </span>
                   </Tooltip>
-
-                  <div className="flex flex-row gap-8">
+                </div>
+                <div className="flex flex-row  justify-between">
+                  <div className="flex flex-row gap-2">
                     <p className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium text-gray-900">
                         Person:
@@ -510,18 +511,12 @@ const EventPreparationPage = () => {
                       />
                     </p>
                   </div>
-
-                  <Tooltip title="Collapse">
-                    <button
-                      type="button"
-                      className="sga__btn flex items-center justify-center rounded-full p-0"
-                    >
-                      <PanelLeftOpen
-                        className="text-primary stroke-2"
-                        style={{ width: "24px" }}
-                      />
-                    </button>
-                  </Tooltip>
+                  <button
+                    type="button"
+                    className="sga__btn flex items-center justify-center rounded-lg p-2 bg-primary text-white text-xs"
+                  >
+                    Report
+                  </button>
                 </div>
               </div>
 
@@ -705,9 +700,7 @@ const EventPreparationPage = () => {
               className={`ki-filled ${isUpdateOperation ? "ki-pencil" : "ki-save-2"}`}
             ></i>
             {isUpdateOperation ? "Update Menu" : "Save Menu"}
-            {currentFunctionData.isSaved && (
-              <span className="ml-2 text-xs">(Saved)</span>
-            )}
+            {currentFunctionData.isSaved}
           </button>
         </div>
 

@@ -53,6 +53,15 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
       cellClassName: "w-[6%] text-center",
     },
   },
+  {
+    accessorKey: "quotation",
+    header: "Quotation",
+    cell: ({ cell }) => cell.getValue(),
+    meta: {
+      headerClassName: "w-[6%] text-center",
+      cellClassName: "w-[6%] text-center",
+    },
+  },
 
   {
     accessorKey: "action",
@@ -89,18 +98,16 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
               </button>
             </Tooltip>
           </Popconfirm>
-          <Popconfirm
-            title="Are you sure to delete this item?"
-            onConfirm={() => onDelete(row.original.eventid)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip className="cursor-pointer">
-              <button className="btn btn-sm btn-icon btn-clear" title="Remove">
-                <i className="ki-filled ki-trash text-danger"></i>
-              </button>
-            </Tooltip>
-          </Popconfirm>
+          <Tooltip title="Delete Event">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Remove"
+              onClick={() => onDelete(row.original.eventid)}
+            >
+              <i className="ki-filled ki-trash text-danger"></i>
+            </button>
+          </Tooltip>
+
           <Tooltip title="Menu Preparation">
             <Link to={`/menu-preparation/${row.original.eventid}`}>
               <button
