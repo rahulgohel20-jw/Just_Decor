@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useReducer } from "react";
 import { useParams } from "react-router-dom";
 import {
   GetAllCategoryformenu,
@@ -126,6 +126,7 @@ const functionDataReducer = (state, action) => {
           itemRates: {},
           categoryNotes: {},
           categorySlogans: {},
+          itemCategories: {}, // Track category changes for items
           isSaved: false,
           pax: action.pax || 0,
           rate: action.rate || 0,
@@ -157,6 +158,10 @@ const functionDataReducer = (state, action) => {
           itemRates: {
             ...state[action.functionId]?.itemRates,
             ...action.itemRates,
+          },
+          itemCategories: {
+            ...state[action.functionId]?.itemCategories,
+            ...action.itemCategories,
           },
           isSaved: action.isSaved,
           pax: action.pax || state[action.functionId]?.pax,
@@ -217,13 +222,29 @@ const functionDataReducer = (state, action) => {
       };
 
     case "UPDATE_ITEM_CATEGORY":
-      return {
+      const updatedState = {
         ...state,
         [action.functionId]: {
           ...state[action.functionId],
+          itemCategories: {
+            ...state[action.functionId]?.itemCategories,
+            [action.itemId]: {
+              newCategoryId: action.newCategoryId,
+              newCategoryName: action.newCategoryName,
+            },
+          },
           isSaved: false,
         },
       };
+
+      console.log("Updated item category in state:", {
+        functionId: action.functionId,
+        itemId: action.itemId,
+        newCategory: action.newCategoryId,
+        state: updatedState[action.functionId].itemCategories,
+      });
+
+      return updatedState;
 
     case "MARK_SAVED":
       return {
@@ -390,6 +411,7 @@ const useMenuData = () => {
     loadFunctionMenuData,
     loadAllMenuDataForFunction,
     clearFunctionCache,
+    setAllMenuItems, // Export this for direct updates
   };
 };
 
@@ -419,7 +441,20 @@ const useSaveMenu = (
 
       const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
       const selectedItems = currentFunctionData.selectedItems
-        .map((id) => allFunctionMenuItems.find((item) => item.id === id))
+        .map((id) => {
+          let item = allFunctionMenuItems.find((item) => item.id === id);
+
+          // If item category was changed via drag and drop, use the new category
+          if (currentFunctionData.itemCategories?.[id]) {
+            const categoryChange = currentFunctionData.itemCategories[id];
+            item = {
+              ...item,
+              parentId: categoryChange.newCategoryId,
+            };
+          }
+
+          return item;
+        })
         .filter(Boolean);
 
       const existingId = menuPreparationIds[selectedFunctionId] || 0;
@@ -432,13 +467,10 @@ const useSaveMenu = (
 
           let itemRate;
           if (currentFunctionData.itemRates?.[itemId] !== undefined) {
-            // Case 3: User manually changed the price
             itemRate = Number(currentFunctionData.itemRates[itemId]);
           } else if (rate > 0) {
-            // Case 1: Default rate exists
             itemRate = Number(rate);
           } else {
-            // Case 2: Default rate is 0, use item price
             itemRate = Number(item?.price) || 0;
           }
 
@@ -451,17 +483,26 @@ const useSaveMenu = (
         eventFunctionId: selectedFunctionId,
         id: existingId,
         menuPreparationDetails: selectedItems.map((item, index) => {
-          const category = categories.find((cat) => cat.id === item.parentId);
+          // Use the updated category from drag and drop if available
+          let finalCategoryId = item.parentId;
+          let finalCategoryName = "";
+
+          if (currentFunctionData.itemCategories?.[item.id]) {
+            finalCategoryId =
+              currentFunctionData.itemCategories[item.id].newCategoryId;
+            finalCategoryName =
+              currentFunctionData.itemCategories[item.id].newCategoryName;
+          } else {
+            const category = categories.find((cat) => cat.id === item.parentId);
+            finalCategoryName = category?.name || "";
+          }
 
           let itemPrice;
           if (currentFunctionData.itemRates?.[item.id] !== undefined) {
-            // Case 3: User manually changed the price
             itemPrice = Number(currentFunctionData.itemRates[item.id]);
           } else if (rate > 0) {
-            // Case 1: Default rate exists
             itemPrice = Number(rate);
           } else {
-            // Case 2: Default rate is 0, use item price
             itemPrice = Number(item.price) || 0;
           }
 
@@ -470,15 +511,16 @@ const useSaveMenu = (
             itemNotes: currentFunctionData.itemNotes[item.id] || "",
             itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
             itemPrice: itemPrice,
-            itemSortOrder: index + 1,
-            menuNotes: currentFunctionData.categoryNotes?.[item.parentId] || "",
+            itemSortOrder: index,
+            menuNotes:
+              currentFunctionData.categoryNotes?.[finalCategoryId] || "",
             menuSlogan:
-              currentFunctionData.categorySlogans?.[item.parentId] || "",
-            menuCategoryId: item.parentId,
-            menuCategoryName: category?.name || "",
+              currentFunctionData.categorySlogans?.[finalCategoryId] || "",
+            menuCategoryId: finalCategoryId,
+            menuCategoryName: finalCategoryName,
             menuItemId: item.id,
             menuItemName: item.name,
-            menuSortOrder: index + 1,
+            menuSortOrder: index,
             startTime: dateandtime,
           };
         }),
@@ -487,7 +529,7 @@ const useSaveMenu = (
         sortorder: 0,
       };
 
-      console.log(payload, "data payload");
+      console.log(payload, "data payload with category changes");
 
       try {
         const res = await AddMenuprep(payload);

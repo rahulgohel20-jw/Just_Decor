@@ -14,7 +14,7 @@ import {
   DeleteFunctionType,
   GetFunctionsByFunctionName,
 } from "@/services/apiServices";
-
+import Swal from "sweetalert2";
 const FunctionsMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -59,7 +59,6 @@ const FunctionsMaster = () => {
       ),
     }));
 
-  // ✅ Fetch functions (all or by search)
   const fetchFunctions = (name = "") => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     const apiCall = name
@@ -105,13 +104,37 @@ const FunctionsMaster = () => {
   };
 
   const handleDelete = (functionId) => {
-    DeleteFunctionType(functionId) // direct API call
-      .then(() => {
-        fetchFunctions();
-      })
-      .catch((error) => {
-        console.error("Error deleting function:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteFunctionType(functionId)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              fetchFunctions();
+              Swal.fire({
+                title: "Removed!",
+                text: "Function has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting function:", error);
+          });
+      }
+    });
   };
 
   return (

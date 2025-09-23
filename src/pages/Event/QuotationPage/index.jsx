@@ -40,10 +40,10 @@ const QuotationPage = () => {
       },
     ],
     taxDetails: [
-      { label: "Discount", percentage: "", amount: "0.00" },
       { label: "CGST", percentage: "", amount: "0.00" },
       { label: "SGST", percentage: "", amount: "0.00" },
       { label: "IGST", percentage: "", amount: "0.00" },
+      { label: "Discount", percentage: "", amount: "0.00" },
     ],
     grandTotal: "0.00",
     advancePayment: {
@@ -139,11 +139,6 @@ const QuotationPage = () => {
 
             taxDetails: [
               {
-                label: "Discount",
-                percentage: "0",
-                amount: (quotationInfo.discount || 0).toFixed(2),
-              },
-              {
                 label: "CGST",
                 percentage: quotationInfo.cgst || "0",
                 amount: (quotationInfo.cgstAmnt || 0).toFixed(2),
@@ -157,6 +152,11 @@ const QuotationPage = () => {
                 label: "IGST",
                 percentage: quotationInfo.igst || "0",
                 amount: (quotationInfo.igstAmnt || 0).toFixed(2),
+              },
+              {
+                label: "Discount",
+                percentage: "0",
+                amount: (quotationInfo.discount || 0).toFixed(2),
               },
             ],
 
@@ -479,464 +479,502 @@ const QuotationPage = () => {
           .dark .user-access-bg {
             background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
           }
+          
+          /* Custom responsive table styles */
+          .responsive-table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          .responsive-table {
+            min-width: 100%;
+            width: max-content;
+          }
+          
+          /* Responsive breakpoints */
+          @media (max-width: 1200px) {
+            .responsive-table {
+              min-width: 1000px;
+            }
+          }
+          
+          @media (max-width: 768px) {
+            .responsive-table {
+              min-width: 800px;
+            }
+          }
         `}
       </style>
 
-      <Container>
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Quotation" }]} />
-        </div>
+      <div className="w-full overflow-x-hidden">
+        <Container>
+          <div className="gap-2 mb-3">
+            <Breadcrumbs items={[{ title: "Quotation" }]} />
+          </div>
 
-        {/* Event Details */}
-        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            <div className="flex flex-col gap-2.5">
-              <p className="text-lg font-semibold text-gray-900">
-                Event Name: {quotationData.eventName}
-              </p>
-              <div className="flex items-center gap-7">
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-user text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">Party name:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {quotationData.partyName}
-                    </span>
+          {/* Event Details */}
+          <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+            <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+              <div className="flex flex-col gap-2.5">
+                <p className="text-lg font-semibold text-gray-900">
+                  Event Name: {quotationData.eventName}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-user text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Party name:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {quotationData.partyName}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-geolocation-home text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">Venue name:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {quotationData.venueName}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-geolocation-home text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Venue name:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {quotationData.venueName}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">Event Date:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {quotationData.estimateDate}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Event Date:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {quotationData.estimateDate}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-phone text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">Mobile Number:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {quotationData.mobileNumber}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-phone text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Mobile Number:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {quotationData.mobileNumber}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">Quotation Date:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {todayDate}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Quotation Date:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {todayDate}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-row items-end gap-2">
-              <button className="btn btn-sm btn-primary" title="Print">
-                <i className="ki-filled ki-printer"></i> Print
-              </button>
-              <button className="btn btn-sm btn-primary" title="Share">
-                <i className="ki-filled ki-exit-right-corner"></i> Share
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Functions */}
-        <div className="card min-w-full mb-9">
-          <div className="flex flex-col flex-1">
-            <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
-              <div className="flex flex-wrap justify-between items-center gap-5 p-4 relative">
-                <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-6"></i>
-                <input
-                  className="input pl-8 w-[300px]"
-                  placeholder="Search function"
-                  type="text"
-                />
-                <button
-                  className="btn btn-sm btn-primary"
-                  title="Add Function"
-                  onClick={handleAddFunction}
-                >
-                  <i className="ki-filled ki-plus"></i> Add Function
+              <div className="flex flex-row items-end gap-2">
+                <button className="btn btn-sm btn-primary" title="Print">
+                  <i className="ki-filled ki-printer"></i> Print
+                </button>
+                <button className="btn btn-sm btn-primary" title="Share">
+                  <i className="ki-filled ki-exit-right-corner"></i> Share
                 </button>
               </div>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-1 w-full">
-              <div className="flex items-center bg-gray-100 font-bold border-y border-gray-200 py-3 px-2">
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[80px]">
-                  No.
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[220px]">
-                  Function
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[220px]">
-                  Date
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[170px]">
-                  Person
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[170px]">
-                  Extra
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[170px]">
-                  Rate
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 w-[170px]">
-                  Total Price
-                </div>
-                <div className="text-sm font-semibold text-gray-900 px-2 text-center flex-auto">
-                  Action
-                </div>
-              </div>
-
-              {quotationData.functions.map((fn, index) => (
-                <div
-                  key={fn.id}
-                  className="flex items-center border-b border-gray-200 py-3 px-2"
-                >
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[80px]">
-                    {index + 1}
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[220px]">
-                    <input
-                      className="input"
-                      value={fn.name}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "name", e.target.value)
-                      }
-                      placeholder="Function"
-                      type="text"
-                      readOnly={fn.isFromQuotationItems}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[220px]">
-                    <DatePicker
-                      showTime={{ use12Hours: true, format: "hh:mm A" }}
-                      format="DD/MM/YYYY hh:mm A"
-                      value={fn.date}
-                      onChange={(date) =>
-                        handleFunctionChange(index, "date", date)
-                      }
-                      placeholder="Select date & time"
-                      disabled={fn.isFromQuotationItems}
-                      className={`input ${classes.customDatePicker}`}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
-                    <input
-                      className="input"
-                      value={fn.persons}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "persons", e.target.value)
-                      }
-                      placeholder="Pax"
-                      type="number"
-                      min="0"
-                      readOnly={fn.isFromQuotationItems}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
-                    <input
-                      className="input"
-                      value={fn.extra}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "extra", e.target.value)
-                      }
-                      placeholder="Extra"
-                      type="number"
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
-                    <input
-                      className="input"
-                      value={fn.rate}
-                      onChange={(e) =>
-                        handleFunctionChange(index, "rate", e.target.value)
-                      }
-                      placeholder="Rate"
-                      type="number"
-                      min="0"
-                      step="0"
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-[170px]">
-                    <input
-                      className="input"
-                      value={fn.totalPrice}
-                      onChange={(e) =>
-                        handleFunctionChange(
-                          index,
-                          "totalPrice",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Total Price"
-                      type="number"
-                      min="0"
-                      step="0"
-                      readOnly={fn.isFromQuotationItems}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 px-2 w-auto text-center flex-auto">
-                    <Tooltip
-                      title={
-                        fn.isFromQuotationItems
-                          ? "Cannot delete function from quotation items"
-                          : "Delete item"
-                      }
-                    >
-                      <Popconfirm
-                        title="Are you sure to delete this item?"
-                        onConfirm={() => handleDeleteFunction(fn.id, index)}
-                        okText="Yes"
-                        cancelText="No"
-                        disabled={fn.isFromQuotationItems}
-                      >
-                        <button
-                          disabled={fn.isFromQuotationItems}
-                          className={`btn btn-sm btn-icon btn-clear btn-danger ${
-                            fn.isFromQuotationItems
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          <KeenIcon icon="trash" />
-                        </button>
-                      </Popconfirm>
-                    </Tooltip>
-                  </div>
-                </div>
-              ))}
-
-              <div className="relative py-4">
-                <div className="absolute left-0 right-0 -bottom-4 text-center">
+          {/* Functions */}
+          <div className="card min-w-full mb-9">
+            <div className="flex flex-col flex-1">
+              <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
+                <div className="flex flex-wrap justify-between items-center gap-5 p-4 relative">
+                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-6"></i>
+                  <input
+                    className="input pl-8 w-[300px]"
+                    placeholder="Search function"
+                    type="text"
+                  />
                   <button
-                    className="btn btn-sm btn-success rounded-full"
-                    title="Add Item"
+                    className="btn btn-sm btn-primary"
+                    title="Add Function"
                     onClick={handleAddFunction}
                   >
                     <i className="ki-filled ki-plus"></i> Add Function
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Estimate Summary */}
-        <div className="card min-w-full mb-7">
-          <div className="flex flex-col flex-1">
-            <div className="rtl:[background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
-              <h3 className="text-lg font-semibold leading-none text-gray-900 p-4">
-                Estimate Summary
-              </h3>
-            </div>
+              <div className="responsive-table-container">
+                <div className="responsive-table">
+                  <div className="flex items-center justify-between bg-gray-100 font-bold border-y border-gray-200 py-3 px-2">
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-16 flex-shrink-0">
+                      No.
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
+                      Function
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
+                      Date
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      Person
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      Extra
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      Rate
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      Total Price
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-24 flex-shrink-0 text-center">
+                      Action
+                    </div>
+                  </div>
 
-            <div className="flex flex-col w-full">
-              {/* Subtotal Row */}
-              <div className="flex items-center justify-between border-t border-gray-200 py-3 px-2">
-                <div className="text-base font-normal text-gray-700 px-2">
-                  Subtotal
-                </div>
-                <div className="text-base font-semibold text-gray-900 px-2">
-                  &#8377; {totals.subtotal}
+                  {quotationData.functions.map((fn, index) => (
+                    <div
+                      key={fn.id}
+                      className="flex items-center justify-between border-b border-gray-200 py-3 px-2"
+                    >
+                      <div className="text-sm font-medium text-gray-700 px-2 w-16 flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-48 flex-shrink-0">
+                        <input
+                          className="input w-full"
+                          value={fn.name}
+                          onChange={(e) =>
+                            handleFunctionChange(index, "name", e.target.value)
+                          }
+                          placeholder="Function"
+                          type="text"
+                          readOnly={fn.isFromQuotationItems}
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-48 flex-shrink-0">
+                        <DatePicker
+                          showTime={{ use12Hours: true, format: "hh:mm A" }}
+                          format="DD/MM/YYYY hh:mm A"
+                          value={fn.date}
+                          onChange={(date) =>
+                            handleFunctionChange(index, "date", date)
+                          }
+                          placeholder="Select date & time"
+                          disabled={fn.isFromQuotationItems}
+                          className={`input w-full ${classes.customDatePicker}`}
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
+                        <input
+                          className="input w-full"
+                          value={fn.persons}
+                          onChange={(e) =>
+                            handleFunctionChange(
+                              index,
+                              "persons",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Pax"
+                          type="number"
+                          min="0"
+                          readOnly={fn.isFromQuotationItems}
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
+                        <input
+                          className="input w-full"
+                          value={fn.extra}
+                          onChange={(e) =>
+                            handleFunctionChange(index, "extra", e.target.value)
+                          }
+                          placeholder="Extra"
+                          type="number"
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
+                        <input
+                          className="input w-full"
+                          value={fn.rate}
+                          onChange={(e) =>
+                            handleFunctionChange(index, "rate", e.target.value)
+                          }
+                          placeholder="Rate"
+                          type="number"
+                          min="0"
+                          step="0"
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
+                        <input
+                          className="input w-full"
+                          value={fn.totalPrice}
+                          onChange={(e) =>
+                            handleFunctionChange(
+                              index,
+                              "totalPrice",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Total Price"
+                          type="number"
+                          min="0"
+                          step="0"
+                          readOnly={fn.isFromQuotationItems}
+                        />
+                      </div>
+                      <div className="text-sm font-medium text-gray-700 px-2 w-24 flex-shrink-0 text-center">
+                        <Tooltip
+                          title={
+                            fn.isFromQuotationItems
+                              ? "Cannot delete function from quotation items"
+                              : "Delete item"
+                          }
+                        >
+                          <Popconfirm
+                            title="Are you sure to delete this item?"
+                            onConfirm={() => handleDeleteFunction(fn.id, index)}
+                            okText="Yes"
+                            cancelText="No"
+                            disabled={fn.isFromQuotationItems}
+                          >
+                            <button
+                              disabled={fn.isFromQuotationItems}
+                              className={`btn btn-sm btn-icon btn-clear btn-danger ${
+                                fn.isFromQuotationItems
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                            >
+                              <KeenIcon icon="trash" />
+                            </button>
+                          </Popconfirm>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="relative py-4 mb-9">
+                    <div className="absolute left-0 right-0 -bottom-4 text-center">
+                      <button
+                        className="btn btn-sm btn-success rounded-full"
+                        title="Add Item"
+                        onClick={handleAddFunction}
+                      >
+                        <i className="ki-filled ki-plus"></i> Add Function
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
-                {quotationData.taxDetails.map((tax, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between py-1"
-                  >
-                    <div className="text-base font-normal text-gray-700">
-                      {tax.label}
-                    </div>
-                    <div className="flex items-center input text-base text-gray-900 w-[200px]">
-                      {tax.label === "CGST" ||
-                      tax.label === "SGST" ||
-                      tax.label === "IGST" ? (
-                        <>
+          {/* Estimate Summary */}
+          <div className="card min-w-full mb-7">
+            <div className="flex flex-col flex-1">
+              <div className="rtl:[background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
+                <h3 className="text-lg font-semibold leading-none text-gray-900 p-4">
+                  Estimate Summary
+                </h3>
+              </div>
+
+              <div className="flex flex-col w-full">
+                {/* Subtotal Row */}
+                <div className="flex items-center justify-between border-t border-gray-200 py-3 px-2">
+                  <div className="text-base font-normal text-gray-700 px-2">
+                    Subtotal
+                  </div>
+                  <div className="text-base font-semibold text-gray-900 px-2">
+                    &#8377; {totals.subtotal}
+                  </div>
+                </div>
+
+                <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
+                  {quotationData.taxDetails.map((tax, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between py-1"
+                    >
+                      <div className="text-base font-normal text-gray-700">
+                        {tax.label}
+                      </div>
+                      <div className="flex items-center input text-base text-gray-900 w-[200px]">
+                        {tax.label === "CGST" ||
+                        tax.label === "SGST" ||
+                        tax.label === "IGST" ? (
+                          <>
+                            <input
+                              className="h-full text-gray-900 w-[60px]"
+                              value={tax.percentage}
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              onChange={(e) =>
+                                handleTaxChange(
+                                  idx,
+                                  "percentage",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <span className="text-gray-500">%</span>
+                            <span className="ml-3">
+                              &#8377;{" "}
+                              {tax.label === "CGST"
+                                ? totals.cgstAmount
+                                : tax.label === "SGST"
+                                  ? totals.sgstAmount
+                                  : tax.label === "IGST"
+                                    ? totals.igstAmount
+                                    : tax.amount}
+                            </span>
+                          </>
+                        ) : (
                           <input
-                            className="h-full text-gray-900 w-[20px]"
-                            value={tax.percentage}
+                            className="h-full text-gray-900 w-[80px]"
+                            value={tax.amount}
                             type="number"
                             step="0.01"
                             min="0"
                             placeholder="0.00"
                             onChange={(e) =>
-                              handleTaxChange(idx, "percentage", e.target.value)
+                              handleTaxChange(idx, "amount", e.target.value)
                             }
                           />
-                          <span className="text-gray-500">%</span>
-                          <span className="ml-3">
-                            &#8377;{" "}
-                            {tax.label === "CGST"
-                              ? totals.cgstAmount
-                              : tax.label === "SGST"
-                                ? totals.sgstAmount
-                                : tax.label === "IGST"
-                                  ? totals.igstAmount
-                                  : tax.amount}
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between py-5 px-2">
+                  <div className="text-xl font-bold text-primary px-2">
+                    Grand Total
+                  </div>
+                  <div className="text-lg font-bold text-primary px-2">
+                    &#8377; {totals.grandTotal}
+                  </div>
+                </div>
+
+                {/* Single Advance Payment Section */}
+                <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
+                  <div className="text-base font-semibold text-gray-900 pb-2">
+                    Payment Details
+                  </div>
+
+                  <div className="flex gap-5 py-3">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
+                      <i className="ki-filled ki-check text-white"></i>
+                    </div>
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="text-base font-normal text-gray-700">
+                          Advance Payment
+                        </div>
+                        <div className="flex items-center input text-base text-gray-900 w-full sm:w-[140px]">
+                          <span className="text-base font-semibold text-gray-900">
+                            &#8377;
                           </span>
-                        </>
-                      ) : (
-                        <input
-                          className="h-full text-gray-900 w-[80px]"
-                          value={tax.amount}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          onChange={(e) =>
-                            handleTaxChange(idx, "amount", e.target.value)
-                          }
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between py-5 px-2">
-                <div className="text-xl font-bold text-primary px-2">
-                  Grand Total
-                </div>
-                <div className="text-lg font-bold text-primary px-2">
-                  &#8377; {totals.grandTotal}
-                </div>
-              </div>
-
-              {/* Single Advance Payment Section */}
-              <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
-                <div className="text-base font-semibold text-gray-900 pb-2">
-                  Payment Details
-                </div>
-
-                <div className="flex gap-5 py-3">
-                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
-                    <i className="ki-filled ki-check text-white"></i>
-                  </div>
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="flex items-center justify-between">
-                      <div className="text-base font-normal text-gray-700">
-                        Advance Payment
-                      </div>
-                      <div className="input text-base text-gray-900 w-[140px]">
-                        <span className="text-base font-semibold text-gray-900">
-                          &#8377;
-                        </span>
-                        <input
-                          className="h-full text-gray-900 w-full"
-                          value={quotationData.advancePayment.amount}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          onChange={(e) => {
-                            handleAdvancePaymentChange(
-                              "amount",
-                              e.target.value
-                            );
-                          }}
-                          placeholder="0.00"
-                        />
-                      </div>
-                    </div>
-                    <div
-                      className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
-                      onClick={() =>
-                        document.getElementById("advance-payment-date").focus()
-                      }
-                    >
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-3 w-[250px]">
-                          <i className="ki-filled ki-calendar text-gray-500"></i>
-                          <DatePicker
-                            className="input"
-                            showTime={{ use12Hours: true, format: "hh:mm A" }}
-                            format="DD/MM/YYYY hh:mm A"
-                            value={quotationData.advancePayment.date}
-                            onChange={(date) =>
-                              handleAdvancePaymentChange("date", date)
-                            }
-                            placeholder="Payment date & time"
-                            style={{ width: "200px" }}
-                          />
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <i className="ki-filled ki-notepad text-gray-500"></i>
                           <input
-                            className="flex-1 mt-2 input text-xs font-normal text-gray-700 bg-transparent "
-                            value={quotationData.advancePayment.description}
-                            onChange={(e) =>
+                            className="h-full text-gray-900 w-full"
+                            value={quotationData.advancePayment.amount}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            onChange={(e) => {
                               handleAdvancePaymentChange(
-                                "description",
+                                "amount",
                                 e.target.value
-                              )
-                            }
-                            placeholder="Payment description"
-                            type="text"
+                              );
+                            }}
+                            placeholder="0.00"
                           />
+                        </div>
+                      </div>
+                      <div
+                        className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
+                        onClick={() =>
+                          document
+                            .getElementById("advance-payment-date")
+                            .focus()
+                        }
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <i className="ki-filled ki-calendar text-gray-500"></i>
+                            <DatePicker
+                              className="input w-full sm:w-[200px]"
+                              showTime={{ use12Hours: true, format: "hh:mm A" }}
+                              format="DD/MM/YYYY hh:mm A"
+                              value={quotationData.advancePayment.date}
+                              onChange={(date) =>
+                                handleAdvancePaymentChange("date", date)
+                              }
+                              placeholder="Payment date & time"
+                            />
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <i className="ki-filled ki-notepad text-gray-500"></i>
+                            <input
+                              className="flex-1 mt-2 input text-xs font-normal text-gray-700 bg-transparent w-full"
+                              value={quotationData.advancePayment.description}
+                              onChange={(e) =>
+                                handleAdvancePaymentChange(
+                                  "description",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Payment description"
+                              type="text"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between py-5 px-2">
-                <div className="text-lg font-bold text-success px-2">
-                  Total Paid
+                <div className="flex items-center justify-between py-5 px-2">
+                  <div className="text-lg font-bold text-success px-2">
+                    Total Paid
+                  </div>
+                  <div className="text-base font-bold text-success px-2">
+                    &#8377; {totals.totalPaid}
+                  </div>
                 </div>
-                <div className="text-base font-bold text-success px-2">
-                  &#8377; {totals.totalPaid}
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between border-y border-orange-100 border-dashed bg-orange-50 py-7 px-2">
-                <div className="text-xl font-bold text-orange-700 px-2">
-                  <i className="ki-filled ki-notification-on"></i> Remaining
-                  Payment
+                <div className="flex items-center justify-between border-y border-orange-100 border-dashed bg-orange-50 py-7 px-2">
+                  <div className="text-xl font-bold text-orange-700 px-2">
+                    <i className="ki-filled ki-notification-on"></i> Remaining
+                    Payment
+                  </div>
+                  <div className="text-lg font-bold text-orange-700 px-2">
+                    &#8377; {totals.remainingPayment}
+                  </div>
                 </div>
-                <div className="text-lg font-bold text-orange-700 px-2">
-                  &#8377; {totals.remainingPayment}
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between font-bold py-5 px-4">
-                <input
-                  className="input w-[500px]"
-                  placeholder="Add notes"
-                  value={quotationData.notes}
-                  onChange={handleNotesChange}
-                  type="text"
-                />
-                <button
-                  className="btn btn-success"
-                  title="Save"
-                  onClick={handleSaveNotes}
-                >
-                  <i className="ki-filled ki-save-2"></i> Save
-                </button>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-4">
+                  <input
+                    className="input w-full sm:w-[500px]"
+                    placeholder="Add notes"
+                    value={quotationData.notes}
+                    onChange={handleNotesChange}
+                    type="text"
+                  />
+                  <button
+                    className="btn btn-success w-full sm:w-auto"
+                    title="Save"
+                    onClick={handleSaveNotes}
+                  >
+                    <i className="ki-filled ki-save-2"></i> Save
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
     </Fragment>
   );
 };

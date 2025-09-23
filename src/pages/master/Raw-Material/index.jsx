@@ -55,33 +55,37 @@ const RawMaterial = () => {
   };
 
   const DeleteRawMaterial = (raw_material_id) => {
-    if (window.confirm("Are you sure you want to delete this raw material?")) {
-      Deleterawmaterial(raw_material_id)
-        .then((res) => {
-          if (res.data?.msg) {
-            Swal.fire({
-              title: `${res.data?.msg}`,
-              text: "",
-              icon: "success",
-              background: "#f5faff",
-              color: "#003f73",
-              confirmButtonText: "Okay",
-              confirmButtonColor: "#005BA8",
-              showClass: {
-                popup: `
-                animate__animated
-                animate__fadeInDown
-                animate__faster
-              `,
-              },
-            });
-          }
-          FetchRawMaterial();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Deleterawmaterial(raw_material_id)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchRawMaterial();
+              Swal.fire({
+                title: "Removed!",
+                text: "Raw material has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
 
   const handleEdit = (raw_material_id) => {

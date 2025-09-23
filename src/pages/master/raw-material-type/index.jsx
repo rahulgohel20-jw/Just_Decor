@@ -9,7 +9,7 @@ import {
   SearchContactCategory,
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
-
+import Swal from "sweetalert2";
 import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 
 const RawMaterialType = () => {
@@ -72,16 +72,38 @@ const RawMaterialType = () => {
       });
   };
 
-  const DeleteEventtype = (rawid) => {
-    if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteRawType(rawid)
-        .then(() => {
-          FetchRawTypeCategory();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+  const DeleteRawMaterialType = (rawid) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteRawType(rawid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchRawTypeCategory();
+              Swal.fire({
+                title: "Removed!",
+                text: "Raw Material Type has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
   const statusmenuitem = async (rawid, currentStatus) => {
     try {
@@ -140,7 +162,7 @@ const RawMaterialType = () => {
           rawdata={selectedRawCategory}
         />
         <TableComponent
-          columns={columns(handleEdit, DeleteEventtype, statusmenuitem)}
+          columns={columns(handleEdit, DeleteRawMaterialType, statusmenuitem)}
           data={tableData}
           paginationSize={10}
         />

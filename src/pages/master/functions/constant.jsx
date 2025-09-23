@@ -1,7 +1,6 @@
 import { Popconfirm, Tooltip, message } from "antd";
 
-
-export const columns = (onEdit, onDelete ) => [
+export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -38,34 +37,27 @@ export const columns = (onEdit, onDelete ) => [
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
- 
-
       return (
         <div className="flex items-center justify-center gap-1">
-           <Tooltip className="cursor-pointer" title="Edit Function">
+          <Tooltip className="cursor-pointer" title="Edit Function">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
-                    onClick={() =>onEdit(row.original)}
+              onClick={() => onEdit(row.original)}
             >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
-          <Popconfirm
-  title="Are you sure to delete this function?"
-  onConfirm={() => onDelete(row.original.id)}   // ✅ confirm triggers delete
-  okText="Yes"
-  cancelText="No"
->
-  <Tooltip title="Delete">
-    <button className="btn btn-sm btn-icon btn-clear" title="Delete">
-      <i className="ki-filled ki-trash text-danger"></i>
-    </button>
-  </Tooltip>
-</Popconfirm>
-
-
+          <Tooltip title="Delete">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Delete"
+              onClick={() => onDelete(row.original.id)}
+            >
+              <i className="ki-filled ki-trash text-danger"></i>
+            </button>
+          </Tooltip>
         </div>
       );
     },

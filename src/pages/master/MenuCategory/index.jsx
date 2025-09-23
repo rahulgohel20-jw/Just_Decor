@@ -4,8 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
-
-
+import Swal from "sweetalert2";
 import {
   GetAllCategory,
   DeleteCategoryId,
@@ -29,7 +28,7 @@ const MenuCategory = () => {
           (item, index) => ({
             ...item,
             sr_no: index + 1,
-            imagePath: item.imagePath?.replace("jcupload", "uploads")||"",
+            imagePath: item.imagePath?.replace("jcupload", "uploads") || "",
           })
         );
 
@@ -41,14 +40,37 @@ const MenuCategory = () => {
   };
 
   const DeleteCategory = (id) => {
-    DeleteCategoryId(id)
-      .then((res) => {
-        FetchCategoryData();
-        res.data?.msg && successMsgPopup(res.data.msg);
-      })
-      .catch((error) => {
-        console.error("Error deleting Event type:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteCategoryId(id)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchCategoryData();
+              Swal.fire({
+                title: "Removed!",
+                text: "Menu Category has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
 
   const statusCategory = (id, status) => {
@@ -61,7 +83,7 @@ const MenuCategory = () => {
         console.error("Error deleting Event type:", error);
       });
   };
-  
+
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);

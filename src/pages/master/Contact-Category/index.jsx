@@ -9,7 +9,7 @@ import {
   SearchContactCategory,
 } from "@/services/apiServices";
 import useStyle from "./style";
-
+import Swal from "sweetalert2";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 
 const ContactCategoryMaster = () => {
@@ -76,17 +76,37 @@ const ContactCategoryMaster = () => {
   };
 
   const DeleteEventtype = (contactid) => {
-    console.log(contactid);
-
-    if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteContactCategory(contactid)
-        .then(() => {
-          FetchConatctCategory();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteContactCategory(contactid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchConatctCategory();
+              Swal.fire({
+                title: "Removed!",
+                text: "Contact category has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
 
   const handleEdit = (event) => {

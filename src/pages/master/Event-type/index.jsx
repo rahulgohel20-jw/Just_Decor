@@ -9,6 +9,7 @@ import {
   DeleteEventType,
   SearchEventType,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 const EventTypeMaster = () => {
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -67,15 +68,37 @@ const EventTypeMaster = () => {
   };
 
   const DeleteEventtype = (eventid) => {
-    if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteEventType(eventid)
-        .then(() => {
-          FetchEventType();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteEventType(eventid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchEventType();
+              Swal.fire({
+                title: "Removed!",
+                text: "Event has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
   const handleEdit = (event) => {
     setSelectedEvent(event);

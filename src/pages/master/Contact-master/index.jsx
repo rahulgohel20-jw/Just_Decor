@@ -4,13 +4,13 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
-  GetAllContactType, DeleteContactTypeMaster,updateContactTypeStatus
-  
+  GetAllContactType,
+  DeleteContactTypeMaster,
+  updateContactTypeStatus,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddContactType from "@/partials/modals/add-contact-type/AddContactType";
-
-
+import Swal from "sweetalert2";
 
 const ContactTypeMaster = () => {
   const classes = useStyle();
@@ -53,7 +53,7 @@ const ContactTypeMaster = () => {
   }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
-  console.log("userData",userData);
+  console.log("userData", userData);
   let Id = userData.id;
   const FetchContactType = () => {
     GetAllContactType(Id)
@@ -65,7 +65,6 @@ const ContactTypeMaster = () => {
             contact_type: cust.nameEnglish || "-",
             contacttypeid: cust.id,
             isActive: cust.isActive,
-           
           })
         );
 
@@ -77,24 +76,43 @@ const ContactTypeMaster = () => {
   };
 
   const DeleteContactType = (contacttypeid) => {
-    console.log("contactis",contacttypeid);
-
-    if (window.confirm("Are you sure you want to delete this Contact type?")) {
-      DeleteContactTypeMaster(contacttypeid)
-        .then(() => {
-          FetchContactType();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteContactTypeMaster(contacttypeid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchContactType();
+              Swal.fire({
+                title: "Removed!",
+                text: "Contact type has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
 
   const handleEdit = (event) => {
     console.log("Editing contact type:", event);
     setSelectedcontactType(event);
     setIsContactModalOpen(true);
-    
   };
 
   const statusCategory = (id, status) => {
@@ -134,9 +152,10 @@ const ContactTypeMaster = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => {setIsContactModalOpen(true);
-                                setSelectedcontactType(null);}
-              }
+              onClick={() => {
+                setIsContactModalOpen(true);
+                setSelectedcontactType(null);
+              }}
               title="Add Contact Category"
             >
               <i className="ki-filled ki-plus"></i> Add Contact Type
@@ -144,14 +163,14 @@ const ContactTypeMaster = () => {
           </div>
         </div>
         <AddContactType
-  isOpen={isContactModalOpen}
-  onClose={setIsContactModalOpen}
-  refreshData={FetchContactType}
-  contactType={selectedcontactType}
-/>
+          isOpen={isContactModalOpen}
+          onClose={setIsContactModalOpen}
+          refreshData={FetchContactType}
+          contactType={selectedcontactType}
+        />
 
         <TableComponent
-          columns={columns(handleEdit, DeleteContactType,statusCategory)}
+          columns={columns(handleEdit, DeleteContactType, statusCategory)}
           data={tableData}
           paginationSize={10}
         />

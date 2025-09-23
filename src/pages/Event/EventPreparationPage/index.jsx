@@ -43,6 +43,7 @@ const EventPreparationPage = () => {
     loadFunctionMenuData,
     loadAllMenuDataForFunction,
     clearFunctionCache,
+    setAllMenuItems,
   } = useMenuData();
   const [functionSelectionData, dispatch] = useReducer(functionDataReducer, {});
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
@@ -314,42 +315,32 @@ const EventPreparationPage = () => {
 
   // New function to handle item category changes via drag and drop
   const handleItemCategoryChange = (itemId, newCategoryId, newCategoryName) => {
-    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-    const item = allFunctionMenuItems.find(
-      (menuItem) => menuItem.id === itemId
-    );
+    console.log("handleItemCategoryChange called:", {
+      itemId,
+      newCategoryId,
+      newCategoryName,
+      selectedFunctionId,
+    });
 
-    if (!item) return;
-
-    // Update the item's parentId in the allMenuItems
-    const updatedItems = allFunctionMenuItems.map((menuItem) =>
-      menuItem.id === itemId
-        ? { ...menuItem, parentId: newCategoryId }
-        : menuItem
-    );
-
-    // Update the allMenuItems state
-    const updatedAllMenuItems = {
-      ...allMenuItems,
-      [selectedFunctionId]: updatedItems,
-    };
-
-    // Dispatch to update the local state (this would need to be added to your reducer)
+    // Update the reducer to track the category change
     dispatch({
       type: "UPDATE_ITEM_CATEGORY",
       functionId: selectedFunctionId,
       itemId: itemId,
       newCategoryId: newCategoryId,
-      allMenuItems: updatedAllMenuItems,
+      newCategoryName: newCategoryName,
     });
 
-    // Mark as unsaved since we made changes
-    dispatch({
-      type: "UPDATE_NOTES",
-      functionId: selectedFunctionId,
-      noteType: "isSaved",
-      value: false,
-    });
+    // Update allMenuItems to reflect the category change for UI purposes
+    const updatedAllMenuItems = {
+      ...allMenuItems,
+      [selectedFunctionId]: allMenuItems[selectedFunctionId].map((item) =>
+        item.id === itemId ? { ...item, parentId: newCategoryId } : item
+      ),
+    };
+
+    // Use the setAllMenuItems function from useMenuData
+    setAllMenuItems(updatedAllMenuItems);
   };
 
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;

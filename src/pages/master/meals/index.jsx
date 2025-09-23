@@ -9,7 +9,7 @@ import {
   DeleteMealType,
   SearchMealtype,
 } from "@/services/apiServices";
-
+import Swal from "sweetalert2";
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 
 const MealMaster = () => {
@@ -72,15 +72,37 @@ const MealMaster = () => {
   };
 
   const DeleteMealtype = (mealid) => {
-    if (window.confirm("Are you sure you want to delete this customer?")) {
-      DeleteMealType(mealid)
-        .then(() => {
-          FetchMealType();
-        })
-        .catch((error) => {
-          console.error("Error deleting customer:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteMealType(mealid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchMealType();
+              Swal.fire({
+                title: "Removed!",
+                text: "Meal has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting customer:", error);
+          });
+      }
+    });
   };
 
   const handleEdit = (meal) => {

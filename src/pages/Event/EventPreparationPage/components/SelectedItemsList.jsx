@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Tooltip } from "antd";
 import {
   DndContext,
@@ -7,6 +8,7 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -15,10 +17,6 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
 
 const DraggableItem = ({
   item,
@@ -37,7 +35,7 @@ const DraggableItem = ({
     transition,
     isDragging,
   } = useSortable({
-    id: item.id,
+    id: `item-${item.id}`,
     data: {
       type: "item",
       item,
@@ -132,6 +130,15 @@ const DroppableCategory = ({
   onCategoryNoteClick,
   onRemoveItem,
 }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: `category-${categoryId}`,
+    data: {
+      type: "category",
+      categoryId,
+      categoryName,
+    },
+  });
+
   return (
     <div className="mb-2">
       <div className="flex items-center justify-between gap-2 mb-1">
@@ -147,31 +154,44 @@ const DroppableCategory = ({
           </Tooltip>
         </span>
       </div>
-      <ul className="bg-white rounded border shadow-sm min-h-[60px] relative">
+      <div
+        ref={setNodeRef}
+        className={`bg-white rounded border shadow-sm min-h-[60px] relative transition-colors duration-200 ${
+          isOver ? "border-blue-400 bg-blue-50" : ""
+        }`}
+      >
         <SortableContext
-          items={items.map((item) => item.id)}
+          items={items.map((item) => `item-${item.id}`)}
           strategy={verticalListSortingStrategy}
         >
           {items.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 text-xs border-2 border-dashed border-gray-200 rounded">
-              Drop items here
+            <div
+              className={`p-4 text-center text-xs border-2 border-dashed rounded transition-colors duration-200 ${
+                isOver
+                  ? "border-blue-400 text-blue-600 bg-blue-50"
+                  : "border-gray-200 text-gray-400"
+              }`}
+            >
+              {isOver ? "Drop item here" : "Drop items here"}
             </div>
           ) : (
-            items.map((item) => (
-              <DraggableItem
-                key={item.id}
-                item={item}
-                showDetails={showDetails}
-                currentFunctionData={currentFunctionData}
-                rate={rate}
-                onItemRateChange={onItemRateChange}
-                onNoteClick={onNoteClick}
-                onRemoveItem={onRemoveItem}
-              />
-            ))
+            <ul>
+              {items.map((item) => (
+                <DraggableItem
+                  key={item.id}
+                  item={item}
+                  showDetails={showDetails}
+                  currentFunctionData={currentFunctionData}
+                  rate={rate}
+                  onItemRateChange={onItemRateChange}
+                  onNoteClick={onNoteClick}
+                  onRemoveItem={onRemoveItem}
+                />
+              ))}
+            </ul>
           )}
         </SortableContext>
-      </ul>
+      </div>
     </div>
   );
 };
@@ -188,6 +208,9 @@ const SelectedItemsList = ({
   onItemCategoryChange,
   categories = [],
 }) => {
+  const [activeId, setActiveId] = useState(null);
+  const [activeItem, setActiveItem] = useState(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -207,87 +230,138 @@ const SelectedItemsList = ({
     );
   }
 
+  const handleDragStart = (event) => {
+    const { active } = event;
+    setActiveId(active.id);
+
+    // Extract item ID from the active ID (remove 'item-' prefix)
+    const itemId = active.id.toString().replace("item-", "");
+    const draggedItem = Object.values(selectedItemsByCategory)
+      .flat()
+      .find((item) => item.id == itemId);
+
+    setActiveItem(draggedItem);
+  };
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
+    setActiveId(null);
+    setActiveItem(null);
 
     if (!over) return;
 
-    const activeId = active.id;
+    const activeItemId = active.id.toString().replace("item-", "");
     const overId = over.id;
 
     const draggedItem = Object.values(selectedItemsByCategory)
       .flat()
-      .find((item) => item.id === activeId);
+      .find((item) => item.id == activeItemId);
 
     if (!draggedItem) return;
 
     let targetCategoryId = null;
     let targetCategoryName = null;
 
-    const targetItem = Object.values(selectedItemsByCategory)
-      .flat()
-      .find((item) => item.id === overId);
+    if (over.data?.current?.type === "category") {
+      targetCategoryId = over.data.current.categoryId;
+      targetCategoryName = over.data.current.categoryName;
+    } else if (overId.toString().startsWith("item-")) {
+      const targetItemId = overId.toString().replace("item-", "");
+      const targetItem = Object.values(selectedItemsByCategory)
+        .flat()
+        .find((item) => item.id == targetItemId);
 
-    if (targetItem) {
-      targetCategoryId = targetItem.parentId;
-      const targetCategory = categories.find(
-        (cat) => cat.id === targetCategoryId
-      );
-      targetCategoryName = targetCategory?.name || "Uncategorized";
-    } else {
-      Object.entries(selectedItemsByCategory).forEach(([catName, items]) => {
-        if (items.length === 0) {
-          const category = categories.find((cat) => cat.name === catName);
-          if (category) {
-            targetCategoryId = category.id;
-            targetCategoryName = catName;
-          }
-        }
-      });
+      if (targetItem) {
+        targetCategoryId = targetItem.parentId;
+        const targetCategory = categories.find(
+          (cat) => cat.id === targetCategoryId
+        );
+        targetCategoryName = targetCategory?.name || "Uncategorized";
+      }
     }
 
-    if (targetCategoryId && targetCategoryId !== draggedItem.parentId) {
+    if (
+      targetCategoryId !== null &&
+      targetCategoryId !== draggedItem.parentId
+    ) {
+      console.log("Moving item:", {
+        itemId: activeItemId,
+        fromCategory: draggedItem.parentId,
+        toCategory: targetCategoryId,
+        toCategoryName: targetCategoryName,
+      });
+
       if (onItemCategoryChange) {
-        onItemCategoryChange(activeId, targetCategoryId, targetCategoryName);
+        onItemCategoryChange(
+          parseInt(activeItemId),
+          targetCategoryId,
+          targetCategoryName
+        );
       }
     }
   };
+
+  const categoryContainers = categories
+    .filter((cat) => cat.id !== 0)
+    .map((category) => {
+      const categoryItems = selectedItemsByCategory[category.name] || [];
+      return {
+        categoryName: category.name,
+        categoryId: category.id,
+        items: categoryItems,
+      };
+    })
+    .filter((container) => container.items.length > 0);
+
+  const allItemIds = categoryContainers.flatMap(({ items }) =>
+    items.map((item) => `item-${item.id}`)
+  );
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
     >
       <div className="space-y-2">
-        {Object.entries(selectedItemsByCategory).map(
-          ([categoryName, items]) => {
-            const category = categories.find(
-              (cat) => cat.name === categoryName
-            );
-            const categoryId = category?.id || items[0]?.parentId || 0;
-
-            return (
-              <DroppableCategory
-                key={categoryName}
-                categoryName={categoryName}
-                categoryId={categoryId}
-                items={items}
-                showDetails={showDetails}
-                currentFunctionData={currentFunctionData}
-                rate={rate}
-                onItemRateChange={onItemRateChange}
-                onNoteClick={onNoteClick}
-                onCategoryNoteClick={onCategoryNoteClick}
-                onRemoveItem={onRemoveItem}
-              />
-            );
-          }
-        )}
+        <SortableContext
+          items={allItemIds}
+          strategy={verticalListSortingStrategy}
+        >
+          {categoryContainers.map(({ categoryName, categoryId, items }) => (
+            <DroppableCategory
+              key={`${categoryName}-${categoryId}`}
+              categoryName={categoryName}
+              categoryId={categoryId}
+              items={items}
+              showDetails={showDetails}
+              currentFunctionData={currentFunctionData}
+              rate={rate}
+              onItemRateChange={onItemRateChange}
+              onNoteClick={onNoteClick}
+              onCategoryNoteClick={onCategoryNoteClick}
+              onRemoveItem={onRemoveItem}
+            />
+          ))}
+        </SortableContext>
       </div>
+
       <DragOverlay>
-        {/* This will show a preview of the item being dragged */}
+        {activeItem ? (
+          <div className="bg-white p-3 rounded shadow-lg border-2 border-blue-400">
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded overflow-hidden">
+                <img
+                  src={activeItem.image}
+                  alt={activeItem.name}
+                  className="w-full h-full object-cover"
+                />
+              </span>
+              <span className="text-xs font-medium">{activeItem.name}</span>
+            </div>
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

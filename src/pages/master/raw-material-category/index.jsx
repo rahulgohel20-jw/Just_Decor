@@ -8,7 +8,7 @@ import {
   DeleteRawMaterialcategory,
   updatestatusrawmatrialcat,
 } from "@/services/apiServices";
-
+import Swal from "sweetalert2";
 import AddRawMaterial from "@/partials/modals/raw-material-category/AddRawMaterial";
 
 const RawMaterialMaster = () => {
@@ -69,15 +69,37 @@ const RawMaterialMaster = () => {
   };
 
   const DeleteRawMaterialCat = (rawCatid) => {
-    if (window.confirm("Are you sure you want to delete this Event type?")) {
-      DeleteRawMaterialcategory(rawCatid)
-        .then(() => {
-          FetchRawMaterialCategory();
-        })
-        .catch((error) => {
-          console.error("Error deleting Event type:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteRawMaterialcategory(rawCatid)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchRawMaterialCategory();
+              Swal.fire({
+                title: "Removed!",
+                text: "Raw material category has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
 
   const handleEdit = (event) => {

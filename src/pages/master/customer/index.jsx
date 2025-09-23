@@ -11,7 +11,7 @@ import {
   SearchCustomerApi,
 } from "@/services/apiServices";
 import ViewCustomer from "../../../partials/modals/view-customer/ViewCustomer";
-
+import Swal from "sweetalert2";
 const CustomerMaster = () => {
   const classes = useStyle();
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,15 +98,37 @@ const CustomerMaster = () => {
   };
 
   const DeleteCustomer = (customerId) => {
-    if (window.confirm("Are you sure you want to delete this customer?")) {
-      DeleteCustomerApi(customerId)
-        .then(() => {
-          FetchCustomer();
-        })
-        .catch((error) => {
-          console.error("Error deleting customer:", error);
-        });
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteCustomerApi(customerId)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchCustomer();
+              Swal.fire({
+                title: "Removed!",
+                text: "Customer has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting customer:", error);
+          });
+      }
+    });
   };
   const handleEditCustomer = (customer) => {
     setSelectedCustomer(customer);
