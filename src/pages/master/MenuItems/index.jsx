@@ -4,8 +4,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
-import { GetAllMenuItems , DeleteMenuItem , updatestatusmneuitem } from "@/services/apiServices";
-
+import {
+  GetAllMenuItems,
+  DeleteMenuItem,
+  updatestatusmneuitem,
+} from "@/services/apiServices";
+import Swal from "sweetalert2";
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
@@ -20,77 +24,94 @@ const MenuItems = () => {
   }, [searchQuery]);
 
   // ✅ Fetch menu items
- const FetchMenuItems = () => {
-  GetAllMenuItems({ userId: Id, menuItemName: searchQuery }) // <-- fixed key
-    .then((res) => {
-      if (
-        res?.data?.data &&
-        Array.isArray(res.data.data["Menu Item Details"])
-      ) {
-        const formatted = res.data.data["Menu Item Details"]
-         .sort((a, b) => b.id - a.id)
-        .map((item, index) => ({
-            sr_no: index + 1,
-            id: item.id,
-            name: item.nameEnglish || "-",
-            category: item.menuCategory?.nameEnglish || "-",
-            subCategory: item.menuSubCategory?.nameEnglish || "-",
-            kitchenArea: item.kitchenArea?.nameEnglish || "-",
-            slogan: item.slogan || "-",
-            price: item.price || "-",
-            priority: item.sequence || "-",
-         image: item.imagePath?.replace("jcupload", "uploads") || "",
-            status: item.isActive,
-          })
-        );
-        setTableData(formatted);
-      } else {
-        setTableData([]);
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching menu items:", error);
-    });
-};
-
+  const FetchMenuItems = () => {
+    GetAllMenuItems({ userId: Id, menuItemName: searchQuery }) // <-- fixed key
+      .then((res) => {
+        if (
+          res?.data?.data &&
+          Array.isArray(res.data.data["Menu Item Details"])
+        ) {
+          const formatted = res.data.data["Menu Item Details"]
+            .sort((a, b) => b.id - a.id)
+            .map((item, index) => ({
+              sr_no: index + 1,
+              id: item.id,
+              name: item.nameEnglish || "-",
+              category: item.menuCategory?.nameEnglish || "-",
+              subCategory: item.menuSubCategory?.nameEnglish || "-",
+              kitchenArea: item.kitchenArea?.nameEnglish || "-",
+              slogan: item.slogan || "-",
+              price: item.price || "-",
+              priority: item.sequence || "-",
+              image: item.imagePath?.replace("jcupload", "uploads") || "",
+              status: item.isActive,
+            }));
+          setTableData(formatted);
+        } else {
+          setTableData([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching menu items:", error);
+      });
+  };
 
   // ✅ delete then refresh table
- const handleDelete = (id) => {
-  if (!id || isNaN(id)) {
-    console.error("❌ Invalid ID passed to delete:", id);
-    return;
-  }
-
-  console.log("✅ Deleting item with ID:", id);
-
-  DeleteMenuItem(id)
-    .then(() => {
-      FetchMenuItems();
-    })
-    .catch((err) => {
-      console.error("Delete error:", err);
+  const handleDelete = (id) => {
+    if (!id || isNaN(id)) {
+      console.error("❌ Invalid ID passed to delete:", id);
+      return;
+    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteMenuItem(id)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchMenuItems();
+              Swal.fire({
+                title: "Removed!",
+                text: "Menu Item has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((err) => {
+            console.error("Delete error:", err);
+          });
+      }
     });
-};
-
+  };
 
   const handleEdit = (menuItem) => {
-console.log("✏️ Edit clicked:", menuItem);
+    console.log("✏️ Edit clicked:", menuItem);
     setSelectedMenuItem(menuItem);
     setIsItemModalOpen(true);
   };
 
-const statusmenuitem = async (id, currentStatus) => {
-  try {
-    const newStatus = !currentStatus; // toggle
-    const res = await updatestatusmneuitem(id, newStatus); // ✅ use correct API
-    console.log("Status updated response:", res);
+  const statusmenuitem = async (id, currentStatus) => {
+    try {
+      const newStatus = !currentStatus; // toggle
+      const res = await updatestatusmneuitem(id, newStatus); // ✅ use correct API
+      console.log("Status updated response:", res);
 
-    FetchMenuItems(); // refresh table after update
-  } catch (error) {
-    console.error("Error updating status:", error);
-  }
-};
-
+      FetchMenuItems(); // refresh table after update
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
 
   return (
     <Fragment>
@@ -126,24 +147,22 @@ const statusmenuitem = async (id, currentStatus) => {
         </div>
 
         {/* Add/Edit modal */}
-   {isItemModalOpen && (() => {
-  console.log("✅ Modal Open State:", isItemModalOpen);
-  return (
-    <AddMenuItem
-      isModalOpen={isItemModalOpen}
-      setIsModalOpen={setIsItemModalOpen}
-      refreshData={FetchMenuItems}
-      selectedMenuItem={selectedMenuItem}
-    />
-  );
-})()}
-
-
-
+        {isItemModalOpen &&
+          (() => {
+            console.log("✅ Modal Open State:", isItemModalOpen);
+            return (
+              <AddMenuItem
+                isModalOpen={isItemModalOpen}
+                setIsModalOpen={setIsItemModalOpen}
+                refreshData={FetchMenuItems}
+                selectedMenuItem={selectedMenuItem}
+              />
+            );
+          })()}
 
         {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, handleDelete,statusmenuitem)}
+          columns={columns(handleEdit, handleDelete, statusmenuitem)}
           data={tableData}
           paginationSize={10}
         />

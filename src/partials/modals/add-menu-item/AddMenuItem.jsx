@@ -36,9 +36,7 @@ const AddMenuItem = ({
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [kitchenAreas, setKitchenAreas] = useState([]);
-  const [activeTab, setActiveTab] = useState("tab_1"); // State for active tab
-
-  // Load dropdown data when modal opens
+  const [activeTab, setActiveTab] = useState("tab_1");
   useEffect(() => {
     if (isModalOpen) {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -54,8 +52,10 @@ const AddMenuItem = ({
       ])
         .then(([catRes, subRes, kitchenRes]) => {
           const catData = catRes?.data?.data?.["Menu Category Details"] || [];
-          const subData = subRes?.data?.data?.["Menu Sub Category Details"] || [];
-          const kitchenData = kitchenRes?.data?.data?.["KitchenAreas Details"] || [];
+          const subData =
+            subRes?.data?.data?.["Menu Sub Category Details"] || [];
+          const kitchenData =
+            kitchenRes?.data?.data?.["KitchenAreas Details"] || [];
 
           setCategories(catData);
           setSubCategories(subData);
@@ -65,7 +65,6 @@ const AddMenuItem = ({
     }
   }, [isModalOpen]);
 
-  // Populate form data when editing
   useEffect(() => {
     if (selectedMenuItem) {
       const matchedCategory = categories.find(
@@ -108,7 +107,12 @@ const AddMenuItem = ({
     }
 
     const safeNumber = (value) => {
-      if (value === undefined || value === null || value === "" || value === "undefined") {
+      if (
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        value === "undefined"
+      ) {
         return null;
       }
       const n = Number(value);
@@ -132,7 +136,7 @@ const AddMenuItem = ({
     if (selectedMenuItem) {
       UpdateMenuItem(selectedMenuItem.id, payload)
         .then((res) => {
-          message.success("✅ Menu item updated successfully!");
+          message.success(" Menu item updated successfully!");
           if (formData.file) {
             const uploadRequest = {
               ModuleId: selectedMenuItem.id,
@@ -146,12 +150,12 @@ const AddMenuItem = ({
           }
         })
         .catch((err) => {
-          console.error("❌ Error updating menu item:", err);
+          console.error(" Error updating menu item:", err);
         });
     } else {
       AddMenuItems(payload)
         .then((res) => {
-          message.success("✅ Menu item added successfully!");
+          message.success("Menu item added successfully!");
           const newMenuItemId = res?.data?.moduleId;
           if (formData.file && newMenuItemId) {
             const uploadRequest = {
@@ -166,14 +170,14 @@ const AddMenuItem = ({
           }
         })
         .catch((err) => {
-          console.error("❌ Error saving menu item:", err);
+          console.error(" Error saving menu item:", err);
         });
     }
   };
 
   const uploadImage = (uploadRequest) => {
     if (!formData.file) {
-      console.warn("⚠️ No file found in formData.");
+      console.warn(" No file found in formData.");
       refreshData();
       setIsModalOpen(false);
       return;
@@ -192,7 +196,7 @@ const AddMenuItem = ({
         setIsModalOpen(false);
       })
       .catch((error) => {
-        console.error("❌ Error uploading image:", error);
+        console.error(" Error uploading image:", error);
       });
   };
 
@@ -203,104 +207,101 @@ const AddMenuItem = ({
           <div id="tab_1" className="tab-content active">
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-col">
-              <label className="form-label">Name (English)</label>
-              <input
-                type="text"
-                name="nameEnglish"
-                value={formData.nameEnglish}
-                onChange={handleChange}
-                placeholder="Name (English)"
-                className="input"
-              />
-            </div>
-              <div className="flex flex-col">
-              <label className="form-label">Name (Gujarati)</label>
-              <input
-                type="text"
-                name="nameGujarati"
-                value={formData.nameGujarati}
-                onChange={handleChange}
-                placeholder="Name (Gujarati)"
-                className="input"
-              />
-            </div>
-              <div className="flex flex-col">
-              <label className="form-label">Name (Hindi)</label>
-              <input
-                type="text"
-                name="nameHindi"
-                value={formData.nameHindi}
-                onChange={handleChange}
-                placeholder="Name (Hindi)"
-                className="input"
-              />
-            </div>
-            
-              {/* </div> */}
-                <div className="flex flex-col">
-              <label className="form-label">Slogan</label>
-           <textarea
-                type="text"
-                name="menuSlogan"
-                value={formData.menuSlogan}
-                onChange={handleChange}
-                placeholder="Menu Slogan "
-                className="input"
-                />
-            </div>
-                <div className="grid grid-cols-2 gap-x-4">
-              
-              <div className="flex flex-col">
-                <label className="form-label">Price</label>
+                <label className="form-label">Name (English)</label>
                 <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
+                  type="text"
+                  name="nameEnglish"
+                  value={formData.nameEnglish}
                   onChange={handleChange}
+                  placeholder="Name (English)"
                   className="input"
-                  placeholder="Price"
                 />
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Priority</label>
+                <label className="form-label">Name (Gujarati)</label>
                 <input
-                  type="number"
-                  name="priority"
-                  value={formData.priority}
+                  type="text"
+                  name="nameGujarati"
+                  value={formData.nameGujarati}
                   onChange={handleChange}
+                  placeholder="Name (Gujarati)"
                   className="input"
-                  placeholder="Priority"
                 />
               </div>
+              <div className="flex flex-col">
+                <label className="form-label">Name (Hindi)</label>
+                <input
+                  type="text"
+                  name="nameHindi"
+                  value={formData.nameHindi}
+                  onChange={handleChange}
+                  placeholder="Name (Hindi)"
+                  className="input"
+                />
               </div>
-          <div className="grid grid-cols-3 gap-x-4">
 
-            
-              <DropdownField
-                label="Menu Item Category"
-                name="menuItemCategory"
-                value={formData.menuItemCategory}
-                onChange={handleChange}
-                options={categories.filter((cat) => cat.isActive)}
-                optionLabel="nameEnglish"
-              />
-              <DropdownField
-                label="Menu Item Sub Category"
-                className="form-label"
-                name="menuSubItemCategory"
-                value={formData.menuSubItemCategory}
-                onChange={handleChange}
-                options={subCategories.filter((sub) => sub.isActive)}
-                optionLabel="nameEnglish"
-              />
-              <DropdownField
-                label="Kitchen Area"
-                name="kitchenArea"
-                value={formData.kitchenArea}
-                onChange={handleChange}
-                options={kitchenAreas.filter((area) => area.isActive)}
-                optionLabel="nameEnglish"
-              />
+              {/* </div> */}
+              <div className="flex flex-col">
+                <label className="form-label">Slogan</label>
+                <textarea
+                  type="text"
+                  name="menuSlogan"
+                  value={formData.menuSlogan}
+                  onChange={handleChange}
+                  placeholder="Menu Slogan "
+                  className="input p-3"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Price</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    className="input"
+                    placeholder="Price"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Priority</label>
+                  <input
+                    type="number"
+                    name="priority"
+                    value={formData.priority}
+                    onChange={handleChange}
+                    className="input"
+                    placeholder="Priority"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-x-4">
+                <DropdownField
+                  label="Menu Item Category"
+                  name="menuItemCategory"
+                  value={formData.menuItemCategory}
+                  onChange={handleChange}
+                  options={categories.filter((cat) => cat.isActive)}
+                  optionLabel="nameEnglish"
+                />
+                <DropdownField
+                  label="Menu Item Sub Category"
+                  className="form-label"
+                  name="menuSubItemCategory"
+                  value={formData.menuSubItemCategory}
+                  onChange={handleChange}
+                  options={subCategories.filter((sub) => sub.isActive)}
+                  optionLabel="nameEnglish"
+                />
+                <DropdownField
+                  label="Kitchen Area"
+                  name="kitchenArea"
+                  value={formData.kitchenArea}
+                  onChange={handleChange}
+                  options={kitchenAreas.filter((area) => area.isActive)}
+                  optionLabel="nameEnglish"
+                />
               </div>
               <div className="relative col-span-2">
                 <label className="block text-gray-600 mb-1">Image</label>
@@ -400,9 +401,9 @@ const AddMenuItem = ({
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
       title={selectedMenuItem ? "Edit Menu Item" : "New Menu Item"}
-      width={640}
+      width={1000}
       footer={[
-        <div className="flex justify-between" key="footer-buttons">
+        <div className="flex justify-end gap-3" key="footer-buttons">
           <button
             className="btn btn-light"
             onClick={() => setIsModalOpen(false)}
@@ -411,7 +412,7 @@ const AddMenuItem = ({
             Cancel
           </button>
           <button
-            className="btn btn-success"
+            className="btn btn-primary"
             title="Save"
             onClick={handleSubmit}
           >
@@ -457,22 +458,14 @@ const AddMenuItem = ({
   );
 };
 
-const InputWithIcon = ({ label, name, value, onChange, required }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
-      required={required}
-    />
-  </div>
-);
-
-const DropdownField = ({ label, name, value, onChange, options, optionLabel }) => (
+const DropdownField = ({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  optionLabel,
+}) => (
   <div className="relative">
     <label className="block text-gray-600 mb-1">{label}</label>
     <select

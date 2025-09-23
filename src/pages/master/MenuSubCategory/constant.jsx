@@ -24,14 +24,15 @@ export const columns = (onEdit, onDelete, onStatus) => [
       return (
         <div className="flex items-center  gap-1">
           <Popconfirm
-              title="Are you sure to change status this item?"
-              onConfirm={() => onStatus(row.original.id, row.original.isActive ? false: true)
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <label className="switch switch-lg">
+            title="Are you sure to change status this item?"
+            onConfirm={() =>
+              onStatus(row.original.id, row.original.isActive ? false : true)
+            }
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <label className="switch switch-lg">
               <input
                 type="checkbox"
                 value="1"
@@ -42,7 +43,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
                 // onChange={() => }
               />
             </label>
-            </Popconfirm>
+          </Popconfirm>
         </div>
       );
     },
@@ -66,23 +67,16 @@ export const columns = (onEdit, onDelete, onStatus) => [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
-          <Popconfirm
-              title="Are you sure to delete this item?"
-              onConfirm={() => onDelete(row.original.id)
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
+
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
+              onClick={() => onDelete(row.original.id)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
           </Tooltip>
-          </Popconfirm>
         </div>
       );
     },

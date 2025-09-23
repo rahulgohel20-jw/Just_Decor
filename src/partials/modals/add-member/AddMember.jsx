@@ -11,7 +11,12 @@ import {
 } from "@/services/apiServices";
 import Select from "react-select";
 
-const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember }) => {
+const AddMember = ({
+  isModalOpen,
+  setIsModalOpen,
+  refreshData,
+  selectedMember,
+}) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
 
@@ -139,18 +144,21 @@ const AddMember = ({ isModalOpen, setIsModalOpen, refreshData, selectedMember })
           setFormData(prefilled);
           setSelectedRole(member.userBasicDetails.role?.id || ""); // ✅ store id
           // Prefill
-setTaskAccess(member.userBasicDetails.isTaskAccess ?? false);
-setLeaveAccess(member.userBasicDetails.isAttendanceLeaveAccess ?? false);
-
+          setTaskAccess(member.userBasicDetails.isTaskAccess ?? false);
+          setLeaveAccess(
+            member.userBasicDetails.isAttendanceLeaveAccess ?? false
+          );
 
           // fetch dependent state/city immediately
           if (prefilled.countryId) {
-            fetchStatesByCountry(prefilled.countryId, "")
-              .then((res) => setStates(res?.data?.data?.["state Details"] || []));
+            fetchStatesByCountry(prefilled.countryId, "").then((res) =>
+              setStates(res?.data?.data?.["state Details"] || [])
+            );
           }
           if (prefilled.stateId) {
-            fetchCitiesByState(prefilled.stateId, "")
-              .then((res) => setCities(res?.data?.data?.["City Details"] || []));
+            fetchCitiesByState(prefilled.stateId, "").then((res) =>
+              setCities(res?.data?.data?.["City Details"] || [])
+            );
           }
         }
       } catch (err) {
@@ -180,7 +188,8 @@ setLeaveAccess(member.userBasicDetails.isAttendanceLeaveAccess ?? false);
         contactNo: formData.contactNo,
         address: formData.address || parsedData.userBasicDetails.address,
         officeNo: formData.officeNo || parsedData.userBasicDetails.officeNo,
-        companyName: formData.companyName || parsedData.userBasicDetails.companyName,
+        companyName:
+          formData.companyName || parsedData.userBasicDetails.companyName,
 
         // static values
         countryCode: "+91",
@@ -194,20 +203,18 @@ setLeaveAccess(member.userBasicDetails.isAttendanceLeaveAccess ?? false);
         planId: parsedData.plan.id,
 
         // role & access
-       roleId: Number(selectedRole),
-isTaskAccess: taskAccess,
-isAttendanceLeaveAccess: leaveAccess,
-
+        roleId: Number(selectedRole),
+        isTaskAccess: taskAccess,
+        isAttendanceLeaveAccess: leaveAccess,
       };
 
       if (formData.memberid) {
-  payload.memberId = formData.memberid;
-  const res = await UpdateMember(payload.memberId, payload);
-  console.log("Updating member with payload:", res);
-} else {
-  await AddMemberapi(payload);
-}
-
+        payload.memberId = formData.memberid;
+        const res = await UpdateMember(payload.memberId, payload);
+        console.log("Updating member with payload:", res);
+      } else {
+        await AddMemberapi(payload);
+      }
 
       refreshData();
       handleModalClose();
@@ -221,6 +228,7 @@ isAttendanceLeaveAccess: leaveAccess,
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
+        width={1000}
         title={selectedMember ? "Edit Member" : "New Member"}
         footer={[
           <div className="flex justify-between" key="footer-buttons">
@@ -271,8 +279,9 @@ isAttendanceLeaveAccess: leaveAccess,
                   countries.find((c) => c.id === formData.countryId)
                     ? {
                         value: formData.countryId,
-                        label: countries.find((c) => c.id === formData.countryId)
-                          ?.name,
+                        label: countries.find(
+                          (c) => c.id === formData.countryId
+                        )?.name,
                       }
                     : null
                 }
@@ -395,26 +404,26 @@ isAttendanceLeaveAccess: leaveAccess,
           </div>
 
           <div className="flex items-center gap-2 mt-1">
-          <label className="form-label">Task Access</label>
-          <label className="switch switch-lg">
-            <input
-              type="checkbox"
-              checked={taskAccess} // bind directly to state
-              onChange={() => setTaskAccess(!taskAccess)} // toggle state
-            />
-          </label>
-        </div>
+            <label className="form-label">Task Access</label>
+            <label className="switch switch-lg">
+              <input
+                type="checkbox"
+                checked={taskAccess} // bind directly to state
+                onChange={() => setTaskAccess(!taskAccess)} // toggle state
+              />
+            </label>
+          </div>
 
-        <div className="flex items-center gap-2 mt-1">
-          <label className="form-label">Leave & Attendance Access</label>
-          <label className="switch switch-lg">
-            <input
-              type="checkbox"
-              checked={leaveAccess}
-              onChange={() => setLeaveAccess(!leaveAccess)}
-            />
-          </label>
-        </div>
+          <div className="flex items-center gap-2 mt-1">
+            <label className="form-label">Leave & Attendance Access</label>
+            <label className="switch switch-lg">
+              <input
+                type="checkbox"
+                checked={leaveAccess}
+                onChange={() => setLeaveAccess(!leaveAccess)}
+              />
+            </label>
+          </div>
         </div>
       </CustomModal>
     )

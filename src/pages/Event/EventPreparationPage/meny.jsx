@@ -1,24 +1,33 @@
 import { useState, Fragment, useEffect, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { menuCategories, menuCategoryChildren } from "./constant";
-import { Eye, EyeOff, LogIn, Mic, PanelLeftOpen } from "lucide-react";
+import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
-import { Tooltip } from "antd";
+import { Tooltip, Popconfirm } from "antd";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { useParams } from "react-router-dom";
+import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
+import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
+import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
+import { useNavigate } from "react-router-dom";
 import {
   GetAllCategoryformenu,
   GetEventMasterById,
   Getmenuprep,
   AddMenuprep,
+  Deleteiteminmenu,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 const EventPreparationPage = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const { eventId } = useParams();
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [eventAllData, setEventAllData] = useState({});
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
   const [menuPreparationsTabs, setMenuPreparationsTabs] = useState([]);
   const [rate, setRate] = useState(0);
@@ -26,15 +35,32 @@ const EventPreparationPage = () => {
   const [dateandtime, setDateandtime] = useState("");
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-
   const [functionMenuData, setFunctionMenuData] = useState({});
   const [functionSelectionData, setFunctionSelectionData] = useState({});
   const [allMenuItems, setAllMenuItems] = useState({});
   const [loading, setLoading] = useState(false);
-
-  // New state to store menu preparation IDs for each function
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [showNoteModal, setShowNoteModal] = useState(false);
   const [menuPreparationIds, setMenuPreparationIds] = useState({});
+  const [expandedItems, setExpandedItems] = useState({});
+  const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
+  const [categoryNotes, setCategoryNotes] = useState({
+    categoryNotes: "",
+    categorySlogan: "",
+  });
+  const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
+  const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
+  const [itemNotes, setItemNotes] = useState({
+    itemsNotes: "",
+    itemSlogan: "",
+  });
+  const classes = useStyles();
+  const [search, setSearch] = useState("");
+  const [childSearch, setChildSearch] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
 
+  const allCategory = { id: 0, name: "All" };
+  const categoriesWithAll = [allCategory, ...categories];
   useEffect(() => {
     initializeData();
   }, []);
@@ -106,8 +132,7 @@ const EventPreparationPage = () => {
             label: (
               <div
                 onClick={() => {
-                  console.log("Clicked tab:", fn.id);
-                  handleTabChange(fn.id); // ✅ use your existing handler
+                  handleTabChange(fn.id);
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -119,14 +144,15 @@ const EventPreparationPage = () => {
           }));
 
           setMenuPreparationsTabs(dynamicTabs);
-
-          // Initialize function selection data with proper defaults
           const initialFunctionData = {};
           firstEvent.eventFunctions.forEach((fn) => {
             initialFunctionData[fn.id] = {
               selectedItems: [],
               itemNotes: {},
+              itemSlogans: {},
               itemRates: {},
+              categoryNotes: {},
+              categorySlogans: {},
               isSaved: false,
               pax: fn.pax || 0,
               rate: fn.rate || 0,
@@ -134,14 +160,12 @@ const EventPreparationPage = () => {
           });
           setFunctionSelectionData(initialFunctionData);
 
-          // Initialize first function
           if (firstEvent.eventFunctions.length > 0) {
             const firstFnId = firstEvent.eventFunctions[0].id;
             setSelectedFunctionId(firstFnId);
             setPax(firstEvent.eventFunctions[0].pax || 0);
             setRate(firstEvent.eventFunctions[0].rate || 0);
 
-            // Load data for first function - this will handle both menu items and selections
             loadAllMenuDataForFunction(firstFnId).then(() => {
               loadFunctionMenuData(firstFnId, 0);
             });
@@ -157,21 +181,70 @@ const EventPreparationPage = () => {
         throw error;
       });
   };
+  const toggleCategoryExpand = (categoryName) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryName]: !prev[categoryName],
+    }));
+  };
 
-  // New function to load all menu items for a function (across all categories)
+  const handleNoteSave = (savedNotes) => {
+    if (currentItemForNotes) {
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          itemNotes: {
+            ...prev[selectedFunctionId]?.itemNotes,
+            [currentItemForNotes]: savedNotes.itemsNotes || "",
+          },
+          itemSlogans: {
+            ...(prev[selectedFunctionId]?.itemSlogans || {}),
+            [currentItemForNotes]: savedNotes.itemSlogan || "",
+          },
+          isSaved: false,
+        },
+      }));
+    }
+    setShowNoteModal(false);
+    setCurrentItemForNotes(null);
+  };
+
+  const handleCategoryNoteSave = (savedNotes) => {
+    if (currentCategoryForNotes !== null) {
+      setFunctionSelectionData((prev) => {
+        const updated = {
+          ...prev,
+          [selectedFunctionId]: {
+            ...prev[selectedFunctionId],
+            categoryNotes: {
+              ...(prev[selectedFunctionId]?.categoryNotes || {}),
+              [currentCategoryForNotes]: savedNotes.categoryNotes || "",
+            },
+            categorySlogans: {
+              ...(prev[selectedFunctionId]?.categorySlogans || {}),
+              [currentCategoryForNotes]: savedNotes.categorySlogan || "",
+            },
+            isSaved: false,
+          },
+        };
+
+        return updated;
+      });
+    }
+    setShowCategoryNoteModal(false);
+    setCurrentCategoryForNotes(null);
+  };
+
   const loadAllMenuDataForFunction = async (functionId) => {
     try {
-      // Load menu items from all categories for this function
       const allCategoriesData = await Promise.all([
-        // Load "All" category (categoryId = 0)
         FetchMenuPrep(functionId, 0),
-        // Load individual categories
         ...categories.map((category) => FetchMenuPrep(functionId, category.id)),
       ]);
 
-      // Combine all menu items from all categories
       const combinedMenuItems = [];
-      const seenIds = new Set(); // To avoid duplicates
+      const seenIds = new Set();
 
       allCategoriesData.forEach((categoryData) => {
         if (categoryData.menuItems) {
@@ -184,7 +257,6 @@ const EventPreparationPage = () => {
         }
       });
 
-      // Store all menu items for this function
       setAllMenuItems((prev) => ({
         ...prev,
         [functionId]: combinedMenuItems,
@@ -196,91 +268,144 @@ const EventPreparationPage = () => {
 
   const loadFunctionMenuData = async (
     functionId,
-    categoryId = selectedCategoryId
+    categoryId = selectedCategoryId,
+    preserveSelections = false
   ) => {
     setLoading(true);
     try {
-      console.log(
-        `🔄 Loading menu data for Function: ${functionId}, Category: ${categoryId}`
-      );
-
-      // Always fetch fresh data - no caching for tab switches
       const responseData = await FetchMenuPrep(functionId, categoryId);
-
       const cacheKey = `${functionId}-${categoryId}`;
-
-      // Store menu items in cache
       setFunctionMenuData((prev) => ({
         ...prev,
         [cacheKey]: responseData.menuItems || [],
       }));
 
-      // Store menu preparation ID if it exists
       if (responseData.responseData?.menuPreparation?.id) {
         setMenuPreparationIds((prev) => ({
           ...prev,
           [functionId]: responseData.responseData.menuPreparation.id,
         }));
-
-        console.log(
-          `📝 Found existing menu prep ID: ${responseData.responseData.menuPreparation.id} for function ${functionId}`
-        );
       }
+      const hasExistingSelections =
+        functionSelectionData[functionId]?.selectedItems?.length > 0;
 
-      // CRITICAL: Update the function selection data based on API response
-      if (responseData.selectedItems && responseData.selectedItems.length > 0) {
-        console.log(
-          `✅ Found ${responseData.selectedItems.length} selected items for function ${functionId}`
-        );
+      if (!preserveSelections || !hasExistingSelections) {
+        if (
+          responseData.selectedItems &&
+          responseData.selectedItems.length > 0
+        ) {
+          setFunctionSelectionData((prev) => ({
+            ...prev,
+            [functionId]: {
+              selectedItems: responseData.selectedItems.map(
+                (item) => item.menuItemId
+              ),
+              itemNotes: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemNotes || "";
+                return acc;
+              }, {}),
+              itemSlogans: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemSlogan || "";
+                return acc;
+              }, {}),
+              categoryNotes: responseData.selectedItems.reduce((acc, item) => {
+                if (item.menuNotes) {
+                  acc[item.menuCategoryId] = item.menuNotes;
+                }
+                return acc;
+              }, {}),
+              categorySlogans: responseData.selectedItems.reduce(
+                (acc, item) => {
+                  if (item.menuSlogan) {
+                    acc[item.menuCategoryId] = item.menuSlogan;
+                  }
+                  return acc;
+                },
+                {}
+              ),
+              itemRates: responseData.selectedItems.reduce((acc, item) => {
+                acc[item.menuItemId] = item.itemPrice || 0;
+                return acc;
+              }, {}),
+              isSaved: true,
+              pax: responseData.responseData?.menuPreparation?.pax || pax,
+              rate:
+                responseData.responseData?.menuPreparation?.defaultPrice ||
+                rate,
+            },
+          }));
 
-        setFunctionSelectionData((prev) => ({
-          ...prev,
-          [functionId]: {
-            selectedItems: responseData.selectedItems.map(
-              (item) => item.menuItemId
-            ),
-            itemNotes: responseData.selectedItems.reduce((acc, item) => {
-              acc[item.menuItemId] = item.itemNotes || "";
-              return acc;
-            }, {}),
-            itemRates: responseData.selectedItems.reduce((acc, item) => {
-              acc[item.menuItemId] = item.itemPrice || 0;
-              return acc;
-            }, {}),
-            isSaved: true,
-            pax: responseData.responseData?.menuPreparation?.pax || pax,
-            rate:
-              responseData.responseData?.menuPreparation?.defaultPrice || rate,
-          },
-        }));
-
-        // Update global pax and rate if this is the selected function
-        if (functionId === selectedFunctionId) {
-          if (responseData.responseData?.menuPreparation?.pax) {
-            setPax(responseData.responseData.menuPreparation.pax);
+          if (functionId === selectedFunctionId) {
+            if (responseData.responseData?.menuPreparation?.pax) {
+              setPax(responseData.responseData.menuPreparation.pax);
+            }
+            if (
+              responseData.responseData?.menuPreparation?.defaultPrice !==
+              undefined
+            ) {
+              setRate(responseData.responseData.menuPreparation.defaultPrice);
+            }
           }
-          if (
-            responseData.responseData?.menuPreparation?.defaultPrice !==
-            undefined
-          ) {
-            setRate(responseData.responseData.menuPreparation.defaultPrice);
-          }
+        } else {
+          setFunctionSelectionData((prev) => ({
+            ...prev,
+            [functionId]: {
+              selectedItems: [],
+              itemNotes: {},
+              itemRates: {},
+              categoryNotes: {},
+              categorySlogans: {},
+              isSaved: false,
+              pax: prev[functionId]?.pax || 0,
+              rate: prev[functionId]?.rate || 0,
+            },
+          }));
         }
       } else {
-        console.log(`📭 No selected items found for function ${functionId}`);
+        if (
+          responseData.selectedItems &&
+          responseData.selectedItems.length > 0
+        ) {
+          setFunctionSelectionData((prev) => {
+            const currentSelections = prev[functionId]?.selectedItems || [];
+            const currentNotes = prev[functionId]?.itemNotes || {};
+            const currentRates = prev[functionId]?.itemRates || {};
 
-        // Ensure clean state for functions with no selections
-        setFunctionSelectionData((prev) => ({
-          ...prev,
-          [functionId]: {
-            selectedItems: [],
-            itemNotes: {},
-            itemRates: {},
-            isSaved: false,
-            pax: prev[functionId]?.pax || 0,
-            rate: prev[functionId]?.rate || 0,
-          },
-        }));
+            const apiSelections = responseData.selectedItems.map(
+              (item) => item.menuItemId
+            );
+            const mergedSelections = [
+              ...new Set([...currentSelections, ...apiSelections]),
+            ];
+            const mergedNotes = { ...currentNotes };
+            const mergedRates = { ...currentRates };
+            const mergedSlogans = { ...(prev[functionId]?.itemSlogans || {}) };
+
+            responseData.selectedItems.forEach((item) => {
+              if (item.itemNotes) {
+                mergedNotes[item.menuItemId] = item.itemNotes;
+              }
+              if (item.itemPrice) {
+                mergedRates[item.menuItemId] = item.itemPrice;
+              }
+              if (item.itemSlogan) {
+                mergedSlogans[item.menuItemId] = item.itemSlogan;
+              }
+            });
+
+            return {
+              ...prev,
+              [functionId]: {
+                ...prev[functionId],
+                selectedItems: mergedSelections,
+                itemNotes: mergedNotes,
+                itemSlogans: mergedSlogans,
+                itemRates: mergedRates,
+                isSaved: prev[functionId]?.isSaved !== false ? true : false,
+              },
+            };
+          });
+        }
       }
     } catch (error) {
       console.error("❌ Error loading function menu data:", error);
@@ -288,6 +413,7 @@ const EventPreparationPage = () => {
       setLoading(false);
     }
   };
+
   const clearFunctionCache = (functionId) => {
     setFunctionMenuData((prev) => {
       const newData = { ...prev };
@@ -306,23 +432,10 @@ const EventPreparationPage = () => {
     pageNo = 1,
     totalRecord = 50
   ) => {
-    console.log(
-      `🌐 API Call: FetchMenuPrep(${eventFunctionId}, ${menuCategoryId})`
-    );
-
     return Getmenuprep(eventFunctionId, menuCategoryId, pageNo, totalRecord, Id)
       .then((res) => {
         const responseData = res?.data?.data;
 
-        console.log("📡 API Response:", {
-          menuPreparationItems:
-            responseData["menuPreparationItems"]?.length || 0,
-          selectedItems:
-            responseData["selectedMenuPreparationItems"]?.length || 0,
-          hasMenuPreparation: !!responseData["menuPreparation"],
-        });
-
-        // same processing logic as before...
         const menuItems = (responseData["menuPreparationItems"] || []).map(
           (item) => ({
             id: item.menuItemId,
@@ -367,47 +480,35 @@ const EventPreparationPage = () => {
 
   const handleTabChange = async (newFunctionId) => {
     if (selectedFunctionId === newFunctionId) {
-      console.log("🚫 Same tab clicked, ignoring");
       return;
     }
 
-    console.log(`🔄 Tab change: ${selectedFunctionId} → ${newFunctionId}`);
     setLoading(true);
 
     try {
-      // 1. Update the selected function ID first
       setSelectedFunctionId(newFunctionId);
-
-      // 2. Get function details from event data
       const selectedFunction = eventAllData[0]?.eventFunctions?.find(
         (fn) => fn.id === newFunctionId
       );
 
-      // 3. Update pax and rate from function data (fallback values)
       if (selectedFunction) {
         setPax(selectedFunction.pax || 0);
         setRate(selectedFunction.rate || 0);
       }
 
-      // 4. Load all menu items for the function if not cached
       if (!allMenuItems[newFunctionId]) {
-        console.log(`📦 Loading all menu items for function ${newFunctionId}`);
         await loadAllMenuDataForFunction(newFunctionId);
       }
 
-      // 5. FORCE clear any existing cache for this function/category combo
       const currentCacheKey = `${newFunctionId}-${selectedCategoryId}`;
       setFunctionMenuData((prev) => {
         const newData = { ...prev };
         delete newData[currentCacheKey];
-        console.log(`🗑️ Cleared cache for key: ${currentCacheKey}`);
+
         return newData;
       });
 
-      // 6. Load fresh menu data with selected items
       await loadFunctionMenuData(newFunctionId, selectedCategoryId);
-
-      console.log(`✅ Tab change completed for function ${newFunctionId}`);
     } catch (error) {
       console.error("❌ Error in handleTabChange:", error);
     } finally {
@@ -416,12 +517,9 @@ const EventPreparationPage = () => {
   };
 
   const handleCategoryChange = async (categoryId) => {
-    console.log(`🏷️ Category change: ${selectedCategoryId} → ${categoryId}`);
-
     setSelectedCategoryId(categoryId);
 
     if (selectedFunctionId) {
-      // Clear cache for the new category
       const cacheKey = `${selectedFunctionId}-${categoryId}`;
       setFunctionMenuData((prev) => {
         const newData = { ...prev };
@@ -429,30 +527,9 @@ const EventPreparationPage = () => {
         return newData;
       });
 
-      // Load fresh data
-      await loadFunctionMenuData(selectedFunctionId, categoryId);
+      await loadFunctionMenuData(selectedFunctionId, categoryId, true);
     }
   };
-
-  const debugCurrentState = () => {
-    console.log("🐛 DEBUG STATE:", {
-      selectedFunctionId,
-      selectedCategoryId,
-      functionSelectionData: functionSelectionData[selectedFunctionId],
-      cacheKey: `${selectedFunctionId}-${selectedCategoryId}`,
-      menuItemsCount:
-        functionMenuData[`${selectedFunctionId}-${selectedCategoryId}`]
-          ?.length || 0,
-      allMenuItemsCount: allMenuItems[selectedFunctionId]?.length || 0,
-    });
-  };
-
-  useEffect(() => {
-    if (selectedFunctionId) {
-      console.log(`👀 Function changed to: ${selectedFunctionId}`);
-      debugCurrentState(); // Remove this after testing
-    }
-  }, [selectedFunctionId, functionSelectionData]);
 
   const handleSave = () => {
     const currentFunctionData = functionSelectionData[selectedFunctionId];
@@ -464,33 +541,34 @@ const EventPreparationPage = () => {
       return;
     }
 
-    // Use allMenuItems instead of currentMenuItems for save
     const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-
     const selectedItems = currentFunctionData.selectedItems
       .map((id) => allFunctionMenuItems.find((item) => item.id === id))
       .filter(Boolean);
 
-    // Get existing menu preparation ID for this function (0 if new)
     const existingId = menuPreparationIds[selectedFunctionId] || 0;
 
     const payload = {
       defaultPrice: rate || 0,
       eventFunctionId: selectedFunctionId,
-      id: existingId, // Use existing ID for updates, 0 for new records
+      id: existingId,
       menuPreparationDetails: selectedItems.map((item, index) => {
         const category = categories.find((cat) => cat.id === item.parentId);
+
         return {
           id: 0,
           itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
           itemPrice:
             Number(currentFunctionData.itemRates[item.id]) || Number(rate) || 0,
           itemSortOrder: index + 1,
+          menuNotes: currentFunctionData.categoryNotes?.[item.parentId] || "",
+          menuSlogan:
+            currentFunctionData.categorySlogans?.[item.parentId] || "",
           menuCategoryId: item.parentId,
           menuCategoryName: category?.name || "",
           menuItemId: item.id,
           menuItemName: item.name,
-          menuNotes: "",
           menuSortOrder: index + 1,
           startTime: dateandtime,
         };
@@ -500,19 +578,27 @@ const EventPreparationPage = () => {
       sortorder: 0,
     };
 
-    console.log(
-      `${existingId === 0 ? "Creating" : "Updating"} menu preparation:`,
-      payload
-    );
-
     AddMenuprep(payload)
       .then((res) => {
-        console.log("✅ Saved:", res.data);
         if (res.data?.msg) {
-          successMsgPopup(res.data.msg);
+          Swal.fire({
+            title: `${res.data?.msg}`,
+            text: "",
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+            },
+          });
         }
 
-        // Store the menu preparation ID if it's a new record
         if (existingId === 0 && res.data?.data?.menuPreparation?.id) {
           setMenuPreparationIds((prev) => ({
             ...prev,
@@ -520,7 +606,6 @@ const EventPreparationPage = () => {
           }));
         }
 
-        // Mark this function as saved
         setFunctionSelectionData((prev) => ({
           ...prev,
           [selectedFunctionId]: {
@@ -529,8 +614,6 @@ const EventPreparationPage = () => {
           },
         }));
         clearFunctionCache(selectedFunctionId);
-
-        // Refresh data to get the latest selectedMenuPreparationItems
         loadFunctionMenuData(selectedFunctionId, selectedCategoryId);
       })
       .catch((err) => {
@@ -539,32 +622,27 @@ const EventPreparationPage = () => {
       });
   };
 
-  const classes = useStyles();
-  const [search, setSearch] = useState("");
-  const [childSearch, setChildSearch] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
-
-  const allCategory = { id: 0, name: "All" };
-  const categoriesWithAll = [allCategory, ...categories];
-
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Get current function's menu items (for left side display - category specific)
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
 
-  const filteredChildren = currentMenuItems.filter((child) =>
-    child.name.toLowerCase().includes(childSearch.toLowerCase())
-  );
-
-  // Get current function's selection data
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
     selectedItems: [],
     itemNotes: {},
     itemRates: {},
   };
+
+  const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
+    ...item,
+    isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
+  }));
+
+  const filteredChildren = menuItemsWithSelectionState.filter((child) =>
+    child.name.toLowerCase().includes(childSearch.toLowerCase())
+  );
 
   const toggleChildSelection = (id) => {
     setFunctionSelectionData((prev) => ({
@@ -576,7 +654,7 @@ const EventPreparationPage = () => {
               (itemId) => itemId !== id
             )
           : [...(prev[selectedFunctionId]?.selectedItems || []), id],
-        isSaved: false, // Mark as unsaved when making changes
+        isSaved: false,
       },
     }));
   };
@@ -609,10 +687,8 @@ const EventPreparationPage = () => {
     }));
   };
 
-  // New handlers for pax and rate changes
   const handlePaxChange = (newPax) => {
     setPax(newPax);
-    // Mark current function as unsaved if it has selections
     if (currentFunctionData.selectedItems?.length > 0) {
       setFunctionSelectionData((prev) => ({
         ...prev,
@@ -626,7 +702,6 @@ const EventPreparationPage = () => {
 
   const handleRateChange = (newRate) => {
     setRate(newRate);
-    // Mark current function as unsaved if it has selections
     if (currentFunctionData.selectedItems?.length > 0) {
       setFunctionSelectionData((prev) => ({
         ...prev,
@@ -644,12 +719,10 @@ const EventPreparationPage = () => {
     const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
 
     return currentFunctionData.selectedItems.reduce((sum, itemId) => {
-      // Find the item to get its original price
       const item = allFunctionMenuItems.find(
         (menuItem) => menuItem.id === itemId
       );
 
-      // Use custom rate if set, otherwise use original item price, fallback to default rate
       const itemRate =
         Number(currentFunctionData.itemRates?.[itemId]) ||
         Number(item?.price) ||
@@ -659,7 +732,6 @@ const EventPreparationPage = () => {
     }, 0);
   };
 
-  // FIXED: Use allMenuItems instead of currentMenuItems for selected items display
   const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
   const selectedItems = currentFunctionData.selectedItems
     .map((id) => allFunctionMenuItems.find((item) => item.id === id))
@@ -673,21 +745,53 @@ const EventPreparationPage = () => {
     return acc;
   }, {});
 
-  const removeSelectedItem = (itemId) => {
-    setFunctionSelectionData((prev) => ({
-      ...prev,
-      [selectedFunctionId]: {
-        ...prev[selectedFunctionId],
-        selectedItems: prev[selectedFunctionId].selectedItems.filter(
-          (id) => id !== itemId
-        ),
-        isSaved: false,
-      },
-    }));
+  const removeSelectedItem = async (itemId, menuCatId, menuPrepId) => {
+    try {
+      if (!menuPrepId) {
+        console.error("❌ Menu Preparation ID is missing");
+        errorMsgPopup("Menu preparation not found. Please save first.");
+        return;
+      }
+
+      const res = await Deleteiteminmenu(itemId, menuCatId, menuPrepId);
+
+      if (res.data?.msg) {
+        Swal.fire({
+          title: `${res.data?.msg}`,
+          text: "",
+          icon: "success",
+          background: "#f5faff",
+          color: "#003f73",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#005BA8",
+          showClass: {
+            popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+          },
+        });
+      }
+
+      setFunctionSelectionData((prev) => ({
+        ...prev,
+        [selectedFunctionId]: {
+          ...prev[selectedFunctionId],
+          selectedItems: prev[selectedFunctionId].selectedItems.filter(
+            (id) => id !== itemId
+          ),
+          isSaved: false,
+        },
+      }));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      errorMsgPopup("Failed to delete item");
+    }
   };
 
-  // Determine if this is an update or create operation
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
+
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
@@ -828,18 +932,29 @@ const EventPreparationPage = () => {
               >
                 <div className="col-span-3">
                   <div className="h-full lg:border-e lg:border-e-border">
-                    <div className="border-b p-3 rounded-t-lg">
-                      <div className="relative">
-                        <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input
-                          type="text"
-                          className="input pl-8"
-                          placeholder="Search categories"
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
-                        />
-                      </div>
+                    <div className="border-b p-3 rounded-t-lg sg__inner relative w-full">
+                      <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute left-3 top-1/2 -translate-y-1/2"></i>
+
+                      <input
+                        type="text"
+                        className="input pl-10 pr-12 w-full"
+                        placeholder="Search categories"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+
+                      <Tooltip title="Add menu category">
+                        <button
+                          type="button"
+                          onClick={() => setIsCategoryModalOpen(true)}
+                          title="Add"
+                          className="absolute top-1/2 right-4 -translate-y-1/2 btn btn-primary w-8 h-8 flex items-center justify-center rounded-full"
+                        >
+                          <i className="ki-filled ki-plus text-md"></i>
+                        </button>
+                      </Tooltip>
                     </div>
+
                     <div className="flex-1 max-h-[520px] overflow-auto scrollable-y">
                       <div className="h-full">
                         {filteredCategories.length === 0 ? (
@@ -883,7 +998,7 @@ const EventPreparationPage = () => {
                           <Tooltip title="Add menu item">
                             <button
                               type="button"
-                              onClick={() => console.log("Add clicked")}
+                              onClick={() => setIsItemModalOpen(true)}
                               title="Add"
                               className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
                             >
@@ -913,21 +1028,19 @@ const EventPreparationPage = () => {
                           No items found
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
                           {filteredChildren.map(
-                            ({ parentId, id, name, image }) => (
+                            ({ parentId, id, name, image, isSelected }) => (
                               <div
                                 key={id}
-                                className={`flex flex-col items-start border rounded-lg cursor-pointer aspect-square transition-all relative ${
-                                  currentFunctionData.selectedItems?.includes(
-                                    id
-                                  )
+                                className={`flex flex-col items-start border rounded-lg cursor-pointer  transition-all relative ${
+                                  isSelected
                                     ? "border-success bg-green-300/10 text-success"
                                     : "hover:bg-blue-500/10 hover:border-blue-500/15"
                                 }`}
                                 onClick={() => toggleChildSelection(id)}
                               >
-                                <div className="w-full h-16 rounded overflow-hidden flex items-center justify-center">
+                                <div className="w-full h-20 rounded overflow-hidden flex items-center justify-center">
                                   <img
                                     src={image}
                                     alt={name}
@@ -937,9 +1050,7 @@ const EventPreparationPage = () => {
                                 <div className="w-full h-12 font-medium px-2 pt-2 pb-1 text-center text-xs flex items-center justify-center">
                                   {name}
                                 </div>
-                                {currentFunctionData.selectedItems?.includes(
-                                  id
-                                ) && (
+                                {isSelected && (
                                   <span className="bg-success w-5 h-5 rounded-full shadow-lg shadow-green-500/50 absolute top-1 right-1 flex items-center justify-center">
                                     <i className="ki-filled ki-check text-sm text-light"></i>
                                   </span>
@@ -979,116 +1090,178 @@ const EventPreparationPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {Object.entries(selectedItemsByCategory).map(
-                        ([categoryName, items]) => (
-                          <div key={categoryName} className="mb-2">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="font-semibold text-xs text-gray-900">
-                                {categoryName}
-                              </span>
-                              <Tooltip title="Expand">
-                                <button className="p-0 w-6 h-6" title="Expand">
-                                  <i className="ki-filled ki-down text-md"></i>
-                                </button>
-                              </Tooltip>
-                            </div>
-                            <ul className="bg-white rounded border shadow-sm">
-                              {items.map((item) => (
-                                <li
-                                  key={item.id}
-                                  className="flex flex-col border-b last:border-0 p-3"
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span
-                                        className="w-8 h-8 rounded overflow-hidden"
-                                        style={{ flex: "0 0 2rem" }}
-                                      >
-                                        <img
-                                          src={item.image}
-                                          alt={item.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      </span>
-                                      <span className="text-xs font-medium">
-                                        {item.name}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <button
-                                        className="ml-2 text-gray-400 hover:text-gray-500"
-                                        title="Info"
-                                      >
-                                        <i className="ki-filled ki-information-1"></i>
-                                      </button>
-                                      <Tooltip title="Remove">
-                                        <button
-                                          className="ml-2 text-gray-400 hover:text-red-500"
-                                          title="Remove"
-                                          onClick={() =>
-                                            removeSelectedItem(item.id)
-                                          }
-                                        >
-                                          <i className="ki-filled ki-trash"></i>
-                                        </button>
-                                      </Tooltip>
-                                    </div>
-                                  </div>
-
-                                  {showDetails && (
-                                    <div className="flex items-center justify-between mt-1 gap-2">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-gray-500">
-                                          Rate:
-                                        </span>
-                                        <input
-                                          type="number"
-                                          value={
-                                            currentFunctionData.itemRates?.[
-                                              item.id
-                                            ] ??
-                                            item.price ??
-                                            rate
-                                          }
-                                          onChange={(e) =>
-                                            handleItemRateChange(
-                                              item.id,
-                                              e.target.value
-                                            )
-                                          }
-                                          min={0}
-                                          className="input input-sm w-20"
-                                        />
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {showDetails && (
-                                    <div className="mt-2">
-                                      <textarea
-                                        placeholder="Add notes..."
-                                        value={
-                                          currentFunctionData.itemNotes?.[
-                                            item.id
-                                          ] || ""
-                                        }
-                                        onChange={(e) =>
-                                          handleNoteChange(
-                                            item.id,
-                                            e.target.value
-                                          )
-                                        }
-                                        className="textarea textarea-sm w-full text-xs"
-                                        rows="2"
-                                      />
-                                    </div>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                      {categoriesWithAll
+                        .map((cat) => cat.name)
+                        .filter(
+                          (categoryName) =>
+                            selectedItemsByCategory[categoryName]?.length
                         )
-                      )}
+                        .map((categoryName) => {
+                          const items = selectedItemsByCategory[categoryName];
+                          return (
+                            <div key={categoryName} className="mb-2">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="font-semibold text-xs text-gray-900">
+                                  {categoryName}
+
+                                  <Tooltip title="Category Notes">
+                                    <button
+                                      className="ml-2 text-gray-400 hover:text-gray-500"
+                                      title="Info"
+                                      onClick={() => {
+                                        const firstItem = items[0];
+                                        const actualCategoryId = firstItem
+                                          ? firstItem.parentId
+                                          : 0;
+
+                                        setCurrentCategoryForNotes(
+                                          actualCategoryId
+                                        );
+                                        setCategoryNotes({
+                                          categoryNotes:
+                                            currentFunctionData.categoryNotes?.[
+                                              actualCategoryId
+                                            ] || "",
+                                          categorySlogan:
+                                            currentFunctionData
+                                              .categorySlogans?.[
+                                              actualCategoryId
+                                            ] || "",
+                                        });
+                                        setShowCategoryNoteModal(true);
+                                      }}
+                                    >
+                                      <i className="ki-filled ki-notepad"></i>
+                                    </button>
+                                  </Tooltip>
+                                </span>
+                                <Tooltip title="Expand">
+                                  <button
+                                    className="p-0 w-6 h-6"
+                                    title="Expand"
+                                    onClick={() =>
+                                      toggleCategoryExpand(categoryName)
+                                    }
+                                  >
+                                    <i
+                                      className={`ki-filled ${
+                                        expandedCategories[categoryName]
+                                          ? "ki-up"
+                                          : "ki-down"
+                                      } text-md`}
+                                    ></i>
+                                  </button>
+                                </Tooltip>
+                              </div>
+                              {expandedCategories[categoryName] && (
+                                <ul className="bg-white rounded border shadow-sm">
+                                  {items.map((item) => (
+                                    <li
+                                      key={item.id}
+                                      className="flex flex-col border-b last:border-0 p-3"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <span
+                                            className="w-8 h-8 rounded overflow-hidden"
+                                            style={{ flex: "0 0 2rem" }}
+                                          >
+                                            <img
+                                              src={item.image}
+                                              alt={item.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </span>
+                                          <span className="text-xs font-medium">
+                                            {item.name}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <Tooltip title="Notes">
+                                            <button
+                                              className="ml-2 text-gray-400 hover:text-gray-500"
+                                              title="Info"
+                                              onClick={() => {
+                                                setCurrentItemForNotes(item.id);
+                                                setItemNotes({
+                                                  itemsNotes:
+                                                    currentFunctionData
+                                                      .itemNotes?.[item.id] ||
+                                                    "",
+                                                  itemSlogan:
+                                                    currentFunctionData
+                                                      .itemSlogans?.[item.id] ||
+                                                    "",
+                                                });
+                                                setShowNoteModal(true);
+                                              }}
+                                            >
+                                              <i className="ki-filled ki-notepad"></i>
+                                            </button>
+                                          </Tooltip>
+                                          <Popconfirm
+                                            title="Are you sure to delete this item?"
+                                            onConfirm={() =>
+                                              removeSelectedItem(
+                                                item.id,
+                                                item.parentId,
+                                                menuPreparationIds[
+                                                  selectedFunctionId
+                                                ]
+                                              )
+                                            }
+                                            onCancel={() =>
+                                              console.log("Cancelled")
+                                            }
+                                            okText="Yes"
+                                            cancelText="No"
+                                          >
+                                            <Tooltip title="Remove">
+                                              <button
+                                                className="ml-2 text-gray-400 hover:text-red-500"
+                                                title="Remove"
+                                              >
+                                                <i className="ki-filled ki-trash"></i>
+                                              </button>
+                                            </Tooltip>
+                                          </Popconfirm>
+                                        </div>
+                                      </div>
+
+                                      {showDetails && (
+                                        <div className="flex items-center justify-between mt-1 gap-2">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-500">
+                                              Rate:
+                                            </span>
+                                            <input
+                                              type="number"
+                                              value={
+                                                currentFunctionData.itemRates?.[
+                                                  item.id
+                                                ] ??
+                                                item.price ??
+                                                rate
+                                              }
+                                              onChange={(e) =>
+                                                handleItemRateChange(
+                                                  item.id,
+                                                  e.target.value
+                                                )
+                                              }
+                                              min={0}
+                                              className="input input-sm w-20"
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
@@ -1116,7 +1289,11 @@ const EventPreparationPage = () => {
           </div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <button className="btn btn-light" title="Cancel">
+          <button
+            className="btn btn-light"
+            title="Cancel"
+            onClick={() => navigate("/event")}
+          >
             Cancel
           </button>
           <button
@@ -1134,6 +1311,40 @@ const EventPreparationPage = () => {
             )}
           </button>
         </div>
+        <AddMenuItem
+          isModalOpen={isItemModalOpen}
+          setIsModalOpen={(val) => {
+            setIsItemModalOpen(val);
+          }}
+          refreshData={initializeData}
+        />
+        <AddMenuCategory
+          isModalOpen={isCategoryModalOpen}
+          setIsModalOpen={setIsCategoryModalOpen}
+          refreshData={initializeData}
+        />
+        <MenuNotes
+          isOpen={showNoteModal}
+          onClose={() => {
+            setShowNoteModal(false);
+            setCurrentItemForNotes(null);
+          }}
+          itemId={currentItemForNotes}
+          notes={itemNotes}
+          onSave={handleNoteSave}
+        />
+
+        <CategoryNotes
+          isOpen={showCategoryNoteModal}
+          onClose={() => {
+            setShowCategoryNoteModal(false);
+            setCurrentCategoryForNotes(null);
+          }}
+          categoryId={currentCategoryForNotes}
+          notes={categoryNotes}
+          onSave={handleCategoryNoteSave}
+          categories={categoriesWithAll}
+        />
       </Container>
     </Fragment>
   );

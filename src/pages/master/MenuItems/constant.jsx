@@ -1,6 +1,6 @@
-import { Tooltip,Popconfirm,message  } from "antd";
+import { Tooltip, Popconfirm, message } from "antd";
 
-export const columns = (onEdit, onDelete,onstatus) => [
+export const columns = (onEdit, onDelete, onstatus) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -10,22 +10,22 @@ export const columns = (onEdit, onDelete,onstatus) => [
     },
   },
   {
-  accessorKey: "image",
-  header: "Image",
-  cell: ({ row }) => {
-    return (
-      <img
-        src={row.original.image || "/no-image.png"} // fallback image if empty
-        alt={row.original.name}
-        className="w-12 h-12 object-cover rounded-md"
-      />
-    );
+    accessorKey: "image",
+    header: "Image",
+    cell: ({ row }) => {
+      return (
+        <img
+          src={row.original.image || "/no-image.png"} // fallback image if empty
+          alt={row.original.name}
+          className="w-12 h-12 object-cover rounded-md"
+        />
+      );
+    },
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
   },
-  meta: {
-    headerClassName: "w-[8%]",
-    cellClassName: "w-[8%]",
-  },
-},
 
   {
     accessorKey: "name",
@@ -43,7 +43,7 @@ export const columns = (onEdit, onDelete,onstatus) => [
       cellClassName: "w-[8%]",
     },
   },
-   {
+  {
     accessorKey: "priority",
     header: "Priority",
     meta: {
@@ -55,8 +55,8 @@ export const columns = (onEdit, onDelete,onstatus) => [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-  return (
-   <Popconfirm
+      return (
+        <Popconfirm
           title={`Are you sure you want to ${
             row.original.status ? "Deactivate" : "Activate"
           } this menu item?`}
@@ -69,16 +69,12 @@ export const columns = (onEdit, onDelete,onstatus) => [
         >
           <div className="flex items-center gap-1 cursor-pointer">
             <label className="switch switch-lg">
-              <input
-                type="checkbox"
-                checked={row.original.status}
-                readOnly
-              />
+              <input type="checkbox" checked={row.original.status} readOnly />
             </label>
           </div>
         </Popconfirm>
-  );
-},
+      );
+    },
 
     meta: {
       headerClassName: "w-[10%]",
@@ -100,22 +96,16 @@ export const columns = (onEdit, onDelete,onstatus) => [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
- <Popconfirm
-            title="Are you sure to delete this kitchen area?"
-            onConfirm={() => onDelete(row.original.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+
           <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
+              onClick={() => onDelete(row.original.id)}
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
-
           </Tooltip>
- </Popconfirm>
         </div>
       );
     },
@@ -135,9 +125,44 @@ export const categoryData = [
 ];
 
 export const defaultData = [
-  { sr_no: 1, name:'COLLEGIAN BHEL', category: "LABENESE COUNTER", image:'', priority: '5', status:1 },
-  { sr_no: 2, name:'WELCOME DRINKS AND SPRITZERS', category: "WELCOME DRINKS AND SPRITZERS", image:'', priority: '38', status:1},
-  { sr_no: 3, name:'FINGER FOOD STARTERS', category: "Last", image:'', priority: '27', status:0},
-  { sr_no: 4, name:'STYLISH BAR BE QUE', category: "Police", image:'', priority: '25', status:1 },
-  { sr_no: 5, name:'EXOTIC COUNTER', category: "TEST", image:'', priority: '88', status:0 },
+  {
+    sr_no: 1,
+    name: "COLLEGIAN BHEL",
+    category: "LABENESE COUNTER",
+    image: "",
+    priority: "5",
+    status: 1,
+  },
+  {
+    sr_no: 2,
+    name: "WELCOME DRINKS AND SPRITZERS",
+    category: "WELCOME DRINKS AND SPRITZERS",
+    image: "",
+    priority: "38",
+    status: 1,
+  },
+  {
+    sr_no: 3,
+    name: "FINGER FOOD STARTERS",
+    category: "Last",
+    image: "",
+    priority: "27",
+    status: 0,
+  },
+  {
+    sr_no: 4,
+    name: "STYLISH BAR BE QUE",
+    category: "Police",
+    image: "",
+    priority: "25",
+    status: 1,
+  },
+  {
+    sr_no: 5,
+    name: "EXOTIC COUNTER",
+    category: "TEST",
+    image: "",
+    priority: "88",
+    status: 0,
+  },
 ];

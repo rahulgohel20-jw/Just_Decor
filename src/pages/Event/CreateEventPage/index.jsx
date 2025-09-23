@@ -8,7 +8,7 @@ import StepsComponent from "@/components/StepsComponents";
 import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
-import Functionsdeatils from "@/container/EventStepsContainer/FunctionDetails";
+import FunctionsDetails from "@/container/EventStepsContainer/FunctionDetails";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import {
   eventValidationSchema,
@@ -67,7 +67,8 @@ const CreateEventPage = () => {
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "event hello");
+          console.log(event, "datatatat");
+
           const statusId =
             event?.status?.id != null
               ? String(event.status.id)
@@ -93,9 +94,9 @@ const CreateEventPage = () => {
             customer_name: event.party?.nameEnglish || "",
             address: event.address || event.party?.addressEnglish || "",
             mobileno: event.mobileno || event.party?.mobileno || "",
-
+            isHighPriority: event.isHighPriority,
             eventFunction: (event.eventFunctions || []).map((f) => ({
-              eventFuncId: f.eventId,
+              eventFuncId: f.id,
               functionId: f.function?.id ?? f.functionId ?? null,
               functionName: f.function?.nameEnglish ?? "",
               functionStartDateTime: f.functionStartDateTime.replace(
@@ -121,7 +122,6 @@ const CreateEventPage = () => {
             theme: event.theme || "",
             remark: event.remark || "",
           }));
-          console.log(event, "data");
         })
         .catch((err) => console.error("Error fetching event:", err))
         .finally(() => setLoading(false));
@@ -247,46 +247,84 @@ const CreateEventPage = () => {
 
       if (mode === "edit" && eventId) {
         response = await UpdateEventMaster(eventId, payload);
-      } else {
-        response = await CreateEventMaster(payload);
-      }
-      if (
-        response?.data?.msg?.toLowerCase().includes("Successfully") ||
-        response?.status === 200
-      ) {
-        Swal.fire({
-  title: "Event Created Successfully!",
-  text: "Your event has been added to the calendar.",
-  icon: "success",
-  background: "#f5faff",
-  color: "#003f73",
-  confirmButtonText: "Okay",
-  confirmButtonColor: "#005BA8",
-  showClass: {
-    popup: `
+        if (
+          response?.data?.msg?.toLowerCase().includes("Successfully") ||
+          response?.status === 200
+        ) {
+          Swal.fire({
+            title: "Event Updated Successfully!",
+            text: "Your event has been updated to the calendar.",
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
       animate__animated
       animate__fadeInDown
       animate__faster
-    `
-  },
-  hideClass: {
-    popup: `
+    `,
+            },
+            hideClass: {
+              popup: `
       animate__animated
       animate__fadeOutUp
       animate__faster
-    `
-  },
-  customClass: {
-    popup: "rounded-2xl shadow-xl",
-    title: "text-2xl font-bold",
-    confirmButton: "px-6 py-2 text-white font-semibold rounded-lg"
-  }
-});
+    `,
+            },
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
 
-        navigate("/calendar");
+          navigate("/calendar");
+        } else {
+          response.data?.msg && errorMsgPopup(response.data.msg);
+          console.error("Backend returned an error:", response);
+        }
       } else {
-        response.data?.msg && errorMsgPopup(response.data.msg);
-        console.error("Backend returned an error:", response);
+        response = await CreateEventMaster(payload);
+        if (
+          response?.data?.msg?.toLowerCase().includes("Successfully") ||
+          response?.status === 200
+        ) {
+          Swal.fire({
+            title: "Event Created Successfully!",
+            text: "Your event has been added to the calendar.",
+            icon: "success",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+            },
+            hideClass: {
+              popup: `
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `,
+            },
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
+
+          navigate("/calendar");
+        } else {
+          response.data?.msg && errorMsgPopup(response.data.msg);
+          console.error("Backend returned an error:", response);
+        }
       }
     } catch (err) {
       response.data?.msg && errorMsgPopup(response.data.msg);
@@ -350,7 +388,7 @@ const CreateEventPage = () => {
       {
         title: "Functions",
         content: (
-          <Functionsdeatils
+          <FunctionsDetails
             formData={formData}
             setFormData={setFormData}
             onInputChange={handleInputChange}

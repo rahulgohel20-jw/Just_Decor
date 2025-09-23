@@ -4,9 +4,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddKitchenArea from "@/partials/modals/add-kitchen-area/AddKitchenArea";
-import {GetAllKitchenAreaById} from "@/services/apiServices";
-import { DeleteKitchenArea , UpdateStatusKitchenArea } from "../../../services/apiServices";
-
+import { GetAllKitchenAreaById } from "@/services/apiServices";
+import {
+  DeleteKitchenArea,
+  UpdateStatusKitchenArea,
+} from "../../../services/apiServices";
+import Swal from "sweetalert2";
 const MenuKitchenArea = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
@@ -20,64 +23,83 @@ const MenuKitchenArea = () => {
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
 
+  const FetchCategoryData = async () => {
+    try {
+      const res = await GetAllKitchenAreaById(Id);
+      console.log("API Raw Response:", res);
 
-const FetchCategoryData = async () => {
-  try {
-    const res = await GetAllKitchenAreaById(Id);
-    console.log("API Raw Response:", res);
+      let list = Array.isArray(res?.data?.data?.["KitchenAreas Details"])
+        ? res.data.data["KitchenAreas Details"]
+        : [];
 
-    let list = Array.isArray(res?.data?.data?.["KitchenAreas Details"])
-      ? res.data.data["KitchenAreas Details"]
-      : [];
+      if (searchQuery.trim()) {
+        list = list.filter((item) =>
+          item.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
 
-    if (searchQuery.trim()) {
-      list = list.filter((item) =>
-        item.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const formatted = list.map((item, index) => ({
+        id: item.id,
+        sr_no: index + 1,
+        category: item.nameEnglish || "-",
+        hindi: item.nameHindi || "-",
+        gujarati: item.nameGujarati || "-",
+        createdAt: item.createdAt,
+        userName: `${item.user?.firstName || ""} ${item.user?.lastName || ""}`,
+        plan: item.user?.plan?.name || "-",
+        role: item.user?.userBasicDetails?.role?.name || "-",
+        isActive: item.isActive ?? item.status ?? false,
+        raw: item,
+      }));
+      setTableData(formatted);
+      console.log("Kitchen area data fetched successfully:", formatted);
+    } catch (error) {
+      console.error("Error fetching kitchen area:", error);
+      setTableData([]);
     }
+  };
 
-    const formatted = list.map((item, index) => ({
-     id: item.id,
-      sr_no: index + 1,
-      category: item.nameEnglish || "-",
-      hindi: item.nameHindi || "-",
-      gujarati: item.nameGujarati || "-",
-      createdAt: item.createdAt,
-      userName: `${item.user?.firstName || ""} ${item.user?.lastName || ""}`,
-      plan: item.user?.plan?.name || "-",
-      role: item.user?.userBasicDetails?.role?.name || "-",
-      isActive: item.isActive ?? item.status ?? false,
-      raw: item,
-    }));
-    setTableData(formatted);
-    console.log("Kitchen area data fetched successfully:", formatted);
-
-  } catch (error) {
-    console.error("Error fetching kitchen area:", error);
-    setTableData([]);
-  }
-};
-
-const statusKitchen = async (id, currentStatus) => {
-  try {
-    const newStatus = !currentStatus; // toggle
-    const res = await UpdateStatusKitchenArea(id, newStatus);
-console.log("Status updated response:", res);
-    FetchCategoryData();
-   
-  } catch (error) {
-    console.error("Error updating status:", error);
-  }
-};
+  const statusKitchen = async (id, currentStatus) => {
+    try {
+      const newStatus = !currentStatus; // toggle
+      const res = await UpdateStatusKitchenArea(id, newStatus);
+      FetchCategoryData();
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
   const DeleteCategory = async (id) => {
-        try{
-      await DeleteKitchenArea(id);
-      console.log("Kitchen area deleted successfully:", id);
-      FetchCategoryData();
-    }catch(error){
-      console.error("Error deleting kitchen area:", error);
-    }
-      FetchCategoryData();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteKitchenArea(id)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchCategoryData();
+              Swal.fire({
+                title: "Removed!",
+                text: "Kitchen Area has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((err) => {
+            console.error("Delete error:", err);
+          });
+      }
+    });
   };
 
   const handleEdit = (categoryRow) => {

@@ -7,6 +7,9 @@ import {
   GetAllFunctionsByUserId,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
 
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
   const initialState = {
@@ -17,12 +20,69 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
     endTime: null,
   };
 
-  const [formData, setFormData] = useState(initialState);
+  const validationSchema = Yup.object({
+    nameEnglish: Yup.string().required("Name is required"),
+    startTime: Yup.mixed().required("Start Time is required"),
+    endTime: Yup.mixed().required("End Time is required"),
+  });
 
-  // ✅ Prefill data when editing
+  const formik = useFormik({
+    initialValues: initialState,
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData?.id) {
+          message.error("User not logged in");
+          return;
+        }
+
+        const payload = {
+          nameEnglish: values.nameEnglish,
+          nameGujarati: values.nameGujarati,
+          nameHindi: values.nameHindi,
+          startTime: values.startTime ? values.startTime.format("HH:mm") : "",
+          endTime: values.endTime ? values.endTime.format("HH:mm") : "",
+          userId: userData.id,
+        };
+
+        let res;
+        if (selectedFunction) {
+          res = await EditFunctionById(selectedFunction.id, payload);
+          if (res?.data?.success === false) {
+            Swal.fire("Error", res.msg || "Something went wrong", "error");
+            return;
+          }
+          Swal.fire("Success", "Function updated successfully!", "success");
+        } else {
+          res = await AddFunction(payload);
+
+          if (res?.data?.success === false) {
+            Swal.fire(
+              "Error",
+              res?.data?.msg || "Something went wrong",
+              "error"
+            );
+            return;
+          }
+          Swal.fire("Success", "Function added successfully!", "success");
+        }
+
+        GetAllFunctionsByUserId(); // refresh list
+        onClose(false);
+        if (onSuccess) onSuccess();
+      } catch (err) {
+        console.error("Error saving function:", err);
+        Swal.fire("Error", "Failed to save function", "error");
+      }
+    },
+
+    enableReinitialize: true,
+  });
+
   useEffect(() => {
     if (selectedFunction) {
-      setFormData({
+      formik.setValues({
         nameEnglish: selectedFunction.function_name || "",
         nameGujarati: selectedFunction.nameGujarati || "",
         nameHindi: selectedFunction.nameHindi || "",
@@ -34,51 +94,11 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
           : null,
       });
     } else {
-      setFormData(initialState);
+      formik.resetForm({ values: initialState });
     }
-  }, [selectedFunction]);
+  }, [selectedFunction, isOpen]);
 
   if (!isOpen) return null;
-
-  // ✅ update input values
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // ✅ handle Save / Update
-  const handleSave = async () => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
-        message.error("User not logged in");
-        return;
-      }
-
-      const payload = {
-        nameEnglish: formData.nameEnglish,
-        nameGujarati: formData.nameGujarati,
-        nameHindi: formData.nameHindi,
-        startTime: formData.startTime ? formData.startTime.format("HH:mm") : "",
-        endTime: formData.endTime ? formData.endTime.format("HH:mm") : "",
-        userId: userData.id,
-      };
-
-      if (selectedFunction) {
-        await EditFunctionById(selectedFunction.id, payload);
-        message.success("Function updated successfully!");
-      } else {
-        await AddFunction(payload);
-        message.success("Function added successfully!");
-      }
-
-      GetAllFunctionsByUserId(); // refresh list
-      onClose(false);
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      console.error("Error saving function:", err);
-      message.error("Failed to save function");
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -97,76 +117,95 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
         </div>
 
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <InputToTextLang
-            label="Name (English)*"
-            value={formData.nameEnglish}
-            onChange={(e) => handleChange("nameEnglish", e.target.value)}
-            lng="en-US"
-          />
-          <InputToTextLang
-            label="Name (ગુજરાતી)"
-            value={formData.nameGujarati}
-            onChange={(e) => handleChange("nameGujarati", e.target.value)}
-            lng="gu"
-          />
-          <InputToTextLang
-            label="Name (हिंदी)"
-            value={formData.nameHindi}
-            onChange={(e) => handleChange("nameHindi", e.target.value)}
-            lng="hi"
-          />
-        </div>
-
-        {/* Time Pickers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="flex flex-col">
-            <label className="form-label">
-              Start Time
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
-            </label>
-            <TimePicker
-              className="input"
-              format="HH:mm"
-              value={formData.startTime}
-              onChange={(time) => handleChange("startTime", time)}
+        <form onSubmit={formik.handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <InputToTextLang
+              label="Name (English)"
+              value={formik.values.nameEnglish}
+              onChange={(e) =>
+                formik.setFieldValue("nameEnglish", e.target.value)
+              }
+              lng="en-US"
+              required
+              error={formik.touched.nameEnglish && formik.errors.nameEnglish}
+            />
+            <InputToTextLang
+              label="Name (ગુજરાતી)"
+              value={formik.values.nameGujarati}
+              onChange={(e) =>
+                formik.setFieldValue("nameGujarati", e.target.value)
+              }
+              lng="gu"
+            />
+            <InputToTextLang
+              label="Name (हिंदी)"
+              value={formik.values.nameHindi}
+              onChange={(e) =>
+                formik.setFieldValue("nameHindi", e.target.value)
+              }
+              lng="hi"
             />
           </div>
-          <div className="flex flex-col">
-            <label className="form-label">
-              End Time{" "}
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
-            </label>
-            <TimePicker
-              className="input"
-              format="HH:mm"
-              value={formData.endTime}
-              onChange={(time) => handleChange("endTime", time)}
-            />
-          </div>
-        </div>
 
-        {/* Buttons */}
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => onClose(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-          >
-            {selectedFunction ? "Update" : "Save"}
-          </button>
-        </div>
+          {/* Time Pickers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div className="flex flex-col">
+              <label className="form-label  text-gray-600">
+                Start Time
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </label>
+              <TimePicker
+                className="input"
+                format="HH:mm"
+                value={formik.values.startTime}
+                onChange={(time) => formik.setFieldValue("startTime", time)}
+              />
+              {formik.touched.startTime && formik.errors.startTime && (
+                <span className="text-red-500 text-sm">
+                  {formik.errors.startTime}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label  text-gray-600">
+                End Time{" "}
+                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                  *
+                </span>
+              </label>
+              <TimePicker
+                className="input"
+                format="HH:mm"
+                value={formik.values.endTime}
+                onChange={(time) => formik.setFieldValue("endTime", time)}
+              />
+              {formik.touched.endTime && formik.errors.endTime && (
+                <span className="text-red-500 text-sm">
+                  {formik.errors.endTime}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex w-full justify-end mt-6 gap-3">
+            <button
+              type="button"
+              onClick={() => onClose(false)}
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+            >
+              {selectedFunction ? "Update" : "Save"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

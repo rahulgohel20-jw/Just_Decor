@@ -154,7 +154,7 @@ export const GetAllRawMaterial = (Id) => {
 };
 
 export const GetUnitData = (Id) => {
-  return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}}`);
+  return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
 export const GetSuplier = (id) => {
   return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);

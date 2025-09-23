@@ -1,64 +1,73 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { AddMealType, EditMealType } from "@/services/apiServices";
-import InputToTextLang from "@/components/form-inputs/InputToTextLang"
+import InputToTextLang from "@/components/form-inputs/InputToTextLang";
+import Swal from "sweetalert2";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  nameEnglish: Yup.string().required("Name is required"),
+});
+
 const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
   if (!isOpen) return null;
-  const initialFormState = {
+
+  const initialValues = {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
   };
-  const [formData, setFormData] = useState(initialFormState);
+
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: async (values) => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        Swal.fire("Error", "User data not found", "error");
+        return;
+      }
+
+      try {
+        const payload = { ...values, userId: userData.id };
+
+        if (selectedMeal) {
+          const res = await EditMealType(selectedMeal.mealid, payload);
+          if (res?.data.success === false) {
+            Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+            return;
+          }
+          Swal.fire("Success", "Meal updated successfully", "success");
+        } else {
+          const res = await AddMealType(payload);
+          if (res?.data.success === false) {
+            Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+            return;
+          }
+          Swal.fire("Success", "Meal added successfully", "success");
+        }
+
+        refreshData();
+        onClose();
+      } catch (err) {
+        console.error("Error submitting meal:", err);
+        Swal.fire("Error", "Something went wrong", "error");
+      }
+    },
+    enableReinitialize: true,
+  });
 
   useEffect(() => {
     if (selectedMeal) {
-      console.log(selectedMeal.mealid);
-
-      setFormData({
+      formik.setValues({
         nameEnglish: selectedMeal.meal_type || "",
         nameGujarati: selectedMeal.nameGujarati || "",
         nameHindi: selectedMeal.nameHindi || "",
       });
     } else {
-      setFormData(initialFormState);
+      formik.resetForm();
     }
-  }, [selectedMeal]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
-
-    if (selectedMeal) {
-      const payload = { ...formData, userId: userData.id };
-
-      EditMealType(selectedMeal.mealid, payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error editing meal:", error);
-        });
-    } else {
-      const payload = { ...formData, userId: userData.id };
-      AddMealType(payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error adding meal:", error);
-        });
-    }
-  };
+  }, [selectedMeal, isOpen]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -75,50 +84,68 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
             &times;
           </button>
         </div>
+
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          {/* Name fields */}
-          <InputToTextLang
-            label="Name (English)"
-            name="nameEnglish"
-            value={formData.nameEnglish}
-            onChange={handleChange}
-            lng={'en-US'}
-            required
-          />
-          <InputToTextLang
-            label="Name (ગુજરાતી)"
-            name="nameGujarati"
-            value={formData.nameGujarati}
-            onChange={handleChange}
-            lng={'gu'}
-            required
-          />
-          <InputToTextLang
-            label="Name (हिंदी)"
-            name="nameHindi"
-            value={formData.nameHindi}
-            onChange={handleChange}
-            lng={'hi'}
-            required
-          />
-        </div>
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => onClose(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-            onClick={handleSubmit}
-          >
-            {selectedMeal ? "Update" : "Save"}
-          </button>
-        </div>
+        <form onSubmit={formik.handleSubmit}>
+          {/* 2-column grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <InputToTextLang
+                label="Name (English)"
+                name="nameEnglish"
+                value={formik.values.nameEnglish}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                lng="en-US"
+                required
+                error={formik.touched.nameEnglish && formik.errors.nameEnglish}
+              />
+            </div>
+            <div>
+              <InputToTextLang
+                label="Name (ગુજરાતી)"
+                name="nameGujarati"
+                value={formik.values.nameGujarati}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                lng="gu"
+                required
+                error={
+                  formik.touched.nameGujarati && formik.errors.nameGujarati
+                }
+              />
+            </div>
+            <div>
+              <InputToTextLang
+                label="Name (हिंदी)"
+                name="nameHindi"
+                value={formik.values.nameHindi}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                lng="hi"
+                required
+                error={formik.touched.nameHindi && formik.errors.nameHindi}
+              />
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex w-full justify-end mt-6 gap-3">
+            <button
+              type="button"
+              onClick={() => onClose(false)}
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+            >
+              {selectedMeal ? "Update" : "Save"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

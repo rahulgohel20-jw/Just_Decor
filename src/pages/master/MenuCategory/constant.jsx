@@ -103,19 +103,16 @@ export const columns = (onEdit, onDelete, onStatus, handleView) => [
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
-          <Popconfirm
-            title="Are you sure to delete this item?"
-            onConfirm={() => onDelete(row.original.id)}
-            onCancel={() => console.log("Cancelled")}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Tooltip title="Delete">
-              <button className="btn btn-sm btn-icon btn-clear" title="Delete">
-                <i className="ki-filled ki-trash  text-danger"></i>
-              </button>
-            </Tooltip>
-          </Popconfirm>
+
+          <Tooltip title="Delete">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Delete"
+              onClick={() => onDelete(row.original.id)}
+            >
+              <i className="ki-filled ki-trash  text-danger"></i>
+            </button>
+          </Tooltip>
         </div>
       );
     },

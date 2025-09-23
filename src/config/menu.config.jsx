@@ -1,10 +1,8 @@
 import { tr } from "@faker-js/faker";
 
 const userData = JSON.parse(localStorage.getItem("userData"));
-const roleId = userData?.userBasicDetails?.role?.id == 1;
-console.log("User Role:", roleId);
+const roleId = userData?.userBasicDetails?.role?.id === 1;
 
-console.log("User Role:", roleId);
 export const MENU_SIDEBAR = [
   {
     title: "Dashboard",
@@ -77,198 +75,203 @@ export const MENU_SIDEBAR = [
           },
         ],
       },
+    ],
+  },
+  // {
+  //   title: "Leads",
+  //   icon: "ki-filled ki-abstract-18 text-primary",
+  //   disabled: false,
+  //   children: [
+  //     {
+  //       title: "Overview",
+  //       path: "/overview",
+  //     },
+  //     {
+  //       title: "Leads",
+  //       path: "/lead",
+  //     },
+  //     {
+  //       title: "Contacts",
+  //       path: "/contacts",
+  //     },
+  //     {
+  //       title: "Companies",
+  //       path: "/company",
+  //     },
+  //     {
+  //       title: "Follow Up",
+  //       path: "/followup",
+  //     },
+  //     {
+  //       title: "Products",
+  //       path: "/product",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Tasks",
+  //   icon: "ki-filled ki-abstract-16 text-primary",
+  //   disabled: false,
+  //   children: [
+  //     {
+  //       title: "Dashboard",
+  //       path: "/tasks/dashboard",
+  //     },
+  //     {
+  //       title: "My Task",
+  //       path: "/task/mytask",
+  //     },
+  //     {
+  //       title: "All Tasks",
+  //       path: "/tasks",
+  //     },
+  //     {
+  //       title: "Tasks Templates",
+  //       path: "/tasks-template",
+  //     },
+  //     {
+  //       title: "Tasks Directory",
+  //       path: "/tasks-directory",
+  //     },
+  //   ],
+  // },
+
+  // {
+  //   title: "leaves",
+  //   icon: "ki-filled ki-abstract-17 text-primary",
+  //   disabled: false,
+  //   children: [
+  //     {
+  //       title: "Dashboard",
+  //       path: "/leave-dashboard",
+  //     },
+
+  //     {
+  //       title: "My Attendance",
+  //       path: "/myattendance",
+  //     },
+  //     {
+  //       title: "Approval",
+  //       path: "/approval",
+  //     },
+  //     {
+  //       title: "Holidays",
+  //       path: "/holiday",
+  //     },
+  //     {
+  //       title: "My Leaves",
+  //       path: "/myleaves",
+  //     },
+  //     {
+  //       title: "All Leaves",
+  //       path: "/allleave",
+  //     },
+  //     {
+  //       title: "All Attendance",
+  //       path: "/allattendance",
+  //     },
+  //     {
+  //       title: "Settings",
+  //       icon: "ki-filled ki-setting-2 text-primary",
+  //       children: [
+  //         {
+  //           title: "Leave Type",
+  //           path: "/leavetype",
+  //         },
+  //         {
+  //           title: "Attendance Settings",
+  //           path: "/attendance-setting",
+  //         },
+  //         {
+  //           title: "Office Settings",
+  //           path: "/officesettings",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Links",
+  //   icon: "ki-filled ki-disconnect text-primary",
+  //   disabled: false,
+  //   path: "/links",
+  // },
+  // {
+  //   title: "Team",
+  //   icon: "ki-filled ki-users text-primary",
+  //   disabled: true,
+  //   children: [
+  //     {
+  //       title: "Sales Team",
+  //       path: "/team/seals-team",
+  //     },
+  //     {
+  //       title: "User Roles",
+  //       path: "team/user-role",
+  //     },
+  //     {
+  //       title: "All Members",
+  //       path: "team/all-members",
+  //     },
+  //   ],
+  // },
+  {
+    title: "Raw Material",
+    icon: "ki-filled ki-abstract-18 text-primary",
+    children: [
+      {
+        title: "Raw Material Category Master",
+        path: "/master/raw-material-master",
+      },
+      {
+        title: "Raw Material Type Master",
+        path: "/master/raw-material-type-master",
+      },
       {
         title: "Raw Material Master",
-        icon: "ki-filled ki-abstract-18 text-primary",
-        children: [
-          {
-            title: "Raw Material Category Master",
-            path: "/master/raw-material-master",
-          },
-          {
-            title: "Raw Material Type Master",
-            path: "/master/raw-material-type-master",
-          },
-          {
-            title: "Raw Material",
-            path: "/master/raw-material",
-          },
-        ],
+        path: "/master/raw-material",
       },
       {
-        title: "Menu Item Master",
-        icon: "ki-filled ki-abstract-18 text-primary",
-        children: [
-          {
-            title: "Menu Item Category",
-            path: "/master/menu-category",
-          },
-          {
-            title: "Menu Item Sub Category",
-            path: "/master/menu-sub-category",
-          },
-          {
-            title: "Kitchen Area",
-            path: "/master/menu-kitchan-area",
-          },
-          {
-            title: "Menu Item",
-            path: "/master/menu-item",
-          },
-        ],
+        title: "Raw Material Allocation",
+        path: "/raw-material-allocation",
       },
-      ...(roleId
-        ? [
-            {
-              title: "User Master",
-              icon: "ki-filled ki-abstract-18 text-primary",
-              children: [
-                { title: "All User", path: "/master/user-master/" },
-                { title: "User Plan", path: "/master/user-master/plan" },
-              ],
-            },
-          ]
-        : []),
     ],
   },
+
   {
-    title: "Leads",
+    title: "Menu Item",
     icon: "ki-filled ki-abstract-18 text-primary",
-    disabled: false,
     children: [
       {
-        title: "Overview",
-        path: "/overview",
+        title: "Menu Item Category",
+        path: "/master/menu-category",
       },
       {
-        title: "Leads",
-        path: "/lead",
+        title: "Menu Item Sub Category",
+        path: "/master/menu-sub-category",
       },
       {
-        title: "Contacts",
-        path: "/contacts",
+        title: "Kitchen Area",
+        path: "/master/menu-kitchan-area",
       },
       {
-        title: "Companies",
-        path: "/company",
-      },
-      {
-        title: "Follow Up",
-        path: "/followup",
-      },
-      {
-        title: "Products",
-        path: "/product",
+        title: "Menu Item",
+        path: "/master/menu-item",
       },
     ],
   },
-  {
-    title: "Tasks",
-    icon: "ki-filled ki-abstract-16 text-primary",
-    disabled: false,
-    children: [
-      {
-        title: "Dashboard",
-        path: "/tasks/dashboard",
-      },
-      {
-        title: "My Task",
-        path: "/task/mytask",
-      },
-      {
-        title: "All Tasks",
-        path: "/tasks",
-      },
-      {
-        title: "Tasks Templates",
-        path: "/tasks-template",
-      },
-      {
-        title: "Tasks Directory",
-        path: "/tasks-directory",
-      },
-    ],
-  },
-
-  {
-    title: "leaves",
-    icon: "ki-filled ki-abstract-17 text-primary",
-    disabled: false,
-    children: [
-      {
-        title: "Dashboard",
-        path: "/leave-dashboard",
-      },
-
-      {
-        title: "My Attendance",
-        path: "/myattendance",
-      },
-      {
-        title: "Approval",
-        path: "/approval",
-      },
-      {
-        title: "Holidays",
-        path: "/holiday",
-      },
-      {
-        title: "My Leaves",
-        path: "/myleaves",
-      },
-      {
-        title: "All Leaves",
-        path: "/allleave",
-      },
-      {
-        title: "All Attendance",
-        path: "/allattendance",
-      },
-      {
-        title: "Settings",
-        icon: "ki-filled ki-setting-2 text-primary",
-        children: [
-          {
-            title: "Leave Type",
-            path: "/leavetype",
-          },
-          {
-            title: "Attendance Settings",
-            path: "/attendance-setting",
-          },
-          {
-            title: "Office Settings",
-            path: "/officesettings",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Links",
-    icon: "ki-filled ki-disconnect text-primary",
-    disabled: false,
-    path: "/links",
-  },
-  {
-    title: "Team",
-    icon: "ki-filled ki-users text-primary",
-    disabled: true,
-    children: [
-      {
-        title: "Sales Team",
-        path: "/team/seals-team",
-      },
-      {
-        title: "User Roles",
-        path: "team/user-role",
-      },
-      {
-        title: "All Members",
-        path: "team/all-members",
-      },
-    ],
-  },
+  ...(roleId
+    ? [
+        {
+          title: "User Master",
+          icon: "ki-filled ki-user text-primary",
+          children: [
+            { title: "All User", path: "/master/user-master/" },
+            { title: "User Plan", path: "/master/user-master/plan" },
+          ],
+        },
+      ]
+    : []),
   {
     title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
@@ -292,6 +295,7 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+
   {
     title: "Support",
     icon: "ki-filled ki-support text-primary",

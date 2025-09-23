@@ -106,11 +106,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     onChange={handleInputChange}
                   />
                 </div>
-                {errors.meal_notes && (
-                  <span className="text-red-500 text-sm">
-                    {errors.meal_notes}
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -136,9 +131,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     onChange={handleInputChange}
                   />
                 </div>
-                {errors.service && (
-                  <span className="text-red-500 text-sm">{errors.service}</span>
-                )}
               </div>
 
               <div className="flex flex-col">
@@ -153,9 +145,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     onChange={handleInputChange}
                   />
                 </div>
-                {errors.theme && (
-                  <span className="text-red-500 text-sm">{errors.theme}</span>
-                )}
               </div>
 
               <div className="flex flex-col">
@@ -170,9 +159,6 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     onChange={handleInputChange}
                   />
                 </div>
-                {errors.remark && (
-                  <span className="text-red-500 text-sm">{errors.remark}</span>
-                )}
               </div>
             </div>
           </div>

@@ -74,7 +74,7 @@ const ClientDetailsStep = ({
 
   return (
     <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
-      <div className="grid grid-cols-1 md:grid-cols-8 gap-3 lg:gap-4">
+      <div className=" gap-3 lg:gap-4">
         <div className="col-span-4 md:col-start-3 min-w-full space-y-3">
           <div className="select__grp flex flex-col">
             <label className="form-label">
@@ -212,6 +212,7 @@ const ClientDetailsStep = ({
           <AddCustomer
             isModalOpen={isMemberModalOpen}
             setIsModalOpen={setIsMemberModalOpen}
+            refreshData={FetchCustomerName}
           />
         </div>
       </div>

@@ -10,7 +10,7 @@ import {
 } from "@/services/apiServices";
 import { columns } from "./constant";
 import { successMsgPopup } from "../../../underConstruction";
-
+import Swal from "sweetalert2";
 const MenuSubCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
@@ -36,14 +36,37 @@ const MenuSubCategory = () => {
   };
 
   const DeleteCategory = (id) => {
-    DeleteSubCategoryId(id)
-      .then((res) => {
-        res.data?.msg && successMsgPopup(res.data.msg);
-        FetchSubCategoryData();
-      })
-      .catch((error) => {
-        console.error("Error deleting Event type:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        DeleteSubCategoryId(id)
+          .then((response) => {
+            if (response && (response.success || response.status === 200)) {
+              FetchSubCategoryData();
+              Swal.fire({
+                title: "Removed!",
+                text: "Menu Item Sub has been removed successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              throw new Error(response?.message || "API call failed");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting Event type:", error);
+          });
+      }
+    });
   };
   const statusSubCategory = (id, status) => {
     UpdateSubStatus(id, status)
@@ -88,7 +111,10 @@ const MenuSubCategory = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsCategoryModalOpen(true)}
+              onClick={() => {
+                setSelectedCategory(null);
+                setIsCategoryModalOpen(true);
+              }}
               title="Add Category"
             >
               <i className="ki-filled ki-plus"></i> Add Sub Category

@@ -5,7 +5,7 @@ import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { uploadFile } from "@/services/apiServices";
 import { formValidation } from "../../../lib/utils";
-
+import Swal from "sweetalert2";
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -35,9 +35,10 @@ const AddMenuCategory = ({
     if (checkErrors()) {
       const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData?.id) {
-        alert("User data not found");
+        Swal.fire("Error", "User data not found", "error");
         return;
       }
+
       if (editData) {
         const payload = {
           ...formData,
@@ -47,7 +48,9 @@ const AddMenuCategory = ({
 
         editCategory(editData.id, payload)
           .then((res) => {
-            res.data?.msg && successMsgPopup(res.data.msg);
+            if (res.data?.msg) {
+              Swal.fire("Success", res.data.msg, "success");
+            }
             uploadImage({
               ModuleId: res.data.ModuleId,
               FileType: res.data.FileType,
@@ -55,14 +58,16 @@ const AddMenuCategory = ({
             });
           })
           .catch((error) => {
-            error?.response?.data?.msg &&
-              errorMsgPopup(error.response.data.msg);
+            const errorMsg =
+              error?.response?.data?.msg || "Something went wrong";
+            Swal.fire("Error", errorMsg, "error");
             console.error("Error editing meal:", error);
           });
       } else {
         const payload = { ...formData, userId: userData.id };
         AddCategory(payload)
           .then((res) => {
+            Swal.fire("Success", "Category added successfully!", "success");
             uploadImage({
               ModuleId: res.data.ModuleId,
               FileType: res.data.FileType,
@@ -70,8 +75,9 @@ const AddMenuCategory = ({
             });
           })
           .catch((error) => {
-            error?.response?.data?.msg &&
-              errorMsgPopup(error.response.data.msg);
+            const errorMsg =
+              error?.response?.data?.msg || "Something went wrong";
+            Swal.fire("Error", errorMsg, "error");
             console.error("Error adding meal:", error);
           });
       }
@@ -125,6 +131,7 @@ const AddMenuCategory = ({
   return (
     <CustomModal
       open={isModalOpen}
+      width={1000}
       title={editData ? "Edit Menu Category" : "New Menu Category"}
       onClose={() => setIsModalOpen(false)}
       footer={[
@@ -144,7 +151,7 @@ const AddMenuCategory = ({
         </button>,
       ]}
     >
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Name fields */}
         <MultiLangInputBox
           formData={formData}
@@ -153,17 +160,7 @@ const AddMenuCategory = ({
           label="Name"
           error={errors.nameEnglish}
         />
-        <div className="relative">
-          <label className="block text-gray-600 mb-1">{"Slogun"}</label>
-          <textarea
-            type="text"
-            name={"menuSlogan"}
-            value={formData.menuSlogan}
-            onChange={handleChange}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={"Slogun"}
-          />
-        </div>
+
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             {"Price"}
@@ -218,6 +215,17 @@ const AddMenuCategory = ({
             }}
             className="border border-gray-300 rounded-lg p-2 w-full"
             placeholder={"image"}
+          />
+        </div>
+        <div className="relative">
+          <label className="block text-gray-600 mb-1">{"Slogun"}</label>
+          <textarea
+            type="text"
+            name={"menuSlogan"}
+            value={formData.menuSlogan}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-lg p-2 w-full"
+            placeholder={"Slogun"}
           />
         </div>
       </div>

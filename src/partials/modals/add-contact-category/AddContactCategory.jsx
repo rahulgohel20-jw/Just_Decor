@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import {
   Addcontactcategory,
   EditContactCategory,
-  GetAllContactType, // ✅ import your API
+  GetAllContactType,
 } from "@/services/apiServices";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
 
 const AddContactCategory = ({
   isOpen,
@@ -18,19 +21,17 @@ const AddContactCategory = ({
     nameGujarati: "",
     nameHindi: "",
     sequence: "",
-    contcatTypeId: "", // for dropdown
+    contcatTypeId: "",
   };
 
-  const [formData, setFormData] = useState(initialFormState);
-  const [contactTypes, setContactTypes] = useState([]); // ✅ state for dropdown
+  const [contactTypes, setContactTypes] = useState([]);
 
+  // ✅ Fetch dropdown values
   useEffect(() => {
-    // ✅ Fetch Contact Types
     const userData = JSON.parse(localStorage.getItem("userData"));
     if (userData?.id) {
       GetAllContactType(userData.id)
         .then((res) => {
-          // Assuming API returns res.data as array
           setContactTypes(res?.data?.data?.["Contact Type Details"] || []);
         })
         .catch((err) => {
@@ -39,52 +40,46 @@ const AddContactCategory = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (contactCategory) {
-      setFormData({
-        nameEnglish: contactCategory.contact_name || "",
-        nameGujarati: contactCategory.nameGujarati || "",
-        nameHindi: contactCategory.nameHindi || "",
-        sequence: contactCategory.sequence || "",
-        contcatTypeId: contactCategory.contcatTypeId || "",
-      });
-    } else {
-      setFormData(initialFormState);
-    }
-  }, [contactCategory]);
+  // ✅ Validation schema
+  const validationSchema = Yup.object().shape({
+    nameEnglish: Yup.string().required("Name is required"),
+    contcatTypeId: Yup.string().required("Contact Type is required"),
+    sequence: Yup.number()
+      .typeError("Priority must be a number")
+      .required("Priority is required"),
+  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // ✅ Submit handler
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id) {
+        alert("User data not found");
+        return;
+      }
 
-  const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
-      alert("User data not found");
-      return;
-    }
+      const payload = { ...values, userId: userData.id };
 
-    const payload = { ...formData, userId: userData.id };
+      if (contactCategory) {
+        await EditContactCategory(contactCategory.contactid, payload);
+        Swal.fire(
+          "Updated!",
+          "Contact category updated successfully.",
+          "success"
+        );
+      } else {
+        await Addcontactcategory(payload);
+        Swal.fire("Saved!", "Contact category added successfully.", "success");
+      }
 
-    if (contactCategory) {
-      EditContactCategory(contactCategory.contactid, payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error editing category:", error);
-        });
-    } else {
-      Addcontactcategory(payload)
-        .then(() => {
-          refreshData();
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Error adding category:", error);
-        });
+      refreshData();
+      onClose();
+      resetForm();
+    } catch (error) {
+      console.error("Error saving category:", error);
+      Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -105,97 +100,104 @@ const AddContactCategory = ({
         </div>
 
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <InputWithIcon
-            label="Name (English)"
-            name="nameEnglish"
-            value={formData.nameEnglish}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            label="Name (ગુજરાતી)"
-            name="nameGujarati"
-            value={formData.nameGujarati}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            label="Name (हिंदी)"
-            name="nameHindi"
-            value={formData.nameHindi}
-            onChange={handleChange}
-            required
-          />
+        <Formik
+          initialValues={
+            contactCategory
+              ? {
+                  nameEnglish: contactCategory.contact_name || "",
+                  nameGujarati: contactCategory.nameGujarati || "",
+                  nameHindi: contactCategory.nameHindi || "",
+                  sequence: contactCategory.sequence || "",
+                  contcatTypeId: contactCategory.contcatTypeId || "",
+                }
+              : initialFormState
+          }
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputWithFormik label="Name (English)" name="nameEnglish" />
+                <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+                <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
 
-          {/* ✅ Dropdown for Contact Type */}
-          <div>
-  <label className="block text-gray-600 mb-1">Contact Type</label>
-  <select
-    name="contcatTypeId"
-    value={formData.contcatTypeId}
-    onChange={handleChange}
-    className="border border-gray-300 rounded-lg p-2 w-full"
-    required
-  >
-    <option value="">-- Select Contact Type --</option>
-    {contactTypes.filter((type) => type.isActive).map((type) => (
-      <option key={type.id} value={type.id}>
-        {type.nameEnglish || "Unnamed"}
-      </option>
-    ))}
-  </select>
-</div>
+                {/* Dropdown */}
+                <div className="flex flex-col">
+                  <label className="block text-gray-600 mb-1">
+                    Contact Type<span className="text-red-500">*</span>
+                  </label>
+                  <Field
+                    as="select"
+                    name="contcatTypeId"
+                    className="border border-gray-300 rounded-lg p-2 w-full"
+                  >
+                    <option value="">-- Select Contact Type --</option>
+                    {contactTypes
+                      .filter((type) => type.isActive)
+                      .map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.nameEnglish || "Unnamed"}
+                        </option>
+                      ))}
+                  </Field>
+                  <ErrorMessage
+                    name="contcatTypeId"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
 
+                {/* Priority */}
+                <InputWithFormik
+                  label="Priority"
+                  name="sequence"
+                  type="number"
+                />
+              </div>
 
-          {/* Priority Field */}
-          <div className="relative">
-            <label className="block text-gray-600 mb-1">Priority</label>
-            <input
-              type="tel"
-              name="sequence"
-              value={formData.sequence}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              placeholder="Priority"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => onClose(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-            onClick={handleSubmit}
-          >
-            {contactCategory ? "Update" : "Save"}
-          </button>
-        </div>
+              {/* Actions */}
+              <div className="flex w-full justify-end mt-6 gap-3">
+                <button
+                  type="button"
+                  onClick={() => onClose(false)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+                >
+                  {contactCategory ? "Update" : "Save"}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </div>
     </div>
   );
 };
 
-const InputWithIcon = ({ label, name, value, onChange, required }) => (
-  <div className="relative">
-    <label className="block text-gray-600 mb-1">{label}</label>
-    <input
-      type="text"
+const InputWithFormik = ({ label, name, type = "text" }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">
+      {label}
+      <span className="text-red-500">*</span>
+    </label>
+    <Field
+      type={type}
       name={name}
-      value={value}
-      onChange={onChange}
-      className="border border-gray-300 rounded-lg p-2 w-full"
       placeholder={label}
-      required={required}
+      className="border border-gray-300 rounded-lg p-2 w-full"
+    />
+    <ErrorMessage
+      name={name}
+      component="div"
+      className="text-red-500 text-sm mt-1"
     />
   </div>
 );
