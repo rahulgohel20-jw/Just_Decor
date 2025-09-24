@@ -216,6 +216,33 @@ const EventPreparationPage = () => {
     }
   };
 
+  const handleCategoryOrderChange = (fromCategoryId, toCategoryId) => {
+    console.log("Reordering categories:", {
+      fromCategoryId,
+      toCategoryId,
+      selectedFunctionId,
+    });
+
+    // Update the category order in the reducer
+    dispatch({
+      type: "UPDATE_CATEGORY_ORDER",
+      functionId: selectedFunctionId,
+      fromCategoryId: fromCategoryId,
+      toCategoryId: toCategoryId,
+    });
+
+    // You can also implement API call here to save the category order
+    // For now, just marking as unsaved so user knows to save the changes
+    if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
+      dispatch({
+        type: "UPDATE_NOTES",
+        functionId: selectedFunctionId,
+        noteType: "isSaved",
+        value: false,
+      });
+    }
+  };
+
   const handleSave = async () => {
     const success = await saveMenu(
       selectedFunctionId,
@@ -622,7 +649,7 @@ const EventPreparationPage = () => {
                     </Tooltip>
                   </div>
                 </div>
-                <div className="flex-1 p-3 max-h-[516px] h-full overflow-auto scrollable-y bg-white">
+                <div className="flex-1 p-3 max-h-[516px] h-screen overflow-auto scrollable-y bg-white">
                   <SelectedItemsList
                     rate={rate}
                     selectedItemsByCategory={selectedItemsByCategory}
@@ -653,6 +680,7 @@ const EventPreparationPage = () => {
                     }}
                     onRemoveItem={toggleChildSelection}
                     onItemCategoryChange={handleItemCategoryChange}
+                    onCategoryOrderChange={handleCategoryOrderChange} // Add this line
                   />
                 </div>
                 <div className="p-3 border-t flex items-center justify-between gap-4">

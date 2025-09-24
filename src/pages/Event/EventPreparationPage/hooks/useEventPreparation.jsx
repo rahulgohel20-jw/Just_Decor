@@ -198,7 +198,6 @@ const functionDataReducer = (state, action) => {
       };
 
     case "UPDATE_NOTES":
-      // Handle special case for isSaved which is not nested
       if (action.noteType === "isSaved") {
         return {
           ...state,
@@ -237,13 +236,6 @@ const functionDataReducer = (state, action) => {
         },
       };
 
-      console.log("Updated item category in state:", {
-        functionId: action.functionId,
-        itemId: action.itemId,
-        newCategory: action.newCategoryId,
-        state: updatedState[action.functionId].itemCategories,
-      });
-
       return updatedState;
 
     case "MARK_SAVED":
@@ -252,6 +244,25 @@ const functionDataReducer = (state, action) => {
         [action.functionId]: {
           ...state[action.functionId],
           isSaved: true,
+        },
+      };
+
+    case "UPDATE_CATEGORY_ORDER":
+      console.log("Reducer - UPDATE_CATEGORY_ORDER:", {
+        functionId: action.functionId,
+        fromCategoryId: action.fromCategoryId,
+        toCategoryId: action.toCategoryId,
+      });
+
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          categoryOrder: {
+            ...state[action.functionId]?.categoryOrder,
+            [`${action.fromCategoryId}-to-${action.toCategoryId}`]: Date.now(),
+          },
+          isSaved: false,
         },
       };
 
@@ -429,7 +440,6 @@ const useSaveMenu = (
   const saveMenu = useCallback(
     async (selectedFunctionId, selectedCategoryId, pax, rate) => {
       const currentFunctionData = functionSelectionData[selectedFunctionId];
-      console.log(currentFunctionData, "data");
 
       if (
         !currentFunctionData ||
@@ -478,58 +488,76 @@ const useSaveMenu = (
         }, 0);
       };
 
-      const payload = {
-        defaultPrice: rate || 0,
-        eventFunctionId: selectedFunctionId,
-        id: existingId,
-        menuPreparationDetails: selectedItems.map((item, index) => {
-          // Use the updated category from drag and drop if available
-          let finalCategoryId = item.parentId;
-          let finalCategoryName = "";
+      // Group selected items by category for the new payload structure
+      const itemsByCategory = {};
 
-          if (currentFunctionData.itemCategories?.[item.id]) {
-            finalCategoryId =
-              currentFunctionData.itemCategories[item.id].newCategoryId;
-            finalCategoryName =
-              currentFunctionData.itemCategories[item.id].newCategoryName;
-          } else {
-            const category = categories.find((cat) => cat.id === item.parentId);
-            finalCategoryName = category?.name || "";
-          }
+      selectedItems.forEach((item, index) => {
+        // Use the updated category from drag and drop if available
+        let finalCategoryId = item.parentId;
+        let finalCategoryName = "";
 
-          let itemPrice;
-          if (currentFunctionData.itemRates?.[item.id] !== undefined) {
-            itemPrice = Number(currentFunctionData.itemRates[item.id]);
-          } else if (rate > 0) {
-            itemPrice = Number(rate);
-          } else {
-            itemPrice = Number(item.price) || 0;
-          }
+        if (currentFunctionData.itemCategories?.[item.id]) {
+          finalCategoryId =
+            currentFunctionData.itemCategories[item.id].newCategoryId;
+          finalCategoryName =
+            currentFunctionData.itemCategories[item.id].newCategoryName;
+        } else {
+          const category = categories.find((cat) => cat.id === item.parentId);
+          finalCategoryName = category?.name || "";
+        }
 
-          return {
-            id: 0,
-            itemNotes: currentFunctionData.itemNotes[item.id] || "",
-            itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
-            itemPrice: itemPrice,
-            itemSortOrder: index,
+        let itemPrice;
+        if (currentFunctionData.itemRates?.[item.id] !== undefined) {
+          itemPrice = Number(currentFunctionData.itemRates[item.id]);
+        } else if (rate > 0) {
+          itemPrice = Number(rate);
+        } else {
+          itemPrice = Number(item.price) || 0;
+        }
+
+        if (!itemsByCategory[finalCategoryId]) {
+          itemsByCategory[finalCategoryId] = {
+            menuCategoryId: finalCategoryId,
+            menuCategoryName: finalCategoryName,
             menuNotes:
               currentFunctionData.categoryNotes?.[finalCategoryId] || "",
             menuSlogan:
               currentFunctionData.categorySlogans?.[finalCategoryId] || "",
-            menuCategoryId: finalCategoryId,
-            menuCategoryName: finalCategoryName,
-            menuItemId: item.id,
-            menuItemName: item.name,
-            menuSortOrder: index,
+            menuSortOrder: 0,
             startTime: dateandtime,
+            selectedMenuPreparationItems: [],
           };
-        }),
+        }
+
+        itemsByCategory[finalCategoryId].selectedMenuPreparationItems.push({
+          id: 0,
+          itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemPrice: itemPrice,
+          itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
+          itemSortOrder: index,
+          menuItemId: item.id,
+          menuItemName: item.name,
+        });
+      });
+
+      const selectedMenuPreparationItems = Object.values(itemsByCategory).map(
+        (categoryGroup, categoryIndex) => ({
+          ...categoryGroup,
+          menuSortOrder: categoryIndex,
+        })
+      );
+
+      const payload = {
+        defaultPrice: rate || 0,
+        eventFunctionId: selectedFunctionId,
+        id: existingId,
         pax: Number(pax) || 0,
         price: calculateTotalPrice(),
+        selectedMenuPreparationItems: selectedMenuPreparationItems,
         sortorder: 0,
       };
 
-      console.log(payload, "data payload with category changes");
+      console.log("New payload structure:", JSON.stringify(payload, null, 2));
 
       try {
         const res = await AddMenuprep(payload);

@@ -46,7 +46,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
           cancelText="No"
           onConfirm={() => {
             onstatus(row.original.rawCatid, row.original.status);
-            message.success("✅ Status updated successfully!");
+            message.success(" Status updated successfully!");
           }}
         >
           <div className="flex items-center gap-1 cursor-pointer">

@@ -5,7 +5,7 @@ import { KeenIcon } from "@/components";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Tooltip, DatePicker, Popconfirm } from "antd";
 import { useParams } from "react-router-dom";
-import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
+import { successMsgPopup } from "../../../underConstruction";
 import {
   GetQuotation,
   UpdateQuotation,
@@ -178,7 +178,7 @@ const QuotationPage = () => {
                     )
                   : null,
 
-              description: quotationInfo.advancePaymentDescription || "",
+              description: quotationInfo.advancePaymentNotes || "",
             },
 
             notes: quotationInfo.notes || "",
@@ -336,6 +336,7 @@ const QuotationPage = () => {
 
     return {
       advancePayment: parseFloat(quotationData.advancePayment.amount) || 0,
+      advancePaymentNotes: quotationData.advancePayment.description,
       advancePaymentDate: quotationData.advancePayment.date
         ? quotationData.advancePayment.date.format("DD/MM/YYYY hh:mm A")
         : null,
@@ -804,7 +805,7 @@ const QuotationPage = () => {
                         tax.label === "IGST" ? (
                           <>
                             <input
-                              className="h-full text-gray-900 w-[60px]"
+                              className="h-full text-gray-900 w-[0px]"
                               value={tax.percentage}
                               type="number"
                               step="0.01"

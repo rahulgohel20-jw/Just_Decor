@@ -129,7 +129,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
     if (isOpen) {
       FetchRawMaterialCategory();
       FetchUnit();
-      console.log(rawmaterial);
 
       if (rawmaterial) {
         formik.setValues({

@@ -55,7 +55,6 @@ const MealMaster = () => {
   const FetchMealType = () => {
     GetMealType(Id)
       .then((res) => {
-        console.log(res);
         const formatted = res.data.data["MealType Details"].map(
           (cust, index) => ({
             sr_no: index + 1,

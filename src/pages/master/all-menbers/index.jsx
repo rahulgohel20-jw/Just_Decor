@@ -27,7 +27,6 @@ const AllMemberMaster = () => {
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
-  console.log("User ID:", Id);
 
   useEffect(() => {
     FetchMembers();
@@ -57,10 +56,7 @@ const AllMemberMaster = () => {
             state: member["userBasicDetails"].state.name || "-",
             companyEmail: member["userBasicDetails"].companyEmail || "-",
           }));
-          console.log("Formatted Member Data:", formatted);
           setTableData(formatted);
-
-        
         } else {
           setTableData([]);
         }
@@ -74,24 +70,12 @@ const AllMemberMaster = () => {
     setSelectedMember(member);
     setIsMemberModalOpen(true);
   };
-  
 
   const handleView = (member) => {
     setSelectedMember(member);
-  
+
     setIsViewMemberModalOpen(true);
   };
-
-//   const handleDelete = (memberId) => {
-//   DeleteMember(memberId)  // direct API call
-//     .then(() => {
-//       FetchMembers();
-//     })
-//     .catch((error) => {
-//       console.error("Error deleting member:", error);
-//     });
-// };
-
 
   const responseFormate = () => {
     const data = defaultData.map((item) => {
@@ -183,7 +167,7 @@ const AllMemberMaster = () => {
         />
 
         <TableComponent
-          columns={columns( handleEdit, handleView )}
+          columns={columns(handleEdit, handleView)}
           data={tableData}
           paginationSize={10}
         />

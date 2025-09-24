@@ -54,8 +54,6 @@ const UnitMaster = () => {
   const Fetchunit = () => {
     Getunit(Id)
       .then((res) => {
-        console.log(res);
-
         const formatted = res.data.data["Unit Details"].map((cust, index) => ({
           sr_no: index + 1,
           unit: cust.nameEnglish || "-",

@@ -13,15 +13,12 @@ const Priceplan = ({ isModalOpen, setIsModalOpen }) => {
       setLoading(true);
       GetAllPlans()
         .then((res) => {
-          // Axios: res.data is your whole JSON object
-          // The array is inside res.data.data["Plan Details"]
           const result = res.data?.data?.["Plan Details"] || [];
-          console.log("Fetched plans:", result); // 👈 debug
           setPlans(result);
         })
         .catch((err) => {
           console.error("Error fetching plans:", err);
-          setPlans([]); // fallback
+          setPlans([]);
         })
         .finally(() => setLoading(false));
     }
@@ -41,7 +38,9 @@ const Priceplan = ({ isModalOpen, setIsModalOpen }) => {
         &times;
       </div>
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-semibold text-gray-900">Plans & Pricing</h2>
+        <h2 className="text-3xl font-semibold text-gray-900">
+          Plans & Pricing
+        </h2>
         <p className="text-gray-500 mt-2 max-w-2xl mx-auto">
           Whether your time-saving automation needs are large or small, we’re
           here to help you scale.
