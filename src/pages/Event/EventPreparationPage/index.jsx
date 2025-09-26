@@ -1,7 +1,14 @@
-import { useState, useReducer, useEffect, Fragment } from "react";
+import {
+  useState,
+  useReducer,
+  useEffect,
+  Fragment,
+  useCallback,
+  useMemo,
+} from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
+import { Eye, EyeOff, Mic } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
@@ -33,7 +40,9 @@ const EventPreparationPage = () => {
     dateandtime,
     fetchEventData,
   } = useEventData();
-
+  const [orderedCategoryContainers, setOrderedCategoryContainers] = useState(
+    []
+  );
   const { categories, categoriesWithAll, fetchCategories } = useCategories();
   const {
     functionMenuData,
@@ -82,6 +91,10 @@ const EventPreparationPage = () => {
     initializeData();
   }, []);
 
+  const handleOrderedContainersChange = useCallback((containers) => {
+    setOrderedCategoryContainers(containers);
+  }, []);
+
   const initializeData = async () => {
     try {
       const [categoriesData, eventData] = await Promise.all([
@@ -98,21 +111,95 @@ const EventPreparationPage = () => {
             rate: fn.rate,
           });
         });
-        console.log(eventData, "rate");
 
         const firstFnId = eventData.functions[0].id;
         setSelectedFunctionId(firstFnId);
         setPax(eventData.functions[0].pax || 0);
         setRate(eventData.functions[0].rate || 0);
 
+        // IMPORTANT: Load all menu data first
         await loadAllMenuDataForFunction(firstFnId, categoriesData);
+
+        // Then load function-specific data
         const responseData = await loadFunctionMenuData(
           firstFnId,
           0,
           categoriesData
         );
 
+        console.log("Response data:", responseData); // Debug log
+
         if (responseData.selectedItems?.length > 0) {
+          // FIXED: Create ordered category containers from saved sort order
+          const orderedContainers = [];
+
+          if (responseData.sortedCategories?.length > 0) {
+            console.log("Sorted categories:", responseData.sortedCategories); // Debug log
+
+            // Sort categories by menuSortOrder before processing
+            const sortedCategories = [...responseData.sortedCategories].sort(
+              (a, b) => {
+                const sortOrderA =
+                  a.menuSortOrder !== undefined ? a.menuSortOrder : 999;
+                const sortOrderB =
+                  b.menuSortOrder !== undefined ? b.menuSortOrder : 999;
+                return sortOrderA - sortOrderB;
+              }
+            );
+
+            sortedCategories.forEach((categoryData) => {
+              const category = categoriesData.find(
+                (cat) => cat.id === categoryData.menuCategoryId
+              );
+              if (category) {
+                const categoryItems = responseData.selectedItems
+                  .filter(
+                    (item) =>
+                      item.menuCategoryId === categoryData.menuCategoryId
+                  )
+                  .map((selectedItem) => {
+                    // FIXED: Get menu item from allMenuItems instead of local array
+                    const menuItem = allMenuItems[firstFnId]?.find(
+                      (item) => item.id === selectedItem.menuItemId
+                    );
+                    if (!menuItem) {
+                      console.warn(
+                        `Menu item not found: ${selectedItem.menuItemId}`
+                      );
+                      return null;
+                    }
+                    return {
+                      ...menuItem,
+                      sortOrder: selectedItem.itemSortOrder, // Preserve item sort order
+                    };
+                  })
+                  .filter(Boolean) // Remove null items
+                  // FIXED: Sort items by itemSortOrder within each category
+                  .sort((a, b) => {
+                    const sortOrderA =
+                      a.sortOrder !== undefined ? a.sortOrder : 999;
+                    const sortOrderB =
+                      b.sortOrder !== undefined ? b.sortOrder : 999;
+                    return sortOrderA - sortOrderB;
+                  });
+
+                if (categoryItems.length > 0) {
+                  orderedContainers.push({
+                    categoryId: category.id,
+                    categoryName: category.name,
+                    items: categoryItems,
+                    sortOrder: categoryData.menuSortOrder, // Preserve category sort order
+                  });
+                }
+              }
+            });
+          }
+
+          console.log("Ordered containers:", orderedContainers); // Debug log
+
+          // IMPORTANT: Set ordered containers BEFORE dispatching
+          setOrderedCategoryContainers(orderedContainers);
+
           dispatch({
             type: "UPDATE_SELECTIONS",
             functionId: firstFnId,
@@ -178,11 +265,68 @@ const EventPreparationPage = () => {
         categories
       );
 
-      // Load existing selections if any
+      // Load existing selections if any and create ordered containers
       if (
         responseData.selectedItems?.length > 0 &&
         !functionSelectionData[newFunctionId]?.selectedItems?.length
       ) {
+        // FIXED: Create ordered containers based on saved sort order
+        const orderedContainers = [];
+
+        if (responseData.sortedCategories?.length > 0) {
+          // Sort categories by menuSortOrder
+          const sortedCategories = [...responseData.sortedCategories].sort(
+            (a, b) => {
+              const sortOrderA =
+                a.menuSortOrder !== undefined ? a.menuSortOrder : 999;
+              const sortOrderB =
+                b.menuSortOrder !== undefined ? b.menuSortOrder : 999;
+              return sortOrderA - sortOrderB;
+            }
+          );
+
+          sortedCategories.forEach((categoryData) => {
+            const category = categories.find(
+              (cat) => cat.id === categoryData.menuCategoryId
+            );
+            if (category) {
+              const categoryItems = responseData.selectedItems
+                .filter(
+                  (item) => item.menuCategoryId === categoryData.menuCategoryId
+                )
+                .map((selectedItem) => {
+                  const menuItem = allMenuItems[newFunctionId]?.find(
+                    (item) => item.id === selectedItem.menuItemId
+                  );
+                  return {
+                    ...menuItem,
+                    sortOrder: selectedItem.itemSortOrder,
+                  };
+                })
+                .filter(Boolean)
+                // FIXED: Sort items by itemSortOrder
+                .sort((a, b) => {
+                  const sortOrderA =
+                    a.sortOrder !== undefined ? a.sortOrder : 999;
+                  const sortOrderB =
+                    b.sortOrder !== undefined ? b.sortOrder : 999;
+                  return sortOrderA - sortOrderB;
+                });
+
+              if (categoryItems.length > 0) {
+                orderedContainers.push({
+                  categoryId: category.id,
+                  categoryName: category.name,
+                  items: categoryItems,
+                  sortOrder: categoryData.menuSortOrder,
+                });
+              }
+            }
+          });
+        }
+
+        setOrderedCategoryContainers(orderedContainers);
+
         dispatch({
           type: "UPDATE_SELECTIONS",
           functionId: newFunctionId,
@@ -199,7 +343,6 @@ const EventPreparationPage = () => {
           }, {}),
           itemRates: responseData.selectedItems.reduce((acc, item) => {
             acc[item.menuItemId] = item.itemPrice || 0;
-            return acc;
           }, {}),
           isSaved: true,
         });
@@ -248,7 +391,8 @@ const EventPreparationPage = () => {
       selectedFunctionId,
       selectedCategoryId,
       pax,
-      rate
+      rate,
+      orderedCategoryContainers
     );
     if (success) {
       dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
@@ -400,18 +544,30 @@ const EventPreparationPage = () => {
     }, 0);
   };
 
-  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-  const selectedItems = currentFunctionData.selectedItems
-    .map((id) => allFunctionMenuItems.find((item) => item.id === id))
-    .filter(Boolean);
+  const selectedItemsByCategory = useMemo(() => {
+    if (orderedCategoryContainers && orderedCategoryContainers.length > 0) {
+      return {};
+    }
 
-  const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
-    const category = categories.find((cat) => cat.id === item.parentId);
-    const categoryName = category?.name || "Uncategorized";
-    if (!acc[categoryName]) acc[categoryName] = [];
-    acc[categoryName].push(item);
-    return acc;
-  }, {});
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+    const selectedItems = currentFunctionData.selectedItems
+      .map((id) => allFunctionMenuItems.find((item) => item.id === id))
+      .filter(Boolean);
+
+    return selectedItems.reduce((acc, item) => {
+      const category = categories.find((cat) => cat.id === item.parentId);
+      const categoryName = category?.name || "Uncategorized";
+      if (!acc[categoryName]) acc[categoryName] = [];
+      acc[categoryName].push(item);
+      return acc;
+    }, {});
+  }, [
+    allMenuItems,
+    selectedFunctionId,
+    currentFunctionData.selectedItems,
+    categories,
+    orderedCategoryContainers,
+  ]);
 
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
 
@@ -656,6 +812,7 @@ const EventPreparationPage = () => {
                     showDetails={showDetails}
                     currentFunctionData={currentFunctionData}
                     categories={categories}
+                    preOrderedContainers={orderedCategoryContainers}
                     onItemRateChange={handleItemRateChange}
                     onNoteClick={(itemId) => {
                       setCurrentItemForNotes(itemId);
@@ -680,7 +837,8 @@ const EventPreparationPage = () => {
                     }}
                     onRemoveItem={toggleChildSelection}
                     onItemCategoryChange={handleItemCategoryChange}
-                    onCategoryOrderChange={handleCategoryOrderChange} // Add this line
+                    onCategoryOrderChange={handleCategoryOrderChange}
+                    onOrderedContainersChange={handleOrderedContainersChange} // Use the memoized callback
                   />
                 </div>
                 <div className="p-3 border-t flex items-center justify-between gap-4">

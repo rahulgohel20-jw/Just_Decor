@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Tooltip } from "antd";
 import {
   DndContext,
@@ -266,30 +266,33 @@ const SelectedItemsList = ({
   onRemoveItem,
   onItemCategoryChange,
   onCategoryOrderChange,
+  onOrderedContainersChange,
   categories = [],
+  preOrderedContainers = [],
 }) => {
   const [activeId, setActiveId] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
 
-  // State for expanded categories
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  // NEW: State for category order - this is the key fix!
   const [orderedCategoryContainers, setOrderedCategoryContainers] = useState(
     []
   );
 
-  // Initialize expanded state and ordered containers when categories change
-  React.useEffect(() => {
-    const expanded = {};
-    const containers = categories
+  const calculatedContainers = useMemo(() => {
+    if (preOrderedContainers && preOrderedContainers.length > 0) {
+      return preOrderedContainers.sort((a, b) => {
+        const sortOrderA = a.sortOrder !== undefined ? a.sortOrder : 999;
+        const sortOrderB = b.sortOrder !== undefined ? b.sortOrder : 999;
+        return sortOrderA - sortOrderB;
+      });
+    }
+
+    return categories
       .filter((cat) => cat.id !== 0)
       .map((category) => {
         const categoryItems = selectedItemsByCategory[category.name] || [];
-        if (category.id !== 0) {
-          expanded[category.id] = true;
-        }
         return {
           categoryName: category.name,
           categoryId: category.id,
@@ -297,10 +300,72 @@ const SelectedItemsList = ({
         };
       })
       .filter((container) => container.items.length > 0);
+  }, [categories, selectedItemsByCategory, preOrderedContainers]);
 
-    setExpandedCategories(expanded);
-    setOrderedCategoryContainers(containers);
-  }, [categories, selectedItemsByCategory]);
+  React.useEffect(() => {
+    const containerIds = calculatedContainers.map((c) => c.categoryId).sort();
+    const prevContainerIds = orderedCategoryContainers
+      .map((c) => c.categoryId)
+      .sort();
+
+    if (JSON.stringify(containerIds) !== JSON.stringify(prevContainerIds)) {
+      let updatedContainers;
+
+      if (containerIds.length > 0 && orderedCategoryContainers.length > 0) {
+        updatedContainers = orderedCategoryContainers
+          .map((prevContainer) => {
+            const updatedContainer = calculatedContainers.find(
+              (c) => c.categoryId === prevContainer.categoryId
+            );
+            return updatedContainer
+              ? { ...prevContainer, items: updatedContainer.items }
+              : null;
+          })
+          .filter(Boolean);
+
+        const newCategories = calculatedContainers.filter(
+          (newContainer) =>
+            !orderedCategoryContainers.some(
+              (prevContainer) =>
+                prevContainer.categoryId === newContainer.categoryId
+            )
+        );
+        updatedContainers.push(...newCategories);
+      } else {
+        updatedContainers = calculatedContainers;
+      }
+
+      setOrderedCategoryContainers(updatedContainers);
+
+      if (onOrderedContainersChange && updatedContainers.length > 0) {
+        onOrderedContainersChange([...updatedContainers]);
+      }
+    }
+  }, [
+    calculatedContainers,
+    orderedCategoryContainers,
+    onOrderedContainersChange,
+  ]);
+
+  React.useEffect(() => {
+    const expanded = {};
+
+    calculatedContainers.forEach((container) => {
+      const prevContainer = orderedCategoryContainers.find(
+        (c) => c.categoryId === container.categoryId
+      );
+      const prevItemCount = prevContainer?.items.length || 0;
+      const currentItemCount = container.items.length;
+
+      if (currentItemCount > prevItemCount && currentItemCount > 0) {
+        expanded[container.categoryId] = true;
+      }
+    });
+
+    if (Object.keys(expanded).length > 0) {
+      setExpandedCategories((prev) => ({ ...prev, ...expanded }));
+    }
+  }, [calculatedContainers, orderedCategoryContainers]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -334,17 +399,21 @@ const SelectedItemsList = ({
 
     if (active.id.toString().startsWith("category-sort-")) {
       const categoryId = active.id.toString().replace("category-sort-", "");
-      const draggedCategory = categories.find((cat) => cat.id == categoryId);
+      const draggedCategory = orderedCategoryContainers.find(
+        (container) => container.categoryId == categoryId
+      );
       setActiveCategory(draggedCategory);
 
-      // Close all categories when starting to drag a category
       const collapsedState = {};
-      categories.forEach((cat) => {
-        if (cat.id !== 0) {
-          collapsedState[cat.id] = false;
-        }
+      orderedCategoryContainers.forEach((container) => {
+        collapsedState[container.categoryId] = false;
       });
       setExpandedCategories(collapsedState);
+
+      console.log("Starting category drag:", {
+        categoryId,
+        draggedCategory,
+      });
     } else if (active.id.toString().startsWith("item-")) {
       const itemId = active.id.toString().replace("item-", "");
       const draggedItem = Object.values(selectedItemsByCategory)
@@ -356,59 +425,79 @@ const SelectedItemsList = ({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
+
+    console.log("Drag end:", {
+      activeId: active.id,
+      overId: over?.id,
+      activeData: active.data?.current,
+      overData: over?.data?.current,
+    });
+
     setActiveId(null);
     setActiveItem(null);
     setActiveCategory(null);
 
     if (!over) return;
 
-    // Handle category reordering - THIS IS THE KEY FIX!
     if (active.id.toString().startsWith("category-sort-")) {
       const activeCategoryId = parseInt(
         active.id.toString().replace("category-sort-", "")
       );
 
+      let overCategoryId = null;
+
       if (over.id.toString().startsWith("category-sort-")) {
-        const overCategoryId = parseInt(
+        overCategoryId = parseInt(
           over.id.toString().replace("category-sort-", "")
         );
+      } else if (over.id.toString().startsWith("category-")) {
+        overCategoryId = parseInt(over.id.toString().replace("category-", ""));
+      }
 
-        if (activeCategoryId !== overCategoryId) {
-          // Find the indices in the ordered array
-          const activeIndex = orderedCategoryContainers.findIndex(
-            (container) => container.categoryId === activeCategoryId
+      if (overCategoryId !== null && activeCategoryId !== overCategoryId) {
+        console.log("Reordering categories:", {
+          from: activeCategoryId,
+          to: overCategoryId,
+          overId: over.id,
+        });
+
+        const activeIndex = orderedCategoryContainers.findIndex(
+          (container) => container.categoryId === activeCategoryId
+        );
+        const overIndex = orderedCategoryContainers.findIndex(
+          (container) => container.categoryId === overCategoryId
+        );
+
+        if (activeIndex !== -1 && overIndex !== -1) {
+          const newOrderedContainers = arrayMove(
+            orderedCategoryContainers,
+            activeIndex,
+            overIndex
           );
-          const overIndex = orderedCategoryContainers.findIndex(
-            (container) => container.categoryId === overCategoryId
-          );
 
-          if (activeIndex !== -1 && overIndex !== -1) {
-            // Reorder the containers array
-            const newOrderedContainers = arrayMove(
-              orderedCategoryContainers,
-              activeIndex,
-              overIndex
-            );
+          console.log("New category order:", {
+            oldOrder: orderedCategoryContainers.map((c) => ({
+              id: c.categoryId,
+              name: c.categoryName,
+            })),
+            newOrder: newOrderedContainers.map((c) => ({
+              id: c.categoryId,
+              name: c.categoryName,
+            })),
+            activeIndex,
+            overIndex,
+          });
 
-            setOrderedCategoryContainers(newOrderedContainers);
+          setOrderedCategoryContainers([...newOrderedContainers]);
 
-            // Call the parent callback if provided
-            if (onCategoryOrderChange) {
-              onCategoryOrderChange(activeCategoryId, overCategoryId);
-            }
-
-            console.log("Category reordered:", {
-              fromCategoryId: activeCategoryId,
-              toCategoryId: overCategoryId,
-              newOrder: newOrderedContainers.map((c) => c.categoryName),
-            });
+          if (onCategoryOrderChange) {
+            onCategoryOrderChange(activeCategoryId, overCategoryId);
           }
         }
       }
       return;
     }
 
-    // Handle item drag (existing logic)
     const activeItemId = active.id.toString().replace("item-", "");
     const overId = over.id;
 
@@ -456,6 +545,7 @@ const SelectedItemsList = ({
   const categorySortableIds = orderedCategoryContainers.map(
     ({ categoryId }) => `category-sort-${categoryId}`
   );
+  console.log(categorySortableIds, "sort");
 
   const isDraggingCategory =
     activeId && activeId.toString().startsWith("category-sort-");
@@ -475,7 +565,7 @@ const SelectedItemsList = ({
           {orderedCategoryContainers.map(
             ({ categoryName, categoryId, items }) => (
               <DraggableCategory
-                key={`${categoryName}-${categoryId}`}
+                key={`category-${categoryId}`}
                 categoryName={categoryName}
                 categoryId={categoryId}
                 items={items}
@@ -501,7 +591,7 @@ const SelectedItemsList = ({
             <div className="flex items-center gap-2">
               <i className="ki-filled ki-menu text-gray-400"></i>
               <span className="text-xs font-semibold">
-                {activeCategory.name}
+                {activeCategory.categoryName}
               </span>
             </div>
           </div>
