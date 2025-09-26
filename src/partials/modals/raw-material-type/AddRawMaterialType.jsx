@@ -6,7 +6,6 @@ import * as Yup from "yup";
 
 const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
   if (!isOpen) return null;
-  console.log(rawdata);
 
   const initialValues = {
     nameEnglish: rawdata?.name || "",

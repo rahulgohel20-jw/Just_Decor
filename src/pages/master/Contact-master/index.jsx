@@ -53,12 +53,11 @@ const ContactTypeMaster = () => {
   }, [searchQuery]);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
-  console.log("userData", userData);
+
   let Id = userData.id;
   const FetchContactType = () => {
     GetAllContactType(Id)
       .then((res) => {
-        console.log(res);
         const formatted = res.data.data["Contact Type Details"].map(
           (cust, index) => ({
             sr_no: index + 1,
@@ -110,7 +109,6 @@ const ContactTypeMaster = () => {
   };
 
   const handleEdit = (event) => {
-    console.log("Editing contact type:", event);
     setSelectedcontactType(event);
     setIsContactModalOpen(true);
   };

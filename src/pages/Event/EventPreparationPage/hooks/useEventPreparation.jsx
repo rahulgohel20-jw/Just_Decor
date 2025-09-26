@@ -198,7 +198,6 @@ const functionDataReducer = (state, action) => {
       };
 
     case "UPDATE_NOTES":
-      // Handle special case for isSaved which is not nested
       if (action.noteType === "isSaved") {
         return {
           ...state,
@@ -237,13 +236,6 @@ const functionDataReducer = (state, action) => {
         },
       };
 
-      console.log("Updated item category in state:", {
-        functionId: action.functionId,
-        itemId: action.itemId,
-        newCategory: action.newCategoryId,
-        state: updatedState[action.functionId].itemCategories,
-      });
-
       return updatedState;
 
     case "MARK_SAVED":
@@ -252,6 +244,25 @@ const functionDataReducer = (state, action) => {
         [action.functionId]: {
           ...state[action.functionId],
           isSaved: true,
+        },
+      };
+
+    case "UPDATE_CATEGORY_ORDER":
+      console.log("Reducer - UPDATE_CATEGORY_ORDER:", {
+        functionId: action.functionId,
+        fromCategoryId: action.fromCategoryId,
+        toCategoryId: action.toCategoryId,
+      });
+
+      return {
+        ...state,
+        [action.functionId]: {
+          ...state[action.functionId],
+          categoryOrder: {
+            ...state[action.functionId]?.categoryOrder,
+            [`${action.fromCategoryId}-to-${action.toCategoryId}`]: Date.now(),
+          },
+          isSaved: false,
         },
       };
 
@@ -296,13 +307,36 @@ const useMenuData = () => {
           })
         );
 
+        // Sort selectedMenuCategories by menuSortOrder to maintain drag-drop order
         const selectedMenuCategories =
           responseData["selectedMenuPreparationItems"] || [];
+        console.log(selectedMenuCategories, "data");
+
+        // Sort categories by menuSortOrder first
+        const sortedCategories = selectedMenuCategories.sort((a, b) => {
+          const sortOrderA =
+            a.menuSortOrder !== undefined ? a.menuSortOrder : 999;
+          const sortOrderB =
+            b.menuSortOrder !== undefined ? b.menuSortOrder : 999;
+          return sortOrderA - sortOrderB;
+        });
+
         let selectedItems = [];
 
-        selectedMenuCategories.forEach((category) => {
+        sortedCategories.forEach((category) => {
           if (category.selectedMenuPreparationItems) {
-            selectedItems.push(...category.selectedMenuPreparationItems);
+            // Sort items within each category by itemSortOrder
+            const sortedItems = category.selectedMenuPreparationItems.sort(
+              (a, b) => {
+                const sortOrderA =
+                  a.itemSortOrder !== undefined ? a.itemSortOrder : 999;
+                const sortOrderB =
+                  b.itemSortOrder !== undefined ? b.itemSortOrder : 999;
+                return sortOrderA - sortOrderB;
+              }
+            );
+
+            selectedItems.push(...sortedItems);
           }
         });
 
@@ -317,6 +351,7 @@ const useMenuData = () => {
           menuItems: updatedMenuItems,
           selectedItems,
           responseData,
+          sortedCategories, // Return sorted categories for UI ordering
         };
       } catch (error) {
         console.error("Error fetching menu prep data:", error);
@@ -345,7 +380,11 @@ const useMenuData = () => {
           }));
         }
 
-        return responseData;
+        return {
+          ...responseData,
+          // FIXED: Ensure sorted categories are properly returned
+          sortedCategories: responseData.sortedCategories || [],
+        };
       } catch (error) {
         console.error("Error loading function menu data:", error);
         throw error;
@@ -427,9 +466,14 @@ const useSaveMenu = (
   const userData = JSON.parse(localStorage.getItem("userData"));
 
   const saveMenu = useCallback(
-    async (selectedFunctionId, selectedCategoryId, pax, rate) => {
+    async (
+      selectedFunctionId,
+      selectedCategoryId,
+      pax,
+      rate,
+      orderedCategoryContainers = []
+    ) => {
       const currentFunctionData = functionSelectionData[selectedFunctionId];
-      console.log(currentFunctionData, "data");
 
       if (
         !currentFunctionData ||
@@ -478,58 +522,108 @@ const useSaveMenu = (
         }, 0);
       };
 
-      const payload = {
-        defaultPrice: rate || 0,
-        eventFunctionId: selectedFunctionId,
-        id: existingId,
-        menuPreparationDetails: selectedItems.map((item, index) => {
-          // Use the updated category from drag and drop if available
-          let finalCategoryId = item.parentId;
-          let finalCategoryName = "";
+      // Group selected items by category for the new payload structure
+      const itemsByCategory = {};
 
-          if (currentFunctionData.itemCategories?.[item.id]) {
-            finalCategoryId =
-              currentFunctionData.itemCategories[item.id].newCategoryId;
-            finalCategoryName =
-              currentFunctionData.itemCategories[item.id].newCategoryName;
-          } else {
-            const category = categories.find((cat) => cat.id === item.parentId);
-            finalCategoryName = category?.name || "";
-          }
+      selectedItems.forEach((item) => {
+        // Use the updated category from drag and drop if available
+        let finalCategoryId = item.parentId;
+        let finalCategoryName = "";
 
-          let itemPrice;
-          if (currentFunctionData.itemRates?.[item.id] !== undefined) {
-            itemPrice = Number(currentFunctionData.itemRates[item.id]);
-          } else if (rate > 0) {
-            itemPrice = Number(rate);
-          } else {
-            itemPrice = Number(item.price) || 0;
-          }
+        if (currentFunctionData.itemCategories?.[item.id]) {
+          finalCategoryId =
+            currentFunctionData.itemCategories[item.id].newCategoryId;
+          finalCategoryName =
+            currentFunctionData.itemCategories[item.id].newCategoryName;
+        } else {
+          const category = categories.find((cat) => cat.id === item.parentId);
+          finalCategoryName = category?.name || "";
+        }
 
-          return {
-            id: 0,
-            itemNotes: currentFunctionData.itemNotes[item.id] || "",
-            itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
-            itemPrice: itemPrice,
-            itemSortOrder: index,
+        let itemPrice;
+        if (currentFunctionData.itemRates?.[item.id] !== undefined) {
+          itemPrice = Number(currentFunctionData.itemRates[item.id]);
+        } else if (rate > 0) {
+          itemPrice = Number(rate);
+        } else {
+          itemPrice = Number(item.price) || 0;
+        }
+
+        if (!itemsByCategory[finalCategoryId]) {
+          itemsByCategory[finalCategoryId] = {
+            menuCategoryId: finalCategoryId,
+            menuCategoryName: finalCategoryName,
             menuNotes:
               currentFunctionData.categoryNotes?.[finalCategoryId] || "",
             menuSlogan:
               currentFunctionData.categorySlogans?.[finalCategoryId] || "",
-            menuCategoryId: finalCategoryId,
-            menuCategoryName: finalCategoryName,
-            menuItemId: item.id,
-            menuItemName: item.name,
-            menuSortOrder: index,
+            menuSortOrder: 0, // Will be set later based on category order
             startTime: dateandtime,
+            selectedMenuPreparationItems: [],
           };
-        }),
+        }
+
+        itemsByCategory[finalCategoryId].selectedMenuPreparationItems.push({
+          id: 0,
+          itemNotes: currentFunctionData.itemNotes[item.id] || "",
+          itemPrice: itemPrice,
+          itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
+          itemSortOrder: 0, // Will be set later based on item order within category
+          menuItemId: item.id,
+          menuItemName: item.name,
+        });
+      });
+
+      // Convert to array and apply correct sort orders based on drag-and-drop order
+      const selectedMenuPreparationItems = [];
+
+      // If orderedCategoryContainers is provided, use that order
+      if (orderedCategoryContainers && orderedCategoryContainers.length > 0) {
+        orderedCategoryContainers.forEach((container, categoryIndex) => {
+          const categoryData = itemsByCategory[container.categoryId];
+          if (categoryData) {
+            // Set correct menuSortOrder based on the drag-and-drop order
+            categoryData.menuSortOrder = categoryIndex;
+
+            // Set correct itemSortOrder for items within this category
+            categoryData.selectedMenuPreparationItems.forEach(
+              (item, itemIndex) => {
+                item.itemSortOrder = itemIndex;
+              }
+            );
+
+            selectedMenuPreparationItems.push(categoryData);
+          }
+        });
+      } else {
+        // Fallback to original category order if no ordered containers provided
+        Object.values(itemsByCategory).forEach(
+          (categoryGroup, categoryIndex) => {
+            categoryGroup.menuSortOrder = categoryIndex;
+            categoryGroup.selectedMenuPreparationItems.forEach(
+              (item, itemIndex) => {
+                item.itemSortOrder = itemIndex;
+              }
+            );
+            selectedMenuPreparationItems.push(categoryGroup);
+          }
+        );
+      }
+
+      const payload = {
+        defaultPrice: rate || 0,
+        eventFunctionId: selectedFunctionId,
+        id: existingId,
         pax: Number(pax) || 0,
         price: calculateTotalPrice(),
+        selectedMenuPreparationItems: selectedMenuPreparationItems,
         sortorder: 0,
       };
 
-      console.log(payload, "data payload with category changes");
+      console.log(
+        "Payload with correct sort orders:",
+        JSON.stringify(payload, null, 2)
+      );
 
       try {
         const res = await AddMenuprep(payload);

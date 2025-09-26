@@ -5,51 +5,50 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { getAllByRoleId ,updateStatusApprove } from "@/services/apiServices";
+import { getAllByRoleId, updateStatusApprove } from "@/services/apiServices";
 import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 
 const AllUser = () => {
   const [loading, setLoading] = useState(false);
-  const [tableData, setTableData] = useState([]);       
-  const [filteredData, setFilteredData] = useState([]); 
+  const [tableData, setTableData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [editingUserId, setEditingUserId] = useState(null); // store user id for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-const formatUsers = (users) => {
-  // create map of userId -> fullName
-  const managerMap = {};
-  users.forEach(u => {
-    managerMap[u.id] = `${u.firstName} ${u.lastName}`;
-  });
-  return users
-    .sort((a,b) => b.id - a.id) // newest first
-    .map(user => ({
-      id: user.id,
-      fullName: `${user.firstName} ${user.lastName}`,
-      city: user.userBasicDetails?.city?.name || "-",
-      email: user.email,
-      contactNo: user.contactNo,
-      companyName: user.userBasicDetails?.companyName || "-",
-      plan: user.plan?.name || "-",
-      isActive: user.isActive,
-      isApprove: user.isApprove,
-      createdAt: user.createdAt,
-      reportingManager: user.userBasicDetails?.reportingManagerId  || "-",
-  
-      userCode: user.userCode || "-",
-      remark:user.remarks ||"-"
-    }));
-};
+  const formatUsers = (users) => {
+    // create map of userId -> fullName
+    const managerMap = {};
+    users.forEach((u) => {
+      managerMap[u.id] = `${u.firstName} ${u.lastName}`;
+    });
+    return users
+      .sort((a, b) => b.id - a.id) // newest first
+      .map((user) => ({
+        id: user.id,
+        fullName: `${user.firstName} ${user.lastName}`,
+        city: user.userBasicDetails?.city?.name || "-",
+        email: user.email,
+        contactNo: user.contactNo,
+        companyName: user.userBasicDetails?.companyName || "-",
+        plan: user.plan?.name || "-",
+        isActive: user.isActive,
+        isApprove: user.isApprove,
+        createdAt: user.createdAt,
+        reportingManager: user.userBasicDetails?.reportingManagerId || "-",
 
+        userCode: user.userCode || "-",
+        remark: user.remarks || "-",
+      }));
+  };
 
-
-    const handleFetchByRoleId = async (roleId = 2) => {
+  const handleFetchByRoleId = async (roleId = 2) => {
     try {
       setLoading(true);
       const response = await getAllByRoleId(roleId);
       if (response.data.success) {
-        const users = response.data.data?.["User Details"] || response.data.data || [];
+        const users =
+          response.data.data?.["User Details"] || response.data.data || [];
         const formatted = formatUsers(users);
         setTableData(formatted);
         setFilteredData(formatted);
@@ -89,26 +88,25 @@ const formatUsers = (users) => {
   // 🔹 Open modal and set user id
   const handleEdit = (user) => {
     setEditingUserId(user);
-    console.log("Editing user:", user);
     setIsModalOpen(true);
   };
-const handleApprove = async (userId) => {
-  try {
-    setLoading(true);
-    const res = await updateStatusApprove(userId);
-    if (res.data.success) {
-      message.success("User approved successfully");
-      handleFetchByRoleId(); 
-    } else {
-      message.error(res.data.msg || "Failed to approve user");
+  const handleApprove = async (userId) => {
+    try {
+      setLoading(true);
+      const res = await updateStatusApprove(userId);
+      if (res.data.success) {
+        message.success("User approved successfully");
+        handleFetchByRoleId();
+      } else {
+        message.error(res.data.msg || "Failed to approve user");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Error approving user");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    message.error("Error approving user");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <Container>
@@ -117,28 +115,27 @@ const handleApprove = async (userId) => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-  {/* Left side → Search input */}
-  <Input.Search
-    placeholder="Search users..."
-    allowClear
-    onChange={(e) => setSearchText(e.target.value)}
-    style={{ width: 250 }}
-  />
+        {/* Left side → Search input */}
+        <Input.Search
+          placeholder="Search users..."
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 250 }}
+        />
 
-  {/* Right side → Add User button */}
-  <Link to="/auth/signup">
-    <button className="btn btn-primary flex items-center gap-1">
-      <i className="ki-filled ki-plus"></i> Add User
-    </button>
-  </Link>
-</div>
-
+        {/* Right side → Add User button */}
+        <Link to="/auth/signup">
+          <button className="btn btn-primary flex items-center gap-1">
+            <i className="ki-filled ki-plus"></i> Add User
+          </button>
+        </Link>
+      </div>
 
       {loading ? (
         <Spin tip="Loading..." />
       ) : (
         <TableComponent
-          columns={columns(handleEdit ,handleApprove)}
+          columns={columns(handleEdit, handleApprove)}
           data={filteredData}
           paginationSize={10}
         />

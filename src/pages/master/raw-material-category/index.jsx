@@ -37,7 +37,6 @@ const RawMaterialMaster = () => {
   const FetchRawMaterialCategory = () => {
     GetRawMaterialcategory(Id)
       .then((res) => {
-        console.log(res);
         const formatted = res.data.data["Raw Material Category Details"].map(
           (cust, index) => ({
             sr_no: index + 1,

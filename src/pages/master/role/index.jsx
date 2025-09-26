@@ -97,8 +97,6 @@ const RoleMaster = () => {
   };
 
   const handleDelete = (roleId) => {
-    // TODO: Replace with real API
-    console.log("Delete role:", roleId);
     fetchRoles();
   };
 

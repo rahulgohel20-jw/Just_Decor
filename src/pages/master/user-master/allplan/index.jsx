@@ -4,83 +4,78 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { planColumns } from "./constant";
-import { getAllByRoleId  } from "@/services/apiServices";
+import { getAllByRoleId } from "@/services/apiServices";
 
 const PlanTable = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filteredPlans, setFilteredPlans] = useState([]);
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-useEffect(() => {
-  // If not superadmin, stop fetching
-  if (!currentUser || currentUser.role !== "superadmin") {
-    message.error("Access denied. Only superadmin can view this page.");
-    setLoading(false);
-    return;
-  }
-
-  const fetchAdmins = async () => {
-    setLoading(true);
-    try {
-      const response = await getAllByRoleId(1);
-      // ... rest of your existing fetch logic
-    } catch (err) {
-      console.error("❌ Fetch error:", err);
-      message.error("Error fetching admins");
-    } finally {
+  useEffect(() => {
+    // If not superadmin, stop fetching
+    if (!currentUser || currentUser.role !== "superadmin") {
+      message.error("Access denied. Only superadmin can view this page.");
       setLoading(false);
+      return;
     }
-  };
 
-  fetchAdmins();
-}, [currentUser]);
-
-
-useEffect(() => {
-  const fetchAdmins = async () => {
-    setLoading(true);
-
-    try {
-      const response = await getAllByRoleId(1);
-      console.log("API Response:", response.data);
-
-      if (response.data.success) {
-        let admins = response?.data?.data?.["User Details"];
-
-        if (!Array.isArray(admins)) {
-          admins = [admins];
-        }
-
-        
-
-        const planData = admins.map((user) => ({
-  id: user.id,
-  customerName: `${user.firstName || "-"} ${user.lastName || "-"}`,
-  planName: user.plan?.name || "-",
-  planPrice: user.plan?.price || "-",
-  billingCycle: user.plan?.billingCycle || "-",
-  planDescription: user.plan?.description || "-",
-  isPopular: user.plan?.isPopular ? "Yes" : "No",
-}));
-
-
-        setPlans(planData);
-        setFilteredPlans(planData);
-      } else {
-        message.error(response.data.msg || "No admins found");
+    const fetchAdmins = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllByRoleId(1);
+        // ... rest of your existing fetch logic
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+        message.error("Error fetching admins");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("❌ Fetch error:", err);
-      message.error("Error fetching admins");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchAdmins();
-}, []);
+    fetchAdmins();
+  }, [currentUser]);
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      setLoading(true);
+
+      try {
+        const response = await getAllByRoleId(1);
+
+        if (response.data.success) {
+          let admins = response?.data?.data?.["User Details"];
+
+          if (!Array.isArray(admins)) {
+            admins = [admins];
+          }
+
+          const planData = admins.map((user) => ({
+            id: user.id,
+            customerName: `${user.firstName || "-"} ${user.lastName || "-"}`,
+            planName: user.plan?.name || "-",
+            planPrice: user.plan?.price || "-",
+            billingCycle: user.plan?.billingCycle || "-",
+            planDescription: user.plan?.description || "-",
+            isPopular: user.plan?.isPopular ? "Yes" : "No",
+          }));
+
+          setPlans(planData);
+          setFilteredPlans(planData);
+        } else {
+          message.error(response.data.msg || "No admins found");
+        }
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+        message.error("Error fetching admins");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
 
   // Handle search
   const handleSearch = (e) => {

@@ -96,18 +96,16 @@ const MenuItems = () => {
   };
 
   const handleEdit = (menuItem) => {
-    console.log("✏️ Edit clicked:", menuItem);
     setSelectedMenuItem(menuItem);
     setIsItemModalOpen(true);
   };
 
   const statusmenuitem = async (id, currentStatus) => {
     try {
-      const newStatus = !currentStatus; // toggle
-      const res = await updatestatusmneuitem(id, newStatus); // ✅ use correct API
-      console.log("Status updated response:", res);
+      const newStatus = !currentStatus;
+      const res = await updatestatusmneuitem(id, newStatus);
 
-      FetchMenuItems(); // refresh table after update
+      FetchMenuItems();
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -149,7 +147,6 @@ const MenuItems = () => {
         {/* Add/Edit modal */}
         {isItemModalOpen &&
           (() => {
-            console.log("✅ Modal Open State:", isItemModalOpen);
             return (
               <AddMenuItem
                 isModalOpen={isItemModalOpen}

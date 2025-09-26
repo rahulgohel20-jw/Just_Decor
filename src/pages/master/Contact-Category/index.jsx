@@ -57,7 +57,6 @@ const ContactCategoryMaster = () => {
   const FetchConatctCategory = () => {
     GetAllContactCategory(Id)
       .then((res) => {
-        console.log(res);
         const formatted = res.data.data["Contact Category Details"].map(
           (cust, index) => ({
             sr_no: index + 1,
