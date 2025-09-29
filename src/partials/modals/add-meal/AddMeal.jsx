@@ -1,5 +1,9 @@
-import { useEffect } from "react";
-import { AddMealType, EditMealType } from "@/services/apiServices";
+import { useEffect, useState } from "react";
+import {
+  AddMealType,
+  EditMealType,
+  Translateapi,
+} from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
@@ -11,11 +15,29 @@ const validationSchema = Yup.object().shape({
 
 const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
   if (!isOpen) return null;
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const initialValues = {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+  };
+
+  const triggerTranslate = (text) => {
+    if (!text?.trim()) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          formik.setFieldValue("nameGujarati", res.data.gujarati || "");
+          formik.setFieldValue("nameHindi", res.data.hindi || "");
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
   };
 
   const formik = useFormik({
@@ -56,6 +78,12 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
     },
     enableReinitialize: true,
   });
+
+  useEffect(() => {
+    if (formik.values.nameEnglish) {
+      triggerTranslate(formik.values.nameEnglish);
+    }
+  }, [formik.values.nameEnglish]);
 
   useEffect(() => {
     if (selectedMeal) {

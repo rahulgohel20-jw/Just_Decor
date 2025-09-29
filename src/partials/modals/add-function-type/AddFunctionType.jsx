@@ -5,6 +5,7 @@ import {
   AddFunction,
   EditFunctionById,
   GetAllFunctionsByUserId,
+  Translateapi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import { useFormik } from "formik";
@@ -12,6 +13,8 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 
 const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
   const initialState = {
     nameEnglish: "",
     nameGujarati: "",
@@ -68,7 +71,7 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
           Swal.fire("Success", "Function added successfully!", "success");
         }
 
-        GetAllFunctionsByUserId(); // refresh list
+        // GetAllFunctionsByUserId();
         onClose(false);
         if (onSuccess) onSuccess();
       } catch (err) {
@@ -79,6 +82,27 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
 
     enableReinitialize: true,
   });
+  const triggerTranslate = (text) => {
+    if (!text?.trim()) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          formik.setFieldValue("nameGujarati", res.data.gujarati || "");
+          formik.setFieldValue("nameHindi", res.data.hindi || "");
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
+  useEffect(() => {
+    if (formik.values.nameEnglish) {
+      triggerTranslate(formik.values.nameEnglish);
+    }
+  }, [formik.values.nameEnglish]);
 
   useEffect(() => {
     if (selectedFunction) {

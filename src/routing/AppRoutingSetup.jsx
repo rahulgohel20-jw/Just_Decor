@@ -89,8 +89,9 @@ import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
 import {
   NotificationsSettingsPage,
   GeneralSettingsPage,
-  CustomizeSettingsPage,
+  SubscriptionSettingsPage,
   ChannelSettingsPage,
+  UtilityPage,
 } from "@/pages/setting";
 import { BillingOverviewPage, WalletLogsPage } from "@/pages/billing";
 import {
@@ -291,9 +292,10 @@ const AppRoutingSetup = () => {
           <Route path="officesetting" element={<OfficeSetting />}></Route>
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
+          <Route path="/settings/utility" element={<UtilityPage />} />
           <Route
-            path="/settings/customize"
-            element={<CustomizeSettingsPage />}
+            path="/settings/subscription"
+            element={<SubscriptionSettingsPage />}
           />
           <Route path="/settings/channel" element={<ChannelSettingsPage />} />
           <Route

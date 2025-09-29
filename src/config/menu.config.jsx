@@ -278,15 +278,19 @@ export const MENU_SIDEBAR = [
     disabled: false,
     children: [
       {
-        title: "General",
+        title: "Company Profile",
         path: "settings/general",
       },
       {
-        title: "Customize",
-        path: "settings/customize",
+        title: "Utility Page",
+        path: "settings/utility",
       },
       {
-        title: "Channels",
+        title: "Subscription",
+        path: "settings/subscription",
+      },
+      {
+        title: "Payment History",
         path: "settings/channel",
       },
       {

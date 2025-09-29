@@ -7,6 +7,7 @@ import {
   GetAllSubCategorymenuitem,
   GetAllKitchenAreaById,
   UpdateMenuItem,
+  Translateapi,
 } from "@/services/apiServices";
 import { uploadFile } from "../../../services/apiServices";
 
@@ -31,12 +32,32 @@ const AddMenuItem = ({
     menuSubItemCategory: "",
     kitchenArea: "",
   };
-
+  const [debounceTimer, setDebounceTimer] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [kitchenAreas, setKitchenAreas] = useState([]);
   const [activeTab, setActiveTab] = useState("tab_1");
+
+  useEffect(() => {
+    if (formData.nameEnglish) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      const timer = setTimeout(() => {
+        Translateapi(formData.nameEnglish)
+          .then((res) => {
+            setFormData((prev) => ({
+              ...prev,
+              nameGujarati: res.data.gujarati || "",
+              nameHindi: res.data.hindi || "",
+            }));
+          })
+          .catch((err) => console.error("Translation error:", err));
+      }, 500);
+
+      setDebounceTimer(timer);
+    }
+  }, [formData.nameEnglish]);
   useEffect(() => {
     if (isModalOpen) {
       const userData = JSON.parse(localStorage.getItem("userData"));

@@ -1,7 +1,12 @@
-import { AddContactMasterType, EditContactType } from "@/services/apiServices";
+import {
+  AddContactMasterType,
+  EditContactType,
+  Translateapi,
+} from "@/services/apiServices";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
+import { useEffect, useState } from "react";
 
 const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
   if (!isOpen) return null;
@@ -78,33 +83,57 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ isSubmitting }) => (
-            <Form>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputWithFormik label="Name (English)" name="nameEnglish" />
-                <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
-                <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
-              </div>
+          {({ isSubmitting, values, setFieldValue }) => {
+            const [debounceTimer, setDebounceTimer] = useState(null);
+            useEffect(() => {
+              if (!values.nameEnglish?.trim()) return;
 
-              {/* Actions */}
-              <div className="flex w-full justify-end mt-6 gap-3">
-                <button
-                  type="button"
-                  onClick={() => onClose(false)}
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-                >
-                  {contactType ? "Update" : "Save"}
-                </button>
-              </div>
-            </Form>
-          )}
+              if (debounceTimer) clearTimeout(debounceTimer);
+
+              const timer = setTimeout(() => {
+                Translateapi(values.nameEnglish)
+                  .then((res) => {
+                    console.log(res);
+
+                    setFieldValue("nameGujarati", res.data.gujarati || "");
+                    setFieldValue("nameHindi", res.data.hindi || "");
+                  })
+                  .catch((err) => console.error("Translation error:", err));
+              }, 500);
+
+              setDebounceTimer(timer);
+
+              return () => clearTimeout(timer);
+            }, [values.nameEnglish]);
+
+            return (
+              <Form>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputWithFormik label="Name (English)" name="nameEnglish" />
+                  <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+                  <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
+                </div>
+
+                {/* Actions */}
+                <div className="flex w-full justify-end mt-6 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onClose(false)}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+                  >
+                    {contactType ? "Update" : "Save"}
+                  </button>
+                </div>
+              </Form>
+            );
+          }}
         </Formik>
       </div>
     </div>

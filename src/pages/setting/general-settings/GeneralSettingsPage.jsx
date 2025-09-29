@@ -1,58 +1,34 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import TabComponent from "@/components/tab/TabComponent";
-import {
-  RoleAndPermission,
-  BulkDataImport,
-  ExportLead,
-} from "@/container/setting";
-
+import ProfileForm from "@/components/profile/ProfileForm";
+import { UserOutlined } from "@ant-design/icons";
 const GeneralSettingsPage = () => {
+  const [activeTab, setActiveTab] = useState("account");
+
   const tabs = [
     {
-      value: "roleandpermission",
-      label: (
-        <>
-          {/* <User className="text-primary" /> */}
-          <i className="ki-filled ki-security-user"></i>
-          Role & Permission
-        </>
-      ),
-      children: <RoleAndPermission />,
-    },
-    {
-      value: "bulkdata",
-      label: (
-        <>
-          <i className="ki-filled ki-parcel"></i>
-          Bulk Data Import
-        </>
-      ),
-      children: <BulkDataImport />,
-    },
-    {
-      value: "exportleads",
-      label: (
-        <>
-          {/* <Layers className="text-primary" /> */}
-          <i className="ki-filled ki-file-down"></i>
-          Export Leads
-        </>
-      ),
-      children: <ExportLead />,
+      key: "account",
+      icon: UserOutlined,
+      title: "Account",
+      subtitle: "Manage your profile",
+      content: <ProfileForm />,
     },
   ];
+
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "General Settings" }]} />
+          <Breadcrumbs items={[{ title: "Company Profile" }]} />
         </div>
-        <TabComponent tabs={tabs} />
+        <div className="bg-white rounded-lg shadow-sm">
+          {tabs.find((tab) => tab.key === activeTab)?.content}
+        </div>
       </Container>
     </Fragment>
   );
 };
+
 export { GeneralSettingsPage };

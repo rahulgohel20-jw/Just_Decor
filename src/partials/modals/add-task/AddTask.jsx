@@ -17,8 +17,6 @@ const AddTask = ({ isModalOpen, setIsModalOpen, editData }) => {
   ];
 
   const saveData = () => {
-    // Save data logic here
-
     setIsModalOpen(false);
   };
 

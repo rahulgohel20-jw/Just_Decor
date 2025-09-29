@@ -10,6 +10,7 @@ import {
   DeleteSuplier,
   Addrawmaterial,
   EditRawMaterial,
+  Translateapi,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
@@ -41,6 +42,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [rawCategory, setRawCategory] = useState([]);
   const [unitList, setUnitList] = useState([]);
   const [editingSupplier, setEditingSupplier] = useState(null);
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   let userdata = JSON.parse(localStorage.getItem("userData"));
   let id = userdata.id;
@@ -116,6 +118,22 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       }
     },
   });
+  useEffect(() => {
+    if (formik.values.nameEnglish) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      const timer = setTimeout(() => {
+        Translateapi(formik.values.nameEnglish)
+          .then((res) => {
+            formik.setFieldValue("nameGujarati", res.data.gujarati || "");
+            formik.setFieldValue("nameHindi", res.data.hindi || "");
+          })
+          .catch((err) => console.error("Translation error:", err));
+      }, 500);
+
+      setDebounceTimer(timer);
+    }
+  }, [formik.values.nameEnglish]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -157,7 +175,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           setTableData(supplierTableData);
         }
       } else {
-        // add mode → reset clean form
         formik.resetForm();
         setTableData([]);
       }
@@ -336,7 +353,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             <button className="btn btn-light" onClick={() => onClose(false)}>
               Cancel
             </button>
-            <button className="btn btn-success" onClick={formik.handleSubmit}>
+            <button className="btn btn-primary" onClick={formik.handleSubmit}>
               {rawmaterial ? "Update" : "Save"}
             </button>
           </div>,

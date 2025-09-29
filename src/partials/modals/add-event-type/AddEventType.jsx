@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { EditEventType, Addeventtype } from "@/services/apiServices";
+import {
+  EditEventType,
+  Addeventtype,
+  Translateapi,
+} from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
@@ -11,6 +15,7 @@ const AddEventType = ({
   selectedEvent,
 }) => {
   if (!isModalOpen) return null;
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const initialFormState = {
     nameEnglish: "",
@@ -25,6 +30,26 @@ const AddEventType = ({
     nameEnglish: Yup.string().required("Name is required"),
   });
 
+  const triggerTranslate = (text) => {
+    if (!text?.trim()) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          setFormData((prev) => ({
+            ...prev,
+            nameGujarati: res.data.gujarati || "",
+            nameHindi: res.data.hindi || "",
+          }));
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
+
   useEffect(() => {
     if (selectedEvent) {
       setFormData({
@@ -37,6 +62,12 @@ const AddEventType = ({
     }
     setErrors({});
   }, [selectedEvent]);
+
+  useEffect(() => {
+    if (formData.nameEnglish) {
+      triggerTranslate(formData.nameEnglish);
+    }
+  }, [formData.nameEnglish]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
