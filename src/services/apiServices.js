@@ -616,3 +616,7 @@ export const EditUnit = (id, data) => {
 export const updateunit = (id, data) => {
   return PUT(`unit/updatestatusbyid?id=${id}&isActive=${data}`);
 };
+
+export const Translateapi = (data) => {
+  return GET(`/transliterate?text=${data}`);
+};

@@ -287,7 +287,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Subscription",
-        path: "settings/customize",
+        path: "settings/subscription",
       },
       {
         title: "Payment History",

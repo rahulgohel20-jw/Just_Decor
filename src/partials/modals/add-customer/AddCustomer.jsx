@@ -5,6 +5,7 @@ import {
   AddCustomerapi,
   GetAllContactCategory,
   EditCustomerApi,
+  Translateapi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 
@@ -21,6 +22,7 @@ const AddCustomer = ({
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef();
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -88,6 +90,46 @@ const AddCustomer = ({
   }, []);
 
   const userData = JSON.parse(localStorage.getItem("userData"));
+  const triggerTranslate = (text, fieldType) => {
+    if (!text?.trim()) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          if (fieldType === "name") {
+            setFormData((prev) => ({
+              ...prev,
+              nameGujarati: res.data.gujarati || "",
+              nameHindi: res.data.hindi || "",
+            }));
+          }
+          if (fieldType === "address") {
+            setFormData((prev) => ({
+              ...prev,
+              addressGujarati: res.data.gujarati || "",
+              addressHindi: res.data.hindi || "",
+            }));
+          }
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
+
+  useEffect(() => {
+    if (formData.nameEnglish) {
+      triggerTranslate(formData.nameEnglish, "name");
+    }
+  }, [formData.nameEnglish]);
+
+  useEffect(() => {
+    if (formData.addressEnglish) {
+      triggerTranslate(formData.addressEnglish, "address");
+    }
+  }, [formData.addressEnglish]);
 
   useEffect(() => {
     if (isModalOpen && categories.length === 0) {

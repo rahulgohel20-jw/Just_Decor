@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
-import { AddUnitdata, EditUnit } from "@/services/apiServices";
+import { AddUnitdata, EditUnit, Translateapi } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -12,11 +12,45 @@ const AddUnit = ({
   refreshData,
 }) => {
   if (!isModalOpen) return null;
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const validationSchema = Yup.object({
     nameEnglish: Yup.string().required("Name  is required"),
     symbolEnglish: Yup.string().required("Symbol  is required"),
   });
+
+  // Separate translate functions
+  const triggerTranslateName = (text) => {
+    if (!text?.trim()) return;
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          formik.setFieldValue("nameGujarati", res.data.gujarati || "");
+          formik.setFieldValue("nameHindi", res.data.hindi || "");
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
+
+  const triggerTranslateSymbol = (text) => {
+    if (!text?.trim()) return;
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          formik.setFieldValue("symbolGujarati", res.data.gujarati || "");
+          formik.setFieldValue("symbolHindi", res.data.hindi || "");
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -65,6 +99,18 @@ const AddUnit = ({
     },
     enableReinitialize: true,
   });
+
+  useEffect(() => {
+    if (formik.values.nameEnglish) {
+      triggerTranslateName(formik.values.nameEnglish);
+    }
+  }, [formik.values.nameEnglish]);
+
+  useEffect(() => {
+    if (formik.values.symbolEnglish) {
+      triggerTranslateSymbol(formik.values.symbolEnglish);
+    }
+  }, [formik.values.symbolEnglish]);
 
   useEffect(() => {
     if (selectedUnit) {

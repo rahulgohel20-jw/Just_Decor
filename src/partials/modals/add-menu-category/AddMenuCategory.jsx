@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { editCategory, AddCategory } from "@/services/apiServices";
+import {
+  editCategory,
+  AddCategory,
+  Translateapi,
+} from "@/services/apiServices"; // ✅ added Translateapi
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { uploadFile } from "@/services/apiServices";
 import { formValidation } from "../../../lib/utils";
 import Swal from "sweetalert2";
+
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -13,6 +18,7 @@ const AddMenuCategory = ({
   editData,
 }) => {
   if (!isModalOpen) return null;
+
   const initialFormState = {
     nameEnglish: "",
     nameGujarati: "",
@@ -25,11 +31,33 @@ const AddMenuCategory = ({
   const requiredFields = ["nameEnglish", "price", "sequence"];
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // ✅ Auto-translate English → Gujarati & Hindi
+  useEffect(() => {
+    if (formData.nameEnglish) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      const timer = setTimeout(() => {
+        Translateapi(formData.nameEnglish)
+          .then((res) => {
+            setFormData((prev) => ({
+              ...prev,
+              nameGujarati: res.data.gujarati || "",
+              nameHindi: res.data.hindi || "",
+            }));
+          })
+          .catch((err) => console.error("Translation error:", err));
+      }, 500);
+
+      setDebounceTimer(timer);
+    }
+  }, [formData.nameEnglish]);
 
   const handleSubmit = () => {
     if (checkErrors()) {
@@ -194,7 +222,6 @@ const AddMenuCategory = ({
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
             placeholder={"Priority"}
-            re
           />
           {errors.sequence && (
             <span className="text-red-500 text-sm">{errors.sequence}</span>

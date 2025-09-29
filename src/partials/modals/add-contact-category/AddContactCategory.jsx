@@ -3,6 +3,7 @@ import {
   Addcontactcategory,
   EditContactCategory,
   GetAllContactType,
+  Translateapi,
 } from "@/services/apiServices";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -116,66 +117,89 @@ const AddContactCategory = ({
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ isSubmitting }) => (
-            <Form>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputWithFormik label="Name (English)" name="nameEnglish" />
-                <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
-                <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
+          {({ isSubmitting, values, setFieldValue }) => {
+            const [debounceTimer, setDebounceTimer] = useState(null);
+            useEffect(() => {
+              if (!values.nameEnglish?.trim()) return;
 
-                {/* Dropdown */}
-                <div className="flex flex-col">
-                  <label className="block text-gray-600 mb-1">
-                    Contact Type<span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    as="select"
-                    name="contcatTypeId"
-                    className="border border-gray-300 rounded-lg p-2 w-full"
-                  >
-                    <option value="">-- Select Contact Type --</option>
-                    {contactTypes
-                      .filter((type) => type.isActive)
-                      .map((type) => (
-                        <option key={type.id} value={type.id}>
-                          {type.nameEnglish || "Unnamed"}
-                        </option>
-                      ))}
-                  </Field>
-                  <ErrorMessage
-                    name="contcatTypeId"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
+              if (debounceTimer) clearTimeout(debounceTimer);
+
+              const timer = setTimeout(() => {
+                Translateapi(values.nameEnglish)
+                  .then((res) => {
+                    console.log(res);
+
+                    setFieldValue("nameGujarati", res.data.gujarati || "");
+                    setFieldValue("nameHindi", res.data.hindi || "");
+                  })
+                  .catch((err) => console.error("Translation error:", err));
+              }, 500);
+
+              setDebounceTimer(timer);
+
+              return () => clearTimeout(timer);
+            }, [values.nameEnglish]);
+            return (
+              <Form>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputWithFormik label="Name (English)" name="nameEnglish" />
+                  <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+                  <InputWithFormik label="Name (हिंदी)" name="nameHindi" />
+
+                  {/* Dropdown */}
+                  <div className="flex flex-col">
+                    <label className="block text-gray-600 mb-1">
+                      Contact Type<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      as="select"
+                      name="contcatTypeId"
+                      className="border border-gray-300 rounded-lg p-2 w-full"
+                    >
+                      <option value="">-- Select Contact Type --</option>
+                      {contactTypes
+                        .filter((type) => type.isActive)
+                        .map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.nameEnglish || "Unnamed"}
+                          </option>
+                        ))}
+                    </Field>
+                    <ErrorMessage
+                      name="contcatTypeId"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </div>
+
+                  {/* Priority */}
+                  <InputWithFormik
+                    label="Priority"
+                    name="sequence"
+                    type="number"
                   />
                 </div>
 
-                {/* Priority */}
-                <InputWithFormik
-                  label="Priority"
-                  name="sequence"
-                  type="number"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex w-full justify-end mt-6 gap-3">
-                <button
-                  type="button"
-                  onClick={() => onClose(false)}
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-                >
-                  {contactCategory ? "Update" : "Save"}
-                </button>
-              </div>
-            </Form>
-          )}
+                {/* Actions */}
+                <div className="flex w-full justify-end mt-6 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onClose(false)}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+                  >
+                    {contactCategory ? "Update" : "Save"}
+                  </button>
+                </div>
+              </Form>
+            );
+          }}
         </Formik>
       </div>
     </div>

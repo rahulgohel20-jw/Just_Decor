@@ -3,6 +3,7 @@ import {
   AddRawMaterialCat,
   EditRawMaterialCat,
   GetRawType,
+  Translateapi, // ✅ added
 } from "@/services/apiServices";
 import RawMaterialDropdown from "@/components/dropdowns/MealTypeDropdown";
 import { Checkbox } from "antd";
@@ -30,6 +31,24 @@ const AddRawMaterial = ({
   if (!isOpen) return null;
 
   const [options, setOptions] = useState([]);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  // ✅ translate function for Name fields
+  const triggerTranslate = (text, setFieldValue) => {
+    if (!text?.trim()) return;
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(text)
+        .then((res) => {
+          setFieldValue("nameGujarati", res.data.gujarati || "");
+          setFieldValue("nameHindi", res.data.hindi || "");
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+  };
 
   // Fetch dropdown options
   useEffect(() => {
@@ -137,74 +156,86 @@ const AddRawMaterial = ({
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ values, setFieldValue, isSubmitting }) => (
-            <Form className="space-y-6">
-              {/* ✅ Name fields in 1 row (3 columns) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <InputWithIcon label="Name (English)" name="nameEnglish" />
+          {({ values, setFieldValue, isSubmitting }) => {
+            // ✅ watch English field & auto-translate
+            useEffect(() => {
+              if (values.nameEnglish) {
+                triggerTranslate(values.nameEnglish, setFieldValue);
+              }
+            }, [values.nameEnglish]);
 
-                <InputWithIcon label="Name (हिंदी)" name="nameHindi" />
-                <InputWithIcon label="Name (ગુજરાતી)" name="nameGujarati" />
-              </div>
-
-              {/* ✅ Rest in 2-column grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Type */}
-                <div>
-                  <label className="block text-gray-600 font-medium mb-1">
-                    Type <span className="text-red-500">*</span>
-                  </label>
-                  <RawMaterialDropdown
-                    value={values.rawMaterialCatTypeId}
-                    onChange={(val) =>
-                      setFieldValue("rawMaterialCatTypeId", val)
-                    }
-                    options={options}
-                    createBtn={true}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
-                  <ErrorMessage
-                    name="rawMaterialCatTypeId"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
+            return (
+              <Form className="space-y-6">
+                {/* ✅ Name fields in 1 row (3 columns) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <InputWithIcon label="Name (English)" name="nameEnglish" />
+                  <InputWithIcon label="Name (हिंदी)" name="nameHindi" />
+                  <InputWithIcon label="Name (ગુજરાતી)" name="nameGujarati" />
                 </div>
 
-                {/* Sequence */}
-                <InputWithIcon label="Sequence" name="sequence" type="number" />
+                {/* ✅ Rest in 2-column grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Type */}
+                  <div>
+                    <label className="block text-gray-600 font-medium mb-1">
+                      Type <span className="text-red-500">*</span>
+                    </label>
+                    <RawMaterialDropdown
+                      value={values.rawMaterialCatTypeId}
+                      onChange={(val) =>
+                        setFieldValue("rawMaterialCatTypeId", val)
+                      }
+                      options={options}
+                      createBtn={true}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    />
+                    <ErrorMessage
+                      name="rawMaterialCatTypeId"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </div>
 
-                {/* Checkbox full row */}
-                <div className="flex items-center gap-2 mt-2 col-span-2">
-                  <Checkbox
-                    checked={values.isDirect}
-                    onChange={(e) =>
-                      setFieldValue("isDirect", e.target.checked)
-                    }
+                  {/* Sequence */}
+                  <InputWithIcon
+                    label="Sequence"
+                    name="sequence"
+                    type="number"
+                  />
+
+                  {/* Checkbox full row */}
+                  <div className="flex items-center gap-2 mt-2 col-span-2">
+                    <Checkbox
+                      checked={values.isDirect}
+                      onChange={(e) =>
+                        setFieldValue("isDirect", e.target.checked)
+                      }
+                    >
+                      Direct Order
+                    </Checkbox>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end mt-6 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onClose(false)}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
                   >
-                    Direct Order
-                  </Checkbox>
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+                  >
+                    {rawMaterialCategory ? "Update" : "Save"}
+                  </button>
                 </div>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end mt-6 gap-3">
-                <button
-                  type="button"
-                  onClick={() => onClose(false)}
-                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-                >
-                  {rawMaterialCategory ? "Update" : "Save"}
-                </button>
-              </div>
-            </Form>
-          )}
+              </Form>
+            );
+          }}
         </Formik>
       </div>
     </div>
@@ -223,7 +254,6 @@ const InputWithIcon = ({ label, name, type = "text" }) => (
       className="border border-gray-300 rounded-lg p-2 w-full"
       placeholder={label}
     />
-
     <ErrorMessage
       name={name}
       component="div"

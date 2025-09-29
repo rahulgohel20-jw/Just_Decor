@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
-import { editSubCategory, AddSubCategory } from "@/services/apiServices";
+import {
+  editSubCategory,
+  AddSubCategory,
+  Translateapi,
+} from "@/services/apiServices"; // ✅ added Translateapi
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { formValidation } from "../../../lib/utils";
 import Swal from "sweetalert2";
+
 const AddMenuSubCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -18,6 +23,28 @@ const AddMenuSubCategory = ({
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const requiredFields = ["nameEnglish"];
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  // ✅ Auto-translate English → Gujarati & Hindi
+  useEffect(() => {
+    if (formData.nameEnglish) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      const timer = setTimeout(() => {
+        Translateapi(formData.nameEnglish)
+          .then((res) => {
+            setFormData((prev) => ({
+              ...prev,
+              nameGujarati: res.data.gujarati || "",
+              nameHindi: res.data.hindi || "",
+            }));
+          })
+          .catch((err) => console.error("Translation error:", err));
+      }, 500);
+
+      setDebounceTimer(timer);
+    }
+  }, [formData.nameEnglish]);
 
   const handleSubmit = () => {
     if (checkErrors()) {
@@ -27,53 +54,45 @@ const AddMenuSubCategory = ({
         return;
       }
 
-      if (editData) {
-        const payload = { ...formData, userId: userData.id };
+      const payload = { ...formData, userId: userData.id };
 
+      if (editData) {
         editSubCategory(editData.id, payload)
           .then((res) => {
             refreshData();
             setIsModalOpen();
-
-            if (res.data?.msg) {
-              Swal.fire("Success", res.data.msg, "success");
-            } else {
-              Swal.fire(
-                "Success",
-                "Sub Category updated successfully!",
-                "success"
-              );
-            }
+            Swal.fire(
+              "Success",
+              res.data?.msg || "Sub Category updated successfully!",
+              "success"
+            );
           })
           .catch((error) => {
-            const errorMsg =
+            Swal.fire(
+              "Error",
               error?.response?.data?.msg ||
-              "Something went wrong while updating";
-            Swal.fire("Error", errorMsg, "error");
+                "Something went wrong while updating",
+              "error"
+            );
             console.error("Error editing meal:", error);
           });
       } else {
-        const payload = { ...formData, userId: userData.id };
-
         AddSubCategory(payload)
           .then((res) => {
             refreshData();
             setIsModalOpen();
-
-            if (res.data?.msg) {
-              Swal.fire("Success", res.data.msg, "success");
-            } else {
-              Swal.fire(
-                "Success",
-                "Sub Category added successfully!",
-                "success"
-              );
-            }
+            Swal.fire(
+              "Success",
+              res.data?.msg || "Sub Category added successfully!",
+              "success"
+            );
           })
           .catch((error) => {
-            const errorMsg =
-              error?.response?.data?.msg || "Something went wrong while adding";
-            Swal.fire("Error", errorMsg, "error");
+            Swal.fire(
+              "Error",
+              error?.response?.data?.msg || "Something went wrong while adding",
+              "error"
+            );
             console.error("Error adding meal:", error);
           });
       }
@@ -82,7 +101,6 @@ const AddMenuSubCategory = ({
 
   const checkErrors = () => {
     let errorObject = formValidation(requiredFields, formData);
-
     if (Object.keys(errorObject).length > 0) {
       setErrors(errorObject);
       return false;
@@ -105,44 +123,42 @@ const AddMenuSubCategory = ({
   }, [editData, isModalOpen]);
 
   return (
-    <>
-      <CustomModal
-        open={isModalOpen}
-        width={1000}
-        onClose={() => setIsModalOpen(false)}
-        title={editData ? "Edit Menu Sub Category" : "New Menu Sub Category"}
-        footer={[
-          <div className="flex justify-end">
-            <button
-              type="button"
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn-primary text-white px-4 py-2 rounded-md"
-              onClick={handleSubmit}
-            >
-              {editData ? "Update" : "Save"}
-            </button>
-          </div>,
-        ]}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Name fields */}
-          <MultiLangInputBox
-            formData={formData}
-            setFormData={setFormData}
-            name="name"
-            label="Name"
-            error={errors.nameEnglish}
-            required
-          />
-        </div>
-      </CustomModal>
-    </>
+    <CustomModal
+      open={isModalOpen}
+      width={1000}
+      onClose={() => setIsModalOpen(false)}
+      title={editData ? "Edit Menu Sub Category" : "New Menu Sub Category"}
+      footer={[
+        <div className="flex justify-end" key="footer-buttons">
+          <button
+            type="button"
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn-primary text-white px-4 py-2 rounded-md"
+            onClick={handleSubmit}
+          >
+            {editData ? "Update" : "Save"}
+          </button>
+        </div>,
+      ]}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Name fields */}
+        <MultiLangInputBox
+          formData={formData}
+          setFormData={setFormData}
+          name="name"
+          label="Name"
+          error={errors.nameEnglish}
+          required
+        />
+      </div>
+    </CustomModal>
   );
 };
 
