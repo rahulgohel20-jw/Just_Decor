@@ -1,6 +1,7 @@
 import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
+import { useNavigate } from "react-router-dom";
 
 export const columns = (onDelete, viewEvent, openMenuReport) => [
   {
@@ -67,6 +68,7 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
+      const navigate = useNavigate();
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="View Event">
@@ -86,17 +88,17 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
             </Link>
           </Tooltip>
           <Popconfirm
-            title="Are you sure to copy this item?"
-            onConfirm={() => underConstruction()}
+            title="Are you sure to copy this event?"
+            onConfirm={() =>
+              navigate(`/edit-event/${row.original.eventid}/copy`)
+            }
             onCancel={() => console.log("Cancelled")}
             okText="Yes"
             cancelText="No"
           >
-            <Tooltip className="cursor-pointer" title="Copy Event">
-              <button className="btn btn-sm btn-icon btn-clear" title="Copy">
-                <i className="ki-filled ki-copy text-success"></i>
-              </button>
-            </Tooltip>
+            <button className="btn btn-sm btn-icon btn-clear" title="Copy">
+              <i className="ki-filled ki-copy text-success"></i>
+            </button>
           </Popconfirm>
           <Tooltip title="Delete Event">
             <button

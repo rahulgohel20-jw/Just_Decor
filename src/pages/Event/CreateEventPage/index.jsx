@@ -25,8 +25,14 @@ const STEP_KEYS = ["basic_info", "client_info", "functions", "other"];
 
 const CreateEventPage = () => {
   const { eventId } = useParams();
+
   const navigate = useNavigate();
-  const mode = eventId ? "edit" : "create";
+  const location = useLocation();
+  const mode = location.pathname.includes("/copy")
+    ? "copy"
+    : eventId
+      ? "edit"
+      : "create";
 
   const initialFormData = useMemo(
     () => ({
@@ -56,23 +62,23 @@ const CreateEventPage = () => {
   const [loading, setLoading] = useState(false);
   let STATUS_NAME_TO_ID = {
     Inquiry: "0",
-    Inquriy: "0",
     Confirm: "1",
     Cancel: "2",
   };
 
   useEffect(() => {
-    if (mode === "edit" && eventId) {
+    if ((mode === "edit" || mode === "copy") && eventId) {
       setLoading(true);
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "datatatat");
+          console.log(event, "data");
 
           const statusId =
-            event?.status?.id != null
-              ? String(event.status.id)
+            event?.status != null
+              ? String(event.status)
               : (STATUS_NAME_TO_ID[event?.status] ?? "0");
+
           setFormData((prev) => ({
             ...prev,
             inquiryDate: event.inquiryDate
@@ -96,7 +102,7 @@ const CreateEventPage = () => {
             mobileno: event.mobileno || event.party?.mobileno || "",
             isHighPriority: event.isHighPriority,
             eventFunction: (event.eventFunctions || []).map((f) => ({
-              eventFuncId: f.id,
+              eventFuncId: mode === "copy" ? 0 : f.id,
               functionId: f.function?.id ?? f.functionId ?? null,
               functionName: f.function?.nameEnglish ?? "",
               functionStartDateTime: f.functionStartDateTime.replace(
