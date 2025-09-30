@@ -32,6 +32,7 @@ const AddMenuItem = ({
     menuSubItemCategory: "",
     kitchenArea: "",
   };
+
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
   const [categories, setCategories] = useState([]);
@@ -58,6 +59,7 @@ const AddMenuItem = ({
       setDebounceTimer(timer);
     }
   }, [formData.nameEnglish]);
+
   useEffect(() => {
     if (isModalOpen) {
       const userData = JSON.parse(localStorage.getItem("userData"));

@@ -3,7 +3,7 @@ import {
   editSubCategory,
   AddSubCategory,
   Translateapi,
-} from "@/services/apiServices"; // ✅ added Translateapi
+} from "@/services/apiServices";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { formValidation } from "../../../lib/utils";
@@ -25,7 +25,6 @@ const AddMenuSubCategory = ({
   const requiredFields = ["nameEnglish"];
   const [debounceTimer, setDebounceTimer] = useState(null);
 
-  // ✅ Auto-translate English → Gujarati & Hindi
   useEffect(() => {
     if (formData.nameEnglish) {
       if (debounceTimer) clearTimeout(debounceTimer);
