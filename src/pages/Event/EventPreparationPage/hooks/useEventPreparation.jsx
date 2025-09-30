@@ -307,36 +307,13 @@ const useMenuData = () => {
           })
         );
 
-        // Sort selectedMenuCategories by menuSortOrder to maintain drag-drop order
         const selectedMenuCategories =
           responseData["selectedMenuPreparationItems"] || [];
-        console.log(selectedMenuCategories, "data");
-
-        // Sort categories by menuSortOrder first
-        const sortedCategories = selectedMenuCategories.sort((a, b) => {
-          const sortOrderA =
-            a.menuSortOrder !== undefined ? a.menuSortOrder : 999;
-          const sortOrderB =
-            b.menuSortOrder !== undefined ? b.menuSortOrder : 999;
-          return sortOrderA - sortOrderB;
-        });
-
         let selectedItems = [];
 
-        sortedCategories.forEach((category) => {
+        selectedMenuCategories.forEach((category) => {
           if (category.selectedMenuPreparationItems) {
-            // Sort items within each category by itemSortOrder
-            const sortedItems = category.selectedMenuPreparationItems.sort(
-              (a, b) => {
-                const sortOrderA =
-                  a.itemSortOrder !== undefined ? a.itemSortOrder : 999;
-                const sortOrderB =
-                  b.itemSortOrder !== undefined ? b.itemSortOrder : 999;
-                return sortOrderA - sortOrderB;
-              }
-            );
-
-            selectedItems.push(...sortedItems);
+            selectedItems.push(...category.selectedMenuPreparationItems);
           }
         });
 
@@ -351,7 +328,6 @@ const useMenuData = () => {
           menuItems: updatedMenuItems,
           selectedItems,
           responseData,
-          sortedCategories, // Return sorted categories for UI ordering
         };
       } catch (error) {
         console.error("Error fetching menu prep data:", error);
@@ -380,11 +356,7 @@ const useMenuData = () => {
           }));
         }
 
-        return {
-          ...responseData,
-          // FIXED: Ensure sorted categories are properly returned
-          sortedCategories: responseData.sortedCategories || [],
-        };
+        return responseData;
       } catch (error) {
         console.error("Error loading function menu data:", error);
         throw error;
@@ -466,13 +438,7 @@ const useSaveMenu = (
   const userData = JSON.parse(localStorage.getItem("userData"));
 
   const saveMenu = useCallback(
-    async (
-      selectedFunctionId,
-      selectedCategoryId,
-      pax,
-      rate,
-      orderedCategoryContainers = []
-    ) => {
+    async (selectedFunctionId, selectedCategoryId, pax, rate) => {
       const currentFunctionData = functionSelectionData[selectedFunctionId];
 
       if (
@@ -525,7 +491,7 @@ const useSaveMenu = (
       // Group selected items by category for the new payload structure
       const itemsByCategory = {};
 
-      selectedItems.forEach((item) => {
+      selectedItems.forEach((item, index) => {
         // Use the updated category from drag and drop if available
         let finalCategoryId = item.parentId;
         let finalCategoryName = "";
@@ -557,7 +523,7 @@ const useSaveMenu = (
               currentFunctionData.categoryNotes?.[finalCategoryId] || "",
             menuSlogan:
               currentFunctionData.categorySlogans?.[finalCategoryId] || "",
-            menuSortOrder: 0, // Will be set later based on category order
+            menuSortOrder: 0,
             startTime: dateandtime,
             selectedMenuPreparationItems: [],
           };
@@ -568,47 +534,18 @@ const useSaveMenu = (
           itemNotes: currentFunctionData.itemNotes[item.id] || "",
           itemPrice: itemPrice,
           itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
-          itemSortOrder: 0, // Will be set later based on item order within category
+          itemSortOrder: index,
           menuItemId: item.id,
           menuItemName: item.name,
         });
       });
 
-      // Convert to array and apply correct sort orders based on drag-and-drop order
-      const selectedMenuPreparationItems = [];
-
-      // If orderedCategoryContainers is provided, use that order
-      if (orderedCategoryContainers && orderedCategoryContainers.length > 0) {
-        orderedCategoryContainers.forEach((container, categoryIndex) => {
-          const categoryData = itemsByCategory[container.categoryId];
-          if (categoryData) {
-            // Set correct menuSortOrder based on the drag-and-drop order
-            categoryData.menuSortOrder = categoryIndex;
-
-            // Set correct itemSortOrder for items within this category
-            categoryData.selectedMenuPreparationItems.forEach(
-              (item, itemIndex) => {
-                item.itemSortOrder = itemIndex;
-              }
-            );
-
-            selectedMenuPreparationItems.push(categoryData);
-          }
-        });
-      } else {
-        // Fallback to original category order if no ordered containers provided
-        Object.values(itemsByCategory).forEach(
-          (categoryGroup, categoryIndex) => {
-            categoryGroup.menuSortOrder = categoryIndex;
-            categoryGroup.selectedMenuPreparationItems.forEach(
-              (item, itemIndex) => {
-                item.itemSortOrder = itemIndex;
-              }
-            );
-            selectedMenuPreparationItems.push(categoryGroup);
-          }
-        );
-      }
+      const selectedMenuPreparationItems = Object.values(itemsByCategory).map(
+        (categoryGroup, categoryIndex) => ({
+          ...categoryGroup,
+          menuSortOrder: categoryIndex,
+        })
+      );
 
       const payload = {
         defaultPrice: rate || 0,
@@ -620,10 +557,7 @@ const useSaveMenu = (
         sortorder: 0,
       };
 
-      console.log(
-        "Payload with correct sort orders:",
-        JSON.stringify(payload, null, 2)
-      );
+      console.log("New payload structure:", JSON.stringify(payload, null, 2));
 
       try {
         const res = await AddMenuprep(payload);

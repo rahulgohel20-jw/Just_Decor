@@ -195,6 +195,10 @@ const AppRoutingSetup = () => {
             path="/edit-event/:eventId"
             element={<CreateEventPage mode="edit" />}
           />
+          <Route
+            path="/edit-event/:eventId/copy"
+            element={<CreateEventPage mode="copy" />}
+          />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route
             path="/menu-preparation/:eventId"

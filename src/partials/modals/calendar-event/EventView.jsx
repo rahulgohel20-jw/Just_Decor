@@ -6,6 +6,8 @@ import { DeleteEventMaster } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+
 const EventViewModal = ({
   isModalOpen,
   setIsModalOpen,
@@ -13,6 +15,8 @@ const EventViewModal = ({
   onEventsUpdated,
 }) => {
   // FullCalendar event extra props
+  const navigate = useNavigate();
+
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
@@ -126,7 +130,7 @@ const EventViewModal = ({
             <button
               className="btn btn-sm btn-success justify-center w-full"
               title="Copy Order"
-              onClick={underConstruction}
+              onClick={() => navigate(`/edit-event/${safeEventId}/copy`)}
             >
               <i className="ki-filled ki-copy me-1"></i> Copy Order
             </button>
