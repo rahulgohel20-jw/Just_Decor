@@ -7,14 +7,13 @@ import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-
+import { toAbsoluteUrl } from "@/utils";
 const EventViewModal = ({
   isModalOpen,
   setIsModalOpen,
   eventData,
   onEventsUpdated,
 }) => {
-  // FullCalendar event extra props
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
@@ -82,182 +81,137 @@ const EventViewModal = ({
         open={isModalOpen}
         onClose={handleModalClose}
         title="View Event Details"
-        width={800}
-        footer={[
-          <div className="flex items-center justify-end" key="footer-buttons">
-            <button
-              className="btn btn-light"
-              onClick={handleModalClose}
-              title="Close"
-            >
-              Close
-            </button>
-          </div>,
-        ]}
+        width={1100}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
-          <div className="flex flex-col gap-3 lg:gap-4 grow">
-            <div className="flex flex-col">
-              <p className="text-gray-700">Name:</p>
-              <h4 className="text-gray-900 font-semibold">
+        <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="col-span-1 flex flex-col gap-6 mb-1">
+            <div className="bg-white p-4 rounded-xl shadow">
+              <p className="text-gray-600">Name</p>
+              <h3 className="font-semibold text-base mb-2">
                 {eventData?.event?._def?.title}
-              </h4>
-            </div>
-            <div className="flex flex-col">
-              <p className="text-gray-700">Address:</p>
-              <h4 className="text-gray-900 font-semibold">
-                {eventDataAll?.address}
-              </h4>
-            </div>
-          </div>
+              </h3>
 
-          <div className="flex flex-col gap-3 lg:gap-4 grow">
-            <div className="flex flex-col">
-              <p className="text-gray-700">Date:</p>
-              <h4 className="text-gray-900 font-semibold">
-                {eventData?.event?.start?.toLocaleDateString?.("en-CA")}
-              </h4>
-            </div>
-            <div className="flex flex-col">
-              <p className="text-gray-700">Mobile:</p>
-              <h4 className="text-gray-900 font-semibold">
+              <p className="text-gray-600">Mobile No.</p>
+              <h3 className="font-semibold text-base mb-2">
                 {eventDataAll?.mobile}
-              </h4>
+              </h3>
+
+              <p className="text-gray-600">Date</p>
+              <h3 className="font-semibold text-base mb-2">
+                {eventData?.event?.start?.toLocaleDateString?.("en-CA")}
+              </h3>
+
+              <p className="text-gray-600">Venue</p>
+              <h3 className="font-semibold text-base mb-2">
+                {eventDataAll?.address}
+              </h3>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl shadow ">
+              <h2 className="mb-2 text-gray-600">Status</h2>
+              <select className=" w-full border rounded px-2 py-1 mb-3">
+                <option>Inquiry</option>
+                <option>Pending</option>
+                <option>Completed</option>
+              </select>
+              <div className="flex justify-end gap-2">
+                <button className="bg-green-500 text-white px-3 py-1 rounded">
+                  Save
+                </button>
+                <button className="bg-red-500 text-white px-3 py-1 rounded">
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 grow">
-            <button
-              className="btn btn-sm btn-success justify-center w-full"
-              title="Copy Order"
-              onClick={() => navigate(`/edit-event/${safeEventId}/copy`)}
-            >
-              <i className="ki-filled ki-copy me-1"></i> Copy Order
-            </button>
-
-            <Link to={`/edit-event/${safeEventId}`}>
-              <button
-                className="btn btn-sm btn-primary justify-center w-full"
-                title="Edit Event"
+          <div className="col-span-3 grid grid-cols-3 gap-4">
+            {[
+              {
+                label: "Menu Preparation",
+                icon: "/media/eventviewicon/menuprep.png",
+                onClick: () => navigate(`/menu-preparation/${safeEventId}`),
+              },
+              {
+                label: "Menu Allocation",
+                icon: "/media/eventviewicon/menuallocation.png",
+                onClick: underConstruction,
+              },
+              {
+                label: "Raw Material Allocation",
+                icon: "/media/eventviewicon/rawmaterial.png",
+                onClick: () => navigate("/raw-material-allocation"),
+              },
+              {
+                label: "Labour / Other Management",
+                icon: "/media/eventviewicon/labour.png",
+                onClick: underConstruction,
+              },
+              {
+                label: "Menu Report",
+                icon: "/media/eventviewicon/menureport.png",
+                onClick: () => openMenuReport(safeEventId),
+              },
+              {
+                label: "Dish Costing",
+                icon: "/media/eventviewicon/dishcost.png",
+                onClick: underConstruction,
+              },
+              {
+                label: "Quotation",
+                icon: "/media/eventviewicon/quotation.png",
+                onClick: () => navigate(`/quotation/${safeEventId}`),
+              },
+              {
+                label: "Invoice",
+                icon: "/media/eventviewicon/invoice.png",
+                onClick: () => navigate("/add-invoice"),
+              },
+              {
+                label: "Proforma Invoice",
+                icon: "/media/eventviewicon/proforma.png",
+                onClick: underConstruction,
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                onClick={item.onClick}
+                className="bg-white p-6 rounded-xl shadow flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition"
               >
-                <i className="ki-filled ki-notepad-edit me-1"></i> Edit Event
-              </button>
-            </Link>
-
-            <button
-              className="btn btn-sm btn-danger justify-center w-full"
-              title="Delete"
-              onClick={DeleteEvent}
-            >
-              <i className="ki-filled ki-trash me-1"></i> Delete
-            </button>
+                <div className="text-blue-600 text-3xl mb-2">
+                  <img
+                    src={toAbsoluteUrl(item.icon)}
+                    alt={item.label}
+                    className="w-10 h-10"
+                  />
+                </div>
+                <p className="font-medium text-gray-800 text-center">
+                  {item.label}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <hr className="mt-5 mb-4" />
-
-        <div className="flex items-center justify-center gap-2 grow">
+        {/* Bottom Buttons */}
+        <div className="flex justify-center gap-6 mt-3">
+          <Link to={`/edit-event/${safeEventId}`}>
+            <button className="bg-primary text-white w-[300px] h-12 rounded-md font-medium">
+              <i className="ki-filled ki-notepad-edit me-1"></i>Edit Event
+            </button>
+          </Link>
           <button
-            className="btn btn-sm px-5 rounded-full bg-gray-400 text-white"
-            title="Inquiry"
+            className="bg-success text-white w-[300px] h-12 rounded-md font-medium"
+            onClick={() => navigate(`/edit-event/${safeEventId}/copy`)}
           >
-            <i className="ki-filled ki-check me-1"></i> Inquiry
+            <i className="ki-filled ki-copy me-1"></i> Copy of Event
           </button>
           <button
-            className="btn btn-sm px-5 rounded-full bg-warning text-white"
-            title="Pending"
+            className="bg-danger text-white w-[300px] h-12 rounded-md font-medium"
+            onClick={DeleteEvent}
           >
-            Pending
+            <i className="ki-filled ki-trash me-1"></i> Delete
           </button>
-          <button
-            className="btn btn-sm px-5 rounded-full bg-success text-white"
-            title="Completed"
-          >
-            Completed
-          </button>
-        </div>
-
-        <hr className="mt-4 mb-5" />
-
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
-            <Link to={`/menu-preparation/${safeEventId}`}>
-              <button
-                className="btn btn-sm btn-primary justify-center w-full"
-                title="Menu Preparation"
-              >
-                Menu Preparation
-              </button>
-            </Link>
-
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Menu Allocation"
-              onClick={underConstruction}
-            >
-              Menu Allocation
-            </button>
-
-            <Link to="/raw-material-allocation">
-              <button
-                className="btn btn-sm btn-primary justify-center w-full"
-                title="Raw Material Allocation"
-              >
-                Raw Material Allocation
-              </button>
-            </Link>
-
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Labour/Other Management"
-              onClick={underConstruction}
-            >
-              Labour/Other Management
-            </button>
-
-            {/* OPEN MENU REPORT MODAL */}
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Menu Report"
-              onClick={() => openMenuReport(safeEventId)}
-            >
-              Menu Report
-            </button>
-
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Dish Costing"
-              onClick={underConstruction}
-            >
-              Dish Costing
-            </button>
-
-            <Link to={`/quotation/${safeEventId}`}>
-              <button
-                className="btn btn-sm btn-primary justify-center w-full"
-                title="Quotation"
-              >
-                Quotation
-              </button>
-            </Link>
-
-            <Link to="/add-invoice">
-              <button
-                className="btn btn-sm btn-primary justify-center w-full"
-                title="Invoice"
-              >
-                Invoice
-              </button>
-            </Link>
-
-            <button
-              className="btn btn-sm btn-primary justify-center w-full"
-              title="Proforma Invoice"
-              onClick={underConstruction}
-            >
-              Proforma Invoice
-            </button>
-          </div>
         </div>
 
         <MenuReport

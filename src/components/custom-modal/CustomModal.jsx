@@ -57,7 +57,7 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
                 <i className="ki-filled ki-cross text-xl"></i>
               </button>
             </div>
-            <hr />
+            <hr className="border-0 h-[1px] bg-[#BABABAB2]" />
           </>
         ) : null
       }
@@ -70,6 +70,13 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
         </div>
       )}
       footer={footer ? <div className="pt-3">{footer}</div> : null}
+      styles={{
+        content: { backgroundColor: "#F2F7FB" },
+        header: { backgroundColor: "#F2F7FB", borderBottom: "none" },
+        body: { backgroundColor: "#F2F7FB" },
+        footer: { backgroundColor: "#F2F7FB", borderTop: "none" },
+        ...(rest.styles || {}),
+      }}
       {...rest}
     >
       {children}
