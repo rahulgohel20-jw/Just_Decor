@@ -1,4 +1,3 @@
-// src/components/profile/ProfileForm.jsx
 import { Input, Select, Button, Form, message, Spin } from "antd";
 import { useState, useEffect, useCallback } from "react";
 import ReactCountryFlag from "react-country-flag";
@@ -37,7 +36,7 @@ const getPlanAndRoleFromLocalStorage = () => {
   }
 };
 
-const ProfileForm = () => {
+const ProfileForm = ({ isEditing, onSaveSuccess }) => {
   const [form] = Form.useForm();
   const userMasterId = getUserIdFromLocalStorage();
 
@@ -112,7 +111,7 @@ const ProfileForm = () => {
             phone: user.contactNo,
             companyName: user.userBasicDetails?.companyName,
             companyEmail: user.userBasicDetails?.companyEmail,
-            companyAddress: user.userBasicDetails?.address,
+            address: user.userBasicDetails?.address,
             officePhone: user.userBasicDetails?.officeNo,
             country: {
               value: user.userBasicDetails?.country?.id,
@@ -158,7 +157,7 @@ const ProfileForm = () => {
       contactNo: values.phone,
       companyName: values.companyName,
       companyEmail: values.companyEmail,
-      address: values.companyAddress,
+      address: values.address,
       officeNo: values.officePhone,
       countryId: values.country?.value || 101,
       countryCode: values.country?.code?.startsWith("+")
@@ -180,6 +179,9 @@ const ProfileForm = () => {
       setInitialValues(values);
       setIsChanged(false);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
     } catch (err) {
       const response = err?.response?.data;
       if (response?.msg) message.error(response.msg);
@@ -197,21 +199,21 @@ const ProfileForm = () => {
     data,
     loadingKey,
     onFocus,
-    onSelect,
-    disabled = false
+    onSelect
   ) => (
-    <Form.Item label={label} name={name} className="mb-4">
+    <Form.Item label={label} name={name} className="mb-8 ">
       <Select
         showSearch
         labelInValue
         placeholder={`Select ${label}`}
         loading={loading[loadingKey]}
-        disabled={disabled}
+        disabled={!isEditing}
+        open={isEditing ? undefined : false}
         filterOption={false}
         onFocus={onFocus}
         onSelect={onSelect}
         size="large"
-        className="rounded-xl custom-select"
+        className="rounded-xl custom-select bg-[#F2F7FB]"
         dropdownStyle={{ borderRadius: 12 }}
         notFoundContent={
           loading[loadingKey] ? <Spin size="small" /> : `No ${label}`
@@ -251,17 +253,29 @@ const ProfileForm = () => {
       onValuesChange={handleValuesChange}
       className="profile-form"
     >
-      {/* two-column fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Form.Item
-          label="Full Name"
+          label="First Name"
           name="firstName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
+            readOnly={!isEditing}
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
+          />
+        </Form.Item>
+        <Form.Item
+          label="last Name"
+          name="lastName"
+          rules={[{ required: true }]}
+        >
+          <Input
+            size="large"
+            readOnly={!isEditing}
+            placeholder="Enter your full name.."
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
@@ -271,8 +285,9 @@ const ProfileForm = () => {
         >
           <Input
             size="large"
+            readOnly={!isEditing}
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
@@ -283,8 +298,9 @@ const ProfileForm = () => {
         >
           <Input
             size="large"
+            readOnly={!isEditing}
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
@@ -294,8 +310,9 @@ const ProfileForm = () => {
         >
           <Input
             size="large"
+            readOnly={!isEditing}
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
@@ -306,8 +323,9 @@ const ProfileForm = () => {
         >
           <Input
             size="large"
+            readOnly={!isEditing}
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
@@ -318,62 +336,71 @@ const ProfileForm = () => {
           <Input
             size="large"
             placeholder="Enter your full name.."
-            className="rounded-xl h-11 bg-[#F5F8FB] border border-[#E6ECF1]"
+            readOnly={!isEditing}
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
+          />
+        </Form.Item>
+        <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+          <Input
+            size="large"
+            placeholder="Enter your address"
+            readOnly={!isEditing}
+            className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
       </div>
 
-      {/* location */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {renderLocationSelect(
-          "Country (Optional)",
+          "Country ",
           "country",
           countries,
           "country",
           loadCountries,
-          (val, opt) =>
+          (val, opt) => {
             form.setFieldsValue({
               country: { value: opt.value, label: opt.label, code: opt.code },
-            }) || loadStates(opt.value)
+              state: null,
+              city: null,
+            });
+            loadStates(opt.value);
+          }
         )}
         {renderLocationSelect(
-          "State (Optional)",
+          "State ",
           "state",
           states,
           "state",
           () => loadStates(form.getFieldValue("country")?.value),
-          (val) => loadCities(val),
-          !form.getFieldValue("country")
+          (val) => {
+            form.setFieldsValue({ city: null });
+            loadCities(val);
+          }
         )}
         {renderLocationSelect(
-          "City (Optional)",
+          "City ",
           "city",
           cities,
           "city",
           () => loadCities(form.getFieldValue("state")?.value),
-          () => {},
-          !form.getFieldValue("state")
+          () => {}
         )}
       </div>
 
-      <Form.Item label="Bio (optional)" name="bio">
+      <Form.Item label="Bio (optional)" name="bio" className="mb-9">
         <TextArea
           rows={4}
-          className="rounded-xl bg-[#F5F8FB] border border-[#E6ECF1]"
+          readOnly={!isEditing}
+          className="rounded-xl bg-[#F2F7FB] border border-[#E6ECF1]"
           placeholder=" "
         />
       </Form.Item>
 
-      <div className="flex justify-end">
-        <Button
-          type="primary"
-          htmlType="submit"
-          disabled={!isChanged}
-          className="rounded-md h-10 px-8"
-        >
-          Save
-        </Button>
-      </div>
+      <button
+        type="submit"
+        style={{ display: "none" }}
+        id="profile-form-submit"
+      />
     </Form>
   );
 };
