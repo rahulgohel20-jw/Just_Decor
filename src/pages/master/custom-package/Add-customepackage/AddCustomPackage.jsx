@@ -147,9 +147,13 @@ const [numberOfItems, setNumberOfItems] = useState("");
            <h3 className="text-lg font-semibold mb-3"> Custom Package Items</h3>
           <div className="grid grid-cols-1 lg:grid-cols-12">
             {/* Left Panel - Categories */}
-     <div className="col-span-3">
-  <div className="h-full lg:border-e lg:border-e-border flex flex-col">
-    
+
+
+
+            
+   {/* Left Panel - Categories */}
+<div className="col-span-3">
+  <div className="h-full lg:border-e lg:border-e-border flex flex-col gap-3">
     {/* 🔝 Sticky Top - Category Search */}
     <div className="sticky top-0 z-10 bg-white border-b p-3 rounded-t-lg">
       <SearchInput
@@ -159,8 +163,8 @@ const [numberOfItems, setNumberOfItems] = useState("");
       />
     </div>
 
-    {/* 🔄 Scrollable Middle - Category List */}
-    <div className="flex-1 overflow-auto scrollable-y max-h-[520px]">
+    {/* 📦 Category List Box */}
+    <div className="border rounded-md bg-white p-2 max-h-[520px] overflow-auto scrollable-y">
       <CategoryList
         categories={filteredCategories}
         selectedId={selectedCategoryId}
@@ -169,8 +173,8 @@ const [numberOfItems, setNumberOfItems] = useState("");
       />
     </div>
 
-    {/* 🔻 Sticky Bottom - Number of Items Input */}
-    <div className="sticky bottom-0 z-10 bg-white border-t p-3 mt-12">
+    {/* 📦 Separate Number of Items Box */}
+    <div className="sticky bottom-0 z-10 border rounded-md p-3 bg-white">
       <label className="block text-sm font-medium text-gray-700 mb-1">
         Number of Items
       </label>
@@ -185,6 +189,7 @@ const [numberOfItems, setNumberOfItems] = useState("");
     </div>
   </div>
 </div>
+
 
 
 
