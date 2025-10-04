@@ -455,7 +455,7 @@ const EventPreparationPage = () => {
                     </span>
                   </div>
                 </div>
-                <div className="border-b p-3 shrink-0  rounded-xl bg-muted/25">
+                <div className="border-b p-3 shrink-0  rounded-xl bg-[#f5f5f5]">
                   <div className="flex  gap-4 mb-2">
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
