@@ -14,16 +14,19 @@ const useEventData = () => {
   const [eventAllData, setEventAllData] = useState({});
   const [orderDetails, setOrderDetails] = useState({});
   const [menuPreparationsTabs, setMenuPreparationsTabs] = useState([]);
-  const [dateandtime, setDateandtime] = useState("");
-
+  const [startDateandtime, setStartDateandtime] = useState("");
+  const [endDateandtime, setEndDateandtime] = useState("");
   const fetchEventData = useCallback(async () => {
     try {
       const res = await GetEventMasterById(eventId);
+      console.log(res, "eventdata");
+
       const alleventdata = res?.data?.data["Event Details"].map((item) => ({
         userid: item.user.id,
         party: item.party.nameEnglish,
         eventType: item.eventType.nameEnglish,
         eventStartDateTime: item.eventStartDateTime,
+        eventEnddateTime: item.eventEndDateTime,
         venue: item.venue,
         eventFunctions: item.eventFunctions.map((f) => ({
           id: f.id,
@@ -58,7 +61,8 @@ const useEventData = () => {
         }));
 
         setMenuPreparationsTabs(dynamicTabs);
-        setDateandtime(firstEvent.eventStartDateTime || "");
+        setStartDateandtime(firstEvent.eventStartDateTime.split(" ")[0] || "");
+        setEndDateandtime(firstEvent.eventEnddateTime.split(" ")[0] || "");
         setEventAllData(alleventdata);
 
         return {
@@ -76,7 +80,8 @@ const useEventData = () => {
     eventAllData,
     orderDetails,
     menuPreparationsTabs,
-    dateandtime,
+    startDateandtime,
+    endDateandtime,
     fetchEventData,
   };
 };

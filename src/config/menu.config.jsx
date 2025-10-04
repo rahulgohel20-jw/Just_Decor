@@ -264,6 +264,20 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+  {
+    title: "Sales",
+    icon: "ki-filled ki-abstract-18 text-primary",
+    children: [
+      {
+        title: "Quotation",
+        path: "/master/menu-category",
+      },
+      {
+        title: "Proforma Invoice",
+        path: "/master/menu-sub-category",
+      },
+    ],
+  },
   ...(roleId
     ? [
         {

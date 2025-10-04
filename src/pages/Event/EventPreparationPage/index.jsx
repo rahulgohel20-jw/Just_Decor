@@ -21,7 +21,7 @@ import {
   useSaveMenu,
   functionDataReducer,
 } from "./hooks/useEventPreparation";
-
+import { toAbsoluteUrl } from "@/utils";
 const EventPreparationPage = () => {
   const navigate = useNavigate();
   const classes = useStyles();
@@ -30,7 +30,8 @@ const EventPreparationPage = () => {
     eventAllData,
     orderDetails,
     menuPreparationsTabs,
-    dateandtime,
+    startDateandtime,
+    endDateandtime,
     fetchEventData,
   } = useEventData();
 
@@ -73,7 +74,8 @@ const EventPreparationPage = () => {
     allMenuItems,
     menuPreparationIds,
     categories,
-    dateandtime,
+    startDateandtime,
+    endDateandtime,
     clearFunctionCache,
     loadFunctionMenuData
   );
@@ -340,7 +342,6 @@ const EventPreparationPage = () => {
     setCurrentCategoryForNotes(null);
   };
 
-  // New function to handle item category changes via drag and drop
   const handleItemCategoryChange = (itemId, newCategoryId, newCategoryName) => {
     console.log("handleItemCategoryChange called:", {
       itemId,
@@ -349,7 +350,6 @@ const EventPreparationPage = () => {
       selectedFunctionId,
     });
 
-    // Update the reducer to track the category change
     dispatch({
       type: "UPDATE_ITEM_CATEGORY",
       functionId: selectedFunctionId,
@@ -358,7 +358,6 @@ const EventPreparationPage = () => {
       newCategoryName: newCategoryName,
     });
 
-    // Update allMenuItems to reflect the category change for UI purposes
     const updatedAllMenuItems = {
       ...allMenuItems,
       [selectedFunctionId]: allMenuItems[selectedFunctionId].map((item) =>
@@ -366,7 +365,6 @@ const EventPreparationPage = () => {
       ),
     };
 
-    // Use the setAllMenuItems function from useMenuData
     setAllMenuItems(updatedAllMenuItems);
   };
 
@@ -419,79 +417,73 @@ const EventPreparationPage = () => {
     <Fragment>
       <Container className="flex flex-col min-h-screen">
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Preparations" }]} />
+          <Breadcrumbs items={[{ title: "Menu Planning" }]} />
         </div>
 
         <div className="border rounded mb-4 flex-1">
           <div className="grid grid-cols-6 lg:grid-cols-12">
             {/* Left Panel */}
             <div className="col-span-9">
-              <div className="border-b p-3 shrink-0 bg-muted/25">
+              <div className="border-b p-3 shrink-0 bg-white">
                 <div className="flex items-center justify-between mb-2">
-                  <Tooltip
-                    placement="right"
-                    color="white"
-                    overlayInnerStyle={{
-                      padding: "12px",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                      minWidth: "220px",
-                    }}
-                    title={
-                      <div className="text-gray-800 text-sm space-y-1">
-                        <p className="font-semibold text-base mb-2">
-                          Order Details
-                        </p>
-                        <p>
-                          <span className="text-gray-700">ID:</span>
-                          <span className="font-medium text-gray-900 ms-1">
-                            {orderDetails.id}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="text-gray-700">Customer:</span>
-                          <span className="font-medium text-gray-900 ms-1">
-                            {orderDetails.customer}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="text-gray-700">Event Type:</span>
-                          <span className="font-medium text-gray-900 ms-1">
-                            {orderDetails.eventType}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="text-gray-700">Event Date:</span>
-                          <span className="font-medium text-gray-900 ms-1">
-                            {orderDetails.eventDate}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="text-gray-700">Venue:</span>
-                          <span className="font-medium text-gray-900 ms-1">
-                            {orderDetails.venue}
-                          </span>
-                        </p>
+                  <div className="flex flex-col">
+                    <span className=" flex  cursor-pointer text-sm font-semibold mb-2">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/eventno.png")}
+                          alt="id"
+                        />
+                        <span className="text-gray-900 ">Event No:</span>
                       </div>
-                    }
-                  >
-                    <span className="cursor-pointer text-sm font-semibold">
-                      <span className="text-gray-900 uppercase">Order ID:</span>
-                      <span className="text-primary ms-1">
+                      <span className=" text-primary ms-1">
                         {orderDetails.id}
                       </span>
                     </span>
-                  </Tooltip>
-                </div>
-                <div className="flex flex-row  justify-between">
-                  <div className="flex flex-row gap-2">
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        Person:
+                    <span className="flex cursor-pointer text-sm font-semibold">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/partyname.png")}
+                          alt="id"
+                        />
+                        <span className="text-gray-900">Customer:</span>
+                      </div>
+                      <span className="font-semibold text-sm ms-1 text-primary">
+                        {orderDetails.customer}
                       </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-user text-sm text-primary"></i>
-                      </strong>
+                    </span>
+                  </div>
+                </div>
+                <div className="border-b p-3 shrink-0  rounded-xl bg-[#f5f5f5]">
+                  <div className="flex  gap-4 mb-2">
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/eventname.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-semibold text-gray-900">
+                          Event Name:
+                        </span>
+                      </div>
+                      <span className="font-semibold text-sm  text-primary">
+                        {orderDetails.eventType}
+                      </span>
+                    </p>
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/person.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-semibold text-gray-900">
+                          Person:
+                        </span>
+                      </div>
+
                       <input
                         type="number"
                         min={1}
@@ -500,27 +492,33 @@ const EventPreparationPage = () => {
                         onChange={(e) => handlePaxChange(e.target.value)}
                       />
                     </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        Date &amp; Time:
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/venue.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-semibold text-gray-900">
+                          Venue:
+                        </span>
+                      </div>
+                      <span className="font-semibold text-sm  text-primary">
+                        {orderDetails.venue}
                       </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <i className="ki-filled ki-calendar-tick text-sm text-primary"></i>
-                      </strong>
-                      <input
-                        type="text"
-                        className="input input-sm w-36"
-                        disabled
-                        value={dateandtime}
-                      />
                     </p>
-                    <p className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        Default Rate:
-                      </span>
-                      <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                        <span className="text-sm text-primary">&#8377;</span>
-                      </strong>
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-1">
+                        <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                          <span className="text-base text-primary">
+                            &#8377;
+                          </span>
+                        </strong>
+                        <span className="text-sm font-medium text-gray-900">
+                          Default Rate:
+                        </span>
+                      </div>
+
                       <input
                         type="number"
                         value={rate}
@@ -529,12 +527,38 @@ const EventPreparationPage = () => {
                       />
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="sga__btn flex items-center justify-center rounded-lg p-2 bg-primary text-white text-xs"
-                  >
-                    Report
-                  </button>
+                  <div className="flex  gap-6">
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/eventdate.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-medium text-gray-900">
+                          Event Start Date:
+                        </span>
+                      </div>
+                      <span className="font-semibold text-sm text-primary">
+                        {startDateandtime}
+                      </span>
+                    </p>
+                    <p className="flex items-center gap-1 mb-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          src={toAbsoluteUrl("/media/menu/eventdate.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-medium text-gray-900">
+                          Event End Date:
+                        </span>
+                      </div>
+                      <span className="font-semibold text-sm text-primary">
+                        {endDateandtime}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
 
