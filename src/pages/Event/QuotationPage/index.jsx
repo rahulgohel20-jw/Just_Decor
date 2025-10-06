@@ -44,13 +44,16 @@ const QuotationPage = () => {
       { label: "SGST", percentage: "", amount: "0.00" },
       { label: "IGST", percentage: "", amount: "0.00" },
       { label: "Discount", percentage: "", amount: "0.00" },
+      { label: "Round Off", percentage: "", amount: "0.00" },
     ],
     grandTotal: "0.00",
-    advancePayment: {
-      amount: "0.00",
-      date: dayjs(),
-      description: "",
-    },
+    advancePayments: [
+      {
+        amount: "0.00",
+        date: dayjs(),
+        description: "",
+      },
+    ],
     totalPaid: "0.00",
     remainingPayment: "0.00",
     notes: "",
@@ -158,28 +161,45 @@ const QuotationPage = () => {
                 percentage: "0",
                 amount: (quotationInfo.discount || 0).toFixed(2),
               },
+              {
+                label: "Round Off",
+                percentage: "0",
+                amount: (quotationInfo.roundOff || 0).toFixed(2),
+              },
             ],
 
             grandTotal: (quotationInfo.grandTotal || 0).toFixed(2),
             totalPaid: (quotationInfo.advancePayment || 0).toFixed(2),
             remainingPayment: (quotationInfo.remainingAmount || 0).toFixed(2),
 
-            advancePayment: {
-              amount: (quotationInfo.advancePayment || 0).toFixed(2),
-              date:
-                quotationInfo.advancePaymentDate &&
-                dayjs(
-                  quotationInfo.advancePaymentDate,
-                  "DD/MM/YYYY hh:mm A"
-                ).isValid()
-                  ? dayjs(
-                      quotationInfo.advancePaymentDate,
-                      "DD/MM/YYYY hh:mm A"
-                    )
-                  : null,
-
-              description: quotationInfo.advancePaymentNotes || "",
-            },
+            advancePayments:
+              quotationInfo.advancePayments &&
+              Array.isArray(quotationInfo.advancePayments)
+                ? quotationInfo.advancePayments.map((p) => ({
+                    amount: (p.amount || 0).toFixed(2),
+                    date:
+                      p.date && dayjs(p.date, "DD/MM/YYYY hh:mm A").isValid()
+                        ? dayjs(p.date, "DD/MM/YYYY hh:mm A")
+                        : null,
+                    description: p.description || "",
+                  }))
+                : [
+                    {
+                      amount: (quotationInfo.advancePayment || 0).toFixed(2),
+                      date:
+                        quotationInfo.advancePaymentDate &&
+                        dayjs(
+                          quotationInfo.advancePaymentDate,
+                          "DD/MM/YYYY hh:mm A"
+                        ).isValid()
+                          ? dayjs(
+                              quotationInfo.advancePaymentDate,
+                              "DD/MM/YYYY hh:mm A"
+                            )
+                          : null,
+                      description: quotationInfo.advancePaymentNotes || "",
+                    },
+                  ],
 
             notes: quotationInfo.notes || "",
           };
@@ -203,22 +223,29 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0
     );
-
+    const roundOffAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "Round Off")
+        ?.amount || 0
+    );
     const cgstAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0
     );
-
     const sgstAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0
     );
-
     const igstAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0
     );
 
     const totalTaxAmount = cgstAmount + sgstAmount + igstAmount;
-    const grandTotal = subtotal - discountAmount + totalTaxAmount;
-    const totalPaid = parseFloat(quotationData.advancePayment.amount) || 0;
+    const grandTotal =
+      subtotal - discountAmount + totalTaxAmount + roundOffAmount;
+
+    const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
+      const val = parseFloat(p.amount) || 0;
+      return sum + val;
+    }, 0);
+
     const remaining = Math.max(0, grandTotal - totalPaid);
 
     return {
@@ -227,6 +254,7 @@ const QuotationPage = () => {
       sgstAmount: sgstAmount.toFixed(2),
       igstAmount: igstAmount.toFixed(2),
       totalTaxAmount: totalTaxAmount.toFixed(2),
+      roundOffAmount: roundOffAmount.toFixed(2),
       grandTotal: grandTotal.toFixed(2),
       totalPaid: totalPaid.toFixed(2),
       remainingPayment: remaining.toFixed(2),
@@ -311,7 +339,10 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0
     );
-
+    const roundOff = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "Round Off")
+        ?.amount || 0
+    );
     const cgstDetail = quotationData.taxDetails.find(
       (tax) => tax.label === "CGST"
     );
@@ -330,17 +361,22 @@ const QuotationPage = () => {
     const sgstAmnt = parseFloat(sgstDetail?.amount || 0);
     const igstAmnt = parseFloat(igstDetail?.amount || 0);
 
-    const totalAmount = subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt;
-    const remainingAmount =
-      totalAmount - parseFloat(quotationData.advancePayment.amount);
+    const totalAmount =
+      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
 
+    const payments = (quotationData.advancePayments || []).map((p) => ({
+      amount: parseFloat(p.amount) || 0,
+      date: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
+      description: p.description || "",
+    }));
+
+    const sumAdvance = payments.reduce((s, p) => s + (p.amount || 0), 0);
+    const remainingAmount = Math.max(0, totalAmount - sumAdvance);
     return {
-      advancePayment: parseFloat(quotationData.advancePayment.amount) || 0,
-      advancePaymentNotes: quotationData.advancePayment.description,
-      advancePaymentDate: quotationData.advancePayment.date
-        ? quotationData.advancePayment.date.format("DD/MM/YYYY hh:mm A")
-        : null,
-
+      advancePayment: sumAdvance,
+      advancePaymentNotes: payments[0]?.description || "",
+      advancePaymentDate: payments[0]?.date || null,
+      advancePayments: payments,
       discount: discount,
       eventId: parseInt(eventId),
       functionQuotationItems: quotationData.functions.map((fn) => ({
@@ -362,7 +398,7 @@ const QuotationPage = () => {
       igstAmnt: igstAmnt,
       notes: quotationData.notes,
       remainingAmount: remainingAmount,
-      roundOff: 0,
+      roundOff: roundOff,
       totalAmount: totalAmount,
     };
   };
@@ -414,14 +450,32 @@ const QuotationPage = () => {
       });
   };
 
-  const handleAdvancePaymentChange = (field, value) => {
+  const handleAddAdvancePayment = () => {
     setQuotationData((prev) => ({
       ...prev,
-      advancePayment: {
-        ...prev.advancePayment,
-        [field]: value,
-      },
+      advancePayments: [
+        ...prev.advancePayments,
+        { amount: "0.00", date: null, description: "" },
+      ],
     }));
+  };
+
+  const handleRemoveAdvancePayment = (idx) => {
+    // keep at least one
+    setQuotationData((prev) => {
+      if ((prev.advancePayments?.length || 1) <= 1) return prev;
+      const copy = [...prev.advancePayments];
+      copy.splice(idx, 1);
+      return { ...prev, advancePayments: copy };
+    });
+  };
+
+  const handleAdvancePaymentChange = (idx, field, value) => {
+    setQuotationData((prev) => {
+      const list = [...prev.advancePayments];
+      list[idx] = { ...list[idx], [field]: value };
+      return { ...prev, advancePayments: list };
+    });
   };
 
   const handleTaxChange = (index, field, value) => {
@@ -781,11 +835,11 @@ const QuotationPage = () => {
 
               <div className="flex flex-col w-full">
                 {/* Subtotal Row */}
-                <div className="flex items-center justify-between border-t border-gray-200 py-3 px-2">
-                  <div className="text-base font-normal text-gray-700 px-2">
-                    Subtotal
+                <div className="flex items-center justify-end border-t border-gray-200 py-3 gap-2">
+                  <div className="text-xl font-bold text-primary px-2">
+                    Total
                   </div>
-                  <div className="text-base font-semibold text-gray-900 px-2">
+                  <div className="w-[220px] text-base font-semibold text-gray-900 px-2">
                     &#8377; {totals.subtotal}
                   </div>
                 </div>
@@ -794,9 +848,9 @@ const QuotationPage = () => {
                   {quotationData.taxDetails.map((tax, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between py-1"
+                      className="flex items-center justify-end gap-6 py-1"
                     >
-                      <div className="text-base font-normal text-gray-700">
+                      <div className="text-base flex place-content-start font-normal text-gray-700">
                         {tax.label}
                       </div>
                       <div className="flex items-center input text-base text-gray-900 w-[200px]">
@@ -832,108 +886,169 @@ const QuotationPage = () => {
                             </span>
                           </>
                         ) : (
-                          <input
-                            className="h-full text-gray-900 w-[80px]"
-                            value={tax.amount}
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            onChange={(e) =>
-                              handleTaxChange(idx, "amount", e.target.value)
-                            }
-                          />
+                          <>
+                            {tax.label === "Round Off" ? (
+                              <input
+                                className="h-full text-gray-900 w-[80px]"
+                                value={tax.amount}
+                                type="number"
+                                step="0.01"
+                                onChange={(e) =>
+                                  handleTaxChange(idx, "amount", e.target.value)
+                                }
+                                placeholder="0.00"
+                              />
+                            ) : (
+                              <input
+                                className="h-full text-gray-900 w-[80px]"
+                                value={tax.amount}
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                onChange={(e) =>
+                                  handleTaxChange(idx, "amount", e.target.value)
+                                }
+                                placeholder="0.00"
+                              />
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between py-5 px-2">
-                  <div className="text-xl font-bold text-primary px-2">
+                <div className="flex items-center justify-end py-5  gap-2">
+                  <div className="text-xl font-bold text-primary px-2 ">
                     Grand Total
                   </div>
-                  <div className="text-lg font-bold text-primary px-2">
+                  <div className="w-[220px] text-lg font-bold text-primary px-2">
                     &#8377; {totals.grandTotal}
                   </div>
                 </div>
 
                 {/* Single Advance Payment Section */}
                 <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
-                  <div className="text-base font-semibold text-gray-900 pb-2">
-                    Payment Details
+                  <div className="flex items-center justify-between pb-2">
+                    <div className="text-base font-semibold text-gray-900">
+                      Payment Details
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={handleAddAdvancePayment}
+                      title="Add Payment"
+                    >
+                      <i className="ki-filled ki-plus"></i> Add Advance Payment
+                    </button>
                   </div>
 
-                  <div className="flex gap-5 py-3">
-                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
-                      <i className="ki-filled ki-check text-white"></i>
-                    </div>
-                    <div className="flex flex-col gap-2 w-full">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="text-base font-normal text-gray-700">
-                          Advance Payment
-                        </div>
-                        <div className="flex items-center input text-base text-gray-900 w-full sm:w-[140px]">
-                          <span className="text-base font-semibold text-gray-900">
-                            &#8377;
-                          </span>
-                          <input
-                            className="h-full text-gray-900 w-full"
-                            value={quotationData.advancePayment.amount}
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            onChange={(e) => {
-                              handleAdvancePaymentChange(
-                                "amount",
-                                e.target.value
-                              );
-                            }}
-                            placeholder="0.00"
-                          />
-                        </div>
+                  {(quotationData.advancePayments || []).map((pay, i) => (
+                    <div
+                      key={i}
+                      className={`flex gap-5 py-3 ${i > 0 ? "border-t border-gray-200 mt-3 pt-5" : ""}`}
+                    >
+                      <div className="flex items-center justify-center w-5 h-5 rounded-full bg-success mt-1">
+                        <i className="ki-filled ki-check text-white"></i>
                       </div>
-                      <div
-                        className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
-                        onClick={() =>
-                          document
-                            .getElementById("advance-payment-date")
-                            .focus()
-                        }
-                      >
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <i className="ki-filled ki-calendar text-gray-500"></i>
-                            <DatePicker
-                              className="input w-full sm:w-[200px]"
-                              showTime={{ use12Hours: true, format: "hh:mm A" }}
-                              format="DD/MM/YYYY hh:mm A"
-                              value={quotationData.advancePayment.date}
-                              onChange={(date) =>
-                                handleAdvancePaymentChange("date", date)
-                              }
-                              placeholder="Payment date & time"
-                            />
+
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="text-base font-normal text-gray-700">
+                            Advance Payment{" "}
+                            {quotationData.advancePayments.length > 1
+                              ? `#${i + 1}`
+                              : ""}
                           </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <i className="ki-filled ki-notepad text-gray-500"></i>
+
+                          <div className="flex items-center input text-base text-gray-900 w-full sm:w-[140px]">
+                            <span className="text-base font-semibold text-gray-900">
+                              &#8377;
+                            </span>
                             <input
-                              className="flex-1 mt-2 input text-xs font-normal text-gray-700 bg-transparent w-full"
-                              value={quotationData.advancePayment.description}
+                              className="h-full text-gray-900 w-full"
+                              value={pay.amount}
+                              type="number"
+                              step="0.01"
+                              min="0"
                               onChange={(e) =>
                                 handleAdvancePaymentChange(
-                                  "description",
+                                  i,
+                                  "amount",
                                   e.target.value
                                 )
                               }
-                              placeholder="Payment description"
-                              type="text"
+                              placeholder="0.00"
                             />
                           </div>
                         </div>
+
+                        <div
+                          className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
+                          onClick={() =>
+                            document
+                              .getElementById(`advance-payment-date-${i}`)
+                              ?.focus()
+                          }
+                        >
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                              <i className="ki-filled ki-calendar text-gray-500"></i>
+                              <DatePicker
+                                id={`advance-payment-date-${i}`}
+                                className="input w-full sm:w-[200px]"
+                                showTime={{
+                                  use12Hours: true,
+                                  format: "hh:mm A",
+                                }}
+                                format="DD/MM/YYYY hh:mm A"
+                                value={pay.date}
+                                onChange={(date) =>
+                                  handleAdvancePaymentChange(i, "date", date)
+                                }
+                                placeholder="Payment date & time"
+                              />
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                              <i className="ki-filled ki-notepad text-gray-500"></i>
+                              <input
+                                className="flex-1 mt-2 input text-xs font-normal text-gray-700 bg-transparent w-full"
+                                value={pay.description}
+                                onChange={(e) =>
+                                  handleAdvancePaymentChange(
+                                    i,
+                                    "description",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Payment description"
+                                type="text"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {i > 0 && (
+                          <div className="flex justify-end">
+                            <Popconfirm
+                              title="Remove this payment?"
+                              onConfirm={() => handleRemoveAdvancePayment(i)}
+                              okText="Yes"
+                              cancelText="No"
+                            >
+                              <button
+                                className="btn btn-sm btn-danger"
+                                title="Remove"
+                              >
+                                <i className="ki-filled ki-trash"></i> Remove
+                              </button>
+                            </Popconfirm>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="flex items-center justify-between py-5 px-2">
