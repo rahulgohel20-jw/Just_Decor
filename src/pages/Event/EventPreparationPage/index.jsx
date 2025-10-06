@@ -34,6 +34,13 @@ const EventPreparationPage = () => {
     endDateandtime,
     fetchEventData,
   } = useEventData();
+  useEffect(() => {
+    console.log("menuPreparationsTabs changed:", menuPreparationsTabs);
+  }, [menuPreparationsTabs]);
+
+  useEffect(() => {
+    console.log("Event Data Loaded:", eventAllData);
+  }, [eventAllData]);
 
   const { categories, categoriesWithAll, fetchCategories } = useCategories();
   const {
@@ -430,7 +437,7 @@ const EventPreparationPage = () => {
                     <span className=" flex  cursor-pointer text-sm font-semibold mb-2">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4   "
                           src={toAbsoluteUrl("/media/menu/eventno.png")}
                           alt="id"
                         />
@@ -443,7 +450,7 @@ const EventPreparationPage = () => {
                     <span className="flex cursor-pointer text-sm font-semibold">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4  "
                           src={toAbsoluteUrl("/media/menu/partyname.png")}
                           alt="id"
                         />
@@ -460,7 +467,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4  "
                           src={toAbsoluteUrl("/media/menu/eventname.png")}
                           alt="id"
                         />
@@ -475,7 +482,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4  "
                           src={toAbsoluteUrl("/media/menu/person.png")}
                           alt="id"
                         />
@@ -495,7 +502,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4  "
                           src={toAbsoluteUrl("/media/menu/venue.png")}
                           alt="id"
                         />
@@ -531,7 +538,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4 "
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
@@ -546,7 +553,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  object-cover ring-4 ring-white shadow"
+                          className="w-4 h-4  "
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
@@ -566,22 +573,7 @@ const EventPreparationPage = () => {
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
               >
-                <TabComponent
-                  tabs={menuPreparationsTabs.map((tab) => ({
-                    ...tab,
-                    label: (
-                      <div
-                        onClick={() => handleTabChange(tab.value)}
-                        style={{ cursor: "pointer" }}
-                        className="flex items-center"
-                      >
-                        <i className="ki-filled ki-disk pr-2 "></i>
-                        {tab.label.props.children[2]}
-                      </div>
-                    ),
-                  }))}
-                  onTabChange={handleTabChange}
-                />
+                <TabComponent tabs={menuPreparationsTabs} />
               </div>
 
               {/* Main Content */}
@@ -673,7 +665,7 @@ const EventPreparationPage = () => {
                     </Tooltip>
                   </div>
                 </div>
-                <div className="flex-1 p-3 max-h-[516px] h-screen overflow-auto scrollable-y bg-white">
+                <div className="flex-1 p-3 pr-2  h-auto overflow-auto  ">
                   <SelectedItemsList
                     rate={rate}
                     selectedItemsByCategory={selectedItemsByCategory}

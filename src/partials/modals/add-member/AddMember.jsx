@@ -14,7 +14,7 @@ import Select from "react-select";
 const AddMember = ({
   isModalOpen,
   setIsModalOpen,
-  refreshData,
+  refreshData = () => {},
   selectedMember,
 }) => {
   const [taskAccess, setTaskAccess] = useState(true);
@@ -229,7 +229,7 @@ const AddMember = ({
         open={isModalOpen}
         onClose={handleModalClose}
         width={1000}
-        title={selectedMember ? "Edit Member" : "New Member"}
+        title={selectedMember ? "Edit Manager" : "New Manager"}
         footer={[
           <div className="flex justify-between" key="footer-buttons">
             <button className="btn btn-light" onClick={handleModalClose}>

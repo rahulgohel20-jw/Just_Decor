@@ -131,6 +131,7 @@ import EventPreparationPage from "@/pages/Event/EventPreparationPage";
 import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
 import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
 import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
+import CustomPackage from "@/pages/Event/CustomPackage";
 import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
 import DishCostingPage from "@/pages/Event/DishCostingPage";
 import QuotationPage from "@/pages/Event/QuotationPage";
@@ -214,6 +215,8 @@ const AppRoutingSetup = () => {
             path="/raw-material-allocation"
             element={<RawMaterialAllocationPage />}
           />
+          <Route path="/custom-package" element={<CustomPackage />} />
+
           <Route
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}
