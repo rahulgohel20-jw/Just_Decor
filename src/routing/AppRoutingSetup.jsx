@@ -159,6 +159,8 @@ import RawMaterialMaster from "@/pages/master/raw-material-category";
 import RawMaterialTypeMaster from "@/pages/master/raw-material-type";
 import ContactTypeMaster from "@/pages/master/Contact-master";
 import RawMaterial from "@/pages/master/Raw-Material";
+import CustomPackageMaster from "@/pages/master/custom-package";
+import AddCustomPackage from "@/pages/master/custom-package/Add-customepackage/AddCustomPackage";
 
 const AppRoutingSetup = () => {
   return (
@@ -269,6 +271,8 @@ const AppRoutingSetup = () => {
           <Route path="/master/role" element={<RoleMaster />} />
           <Route path="/master/contact-type" element={<ContactTypeMaster />} />
           <Route path="/master/raw-material" element={<RawMaterial />} />
+          <Route path="/master/custom-package" element={<CustomPackageMaster />} />
+          <Route path="/master/custom-package/addpackage" element={<AddCustomPackage />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

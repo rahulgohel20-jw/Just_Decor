@@ -62,6 +62,10 @@ export const MENU_SIDEBAR = [
         path: "/master/unit",
       },
       {
+        title:"Custome Package",
+        path:"/master/custom-package",
+      },
+      {
         title: "Member Master",
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [

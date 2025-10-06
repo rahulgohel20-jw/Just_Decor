@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { message } from "antd";
+import { TableComponent } from "@/components/table/TableComponent";
+import { columns, defaultData } from "./constant";
+
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import {
   AddMenuItems,
@@ -38,6 +41,8 @@ const AddMenuItem = ({
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [kitchenAreas, setKitchenAreas] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [activeTab, setActiveTab] = useState("tab_1");
 
   useEffect(() => {
@@ -358,62 +363,43 @@ const AddMenuItem = ({
                     data-control="select2"
                     data-placeholder="Select Godown"
                   >
-                    <option value="godown1">GODOWN 1</option>
-                    <option value="godown2">GODOWN 2</option>
-                    <option value="godown3">GODOWN 3</option>
+                    <option value="godown1"> At Venue</option>
+                    <option value="godown2">GODOWN </option>
                   </select>
                 </div>
-                <div className="flex flex-col">
-                  <label className="form-label">Outside Agency</label>
-                  <input type="checkbox" className="toggle" />
-                </div>
-                <div className="flex flex-col">
-                  <label className="form-label">Chef Labour Agency</label>
-                  <input type="checkbox" className="toggle" />
-                </div>
+              <div className="flex flex-col gap-y-4">
+  <div className="flex items-center gap-x-2">
+    <input type="checkbox" className="toggle" />
+    <label className="form-label">Outside Agency</label>
+  </div>
+
+  <div className="flex items-center gap-x-2">
+    <input type="checkbox" className="toggle" />
+    <label className="form-label">Chef Labour Agency</label>
+  </div>
+</div>
+
+
               </div>
             </div>
           </div>
         );
       case "tab_3":
-        return (
-          <div id="tab_3" className="tab-content">
-            <div className="flex flex-col gap-y-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
-                <div className="flex flex-col">
-                  <label className="form-label">Text Field</label>
-                  <div className="input">
-                    <input
-                      className="h-full"
-                      type="text"
-                      placeholder="Text Field"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <label className="form-label">Number</label>
-                  <div className="input">
-                    <input
-                      className="h-full"
-                      type="number"
-                      placeholder="Number"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <label className="form-label">Drop Down</label>
-                  <select
-                    className="select pe-7.5"
-                    data-control="select2"
-                    data-placeholder="Drop Down"
-                  >
-                    <option value="">Drop Down</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+  return (
+    <div id="tab_3" className="tab-content">
+      <div className="mt-3">
+        <TableComponent
+          columns={columns} // your predefined columns
+          data={defaultData} // your predefined data
+          title="Custom Fields Table"
+          pagination={{ pageSize: 5 }}
+          rowKey={(record) => record.id} // assuming each row has a unique `id`
+        />
+      </div>
+    </div>
+  );
+
+     
       default:
         return null;
     }
