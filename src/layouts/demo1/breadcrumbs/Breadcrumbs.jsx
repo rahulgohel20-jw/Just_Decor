@@ -107,7 +107,7 @@ const Breadcrumbs = ({ items }) => {
     },
     {
       label: (
-        <div onClick={() => navigate("/event")}>
+        <div onClick={() => navigate("/quick-custom-package")}>
           <i className="ki-filled ki-package me-1.5"></i>Custom Package
         </div>
       ),

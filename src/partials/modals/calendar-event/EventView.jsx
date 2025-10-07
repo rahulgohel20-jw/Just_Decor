@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { underConstruction } from "@/underConstruction";
 import { Link } from "react-router-dom";
-import { DeleteEventMaster } from "@/services/apiServices";
+import { DeleteEventMaster, StatusChange } from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
@@ -17,8 +17,10 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
+
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
+  const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
 
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
@@ -34,6 +36,33 @@ const EventViewModal = ({
     setIsMenuReport(true);
   };
 
+  const handleStatusChange = () => {
+    if (!safeEventId) {
+      errorMsgPopup("Event ID missing.");
+      return;
+    }
+
+    Swal.fire({
+      title: "Confirm Status Change",
+      text: "Are you sure you want to change the status?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, change it",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        StatusChange(safeEventId, statusId)
+          .then((res) => {
+            successMsgPopup("Status changed successfully!");
+            onEventsUpdated?.();
+          })
+          .catch((error) => {
+            console.error("Error changing status:", error);
+            errorMsgPopup(error?.data?.msg || "Failed to change status");
+          });
+      }
+    });
+  };
   const DeleteEvent = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -109,16 +138,26 @@ const EventViewModal = ({
 
             <div className="bg-white p-4 rounded-xl shadow ">
               <h2 className="mb-2 text-gray-600">Status</h2>
-              <select className=" w-full border rounded px-2 py-1 mb-3">
-                <option>Inquiry</option>
-                <option>Pending</option>
-                <option>Completed</option>
+              <select
+                className="w-full border rounded px-2 py-1 mb-3"
+                value={statusId}
+                onChange={(e) => setStatusId(e.target.value)}
+              >
+                <option value="0">Inquiry</option>
+                <option value="1">Confirm</option>
+                <option value="2">Cancel</option>
               </select>
               <div className="flex justify-end gap-2">
-                <button className="bg-green-500 text-white px-3 py-1 rounded">
+                <button
+                  className="bg-green-500 text-white px-3 py-1 rounded"
+                  onClick={handleStatusChange}
+                >
                   Save
                 </button>
-                <button className="bg-red-500 text-white px-3 py-1 rounded">
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded"
+                  onClick={() => setStatusId(eventDataAll?.statusId ?? "0")}
+                >
                   Cancel
                 </button>
               </div>

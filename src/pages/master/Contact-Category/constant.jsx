@@ -11,7 +11,7 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "contact_name",
-    header: "Contact Category Type",
+    header: "Contact Category ",
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
