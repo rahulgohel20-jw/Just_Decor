@@ -19,7 +19,6 @@ const useEventData = () => {
   const fetchEventData = useCallback(async () => {
     try {
       const res = await GetEventMasterById(eventId);
-      console.log(res, "eventdata");
 
       const alleventdata = res?.data?.data["Event Details"].map((item) => ({
         userid: item.user.id,
@@ -38,6 +37,7 @@ const useEventData = () => {
           venue: f.function_venue,
         })),
       }));
+      console.log(alleventdata);
 
       if (alleventdata.length > 0) {
         const firstEvent = alleventdata[0];
@@ -52,8 +52,15 @@ const useEventData = () => {
 
         const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
           label: (
-            <div style={{ cursor: "pointer" }}>
-              <i className="ki-filled ki-disk"></i> {fn.name}
+            <div className="cursor-pointer flex flex-col gap-1">
+              <div className="flex items-center gap-1">
+                <i className="ki-filled ki-disk"></i>
+                <span>{fn.name}</span>
+              </div>
+
+              <span className="text-xs text-gray-500">
+                Time: {fn.startTime}
+              </span>
             </div>
           ),
           value: fn.id,
