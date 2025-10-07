@@ -270,12 +270,26 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Quotation",
-        path: "/master/menu-category",
+        children: [
+          {
+        title: "Quotation Overview",
+        path: "/quotation-dashboard",
+      },
+          { title: "All Quotation", path: "/sales/quotation-list" },
+          // { title: "Quotation", path: "/quotation" }
+        ],
       },
       {
-        title: "Proforma Invoice",
-        path: "/master/menu-sub-category",
+        title: "Invoice",
+        children: [
+          {
+        title: "Invoice Overview",
+        path: "/invoice-dashboard",
       },
+          { title: "All Invoice", path: "/sales/invoice-list" },
+          // { title: "Invoice", path: "/add-invoice" }
+        ],
+      }
     ],
   },
   ...(roleId

@@ -161,6 +161,10 @@ import ContactTypeMaster from "@/pages/master/Contact-master";
 import RawMaterial from "@/pages/master/Raw-Material";
 import CustomPackageMaster from "@/pages/master/custom-package";
 import AddCustomPackage from "@/pages/master/custom-package/Add-customepackage/AddCustomPackage";
+import InvoiceDashboard from "@/pages/sales/invoice/InvoiceDashboard/InvoiceDashboard";
+import InvoiceList from "../pages/sales/invoice/InvoiceList/InvoiceList";
+import QuotationDashboard from "../pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
+import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationList";
 
 const AppRoutingSetup = () => {
   return (
@@ -231,6 +235,17 @@ const AppRoutingSetup = () => {
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
+
+
+
+          {/* Sales */}
+
+          <Route path="/sales/invoice-dashboard" element={<InvoiceDashboard/>} />
+          <Route path="/sales/invoice-list" element={<InvoiceList />} />
+          <Route path="/sales/add-invoice" element={<AddInvoicePage />} />
+          <Route path="/quotation-dashboard" element={<QuotationDashboard />} />
+          <Route path="/sales/quotation-list" element={<QuotationViewPage />} />
+          
 
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
