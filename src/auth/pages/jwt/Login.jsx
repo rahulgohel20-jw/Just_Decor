@@ -7,6 +7,7 @@ import { KeenIcon } from "@/components";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
+import { toAbsoluteUrl } from "@/utils";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Wrong email format")
@@ -39,8 +40,6 @@ const Login = () => {
       setStatus(null);
 
       try {
-        
-        
         if (!login) {
           throw new Error("JWTProvider is required for this form.");
         }
@@ -192,6 +191,29 @@ const Login = () => {
         >
           {loading ? "Please wait..." : "Login to Your Account"}
         </button>
+        <div className="flex items-center gap-2 my-2">
+          <span className="border-t border-gray-200 w-full"></span>
+          <span className="text-2xs text-gray-500 font-medium uppercase">
+            Or
+          </span>
+          <span className="border-t border-gray-200 w-full"></span>
+        </div>
+
+        <div className="flex items-center justify-center ">
+          <span className="text-sm text-gray-700 me-1.5">
+            Don't have an account?
+          </span>
+          <Link
+            to={
+              currentLayout?.name === "auth-branded"
+                ? "/auth/signup"
+                : "/auth/classic/signup"
+            }
+            className="text-2sm link hover:underline font-medium no-underline"
+          >
+            Sign Up
+          </Link>
+        </div>
       </form>
     </div>
   );
