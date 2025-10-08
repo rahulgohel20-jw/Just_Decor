@@ -162,12 +162,10 @@ import ContactTypeMaster from "@/pages/master/Contact-master";
 import RawMaterial from "@/pages/master/Raw-Material";
 import CustomPackageMaster from "@/pages/master/custom-package";
 import AddCustomPackage from "@/pages/master/custom-package/Add-customepackage/AddCustomPackage";
-
 import InvoiceDashboard from "@/pages/sales/invoice/InvoiceDashboard/InvoiceDashboard";
 import InvoiceList from "../pages/sales/invoice/InvoiceList/InvoiceList";
 import QuotationDashboard from "../pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
 import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationList";
-
 import QuickCustomPackage from "../pages/Event/QuickCustomPackage";
 
 const AppRoutingSetup = () => {

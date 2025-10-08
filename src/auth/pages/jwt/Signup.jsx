@@ -129,6 +129,16 @@ useEffect(() => {
       // safely access Country Details
       const countryList = res?.data?.data?.["Country Details"] || [];
       setCountries(countryList);
+      console.log("Countries:", countryList);
+
+      const defaultCountry = countryList.find(
+        (c) => c.name.toLowerCase() === "india"
+      );
+
+      // ✅ If found, set it as default in Formik
+      if (defaultCountry) {
+        formik.setFieldValue("countryId", defaultCountry.id);
+      }
     } catch (error) {
       console.error("Error loading countries:", error);
       setCountries([]);
@@ -325,7 +335,7 @@ useEffect(() => {
         </div>
 
         {/* Country */}
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col ">
           <label className="form-label">Country</label>
             <label className="input">
           <select
@@ -336,11 +346,11 @@ useEffect(() => {
           >
             <option value="">Select Country</option>
             {countries.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id} >{c.name}</option>
             ))}
           </select></label>
           {formik.errors.countryId && <p className="text-red-500 text-sm">{formik.errors.countryId}</p>}
-        </div>
+        </div> */}
 
         {/* State */}
         <div className="flex flex-col">
@@ -380,7 +390,7 @@ useEffect(() => {
           {formik.errors.cityId && <p className="text-red-500 text-sm">{formik.errors.cityId}</p>}
         </div>
 
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <label className="form-label">Reported Manager</label>
           <label className="input">
           <select
@@ -417,76 +427,13 @@ useEffect(() => {
     ))}
 </select>
 </label>
-</div>
+</div> */}
       </div>
     </div>
  
     {/* Company Details */}
-    <div>
-      <h3 className="text-sm font-semibold mb-4 border-b pb-2">Company Details</h3>
-      <div className="grid grid-cols-2 gap-4">
-
-        {/* Company Name */}
-        <div className="flex flex-col">
-          <label className="form-label">Company Name</label>
-            <label className="input">
-              <i class="ki-filled ki-badge"></i>
-          <input
-            name="companyName"
-            placeholder="Company Name"
-            className="border p-2 w-full rounded"
-            value={formik.values.companyName}
-            onChange={formik.handleChange}
-          /></label>
-          {formik.errors.companyName && <p className="text-red-500 text-sm">{formik.errors.companyName}</p>}
-        </div>
-        <div className="flex flex-col">
-          <label className="form-label">Remarks</label>
-            <label className="input">
-         <i class="ki-filled ki-notepad-edit"></i>
-          <input
-            name="remarks"
-            placeholder="Remarks"
-            className="border p-2 w-full rounded"
-            value={formik.values.remarks}
-            onChange={formik.handleChange}
-          /></label>
-          {formik.errors.remarks && <p className="text-red-500 text-sm">{formik.errors.remarks}</p>}
-        </div>
-
-        {/* Company Email */}
-        {/* <div className="flex flex-col">
-          <label className="form-label">Company Email</label>
-          <input
-            type="email"
-            name="companyEmail"
-            placeholder="Company Email"
-            className="border p-2 w-full rounded"
-            value={formik.values.companyEmail}
-            onChange={formik.handleChange}
-          />
-          {formik.errors.companyEmail && <p className="text-red-500 text-sm">{formik.errors.companyEmail}</p>}
-        </div> */}
-
-        {/* Office Number */}
-        {/* <div className="flex flex-col">
-          <label className="form-label">Office Number</label>
-          <input
-            name="officeNo"
-            placeholder="Office Number"
-            className="border p-2 w-full rounded"
-            value={formik.values.officeNo}
-            onChange={formik.handleChange}
-          />
-          {formik.errors.officeNo && <p className="text-red-500 text-sm">{formik.errors.officeNo}</p>}
-        </div> */}
-
-        {/* Plan */}
-     
-
-
-      </div>
-    </div>
+    
+    
 
     {/* Submit */}
     <div className="text-center">
