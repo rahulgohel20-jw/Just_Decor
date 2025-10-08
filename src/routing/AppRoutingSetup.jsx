@@ -170,7 +170,6 @@ import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationLi
 
 import QuickCustomPackage from "../pages/Event/QuickCustomPackage";
 
-
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -247,16 +246,19 @@ const AppRoutingSetup = () => {
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
 
-
-
           {/* Sales */}
 
-          <Route path="/sales/invoice-dashboard" element={<InvoiceDashboard/>} />
+          <Route
+            path="/sales/invoice-dashboard"
+            element={<InvoiceDashboard />}
+          />
           <Route path="/sales/invoice-list" element={<InvoiceList />} />
           <Route path="/sales/add-invoice" element={<AddInvoicePage />} />
           <Route path="/quotation-dashboard" element={<QuotationDashboard />} />
-          <Route path="/sales/quotation-list" element={<QuotationViewPage />} />
-          
+          <Route
+            path="/sales/quotation-list/:PartyId/:EventId"
+            element={<QuotationViewPage />}
+          />
 
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />

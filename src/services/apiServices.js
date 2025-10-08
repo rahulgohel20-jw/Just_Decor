@@ -159,6 +159,9 @@ export const GetUnitData = (Id) => {
 export const GetSuplier = (id) => {
   return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);
 };
+export const GetAllQuotation = (id) => {
+  return GET(`/quotation/getalluserid?userid=${id}`);
+};
 
 //Add Meal Type
 export const AddMealType = (data) => {
@@ -248,7 +251,9 @@ export const Fetchmanager = (Id) => {
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
-
+export const GeteventQuoataiondata = (id) => {
+  return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
+};
 export const GetAllRole = (id) => {
   return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };

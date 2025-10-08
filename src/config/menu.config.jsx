@@ -267,14 +267,7 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Quotation",
-        children: [
-          {
-            title: "Quotation Overview",
-            path: "/quotation-dashboard",
-          },
-          { title: "All Quotation", path: "/sales/quotation-list" },
-          // { title: "Quotation", path: "/quotation" }
-        ],
+        path: "/quotation-dashboard",
       },
       {
         title: "Invoice",
