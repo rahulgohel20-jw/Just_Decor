@@ -1,4 +1,5 @@
 import { tr } from "@faker-js/faker";
+import { toAbsoluteUrl } from "@/utils";
 
 const userData = JSON.parse(localStorage.getItem("userData"));
 const roleId = userData?.userBasicDetails?.role?.id === 1;
@@ -62,8 +63,8 @@ export const MENU_SIDEBAR = [
         path: "/master/unit",
       },
       {
-        title:"Custome Package",
-        path:"/master/custom-package",
+        title: "Custom Package",
+        path: "/master/custom-package",
       },
       {
         title: "Member Master",
@@ -292,6 +293,11 @@ export const MENU_SIDEBAR = [
       }
     ],
   },
+  {
+    title: "Custom Design",
+    icon: "element-11 text-primary",
+    path: "/event",
+  },
   ...(roleId
     ? [
         {
@@ -332,19 +338,19 @@ export const MENU_SIDEBAR = [
     ],
   },
 
-  {
-    title: "Support",
-    icon: "ki-filled ki-support text-primary",
-    disabled: false,
-    children: [
-      { title: "Events", path: "/support/events" },
-      { title: "Tutorials", path: "/support/tutorials" },
-      { title: "Tickets", path: "/support/tickets" },
-      { title: "Application", path: "/support/application" },
-      { title: "Progress Checklist", path: "/support/progress-checklist" },
-      { title: "Raise Ticket", path: "/support/raise-ticket" },
-    ],
-  },
+  // {
+  //   title: "Support",
+  //   icon: "ki-filled ki-support text-primary",
+  //   disabled: false,
+  //   children: [
+  //     { title: "Events", path: "/support/events" },
+  //     { title: "Tutorials", path: "/support/tutorials" },
+  //     { title: "Tickets", path: "/support/tickets" },
+  //     { title: "Application", path: "/support/application" },
+  //     { title: "Progress Checklist", path: "/support/progress-checklist" },
+  //     { title: "Raise Ticket", path: "/support/raise-ticket" },
+  //   ],
+  // },
   {
     title: "Billing",
     icon: "ki-filled ki-cheque text-primary",

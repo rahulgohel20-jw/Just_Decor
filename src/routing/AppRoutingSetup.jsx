@@ -131,6 +131,7 @@ import EventPreparationPage from "@/pages/Event/EventPreparationPage";
 import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
 import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
 import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
+import CustomPackage from "@/pages/Event/CustomPackage";
 import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
 import DishCostingPage from "@/pages/Event/DishCostingPage";
 import QuotationPage from "@/pages/Event/QuotationPage";
@@ -165,6 +166,7 @@ import InvoiceDashboard from "@/pages/sales/invoice/InvoiceDashboard/InvoiceDash
 import InvoiceList from "../pages/sales/invoice/InvoiceList/InvoiceList";
 import QuotationDashboard from "../pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
 import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationList";
+import QuickCustomPackage from "../pages/Event/QuickCustomPackage";
 
 const AppRoutingSetup = () => {
   return (
@@ -195,6 +197,10 @@ const AppRoutingSetup = () => {
 
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route
+            path="/quick-custom-package"
+            element={<QuickCustomPackage />}
+          />
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
           <Route
@@ -218,6 +224,8 @@ const AppRoutingSetup = () => {
             path="/raw-material-allocation"
             element={<RawMaterialAllocationPage />}
           />
+          <Route path="/custom-package" element={<CustomPackage />} />
+
           <Route
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}
@@ -286,8 +294,14 @@ const AppRoutingSetup = () => {
           <Route path="/master/role" element={<RoleMaster />} />
           <Route path="/master/contact-type" element={<ContactTypeMaster />} />
           <Route path="/master/raw-material" element={<RawMaterial />} />
-          <Route path="/master/custom-package" element={<CustomPackageMaster />} />
-          <Route path="/master/custom-package/addpackage" element={<AddCustomPackage />} />
+          <Route
+            path="/master/custom-package"
+            element={<CustomPackageMaster />}
+          />
+          <Route
+            path="/master/custom-package/addpackage"
+            element={<AddCustomPackage />}
+          />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
