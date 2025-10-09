@@ -1,12 +1,483 @@
-import { Fragment, useState, useEffect } from "react";
+// import { Fragment, useState, useEffect, useMemo } from "react";
+// import { Container } from "@/components/container";
+// import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+// import { useNavigate } from "react-router-dom";
+// import MenuItemGrid from "../../../Event/EventPreparationPage/components/MenuItemGrid";
+// import SelectedItemsList from "../../../Event/EventPreparationPage/components/SelectedItemsList";
+// import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
+// import { useCategories, useMenuItems } from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
+// import { Formik, Form, Field, ErrorMessage } from "formik";
+// import * as Yup from "yup";
+// import Swal from "sweetalert2";
+// import { Translateapi, AddCustomPackageapi } from "@/services/apiServices";
+
+// const AddCustomPackage = () => {
+//   const navigate = useNavigate();
+
+//   const [search, setSearch] = useState("");
+//   const [childSearch, setChildSearch] = useState("");
+//   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+//   const [selectedItems, setSelectedItems] = useState([]);
+//   const [showDetails, setShowDetails] = useState(false);
+//   const [numberOfItems, setNumberOfItems] = useState("");
+//   const [categoryAnyItems, setCategoryAnyItems] = useState({});
+
+//   const { categories, fetchCategories } = useCategories();
+//   const { menuItems, loading, fetchMenuItems, allMenuItems } = useMenuItems();
+
+//   const allCategory = { id: 0, name: "All" };
+//   const categoriesWithAll = [allCategory, ...categories];
+
+//   useEffect(() => {
+//     const initializeData = async () => {
+//       await fetchCategories();
+//       await fetchMenuItems(0);
+//     };
+//     initializeData();
+//   }, []);
+
+// const handleCategoryChange = async (categoryId) => {
+//   setSelectedCategoryId(categoryId);
+  
+//   // 🧹 Reset the "Any X" input field when category changes
+//   setNumberOfItems(""); 
+  
+//   await fetchMenuItems(categoryId);
+
+//   setCategoryAnyItems((prev) => {
+//     if (prev[categoryId]) return prev;
+//     return { ...prev, [categoryId]: { count: 1, items: [] } };
+//   });
+// };
+
+
+//   const allItemsPool = [...menuItems, ...allMenuItems];
+
+//   const toggleChildSelection = (id) => {
+//     id = Number(id);
+
+//     setSelectedItems((prev) => {
+//       const item = allItemsPool.find((itm) => itm.id === id);
+//       if (!item) return prev;
+
+//       if (prev.includes(id)) {
+//         return prev.filter((pid) => pid !== id);
+//       }
+
+//       return [...prev, id];
+//     });
+//   };
+
+//   const getAllSelectedItemIds = () => {
+//     const anyItemIds = Object.values(categoryAnyItems).flatMap(
+//       (cat) => cat.items || []
+//     );
+//     return [...new Set([...selectedItems, ...anyItemIds])];
+//   };
+
+//   const filteredCategories = categoriesWithAll.filter(({ name }) =>
+//     name.toLowerCase().includes(search.toLowerCase())
+//   );
+
+//   const allSelectedIds = getAllSelectedItemIds();
+//   const menuItemsWithSelectionState = menuItems.map((item) => ({
+//     ...item,
+//     isSelected: allSelectedIds.includes(item.id),
+//   }));
+
+//   const filteredChildren = menuItemsWithSelectionState.filter((child) =>
+//     child.name.toLowerCase().includes(childSearch.toLowerCase())
+//   );
+
+//   const mergedMap = new Map(allItemsPool.map((item) => [item.id, item]));
+//   const selectedMenuItems = getAllSelectedItemIds()
+//     .map((id) => mergedMap.get(id))
+//     .filter(Boolean);
+
+// const selectedItemsByCategory = useMemo(() => {
+//   const grouped = {};
+
+//   selectedMenuItems.forEach((item) => {
+//     const category =
+//       categories.find((cat) => String(cat.id) === String(item.parentId)) ||
+//       null;
+//     const categoryName = category ? category.name : "Uncategorized";
+//     if (!grouped[categoryName]) grouped[categoryName] = [];
+//     grouped[categoryName].push(item);
+//   });
+
+
+// // ✅ Always show static "Any X Items" group
+// if (numberOfItems && parseInt(numberOfItems) > 0) {
+//   const anyCount = parseInt(numberOfItems);
+
+//   // Even if no category or items are selected, show it
+//   grouped[`Any ${anyCount} Items`] = [
+//     {
+//       id: `any-${anyCount}`,
+//       name: `Any ${anyCount} Items`,
+//       isPlaceholder: true,
+//     },
+//   ];
+// } else {
+//   // Optional: show default placeholder even when number is not set
+//   grouped["Any Items"] = [
+//     {
+//       id: "any-default",
+//       name: "Any X Items (enter number below)",
+//       isPlaceholder: true,
+//     },
+//   ];
+// }
+
+
+
+//   // 🧠 Console log for debugging
+//   console.group("🧾 Selected Items by Category");
+//   Object.entries(grouped).forEach(([catName, items]) => {
+//     console.log(
+//       `📂 Category: ${catName}`,
+//       items.map((i) => i.name)
+//     );
+//   });
+//   console.groupEnd();
+
+//   return grouped;
+// }, [selectedMenuItems, categories, categoryAnyItems, numberOfItems]);
+
+//   const handleRemoveItem = (itemId) => {
+//     setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+//     setCategoryAnyItems((prev) => {
+//       const updated = { ...prev };
+//       for (const categoryId in updated) {
+//         const current = updated[categoryId];
+//         if (!current?.items) continue;
+//         const newItems = current.items.filter((id) => id !== itemId);
+//         if (newItems.length > 0) {
+//           updated[categoryId] = { ...current, items: newItems };
+//         } else {
+//           delete updated[categoryId];
+//         }
+//       }
+//       return updated;
+//     });
+//   };
+
+//   const totalSelectedCount = getAllSelectedItemIds().length;
+
+//   const calculateTotalPrice = (packagePrice = 0) => {
+//     return Number(packagePrice || 0);
+//   };
+
+//   /* ─────────────── FORM SETUP ─────────────── */
+//   const initialFormState = {
+//     nameEnglish: "",
+//     nameGujarati: "",
+//     nameHindi: "",
+//     price: "",
+//   };
+
+//   const validationSchema = Yup.object().shape({
+//     nameEnglish: Yup.string().required("Name is required"),
+//     price: Yup.number()
+//       .required("Price is required")
+//       .positive("Must be positive"),
+//   });
+
+//   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+//     try {
+//       const payload = {
+//         nameEnglish: values.nameEnglish,
+//         nameGujarati: values.nameGujarati,
+//         nameHindi: values.nameHindi,
+//         price: Number(values.price),
+//         sequence: 0,
+//         userId: 0,
+//         customPackageDetails: [
+//           {
+//             anyItem: Number(numberOfItems) || 0,
+//             menuId: 0,
+//             menuName:
+//               numberOfItems > 0
+//                 ? `Any ${numberOfItems} Items`
+//                 : "Selected Items",
+//             menuInstruction: "",
+//             menuSortOrder: 0,
+//             customPackageMenuItemDetails: getAllSelectedItemIds().map(
+//               (id, i) => ({
+//                 id: 0,
+//                 menuItemId: id,
+//                 itemInstruction: "",
+//                 itemPrice: 0,
+//                 itemSortOrder: i + 1,
+//                 userId: 0,
+//                 itemName:
+//                   allItemsPool.find((itm) => itm.id === id)?.name ||
+//                   "Unknown Item",
+//               })
+//             ),
+//           },
+//         ],
+//       };
+
+//       // ✅ Keep only this log
+//       console.log("📦 Final payload for API:", payload);
+
+//       // await AddCustomPackageapi(payload);
+//       Swal.fire("Saved!", "Custom package saved successfully.", "success");
+//       resetForm();
+//       setNumberOfItems("");
+//     } catch (error) {
+//       console.error("Error saving package:", error);
+//       Swal.fire("Error", "Something went wrong!", "error");
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
+
+//   /* ─────────────── JSX ─────────────── */
+//   return (
+//     <Fragment>
+//       <Container className="flex flex-col min-h-screen">
+//         <div className="gap-2 pb-2 mb-3">
+//           <Breadcrumbs items={[{ title: "Add Custom Package" }]} />
+//         </div>
+
+//         <Formik
+//           initialValues={initialFormState}
+//           validationSchema={validationSchema}
+//           onSubmit={handleSubmit}
+//         >
+//           {({ isSubmitting, values, setFieldValue }) => {
+//             const [debounceTimer, setDebounceTimer] = useState(null);
+
+//             useEffect(() => {
+//               if (!values.nameEnglish?.trim()) return;
+//               if (debounceTimer) clearTimeout(debounceTimer);
+
+//               const timer = setTimeout(() => {
+//                 Translateapi(values.nameEnglish)
+//                   .then((res) => {
+//                     setFieldValue("nameGujarati", res.data.gujarati || "");
+//                     setFieldValue("nameHindi", res.data.hindi || "");
+//                   })
+//                   .catch(() => {});
+//               }, 500);
+
+//               setDebounceTimer(timer);
+//               return () => clearTimeout(timer);
+//             }, [values.nameEnglish]);
+
+//             return (
+//               <Form className="flex flex-col gap-4">
+//                 {/* 🧾 PACKAGE DETAILS */}
+//                 <div className="border rounded-lg p-4 bg-white">
+//                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                     <InputWithFormik label="Name (English)" name="nameEnglish" />
+//                     <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+//                     <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
+//                     <InputWithFormik label="Price" name="price" type="number" />
+//                   </div>
+//                 </div>
+
+//                 {/* 🧩 PACKAGE ITEMS */}
+//                 <div className="border rounded-lg p-4 mb-4 bg-white">
+//                   <h3 className="text-lg font-semibold mb-3">
+//                     Custom Package Items
+//                   </h3>
+//                   <div className="grid grid-cols-1 lg:grid-cols-12">
+//                     {/* Categories */}
+//                     <div className="col-span-3">
+//                       <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
+//                         {/* 🔍 Sticky Top Search */}
+//                         <div className="sticky top-0 z-10 bg-white border-b p-3">
+//                           <SearchInput
+//                             placeholder="Search categories"
+//                             value={search}
+//                             onChange={setSearch}
+//                           />
+//                         </div>
+
+//                         {/* Scrollable Category List */}
+//                         <div className="flex-1 overflow-auto p-2 pb-20">
+//                           {filteredCategories.map((cat) => {
+//                             const isSelected = selectedCategoryId === cat.id;
+//                             return (
+//                               <div
+//                                 key={cat.id}
+//                                 className={`mb-2 border rounded-md ${
+//                                   isSelected
+//                                     ? "border-primary bg-primary/5"
+//                                     : "border-gray-200"
+//                                 }`}
+//                               >
+//                                 <div
+//                                   onClick={() => handleCategoryChange(cat.id)}
+//                                   className="p-2 cursor-pointer flex justify-between items-center"
+//                                 >
+//                                   <span className="font-medium text-gray-800">
+//                                     {cat.name}
+//                                   </span>
+//                                 </div>
+//                               </div>
+//                             );
+//                           })}
+//                         </div>
+
+//                         {/* 🔢 Sticky Bottom Input */}
+//                         <div className="sticky bottom-0 z-20 bg-white border-t p-3 shadow-sm">
+//                           <label className="block text-xs font-medium text-gray-700 mb-1">
+//                             Number of Items (Any X mode)
+//                           </label>
+//                           <input
+//                             type="number"
+//                             min="1"
+//                             className="w-full border rounded-md px-2 py-1 text-sm"
+//                             placeholder="Enter number"
+//                             value={numberOfItems || ""}
+//                             onChange={(e) =>
+//                               setNumberOfItems(parseInt(e.target.value) || "")
+//                             }
+//                           />
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Items Grid */}
+//                     <div className="col-span-6">
+//                       <div className="h-full">
+//                         <div className="border-b p-3 bg-light">
+//                           <SearchInput
+//                             placeholder="Search items"
+//                             value={childSearch}
+//                             onChange={setChildSearch}
+//                           />
+//                         </div>
+//                         <div className="flex-1 p-3 max-h-[520px] overflow-auto">
+//                           <MenuItemGrid
+//                             items={filteredChildren}
+//                             searchTerm={childSearch}
+//                             onToggleSelection={toggleChildSelection}
+//                             loading={loading}
+//                           />
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Selected Items */}
+//                     <div className="col-span-3">
+//                       <div className="h-full lg:border-s bg-muted/25">
+//                         <div className="border-b p-3 bg-muted/15">
+//                           <div className="flex items-center justify-between mb-2">
+//                             <span className="text-md font-medium text-gray-900">
+//                               Selected Items
+//                             </span>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
+//                           <SelectedItemsList
+//                             key={JSON.stringify(
+//                               Object.keys(selectedItemsByCategory)
+//                             )}
+//                             selectedItemsByCategory={selectedItemsByCategory}
+//                             showDetails={showDetails}
+//                             currentFunctionData={{
+//                               selectedItems: getAllSelectedItemIds(),
+//                               itemNotes: {},
+//                               itemRates: {},
+//                               itemSlogans: {},
+//                               categoryNotes: {},
+//                               categorySlogans: {},
+//                             }}
+//                             categories={categories}
+//                             categoryAnyItems={categoryAnyItems}
+//                             onRemoveItem={handleRemoveItem}
+//                           />
+//                         </div>
+
+//                         <div className="p-3 border-t flex items-center justify-between">
+//                           <span className="text-xs text-gray-700">
+//                             Total Items: {totalSelectedCount}
+//                           </span>
+//                           <span className="text-xs text-gray-700">
+//                             ₹ {calculateTotalPrice(values.price).toFixed(2)}
+//                           </span>
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {/* Buttons */}
+//                 <div className="flex items-center justify-end gap-2">
+//                   <button
+//                     type="button"
+//                     className="btn btn-light"
+//                     onClick={() => navigate(-1)}
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     type="submit"
+//                     className="btn btn-success"
+//                     disabled={
+//                       isSubmitting || loading || totalSelectedCount === 0
+//                     }
+//                   >
+//                     Save Package
+//                   </button>
+//                 </div>
+//               </Form>
+//             );
+//           }}
+//         </Formik>
+//       </Container>
+//     </Fragment>
+//   );
+// };
+
+// /* ─────────────── INPUT HELPER ─────────────── */
+// const InputWithFormik = ({ label, name, type = "text" }) => (
+//   <div className="flex flex-col">
+//     <label className="block text-gray-600 mb-1">
+//       {label}
+//       {label.includes("English") || label.includes("Price") ? (
+//         <span className="text-red-500">*</span>
+//       ) : null}
+//     </label>
+//     <Field
+//       type={type}
+//       name={name}
+//       placeholder={label}
+//       className="border border-gray-300 rounded-lg p-2 w-full"
+//     />
+//     <ErrorMessage
+//       name={name}
+//       component="div"
+//       className="text-red-500 text-sm mt-1"
+//     />
+//   </div>
+// );
+
+// export default AddCustomPackage;
+
+
+
+
+
+import { Fragment, useState, useEffect, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useNavigate } from "react-router-dom";
-import CategoryList from "../../../Event/EventPreparationPage/components/CategoryList";
 import MenuItemGrid from "../../../Event/EventPreparationPage/components/MenuItemGrid";
 import SelectedItemsList from "../../../Event/EventPreparationPage/components/SelectedItemsList";
 import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
 import { useCategories, useMenuItems } from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
+import { Translateapi, AddCustomPackageapi } from "@/services/apiServices";
 
 const AddCustomPackage = () => {
   const navigate = useNavigate();
@@ -24,34 +495,38 @@ const [numberOfItems, setNumberOfItems] = useState("");
   const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
-  /* ─────────────── Init Load ─────────────── */
   useEffect(() => {
     const initializeData = async () => {
       await fetchCategories();
-      await fetchMenuItems(0); // load all items by default
+      await fetchMenuItems(0);
     };
     initializeData();
   }, []);
 
-  /* ─────────────── Category Change ─────────────── */
   const handleCategoryChange = async (categoryId) => {
     setSelectedCategoryId(categoryId);
     await fetchMenuItems(categoryId);
   };
 
-  /* ─────────────── Item Selection Toggle ─────────────── */
+  const allItemsPool = [...menuItems, ...allMenuItems];
+
   const toggleChildSelection = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
+    id = Number(id);
+    setSelectedItems((prev) => {
+      const item = allItemsPool.find((itm) => itm.id === id);
+      if (!item) return prev;
+
+      if (prev.includes(id)) {
+        return prev.filter((pid) => pid !== id);
+      }
+      return [...prev, id];
+    });
   };
 
-  /* ─────────────── Filtering ─────────────── */
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Add selection state for UI
   const menuItemsWithSelectionState = menuItems.map((item) => ({
     ...item,
     isSelected: selectedItems.includes(item.id),
@@ -61,101 +536,163 @@ const [numberOfItems, setNumberOfItems] = useState("");
     child.name.toLowerCase().includes(childSearch.toLowerCase())
   );
 
-  /* ─────────────── Selected Items Panel ─────────────── */
-  // ✅ Always use allMenuItems so switching categories doesn’t lose selection
-  const selectedMenuItems = allMenuItems.filter((item) =>
-    selectedItems.includes(item.id)
-  );
+  const mergedMap = new Map(allItemsPool.map((item) => [item.id, item]));
+  const selectedMenuItems = selectedItems.map((id) => mergedMap.get(id)).filter(Boolean);
+const selectedItemsByCategory = useMemo(() => {
+  const grouped = {};
 
-  const selectedItemsByCategory = selectedMenuItems.reduce((acc, item) => {
-    const category = categories.find((cat) => cat.id === item.parentId);
-    const categoryName = category?.name || "Uncategorized";
-    if (!acc[categoryName]) acc[categoryName] = [];
-    acc[categoryName].push(item);
-    return acc;
-  }, {});
+  // Group normal selected items
+  selectedMenuItems.forEach((item) => {
+    const category =
+      categories.find((cat) => String(cat.id) === String(item.parentId)) || null;
+    const categoryName = category ? category.name : "Uncategorized";
+    if (!grouped[categoryName]) grouped[categoryName] = [];
+    grouped[categoryName].push(item);
+  });
 
-  const calculateTotalPrice = () =>
-    selectedMenuItems.reduce(
-      (sum, item) => sum + (Number(item.price) || 0),
-      0
-    );
+  // ✅ Add "Any X Items" static block if number entered
+  if (numberOfItems && parseInt(numberOfItems) > 0) {
+    const anyCount = parseInt(numberOfItems);
+    grouped[`Any ${anyCount} Items`] = [
+      {
+        id: `any-${anyCount}`,
+        name: `Any ${anyCount} items from selected categories`,
+        isPlaceholder: true,
+      },
+    ];
+  }
+
+  return grouped;
+}, [selectedMenuItems, categories, numberOfItems]);
+
+  const handleRemoveItem = (itemId) => {
+    setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+  };
+
+  const totalSelectedCount = selectedItems.length;
+  const calculateTotalPrice = (packagePrice = 0) => Number(packagePrice || 0);
+
+  /* ─────────────── FORM SETUP ─────────────── */
+  const initialFormState = {
+    nameEnglish: "",
+    nameGujarati: "",
+    nameHindi: "",
+    price: "",
+  };
+
+  const validationSchema = Yup.object().shape({
+    nameEnglish: Yup.string().required("Name is required"),
+    price: Yup.number().required("Price is required").positive("Must be positive"),
+  });
+
+const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  try {
+    const storedData = JSON.parse(localStorage.getItem("userData"));
+    const userId = storedData?.id || 0; // ✅ Correct path
+
+    const payload = {
+      nameEnglish: values.nameEnglish || "",
+      nameGujarati: values.nameGujarati || "",
+      nameHindi: values.nameHindi || "",
+      price: Number(values.price) || 0,
+      sequence: 0,
+      userId, // ✅ Now will be 1
+      customPackageDetails: [
+        {
+          anyItem: Number(numberOfItems) || 0,
+          menuId: 0,
+          menuName:
+            numberOfItems && numberOfItems > 0
+              ? `Any ${numberOfItems} Items`
+              : "Selected Items",
+          menuInstruction: "",
+          menuSortOrder: 0,
+          customPackageMenuItemDetails: selectedItems.map((id, i) => ({
+            id: 0,
+            menuItemId: id,
+            itemInstruction: "",
+            itemName:
+              allItemsPool.find((itm) => itm.id === id)?.name || "string",
+            itemPrice: 0,
+            itemSortOrder: i + 1,
+            userId, // ✅ same userId here
+          })),
+        },
+      ],
+    };
+
+    console.log("✅ Final payload:", payload);
+    Swal.fire("Success!", "Custom Package saved successfully.", "success");
+    resetForm();
+    setSelectedItems([]);
+    setNumberOfItems("");
+  } catch (err) {
+    console.error("Error saving custom package:", err);
+    Swal.fire("Error", "Something went wrong.", "error");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
+
+
 
   /* ─────────────── JSX ─────────────── */
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
-        {/* Breadcrumb */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Add Custom Package" }]} />
         </div>
 
-        {/* Package Info */}
-        <div className="border rounded-lg p-4 mb-4 bg-white">
-          <h3 className="text-lg font-semibold mb-3">New Custom Package</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name (English)*
-              </label>
-              <input
-                type="text"
-                className="input mt-1 w-full"
-                placeholder="Enter name in English"
-              />
-            </div>
+        <Formik
+          initialValues={initialFormState}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, values, setFieldValue }) => {
+            const [debounceTimer, setDebounceTimer] = useState(null);
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name (ગુજરાતી)
-              </label>
-              <input
-                type="text"
-                className="input mt-1 w-full"
-                placeholder="Enter name in Gujarati"
-              />
-            </div>
+            useEffect(() => {
+              if (!values.nameEnglish?.trim()) return;
+              if (debounceTimer) clearTimeout(debounceTimer);
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name (हिन्दी)
-              </label>
-              <input
-                type="text"
-                className="input mt-1 w-full"
-                placeholder="Enter name in Hindi"
-              />
-            </div>
+              const timer = setTimeout(() => {
+                Translateapi(values.nameEnglish)
+                  .then((res) => {
+                    setFieldValue("nameGujarati", res.data.gujarati || "");
+                    setFieldValue("nameHindi", res.data.hindi || "");
+                  })
+                  .catch(() => {});
+              }, 500);
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Price*
-              </label>
-              <input
-                type="number"
-                className="input mt-1 w-full"
-                placeholder="Enter price"
-              />
-            </div>
-          </div>
-        </div>
+              setDebounceTimer(timer);
+              return () => clearTimeout(timer);
+            }, [values.nameEnglish]);
 
-        {/* Category / Items / Selection */}
+            return (
+              <Form className="flex flex-col gap-4">
+                {/* 🧾 PACKAGE DETAILS */}
+                <div className="border rounded-lg p-4 bg-white">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <InputWithFormik label="Name (English)" name="nameEnglish" />
+                    <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
+                    <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
+                    <InputWithFormik label="Price" name="price" type="number" />
+                  </div>
+                </div>
 
-    
-            <div className="border rounded-lg p-4 mb-4 bg-white">
-           <h3 className="text-lg font-semibold mb-3"> Custom Package Items</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-12">
-            {/* Left Panel - Categories */}
-
-
-
-            
-   {/* Left Panel - Categories */}
+                {/* 🧩 PACKAGE ITEMS */}
+                <div className="border rounded-lg p-4 mb-4 bg-white">
+                  <h3 className="text-lg font-semibold mb-3">Custom Package Items</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-12">
+                    {/* Categories */}
+                   {/* Categories Panel */}
 <div className="col-span-3">
-  <div className="h-full lg:border-e lg:border-e-border flex flex-col gap-3">
-    {/* 🔝 Sticky Top - Category Search */}
-    <div className="sticky top-0 z-10 bg-white border-b p-3 rounded-t-lg">
+  <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
+    {/* 🔍 Sticky Top Search */}
+    <div className="sticky top-0 z-10 bg-white border-b p-3">
       <SearchInput
         placeholder="Search categories"
         value={search}
@@ -163,27 +700,43 @@ const [numberOfItems, setNumberOfItems] = useState("");
       />
     </div>
 
-    {/* 📦 Category List Box */}
-    <div className="border rounded-md bg-white p-2 max-h-[520px] overflow-auto scrollable-y">
-      <CategoryList
-        categories={filteredCategories}
-        selectedId={selectedCategoryId}
-        onSelect={handleCategoryChange}
-        searchTerm={search}
-      />
+    {/* Scrollable Category List */}
+    <div className="flex-1 overflow-auto p-2">
+      {filteredCategories.map((cat) => {
+        const isSelected = selectedCategoryId === cat.id;
+        return (
+          <div
+            key={cat.id}
+            className={`mb-2 border rounded-md ${
+              isSelected
+                ? "border-primary bg-primary/5"
+                : "border-gray-200"
+            }`}
+          >
+            <div
+              onClick={() => handleCategoryChange(cat.id)}
+              className="p-2 cursor-pointer flex justify-between items-center"
+            >
+              <span className="font-medium text-gray-800">{cat.name}</span>
+              {/* ✅ Display (Any X) beside category name */}
+             
+            </div>
+          </div>
+        );
+      })}
     </div>
 
-    {/* 📦 Separate Number of Items Box */}
-    <div className="sticky bottom-0 z-10 border rounded-md p-3 bg-white">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Number of Items
+    {/* ✅ Sticky Bottom Input */}
+    <div className="sticky bottom-0 z-20 bg-white border-t p-3">
+      <label className="block text-xs font-medium text-gray-700 mb-1">
+        Number of Items (Any X mode)
       </label>
       <input
         type="number"
-        min="0"
-        className="input w-full"
+        min="1"
+        className="w-full border rounded-md px-2 py-1 text-sm"
         placeholder="Enter number"
-        value={numberOfItems}
+        value={numberOfItems || ""}
         onChange={(e) => setNumberOfItems(e.target.value)}
       />
     </div>
@@ -191,108 +744,113 @@ const [numberOfItems, setNumberOfItems] = useState("");
 </div>
 
 
+                    {/* Items Grid */}
+                    <div className="col-span-6">
+                      <div className="h-full">
+                        <div className="border-b p-3 bg-light">
+                          <SearchInput
+                            placeholder="Search items"
+                            value={childSearch}
+                            onChange={setChildSearch}
+                          />
+                        </div>
+                        <div className="flex-1 p-3 max-h-[520px] overflow-auto">
+                          <MenuItemGrid
+                            items={filteredChildren}
+                            searchTerm={childSearch}
+                            onToggleSelection={toggleChildSelection}
+                            loading={loading}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
+                    {/* Selected Items */}
+                    <div className="col-span-3">
+                      <div className="h-full lg:border-s bg-muted/25">
+                        <div className="border-b p-3 bg-muted/15">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-md font-medium text-gray-900">
+                              Selected Items
+                            </span>
+                          </div>
+                        </div>
 
-            {/* Middle Panel - Menu Items */}
-            <div className="col-span-6">
-              <div className="h-full">
-                <div className="border-b p-3 bg-light">
-                  <SearchInput
-                    placeholder="Search items"
-                    value={childSearch}
-                    onChange={setChildSearch}
-                  />
-                </div>
-                <div className="flex-1 p-3 max-h-[520px] overflow-auto scrollable-y">
-                  <MenuItemGrid
-                    items={filteredChildren}
-                    searchTerm={childSearch}
-                    onToggleSelection={toggleChildSelection}
-                    loading={loading}
-                  />
-                </div>
-              </div>
-            </div>
+                        <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
+                          <SelectedItemsList
+                            key={JSON.stringify(Object.keys(selectedItemsByCategory))}
+                            selectedItemsByCategory={selectedItemsByCategory}
+                            showDetails={showDetails}
+                            currentFunctionData={{
+                              selectedItems,
+                              itemNotes: {},
+                              itemRates: {},
+                              itemSlogans: {},
+                              categoryNotes: {},
+                              categorySlogans: {},
+                            }}
+                            categories={categories }
+                            onRemoveItem={handleRemoveItem}
+                              numberOfItems={numberOfItems}
+                          />
+                        </div>
 
-            {/* Right Panel - Selected Items */}
-            <div className="col-span-3">
-              <div className="h-full lg:border-s lg:border-s-border bg-muted/25">
-                <div className="border-b p-3 bg-muted/15">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-md font-medium text-gray-900">
-                      Selected Items
-                    </span>
-                    <button
-                      className="text-primary hover:underline"
-                      onClick={() => setShowDetails((prev) => !prev)}
-                    >
-                      {showDetails ? (
-                        <i className="ki-filled ki-eye"></i>
-                      ) : (
-                        <i className="ki-filled ki-eye-slash"></i>
-                      )}
-                    </button>
+                        <div className="p-3 border-t flex items-center justify-between">
+                          <span className="text-xs text-gray-700">
+                            Total Items: {totalSelectedCount}
+                          </span>
+                          <span className="text-xs text-gray-700">
+                            ₹ {calculateTotalPrice(values.price).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex-1 p-3 max-h-[516px] overflow-auto scrollable-y bg-white">
-                  <SelectedItemsList
-                    selectedItemsByCategory={selectedItemsByCategory}
-                    showDetails={showDetails}
-                    currentFunctionData={{
-                      selectedItems: selectedItems,
-                      itemNotes: {},
-                      itemRates: {},
-                      itemSlogans: {},
-                      categoryNotes: {},
-                      categorySlogans: {},
-                    }}
-                    categories={categories}
-                    onItemRateChange={() => {}}
-                    onNoteClick={() => {}}
-                    onCategoryNoteClick={() => {}}
-                    onRemoveItem={toggleChildSelection}
-                  />
-                </div>
-                <div className="p-3 border-t flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-1">
-                    <span className="font-semibold text-xs text-gray-700">
-                      Total Items:
-                    </span>
-                    <span className="font-bold text-xs text-gray-900">
-                      {selectedItems.length}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-semibold text-xs text-gray-700">
-                      Total:
-                    </span>
-                    <span className="font-bold text-xs text-gray-900">
-                      ₹ {calculateTotalPrice()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
 
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between gap-2">
-          <button className="btn btn-light" onClick={() => navigate(-1)}>
-            Cancel
-          </button>
-          <button
-            className="btn btn-success"
-            disabled={loading || selectedItems.length === 0}
-          >
-            <i className="ki-filled ki-save-2"></i>
-            Save Package
-          </button>
-        </div>
+                {/* Buttons */}
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-light"
+                    onClick={() => navigate(-1)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-success"
+                    disabled={isSubmitting || loading || totalSelectedCount === 0}
+                  >
+                    Save Package
+                  </button>
+                </div>
+              </Form>
+            );
+          }}
+        </Formik>
       </Container>
     </Fragment>
   );
 };
+
+/* ─────────────── INPUT HELPER ─────────────── */
+const InputWithFormik = ({ label, name, type = "text" }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">
+      {label}
+      {label.includes("English") || label.includes("Price") ? (
+        <span className="text-red-500">*</span>
+      ) : null}
+    </label>
+    <Field
+      type={type}
+      name={name}
+      placeholder={label}
+      className="border border-gray-300 rounded-lg p-2 w-full"
+    />
+    <ErrorMessage name={name} component="div" className="text-red-500 text-sm mt-1" />
+  </div>
+);
 
 export default AddCustomPackage;

@@ -620,3 +620,9 @@ export const updateunit = (id, data) => {
 export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
+
+
+//custome package post api
+export const AddCustomPackageapi = (data) => {
+  return POST(`/custompackage/add`, data);
+};
