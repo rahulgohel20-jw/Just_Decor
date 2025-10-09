@@ -621,6 +621,7 @@ const DraggableItem = ({
         <div className="flex items-center gap-2">
           <Tooltip title="Notes">
             <button
+              type="button"
               className="inline-flex h-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               onClick={(e) => {
                 e.stopPropagation();
@@ -636,6 +637,7 @@ const DraggableItem = ({
           </Tooltip>
           <Tooltip title="Remove">
             <button
+              type="button"
               className="inline-flex h-7  items-center justify-center rounded-md text-danger"
               onClick={(e) => {
                 e.stopPropagation();
@@ -808,6 +810,7 @@ const SelectedItemsList = ({
   numberOfItems,
   categories = [],
 }) => {
+  
   const [activeId, setActiveId] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);

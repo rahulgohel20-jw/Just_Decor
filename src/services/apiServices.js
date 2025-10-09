@@ -643,3 +643,8 @@ export const GetCustomPackageapi = (id) => {
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
 };
+
+//cusrome package update api
+export const UpdateCustomPackageapi = (id, data) => {
+  return PUT(`/custompackage/update?id=${id}`, data);
+}
