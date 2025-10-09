@@ -588,41 +588,73 @@ const selectedItemsByCategory = useMemo(() => {
 const handleSubmit = async (values, { setSubmitting, resetForm }) => {
   try {
     const storedData = JSON.parse(localStorage.getItem("userData"));
-    const userId = storedData?.id || 0; // ✅ Correct path
+    const userId = storedData?.id || 0;
 
+    // 🧠 Group selected menu items by category
+    const groupedItems = {};
+    selectedItems.forEach((id, index) => {
+      const item = allItemsPool.find((itm) => itm.id === id);
+      if (!item) return;
+
+      const categoryId = item.parentId || 0;
+      if (!groupedItems[categoryId]) {
+        groupedItems[categoryId] = [];
+      }
+
+      groupedItems[categoryId].push({
+        id: 0,
+        menuItemId: item.id,
+        itemInstruction: "",
+        itemName: item.name || "Unnamed",
+        itemPrice: 0,
+        itemSortOrder: index + 1,
+        userId,
+      });
+    });
+
+    // 🔧 Build customPackageDetails
+    const customPackageDetails = Object.entries(groupedItems).map(([categoryId, items], idx) => {
+      const category = categories.find(cat => String(cat.id) === categoryId);
+      return {
+        anyItem: 0,
+        menuId: Number(categoryId),
+        menuName: category?.name || "Unknown",
+        menuInstruction: "",
+        menuSortOrder: idx + 1,
+        customPackageMenuItemDetails: items,
+      };
+    });
+
+    // ➕ Add "Any X Items" mode block if applicable
+    if (numberOfItems && parseInt(numberOfItems) > 0) {
+      customPackageDetails.push({
+        anyItem: parseInt(numberOfItems),
+        menuId: 0,
+        menuName: `Any ${numberOfItems} Items`,
+        menuInstruction: "",
+        menuSortOrder: customPackageDetails.length + 1,
+        customPackageMenuItemDetails: [],
+      });
+    }
+
+    // ✅ Final Payload
     const payload = {
       nameEnglish: values.nameEnglish || "",
       nameGujarati: values.nameGujarati || "",
       nameHindi: values.nameHindi || "",
       price: Number(values.price) || 0,
       sequence: 0,
-      userId, // ✅ Now will be 1
-      customPackageDetails: [
-        {
-          anyItem: Number(numberOfItems) || 0,
-          menuId: 0,
-          menuName:
-            numberOfItems && numberOfItems > 0
-              ? `Any ${numberOfItems} Items`
-              : "Selected Items",
-          menuInstruction: "",
-          menuSortOrder: 0,
-          customPackageMenuItemDetails: selectedItems.map((id, i) => ({
-            id: 0,
-            menuItemId: id,
-            itemInstruction: "",
-            itemName:
-              allItemsPool.find((itm) => itm.id === id)?.name || "string",
-            itemPrice: 0,
-            itemSortOrder: i + 1,
-            userId, // ✅ same userId here
-          })),
-        },
-      ],
+      userId,
+      customPackageDetails,
     };
 
     console.log("✅ Final payload:", payload);
+
+    // 🔽 Send to backend
+    await AddCustomPackageapi(payload);
+
     Swal.fire("Success!", "Custom Package saved successfully.", "success");
+
     resetForm();
     setSelectedItems([]);
     setNumberOfItems("");
@@ -633,7 +665,6 @@ const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(false);
   }
 };
-
 
 
 

@@ -635,6 +635,10 @@ export const Translateapi = (data) => {
 };
 
 
+// custome package get api
+export const GetCustomPackageapi = (id) => {
+  return GET(`/custompackage/getallbyuserid?userid=${id}`);
+};
 //custome package post api
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
