@@ -37,7 +37,7 @@ export const columns = [
   {
     accessorKey: "Amount",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Amount" column={column} />
+      <DataGridColumnHeader title="Total Paid" column={column} />
     ),
   },
   {

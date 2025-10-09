@@ -2,7 +2,7 @@ import { GeteventQuoataiondata } from "@/services/apiServices";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-export default function QuotationList() {
+export default function QuotationList({ onEventSelect }) {
   const [eventData, setEventData] = useState([]);
   const { PartyId } = useParams();
 
@@ -32,7 +32,11 @@ export default function QuotationList() {
       fetchEventData();
     }
   }, [PartyId]);
-
+  const handleEventClick = (eventId) => {
+    if (onEventSelect) {
+      onEventSelect(eventId);
+    }
+  };
   return (
     <div className="bg-white  rounded-2xl p-4 w-full max-w-xs h-auto  ">
       {/* Header */}
@@ -51,7 +55,8 @@ export default function QuotationList() {
       <div className="grid gap-4">
         {eventData.map((inv) => (
           <div
-            key={inv.id}
+            key={inv.eventId}
+            onClick={() => handleEventClick(inv.eventId)}
             className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer p-5"
           >
             <div className="flex justify-between items-center mb-2 gap-4">

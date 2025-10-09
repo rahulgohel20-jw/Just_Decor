@@ -157,7 +157,9 @@ export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
 export const GetSuplier = (id) => {
-  return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);
+  return GET(
+    `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`
+  );
 };
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getalluserid?userid=${id}`);

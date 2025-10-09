@@ -5,29 +5,29 @@ import { PaperClipOutlined, SettingOutlined } from "@ant-design/icons";
 const InvoiceDetail = () => {
   const columns = [
     {
-      title: "Item Details",
-      dataIndex: "item",
-      key: "item",
+      title: "Function ",
+      dataIndex: "function",
+      key: "function",
     },
     {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: "Date & Time",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Person",
+      dataIndex: "person",
+      key: "person",
+    },
+    {
+      title: "Extra",
+      dataIndex: "extra",
+      key: "extra",
     },
     {
       title: "Rate",
       dataIndex: "rate",
       key: "rate",
-    },
-    {
-      title: "Discount",
-      dataIndex: "discount",
-      key: "discount",
-    },
-    {
-      title: "Tax",
-      dataIndex: "tax",
-      key: "tax",
     },
     {
       title: "Amount",
@@ -39,26 +39,23 @@ const InvoiceDetail = () => {
   const data = [
     {
       key: "1",
-      item: "Wedding Sofa",
-      quantity: "1.0",
-      rate: "20,000.0",
-      discount: "0.0",
-      tax: "18%",
+      function: "Wedding Sofa",
+      date: "11/11/2011",
+      person: "20",
+      extra: "0.0",
+      rate: "1200",
       amount: "23,600.00",
     },
   ];
   const invoiceData = [
-    { label: "#", value: "INV-000001" },
+    { label: "Invoice Code", value: "INV-000001" },
     { label: "Invoice Date", value: "07/08/2025" },
-    { label: "Terms", value: "Due on Receipt" },
-    { label: "Due Date", value: "07/08/2025" },
-    { label: "P.O.#", value: "Sofa" },
+    { label: "Due Date", value: "Due on Receipt" },
+    { label: "Event Date", value: "07/08/2025" },
+    { label: "Event Name", value: "Wedding" },
   ];
 
-  const GSTdata = [
-    { label: "GST Number", value: "27ABJFA7206Q1ZY" },
-    { label: "GST Treatment", value: "Registered Business - Regular" },
-  ];
+  const GSTdata = [{ label: "GST Number", value: "27ABJFA7206Q1ZY" }];
 
   return (
     <div className="bg-white rounded-xl shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] max-w-4xl mx-auto">
@@ -104,20 +101,6 @@ const InvoiceDetail = () => {
               <span className="font-medium">: {item.value}</span>
             </p>
           ))}
-
-          <p className="flex items-center text-sm mt-6 gap-4">
-            <span className="w-36 text-gray-500 w-fit">
-              Attach File(s) to Invoice
-            </span>
-            <Upload>
-              <Button
-                icon={<PaperClipOutlined className="text-lg" />}
-                className="border rounded-md px-2 py-0 text-lg w-full text-[#004986] border-[#004986] hover:bg-[#004986] hover:text-white"
-              >
-                View File
-              </Button>
-            </Upload>
-          </p>
         </div>
       </div>
 
@@ -144,7 +127,7 @@ const InvoiceDetail = () => {
 
       <div className="mt-6">
         <h4 className="p-4 font-bold text-[#464E5F] border-b bg-blue-100">
-          Item Table
+          Function Table
         </h4>
         <Table
           columns={columns}
@@ -178,20 +161,32 @@ const InvoiceDetail = () => {
             add it in the Invoice Preferences page under Settings.
           </p>
         </div>
-        <div className=" flex flex-col justify-between p-4 border border-gray-200  p-3 text-sm ">
+        <div className=" flex flex-col justify-between p-4 border border-gray-200  p-3 text-sm  ">
           <div>
-            <div className="flex justify-between">
+            <div className="flex justify-between mb-2">
               <span className="text-[#464E5F]">Sub Total</span>
               <span className="text-[#292929]">₹ 23,600.00</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-[#464E5F]">CGST 9%</span>
+              <span className="text-[#292929]">₹ 1800</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-[#464E5F]">SGST 9%</span>
+              <span className="text-[#292929]">₹ 1800</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-[#464E5F]">IGST 9%</span>
+              <span className="text-[#292929]">₹ 1800</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-[#464E5F]">Discount</span>
+              <span className="text-[#292929]">₹ 1800</span>
             </div>
             <div className="flex justify-between mt-1 font-bold text-[#004986]">
               <span>Total</span>
               <span>₹ 23,600.00</span>
             </div>
-            <div className="border mt-6"></div>
-          </div>
-          <div className="mt-10 text-center text-xs text-[#464E5F] ">
-            Authorized Signature
           </div>
         </div>
       </div>
