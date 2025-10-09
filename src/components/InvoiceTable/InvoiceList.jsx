@@ -36,7 +36,7 @@ export default function InvoiceList() {
   );
 
   return (
-    <div className="bg-white  rounded-2xl p-4 w-full max-w-xs h-auto  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)]">
+    <div className="bg-white  rounded-2xl p-4 w-full max-w-xs h-auto  ">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black">

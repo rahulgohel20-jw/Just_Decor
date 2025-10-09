@@ -176,6 +176,19 @@ export const SearchMealtype = (data, Id) => {
 export const EditMealType = (Id, data) => {
   return PUT(`/mealtype/update?id=${Id}`, data);
 };
+
+export const RawMaterialName = (Id, name) => {
+  return GET(
+    `/contactcategory/getallbyuserid?categoryName=${name}&userId=${Id}`
+  );
+};
+export const ContactNameItem = (Id, name) => {
+  return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
+};
+export const StatusChange = (Id, name) => {
+  return PUT(`/eventmaster/changeeventstatus?eventId=${Id}&status=${name}`);
+};
+
 //Delete Meal Type
 export const DeleteMealType = (Id) => {
   return DELETE(`/mealtype/deletebyid?id=${Id}`);

@@ -12,7 +12,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 
-const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
+const AddFunctionType = ({
+  isOpen,
+  onClose,
+  selectedFunction,
+  onSuccess = () => {},
+}) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
 
   const initialState = {
@@ -126,7 +131,7 @@ const AddFunctionType = ({ isOpen, onClose, selectedFunction, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-[#F2F7FB] rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">

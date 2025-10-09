@@ -536,8 +536,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
-/* --------------------------- ITEM (restyled only) --------------------------- */
+import { toAbsoluteUrl } from "@/utils";
 
 const DraggableItem = ({
   item,
@@ -570,7 +569,7 @@ const DraggableItem = ({
     <li
       ref={setNodeRef}
       style={style}
-      className={`group relative flex flex-col rounded-md border border-gray-200 bg-white p-2.5 mb-2 last:mb-0 ${
+      className={`group relative flex flex-col rounded-md border border-gray-200 bg-[#F2F7FB] p-2 mb-2 last:mb-0 ${
         isDragging
           ? "shadow-lg ring-1 ring-blue-300"
           : "shadow-[0_1px_0_#ececec]"
@@ -587,26 +586,57 @@ const DraggableItem = ({
               className="h-full w-full object-cover"
             />
           </span>
-          <span className="text-[13px] font-medium text-gray-800 leading-none">
-            {item.name}
-          </span>
+          <div className="flex flex-col ">
+            <span className="text-[13px] font-medium text-gray-800 leading-none">
+              {item.name}
+            </span>
+            {showDetails && (
+              <div
+                className="mt-1 flex items-center justify-between"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <label className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-500 tracking-wide">
+                    Rate :
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={
+                      currentFunctionData.itemRates?.[item.id] !== undefined
+                        ? currentFunctionData.itemRates[item.id]
+                        : rate > 0
+                          ? rate
+                          : item.price || 0
+                    }
+                    onChange={(e) => onItemRateChange(item.id, e.target.value)}
+                    className="h-5 w-16 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
           <Tooltip title="Notes">
             <button
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="inline-flex h-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               onClick={(e) => {
                 e.stopPropagation();
                 onNoteClick(item.id);
               }}
             >
-              <i className="ki-filled ki-notepad text-[16px]" />
+              <img
+                className="w-3.5 h-3.5  text-[#64748B]"
+                src={toAbsoluteUrl("/media/menu/notes.png")}
+                alt="profile"
+              />
             </button>
           </Tooltip>
           <Tooltip title="Remove">
             <button
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50"
+              className="inline-flex h-7  items-center justify-center rounded-md text-danger"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemoveItem(item.id);
@@ -615,39 +645,14 @@ const DraggableItem = ({
               <i className="ki-filled ki-trash text-[16px]" />
             </button>
           </Tooltip>
+          <span className="inline-flex h-7  items-center justify-center  text-[20px] text-[#64748B]">
+            ⋮⋮
+          </span>
         </div>
       </div>
-
-      {showDetails && (
-        <div
-          className="mt-2 flex items-center justify-between"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <label className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-500 tracking-wide">
-              Rate :
-            </span>
-            <input
-              type="number"
-              min={0}
-              value={
-                currentFunctionData.itemRates?.[item.id] !== undefined
-                  ? currentFunctionData.itemRates[item.id]
-                  : rate > 0
-                    ? rate
-                    : item.price || 0
-              }
-              onChange={(e) => onItemRateChange(item.id, e.target.value)}
-              className="h-7 w-20 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </label>
-        </div>
-      )}
     </li>
   );
 };
-
-/* ------------------------- CATEGORY (restyled only) ------------------------- */
 
 const DraggableCategory = ({
   categoryName,
@@ -702,19 +707,14 @@ const DraggableCategory = ({
       style={categoryStyle}
       className="mb-3 rounded-md px-2.5 py-2 cursor-move border border-gray-200 bg-white"
     >
-      {/* Header bar */}
       <div
-        className={`flex items-center justify-between  ${
-          isDragging
-            ? "shadow-md ring-1 ring-blue-300"
-            : "shadow-[0_1px_0_#ececec]"
-        }`}
+        className={`flex items-center justify-between`}
         {...attributes}
         {...listeners}
       >
-        <div className="flex items-center gap-2.5">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-gray-100 text-[12px] text-gray-500">
-            {/* small grip dot visual similar to screenshot */}⋮
+        <div className="flex items-center gap-1">
+          <span className="inline-flex h-5 w-5 items-center justify-center  text-[20px] text-black">
+            ⋮⋮
           </span>
           <div className="font-medium text-gray-800 flex items-center gap-1">
   <span>{categoryName}</span>
@@ -725,39 +725,36 @@ const DraggableCategory = ({
 
           <Tooltip title="Category Notes">
             <button
-              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               onClick={(e) => {
                 e.stopPropagation();
                 onCategoryNoteClick(categoryId);
               }}
             >
-              <i className="ki-filled ki-notepad text-[16px]" />
+              <img
+                className="w-3.5 h-3.5  ring-4 ring-white shadow"
+                src={toAbsoluteUrl("/media/menu/notes.png")}
+                alt="profile"
+              />
             </button>
           </Tooltip>
+          <button
+            className="inline-flex h-7  items-center justify-center text-[#979797]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand(categoryId);
+            }}
+          >
+            <i
+              className={`ki-filled ${isExpanded ? "ki-down" : "ki-up"} text-[20px]`}
+            />
+          </button>
         </div>
-
-        <button
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleExpand(categoryId);
-          }}
-        >
-          <i
-            className={`ki-filled ${isExpanded ? "ki-minus" : "ki-plus"} text-[16px]`}
-          />
-        </button>
       </div>
+      <hr className="mt-2 border border-gray-200" />
 
-      {/* Body */}
       {isExpanded && (
-        <div
-          className={`mt-1  p-2 ${
-            isOver && !isDraggingCategory
-              ? "ring-2 ring-blue-300 bg-blue-50/40"
-              : ""
-          }`}
-        >
+        <div className={`mt-3`}>
           <SortableContext
             items={items.map((item) => `item-${item.id}`)}
             strategy={verticalListSortingStrategy}
@@ -796,8 +793,6 @@ const DraggableCategory = ({
     </section>
   );
 };
-
-/* --------------------------- WRAPPER (layout only) -------------------------- */
 
 const SelectedItemsList = ({
   selectedItemsByCategory,
@@ -972,7 +967,7 @@ const SelectedItemsList = ({
       onDragEnd={handleDragEnd}
     >
       {/* panel wrapper to match screenshot look */}
-      <div className="space-y-2 max-h-[70vh] overflow-auto pr-1">
+      <div className="space-y-2 max-h-[70vh] overflow-auto scrollable-y ">
         <SortableContext
           items={categorySortableIds}
           strategy={verticalListSortingStrategy}

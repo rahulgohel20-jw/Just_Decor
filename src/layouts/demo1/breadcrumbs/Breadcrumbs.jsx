@@ -1,28 +1,20 @@
 import clsx from "clsx";
 import { Fragment, useState } from "react";
-import { Building2, Contact, Filter, Plus, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  KeenIcon,
-  MenuItem,
-  MenuToggle,
-  MenuLink,
-  MenuSub,
-  MenuTitle,
-  MenuIcon,
-  Menu,
-} from "@/components";
-import AddLead from "@/partials/modals/add-lead/AddLead";
-import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
-import AddContact from "@/partials/modals/add-contact/AddContact";
-import AddCompany from "@/partials/modals/add-company/AddCompany";
+import { KeenIcon } from "@/components";
+import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
 import { Dropdown, Space } from "antd";
+import AddEventType from "@/partials/modals/add-event-type/AddEventType";
+import AddMember from "@/partials/modals/add-member/AddMember";
+import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
+import { useNavigate } from "react-router-dom";
 
 const Breadcrumbs = ({ items }) => {
-  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
-  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [isCustomerModal, setisCustomerModal] = useState(false);
+  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isFunctionModal, setIsFunctionModal] = useState(false);
+  const navigate = useNavigate();
 
   const renderItems = (items) => {
     const dashboardItem = (
@@ -82,35 +74,44 @@ const Breadcrumbs = ({ items }) => {
   const menuItems = [
     {
       label: (
-        <div onClick={() => setIsLeadModalOpen(true)}>
-          <i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead
+        <div onClick={() => setisCustomerModal(true)}>
+          <i className="ki-filled ki-user me-1.5"></i>
+          Customer
         </div>
       ),
       key: "0",
     },
     {
       label: (
-        <div onClick={() => setIsFollowUpModalOpen(true)}>
-          <i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up
+        <div onClick={() => setIsEventTypeModalOpen(true)}>
+          <i className="ki-filled ki-bank me-1.5"></i>Event Type
         </div>
       ),
       key: "1",
     },
     {
       label: (
-        <div onClick={() => setIsContactModalOpen(true)}>
-          <i className="ki-filled ki-user me-1.5"></i>Contact
+        <div onClick={() => setIsFunctionModal(true)}>
+          <i className="ki-filled ki-bank me-1.5"></i>Function Type
         </div>
       ),
       key: "2",
     },
     {
       label: (
-        <div onClick={() => setIsCompanyModalOpen(true)}>
-          <i className="ki-filled ki-bank me-1.5"></i>Company
+        <div onClick={() => setIsMemberModalOpen(true)}>
+          <i className="ki-filled ki-user me-1.5"></i>Manager
         </div>
       ),
       key: "3",
+    },
+    {
+      label: (
+        <div onClick={() => navigate("/quick-custom-package")}>
+          <i className="ki-filled ki-package me-1.5"></i>Custom Package
+        </div>
+      ),
+      key: "4",
     },
   ];
   return (
@@ -139,21 +140,23 @@ const Breadcrumbs = ({ items }) => {
         </Dropdown>
         {/* End Menu Dropdown */}
       </div>
-      <AddLead
-        isModalOpen={isLeadModalOpen}
-        setIsModalOpen={setIsLeadModalOpen}
+
+      <AddCustomer
+        isModalOpen={isCustomerModal}
+        setIsModalOpen={setisCustomerModal}
       />
-      <AddFollowUp
-        isModalOpen={isFollowUpModalOpen}
-        setIsModalOpen={setIsFollowUpModalOpen}
+      <AddEventType
+        isModalOpen={isEventTypeModalOpen}
+        setIsModalOpen={setIsEventTypeModalOpen}
       />
-      <AddContact
-        isModalOpen={isContactModalOpen}
-        setIsModalOpen={setIsContactModalOpen}
+
+      <AddMember
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
       />
-      <AddCompany
-        isModalOpen={isCompanyModalOpen}
-        setIsModalOpen={setIsCompanyModalOpen}
+      <AddFunctionType
+        isOpen={isFunctionModal}
+        onClose={() => setIsFunctionModal(false)}
       />
     </div>
   );
