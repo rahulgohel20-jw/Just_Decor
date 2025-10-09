@@ -67,6 +67,7 @@ const QuotationPage = () => {
     GetQuotation(eventId)
       .then((res) => {
         const apiData = res?.data?.data?.["Event Functions Quotation Details"];
+        console.log(apiData);
 
         if (apiData && apiData.length > 0) {
           const quotationInfo = apiData[0];
@@ -77,6 +78,7 @@ const QuotationPage = () => {
 
           const mappedData = {
             quotationId: quotationInfo.id,
+            QuotationDate: quotationInfo.createdAt || todayDate,
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             venueName: quotationInfo.event?.venue || "",
@@ -330,6 +332,8 @@ const QuotationPage = () => {
   };
 
   const buildPayload = () => {
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    let Id = userData.id;
     const subtotal = quotationData.functions.reduce((sum, fn) => {
       const total = parseFloat(fn.totalPrice) || 0;
       return sum + total;
@@ -364,11 +368,17 @@ const QuotationPage = () => {
     const totalAmount =
       subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
 
+    const grandTotal =
+      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
     const payments = (quotationData.advancePayments || []).map((p) => ({
       amount: parseFloat(p.amount) || 0,
       date: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
       description: p.description || "",
     }));
+    const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
+      const val = parseFloat(p.amount) || 0;
+      return sum + val;
+    }, 0);
 
     const sumAdvance = payments.reduce((s, p) => s + (p.amount || 0), 0);
     const remainingAmount = Math.max(0, totalAmount - sumAdvance);
@@ -389,7 +399,8 @@ const QuotationPage = () => {
         ratePerPlate: parseFloat(fn.rate) || 0,
         isEventFunction: fn.isFromQuotationItems === true,
       })),
-      grandTotal: parseFloat(totalAmount),
+      subTotal: parseFloat(subtotal),
+      grandTotal: grandTotal,
       cgst: `${cgstPercentage}`,
       cgstAmnt: cgstAmnt,
       sgst: `${sgstPercentage}`,
@@ -399,7 +410,8 @@ const QuotationPage = () => {
       notes: quotationData.notes,
       remainingAmount: remainingAmount,
       roundOff: roundOff,
-      totalAmount: totalAmount,
+      totalAmount: totalPaid,
+      userId: Id,
     };
   };
 
@@ -617,7 +629,7 @@ const QuotationPage = () => {
                     <div className="flex flex-col">
                       <span className="text-xs">Quotation Date:</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {todayDate}
+                        {quotationData.QuotationDate}
                       </span>
                     </div>
                   </div>

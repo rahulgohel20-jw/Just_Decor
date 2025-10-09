@@ -23,10 +23,6 @@ export const MENU_SIDEBAR = [
         title: "Event List",
         path: "/event",
       },
-      {
-        title: "Invoice",
-        path: "/invoice-dashboard",
-      },
     ],
   },
   {
@@ -271,26 +267,19 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Quotation",
-        children: [
-          {
-        title: "Quotation Overview",
         path: "/quotation-dashboard",
-      },
-          { title: "All Quotation", path: "/sales/quotation-list" },
-          // { title: "Quotation", path: "/quotation" }
-        ],
       },
       {
         title: "Invoice",
         children: [
           {
-        title: "Invoice Overview",
-        path: "/invoice-dashboard",
-      },
+            title: "Invoice Overview",
+            path: "/invoice-dashboard",
+          },
           { title: "All Invoice", path: "/sales/invoice-list" },
           // { title: "Invoice", path: "/add-invoice" }
         ],
-      }
+      },
     ],
   },
   {
