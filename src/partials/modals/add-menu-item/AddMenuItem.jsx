@@ -51,6 +51,7 @@ const AddMenuItem = ({
   const [contactCategories, setContactCategories] = useState([]);
   const [units, setUnits] = useState([]);
   const [contactNames, setContactNames] = useState([]);
+  const [chefContactNames, setChefContactNames] = useState([]);
   const [allocationConfig, setAllocationConfig] = useState({
     locationType: "venue",
     quantityPer100Person: "",
@@ -148,11 +149,11 @@ const AddMenuItem = ({
             id: item.id,
             name: item.nameEnglish || "-",
           })) || [];
-        setContactNames(names);
+        setChefContactNames(names);
       })
       .catch((err) => {
         console.error("Error fetching contact names:", err);
-        setContactNames([]);
+        setChefContactNames([]);
       });
   }, []);
 
@@ -209,7 +210,6 @@ const AddMenuItem = ({
       })
       .catch((error) => console.error("Error uploading image:", error));
   };
-  console.log(tableData);
 
   const handleSubmit = () => {
     const userData = JSON.parse(localStorage.getItem("userData"));
@@ -698,13 +698,13 @@ const AddMenuItem = ({
                   onChange={(e) =>
                     setAllocationConfig({
                       ...allocationConfig,
-                      contactName: e.target.value,
+                      contactNameId: e.target.value,
                     })
                   }
                 >
                   <option value="">Select Contact Name</option>
-                  {contactNames.map((item, index) => (
-                    <option key={index} value={item.name}>
+                  {chefContactNames.map((item) => (
+                    <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}

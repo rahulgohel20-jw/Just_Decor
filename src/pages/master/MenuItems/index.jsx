@@ -43,7 +43,7 @@ const MenuItems = () => {
               slogan: item.slogan || "-",
               price: item.price || "-",
               priority: item.sequence || "-",
-              image: item.imagePath?.replace("jcupload", "uploads") || "",
+              image: item.imagePath || "",
               status: item.isActive,
             }));
           setTableData(formatted);

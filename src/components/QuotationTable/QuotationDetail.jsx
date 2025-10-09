@@ -1,13 +1,19 @@
-import { Button, Table, Upload } from "antd";
+import { Button, Table } from "antd";
 import { useState, useEffect } from "react";
 import { SettingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { GetQuotation } from "@/services/apiServices";
+import { useNavigate } from "react-router-dom";
 
 const QuotationDetail = ({ Eventid }) => {
-  console.log(Eventid);
-
+  const navigate = useNavigate();
   const { EventId } = useParams();
+  const [eventData, setEventData] = useState([]);
+  const [invoiceInfo, setInvoiceInfo] = useState({});
+  const [gstInfo, setGstInfo] = useState({});
+  const [functionData, setFunctionData] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [subTotal, setSubTotal] = useState(0);
 
   const columns = [
     { title: "Function", dataIndex: "function", key: "function" },
@@ -18,28 +24,24 @@ const QuotationDetail = ({ Eventid }) => {
     { title: "Amount", dataIndex: "amount", key: "amount" },
   ];
 
-  const [eventData, setEventData] = useState([]);
-  const [invoiceInfo, setInvoiceInfo] = useState({});
-  const [gstInfo, setGstInfo] = useState({});
-  const [functionData, setFunctionData] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [subTotal, setSubTotal] = useState(0);
-  const fetchEventData = async () => {
+  const fetchEventData = async (id) => {
+    if (!id) return;
     try {
-      const response = await GetQuotation(EventId);
-      console.log(response, "quotation data");
-
+      const response = await GetQuotation(id);
       const data = response?.data?.data;
       const quotationDetails = data?.["Event Functions Quotation Details"]?.[0];
+      console.log(quotationDetails);
 
       if (quotationDetails) {
         setSubTotal(quotationDetails?.subTotal || 0);
-
         setTotalAmount(quotationDetails?.grandTotal || 0);
+
         setInvoiceInfo({
           quotationNumber: quotationDetails?.quotationCode || "-",
           customerName: quotationDetails?.event?.party?.nameEnglish || "-",
-          Address: quotationDetails?.event?.party?.addressEnglish,
+          Address: quotationDetails?.event?.party?.addressEnglish || "-",
+          notes: quotationDetails?.notes || "",
+          discount: quotationDetails?.discount || 0,
           quotationDate: quotationDetails?.createdAt
             ? new Date(quotationDetails.createdAt).toLocaleDateString("en-GB")
             : "-",
@@ -84,9 +86,15 @@ const QuotationDetail = ({ Eventid }) => {
 
   useEffect(() => {
     if (EventId) {
-      fetchEventData();
+      fetchEventData(EventId);
     }
   }, [EventId]);
+
+  useEffect(() => {
+    if (Eventid) {
+      fetchEventData(Eventid);
+    }
+  }, [Eventid]);
 
   return (
     <div className="bg-white rounded-2xl shadow-lg max-w-5xl mx-auto border border-gray-100 overflow-hidden">
@@ -102,6 +110,7 @@ const QuotationDetail = ({ Eventid }) => {
           <Button
             icon={<SettingOutlined />}
             className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all"
+            onClick={() => navigate(`/quotation/${Eventid || EventId}`)}
           >
             Customize
           </Button>
@@ -120,7 +129,7 @@ const QuotationDetail = ({ Eventid }) => {
             <span className="font-medium">{invoiceInfo.quotationDate}</span>
           </p>
           <p className="flex justify-between mb-1">
-            <span className="text-gray-500">Terms</span>
+            <span className="text-gray-500">Due Date</span>
             <span className="font-medium">{invoiceInfo.terms}</span>
           </p>
           <p className="flex justify-between mb-1">
@@ -133,10 +142,6 @@ const QuotationDetail = ({ Eventid }) => {
           <p className="flex justify-between mb-1">
             <span className="text-gray-500">GST Number</span>
             <span className="font-medium">{gstInfo.gstNumber}</span>
-          </p>
-          <p className="flex justify-between mb-1">
-            <span className="text-gray-500">GST Treatment</span>
-            <span className="font-medium">{gstInfo.gstTreatment}</span>
           </p>
         </div>
       </div>
@@ -164,12 +169,11 @@ const QuotationDetail = ({ Eventid }) => {
           </p>
           <p className="mt-4">
             <strong>Notes:</strong> <br />
-            Thanks for your business.
+            {invoiceInfo.notes}
           </p>
           <p className="mt-4 text-xs text-gray-500 leading-relaxed">
             <strong>Terms & Conditions:</strong> <br />
-            Your company’s Terms and Conditions will appear here. You can edit
-            them in the Invoice Preferences under Settings.
+            Your company’s Terms and Conditions will appear here.
           </p>
         </div>
 
@@ -186,21 +190,20 @@ const QuotationDetail = ({ Eventid }) => {
             </div>
             <div className="flex justify-between mb-1">
               <span className="text-gray-500">SGST {gstInfo.sgst} %</span>
-              <span>₹{gstInfo.sgstAmnt} </span>
+              <span>₹{gstInfo.sgstAmnt}</span>
             </div>
             <div className="flex justify-between mb-1">
               <span className="text-gray-500"> IGST {gstInfo.igst} %</span>
-              <span>₹{gstInfo.igstAmnt} </span>
+              <span>₹{gstInfo.igstAmnt}</span>
+            </div>
+            <div className="flex justify-between mb-1">
+              <span className="text-gray-500"> Discount </span>
+              <span>₹{invoiceInfo.discount}</span>
             </div>
             <div className="flex justify-between font-bold text-[#005BA8] text-base">
               <span>Total</span>
               <span>₹ {totalAmount}</span>
             </div>
-            <div className="border-t mt-4 border-gray-200"></div>
-          </div>
-
-          <div className="mt-8 text-center text-xs text-gray-500">
-            Authorized Signature
           </div>
         </div>
       </div>

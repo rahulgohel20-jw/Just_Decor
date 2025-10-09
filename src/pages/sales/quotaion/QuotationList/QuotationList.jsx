@@ -19,7 +19,7 @@ export default function QuotationViewPage() {
         <Breadcrumbs items={[{ title: "Quotation" }]} />
       </div>
       <div className="p-4 flex">
-        <QuotationList onSelectEvent={(id) => setSelectedEventId(id)} />
+        <QuotationList onEventSelect={setSelectedEventId} />
 
         <div className="p-4 flex flex-col gap-4 items-center w-full">
           <div className="flex items-center justify-between gap-2 w-full">
@@ -28,10 +28,10 @@ export default function QuotationViewPage() {
 
           <div className="flex items-center  w-full gap-8  ps-4">
             <Button
-              icon={<EditOutlined className="text-danger" />}
-              className="rounded-lg border font-bold  text-danger w-[110px]"
+              icon={<EditOutlined className="text-success" />}
+              className="rounded-lg border font-bold  text-success w-[130px]"
             >
-              Delete
+              Clone Invoice
             </Button>
 
             <Button
