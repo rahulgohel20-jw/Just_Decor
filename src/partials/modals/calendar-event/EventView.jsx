@@ -174,7 +174,7 @@ const EventViewModal = ({
               {
                 label: "Menu Allocation",
                 icon: "/media/eventviewicon/menuallocation.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/menu-allocation`),
               },
               {
                 label: "Raw Material Allocation",
