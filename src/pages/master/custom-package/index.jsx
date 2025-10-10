@@ -14,7 +14,6 @@ const CustomPackageMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Fetch Custom Packages from API
   const fetchPackages = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -31,6 +30,7 @@ const CustomPackageMaster = () => {
           packageid: pkg.id,
           package_name: pkg.nameEnglish,
           price: pkg.price,
+          total_items: pkg.customPackageDetails?.length || 0,
           sequence: pkg.sequence,
           isActive: pkg.isActive,
           raw: pkg,
@@ -45,15 +45,13 @@ const CustomPackageMaster = () => {
     }
   };
 
-  // ✅ Load data on component mount
   useEffect(() => {
     fetchPackages();
   }, []);
 
-  // ✅ Search filter
   useEffect(() => {
     if (!searchQuery.trim()) {
-      fetchPackages(); // re-fetch full list if search is cleared
+      fetchPackages();
     } else {
       setTableData((prev) =>
         prev.filter((pkg) =>
@@ -63,7 +61,6 @@ const CustomPackageMaster = () => {
     }
   }, [searchQuery]);
 
-  // ✅ Delete handler (API integration can be added here)
   const deletePackage = (packageid) => {
     Swal.fire({
       title: "Are you sure?",
@@ -88,12 +85,12 @@ const CustomPackageMaster = () => {
     });
   };
 
-  // ✅ Edit handler
-  const handleEdit = (pkg) => {
-    navigate(`/master/custom-package/addpackage?id=${pkg.packageid}`);
+  // ✅ FIXED: Receives id (number), not object
+  const handleEdit = (id) => {
+    console.log("✅ Navigating to edit page with id:", id);
+    navigate(`/master/custom-package/addpackage?id=${id}`);
   };
 
-  // ✅ Status handler
   const statusHandler = (id, status) => {
     const updated = tableData.map((pkg) =>
       pkg.packageid === id ? { ...pkg, isActive: status === 1 } : pkg
@@ -105,12 +102,10 @@ const CustomPackageMaster = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Custom Package Master" }]} />
         </div>
 
-        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}>
             <div className="filItems relative">
@@ -135,7 +130,6 @@ const CustomPackageMaster = () => {
           </div>
         </div>
 
-        {/* Table */}
         <TableComponent
           columns={columns(handleEdit, deletePackage, statusHandler)}
           data={tableData}

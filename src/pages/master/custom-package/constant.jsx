@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Popconfirm, Tooltip } from "antd";
 
-// ✅ TanStack v8 compatible columns
+// ✅ Use onEdit callback instead of navigate
 export const columns = (onEdit, onDelete, onStatusChange) => [
   {
     accessorKey: "sr_no",
@@ -38,32 +38,53 @@ export const columns = (onEdit, onDelete, onStatusChange) => [
     ),
     size: 120,
   },
- {
+  {
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
+      // ✅ Comprehensive debugging
+     
+      
+      const packageId = row.original.packageid;
+      
       return (
         <div className="flex items-center gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Contact">
+          <Tooltip className="cursor-pointer" title="Edit Package">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
-              onClick={() => onEdit(row.original)}
+              onClick={() => {
+                console.log("📝 Edit clicked! packageId:", packageId);
+                console.log("📝 Type of packageId:", typeof packageId);
+                if (packageId === undefined || packageId === null) {
+                  console.error("❌ Package ID is undefined/null!");
+                  console.error("Full row.original:", JSON.stringify(row.original, null, 2));
+                  alert("Error: Package ID is missing. Check console for details.");
+                  return;
+                }
+                onEdit(packageId);
+              }}
             >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
           <Tooltip title="Delete">
-            {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
-              onClick={() => onDelete(row.original.contacttypeid)}
+              onClick={() => {
+                console.log("🗑️ Delete clicked! packageId:", packageId);
+                if (packageId === undefined || packageId === null) {
+                  console.error("❌ Package ID is undefined/null!");
+                  alert("Error: Package ID is missing. Check console for details.");
+                  return;
+                }
+                onDelete(packageId);
+              }}
             >
-              <i className="ki-filled ki-trash  text-danger"></i>
+              <i className="ki-filled ki-trash text-danger"></i>
             </button>
-            {/* </Link> */}
           </Tooltip>
         </div>
       );

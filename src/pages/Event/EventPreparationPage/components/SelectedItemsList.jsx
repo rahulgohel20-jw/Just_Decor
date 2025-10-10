@@ -724,7 +724,15 @@ const DraggableCategory = ({
     <span className="text-xs text-gray-500">(Any {numberOfItems})</span>
   ) : null}
 </div>
-
+ <Tooltip title="11:20 AM">
+            <button className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+              <img
+                className="w-3.5 h-3.5   shadow"
+                src={toAbsoluteUrl("/media/menu/clock.png")}
+                alt="profile"
+              />
+            </button>
+          </Tooltip>
           <Tooltip title="Category Notes">
             <button
               className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
