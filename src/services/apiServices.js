@@ -152,6 +152,9 @@ export const GetAllRawMaterial = (Id) => {
     `rawmaterial/getallbyuserid?rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
+export const DeleteRole = (Id) => {
+  return DELETE(`/rolemaster/deletebyid?id=${Id}`);
+};
 
 export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);

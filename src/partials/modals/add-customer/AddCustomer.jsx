@@ -8,6 +8,7 @@ import {
   Translateapi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
+import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 
 const AddCustomer = ({
   isModalOpen,
@@ -23,6 +24,7 @@ const AddCustomer = ({
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -447,6 +449,7 @@ const AddCustomer = ({
                 <button
                   type="button"
                   className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none"
+                  onClick={() => setIsContactModalOpen(true)}
                 >
                   +
                 </button>
@@ -606,6 +609,11 @@ const AddCustomer = ({
           </div>
         </div>
       </div>
+      <AddContactCategory
+        isOpen={isconatctModalOpen}
+        onClose={setIsContactModalOpen}
+        refreshData={fetchCategories}
+      />
     </div>
   );
 };

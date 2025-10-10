@@ -40,14 +40,14 @@ const HeaderTopbar = () => {
       >
         Upgrade
       </button>
-      <button
+      {/* <button
         onClick={() => setCheckInModal(true)}
         className="btn btn-sm btn-success"
         title="Check In"
       >
         <i className="ki-filled ki-face-id me-0.5"></i>
         Check In
-      </button>
+      </button> */}
       <div className="fixed left-0 right-0 bottom-10 flex justify-center justify-center md:static">
         <div className="flex items-center gap-2 lg:gap-3 shadow-lg md:shadow-none py-3 md:py-0 px-7 md:px-0 rounded-full md:rounded-0 bg-white md:bg-transparent border md:border-0">
           <button
@@ -84,8 +84,9 @@ const HeaderTopbar = () => {
               })}
             </MenuItem>
           </Menu>
+
           {/* Mail */}
-          <Menu>
+          {/* <Menu>
             <MenuItem
               ref={itemNotificationsRef}
               toggle="dropdown"
@@ -109,7 +110,7 @@ const HeaderTopbar = () => {
                 menuTtemRef: itemNotificationsRef,
               })}
             </MenuItem>
-          </Menu>
+          </Menu> */}
           {/* Notifications */}
           <Menu>
             <MenuItem

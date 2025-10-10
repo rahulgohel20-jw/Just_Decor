@@ -45,6 +45,8 @@ const MenuItems = () => {
               priority: item.sequence || "-",
               image: item.imagePath || "",
               status: item.isActive,
+              rawdata: item.menuItemRawMaterials || [],
+              menuAllocation: item.menuItemAllocationConfigs || [],
             }));
           setTableData(formatted);
         } else {
@@ -136,7 +138,10 @@ const MenuItems = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsItemModalOpen(true)}
+              onClick={() => {
+                setSelectedMenuItem(null);
+                setIsItemModalOpen(true);
+              }}
               title="Add Item"
             >
               <i className="ki-filled ki-plus"></i> Add Item
