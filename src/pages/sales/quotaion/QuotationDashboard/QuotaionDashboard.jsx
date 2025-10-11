@@ -1,16 +1,15 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import useStyles from "./style";
 import { columns, defaultData } from "./constant";
 import InvoiceTable from "@/components/InvoiceTable/InvoiceTable";
-import { useNavigate } from "react-router-dom";
 import { CommonHexagonBadge } from "@/partials/common";
+import { GetAllQuotation } from "@/services/apiServices";
 import { toAbsoluteUrl } from "@/utils";
 const QuotationDashboard = () => {
-  const navigate = useNavigate();
-  const classes = useStyles();
   const [tableData, setTableData] = useState(defaultData);
+  const user = JSON.parse(localStorage.getItem("userData"));
+  const userId = user?.id || 0;
   const steps = [
     {
       title: "Total Outstanding Receivable",
@@ -39,10 +38,38 @@ const QuotationDashboard = () => {
       icon: <i className="ki-filled ki-timer text-xl text-primary"></i>,
     },
   ];
+  const fetchQuotations = async () => {
+    const response = await GetAllQuotation(userId);
 
-  const handleAddInvoice = () => {
-    navigate("/add-invoice");
+    const data = response?.data?.data["Event Functions Quotation Details"].map(
+      (quotation, index) => {
+        return {
+          Invoice: index + 1,
+          EventId: quotation?.event?.id || "-",
+          CustomerName: quotation?.event?.party?.nameEnglish || "-",
+          PartyId: quotation?.event?.party?.id || "-",
+          Eventname: quotation?.event?.eventType?.nameEnglish || "-",
+          eventDate: quotation?.event?.eventStartDateTime
+            ? new Date(quotation.event.eventStartDateTime).toLocaleDateString(
+                "en-GB",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }
+              )
+            : "-",
+          QuotationDate: quotation?.createdAt || "-",
+          Amount: quotation?.totalAmount || "-",
+          BalanceDue: quotation?.remainingAmount || "-",
+        };
+      }
+    );
+    setTableData(data || []);
   };
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
   return (
     <Fragment>
       <style>
@@ -60,18 +87,7 @@ const QuotationDashboard = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Quotation Overview" }]} />
         </div>
-        {/* filters */}
-        {/* <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
-          <div className="filItems relative">
-            <button
-              className="btn btn-primary"
-              onClick={handleAddInvoice}
-              title=" Add Invoice"
-            >
-              <i className="ki-filled ki-plus"></i> Add Invoice
-            </button>
-          </div>
-        </div> */}
+
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div
