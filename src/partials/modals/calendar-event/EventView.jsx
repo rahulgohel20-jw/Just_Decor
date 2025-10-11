@@ -17,6 +17,7 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
+  const eventTypeId = eventDataAll?.eventTypeId ?? null;
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
@@ -179,7 +180,12 @@ const EventViewModal = ({
               {
                 label: "Raw Material Allocation",
                 icon: "/media/eventviewicon/rawmaterial.png",
-                onClick: () => navigate("/raw-material-allocation"),
+                onClick: () => navigate("/raw-material-allocation", {
+                  state: {
+                    eventId: safeEventId,
+                    eventTypeId: eventTypeId
+                  }
+                }),
               },
               {
                 label: "Labour / Other Management",

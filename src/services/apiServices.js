@@ -168,6 +168,30 @@ export const GetAllQuotation = (id) => {
   return GET(`/quotation/getalluserid?userid=${id}`);
 };
 
+
+// Get All Supllier Vendors
+
+export const GetAllSupllierVendors = (Id) => {
+  return GET(`/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`);
+};
+
+
+
+//Raw Material Allocation
+export const GetAllRawMaterialAllocationCategory = (eventId) => {
+  return GET(`/rawmaterialcategory/getbyeventid?eventId=${eventId}`);
+};
+
+export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
+  return GET(
+    `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
+  );
+}
+
+export const RawMaterialAllocation = (data) => {
+  return POST("/event-raw-material/add-update", data);
+};
+
 //Add Meal Type
 export const AddMealType = (data) => {
   return POST("/mealtype/add", data);

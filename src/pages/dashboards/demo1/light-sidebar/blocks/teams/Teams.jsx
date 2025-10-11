@@ -7,184 +7,199 @@ import axios from 'axios';
 import { formatIsoDate } from '@/utils/Date';
 import { TeamUsers } from './TeamUsers';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
 const Teams = () => {
+  // Default mock data
+  const defaultData = [
+    {
+      id: 1,
+      name: 'Zainab Tatariya',
+      phone: '8209792623',
+      is_active: true,
+      created_at: '2025-05-15T00:00:00Z'
+    },
+    {
+      id: 2,
+      name: 'Zainab Tatariya',
+      phone: '8209792623',
+      is_active: false,
+      created_at: '2025-05-15T00:00:00Z'
+    },
+    {
+      id: 3,
+      name: 'Zainab Tatariya',
+      phone: '8209792623',
+      is_active: true,
+      created_at: '2025-05-15T00:00:00Z'
+    },
+    {
+      id: 4,
+      name: 'Zainab Tatariya',
+      phone: '8209792623',
+      is_active: true,
+      created_at: '2025-05-15T00:00:00Z'
+    },
+    {
+      id: 5,
+      name: 'Zainab Tatariya',
+      phone: '8209792623',
+      is_active: true,
+      created_at: '2025-05-15T00:00:00Z'
+    }
+  ];
+
   const ColumnFilter = ({
     column
   }) => {
     const [inputValue, setInputValue] = useState(column.getFilterValue() ?? '');
     const handleKeyDown = event => {
       if (event.key === 'Enter') {
-        column.setFilterValue(inputValue); // Apply the filter only on Enter
+        column.setFilterValue(inputValue);
       }
     };
     const handleChange = event => {
-      setInputValue(event.target.value); // Update local state
+      setInputValue(event.target.value);
     };
-    return <Input placeholder="Filter..." value={inputValue} onChange={handleChange} onKeyDown={handleKeyDown} // Trigger filter on Enter key
-    className="h-9 w-full max-w-40" />;
+    return <Input placeholder="Filter..." value={inputValue} onChange={handleChange} onKeyDown={handleKeyDown} className="h-9 w-full max-w-40" />;
   };
+  
   const columns = useMemo(() => [{
-    accessorKey: 'id',
-    accessorFn: row => row.id,
-    header: () => <DataGridRowSelectAll />,
-    cell: ({
-      row
-    }) => <DataGridRowSelect row={row} />,
+    accessorFn: (row, index) => index + 1,
+    id: 'srNo',
+    header: () => 'Sr. no.',
     enableSorting: false,
     enableHiding: false,
+    cell: ({row, table}) => {
+      const pageIndex = table.getState().pagination.pageIndex;
+      const pageSize = table.getState().pagination.pageSize;
+      return pageIndex * pageSize + row.index + 1;
+    },
     meta: {
-      headerClassName: 'w-0'
+      headerClassName: 'w-20'
     }
   }, {
     accessorFn: row => row.name,
     id: 'name',
     header: ({
       column
-    }) => <DataGridColumnHeader title="Team" filter={<ColumnFilter column={column} />} column={column} />,
+    }) => <DataGridColumnHeader title="Name" filter={<ColumnFilter column={column} />} column={column} />,
     enableSorting: true,
-    cell: info => <div className="flex flex-col gap-2">
-            <Link className="leading-none font-medium text-sm text-gray-900 hover:text-primary" to="#">
-              {info.row.original.name}
-            </Link>
-            <span className="text-2sm text-gray-700 font-normal leading-3">
-              {info.row.original.description}
-            </span>
-          </div>,
+    cell: info => <span className="text-sm text-gray-900">{info.row.original.name}</span>,
     meta: {
-      headerClassName: 'min-w-[280px]'
+      headerClassName: 'min-w-[180px]'
     }
   }, {
-    accessorFn: row => row.rating,
-    id: 'rating',
+    accessorFn: row => row.phone,
+    id: 'phone',
     header: ({
       column
-    }) => <DataGridColumnHeader title="Rating" column={column} />,
-    enableSorting: true,
-    cell: info => <CommonRating rating={Math.floor(info.row.original.rating)} round={info.row.original.rating % 1} />,
-    meta: {
-      className: 'min-w-[135px]'
-    }
-  }, {
-    accessorFn: row => row.updated_at,
-    id: 'updated_at',
-    enableSorting: true,
-    enableHiding: false,
-    header: ({
-      column
-    }) => <DataGridColumnHeader title="Last Modified" column={column} />,
-    cell: info => formatIsoDate(info.row.original.updated_at),
-    meta: {
-      className: 'min-w-[135px]'
-    }
-  }, {
-    accessorFn: row => row.users,
-    id: 'users',
-    header: () => 'Members',
+    }) => <DataGridColumnHeader title="Phone no." column={column} />,
     enableSorting: false,
-    enableHiding: true,
-    cell: info => <TeamUsers users={info.row.original.users} />,
+    cell: info => <span className="text-sm text-gray-700">{info.row.original.phone || 'N/A'}</span>,
     meta: {
-      className: 'min-w-[135px]'
+      className: 'min-w-[150px]'
+    }
+  }, {
+    accessorFn: row => row.is_active,
+    id: 'is_active',
+    header: ({
+      column
+    }) => <DataGridColumnHeader title="Active User" column={column} />,
+    enableSorting: true,
+    cell: info => {
+      const isActive = info.row.original.is_active;
+      return (
+        <span className={`text-sm font-medium ${isActive ? 'text-green-600' : 'text-red-600'}`}>
+          {isActive ? 'Active' : 'Deactive'}
+        </span>
+      );
+    },
+    meta: {
+      className: 'min-w-[120px]'
+    }
+  }, {
+    accessorFn: row => row.created_at,
+    id: 'created_at',
+    enableSorting: true,
+    header: ({
+      column
+    }) => <DataGridColumnHeader title="Date" column={column} />,
+    cell: info => <span className="text-sm text-gray-600">{formatIsoDate(info.row.original.created_at)}</span>,
+    meta: {
+      className: 'min-w-[120px]'
     }
   }], []);
-  const [searchQuery, setSearchQuery] = useState('');
-  const fetchTeams = async params => {
-    try {
-      const queryParams = new URLSearchParams();
-      queryParams.set('page', String(params.pageIndex + 1)); // Page is 1-indexed on server
-      queryParams.set('items_per_page', String(params.pageSize));
-      if (params.sorting?.[0]?.id) {
-        queryParams.set('sort', params.sorting[0].id);
-        queryParams.set('order', params.sorting[0].desc ? 'desc' : 'asc');
-      }
-      if (searchQuery.trim().length > 0) {
-        queryParams.set('query', searchQuery);
-      }
 
-      // Column filters
-      if (params.columnFilters) {
-        params.columnFilters.forEach(({
-          id,
-          value
-        }) => {
-          if (value !== undefined && value !== null) {
-            queryParams.set(`filter[${id}]`, String(value)); // Properly serialize filter values
-          }
-        });
+  const handleDownload = () => {
+    toast('Download Started', {
+      description: 'Teams data is being downloaded...',
+      action: {
+        label: 'Ok',
+        onClick: () => console.log('Ok')
       }
-      const response = await axios.get(`${import.meta.env.VITE_APP_API_URL}/teams/query?${queryParams.toString()}`);
-      return {
-        data: response.data.data,
-        // Server response data
-        totalCount: response.data.pagination.total // Total count for pagination
-      };
-    } catch (error) {
-      toast(`Connection Error`, {
-        description: `An error occurred while fetching data. Please try again later`,
-        action: {
-          label: 'Ok',
-          onClick: () => console.log('Ok')
-        }
-      });
-      return {
-        data: [],
-        totalCount: 0
-      };
-    }
+    });
   };
-  const handleRowSelection = state => {
-    const selectedRowIds = Object.keys(state);
-    if (selectedRowIds.length > 0) {
-      toast(`Total ${selectedRowIds.length} are selected.`, {
-        description: `Selected row IDs: ${selectedRowIds}`,
-        action: {
-          label: 'Undo',
-          onClick: () => console.log('Undo')
-        }
-      });
-    }
-  };
-  const Toolbar = ({
-    setSearchQuery
-  }) => {
-    const [inputValue, setInputValue] = useState(searchQuery);
+  
+  const Toolbar = () => {
+    const [inputValue, setInputValue] = useState('');
     const {
       table
     } = useDataGrid();
+    
     const handleKeyDown = e => {
       if (e.key === 'Enter') {
-        setSearchQuery(inputValue);
         if (inputValue.trim() === '') {
-          // Remove the 'query' filter if input is empty
-          table.setColumnFilters(table.getState().columnFilters.filter(filter => filter.id !== 'query') // Exclude the filter with id 'query'
-          );
+          table.setGlobalFilter('');
         } else {
-          // Add or update the 'query' filter
-          table.setColumnFilters([...table.getState().columnFilters.filter(filter => filter.id !== 'query'),
-          // Remove existing 'query' filter
-          {
-            id: 'query',
-            value: inputValue
-          } // Add the new filter
-          ]);
+          table.setGlobalFilter(inputValue);
         }
       }
     };
+    
     const handleChange = event => {
-      setInputValue(event.target.value); // Update local state
+      setInputValue(event.target.value);
     };
+    
     return <div className="card-header border-b-0 px-5">
         <h3 className="card-title">Teams</h3>
-        <div className="input input-sm max-w-48">
-          <KeenIcon icon="magnifier" />
-          <input type="text" placeholder="Search Teams" value={inputValue} onChange={handleChange} onKeyDown={handleKeyDown} />
+        <div className="flex items-center gap-2">
+          <div className="input input-sm max-w-48">
+            <KeenIcon icon="magnifier" />
+            <input 
+              type="text" 
+              placeholder="Search Teams" 
+              value={inputValue} 
+              onChange={handleChange} 
+              onKeyDown={handleKeyDown} 
+            />
+          </div>
+          <Button 
+            size="sm" 
+            variant="light"
+            onClick={handleDownload}
+            className="flex items-center gap-2"
+          >
+            <KeenIcon icon="exit-down" />
+            Download
+          </Button>
         </div>
       </div>;
   };
-  return <DataGrid columns={columns} serverSide={true} onFetchData={fetchTeams} rowSelection={true} getRowId={row => row.id} onRowSelectionChange={handleRowSelection} pagination={{
-    size: 5
-  }} toolbar={<Toolbar setSearchQuery={setSearchQuery} />} layout={{
-    card: true
-  }} />;
+  
+  return <DataGrid 
+    columns={columns} 
+    data={defaultData}
+    rowSelection={false} 
+    getRowId={row => row.id} 
+    pagination={{
+      size: 5
+    }} 
+    toolbar={<Toolbar />} 
+    layout={{
+      card: true
+    }} 
+  />;
 };
+
 export { Teams };
