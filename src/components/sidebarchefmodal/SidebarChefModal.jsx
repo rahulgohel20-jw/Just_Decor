@@ -26,7 +26,7 @@ const BaseSelect = (props) => (
   </select>
 );
 
-export default function SidebarModal({ open, onClose }) {
+export default function SidebarChefModal({ open, onClose }) {
   const [rowCount, setRowCount] = useState(6);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function SidebarModal({ open, onClose }) {
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[1200px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
               initial={{ x: "110%" }}
               animate={{ x: 0 }}
               exit={{ x: "110%" }}
@@ -108,7 +108,7 @@ export default function SidebarModal({ open, onClose }) {
                       className="btn btn-sm btn-primary w-[100px] flex justify-center"
                       title="Share"
                     >
-                      Outside
+                      Chef Labour
                     </button>
                   </div>
                 </div>
@@ -117,19 +117,19 @@ export default function SidebarModal({ open, onClose }) {
                     className="btn btn-sm btn-primary w-[100px] flex justify-center"
                     title="Share"
                   >
-                    Add
+                    Add Row
                   </button>
                 </div>
 
                 {/* TABLE */}
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* header */}
-                  <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
+                  <div className="grid grid-cols-[64px_1fr_1fr_1fr_1fr_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
                     <div>No.</div>
-                    <div className="ml-3">Contact Name</div>
-                    <div>Price</div>
+                    <div className="ml-2">Contact Name</div>
+                    <div className="">Type</div>
                     <div>Quantity</div>
-                    <div>Unit</div>
+                    <div>Price</div>
                     <div>Total Price</div>
                     <div className="text-center">Action</div>
                   </div>
@@ -138,7 +138,7 @@ export default function SidebarModal({ open, onClose }) {
                   {Array.from({ length: rowCount }).map((_, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
+                      className="grid grid-cols-[64px_1fr_1fr_1fr_1fr_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
                     >
                       <div className="text-[13px] text-gray-700 ">
                         {idx + 1}.
@@ -146,27 +146,28 @@ export default function SidebarModal({ open, onClose }) {
 
                       <div>
                         <BaseSelect defaultValue="">
-                          <option value="">Input Text</option>
+                          <option value="">Select Name</option>
                           <option>Ajay</option>
                           <option>Neha</option>
                           <option>Ravi</option>
                         </BaseSelect>
                       </div>
-
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
-                      </div>
-
-                      <div>
-                        <BaseInput type="number" placeholder=" Number" />
-                      </div>
-
-                      <div>
-                        <BaseSelect defaultValue="Nos">
-                          {["Nos", "Kg", "Ltr", "Pack"].map((u) => (
-                            <option key={u}>{u}</option>
-                          ))}
+                        <BaseSelect defaultValue="">
+                          <option value="">Select Options</option>
+                          <option>Counter Wise</option>
+                          <option>Plate wise</option>
                         </BaseSelect>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <BaseInput type="number" placeholder=" counter" />
+                        <BaseInput type="number" placeholder=" Helper" />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <BaseInput type="number" placeholder=" Counter" />
+                        <BaseInput type="number" placeholder=" Helper" />
                       </div>
 
                       <div>
