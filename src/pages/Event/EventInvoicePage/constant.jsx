@@ -55,7 +55,7 @@ export const columns = [
       return (
         <div className="flex items-center gap-2">
           <Tooltip title="View">
-            <Link to={`/sales/quotation-list/${PartyId}/${eventId}`}>
+            <Link to={`/sales/invoice-list`}>
               <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 title="View"
