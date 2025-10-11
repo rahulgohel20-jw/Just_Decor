@@ -3,7 +3,8 @@ import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { 
   GetAllSupllierVendors, 
-  GetAllRawMaterialAllocationItems
+  GetAllRawMaterialAllocationItems,
+  RawMaterialAllocation
 } from "@/services/apiServices";
 
 const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
@@ -12,6 +13,7 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   const [expandedRows, setExpandedRows] = useState({});
   const [agencies, setAgencies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Fetch agencies from API
   useEffect(() => {
@@ -21,7 +23,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         const storedUser = JSON.parse(localStorage.getItem("userData"));
         const userId = storedUser?.id;
         const response = await GetAllSupllierVendors(userId);
-        console.log("API Response:", response?.data?.data?.["Party Details"]);
         if (response?.data?.data?.["Party Details"]) {
           setAgencies(response?.data?.data?.["Party Details"]);
         }
@@ -34,18 +35,22 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     fetchAgencies();
   }, []);
 
-  // Fetch raw material items when categoryId or eventTypeId changes
+  // Fetch raw material items when categoryId or eventId changes
   useEffect(() => {
-    if (categoryId && eventTypeId) {
-      fetchRawMaterialItems(categoryId, eventTypeId);
+    if (categoryId && eventId) {
+      console.log("Fetching raw materials for categoryId:", categoryId, "eventId:", eventId);
+      fetchRawMaterialItems(categoryId, eventId);
     }
-  }, [categoryId, eventTypeId]);
+  }, [categoryId, eventId]);
 
-  const fetchRawMaterialItems = async (categoryId, eventTypeId) => {
+  const fetchRawMaterialItems = async (categoryId, eventId) => {
     setLoading(true);
+    setTableData([]);
+    setExpandedRows({});
     try {
       const response = await GetAllRawMaterialAllocationItems(categoryId, eventId);
       console.log("Raw Material API Response:", response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]);
+      
       if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
         const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
         if (Array.isArray(rawData)) {
@@ -54,6 +59,8 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
           console.error("API response is not an array:", rawData);
           setTableData([]);
         }
+      } else {
+        setTableData([]);
       }
     } catch (error) {
       console.error("Error fetching raw material items:", error);
@@ -80,6 +87,72 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     const qty = parseFloat(row.finalQty) || 0;
     const pricePerUnit = parseFloat(row.totalprice) || 0;
     return (qty * pricePerUnit).toFixed(2);
+  };
+
+  // Helper function to get supplier ID by name
+  const getSupplierIdByName = (supplierName) => {
+    if (!supplierName) return 0;
+    const agency = agencies.find(
+      (a) => (a.nameEnglish || a.name) === supplierName
+    );
+    return agency?.id || 0;
+  };
+
+  // Save function
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      // Transform tableData to match the API structure
+      const eventRawMaterial = tableData.map((item) => {
+        // Transform eventRawMaterialFunctions to eventRawMatFunctions
+        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((func) => ({
+          eventFunctionId: func.eventFunctionId || 0,
+          functionId: func.functionId || 0,
+          functiondatetime: func.date_time || "",
+          itemName: func.itemName || "",
+          place: func.place || "",
+          price: parseFloat(func.price) || 0,
+          qty: parseFloat(func.qty) || 0,
+          supplierId: getSupplierIdByName(func.agency),
+          unitId: func.unitId || 1 // Default to 1 if not provided
+        }));
+
+        return {
+          eventRawMatFunctions: eventRawMatFunctions,
+          finalQty: parseFloat(item.finalQty) || 0,
+          place: item.place || "",
+          qty: parseFloat(item.qty) || 0,
+          rawMaterialId: item.rawMaterialId || item.id || 0,
+          supplierId: getSupplierIdByName(item.supplierName),
+          totalprice: parseFloat(item.totalprice) || 0,
+          unitId: item.unitId || 1 // Default to 1 if not provided
+        };
+      });
+
+      const payload = {
+        eventId: eventId,
+        eventRawMaterial: eventRawMaterial
+      };
+
+      console.log("Payload to send:", JSON.stringify(payload, null, 2));
+
+      // Call the API
+      const response = await RawMaterialAllocation(payload);
+      
+      console.log("Save response:", response);
+
+      if (response?.data?.success || response?.status === 200) {
+        // Optionally refresh the data
+        fetchRawMaterialItems(categoryId, eventId);
+      } else {
+        toast.error("Failed to save raw material allocation");
+      }
+    } catch (error) {
+      console.error("Error saving raw material allocation:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleAllocateAgency = (agencyName) => {
@@ -168,7 +241,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     setIsModalOpen(true);
   };
 
-  // Updated expanChildData to display all functions from eventRawMaterialFunctions
   const expanChildData = (eventRawMaterialFunctions, main_index) => {
     if (!eventRawMaterialFunctions || eventRawMaterialFunctions.length === 0) {
       return (
@@ -196,20 +268,14 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
             <div className="mr-2 mb-2 font-medium text-gray-700">
               {func.functionName}
             </div>
-            <div className="mr-2 mb-2">
-              <input 
-                type="text" 
-                className="input" 
-                value={func.item_name || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "item_name", e.target.value)}
-                placeholder="Enter menu item"
-              />
+            <div className="mr-2 mb-2 font-medium text-gray-700">
+              {func.itemName}
             </div>
             <div className="mr-2 mb-2">
               <select 
                 className="select" 
-                value={func.agency || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "agency", e.target.value)}
+                value={func.supplierName || ""}
+                onChange={(e) => handleFunctionChange(main_index, index, "supplierName", e.target.value)}
               >
                 <option value="">Select Agency</option>
                 {loading && <option>Loading...</option>}
@@ -232,10 +298,11 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
               />
             </div>
             <div className="mr-2 mb-2">
-              <select 
+              <select
+               
                 className="select" 
-                value={func.unit || "Kilogram"}
-                onChange={(e) => handleFunctionChange(main_index, index, "unit", e.target.value)}
+                value={func.unitName || ""}
+                onChange={(e) => handleFunctionChange(main_index, index, "unitName", e.target.value)}
               >
                 <option value="Kilogram">Kilogram</option>
                 <option value="Gram">Gram</option>
@@ -256,8 +323,8 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
               <input 
                 type="datetime-local" 
                 className="input" 
-                value={func.date_time || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "date_time", e.target.value)} 
+                value={func.functiondatetime || ""}
+                onChange={(e) => handleFunctionChange(main_index, index, "functiondatetime", e.target.value)}
               />
             </div>
             <div className="mr-2 mb-2">
@@ -367,7 +434,7 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
 
         {/* Empty State */}
         {!loading && tableData.length === 0 && (
-          <div className="text-center py-4 text-gray-500">No raw materials found</div>
+          <div className="text-center py-4 text-gray-500">No raw materials found for this category</div>
         )}
 
         {/* Data Rows */}
@@ -430,15 +497,19 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         ))}
       </div>
       {/* Total Price and save button*/}
-      <div className="flex items-center justify-center gap-5 bg-gray-200 border-b border-gray-300 py-2">
-        <div className="font-bold">Total Price: ₹{calculateTotalPrice()}</div>
-        <button
-          className="btn btn-primary save-btn"
-          title="Save"
-        >
-          Save
-        </button>
-      </div>
+      {!loading && tableData.length > 0 && (
+        <div className="flex items-center justify-center gap-5 bg-gray-200 border-b border-gray-300 py-2">
+          <div className="font-bold">Total Price: ₹{calculateTotalPrice()}</div>
+          <button
+            className="btn btn-primary save-btn"
+            onClick={handleSave}
+            disabled={saving}
+            title="Save"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        </div>
+      )}
       <AddGrossary
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

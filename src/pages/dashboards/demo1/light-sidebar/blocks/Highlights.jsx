@@ -9,19 +9,19 @@ const Highlights = ({
   } = useLanguage();
   const rows = [{
     icon: 'shop',
-    text: 'Online Store',
+    text: 'Total Lite Sales',
     total: 172,
     stats: 3.9,
     increase: true
   }, {
     icon: 'facebook',
-    text: 'Facebook',
+    text: 'Total Elite Sales',
     total: 85,
     stats: 0.7,
     increase: false
   }, {
     icon: 'instagram',
-    text: 'Instagram',
+    text: 'Total Premium Sales',
     total: 36,
     stats: 8.2,
     increase: true
@@ -40,13 +40,13 @@ const Highlights = ({
   }];
   const items = [{
     badgeColor: 'badge-success',
-    lebel: 'Metronic'
+    lebel: 'Lite'
   }, {
     badgeColor: 'badge-danger',
-    lebel: 'Bundle'
+    lebel: 'Elite'
   }, {
     badgeColor: 'badge-info',
-    lebel: 'MetronicNest'
+    lebel: 'Premium'
   }];
   const renderRow = (row, index) => {
     return <div key={index} className="flex items-center justify-between flex-wrap gap-2">
@@ -55,7 +55,7 @@ const Highlights = ({
           <span className="text-sm font-normal text-gray-900">{row.text}</span>
         </div>
 
-        <div className="flex items-center text-sm font-medium text-gray-800 gap-6">
+        <div className="flex  items-center text-sm font-medium text-gray-800 gap-6">
           <span className="lg:text-right">${row.total}k</span>
           <span className="lg:text-right">
             {row.increase ? <KeenIcon icon="arrow-up" className="text-success" /> : <KeenIcon icon="arrow-down" className="text-danger" />}
@@ -96,16 +96,16 @@ const Highlights = ({
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-normal text-gray-700">All time sales</span>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex justify-between items-center gap-2.5">
             <span className="text-3xl font-semibold text-gray-900">$295.7k</span>
             <span className="badge badge-outline badge-success badge-sm">+2.7%</span>
           </div>
         </div>
 
         <div className="flex items-center gap-1 mb-1.5">
-          <div className="bg-success h-2 w-full max-w-[60%] rounded-sm"></div>
-          <div className="bg-brand h-2 w-full max-w-[25%] rounded-sm"></div>
-          <div className="bg-info h-2 w-full max-w-[15%] rounded-sm"></div>
+          <div className="bg-success h-2 w-full max-w-[45%] rounded-md"></div>
+          <div className="bg-brand h-2 w-full max-w-[35%] rounded-md"></div>
+          <div className="bg-info h-2 w-full max-w-[20%] rounded-md"></div>
         </div>
 
         <div className="flex items-center flex-wrap gap-4 mb-1">

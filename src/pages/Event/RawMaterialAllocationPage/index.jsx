@@ -7,11 +7,10 @@ import TabComponent from "@/components/tab/TabComponent";
 const RawMaterialAllocation = () => {
   const location = useLocation();
   const { eventId, eventTypeId } = location.state || {};
-  console.log("Received eventId:", eventId); // Debug log
-  console.log("Received eventTypeId:", eventTypeId); // Debug log
   
   const [tabs, setTabs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(null);
 
   useEffect(() => {
     if (eventTypeId) {
@@ -22,12 +21,7 @@ const RawMaterialAllocation = () => {
   const fetchCategories = () => {
     GetAllRawMaterialAllocationCategory(eventId)
       .then((res) => {
-        console.log("API Response:", res); // Debug log
-        
-        // Extract categories from the correct path
         const categories = res?.data?.data?.["Raw Material Category Details"] || [];
-        
-        console.log("Categories:", categories); // Debug log
         
         if (!Array.isArray(categories) || categories.length === 0) {
           console.warn("No categories found");
@@ -40,15 +34,11 @@ const RawMaterialAllocation = () => {
         const dynamicTabs = categories.map((category) => ({
           value: category.id?.toString(),
           label: category.nameEnglish || category.name || "Unnamed Category",
-          // Pass categoryId to each component
-          children: <GrossaryItems 
-            categoryId={category.id} 
-            eventId={eventId} 
-            eventTypeId={eventTypeId} 
-          />,
+          categoryId: category.id, // Store categoryId for later use
         }));
         
         setTabs(dynamicTabs);
+        setActiveTab(dynamicTabs[0]?.value); // Set first tab as active
         setLoading(false);
       })
       .catch((error) => {
@@ -56,6 +46,11 @@ const RawMaterialAllocation = () => {
         setTabs([]);
         setLoading(false);
       });
+  };
+
+  // Handle tab change
+  const handleTabChange = (tabValue) => {
+    setActiveTab(tabValue);
   };
 
   if (loading) {
@@ -74,9 +69,27 @@ const RawMaterialAllocation = () => {
     );
   }
 
+  // Find the active category
+  const activeCategory = tabs.find(tab => tab.value === activeTab);
+
   return (
     <div>
-      <TabComponent tabs={tabs} />
+      <TabComponent 
+        tabs={tabs.map(tab => ({
+          ...tab,
+          // Render GrossaryItems only for active tab
+          children: tab.value === activeTab ? (
+            <GrossaryItems 
+              key={`${tab.categoryId}-${activeTab}`} // Force re-render on tab change
+              categoryId={tab.categoryId} 
+              eventId={eventId} 
+              eventTypeId={eventTypeId} 
+            />
+          ) : null
+        }))} 
+        onTabChange={handleTabChange}
+        defaultValue={activeTab}
+      />
     </div>
   );
 };

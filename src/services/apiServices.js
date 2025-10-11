@@ -188,6 +188,10 @@ export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
   );
 }
 
+export const RawMaterialAllocation = (data) => {
+  return POST("/event-raw-material/add-update", data);
+};
+
 //Add Meal Type
 export const AddMealType = (data) => {
   return POST("/mealtype/add", data);
