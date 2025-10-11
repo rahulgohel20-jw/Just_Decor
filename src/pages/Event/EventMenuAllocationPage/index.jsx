@@ -2,26 +2,8 @@ import React, { Fragment, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 
-import {
-  Input,
-  Button,
-  Checkbox,
-  Select,
-  InputNumber,
-  Tabs,
-  Collapse,
-  Card,
-  Divider,
-  Badge,
-} from "antd";
-import {
-  SearchOutlined,
-  FileTextOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-
-const { Panel } = Collapse;
-
+import { Input, Checkbox, Select, InputNumber, Card, Badge } from "antd";
+import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 const menuRowsSeed = [
   {
     key: "1",
@@ -47,6 +29,28 @@ const menuRowsSeed = [
   },
   {
     key: "3",
+    category: "HEALTH FREAKS",
+    item: "CUCUMBER CELERY",
+    chef: true,
+    inside: false,
+    outside: false,
+    person: 450,
+    place: "At venue",
+    instructions: "",
+  },
+  {
+    key: "4",
+    category: "HEALTH FREAKS",
+    item: "CUCUMBER CELERY",
+    chef: true,
+    inside: false,
+    outside: false,
+    person: 450,
+    place: "At venue",
+    instructions: "",
+  },
+  {
+    key: "5",
     category: "HEALTH FREAKS",
     item: "CUCUMBER CELERY",
     chef: true,
@@ -94,7 +98,7 @@ const TopTabs = ({ value, onChange }) => {
           className={
             "min-w-[96px] rounded-md px-5 py-2 text-sm font-medium transition " +
             (value === t.key
-              ? "bg-blue-600 text-white shadow"
+              ? "bg-primary text-white shadow"
               : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
           }
         >
@@ -107,64 +111,64 @@ const TopTabs = ({ value, onChange }) => {
 
 const OrderSummary = ({ groups }) => {
   return (
-    <Card
-      className="w-full border border-gray-200 shadow-sm"
-      bodyStyle={{ padding: 0 }}
-      title={
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-            ✱
-          </span>
-          <span className="text-gray-800">Order Summary</span>
-        </div>
-      }
-      extra={
-        <Button type="primary" size="middle" className="!bg-blue-600">
-          SHOW COUNTER
-        </Button>
-      }
-    >
-      <div className="divide-y">
-        {groups.map((g, gi) => (
-          <div key={gi} className="p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <Badge color="#22c55e" />
-              <span className="font-medium text-gray-900">{g.title}</span>
-            </div>
-            <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700">
-              {g.items.map((it, ii) => (
-                <Fragment key={ii}>
-                  <div className="col-span-9 pl-6">{it}</div>
-                  <div className="col-span-3 text-right tabular-nums">0.00</div>
-                </Fragment>
-              ))}
-            </div>
+    <div className="flex flex-col gap-2">
+      <button className="btn btn-sm btn-primary p-6 flex justify-center text-lg ">
+        Show Counter
+      </button>
+      <Card
+        className="w-full border border-gray-200 shadow-sm"
+        bodyStyle={{ padding: 0 }}
+        title={
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              ✱
+            </span>
+            <span className="text-gray-800">Order Summary</span>
           </div>
-        ))}
-      </div>
-    </Card>
+        }
+      >
+        <div className="divide-y">
+          {groups.map((g, gi) => (
+            <div key={gi} className="p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Badge color="#22c55e" />
+                <span className="font-medium text-gray-900">{g.title}</span>
+              </div>
+              <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700">
+                {g.items.map((it, ii) => (
+                  <Fragment key={ii}>
+                    <div className="col-span-9 pl-6">{it}</div>
+                    <div className="col-span-3 text-right tabular-nums">
+                      0.00
+                    </div>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 };
 
 const TableHeader = () => (
   <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
-    <div className="col-span-2">Category</div>
-    <div className="col-span-3">Item Name</div>
-    <div className="col-span-1 text-center">Chef Labour</div>
+    <div className="col-span-3 ">Item Name</div>
+    <div className="col-span-2 text-center">Chef Labour</div>
     <div className="col-span-1 text-center">Inside</div>
     <div className="col-span-1 text-center">Outside</div>
     <div className="col-span-1 text-center">Person</div>
-    <div className="col-span-1 text-center">Place</div>
+    <div className="col-span-2 text-center">Place</div>
     <div className="col-span-2">Instructions</div>
   </div>
 );
 
 const TableRow = ({ row, onChange }) => {
   return (
-    <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-3 text-sm">
-      <div className="col-span-2 text-gray-600">{row.category}</div>
-      <div className="col-span-3 font-medium text-gray-800">{row.item}</div>
-      <div className="col-span-1 flex justify-center">
+    <div className="grid grid-cols-12 items-center gap-4 border-b border-gray-100 px-4 py-3 text-sm">
+      <div className="col-span-3 font-medium text-gray-800 r">{row.item}</div>
+      <div className="col-span-2 flex justify-center">
         <Checkbox
           checked={row.chef}
           onChange={(e) => onChange({ ...row, chef: e.target.checked })}
@@ -188,15 +192,15 @@ const TableRow = ({ row, onChange }) => {
           min={0}
           value={row.person}
           onChange={(val) => onChange({ ...row, person: Number(val || 0) })}
-          className="w-20"
+          className="w-30 p-1"
         />
       </div>
-      <div className="col-span-1">
+      <div className="col-span-2">
         <Select
           size="small"
           value={row.place}
           onChange={(val) => onChange({ ...row, place: val })}
-          className="w-full"
+          className="w-full "
           options={[
             { value: "At venue", label: "At venue" },
             { value: "Outside", label: "Outside" },
@@ -220,6 +224,7 @@ const EventMenuAllocationPage = () => {
   const [rows, setRows] = useState(menuRowsSeed);
   const [people, setPeople] = useState(450);
   const [percentage, setPercentage] = useState("");
+  const [open, setOpen] = useState(false);
 
   const updateRow = (updated) => {
     setRows((r) => r.map((x) => (x.key === updated.key ? updated : x)));
@@ -234,6 +239,12 @@ const EventMenuAllocationPage = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Allocation" }]} />
         </div>
+        {/* <button
+          onClick={() => setOpen(true)}
+          className="mt-6 h-11 px-5 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700"
+        >
+          Open Modal
+        </button> */}
         {/* Event Details */}
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
@@ -288,7 +299,7 @@ const EventMenuAllocationPage = () => {
             </div>
 
             <div className="flex flex-row items-end gap-2">
-              <button className="btn btn-sm btn-primary" title="Print">
+              <button className="btn btn-sm btn-danger" title="Print">
                 Delete
               </button>
               <button className="btn btn-sm btn-primary" title="Share">
@@ -303,7 +314,7 @@ const EventMenuAllocationPage = () => {
             <TopTabs value={activeTab} onChange={setActiveTab} />
           </div>
           <div className="flex gap-6">
-            <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm ">
+            <div className="w-[70%] flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm ">
               <div className="flex ">
                 <div className="flex w-fit  items-center gap-3">
                   <div className="filItems relative">
@@ -324,7 +335,7 @@ const EventMenuAllocationPage = () => {
                     placeholder="Enter Person"
                     value={percentage}
                     onChange={(e) => setPercentage(e.target.value)}
-                    className="w-48"
+                    className="input w-28"
                   />
 
                   <button className="btn btn-sm btn-primary p-4" title="Report">
@@ -346,11 +357,12 @@ const EventMenuAllocationPage = () => {
                 </div>
               </div>
             </div>
-            <div className="col-span-12 lg:col-span-4 xl:col-span-3">
+            <div className="w-[30%] col-span-12 lg:col-span-4 xl:col-span-3">
               <OrderSummary groups={groupsSeed} />
             </div>
           </div>
         </div>
+        <SidebarModal open={open} onClose={() => setOpen(false)} />
       </Container>
     </Fragment>
   );
