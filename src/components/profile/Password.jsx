@@ -43,16 +43,17 @@ export default function Password() {
 
 
   return (
-    <div className=" bg-white rounded-lg shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)]">
+    <div className=" bg-white rounded-lg ">
       <div className="relative">
-        <div className=" p-6 h-18 flex rounded-t-lg items-center gap-3">
-          <LockOutlined style={{ fontSize: "24px", color: "#555" }} />
-          <span className="text-[#505050]">Change Password</span>
+        <div className=" h-18 flex rounded-t-lg items-center gap-3">
+          {/* <LockOutlined style={{ fontSize: "24px", color: "#555" }} /> */}
+          <span className="text-[#505050] font-extrabold
+"> Password</span>
         </div>
         <div className="border-b"></div>
       </div>
 
-      <div className="pt-6 p-6">
+      <div className="pt-6 ">
         <Form
           form={form}
           layout="vertical"
