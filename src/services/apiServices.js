@@ -648,3 +648,8 @@ export const AddCustomPackageapi = (data) => {
 export const UpdateCustomPackageapi = (id, data) => {
   return PUT(`/custompackage/update?id=${id}`, data);
 }
+
+//custome package delete api
+export const DeleteCustomPackageapi = (id) => {
+  return DELETE(`/custompackage/deletebyid?id=${id}`);
+}

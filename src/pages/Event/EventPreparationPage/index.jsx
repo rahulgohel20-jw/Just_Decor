@@ -14,6 +14,8 @@ import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
+import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
+import { Layers, Package } from 'lucide-react';
 import {
   useEventData,
   useCategories,
@@ -67,6 +69,8 @@ const EventPreparationPage = () => {
   const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
+  const [activeTab, setActiveTab] = useState('custom');
+  const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
     itemSlogan: "",
@@ -568,7 +572,44 @@ const EventPreparationPage = () => {
                   </div>
                 </div>
               </div>
+{/* custometab */}
+  <div className=" ">
+      <div className="max-w-lg mx-auto flex justify-center">
+  <div className="flex gap-2 bg-white p-1.5 rounded-full shadow-sm w-fit">
+    {/* Custom Tab */}
+    <button
+      onClick={() => setActiveTab('custom')}
+      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
+        activeTab === 'custom'
+          ? 'bg-blue-600 text-white shadow-md'
+          : 'bg-transparent text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      <Layers className="w-4 h-4" />
+      <span className="font-medium">Custom</span>
+    </button>
 
+    {/* Custom Package Tab */}
+   <button
+  onClick={() => setShowCustomPackageModal(true)}
+  className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
+    showCustomPackageModal
+      ? 'bg-blue-600 text-white shadow-md'
+      : 'bg-transparent text-gray-600 hover:bg-gray-50'
+  }`}
+>
+  <Package className="w-4 h-4" />
+  <span className="font-medium">Custom Package</span>
+</button>
+
+  </div>
+</div>
+    </div>
+   <CustomPackageModal
+  isOpen={showCustomPackageModal}
+  onClose={() => setShowCustomPackageModal(false)}
+  userId={1} // Make sure this is the correct user ID
+/>
               {/* Tabs */}
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}

@@ -656,153 +656,159 @@ const DraggableItem = ({
   );
 };
 
-const DraggableCategory = ({
-  categoryName,
-  categoryId,
-  items,
-  showDetails,
-  currentFunctionData,
-  rate,
-  onItemRateChange,
-  onNoteClick,
-  onCategoryNoteClick,
-  onRemoveItem,
-  isExpanded,
-  onToggleExpand,
-  isDraggingCategory,
-   numberOfItems,
-}) => {
-  const { isOver, setNodeRef: setDroppableRef } = useDroppable({
-    id: `category-${categoryId}`,
-    data: { type: "category", categoryId, categoryName },
-  });
+  const DraggableCategory = ({
+    categoryName,
+    categoryId,
+    items,
+    showDetails,
+    currentFunctionData,
+    rate,
+    onItemRateChange,
+    onNoteClick,
+    onCategoryNoteClick,
+    onRemoveItem,
+    isExpanded,
+    onToggleExpand,
+    isDraggingCategory,
+    numberOfItems,
+  }) => {
+    const { isOver, setNodeRef: setDroppableRef } = useDroppable({
+      id: `category-${categoryId}`,
+      data: { type: "category", categoryId, categoryName },
+    });
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef: setSortableRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: `category-sort-${categoryId}`,
-    data: { type: "category-sort", categoryId, categoryName },
-  });
+    const {
+      attributes,
+      listeners,
+      setNodeRef: setSortableRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({
+      id: `category-sort-${categoryId}`,
+      data: { type: "category-sort", categoryId, categoryName },
+    });
 
-  const categoryStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1,
-  };
+    const categoryStyle = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.6 : 1,
+    };
 
-  const setNodeRef = useCallback(
-    (node) => {
-      setDroppableRef(node);
-      setSortableRef(node);
-    },
-    [setDroppableRef, setSortableRef]
-  );
+    const setNodeRef = useCallback(
+      (node) => {
+        setDroppableRef(node);
+        setSortableRef(node);
+      },
+      [setDroppableRef, setSortableRef]
+    );
+    
 
-  return (
-    <section
-      ref={setNodeRef}
-      style={categoryStyle}
-      className="mb-3 rounded-md px-2.5 py-2 cursor-move border border-gray-200 bg-white"
-    >
-      <div
-        className={`flex items-center justify-between`}
-        {...attributes}
-        {...listeners}
+    return (
+      <section
+        ref={setNodeRef}
+        style={categoryStyle}
+        className="mb-3 rounded-md px-2.5 py-2 cursor-move border border-gray-200 bg-white"
       >
-        <div className="flex items-center gap-1">
-          <span className="inline-flex h-5 w-5 items-center justify-center  text-[20px] text-black">
-            ⋮⋮
-          </span>
-          <div className="font-medium text-gray-800 flex items-center gap-1">
-  <span>{categoryName}</span>
-  {numberOfItems ? (
-    <span className="text-xs text-gray-500">(Any {numberOfItems})</span>
-  ) : null}
-</div>
- <Tooltip title="11:20 AM">
-            <button className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-              <img
-                className="w-3.5 h-3.5   shadow"
-                src={toAbsoluteUrl("/media/menu/clock.png")}
-                alt="profile"
-              />
-            </button>
-          </Tooltip>
-          <Tooltip title="Category Notes">
+        <div
+          className={`flex items-center justify-between`}
+          {...attributes}
+          {...listeners}
+        >
+          <div className="flex items-center gap-1">
+            <span className="inline-flex h-5 w-5 items-center justify-center  text-[20px] text-black">
+              ⋮⋮
+            </span>
+            <div className="font-medium text-gray-800 flex items-center gap-1">
+        <span>{categoryName}</span>
+        {numberOfItems ? (
+          <span className="text-xs text-gray-500">(Any {numberOfItems})</span>
+        ) : null}
+      </div>
+          
+          </div>
+          <div className="flex gap-2">
+            <Tooltip title="11:20 AM">
+              <button className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                <img
+                  className="w-3.5 h-3.5   shadow"
+                  src={toAbsoluteUrl("/media/menu/clock.png")}
+                  alt="profile"
+                />
+              </button>
+            </Tooltip>
+            <Tooltip title="Category Notes">
+              <button
+                className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCategoryNoteClick(categoryId);
+                }}
+              >
+                <img
+                  className="w-3.5 h-3.5  ring-4 ring-white shadow"
+                  src={toAbsoluteUrl("/media/menu/notes.png")}
+                  alt="profile"
+                />
+              </button>
+            </Tooltip>
             <button
-              className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="inline-flex h-7  items-center justify-center text-[#979797]"
               onClick={(e) => {
                 e.stopPropagation();
-                onCategoryNoteClick(categoryId);
+                onToggleExpand(categoryId);
               }}
             >
-              <img
-                className="w-3.5 h-3.5  ring-4 ring-white shadow"
-                src={toAbsoluteUrl("/media/menu/notes.png")}
-                alt="profile"
+              <i
+                className={`ki-filled ${isExpanded ? "ki-down" : "ki-up"} text-[20px]`}
               />
             </button>
-          </Tooltip>
-          <button
-            className="inline-flex h-7  items-center justify-center text-[#979797]"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand(categoryId);
-            }}
-          >
-            <i
-              className={`ki-filled ${isExpanded ? "ki-down" : "ki-up"} text-[20px]`}
-            />
-          </button>
+          </div>
         </div>
-      </div>
-      <hr className="mt-2 border border-gray-200" />
+        <hr className="mt-2 border border-gray-200" />
 
-      {isExpanded && (
-        <div className={`mt-3`}>
-          <SortableContext
-            items={items.map((item) => `item-${item.id}`)}
-            strategy={verticalListSortingStrategy}
-          >
-            {items.length === 0 ? (
-              <div
-                className={`grid place-items-center h-16 rounded-md border-2 border-dashed text-xs ${
-                  isOver && !isDraggingCategory
-                    ? "border-blue-300 text-blue-600 bg-blue-50/60"
-                    : "border-gray-200 text-gray-400"
-                }`}
-              >
-                {isOver && !isDraggingCategory
-                  ? "Drop item here"
-                  : "Drop items here"}
-              </div>
-            ) : (
-              <ul className="divide-y divide-transparent">
-                {items.map((item) => (
-                  <DraggableItem
-                    key={item.id}
-                    item={item}
-                    showDetails={showDetails}
-                    currentFunctionData={currentFunctionData}
-                    rate={rate}
-                    onItemRateChange={onItemRateChange}
-                    onNoteClick={onNoteClick}
-                    onRemoveItem={onRemoveItem}
-                  />
-                ))}
-              </ul>
-            )}
-          </SortableContext>
-        </div>
-      )}
-    </section>
-  );
-};
+        {isExpanded && (
+          <div className={`mt-3`}>
+            <SortableContext
+              items={items.map((item) => `item-${item.id}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              {items.length === 0 ? (
+                <div
+                  className={`grid place-items-center h-16 rounded-md border-2 border-dashed text-xs ${
+                    isOver && !isDraggingCategory
+                      ? "border-blue-300 text-blue-600 bg-blue-50/60"
+                      : "border-gray-200 text-gray-400"
+                  }`}
+                >
+                  {isOver && !isDraggingCategory
+                    ? "Drop item here"
+                    : "Drop items here"}
+                </div>
+              ) : (
+                <ul className="divide-y divide-transparent">
+                  {items.map((item) => (
+                    <DraggableItem
+                      key={item.id}
+                      item={item}
+                      showDetails={showDetails}
+                      currentFunctionData={currentFunctionData}
+                      rate={rate}
+                      onItemRateChange={onItemRateChange}
+                      onNoteClick={onNoteClick}
+                      onRemoveItem={onRemoveItem}
+                    />
+                  ))}
+                </ul>
+              )}
+            </SortableContext>
+          </div>
+        )}
+      </section>
+    );
+  };
+
+
 
 const SelectedItemsList = ({
   selectedItemsByCategory,

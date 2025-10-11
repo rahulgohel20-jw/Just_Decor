@@ -22,7 +22,6 @@ const AddCustomPackage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get package ID from URL query params
   const searchParams = new URLSearchParams(location.search);
   const packageId = searchParams.get("id");
   const isEditMode = !!packageId;
@@ -36,6 +35,7 @@ const AddCustomPackage = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [numberOfItems, setNumberOfItems] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editModeItems, setEditModeItems] = useState([]); // Store items from edit mode
 
   const [showItemNoteModal, setShowItemNoteModal] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
@@ -56,86 +56,97 @@ const AddCustomPackage = () => {
   const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
-  // Fetch categories on mount
   useEffect(() => {
     fetchCategories();
     fetchMenuItems(0);
   }, []);
 
-  // Fetch package details if in edit mode
   useEffect(() => {
     if (packageId && categories.length > 0) {
       fetchPackageDetails(packageId);
     }
   }, [packageId, categories]);
 
-    const fetchPackageDetails = async (id) => {
-  try {
-    setLoading(true);
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const res = await GetCustomPackageapi(userData.id);
+  const fetchPackageDetails = async (id) => {
+    try {
+      setLoading(true);
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const res = await GetCustomPackageapi(userData.id);
 
-    console.log("✅ All menu items loaded:", allMenuItems.length);
+      const allPackages = res?.data?.data?.["Package Details"] || [];
+      const selectedPackage = allPackages.find((pkg) => pkg.id === parseInt(id));
+      if (!selectedPackage) return;
 
-    const allPackages = res?.data?.data?.["Package Details"] || [];
-    const selectedPackage = allPackages.find((pkg) => pkg.id === parseInt(id));
+      setInitialValues({
+        nameEnglish: selectedPackage.nameEnglish || "",
+        nameGujarati: selectedPackage.nameGujarati || "",
+        nameHindi: selectedPackage.nameHindi || "",
+        price: selectedPackage.price || "",
+      });
 
-    if (!selectedPackage) {
-      console.warn("⚠️ No package found with ID:", id);
-      return;
+      const extractedItemIds = [];
+      const extractedItemNotes = {};
+      const extractedCategoryNotes = {};
+      const itemsForPool = [];
+      const seenItemIds = new Set(); // Track seen items to avoid duplicates
+      let totalAnyItemCount = 0;
+
+      const allDetails = selectedPackage.customPackageDetails || [];
+
+      allDetails.forEach((categoryDetail) => {
+        const categoryId = categoryDetail.menuId;
+        const categoryName = categoryDetail.menuName;
+
+        if (categoryDetail.anyItem > 0) totalAnyItemCount += categoryDetail.anyItem;
+        extractedCategoryNotes[categoryId] = categoryDetail.menuInstruction || "";
+
+        (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
+          const itemId = Number(item.menuItemId);
+          
+          // Skip if we've already processed this item
+          if (seenItemIds.has(itemId)) {
+            console.warn(`⚠️ Duplicate item detected: ${itemId} - ${item.itemName}`);
+            return;
+          }
+          
+          seenItemIds.add(itemId);
+
+          // Add to selected items array (just IDs)
+          extractedItemIds.push(itemId);
+
+          // Store item for the pool (only if not already there)
+          itemsForPool.push({
+            id: itemId,
+            name: item.itemName,
+            parentId: categoryId,
+            price: item.itemPrice,
+            dbRowId: item.id,
+          });
+
+          extractedItemNotes[itemId] = item.itemInstruction || "";
+        });
+      });
+
+      console.log("📦 Loaded package - unique items:", extractedItemIds.length);
+      console.log("🔢 Selected item IDs:", extractedItemIds);
+
+      // Set edit mode items for the pool
+      setEditModeItems(itemsForPool);
+      
+      // Set selected items as array of IDs
+      setSelectedItems(extractedItemIds);
+      
+      setItemNotes(extractedItemNotes);
+      setCategoryNotes(extractedCategoryNotes);
+      if (totalAnyItemCount > 0) setNumberOfItems(totalAnyItemCount.toString());
+
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to load package details.", "error");
+    } finally {
+      setLoading(false);
     }
-
-    // 1️⃣ Set form values
-    setInitialValues({
-      nameEnglish: selectedPackage.nameEnglish || "",
-      nameGujarati: selectedPackage.nameGujarati || "",
-      nameHindi: selectedPackage.nameHindi || "",
-      price: selectedPackage.price || "",
-    });
-
-    console.log("✅ Form values set:", {
-      nameEnglish: selectedPackage.nameEnglish,
-      price: selectedPackage.price,
-    });
-
-    // 2️⃣ Fetch menu items
-    console.log("🔄 Fetching all menu items...");
-    await fetchMenuItems(0);
-    console.log("✅ Menu items fetched");
-
-    // 3️⃣ Extract selected items correctly
-    const extractedItems = [];
-    const extractedItemNotes = {};
-    const extractedCategoryNotes = {};
-    let anyItemCount = 0;
-
-    const allDetails = selectedPackage.customPackageDetails || [];
-    console.log("📋 Package Details Count:", allDetails.length);
-
-  customPackageMenuItemDetails
-
-    console.log("✅ EXTRACTED DATA FROM BACKEND:");
-    console.log("  Selected Item IDs:", extractedItems);
-    console.log("  Category Notes:", extractedCategoryNotes);
-    console.log("  Item Notes:", extractedItemNotes);
-    console.log("  Any Item Count:", anyItemCount);
-
-    // 4️⃣ Update state once
-    setSelectedItems(extractedItems);
-    setItemNotes(extractedItemNotes);
-    setCategoryNotes(extractedCategoryNotes);
-    if (anyItemCount > 0) setNumberOfItems(anyItemCount.toString());
-
-    console.log("✅ State updated successfully");
-
-  } catch (err) {
-    console.error("❌ Error fetching package:", err);
-    Swal.fire("Error", "Failed to load package details.", "error");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleItemNoteClick = (itemId) => {
     setCurrentItemForNotes(itemId);
@@ -177,7 +188,11 @@ const AddCustomPackage = () => {
     }
   };
 
-  const handleCategoryChange = async (categoryId) => {
+  const handleCategoryChange = async (categoryId , e ) => {
+      if (e) {
+    e.preventDefault();
+    e.stopPropagation(); // Stop bubbling to form
+  }
     setSelectedCategoryId(categoryId);
     await fetchMenuItems(categoryId);
   };
@@ -214,33 +229,46 @@ const AddCustomPackage = () => {
     });
   };
 
-const allItemsPool = useMemo(() => {
-  // Combine currently loaded menuItems + allMenuItems
-  const combined = [...menuItems, ...allMenuItems];
+  // Build comprehensive item pool including edit mode items
+  const allItemsPool = useMemo(() => {
+    console.log("🔨 Building item pool...");
+    console.log("  menuItems:", menuItems.length);
+    console.log("  allMenuItems:", allMenuItems.length);
+    console.log("  editModeItems:", editModeItems.length);
+    
+    // Combine all sources
+    const combined = [...menuItems, ...allMenuItems, ...editModeItems];
+    
+    // Remove duplicates by ID - keep the first occurrence
+    const uniqueMap = new Map();
+    combined.forEach(item => {
+      const id = Number(item.id);
+      if (!uniqueMap.has(id)) {
+        uniqueMap.set(id, item);
+      }
+    });
+    
+    const uniqueItems = Array.from(uniqueMap.values());
+    
+    console.log("✅ Total unique items in pool:", uniqueItems.length);
+    console.log("✅ Item IDs:", uniqueItems.map(i => i.id));
+    return uniqueItems;
+  }, [menuItems, allMenuItems, editModeItems]);
 
-  // Ensure selected items from edit mode are included
-  selectedItems.forEach(id => {
+  const toggleChildSelection = (id) => {
     id = Number(id);
-    if (!combined.find(item => Number(item.id) === id)) {
-      const storedItem = allMenuItems.find(item => Number(item.id) === id);
-      if (storedItem) combined.push(storedItem);
-      else console.warn(`⚠️ Selected item ${id} not found in allMenuItems!`);
-    }
-  });
-
-  // Deduplicate by id
-  return [...new Map(combined.map(i => [i.id, i])).values()];
-}, [menuItems, allMenuItems, selectedItems]);
-
- const toggleChildSelection = (id) => {
-  id = Number(id);
-  setSelectedItems(prev => {
-    const exists = prev.includes(id);
-    if (exists) return prev.filter(pid => pid !== id);
-    return [...prev, id];
-  });
-};
-
+    setSelectedItems(prev => {
+      const exists = prev.includes(id);
+      console.log(exists ? `❌ Removing item ${id}` : `✅ Adding item ${id}`);
+      if (exists) return prev.filter(pid => Number(pid) !== id);
+      
+      // Ensure no duplicates when adding
+      const newItems = [...prev, id];
+      const uniqueItems = [...new Set(newItems.map(Number))];
+      console.log(`📊 Total unique selected: ${uniqueItems.length}`);
+      return uniqueItems;
+    });
+  };
 
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
@@ -248,48 +276,49 @@ const allItemsPool = useMemo(() => {
 
   const menuItemsWithSelectionState = menuItems.map((item) => ({
     ...item,
-    isSelected: selectedItems.includes(item.id),
+    isSelected: selectedItems.includes(Number(item.id)),
   }));
 
   const filteredChildren = menuItemsWithSelectionState.filter((child) =>
     child.name.toLowerCase().includes(childSearch.toLowerCase())
   );
 
-  const mergedMap = new Map(allItemsPool.map((item) => [item.id, item]));
-  const selectedMenuItems = selectedItems
-    .map((id) => {
-      const itm = mergedMap.get(id);
-      if (!itm) {
-        console.warn("⚠️ Selected item missing from pool:", id);
-      } else {
-        console.log("✅ Found item in pool:", id, itm.name);
-      }
-      return itm;
-    })
-    .filter(Boolean);
-
-  console.log("📊 SELECTED MENU ITEMS SUMMARY:");
-  console.log("  Total selected IDs:", selectedItems.length);
-  console.log("  Found in pool:", selectedMenuItems.length);
-  console.log("  Items:", selectedMenuItems.map(i => `${i.id}: ${i.name}`));
-
-  const selectedItemsByCategory = useMemo(() => {
-    console.log("🔄 Grouping selected items by category...");
-    console.log("  selectedMenuItems count:", selectedMenuItems.length);
-    console.log("  categories count:", categories.length);
+  // Get selected menu items from the pool
+  const selectedMenuItems = useMemo(() => {
+    console.log("🔍 Getting selected items from pool...");
+    console.log("  selectedItems IDs:", selectedItems);
+    console.log("  allItemsPool size:", allItemsPool.length);
     
+    const items = selectedItems
+      .map((id) => {
+        const numId = Number(id);
+        const item = allItemsPool.find(i => Number(i.id) === numId);
+        if (!item) {
+          console.warn(`⚠️ Item ${id} not found in pool`);
+        }
+        return item;
+      })
+      .filter(Boolean);
+    
+    console.log("✅ Found items:", items.length);
+    return items;
+  }, [selectedItems, allItemsPool]);
+
+  // Group items by category
+  const selectedItemsByCategory = useMemo(() => {
+    console.log("📊 Grouping items by category...");
     const grouped = {};
 
-    // Group items by category
     selectedMenuItems.forEach(item => {
-      const category = categories.find(cat => cat.id === item.parentId) || { id: 0, name: "Uncategorized" };
-      console.log(`  📂 Item "${item.name}" → Category "${category.name}"`);
+      const category = categories.find(cat => cat.id === item.parentId) || { 
+        id: 0, 
+        name: "Uncategorized" 
+      };
       
       if (!grouped[category.name]) grouped[category.name] = [];
       grouped[category.name].push(item);
     });
 
-    // Add "Any X Items" block if number entered
     const anyCount = parseInt(numberOfItems) || 0;
     if (anyCount > 0) {
       grouped[`Any ${anyCount} Items`] = [{ 
@@ -297,21 +326,21 @@ const allItemsPool = useMemo(() => {
         name: `Any ${anyCount} items from selected categories`, 
         isPlaceholder: true 
       }];
-      console.log(`  🔢 Added "Any ${anyCount} Items" placeholder`);
     }
 
     console.log("✅ Grouped categories:", Object.keys(grouped));
-    console.log("✅ Full grouped data:", grouped);
-
     return grouped;
   }, [selectedMenuItems, categories, numberOfItems]);
 
   const handleRemoveItem = (itemId) => {
-    setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+    const numId = Number(itemId);
+    console.log("🗑️ Removing item:", numId);
+    
+    setSelectedItems((prev) => prev.filter((id) => Number(id) !== numId));
     
     setItemNotes((prev) => {
       const newNotes = { ...prev };
-      delete newNotes[itemId];
+      delete newNotes[numId];
       return newNotes;
     });
   };
@@ -326,119 +355,114 @@ const allItemsPool = useMemo(() => {
       .positive("Must be positive"),
   });
 
- const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-  try {
-    setSubmitting(true);
-    const storedData = JSON.parse(localStorage.getItem("userData"));
-    const userId = storedData?.id || 0;
-    const packageIdNumber = Number(packageId);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      setSubmitting(true);
+      const storedData = JSON.parse(localStorage.getItem("userData"));
+      const userId = storedData?.id || 0;
+      const packageIdNumber = Number(packageId);
 
-    if (selectedItems.length === 0) {
-      Swal.fire("Error", "No items selected.", "error");
-      return;
-    }
-
-    // Filter selected items against allItemsPool
-    const validItems = selectedItems
-      .map(id => allItemsPool.find(itm => itm.id === id))
-      .filter(Boolean);
-
-    if (validItems.length === 0) {
-      Swal.fire("Error", "No valid items found.", "error");
-      return;
-    }
-
-    console.log("🔄 Grouping selected items by category...");
-console.log("  selectedItems:", selectedItems);
-console.log("  allItemsPool:", allItemsPool.map(i => ({ id: i.id, name: i.name, parentId: i.parentId })));
-
-console.log("🟢 VALID ITEMS FOUND:", validItems.map(v => ({ id: v.id, name: v.name, parentId: v.parentId })));
-
-;
-
-
-// Map items by their parent (menuId)
-const categoryMap = new Map();
-validItems.forEach(item => {
-  // if parentId is missing, fallback to menuItemId (used in edit mode)
-  const parentId = item.parentId || item.menuItemId;
-  const category = categories.find(cat => cat.id === parentId);
-
-  const catId = category?.id || 0;
-  const catName = category?.name || "Uncategorized";
-
-  if (!categoryMap.has(catId)) {
-    categoryMap.set(catId, { catName, items: [] });
-  }
-  categoryMap.get(catId).items.push(item);
-});
-
-console.log("✅ Grouped Categories:", Array.from(categoryMap.keys()));
-console.log("✅ Full Grouped Data:", Object.fromEntries(categoryMap));
-
-
-    // Build customPackageDetails
-    const customPackageDetails = Array.from(categoryMap.entries()).map(
-      ([catId, { catName, items }], idx) => {
-        const menuItems = items.map((item, itemIdx) => ({
-          id: item.id || 0 , // Backend may ignore this for new entries
-          menuItemId: Number(item.id),
-          itemName: item.name || "Unnamed",
-          itemInstruction: itemNotes[item.id] || "",
-          itemPrice: Number(item.price || 0),
-          itemSortOrder: itemIdx + 1,
-          userId,
-        }));
-
-        return {
-          menuId: Number(catId),
-          menuName: catName,
-          menuInstruction: categoryNotes[catName] || "",
-          menuSortOrder: idx + 1,
-          anyItem: parseInt(numberOfItems) || 0,
-          customPackageMenuItemDetails: menuItems,
-        };
+      if (selectedItems.length === 0) {
+        Swal.fire("Error", "No items selected.", "error");
+        return;
       }
-    );
 
-    // Final payload
-    const payload = {
-      id: packageIdNumber || 0,
-      nameEnglish: values.nameEnglish,
-      nameGujarati: values.nameGujarati || "",
-      nameHindi: values.nameHindi || "",
-      price: Number(values.price),
-      sequence: 1,
-      userId,
-      customPackageDetails,
-    };
+      // Get valid items from pool using menuItemId (not menuId)
+      const validItems = selectedItems
+        .map(id => {
+          const numId = Number(id);
+          const item = allItemsPool.find(itm => Number(itm.id) === numId);
+          if (!item) {
+            console.warn(`⚠️ Item not found in pool: ${numId}`);
+          }
+          return item;
+        })
+        .filter(Boolean);
 
-    console.log("📤 Payload to API:", JSON.stringify(payload, null, 2));
+      if (validItems.length === 0) {
+        Swal.fire("Error", "No valid items found.", "error");
+        return;
+      }
 
-    // API call
-    if (isEditMode) {
-      const res = await UpdateCustomPackageapi(packageIdNumber, payload);
-      console.log("✅ Update API response:", res.data);
-      Swal.fire("Success", "Custom Package updated successfully.", "success");
-      navigate(-1);
-    } else {
-      const res = await AddCustomPackageapi(payload);
-      console.log("✅ Add API response:", res.data);
-      Swal.fire("Success", "Custom Package created successfully.", "success");
-      resetForm();
-      setSelectedItems([]);
-      setItemNotes({});
-      setCategoryNotes({});
-      setNumberOfItems("");
+      console.log("📤 Preparing payload with items:", validItems);
+
+      // Group items by their parentId (category ID)
+      const categoryMap = new Map();
+      validItems.forEach(item => {
+        const parentId = Number(item.parentId);
+        const category = categories.find(cat => cat.id === parentId);
+
+        const catId = category?.id || parentId || 0;
+        const catName = category?.name || item.categoryName || "Uncategorized";
+
+        if (!categoryMap.has(catId)) {
+          categoryMap.set(catId, { catName, items: [] });
+        }
+        categoryMap.get(catId).items.push(item);
+      });
+
+      console.log("📊 Grouped by category:", Object.fromEntries(categoryMap));
+
+      // Build customPackageDetails
+      const customPackageDetails = Array.from(categoryMap.entries()).map(
+        ([catId, { catName, items }], idx) => {
+          const menuItems = items.map((item, itemIdx) => ({
+            id: isEditMode ? (item.dbRowId || 0) : 0, // Use dbRowId in edit mode, 0 for new
+            menuItemId: Number(item.id), // This is the actual menu item ID
+            itemName: item.name || "Unnamed",
+            itemInstruction: itemNotes[item.id] || "",
+            itemPrice: Number(item.price || 0),
+            itemSortOrder: itemIdx + 1,
+            userId,
+          }));
+
+          return {
+            menuId: Number(catId), // This is the category/menu ID
+            menuName: catName,
+            menuInstruction: categoryNotes[catId] || categoryNotes[catName] || "",
+            menuSortOrder: idx + 1,
+            anyItem: parseInt(numberOfItems) || 0,
+            customPackageMenuItemDetails: menuItems,
+          };
+        }
+      );
+
+      const payload = {
+        id: isEditMode ? packageIdNumber : 0,
+        nameEnglish: values.nameEnglish,
+        nameGujarati: values.nameGujarati || "",
+        nameHindi: values.nameHindi || "",
+        price: Number(values.price),
+        sequence: 1,
+        userId,
+        customPackageDetails,
+      };
+
+      console.log("📤 Final Payload:", JSON.stringify(payload, null, 2));
+
+      if (isEditMode) {
+        const res = await UpdateCustomPackageapi(packageIdNumber, payload);
+        console.log("✅ Update API response:", res.data);
+        Swal.fire("Success", "Custom Package updated successfully.", "success");
+        navigate(-1);
+      } else {
+        const res = await AddCustomPackageapi(payload);
+        console.log("✅ Add API response:", res.data);
+        Swal.fire("Success", "Custom Package created successfully.", "success");
+        resetForm();
+        setSelectedItems([]);
+        setItemNotes({});
+        setCategoryNotes({});
+        setNumberOfItems("");
+        setEditModeItems([]);
+      }
+    } catch (err) {
+      console.error("❌ Error saving package:", err.response?.data || err.message);
+      Swal.fire("Error", err.response?.data?.message || "Something went wrong.", "error");
+    } finally {
+      setSubmitting(false);
     }
-  } catch (err) {
-    console.error("❌ Error saving package:", err.response?.data || err.message);
-    Swal.fire("Error", err.response?.data?.message || "Something went wrong.", "error");
-  } finally {
-    setSubmitting(false);
-  }
-};
-
+  };
 
   return (
     <Fragment>
@@ -524,14 +548,14 @@ console.log("✅ Full Grouped Data:", Object.fromEntries(categoryMap));
                                         : "border-gray-200"
                                     }`}
                                   >
-                                    <div
-                                      onClick={() => handleCategoryChange(cat.id)}
-                                      className="p-2 cursor-pointer flex justify-between items-center"
-                                    >
-                                      <span className="font-medium text-gray-800">
-                                        {cat.name}
-                                      </span>
-                                    </div>
+                                   <button
+  type="button"
+  onClick={(e) => handleCategoryChange(cat.id, e)}
+  className="p-2 cursor-pointer flex justify-between items-center w-full text-left"
+>
+  <span className="font-medium text-gray-800">{cat.name}</span>
+</button>
+
                                   </div>
                                 );
                               })}
@@ -686,11 +710,6 @@ const InputWithFormik = ({ label, name, type = "text" }) => (
 );
 
 export default AddCustomPackage;
-
-
-
-
-
 
 
 
