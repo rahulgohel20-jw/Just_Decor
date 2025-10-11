@@ -11,6 +11,9 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
+const FieldLabel = ({ children }) => (
+  <div className="text-[12px] text-gray-600 leading-none mb-1">{children}</div>
+);
 const BaseInput = (props) => (
   <input
     {...props}
@@ -27,7 +30,7 @@ const BaseSelect = (props) => (
 );
 
 export default function SidebarModal({ open, onClose }) {
-  const [rowCount, setRowCount] = useState(6);
+  const [rowCount, setRowCount] = useState(8);
 
   useEffect(() => {
     if (!open) return;
@@ -55,7 +58,7 @@ export default function SidebarModal({ open, onClose }) {
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[800px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
               initial={{ x: "110%" }}
               animate={{ x: 0 }}
               exit={{ x: "110%" }}
@@ -63,7 +66,7 @@ export default function SidebarModal({ open, onClose }) {
             >
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Agency Order
+                  Send SMS
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -75,62 +78,23 @@ export default function SidebarModal({ open, onClose }) {
               </div>
 
               <div className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
-                      Dinner
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col gap-1">
-                      <div className="text-[12px] text-gray-600">
-                        Date and Time No.
-                      </div>
-                      <div className="flex gap-3">
-                        <input
-                          className="input"
-                          type="text"
-                          value="10/12/2025"
-                        />
-                        <input
-                          className="input"
-                          type="text"
-                          value="10/12/2025"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
-                      Outside
-                    </button>
-                  </div>
+                <div className="filItems relative mb-4 w-fit">
+                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                  <input
+                    className="input pl-8"
+                    placeholder="Search item"
+                    type="text"
+                  />
                 </div>
-                <div className="flex justify-end">
-                  <button
-                    className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                    title="Share"
-                  >
-                    Add
-                  </button>
-                </div>
-
                 {/* TABLE */}
-                <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div className=" rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* header */}
-                  <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
+                  <div className="grid grid-cols-[64px_2fr_1fr_1fr_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
                     <div>No.</div>
-                    <div className="ml-3">Contact Name</div>
-                    <div>Price</div>
-                    <div>Quantity</div>
-                    <div>Unit</div>
-                    <div>Total Price</div>
+                    <div className="ml-3">Supplier</div>
+                    <div>Date</div>
+                    <div>Mobile No</div>
+                    <div>Message</div>
                     <div className="text-center">Action</div>
                   </div>
 
@@ -138,39 +102,26 @@ export default function SidebarModal({ open, onClose }) {
                   {Array.from({ length: rowCount }).map((_, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
+                      className="grid grid-cols-[64px_2fr_1fr_1fr_1fr_88px] items-center gap-3 px-4 py-3 border-t border-gray-100"
                     >
                       <div className="text-[13px] text-gray-700 ">
                         {idx + 1}.
                       </div>
 
                       <div>
-                        <BaseSelect defaultValue="">
-                          <option value="">Input Text</option>
-                          <option>Ajay</option>
-                          <option>Neha</option>
-                          <option>Ravi</option>
-                        </BaseSelect>
+                        <FieldLabel> AMZAD KHAN</FieldLabel>
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <FieldLabel>02.10.2025</FieldLabel>
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <FieldLabel>9930807594</FieldLabel>
                       </div>
 
                       <div>
-                        <BaseSelect defaultValue="Nos">
-                          {["Nos", "Kg", "Ltr", "Pack"].map((u) => (
-                            <option key={u}>{u}</option>
-                          ))}
-                        </BaseSelect>
-                      </div>
-
-                      <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <BaseInput type="text" placeholder=" Text" />
                       </div>
 
                       <div className="flex items-center justify-center ">
