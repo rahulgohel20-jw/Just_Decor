@@ -8,31 +8,31 @@ const Highlights = ({
     isRTL
   } = useLanguage();
   const rows = [{
-    icon: 'shop',
+    
     text: 'Total Lite Sales',
     total: 172,
     stats: 3.9,
     increase: true
   }, {
-    icon: 'facebook',
+    
     text: 'Total Elite Sales',
     total: 85,
     stats: 0.7,
     increase: false
   }, {
-    icon: 'instagram',
+    
     text: 'Total Premium Sales',
     total: 36,
     stats: 8.2,
     increase: true
   }, {
-    icon: 'google',
+    
     text: 'Google',
     total: 26,
     stats: 8.2,
     increase: true
   }, {
-    icon: 'shop',
+    
     text: 'Retail',
     total: 7,
     stats: 0.7,

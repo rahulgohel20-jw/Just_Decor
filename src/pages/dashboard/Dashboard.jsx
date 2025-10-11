@@ -20,6 +20,7 @@ import {
   EarningsChart,
   EntryCallout,
   Highlights,
+  Teams,
 } from "../dashboards/demo1";
 
 const Dashboard = () => {
@@ -96,6 +97,9 @@ const Dashboard = () => {
             <div className="lg:col-span-2">
               <EarningsChart />
             </div>
+          </div>
+          <div>
+            <Teams />
           </div>
 
         </div>
