@@ -1,66 +1,84 @@
-import { Fragment } from "react";
-import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import TabComponent from "@/components/tab/TabComponent";
-// import GrossaryItems from "@components/event/grossary_items/GrossaryItems";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { GetAllRawMaterialAllocationCategory } from "@/services/apiServices";
 import GrossaryItems from "./grossary_items/GrossaryItems";
-import useStyles from "./style";
+import TabComponent from "@/components/tab/TabComponent";
 
-const RawMaterialAllocationPage = () => {
-  const classes = useStyles();
+const RawMaterialAllocation = () => {
+  const location = useLocation();
+  const { eventId, eventTypeId } = location.state || {};
+  console.log("Received eventId:", eventId); // Debug log
+  console.log("Received eventTypeId:", eventTypeId); // Debug log
+  
+  const [tabs, setTabs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const tabs = [
-    {
-      value: "grossary_items",
-      label: <>Grossary Items</>,
-      children: <GrossaryItems />,
-    },
-    {
-      value: "vegetables",
-      label: "Vegetables",
-      children: "Vegetables",
-    },
-    {
-      value: "dairy_items",
-      label: "Dairy Items",
-      children: "Dairy Items",
-    },
-    {
-      value: "ice_department",
-      label: "Ice Department",
-      children: "Ice Department",
-    },
-    {
-      value: "mineral_water",
-      label: "Mineral Water",
-      children: "Mineral Water",
-    },
-    {
-      value: "ready_made_order",
-      label: "Ready Made Order",
-      children: "Ready Made Order",
-    },
-    {
-      value: "gas_batla_item",
-      label: "GAS BATLA ITEM",
-      children: "GAS BATLA ITEM",
-    },
-    {
-      value: "staff_salairy",
-      label: "STAFF SALAIRY",
-      children: "STAFF SALAIRY",
-    },
-  ];
+  useEffect(() => {
+    if (eventTypeId) {
+      fetchCategories();
+    }
+  }, [eventTypeId]);
+
+  const fetchCategories = () => {
+    GetAllRawMaterialAllocationCategory(eventId)
+      .then((res) => {
+        console.log("API Response:", res); // Debug log
+        
+        // Extract categories from the correct path
+        const categories = res?.data?.data?.["Raw Material Category Details"] || [];
+        
+        console.log("Categories:", categories); // Debug log
+        
+        if (!Array.isArray(categories) || categories.length === 0) {
+          console.warn("No categories found");
+          setTabs([]);
+          setLoading(false);
+          return;
+        }
+        
+        // Map API response to tabs format
+        const dynamicTabs = categories.map((category) => ({
+          value: category.id?.toString(),
+          label: category.nameEnglish || category.name || "Unnamed Category",
+          // Pass categoryId to each component
+          children: <GrossaryItems 
+            categoryId={category.id} 
+            eventId={eventId} 
+            eventTypeId={eventTypeId} 
+          />,
+        }));
+        
+        setTabs(dynamicTabs);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+        setTabs([]);
+        setLoading(false);
+      });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <p>Loading categories...</p>
+      </div>
+    );
+  }
+
+  if (!eventTypeId) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <p className="text-red-500">Event Type ID not found</p>
+      </div>
+    );
+  }
+
   return (
-    <Fragment>
-      <Container>
-        {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Raw Material Allocation" }]} />
-        </div>
-        <TabComponent tabs={tabs} />
-      </Container>
-    </Fragment>
+    <div>
+      <TabComponent tabs={tabs} />
+    </div>
   );
 };
-export default RawMaterialAllocationPage;
+
+export default RawMaterialAllocation;

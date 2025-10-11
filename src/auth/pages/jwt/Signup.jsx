@@ -52,10 +52,10 @@ export default function Signup() {
           cityId: Number(values.cityId),
            roleId: 2,
           // ✅ Default values instead of form inputs
-          companyName: "Default Company",
-          remarks: "Auto-generated signup",
-          planId: 1,
-          reportingManagerId: 1,
+          companyName: " ",
+          remarks: " ",
+          planId: null,
+          reportingManagerId: 0,
 
           companyEmail:
             values.email ||
