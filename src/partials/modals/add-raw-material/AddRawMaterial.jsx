@@ -361,7 +361,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       >
         <form
           onSubmit={formik.handleSubmit}
-          className="flex flex-col gap-y-4 overflow-auto scrollable-y"
+          className="flex flex-col  gap-y-4 overflow-auto scrollable-y"
         >
           <div className="grid grid-cols-3 gap-x-4">
             {/* English Name */}

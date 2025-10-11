@@ -18,44 +18,35 @@ const InvoiceFooter = () => {
       <div className="grid md:grid-cols-2 gap-3 mb-5">
         <div className="min-w-full">
           <h4 class="text-base font-semibold leading-none text-gray-900 mb-2">
-            Customers Notes
-            <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-              *
-            </span>
+            Notes
           </h4>
           <TextArea
             placeholder="Thanks for your Business..."
-            autoSize={{ minRows: 7 }}
+            autoSize={{ minRows: 9 }}
           />
         </div>
         <div className="min-w-full">
           <h4 class="text-base font-semibold leading-none text-gray-900 mb-2">
-            Total Amount
+            Summary
           </h4>
           <div className="border rounded-lg min-w-full p-4">
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <div className="flex items-center gap-10 mb-2">
-                <Radio.Group
-                  value={taxType}
-                  onChange={(e) => setTaxType(e.target.value)}
-                >
-                  <Radio value="TDS">TDS</Radio>
-                  <Radio value="TCS">TCS</Radio>
-                </Radio.Group>
-                <Select
-                  placeholder="Select Tax"
-                  className="w-32"
-                  options={[
-                    { value: "gst5", label: "GST 5%" },
-                    { value: "gst12", label: "GST 12%" },
-                  ]}
-                />
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center justify-between gap-14 mb-2">
+                <span className="text-sm text-gray-900">GST</span>
+                <Input className="w-28 text-right" defaultValue="0.0" />
               </div>
               <span className="font-semibold">0.0</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <span className="text-sm text-gray-900">Adjustment Amount</span>
+              <div className="flex items-center justify-between gap-12 mb-2">
+                <span className="text-sm text-gray-900">SGST</span>
+                <Input className="w-28 text-right" defaultValue="0.0" />
+              </div>
+              <span className="font-semibold">0.0</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center justify-between gap-5 mb-2">
+                <span className="text-sm text-gray-900">Round Off</span>
                 <Input className="w-28 text-right" defaultValue="0.0" />
               </div>
               <span className="font-semibold">0.0</span>
