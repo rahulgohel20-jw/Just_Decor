@@ -6,6 +6,7 @@ import {
   GetAllRawMaterialAllocationItems,
   RawMaterialAllocation
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,62 +100,68 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   };
 
   // Save function
-  const handleSave = async () => {
-    try {
-      setSaving(true);
+  // Replace your handleSave function with this corrected version:
 
-      // Transform tableData to match the API structure
-      const eventRawMaterial = tableData.map((item) => {
-        // Transform eventRawMaterialFunctions to eventRawMatFunctions
-        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((func) => ({
-          eventFunctionId: func.eventFunctionId || 0,
-          functionId: func.functionId || 0,
-          functiondatetime: func.date_time || "",
-          itemName: func.itemName || "",
-          place: func.place || "",
-          price: parseFloat(func.price) || 0,
-          qty: parseFloat(func.qty) || 0,
-          supplierId: getSupplierIdByName(func.agency),
-          unitId: func.unitId || 1 // Default to 1 if not provided
-        }));
+const handleSave = async () => {
+  try {
+    setSaving(true);
 
-        return {
-          eventRawMatFunctions: eventRawMatFunctions,
-          finalQty: parseFloat(item.finalQty) || 0,
-          place: item.place || "",
-          qty: parseFloat(item.qty) || 0,
-          rawMaterialId: item.rawMaterialId || item.id || 0,
-          supplierId: getSupplierIdByName(item.supplierName),
-          totalprice: parseFloat(item.totalprice) || 0,
-          unitId: item.unitId || 1 // Default to 1 if not provided
-        };
-      });
+    // Transform tableData to match the API structure
+    const eventRawMaterial = tableData.map((item) => {
+      // Transform eventRawMaterialFunctions to eventRawMatFunctions
+      const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((func) => ({
+        eventFunctionId: func.eventFunctionId || 0,
+        functionId: func.functionId || 0,
+        functiondatetime: func.functiondatetime || "", // This is correct - from child row
+        itemName: func.itemName || "",
+        place: func.place || "",
+        price: parseFloat(func.price) || 0,
+        qty: parseFloat(func.qty) || 0,
+        supplierId: getSupplierIdByName(func.supplierName), // ✅ FIXED: Changed from func.supplierId to func.supplierName
+        unitId: func.unitId || 1
+      }));
 
-      const payload = {
-        eventId: eventId,
-        eventRawMaterial: eventRawMaterial
+      return {
+        eventRawMatFunctions: eventRawMatFunctions,
+        finalQty: parseFloat(item.finalQty) || 0,
+        place: item.place || "",
+        qty: parseFloat(item.qty) || 0,
+        rawMaterialId: item.rawMaterialId || item.id || 0,
+        supplierId: getSupplierIdByName(item.supplierName), // ✅ FIXED: Changed from item.supplierId to item.supplierName
+        totalprice: parseFloat(item.totalprice) || 0,
+        unitId: item.unitId || 1
       };
+    });
 
-      console.log("Payload to send:", JSON.stringify(payload, null, 2));
+    const payload = {
+      eventId: eventId,
+      eventRawMaterial: eventRawMaterial
+    };
 
-      // Call the API
-      const response = await RawMaterialAllocation(payload);
-      
-      console.log("Save response:", response);
+    console.log("Payload to send:", JSON.stringify(payload, null, 2));
 
-      if (response?.data?.success || response?.status === 200) {
-        // Optionally refresh the data
-        fetchRawMaterialItems(categoryId, eventId);
-      } else {
-        toast.error("Failed to save raw material allocation");
-      }
-    } catch (error) {
-      console.error("Error saving raw material allocation:", error);
-    } finally {
-      setSaving(false);
+    // Call the API
+    const response = await RawMaterialAllocation(payload);
+    
+    console.log("Save response:", response);
+
+    if (response?.data?.success || response?.status === 200) {
+      // Optionally refresh the data
+      fetchRawMaterialItems(categoryId, eventId);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Raw material allocation saved successfully!'
+      });
+    } else {
+      toast.error("Failed to save raw material allocation");
     }
-  };
-
+  } catch (error) {
+    console.error("Error saving raw material allocation:", error);
+  } finally {
+    setSaving(false);
+  }
+};
   const handleAllocateAgency = (agencyName) => {
     const updatedData = tableData.map((item) => ({
       ...item,
@@ -273,20 +280,20 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
             </div>
             <div className="mr-2 mb-2">
               <select 
-                className="select" 
-                value={func.supplierName || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "supplierName", e.target.value)}
-              >
-                <option value="">Select Agency</option>
-                {loading && <option>Loading...</option>}
-                {!loading && agencies.length > 0
-                  ? agencies.map((agency) => (
-                      <option key={agency.id} value={agency.nameEnglish || agency.name}>
-                        {agency.nameEnglish || agency.name}
-                      </option>
-                    ))
-                  : !loading && <option>No agencies found</option>}
-              </select>
+  className="select" 
+  value={func.supplierName || ""}
+  onChange={(e) => handleFunctionChange(main_index, index, "supplierName", e.target.value)}
+>
+  <option value="">Select Agency</option>
+  {loading && <option>Loading...</option>}
+  {!loading && agencies.length > 0
+    ? agencies.map((agency) => (
+        <option key={agency.id} value={agency.nameEnglish || agency.name}>
+          {agency.nameEnglish || agency.name}
+        </option>
+      ))
+    : !loading && <option>No agencies found</option>}
+</select>
             </div>
             <div className="mr-2 mb-2">
               <input 
