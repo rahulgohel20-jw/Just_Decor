@@ -666,3 +666,23 @@ export const updateunit = (id, data) => {
 export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
+
+
+// custome package get api
+export const GetCustomPackageapi = (id) => {
+  return GET(`/custompackage/getallbyuserid?userid=${id}`);
+};
+//custome package post api
+export const AddCustomPackageapi = (data) => {
+  return POST(`/custompackage/add`, data);
+};
+
+//cusrome package update api
+export const UpdateCustomPackageapi = (id, data) => {
+  return PUT(`/custompackage/update?id=${id}`, data);
+}
+
+//custome package delete api
+export const DeleteCustomPackageapi = (id) => {
+  return DELETE(`/custompackage/deletebyid?id=${id}`);
+}

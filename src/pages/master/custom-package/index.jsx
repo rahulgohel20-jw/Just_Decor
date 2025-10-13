@@ -2,68 +2,142 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns } from "./constant"; 
+import { columns } from "../custom-package/constant";
 import useStyle from "./style";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { GetCustomPackageapi, DeleteCustomPackageapi } from "@/services/apiServices"; // Add delete API
 
 const CustomPackageMaster = () => {
   const classes = useStyle();
   const navigate = useNavigate();
-
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // static mock data
-  const mockData = [
-    { sr_no: 1, package_name: "Starter Pack", packageid: 101, isActive: true },
-    { sr_no: 2, package_name: "Pro Pack", packageid: 102, isActive: false },
-    { sr_no: 3, package_name: "Enterprise Pack", packageid: 103, isActive: true },
-  ];
+ const fetchPackages = async () => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData?.id) {
+      Swal.fire("Error", "User ID not found!", "error");
+      return;
+    }
+
+    const res = await GetCustomPackageapi(userData.id);
+
+    const allPackages = res?.data?.data?.["Package Details"] || [];
+
+    console.log("📦 All package IDs from DB:", allPackages.map(pkg => pkg.id));
+
+    if (allPackages.length > 0) {
+     const formatted = allPackages.map((pkg, index) => {
+  const totalItemsCount = pkg.customPackageDetails?.reduce((sum, menu) => {
+    return sum + (menu.customPackageMenuItemDetails?.length || 0);
+  }, 0) || 0;
+
+  return {
+    sr_no: index + 1,
+    packageid: pkg.id,
+    package_name: pkg.nameEnglish,
+    price: pkg.price,
+    total_items: totalItemsCount, // <- correct total items
+    sequence: pkg.sequence,
+    isActive: pkg.isActive,
+    raw: pkg,
+  };
+});
+
+
+      setTableData(formatted);
+    } else {
+      setTableData([]);
+    }
+  } catch (err) {
+    console.error("Failed to fetch packages:", err);
+    Swal.fire("Error", "Failed to fetch package data.", "error");
+  }
+};
+
 
   useEffect(() => {
-    setTableData(mockData);
+    fetchPackages();
   }, []);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setTableData(mockData);
+      fetchPackages();
     } else {
-      const filtered = mockData.filter((pkg) =>
-        pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase())
+      setTableData((prev) =>
+        prev.filter((pkg) =>
+          pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
       );
-      setTableData(filtered);
     }
   }, [searchQuery]);
 
-  const deletePackage = (packageid) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This is static demo, item will just be removed from table!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const updated = tableData.filter((pkg) => pkg.packageid !== packageid);
-        setTableData(updated);
+ const deletePackage = async (packageid) => {
+  // Debug: Check what we're trying to delete
+  console.log("=== DELETE DEBUG ===");
+  console.log("Package ID to delete:", packageid);
+  console.log("Type of packageid:", typeof packageid);
+  console.log("Current tableData:", tableData);
+  
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Once deleted, you will not be able to recover this package!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        console.log("Calling API with ID:", packageid);
+        
+        // Call the delete API
+        const response = await DeleteCustomPackageapi(packageid);
+        
+        console.log("Full delete response:", response);
+        
+        if (response?.data?.success) {
+          // Remove from local state
+          const updated = tableData.filter((pkg) => pkg.packageid !== packageid);
+          setTableData(updated);
+          
+          Swal.fire({
+            title: "Deleted!",
+            text: response?.data?.msg || "Custom package removed successfully.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          
+          // Refresh the data
+          await fetchPackages();
+        } else {
+          // Show the actual error message from API
+          Swal.fire({
+            title: "Delete Failed",
+            text: response?.data?.msg || "Failed to delete package. Please check if the package exists.",
+            icon: "error",
+          });
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        console.error("Error response:", error?.response);
         Swal.fire({
-          title: "Removed!",
-          text: "Custom package removed (static).",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
+          title: "Error",
+          text: error?.response?.data?.msg || "An error occurred while deleting the package.",
+          icon: "error",
         });
       }
-    });
-  };
+    }
+  });
+};
 
-  const handleEdit = (pkg) => {
-    // Navigate to edit page with query param or id
-    navigate(`/master/custom-package/addpackage?id=${pkg.packageid}`);
+  const handleEdit = (id) => {
+    console.log("✅ Navigating to edit page with id:", id);
+    navigate(`/master/custom-package/addpackage?id=${id}`);
   };
 
   const statusHandler = (id, status) => {
@@ -71,18 +145,16 @@ const CustomPackageMaster = () => {
       pkg.packageid === id ? { ...pkg, isActive: status === 1 } : pkg
     );
     setTableData(updated);
-    Swal.fire("Updated!", "Status updated (static)", "success");
+    Swal.fire("Updated!", "Status updated successfully", "success");
   };
 
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Custom Package Master" }]} />
         </div>
 
-        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}>
             <div className="filItems relative">
@@ -107,7 +179,6 @@ const CustomPackageMaster = () => {
           </div>
         </div>
 
-        {/* table */}
         <TableComponent
           columns={columns(handleEdit, deletePackage, statusHandler)}
           data={tableData}
