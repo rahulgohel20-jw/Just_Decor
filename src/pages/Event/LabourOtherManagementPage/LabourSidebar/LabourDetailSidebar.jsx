@@ -59,6 +59,9 @@ className="pointer-events-auto w-[1100px] max-w-[95vw] max-h-[90vh] bg-white rou
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
                   Labour Overview
+                  <p className="text-gray-500 text-sm mt-3">
+                  Review and manage your labor details
+                </p>
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -70,120 +73,146 @@ className="pointer-events-auto w-[1100px] max-w-[95vw] max-h-[90vh] bg-white rou
 
               {/* Content */}
               <div className="p-6 overflow-y-auto">
-                <p className="text-gray-500 text-sm mb-6">
-                  Review and manage your labor details
-                </p>
+                
 
                 {/* Table */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                  <div className="grid grid-cols-9 items-center font-semibold text-gray-700 border-b pb-3 mb-3 text-sm">
-                    <div>Labour Type</div>
-                    <div>Contact</div>
-                    <div>Price</div>
-                    <div className="col-span-2 text-center">Morning</div>
-                    <div className="col-span-2 text-center">Evening</div>
-                    <div className="col-span-2 text-center">Night</div>
-                  </div>
+                {/* Table Header */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+  {/* Header Row */}
+  <div className="grid grid-cols-9 text-sm font-semibold text-gray-700 border-b pb-3 mb-3">
+    <div className="col-span-3">Labour Details</div>
+    <div className="col-span-6 text-center">Shift Details</div>
+  </div>
 
-                  {/* Row */}
-                  <div className="grid grid-cols-9 items-center gap-3 mb-3">
-                    <Select
-                      value={labourData.labourType}
-                      onChange={(value) =>
-                        setLabourData({ ...labourData, labourType: value })
-                      }
-                      className="w-full"
-                      size="middle"
-                    >
-                      <Option value="Waiter">Waiter</Option>
-                      <Option value="Cook">Cook</Option>
-                    </Select>
+  {/* Sub Header Row */}
+  <div className="grid grid-cols-9 text-xs font-bold text-dark border-b pb-2 mb-3">
+    
+<div className="text-center">Labour Type</div>
+    <div className="text-center">Contact</div>
+    <div className="text-center">Price</div>
+    <div className="text-center col-span-2 ">Morning</div>
+    <div className="text-center col-span-2">Evening</div>
+    <div className="text-center col-span-2">Night</div>
+  </div>
 
-                    <Select
-                      value={labourData.contact}
-                      onChange={(value) =>
-                        setLabourData({ ...labourData, contact: value })
-                      }
-                      className="w-full"
-                      size="middle"
-                    >
-                      <Option value="Pappu Bhai">Pappu Bhai</Option>
-                      <Option value="Ramesh">Ramesh</Option>
-                    </Select>
+  {/* Sub-sub header for Date / Qty */}
+  <div className="grid grid-cols-9 text-[11px] text-gray-900 uppercase tracking-wide border-b pb-2 mb-3">
+    
+        
+    <div></div>
+    <div></div>
+    <div></div>
+    <div className="text-center">Date</div>
+    <div className="text-center">Qty</div>
+    <div className="text-center">Date</div>
+    <div className="text-center">Qty</div>
+    <div className="text-center">Date</div>
+    <div className="text-center">Qty</div>
+  </div>
 
-                    <Input
-                      type="number"
-                      value={labourData.price}
-                      onChange={(e) =>
-                        setLabourData({ ...labourData, price: e.target.value })
-                      }
-                    />
+  {/* Data Row */}
+  <div className="grid grid-cols-9 items-center gap-3 mb-3">
+    <Select
+      value={labourData.labourType}
+      onChange={(value) =>
+        setLabourData({ ...labourData, labourType: value })
+      }
+      className="w-full"
+      size="middle"
+    >
+      <Option value="Waiter">Waiter</Option>
+      <Option value="Cook">Cook</Option>
+    </Select>
 
-                    <DatePicker
-                      value={labourData.morningDate ? dayjs(labourData.morningDate) : null}
-                      onChange={(date, dateString) =>
-                        setLabourData({ ...labourData, morningDate: dateString })
-                      }
-                      className="w-full"
-                      format="MMM D, YYYY"
-                    />
-                    <Input
-                      type="number"
-                      value={labourData.morningQty}
-                      onChange={(e) =>
-                        setLabourData({ ...labourData, morningQty: e.target.value })
-                      }
-                    />
+    <Select
+      value={labourData.contact}
+      onChange={(value) =>
+        setLabourData({ ...labourData, contact: value })
+      }
+      className="w-full"
+      size="middle"
+    >
+      <Option value="Pappu Bhai">Pappu Bhai</Option>
+      <Option value="Ramesh">Ramesh</Option>
+    </Select>
 
-                    <DatePicker
-                      value={labourData.eveningDate ? dayjs(labourData.eveningDate) : null}
-                      onChange={(date, dateString) =>
-                        setLabourData({ ...labourData, eveningDate: dateString })
-                      }
-                      className="w-full"
-                      format="MMM D, YYYY"
-                    />
-                    <Input
-                      type="number"
-                      value={labourData.eveningQty}
-                      onChange={(e) =>
-                        setLabourData({ ...labourData, eveningQty: e.target.value })
-                      }
-                    />
+    <Input
+      type="number"
+      value={labourData.price}
+      onChange={(e) =>
+        setLabourData({ ...labourData, price: e.target.value })
+      }
+    />
 
-                    <DatePicker
-                      value={labourData.nightDate ? dayjs(labourData.nightDate) : null}
-                      onChange={(date, dateString) =>
-                        setLabourData({ ...labourData, nightDate: dateString })
-                      }
-                      className="w-full"
-                      format="MMM D, YYYY"
-                    />
-                    <Input
-                      type="number"
-                      value={labourData.nightQty}
-                      onChange={(e) =>
-                        setLabourData({ ...labourData, nightQty: e.target.value })
-                      }
-                    />
-                  </div>
+    {/* Morning */}
+    <DatePicker
+      value={labourData.morningDate ? dayjs(labourData.morningDate) : null}
+      onChange={(date, dateString) =>
+        setLabourData({ ...labourData, morningDate: dateString })
+      }
+      className="w-full"
+      format="MMM D, YYYY"
+    />
+    <Input
+      type="number"
+      value={labourData.morningQty}
+      onChange={(e) =>
+        setLabourData({ ...labourData, morningQty: e.target.value })
+      }
+    />
 
-                  {/* Totals */}
-                  <div className="flex justify-end items-center gap-6 mt-6 border-t pt-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-700">Total Qty.</span>
-                      <Input value={totalQty} readOnly className="w-20 text-center" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-700">Total Price</span>
-                      <Input
-                        value={totalPrice.toLocaleString()}
-                        readOnly
-                        className="w-32 text-right"
-                      />
-                    </div>
-                  </div>
-                </div>
+    {/* Evening */}
+    <DatePicker
+      value={labourData.eveningDate ? dayjs(labourData.eveningDate) : null}
+      onChange={(date, dateString) =>
+        setLabourData({ ...labourData, eveningDate: dateString })
+      }
+      className="w-full"
+      format="MMM D, YYYY"
+    />
+    <Input
+      type="number"
+      value={labourData.eveningQty}
+      onChange={(e) =>
+        setLabourData({ ...labourData, eveningQty: e.target.value })
+      }
+    />
+
+    {/* Night */}
+    <DatePicker
+      value={labourData.nightDate ? dayjs(labourData.nightDate) : null}
+      onChange={(date, dateString) =>
+        setLabourData({ ...labourData, nightDate: dateString })
+      }
+      className="w-full"
+      format="MMM D, YYYY"
+    />
+    <Input
+      type="number"
+      value={labourData.nightQty}
+      onChange={(e) =>
+        setLabourData({ ...labourData, nightQty: e.target.value })
+      }
+    />
+  </div>
+
+  {/* Totals */}
+  <div className="flex justify-end items-center gap-6 mt-6 border-t pt-4">
+    <div className="flex items-center gap-2">
+      <span className="font-semibold text-gray-700">Total Qty.</span>
+      <Input value={totalQty} readOnly className="w-20 text-center" />
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="font-semibold text-gray-700">Total Price</span>
+      <Input
+        value={totalPrice.toLocaleString()}
+        readOnly
+        className="w-32 text-right"
+      />
+    </div>
+  </div>
+</div>
+
               </div>
             </motion.div>
           </div>
