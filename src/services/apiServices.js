@@ -152,12 +152,44 @@ export const GetAllRawMaterial = (Id) => {
     `rawmaterial/getallbyuserid?rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
+export const DeleteRole = (Id) => {
+  return DELETE(`/rolemaster/deletebyid?id=${Id}`);
+};
 
 export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
 export const GetSuplier = (id) => {
-  return GET(`partymaster/getallbycattypeid?catTypeId=6&userId=${id}`);
+  return GET(
+    `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`
+  );
+};
+export const GetAllQuotation = (id) => {
+  return GET(`/quotation/getalluserid?userid=${id}`);
+};
+
+
+// Get All Supllier Vendors
+
+export const GetAllSupllierVendors = (Id) => {
+  return GET(`/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`);
+};
+
+
+
+//Raw Material Allocation
+export const GetAllRawMaterialAllocationCategory = (eventId) => {
+  return GET(`/rawmaterialcategory/getbyeventid?eventId=${eventId}`);
+};
+
+export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
+  return GET(
+    `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
+  );
+}
+
+export const RawMaterialAllocation = (data) => {
+  return POST("/event-raw-material/add-update", data);
 };
 
 //Add Meal Type
@@ -248,7 +280,9 @@ export const Fetchmanager = (Id) => {
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
-
+export const GeteventQuoataiondata = (id) => {
+  return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
+};
 export const GetAllRole = (id) => {
   return GET(`/rolemaster/getallbyuserid?userId=${id}`);
 };

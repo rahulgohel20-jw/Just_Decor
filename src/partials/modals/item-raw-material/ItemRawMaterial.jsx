@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { GetUnitData, GetAllRawMaterial } from "@/services/apiServices";
+import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
 
 const ItemRawmaterial = ({
   isModalOpen,
@@ -9,8 +10,6 @@ const ItemRawmaterial = ({
   refreshData = () => {},
   selectedEvent,
 }) => {
-  if (!isModalOpen) return null;
-
   const initialFormState = {
     rawMaterial: "",
     weight: "",
@@ -21,6 +20,7 @@ const ItemRawmaterial = ({
   const [errors, setErrors] = useState({});
   const [rawMaterialOptions, setRawMaterialOptions] = useState([]);
   const [unitOptions, setUnitOptions] = useState([]);
+  const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let userId = userData?.id;
@@ -28,7 +28,6 @@ const ItemRawmaterial = ({
   useEffect(() => {
     if (!isModalOpen) return;
 
-    console.log(selectedEvent);
     if (selectedEvent) {
       setFormData({
         rawMaterial: selectedEvent.name,
@@ -88,7 +87,6 @@ const ItemRawmaterial = ({
     try {
       await schema.validate(formData, { abortEarly: false });
 
-      // Find selected raw material rate
       const selectedMaterial = rawMaterialOptions.find(
         (rm) => rm.name === formData.rawMaterial
       );
@@ -115,9 +113,7 @@ const ItemRawmaterial = ({
         text: `Raw Material ${formData.rawMaterial} added successfully!`,
       });
 
-      // Pass the new row back to parent
       refreshData(newRow);
-
       setIsModalOpen(false);
       setFormData(initialFormState);
     } catch (validationErrors) {
@@ -132,110 +128,131 @@ const ItemRawmaterial = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50">
-      <div className="bg-[#F2F7FB] rounded-xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh]">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            {selectedEvent ? "Edit Raw Material" : "New Raw Material"}
-          </h2>
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="text-2xl text-gray-600"
-          >
-            &times;
-          </button>
-        </div>
+    <>
+      {/* Main Modal (hidden via CSS instead of unmounting) */}
+      <div
+        className={`fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 ${
+          isModalOpen ? "block" : "hidden"
+        }`}
+      >
+        <div className="bg-[#F2F7FB] rounded-xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh]">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">
+              {selectedEvent ? "Edit Raw Material" : "New Raw Material"}
+            </h2>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="text-2xl text-gray-600"
+            >
+              &times;
+            </button>
+          </div>
 
-        {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Raw Material */}
-          <div>
-            <label className="block mb-1 font-medium">Raw Material*</label>
-            <div className="flex">
-              <select
-                name="rawMaterial"
-                value={formData.rawMaterial}
+          {/* Form */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Raw Material */}
+            <div>
+              <label className="block mb-1 font-medium">Raw Material*</label>
+              <div className="flex">
+                <select
+                  name="rawMaterial"
+                  value={formData.rawMaterial}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-l-lg px-3 py-2"
+                >
+                  <option value="">Select Raw Material</option>
+                  {rawMaterialOptions.map((rm) => (
+                    <option key={rm.id} value={rm.name}>
+                      {rm.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setIsRawMaterialModalOpen(true);
+                  }}
+                  className="bg-primary text-white border border-gray-300 border-l-0 rounded-r-lg px-3"
+                >
+                  +
+                </button>
+              </div>
+              {errors.rawMaterial && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.rawMaterial}
+                </p>
+              )}
+            </div>
+
+            {/* Weight */}
+            <div>
+              <label className="block mb-1 font-medium">Weight*</label>
+              <input
+                type="text"
+                name="weight"
+                value={formData.weight}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-l-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                placeholder="Enter weight"
+              />
+              {errors.weight && (
+                <p className="text-red-500 text-sm mt-1">{errors.weight}</p>
+              )}
+            </div>
+
+            {/* Unit */}
+            <div>
+              <label className="block mb-1 font-medium">Unit*</label>
+              <select
+                name="unit"
+                value={formData.unit}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2"
               >
-                <option value="">Select Raw Material</option>
-                {rawMaterialOptions.map((rm) => (
-                  <option key={rm.id} value={rm.name}>
-                    {rm.name}
+                <option value="">Select Unit</option>
+                {unitOptions.map((unit) => (
+                  <option key={unit.id} value={unit.name}>
+                    {unit.name}
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={() => console.log("Add new raw material")}
-                className="bg-primary text-white border border-gray-300 border-l-0 rounded-r-lg px-3"
-              >
-                +
-              </button>
+              {errors.unit && (
+                <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
+              )}
             </div>
-            {errors.rawMaterial && (
-              <p className="text-red-500 text-sm mt-1">{errors.rawMaterial}</p>
-            )}
           </div>
 
-          {/* Weight */}
-          <div>
-            <label className="block mb-1 font-medium">Weight*</label>
-            <input
-              type="text"
-              name="weight"
-              value={formData.weight}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              placeholder="Enter weight"
-            />
-            {errors.weight && (
-              <p className="text-red-500 text-sm mt-1">{errors.weight}</p>
-            )}
-          </div>
-
-          {/* Unit */}
-          <div>
-            <label className="block mb-1 font-medium">Unit*</label>
-            <select
-              name="unit"
-              value={formData.unit}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+          {/* Buttons */}
+          <div className="flex w-full justify-end mt-6 gap-3">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
             >
-              <option value="">Select Unit</option>
-              {unitOptions.map((unit) => (
-                <option key={unit.id} value={unit.name}>
-                  {unit.name}
-                </option>
-              ))}
-            </select>
-            {errors.unit && (
-              <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
-            )}
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
+              onClick={handleSubmit}
+            >
+              {selectedEvent ? "Update" : "Save"}
+            </button>
           </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex w-full justify-end mt-6 gap-3">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
-            onClick={handleSubmit}
-          >
-            {selectedEvent ? "Update" : "Save"}
-          </button>
         </div>
       </div>
-    </div>
+
+      {/* Add Raw Material Modal */}
+      <AddRawMaterial
+        isOpen={isRawMaterialModalOpen}
+        onClose={() => {
+          setIsRawMaterialModalOpen(false);
+          setIsModalOpen(true);
+        }}
+      />
+    </>
   );
 };
 

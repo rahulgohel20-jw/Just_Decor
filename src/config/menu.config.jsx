@@ -23,10 +23,6 @@ export const MENU_SIDEBAR = [
         title: "Event List",
         path: "/event",
       },
-      {
-        title: "Invoice",
-        path: "/invoice-dashboard",
-      },
     ],
   },
   {
@@ -222,7 +218,7 @@ export const MENU_SIDEBAR = [
   // },
   {
     title: "Raw Material",
-    icon: "ki-filled ki-abstract-18 text-primary",
+    icon: "ki-filled ki-badge text-primary",
     children: [
       {
         title: "Raw Material Category Master",
@@ -245,7 +241,7 @@ export const MENU_SIDEBAR = [
 
   {
     title: "Menu Item",
-    icon: "ki-filled ki-abstract-18 text-primary",
+    icon: "ki-filled ki-additem text-primary",
     children: [
       {
         title: "Menu Item Category",
@@ -267,30 +263,16 @@ export const MENU_SIDEBAR = [
   },
   {
     title: "Sales",
-    icon: "ki-filled ki-abstract-18 text-primary",
+    icon: "ki-filled ki-airplane text-primary",
     children: [
       {
         title: "Quotation",
-        children: [
-          {
-        title: "Quotation Overview",
         path: "/quotation-dashboard",
-      },
-          { title: "All Quotation", path: "/sales/quotation-list" },
-          // { title: "Quotation", path: "/quotation" }
-        ],
       },
       {
         title: "Invoice",
-        children: [
-          {
-        title: "Invoice Overview",
         path: "/invoice-dashboard",
       },
-          { title: "All Invoice", path: "/sales/invoice-list" },
-          // { title: "Invoice", path: "/add-invoice" }
-        ],
-      }
     ],
   },
   {
@@ -351,21 +333,6 @@ export const MENU_SIDEBAR = [
   //     { title: "Raise Ticket", path: "/support/raise-ticket" },
   //   ],
   // },
-  {
-    title: "Billing",
-    icon: "ki-filled ki-cheque text-primary",
-    disabled: false,
-    children: [
-      {
-        title: "Overview",
-        path: "billing/overview",
-      },
-      {
-        title: "Wallet Logs",
-        path: "billing/wallet-logs",
-      },
-    ],
-  },
 ];
 export const MENU_MEGA = [
   {

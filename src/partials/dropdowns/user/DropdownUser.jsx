@@ -28,7 +28,6 @@ const DropdownUser = ({ menuItemRef }) => {
   };
   let data = localStorage.getItem("userData");
   let userdata = JSON.parse(data);
-  
 
   const buildHeader = () => {
     return (
@@ -86,7 +85,7 @@ const DropdownUser = ({ menuItemRef }) => {
           </MenuItem>
 
           {/* billing */}
-          <MenuItem>
+          {/* <MenuItem>
             <MenuLink path="/account/billing/basic">
               <MenuIcon>
                 <KeenIcon icon="icon" />
@@ -95,21 +94,21 @@ const DropdownUser = ({ menuItemRef }) => {
                 <FormattedMessage id="USER.MENU.BILLING" />
               </MenuTitle>
             </MenuLink>
-          </MenuItem>
+          </MenuItem> */}
 
           {/* my leads */}
-          <MenuItem>
+          {/* <MenuItem>
             <MenuLink path="">
               <MenuIcon>
                 <i className="ki-filled ki-ki-filled ki-abstract-18"></i>
               </MenuIcon>
               <MenuTitle>My Leads</MenuTitle>
             </MenuLink>
-          </MenuItem>
+          </MenuItem> */}
 
           {/* settings */}
           <MenuItem>
-            <MenuLink path="/account/billing/basic">
+            <MenuLink path="/settings/general">
               <MenuIcon>
                 <KeenIcon icon="setting-2" />
               </MenuIcon>
@@ -118,14 +117,14 @@ const DropdownUser = ({ menuItemRef }) => {
           </MenuItem>
 
           {/* activity */}
-          <MenuItem>
+          {/* <MenuItem>
             <MenuLink path="">
               <MenuIcon>
                 <i className="ki-filled ki-calendar"></i>
               </MenuIcon>
               <MenuTitle>Activity</MenuTitle>
             </MenuLink>
-          </MenuItem>
+          </MenuItem> */}
 
           <MenuSeparator />
 

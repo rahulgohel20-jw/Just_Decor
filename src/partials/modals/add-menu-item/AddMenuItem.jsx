@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { message } from "antd";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import ItemRawmaterial from "../item-raw-material/ItemRawMaterial";
@@ -17,6 +19,28 @@ import {
   ContactNameItem,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+
+// Yup validation schema - only for required fields
+const validationSchema = Yup.object().shape({
+  nameEnglish: Yup.string()
+    .required("Name (English) is required")
+    .min(2, "Name must be at least 2 characters")
+    .trim(),
+  priority: Yup.number()
+    .required("Priority is required")
+    .typeError("Priority must be a number")
+    .positive("Priority must be a positive number"),
+  menuItemCategory: Yup.string().required("Menu Item Category is required"),
+  menuSubItemCategory: Yup.string().required(
+    "Menu Item Sub Category is required"
+  ),
+  kitchenArea: Yup.string().required("Kitchen Area is required"),
+  price: Yup.number()
+    .required("Price is required")
+    .typeError("Price must be a number")
+    .positive("Price must be a positive number"),
+});
+
 const AddMenuItem = ({
   isModalOpen,
   setIsModalOpen,
@@ -37,7 +61,16 @@ const AddMenuItem = ({
     kitchenArea: "",
   };
 
-  const [formData, setFormData] = useState(initialFormState);
+  const formik = useFormik({
+    initialValues: initialFormState,
+    validationSchema: validationSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: (values) => {
+      handleSubmit();
+    },
+  });
+
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -51,6 +84,7 @@ const AddMenuItem = ({
   const [contactCategories, setContactCategories] = useState([]);
   const [units, setUnits] = useState([]);
   const [contactNames, setContactNames] = useState([]);
+  const [chefContactNames, setChefContactNames] = useState([]);
   const [allocationConfig, setAllocationConfig] = useState({
     locationType: "venue",
     quantityPer100Person: "",
@@ -67,26 +101,40 @@ const AddMenuItem = ({
   const [completedTabs, setCompletedTabs] = useState(["tab_1"]);
 
   useEffect(() => {
-    if (!isModalOpen) setFormData(initialFormState);
+    if (!isModalOpen) {
+      formik.resetForm();
+      setAllocationConfig({
+        locationType: "venue",
+        quantityPer100Person: "",
+        unitId: "",
+        pricePerUnit: "",
+        contactCategoryId: "",
+        contactNameId: "",
+        allocationType: "Counter Wise",
+        counterNo: "",
+        pricePerLabour: "",
+        helperCount: "",
+        pricePerHelper: "",
+      });
+      setTableData(defaultData);
+      setCompletedTabs(["tab_1"]);
+    }
   }, [isModalOpen]);
 
   useEffect(() => {
-    if (formData.nameEnglish) {
+    if (formik.values.nameEnglish) {
       if (debounceTimer) clearTimeout(debounceTimer);
       const timer = setTimeout(() => {
-        Translateapi(formData.nameEnglish)
+        Translateapi(formik.values.nameEnglish)
           .then((res) => {
-            setFormData((prev) => ({
-              ...prev,
-              nameGujarati: res.data.gujarati || "",
-              nameHindi: res.data.hindi || "",
-            }));
+            formik.setFieldValue("nameGujarati", res.data.gujarati || "");
+            formik.setFieldValue("nameHindi", res.data.hindi || "");
           })
           .catch((err) => console.error("Translation error:", err));
       }, 500);
       setDebounceTimer(timer);
     }
-  }, [formData.nameEnglish]);
+  }, [formik.values.nameEnglish]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -101,7 +149,7 @@ const AddMenuItem = ({
         GetAllSubCategorymenuitem(userData.id),
         GetAllKitchenAreaById(userData.id),
       ])
-        .then(([catRes, subRes, kitchenRes, RawMaterialName]) => {
+        .then(([catRes, subRes, kitchenRes]) => {
           setCategories(catRes?.data?.data?.["Menu Category Details"] || []);
           setSubCategories(
             subRes?.data?.data?.["Menu Sub Category Details"] || []
@@ -119,12 +167,9 @@ const AddMenuItem = ({
   useEffect(() => {
     RawMaterialName(userData.id, (name = "Outside Supplier (Food)"))
       .then((res) => {
-        console.log(res);
-
         const categories = res?.data?.data?.["Contact Category Details"].map(
           (cat) => ({ id: cat.id, name: cat.nameEnglish || "-" })
         );
-
         setContactCategories(categories);
       })
       .catch((err) =>
@@ -148,11 +193,11 @@ const AddMenuItem = ({
             id: item.id,
             name: item.nameEnglish || "-",
           })) || [];
-        setContactNames(names);
+        setChefContactNames(names);
       })
       .catch((err) => {
         console.error("Error fetching contact names:", err);
-        setContactNames([]);
+        setChefContactNames([]);
       });
   }, []);
 
@@ -168,8 +213,7 @@ const AddMenuItem = ({
         (area) => area.nameEnglish === selectedMenuItem.kitchenArea
       );
 
-      setFormData({
-        ...initialFormState,
+      formik.setValues({
         nameEnglish: selectedMenuItem.name || "",
         nameGujarati: selectedMenuItem.nameGujarati || "",
         nameHindi: selectedMenuItem.nameHindi || "",
@@ -179,17 +223,62 @@ const AddMenuItem = ({
         menuItemCategory: matchedCategory?.id || "",
         menuSubItemCategory: matchedSubCategory?.id || "",
         kitchenArea: matchedKitchenArea?.id || "",
+        sequence: 1,
+        file: "",
       });
+
+      if (selectedMenuItem.rawdata && selectedMenuItem.rawdata.length > 0) {
+        const formattedTableData = selectedMenuItem.rawdata.map((item) => ({
+          id: item.id,
+          weight: item.weight || 0,
+          unit: item.unit?.symbolEnglish || "",
+          name: item.rawMaterial?.nameEnglish || "",
+          rawMaterialId: item.rawMaterial?.id || "",
+          rate: item.rate || 0,
+          quantity: item.weight || 0,
+          supplierId: item.rawMaterial?.id || "",
+        }));
+        setTableData(formattedTableData);
+      }
+
+      if (
+        selectedMenuItem.menuAllocation &&
+        selectedMenuItem.menuAllocation.length > 0
+      ) {
+        const allocation = selectedMenuItem.menuAllocation[0];
+
+        setAllocationConfig({
+          locationType:
+            allocation.godownLocation === "godown" ? "godown" : "venue",
+          quantityPer100Person: allocation.quantityPer100Person || "",
+          unitId: allocation.unit?.id || "",
+          pricePerUnit: allocation.basePrice || "",
+          contactCategoryId: allocation.contact?.id || "",
+          contactNameId: allocation.party?.id || "",
+          allocationType: allocation.allocation_type || "Counter Wise",
+          counterNo: allocation.counterNo || "",
+          pricePerLabour: allocation.pricePerLabour || "",
+          helperCount: "",
+          pricePerHelper: allocation.pricePerHelper || "",
+        });
+
+        if (allocation.selectOutsideAgency) {
+          setSelectedAgency("outside");
+        } else if (allocation.selectChefLabourAgency) {
+          setSelectedAgency("chef");
+        } else {
+          setSelectedAgency(null);
+        }
+      }
     }
   }, [selectedMenuItem, categories, subCategories, kitchenAreas, isModalOpen]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    formik.handleChange(e);
   };
 
   const uploadImage = (uploadRequest) => {
-    if (!formData.file) {
+    if (!formik.values.file) {
       refreshData();
       setIsModalOpen(false);
       return;
@@ -199,7 +288,7 @@ const AddMenuItem = ({
     request.append("moduleId", uploadRequest.ModuleId);
     request.append("moduleName", uploadRequest.ModuleName);
     request.append("fileType", uploadRequest.FileType);
-    request.append("file", formData.file);
+    request.append("file", formik.values.file);
 
     uploadFile(request)
       .then(() => {
@@ -209,10 +298,8 @@ const AddMenuItem = ({
       })
       .catch((error) => console.error("Error uploading image:", error));
   };
-  console.log(tableData);
 
   const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
     if (!userData?.id) {
       message.error("User not found");
       return;
@@ -230,22 +317,26 @@ const AddMenuItem = ({
     );
     const dishCosting = totalRate / 10;
 
-    const menuItemRawMaterials = tableData.map((row) => ({
-      id: 0,
+    const existingRawMaterialIds =
+      selectedMenuItem?.rawdata?.map((item) => item.id) || [];
+
+    const menuItemRawMaterials = tableData.map((row, index) => ({
+      id: existingRawMaterialIds[index] || 0,
       rate: safeNumber(row.rate),
       rawMaterialId: row.rawMaterialId,
       unitId: row.unitId,
       weight: safeNumber(row.weight),
     }));
 
+    const existingAllocationId = selectedMenuItem?.menuAllocation?.[0]?.id || 0;
     const menuItemAllocationConfigRequest = [
       {
         allocation_type: allocationConfig.allocationType || "",
-        basePrice: safeNumber(formData.price),
+        basePrice: safeNumber(formik.values.price),
         contactCategoryId: safeNumber(allocationConfig.contactCategoryId),
         counterNo: allocationConfig.counterNo,
         godownLocation: allocationConfig.locationType,
-        id: 0,
+        id: existingAllocationId,
         notes: "",
         partyId: safeNumber(allocationConfig.contactNameId),
         pricePerHelper: allocationConfig.pricePerHelper,
@@ -258,16 +349,16 @@ const AddMenuItem = ({
     ];
 
     const payload = {
-      nameEnglish: formData.nameEnglish,
-      nameGujarati: formData.nameGujarati,
-      nameHindi: formData.nameHindi,
-      slogan: formData.menuSlogan,
-      price: safeNumber(formData.price),
-      sequence: safeNumber(formData.priority),
+      nameEnglish: formik.values.nameEnglish,
+      nameGujarati: formik.values.nameGujarati,
+      nameHindi: formik.values.nameHindi,
+      slogan: formik.values.menuSlogan,
+      price: safeNumber(formik.values.price),
+      sequence: safeNumber(formik.values.priority),
       userId: userData.id,
-      menuCategoryId: safeNumber(formData.menuItemCategory),
-      menuSubCategoryId: safeNumber(formData.menuSubItemCategory),
-      kitchenAreaId: safeNumber(formData.kitchenArea),
+      menuCategoryId: safeNumber(formik.values.menuItemCategory),
+      menuSubCategoryId: safeNumber(formik.values.menuSubItemCategory),
+      kitchenAreaId: safeNumber(formik.values.kitchenArea),
       menuItemRawMaterials,
       dishCosting: dishCosting,
       totalRate: totalRate,
@@ -283,32 +374,42 @@ const AddMenuItem = ({
       UpdateMenuItem(selectedMenuItem.id, payload)
         .then(() => {
           message.success("Menu item updated successfully!");
-          if (formData.file) {
+
+          if (formik.values.file) {
             uploadImage({ ...uploadRequest, ModuleId: selectedMenuItem.id });
           } else {
             refreshData();
             setIsModalOpen(false);
+            Swal.fire({
+              icon: "success",
+              title: "Saved!",
+              text: `Menu item updated successfully!`,
+            });
           }
         })
         .catch((err) => console.error("Error updating menu item:", err));
     } else {
       AddMenuItems(payload)
         .then((res) => {
-          message.success("Menu item added successfully!");
           const newId = res?.data?.moduleId;
-          if (formData.file && newId) {
+          if (formik.values.file && newId) {
             uploadImage({ ...uploadRequest, ModuleId: newId });
           } else {
             refreshData();
             setIsModalOpen(false);
+            Swal.fire({
+              icon: "success",
+              title: "Saved!",
+              text: `Menu item added successfully!`,
+            });
           }
         })
         .catch((err) => console.error("Error saving menu item:", err));
     }
   };
+
   const handleEdit = (rowData) => {
     setEditingRow(rowData);
-
     setIsItemModalOpen(true);
   };
 
@@ -328,13 +429,8 @@ const AddMenuItem = ({
       }
     });
   };
-  const handleContactCategoryChange = (categoryName) => {
-    setFormData((prev) => ({
-      ...prev,
-      contactCategory: categoryName,
-      contactName: "",
-    }));
 
+  const handleContactCategoryChange = (categoryName) => {
     if (!categoryName) {
       setContactNames([]);
       return;
@@ -355,6 +451,46 @@ const AddMenuItem = ({
       });
   };
 
+  useEffect(() => {
+    if (selectedMenuItem && isModalOpen && allocationConfig.contactCategoryId) {
+      const selectedCategory = contactCategories.find(
+        (cat) => cat.id === parseInt(allocationConfig.contactCategoryId)
+      );
+
+      if (selectedCategory) {
+        handleContactCategoryChange(selectedCategory.name);
+      }
+    }
+  }, [
+    selectedMenuItem,
+    isModalOpen,
+    allocationConfig.contactCategoryId,
+    contactCategories,
+  ]);
+
+  useEffect(() => {
+    if (
+      selectedMenuItem?.menuAllocation?.[0]?.contact?.id &&
+      contactNames.length > 0
+    ) {
+      const selectedContactId = selectedMenuItem.menuAllocation[0].contact.id;
+
+      const contactExists = contactNames.some(
+        (contact) => contact.id === selectedContactId
+      );
+
+      if (
+        contactExists &&
+        allocationConfig.contactNameId !== selectedContactId
+      ) {
+        setAllocationConfig((prev) => ({
+          ...prev,
+          contactNameId: selectedContactId,
+        }));
+      }
+    }
+  }, [contactNames, selectedMenuItem, allocationConfig.contactNameId]);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "tab_1":
@@ -363,67 +499,88 @@ const AddMenuItem = ({
             <InputField
               label="Name (English)"
               name="nameEnglish"
-              value={formData.nameEnglish}
+              value={formik.values.nameEnglish}
               onChange={handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.nameEnglish && formik.errors.nameEnglish}
             />
             <InputField
               label="Name (Gujarati)"
               name="nameGujarati"
-              value={formData.nameGujarati}
+              value={formik.values.nameGujarati}
               onChange={handleChange}
+              onBlur={formik.handleBlur}
             />
             <InputField
               label="Name (Hindi)"
               name="nameHindi"
-              value={formData.nameHindi}
+              value={formik.values.nameHindi}
               onChange={handleChange}
+              onBlur={formik.handleBlur}
             />
             <TextareaField
               label="Slogan"
               name="menuSlogan"
-              value={formData.menuSlogan}
+              value={formik.values.menuSlogan}
               onChange={handleChange}
+              onBlur={formik.handleBlur}
             />
             <div className="grid grid-cols-2 gap-x-4">
               <InputField
                 label="Price"
                 name="price"
                 type="number"
-                value={formData.price}
+                value={formik.values.price}
                 onChange={handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.price && formik.errors.price}
               />
               <InputField
                 label="Priority"
                 name="priority"
                 type="number"
-                value={formData.priority}
+                value={formik.values.priority}
                 onChange={handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.priority && formik.errors.priority}
               />
             </div>
             <div className="grid grid-cols-3 gap-x-4">
               <DropdownField
                 label="Menu Item Category"
                 name="menuItemCategory"
-                value={formData.menuItemCategory}
+                value={formik.values.menuItemCategory}
                 onChange={handleChange}
+                onBlur={formik.handleBlur}
                 options={categories.filter((c) => c.isActive)}
                 optionLabel="nameEnglish"
+                error={
+                  formik.touched.menuItemCategory &&
+                  formik.errors.menuItemCategory
+                }
               />
               <DropdownField
                 label="Menu Item Sub Category"
                 name="menuSubItemCategory"
-                value={formData.menuSubItemCategory}
+                value={formik.values.menuSubItemCategory}
                 onChange={handleChange}
+                onBlur={formik.handleBlur}
                 options={subCategories.filter((s) => s.isActive)}
                 optionLabel="nameEnglish"
+                error={
+                  formik.touched.menuSubItemCategory &&
+                  formik.errors.menuSubItemCategory
+                }
               />
               <DropdownField
                 label="Kitchen Area"
                 name="kitchenArea"
-                value={formData.kitchenArea}
+                value={formik.values.kitchenArea}
                 onChange={handleChange}
+                onBlur={formik.handleBlur}
                 options={kitchenAreas.filter((a) => a.isActive)}
                 optionLabel="nameEnglish"
+                error={formik.touched.kitchenArea && formik.errors.kitchenArea}
               />
             </div>
             <div>
@@ -432,7 +589,7 @@ const AddMenuItem = ({
                 type="file"
                 accept="image/*"
                 onChange={(e) =>
-                  setFormData({ ...formData, file: e.target.files[0] })
+                  formik.setFieldValue("file", e.target.files[0])
                 }
                 className="input"
               />
@@ -441,7 +598,6 @@ const AddMenuItem = ({
         );
 
       case "tab_2":
-        // Calculate totals
         const totalRate = tableData.reduce(
           (sum, row) => sum + (parseFloat(row.rate) || 0),
           0
@@ -458,12 +614,6 @@ const AddMenuItem = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <div className="flex gap-2">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setIsItemModalOpen(true)}
-                >
-                  <i className="ki-filled ki-copy me-1"></i>Copy Recipe
-                </button>
                 <button
                   className="btn btn-primary"
                   onClick={() => setIsItemModalOpen(true)}
@@ -593,7 +743,6 @@ const AddMenuItem = ({
                       contactNameId: "",
                     });
 
-                    // Get the name to pass for API call (for contact names)
                     const selectedCategory = contactCategories.find(
                       (cat) => cat.id === parseInt(selectedId)
                     );
@@ -698,13 +847,13 @@ const AddMenuItem = ({
                   onChange={(e) =>
                     setAllocationConfig({
                       ...allocationConfig,
-                      contactName: e.target.value,
+                      contactNameId: e.target.value,
                     })
                   }
                 >
                   <option value="">Select Contact Name</option>
-                  {contactNames.map((item, index) => (
-                    <option key={index} value={item.name}>
+                  {chefContactNames.map((item) => (
+                    <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}
@@ -727,79 +876,100 @@ const AddMenuItem = ({
         title={selectedMenuItem ? "Edit Menu Item" : "New Menu Item"}
         width={1000}
         footer={
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-between gap-3">
             <button
               className="btn btn-light"
               onClick={() => setIsModalOpen(false)}
             >
               Cancel
             </button>
-
-            {activeTab === "tab_1" && (
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  if (!formData.nameEnglish.trim()) {
-                    Swal.fire(
-                      "Error",
-                      "Please enter Name (English) before proceeding.",
-                      "warning"
-                    );
-                    return;
-                  }
-                  setCompletedTabs((prev) => [...new Set([...prev, "tab_2"])]);
-                  setActiveTab("tab_2");
-                }}
-              >
-                Next
-              </button>
-            )}
-
-            {activeTab === "tab_2" && (
-              <>
-                <button
-                  className="btn btn-light"
-                  onClick={() => setActiveTab("tab_1")}
-                >
-                  Prev
-                </button>
-
+            <div className="flex gap-3">
+              {activeTab === "tab_1" && (
                 <button
                   className="btn btn-primary"
                   onClick={() => {
-                    if (tableData.length === 0) {
-                      Swal.fire(
-                        "Error",
-                        "Please add at least one raw material before proceeding.",
-                        "warning"
+                    formik.validateForm().then((errors) => {
+                      const requiredFields = [
+                        "nameEnglish",
+                        "priority",
+                        "menuItemCategory",
+                        "menuSubItemCategory",
+                        "kitchenArea",
+                        "price",
+                      ];
+                      const hasErrors = requiredFields.some(
+                        (field) => errors[field]
                       );
-                      return;
-                    }
-                    setCompletedTabs((prev) => [
-                      ...new Set([...prev, "tab_3"]),
-                    ]);
-                    setActiveTab("tab_3");
+
+                      if (hasErrors) {
+                        formik.setTouched({
+                          nameEnglish: true,
+                          priority: true,
+                          menuItemCategory: true,
+                          menuSubItemCategory: true,
+                          kitchenArea: true,
+                          price: true,
+                        });
+                        return;
+                      }
+
+                      setCompletedTabs((prev) => [
+                        ...new Set([...prev, "tab_2"]),
+                      ]);
+                      setActiveTab("tab_2");
+                    });
                   }}
                 >
                   Next
                 </button>
-              </>
-            )}
+              )}
 
-            {activeTab === "tab_3" && (
-              <>
-                <button
-                  className="btn btn-light"
-                  onClick={() => setActiveTab("tab_2")}
-                >
-                  Prev
-                </button>
+              {activeTab === "tab_2" && (
+                <>
+                  <button
+                    className="btn btn-light"
+                    onClick={() => setActiveTab("tab_1")}
+                  >
+                    Prev
+                  </button>
 
-                <button className="btn btn-primary" onClick={handleSubmit}>
-                  {selectedMenuItem ? "Update" : "Save"}
-                </button>
-              </>
-            )}
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      if (tableData.length === 0) {
+                        Swal.fire(
+                          "Error",
+                          "Please add at least one raw material before proceeding.",
+                          "warning"
+                        );
+                        return;
+                      }
+                      setCompletedTabs((prev) => [
+                        ...new Set([...prev, "tab_3"]),
+                      ]);
+                      setActiveTab("tab_3");
+                    }}
+                  >
+                    Next
+                  </button>
+                </>
+              )}
+
+              {activeTab === "tab_3" && (
+                <>
+                  <button
+                    className="btn btn-light"
+                    onClick={() => setActiveTab("tab_2")}
+                  >
+                    Prev
+                  </button>
+
+                  <button className="btn btn-primary" onClick={handleSubmit}>
+                    {selectedMenuItem ? "Update" : "Save"}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         }
       >
@@ -849,26 +1019,40 @@ const AddMenuItem = ({
   );
 };
 
-const InputField = ({ label, name, value, onChange, type = "text" }) => (
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  onBlur,
+  error,
+  type = "text",
+}) => (
   <div className="flex flex-col">
-    <label className="form-label">{label}</label>
+    <label className="form-label">
+      {label}
+      {error && <span className="text-red-500 ml-1">*</span>}
+    </label>
     <input
       type={type}
       name={name}
       value={value}
       onChange={onChange}
-      className="input"
+      onBlur={onBlur}
+      className={`input ${error ? "border-red-500 border" : ""}`}
     />
+    {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
   </div>
 );
 
-const TextareaField = ({ label, name, value, onChange }) => (
+const TextareaField = ({ label, name, value, onChange, onBlur }) => (
   <div className="flex flex-col">
     <label className="form-label">{label}</label>
     <textarea
       name={name}
       value={value}
       onChange={onChange}
+      onBlur={onBlur}
       className="input p-3"
     />
   </div>
@@ -879,12 +1063,23 @@ const DropdownField = ({
   name,
   value,
   onChange,
+  onBlur,
   options,
   optionLabel,
+  error,
 }) => (
   <div className="flex flex-col">
-    <label className="form-label">{label}</label>
-    <select name={name} value={value} onChange={onChange} className="input">
+    <label className="form-label">
+      {label}
+      {error && <span className="text-red-500 ml-1">*</span>}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      className={`input ${error ? "border-red-500 border" : ""}`}
+    >
       <option value="">Select {label}</option>
       {options.map((opt) => (
         <option key={opt.id} value={opt.id}>
@@ -892,6 +1087,7 @@ const DropdownField = ({
         </option>
       ))}
     </select>
+    {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
   </div>
 );
 

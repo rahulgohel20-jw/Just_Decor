@@ -27,25 +27,9 @@ export default function InvoiceViewPage() {
       <div className="p-4 flex flex-col gap-4 items-center w-full">
         <div className="flex items-center justify-between gap-2 w-full">
           <span className="text-lg font-bold text-primary">INV – 0001</span>
-
-          <Upload>
-            <Button
-              icon={<UploadOutlined />}
-              className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] "
-            >
-              Upload Files
-            </Button>
-          </Upload>
         </div>
 
         <div className="flex items-center  w-full gap-2  ps-4">
-          <Button
-            icon={<EditOutlined className="text-[#006B0B]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#006B0B] w-[110px]"
-          >
-            Edit
-          </Button>
-
           <Button
             icon={<ShareAltOutlined className="text-[#00447A]" />}
             className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#00447A] w-[110px]"
@@ -73,12 +57,6 @@ export default function InvoiceViewPage() {
           >
             Record Payment
           </Button>
-
-          <Dropdown overlay={menu} placement="bottomRight" arrow>
-            <Button className="rounded-lg border   shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] bg-white">
-              <MoreOutlined />
-            </Button>
-          </Dropdown>
         </div>
 
         <div className="border border-dashed mb-4 border-[#0000001A] w-full mt-4"></div>

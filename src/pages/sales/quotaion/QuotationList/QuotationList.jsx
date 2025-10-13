@@ -1,93 +1,75 @@
-
+import { useState } from "react";
 import { Button, Dropdown, Menu, Upload } from "antd";
-
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import {
   EditOutlined,
   ShareAltOutlined,
   SendOutlined,
   PrinterOutlined,
   DollarCircleOutlined,
-  MoreOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 import QuotationList from "../../../../components/QuotationTable/QuotationList";
 import QuotationDetail from "../../../../components/QuotationTable/QuotationDetail";
-
 export default function QuotationViewPage() {
-  const menu = (
-    <Menu
-      items={[
-        { key: "1", label: "Delete" },
-        { key: "2", label: "save" },
-      ]}
-    />
-  );
+  const [selectedEventId, setSelectedEventId] = useState(null);
+
   return (
-    <div className="p-4 flex">
-      <QuotationList />
-      <div className="p-4 flex flex-col gap-4 items-center w-full">
-        <div className="flex items-center justify-between gap-2 w-full">
-          <span className="text-lg font-bold text-primary">INV – 0001</span>
+    <>
+      <div className="gap-2 mb-3 pl-8">
+        <Breadcrumbs items={[{ title: "Quotation" }]} />
+      </div>
+      <div className="p-4 flex">
+        <QuotationList onEventSelect={setSelectedEventId} />
 
-          <Upload>
+        <div className="p-4 flex flex-col gap-4 items-center w-full">
+          <div className="flex items-center justify-between gap-2 w-full">
+            <span className="text-lg font-bold text-primary">QT – 0001</span>
+          </div>
+
+          <div className="flex items-center  w-full gap-8  ps-4">
             <Button
-              icon={<UploadOutlined />}
-              className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] "
+              icon={<EditOutlined className="text-success" />}
+              className="rounded-lg border font-bold  text-success w-[130px]"
             >
-              Upload Files
+              Clone Invoice
             </Button>
-          </Upload>
-        </div>
 
-        <div className="flex items-center  w-full gap-2  ps-4">
-          <Button
-            icon={<EditOutlined className="text-[#006B0B]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#006B0B] w-[110px]"
-          >
-            Edit
-          </Button>
-
-          <Button
-            icon={<ShareAltOutlined className="text-[#00447A]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#00447A] w-[110px]"
-          >
-            Share
-          </Button>
-
-          <Button
-            icon={<SendOutlined className="text-[#8B5300]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#8B5300] w-[110px]"
-          >
-            Send
-          </Button>
-
-          <Button
-            icon={<PrinterOutlined className="text-[#5D006D]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#5D006D] w-[110px]"
-          >
-            Print
-          </Button>
-
-          <Button
-            icon={<DollarCircleOutlined className="text-[#00534B]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#00534B]  w-[170px]"
-          >
-            Record Payment
-          </Button>
-
-          <Dropdown overlay={menu} placement="bottomRight" arrow>
-            <Button className="rounded-lg border   shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] bg-white">
-              <MoreOutlined />
+            <Button
+              icon={<ShareAltOutlined className="text-[#00447A]" />}
+              className="rounded-lg border font-bold  text-[#00447A] w-[110px]"
+            >
+              Share
             </Button>
-          </Dropdown>
-        </div>
 
-        <div className="border border-dashed mb-4 border-[#0000001A] w-full mt-4"></div>
+            <Button
+              icon={<SendOutlined className="text-[#8B5300]" />}
+              className="rounded-lg border font-bold  text-[#8B5300] w-[110px]"
+            >
+              Send
+            </Button>
 
-        <div>
-          <QuotationDetail />
+            <Button
+              icon={<PrinterOutlined className="text-[#5D006D]" />}
+              className="rounded-lg border font-bold  text-[#5D006D] w-[110px]"
+            >
+              Print
+            </Button>
+
+            <Button
+              icon={<DollarCircleOutlined className="text-[#00534B]" />}
+              className="rounded-lg border font-bold  text-[#00534B]  w-[170px]"
+            >
+              Record Payment
+            </Button>
+          </div>
+
+          <div className="border border-dashed mb-4 border-[#0000001A] w-full mt-4"></div>
+
+          <div>
+            <QuotationDetail Eventid={selectedEventId} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

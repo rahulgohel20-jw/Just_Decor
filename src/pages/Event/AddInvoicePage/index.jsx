@@ -18,12 +18,12 @@ const AddInvoicePage = () => {
   const [rows, setRows] = useState([
     {
       key: 1,
-      item: "",
-      qty: 0.0,
+      name: "",
+      date: "",
+      person: 0.0,
+      extra: 0.0,
       rate: 0.0,
-      discount: 0.0,
-      tax: 0.0,
-      amount: 0.0,
+      amount: 0,
     },
   ]);
 
@@ -42,12 +42,12 @@ const AddInvoicePage = () => {
       ...rows,
       {
         key: Date.now(),
-        item: "",
-        qty: 0.0,
+        name: "",
+        date: "",
+        person: 0.0,
+        extra: 0.0,
         rate: 0.0,
-        discount: 0.0,
-        tax: 0.0,
-        amount: 0.0,
+        amount: 0,
       },
     ]);
   };
@@ -58,55 +58,78 @@ const AddInvoicePage = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Invoice" }]} />
         </div>
-        {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="filItems relative">
-              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input
-                className="input pl-8"
-                placeholder="Search customer"
-                type="text"
-              />
-            </div>
-            <div className="filItems">
-              <DatePicker placeholder="Select Date" size="large" />
-            </div>
-            <div className="filItems">
-              <DatePicker placeholder="Select Due Date" size="large" />
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button class="btn btn-primary" title="Save & Send">
-              <i class="ki-outline ki-paper-plane"></i>
-              Save & Send
-            </button>
-            <button class="btn btn-success" title="Save as Draft">
-              <i class="ki-outline ki-printer"></i> Save as Draft
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col bg-gray-100 rounded p-10 mb-7">
-          <div className="flex flex-col bg-white rounded p-5">
-            {/* Invoice */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <h4 class="text-lg font-semibold text-gray-900">
-                <span class="text-gray-900 uppercase">Invoice:</span>
-                <span class="text-primary ms-1">JC2021001</span>
-              </h4>
-              <div className="flex flex-wrap items-center gap-2">
-                <button className="btn btn-sm btn-primary" title="Preview">
-                  <i className="ki-outline ki-eye"></i> Preview
-                </button>
-                <button className="btn btn-sm btn-primary" title="Download">
-                  <Download style={{ width: "18", height: "18" }} /> Download
-                </button>
+
+        <div className="flex flex-col bg-gray-100 rounded mb-7">
+          <div className="flex flex-col bg-white rounded ">
+            <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+              <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+                <div className="flex flex-col gap-2.5">
+                  <p className="text-lg font-semibold text-gray-900">
+                    Event Name: Wedding
+                  </p>
+                  <div className="flex items-center gap-7">
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-user text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Party name:</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          Vivek
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-geolocation-home text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Venue name:</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          Ahmedabad
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Invoices Date:</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          10/10/2025
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Invoice Number:</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          INV20001052
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Event Date:</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          12/12/2025
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-row items-end gap-2">
+                  <button className="btn btn-sm btn-primary" title="Print">
+                    <i className="ki-filled ki-printer"></i> Print
+                  </button>
+                  <button className="btn btn-sm btn-primary" title="Share">
+                    <i className="ki-filled ki-exit-right-corner"></i> Share
+                  </button>
+                </div>
               </div>
             </div>
             {/* Billing */}
-            <div className="flex flex-col border rounded mb-5">
-              <div className="grid md:grid-cols-2">
-                <div className="border-r p-4">
+            <div className="flex flex-col border rounded-xl mb-5">
+              <div className="grid md:grid-cols-2 rounded">
+                <div className="border-r p-4 rounded">
                   <h4 class="text-sm font-semibold text-gray-900 mb-3">
                     Billing Address
                     <Tooltip title="Edit">
@@ -164,12 +187,6 @@ const AddInvoicePage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col border-t p-4">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">Late Fees</span>
-                  <Switch defaultChecked />
-                </div>
-              </div>
             </div>
             {/* ItemTable */}
             <ItemTable
@@ -182,73 +199,6 @@ const AddInvoicePage = () => {
             <InvoiceFooter />
           </div>
         </div>
-        {/* <div className="bg-white"> */}
-        {/* <div className="flex items-center justify-between flex-wrap rounded-lg py-2 mb-4 "> */}
-        {/* <div className="flex items-center justify-between flex-wrap gap-6 px-4 py-2 relative rounded-lg [border:1px_solid_transparent] [background:linear-gradient(#fff,#fff)_padding-box,linear-gradient(90deg,#004986,#004986)_border-box] shadow-[10px_4px_4px_0px_#00000040]">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Date:</span>
-                <DatePicker
-                  placeholder="Select Date"
-                  size="small"
-                  className="border-none "
-                />
-              </div>
-              <div className="font-semibold text-lg">
-                Invoice # <span className="font-normal">2021001</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Due Date:</span>
-                <DatePicker
-                  placeholder="Select Date"
-                  size="small"
-                  className="border-none"
-                />
-              </div>
-            </div> */}
-        {/* <div className="flex items-center gap-2">
-              <Button
-                type="text"
-                icon={<SaveOutlined />}
-                className="bg-[#003366] text-white font-semibold rounded-lg 
-               hover:!bg-[#E6F3FA] hover:!text-[#003366] hover:!border-[#003366] 
-               shadow-md flex items-center gap-2"
-              >
-                Save
-              </Button>
-              <Button
-                type="text"
-                icon={<EyeOutlined />}
-                className="bg-[#005B99] text-white font-semibold rounded-lg 
-               hover:!bg-[#E6F3FA] hover:!text-[#005B99] hover:!border-[#005B99] 
-               shadow-md flex items-center gap-2"
-              >
-                Preview
-              </Button>
-              <Button
-                type="text"
-                icon={<DownloadOutlined />}
-                className="bg-[#007ACC] text-white font-semibold rounded-lg 
-               hover:!bg-[#E6F3FA] hover:!text-[#007ACC] hover:!border-[#007ACC] 
-               shadow-md flex items-center gap-2"
-              >
-                Download
-              </Button>
-            </div> */}
-        {/* </div> */}
-        {/* <div className="mb-6 flex flex-row items-center gap-4">
-            <label className="font-semibold text-[#464E5F]">
-              Customer Name
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
-            </label>
-            <Input
-              placeholder="Search Name (ex. Swapnil Ghodaswar)"
-              suffix={<SearchOutlined className="text[#494949] text-2xl" />}
-              className="p-2  relative rounded-lg [border:1px_solid_transparent] [background:linear-gradient(#fff,#fff)_padding-box,linear-gradient(90deg,#004986,#004986)_border-box] mt-1 w-2/5"
-            />
-          </div> */}
-        {/* </div> */}
       </Container>
     </Fragment>
   );

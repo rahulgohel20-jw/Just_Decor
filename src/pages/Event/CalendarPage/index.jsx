@@ -112,9 +112,10 @@ const CalendarPage = () => {
                 ); // fallback if no end
 
                 const color = getStatusColor(item.status);
-
+                console.log("Event Item:", item); // Debug log
                 return {
                   eventid: item.id,
+                  eventTypeId: item.eventType?.id || null,
                   title:
                     (item.prefix || "") +
                     (item.party?.nameEnglish || "") +

@@ -61,17 +61,7 @@ const EventInvoicePage = () => {
           <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
         </div>
         {/* filters */}
-        {/* <div className="filters flex flex-wrap items-center justify-end gap-2 mb-3">
-          <div className="filItems relative">
-            <button
-              className="btn btn-primary"
-              onClick={handleAddInvoice}
-              title=" Add Invoice"
-            >
-              <i className="ki-filled ki-plus"></i> Add Invoice
-            </button>
-          </div>
-        </div> */}
+
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div

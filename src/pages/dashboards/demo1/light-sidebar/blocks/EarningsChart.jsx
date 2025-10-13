@@ -8,11 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 const fetchEarningsChart = () => {
   return axios.get(`${import.meta.env.VITE_APP_API_URL}/sales/index`);
 };
+
 const EarningsChart = () => {
-  const [charData, setCharData] = useState();
+  const [charData, setCharData] = useState([31, 40, 28, 51, 42, 109, 100, 85, 95, 70, 80, 90]);
   const categories = [
     "Jan",
     "Feb",
@@ -27,9 +29,16 @@ const EarningsChart = () => {
     "Nov",
     "Dec",
   ];
+  
   useEffect(() => {
-    // fetchEarningsChart().then(value => setCharData(value.data));
+    fetchEarningsChart()
+      .then(value => setCharData(value.data))
+      .catch(error => console.error('Error fetching chart data:', error));
   }, []);
+
+  // Calculate max value dynamically
+  const maxValue = Math.ceil(Math.max(...charData) / 20) * 20;
+
   const options = {
     series: [
       {
@@ -89,7 +98,7 @@ const EarningsChart = () => {
     },
     yaxis: {
       min: 0,
-      max: 100,
+      max: maxValue,
       tickAmount: 5,
       axisTicks: {
         show: false,
@@ -116,11 +125,11 @@ const EarningsChart = () => {
         });
         const formattedNumber = formatter.format(number);
         return `
-          <div className="flex flex-col gap-2 p-3.5">
-            <div className="font-medium text-2sm text-gray-600">${monthName}, 2024 Sales</div>
-            <div className="flex items-center gap-1.5">
-              <div className="font-semibold text-md text-gray-900">${formattedNumber}</div>
-              <span className="badge badge-outline badge-success badge-xs">+24%</span>
+          <div class="flex flex-col gap-2 p-3.5">
+            <div class="font-medium text-2sm text-gray-600">${monthName}, 2024 Sales</div>
+            <div class="flex items-center gap-1.5">
+              <div class="font-semibold text-md text-gray-900">${formattedNumber}</div>
+              <span class="badge badge-outline badge-success badge-xs">+24%</span>
             </div>
           </div>
           `;
@@ -167,23 +176,25 @@ const EarningsChart = () => {
       },
     },
   };
+
   return (
     <div className="card h-full">
       <div className="card-header">
         <h3 className="card-title">Earnings</h3>
 
         <div className="flex items-center gap-5">
-          <label className="switch switch-sm">
-            <input
-              name="check"
-              type="checkbox"
-              value="1"
-              className="order-2"
-              readOnly
-            />
-            <span className="switch-label order-1">Referrals only</span>
-          </label>
-
+          
+    <Select defaultValue="1">
+            <SelectTrigger className="w-28" size="sm">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent className="w-32">
+              <SelectItem value="1">All</SelectItem>
+              <SelectItem value="lite">Lite</SelectItem>
+              <SelectItem value="elite">Elite</SelectItem>
+              <SelectItem value="premium">Premium</SelectItem>
+            </SelectContent>
+          </Select>
           <Select defaultValue="1">
             <SelectTrigger className="w-28" size="sm">
               <SelectValue placeholder="Select" />
@@ -198,18 +209,16 @@ const EarningsChart = () => {
         </div>
       </div>
       <div className="card-body flex flex-col justify-end items-stretch grow px-3 py-1">
-        {charData && (
-          <ApexChart
-            id="earnings_chart"
-            options={options}
-            series={options.series}
-            type="area"
-            max-width="694"
-            height="250"
-          />
-        )}
+        <ApexChart
+          id="earnings_chart"
+          options={options}
+          series={options.series}
+          type="area"
+          height="250"
+        />
       </div>
     </div>
   );
 };
+
 export { EarningsChart };

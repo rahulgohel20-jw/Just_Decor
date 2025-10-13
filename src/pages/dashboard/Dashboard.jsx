@@ -20,6 +20,7 @@ import {
   EarningsChart,
   EntryCallout,
   Highlights,
+  Teams,
 } from "../dashboards/demo1";
 
 const Dashboard = () => {
@@ -77,18 +78,17 @@ const Dashboard = () => {
 
       <Container>
         <div className="grid gap-5 lg:gap-7.5">
-          <div className="grid lg:grid-cols-3 gap-y-5 lg:gap-7.5 items-stretch">
-            <div className="lg:col-span-1">
-              <div className="grid grid-cols-2 gap-5 lg:gap-7.5 h-full items-stretch">
+          <div className="grid lg:grid-cols-1 gap-y-5 lg:gap-7.5 items-stretch">
+            <div className="">
+              <div className="flex gap-5 h-full">
                 <ChannelStats />
               </div>
             </div>
 
-            <div className="lg:col-span-2">
-              <EntryCallout className="h-full" />
-            </div>
           </div>
-
+            {/* <div className="lg:col-span-2">
+              <EntryCallout className="h-full" />
+            </div> */}
           <div className="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
             <div className="lg:col-span-1">
               <Highlights limit={3} />
@@ -98,6 +98,10 @@ const Dashboard = () => {
               <EarningsChart />
             </div>
           </div>
+          <div>
+            <Teams />
+          </div>
+
         </div>
       </Container>
     </Fragment>

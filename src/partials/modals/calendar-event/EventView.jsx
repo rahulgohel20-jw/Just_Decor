@@ -17,6 +17,7 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
+  const eventTypeId = eventDataAll?.eventTypeId ?? null;
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
@@ -174,17 +175,22 @@ const EventViewModal = ({
               {
                 label: "Menu Allocation",
                 icon: "/media/eventviewicon/menuallocation.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/menu-allocation`),
               },
               {
                 label: "Raw Material Allocation",
                 icon: "/media/eventviewicon/rawmaterial.png",
-                onClick: () => navigate("/raw-material-allocation"),
+                onClick: () => navigate("/raw-material-allocation", {
+                  state: {
+                    eventId: safeEventId,
+                    eventTypeId: eventTypeId
+                  }
+                }),
               },
               {
                 label: "Labour / Other Management",
                 icon: "/media/eventviewicon/labour.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/labour-and-other-management`),
               },
               {
                 label: "Menu Report",
@@ -194,7 +200,7 @@ const EventViewModal = ({
               {
                 label: "Dish Costing",
                 icon: "/media/eventviewicon/dishcost.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/dish-costing`),
               },
               {
                 label: "Quotation",
@@ -205,11 +211,6 @@ const EventViewModal = ({
                 label: "Invoice",
                 icon: "/media/eventviewicon/invoice.png",
                 onClick: () => navigate("/add-invoice"),
-              },
-              {
-                label: "Proforma Invoice",
-                icon: "/media/eventviewicon/proforma.png",
-                onClick: underConstruction,
               },
             ].map((item, idx) => (
               <div

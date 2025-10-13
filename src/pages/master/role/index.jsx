@@ -5,10 +5,10 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
-
+import { message } from "antd";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
-import { GetAllRole } from "@/services/apiServices";
+import { GetAllRole, DeleteRole } from "@/services/apiServices";
 import AddRole from "@/partials/modals/add-role-master/AddRole";
 
 const RoleMaster = () => {
@@ -17,7 +17,6 @@ const RoleMaster = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ Format roles for table
   const formatData = (apiData) =>
     apiData.map((item, index) => ({
       sr_no: index + 1,
@@ -54,7 +53,6 @@ const RoleMaster = () => {
       ),
     }));
 
-  // ✅ Fetch roles for logged-in user
   const fetchRoles = async (search = "") => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -63,7 +61,6 @@ const RoleMaster = () => {
       const res = await GetAllRole(userId);
       let roles = res?.data?.data?.["Role Details"] || [];
 
-      // simple search filter (frontend)
       if (search) {
         roles = roles.filter((r) =>
           r.name.toLowerCase().includes(search.toLowerCase())
@@ -77,12 +74,10 @@ const RoleMaster = () => {
     }
   };
 
-  // ✅ Initial load
   useEffect(() => {
     fetchRoles();
   }, []);
 
-  // ✅ Debounced search
   useEffect(() => {
     const delay = setTimeout(() => {
       fetchRoles(searchTerm);
@@ -97,7 +92,16 @@ const RoleMaster = () => {
   };
 
   const handleDelete = (roleId) => {
-    fetchRoles();
+    console.log("Delete role with ID:", roleId);
+    DeleteRole(roleId)
+      .then((res) => {
+        message.success("Role Deleted Successfully");
+
+        fetchRoles();
+      })
+      .catch((err) => {
+        console.error("Error deleting role:", err);
+      });
   };
 
   return (
