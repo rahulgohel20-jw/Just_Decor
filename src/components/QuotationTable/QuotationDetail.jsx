@@ -30,7 +30,6 @@ const QuotationDetail = ({ Eventid }) => {
       const response = await GetQuotation(id);
       const data = response?.data?.data;
       const quotationDetails = data?.["Event Functions Quotation Details"]?.[0];
-      console.log(quotationDetails);
 
       if (quotationDetails) {
         setSubTotal(quotationDetails?.subTotal || 0);
@@ -40,6 +39,9 @@ const QuotationDetail = ({ Eventid }) => {
           quotationNumber: quotationDetails?.quotationCode || "-",
           customerName: quotationDetails?.event?.party?.nameEnglish || "-",
           Address: quotationDetails?.event?.party?.addressEnglish || "-",
+          billingname: quotationDetails?.billingname || "-",
+          gstnumber: quotationDetails?.gstnumber || "-",
+          duedate: quotationDetails?.duedate || "-",
           notes: quotationDetails?.notes || "",
           discount: quotationDetails?.discount || 0,
           quotationDate: quotationDetails?.createdAt
@@ -103,7 +105,6 @@ const QuotationDetail = ({ Eventid }) => {
         <div>
           <h2 className="text-2xl font-bold text-[#005BA8]">Quotation</h2>
           <p className="text-gray-500 text-sm">{invoiceInfo.Address}</p>
-          <p className="text-gray-500 text-sm">{invoiceInfo.customerName}</p>
         </div>
 
         <div className="flex flex-col items-end gap-2">
@@ -121,6 +122,12 @@ const QuotationDetail = ({ Eventid }) => {
       <div className="p-6 grid grid-cols-2 gap-8 text-sm border-b border-gray-100">
         <div className="border-r border-gray-200 pr-6">
           <p className="flex justify-between mb-1">
+            <span className="text-gray-500">Billing Name </span>
+            <span className="font-medium">
+              {invoiceInfo.billingname || invoiceInfo.customerName}
+            </span>
+          </p>
+          <p className="flex justify-between mb-1">
             <span className="text-gray-500">Quotation Number</span>
             <span className="font-medium">{invoiceInfo.quotationNumber}</span>
           </p>
@@ -128,10 +135,7 @@ const QuotationDetail = ({ Eventid }) => {
             <span className="text-gray-500">Quotation Date</span>
             <span className="font-medium">{invoiceInfo.quotationDate}</span>
           </p>
-          <p className="flex justify-between mb-1">
-            <span className="text-gray-500">Due Date</span>
-            <span className="font-medium">{invoiceInfo.terms}</span>
-          </p>
+
           <p className="flex justify-between mb-1">
             <span className="text-gray-500">Event Date</span>
             <span className="font-medium">{invoiceInfo.eventDate}</span>
@@ -141,7 +145,11 @@ const QuotationDetail = ({ Eventid }) => {
         <div>
           <p className="flex justify-between mb-1">
             <span className="text-gray-500">GST Number</span>
-            <span className="font-medium">{gstInfo.gstNumber}</span>
+            <span className="font-medium">{invoiceInfo.gstnumber}</span>
+          </p>
+          <p className="flex justify-between mb-1">
+            <span className="text-gray-500">Due Date</span>
+            <span className="font-medium">{invoiceInfo.duedate}</span>
           </p>
         </div>
       </div>
