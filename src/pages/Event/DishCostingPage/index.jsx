@@ -6,7 +6,7 @@ import DishCostingModal from "./CostingSidebar/DishCostingModal";
 
 const DishCostingPage = () => {
   const classes = useStyles();
-  const [activeTab, setActiveTab] = useState('Dinner');
+  const [activeTab, setActiveTab] = useState('Function Wise');
   const [viewType, setViewType] = useState('Function Wise');
   const [functionType, setFunctionType] = useState('Dinner');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,28 +47,26 @@ const DishCostingPage = () => {
                 <label className="block text-2sm font-medium text-gray-700 mb-2">
                   View Type
                 </label>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setViewType('Function Wise')}
-                    className={`flex-1 btn btn-sm ${
-                      viewType === 'Function Wise'
-                        ? 'btn-primary'
-                        : 'btn-light'
-                    }`}
-                  >
-                    Function Wise
-                  </button>
-                  <button
-                    onClick={() => setViewType('Total Wise')}
-                    className={`flex-1 btn btn-sm ${
-                      viewType === 'Total Wise'
-                        ? 'btn-primary'
-                        : 'btn-light'
-                    }`}
-                  >
-                    Total Wise
-                  </button>
-                </div>
+                <div className="card mb-5">
+          <div className="card-body p-0">
+            <div className="flex">
+              {['Function Wise', 'Total Wise'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-8 py-3 text-sm font-medium transition-colors rounded-lg ${
+                    activeTab === tab
+                      ? 'bg-primary text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
               </div>
             </div>
           </div>

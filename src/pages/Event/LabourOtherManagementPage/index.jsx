@@ -3,6 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import { DatePicker } from "antd";
+import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
 
 const LabourOtherManagementPage = () => {
   const classes = useStyles();
@@ -15,6 +16,12 @@ const LabourOtherManagementPage = () => {
     { id: 3, labourType: '', contact: '', shift: '', dateTime: 'Sep 5, 2025', price: '', qty: '', totalPrice: '', place: '' },
     { id: 4, labourType: '', contact: '', shift: '', dateTime: 'Sep 5, 2025', price: '', qty: '', totalPrice: '', place: '' },
   ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const LabourDetailView = () => {
+    setIsModalOpen(true);
+  }
 
   const addLabourRow = () => {
     const newRow = {
@@ -148,31 +155,37 @@ const LabourOtherManagementPage = () => {
           <div className="card-body p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search items..."
-                    className="input input-sm pl-9"
-                    style={{ width: '300px' }}
-                  />
-                  <i className="ki-filled ki-magnifier absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                </div>
-                <button className="btn btn-light btn-sm">
-                  <i className="ki-filled ki-document"></i> Report
-                </button>
-              </div>
-              <div className="flex items-center gap-3">
+                <span><i className="ki-filled ki-users text-primary"></i></span>
                 <span className="text-2sm font-medium text-gray-700">Person</span>
-                <span className="text-sm font-semibold">{personCount}</span>
-                <input
+                <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">{personCount}</span>
+                {/* <input
                   type="text"
-                  placeholder="Enter Percentage(+/-)"
+                  placeholder="Enter Percentage"
                   className="input input-sm"
                   style={{ width: '180px' }}
                 />
                 <button className="btn btn-primary btn-sm">
                   Update Count
+                </button> */}
+              </div>
+              <div className="flex items-center gap-3">
+                
+                <button className="btn btn-light btn-sm">
+                  <i className="ki-filled ki-document"></i> Report
                 </button>
+                <button className="btn btn-light btn-sm">
+                  <i className="ki-filled ki-document"></i> 
+                  Checklist
+                </button>
+                <div className="relative ms-5">
+                  <input
+                    type="text"
+                    placeholder="Search items..."
+                    className="input input-sm "
+                    style={{ width: '300px' }}
+                  />
+                  
+                </div>
               </div>
             </div>
           </div>
@@ -265,19 +278,24 @@ const LabourOtherManagementPage = () => {
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex items-center justify-center gap-1">
-                          <button className="btn btn-sm btn-icon btn-clear btn-light">
-                            <i className="ki-filled ki-whatsapp text-success text-base"></i>
-                          </button>
-                          <button className="btn btn-sm btn-icon btn-clear btn-light">
-                            <i className="ki-filled ki-pencil text-primary text-base"></i>
-                          </button>
-                          <button 
-                            onClick={() => deleteRow(row.id)}
-                            className="btn btn-sm btn-icon btn-clear btn-light"
-                          >
-                            <i className="ki-filled ki-trash text-danger text-base"></i>
-                          </button>
-                        </div>
+                          <button className="btn btn-sm btn-icon btn-clear " onClick={LabourDetailView}>
+    <i className="ki-filled ki-eye text-success "></i>
+  </button>
+  
+  <button className="btn btn-sm btn-icon btn-clear ">
+    <i className="ki-filled ki-notepad text-primary "></i>
+  </button>
+  <button className="btn btn-sm btn-icon btn-clear ">
+    <i className="ki-filled ki-whatsapp text-green-600 "></i>
+  </button>
+  <button 
+    onClick={() => deleteRow(row.id)}
+    className="btn btn-sm btn-icon btn-clear "
+  >
+    <i className="ki-filled ki-trash text-danger "></i>
+  </button>
+</div>
+
                       </td>
                     </tr>
                   ))}
@@ -297,6 +315,11 @@ const LabourOtherManagementPage = () => {
             </div>
           </div>
         </div>
+        <LabourDetailSidebar
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          
+        />
       </Container>
     </Fragment>
   );
