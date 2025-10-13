@@ -190,7 +190,7 @@ const EventViewModal = ({
               {
                 label: "Labour / Other Management",
                 icon: "/media/eventviewicon/labour.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/labour-and-other-management`),
               },
               {
                 label: "Menu Report",
@@ -200,7 +200,7 @@ const EventViewModal = ({
               {
                 label: "Dish Costing",
                 icon: "/media/eventviewicon/dishcost.png",
-                onClick: underConstruction,
+                onClick: () => navigate(`/dish-costing`),
               },
               {
                 label: "Quotation",
