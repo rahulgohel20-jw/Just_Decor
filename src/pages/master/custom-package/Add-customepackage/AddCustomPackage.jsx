@@ -33,9 +33,12 @@ const AddCustomPackage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
-  const [numberOfItems, setNumberOfItems] = useState("");
+  
+  // Changed from single numberOfItems to per-category object
+  const [categoryAnyItems, setCategoryAnyItems] = useState({}); // { categoryId: count }
+  
   const [loading, setLoading] = useState(false);
-  const [editModeItems, setEditModeItems] = useState([]); // Store items from edit mode
+  const [editModeItems, setEditModeItems] = useState([]);
 
   const [showItemNoteModal, setShowItemNoteModal] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
@@ -87,9 +90,9 @@ const AddCustomPackage = () => {
       const extractedItemIds = [];
       const extractedItemNotes = {};
       const extractedCategoryNotes = {};
+      const extractedCategoryAnyItems = {}; // NEW: Store per-category any items
       const itemsForPool = [];
-      const seenItemIds = new Set(); // Track seen items to avoid duplicates
-      let totalAnyItemCount = 0;
+      const seenItemIds = new Set();
 
       const allDetails = selectedPackage.customPackageDetails || [];
 
@@ -97,24 +100,24 @@ const AddCustomPackage = () => {
         const categoryId = categoryDetail.menuId;
         const categoryName = categoryDetail.menuName;
 
-        if (categoryDetail.anyItem > 0) totalAnyItemCount += categoryDetail.anyItem;
+        // Store per-category any items
+        if (categoryDetail.anyItem > 0) {
+          extractedCategoryAnyItems[categoryId] = categoryDetail.anyItem;
+        }
+        
         extractedCategoryNotes[categoryId] = categoryDetail.menuInstruction || "";
 
         (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
           const itemId = Number(item.menuItemId);
           
-          // Skip if we've already processed this item
           if (seenItemIds.has(itemId)) {
             console.warn(`⚠️ Duplicate item detected: ${itemId} - ${item.itemName}`);
             return;
           }
           
           seenItemIds.add(itemId);
-
-          // Add to selected items array (just IDs)
           extractedItemIds.push(itemId);
 
-          // Store item for the pool (only if not already there)
           itemsForPool.push({
             id: itemId,
             name: item.itemName,
@@ -128,17 +131,13 @@ const AddCustomPackage = () => {
       });
 
       console.log("📦 Loaded package - unique items:", extractedItemIds.length);
-      console.log("🔢 Selected item IDs:", extractedItemIds);
+      console.log("🔢 Category Any Items:", extractedCategoryAnyItems);
 
-      // Set edit mode items for the pool
       setEditModeItems(itemsForPool);
-      
-      // Set selected items as array of IDs
       setSelectedItems(extractedItemIds);
-      
       setItemNotes(extractedItemNotes);
       setCategoryNotes(extractedCategoryNotes);
-      if (totalAnyItemCount > 0) setNumberOfItems(totalAnyItemCount.toString());
+      setCategoryAnyItems(extractedCategoryAnyItems); // NEW: Set per-category any items
 
     } catch (err) {
       console.error(err);
@@ -188,13 +187,26 @@ const AddCustomPackage = () => {
     }
   };
 
-  const handleCategoryChange = async (categoryId , e ) => {
-      if (e) {
-    e.preventDefault();
-    e.stopPropagation(); // Stop bubbling to form
-  }
+  const handleCategoryChange = async (categoryId, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setSelectedCategoryId(categoryId);
     await fetchMenuItems(categoryId);
+  };
+
+  // NEW: Handle per-category any items change
+  const handleCategoryAnyItemsChange = (categoryId, value) => {
+    const numValue = parseInt(value) || 0;
+    setCategoryAnyItems(prev => {
+      if (numValue <= 0) {
+        const newState = { ...prev };
+        delete newState[categoryId];
+        return newState;
+      }
+      return { ...prev, [categoryId]: numValue };
+    });
   };
 
   const handleUpdateItemNote = (itemId, note) => {
@@ -229,17 +241,10 @@ const AddCustomPackage = () => {
     });
   };
 
-  // Build comprehensive item pool including edit mode items
   const allItemsPool = useMemo(() => {
     console.log("🔨 Building item pool...");
-    console.log("  menuItems:", menuItems.length);
-    console.log("  allMenuItems:", allMenuItems.length);
-    console.log("  editModeItems:", editModeItems.length);
-    
-    // Combine all sources
     const combined = [...menuItems, ...allMenuItems, ...editModeItems];
     
-    // Remove duplicates by ID - keep the first occurrence
     const uniqueMap = new Map();
     combined.forEach(item => {
       const id = Number(item.id);
@@ -249,9 +254,7 @@ const AddCustomPackage = () => {
     });
     
     const uniqueItems = Array.from(uniqueMap.values());
-    
     console.log("✅ Total unique items in pool:", uniqueItems.length);
-    console.log("✅ Item IDs:", uniqueItems.map(i => i.id));
     return uniqueItems;
   }, [menuItems, allMenuItems, editModeItems]);
 
@@ -262,7 +265,6 @@ const AddCustomPackage = () => {
       console.log(exists ? `❌ Removing item ${id}` : `✅ Adding item ${id}`);
       if (exists) return prev.filter(pid => Number(pid) !== id);
       
-      // Ensure no duplicates when adding
       const newItems = [...prev, id];
       const uniqueItems = [...new Set(newItems.map(Number))];
       console.log(`📊 Total unique selected: ${uniqueItems.length}`);
@@ -283,12 +285,8 @@ const AddCustomPackage = () => {
     child.name.toLowerCase().includes(childSearch.toLowerCase())
   );
 
-  // Get selected menu items from the pool
   const selectedMenuItems = useMemo(() => {
     console.log("🔍 Getting selected items from pool...");
-    console.log("  selectedItems IDs:", selectedItems);
-    console.log("  allItemsPool size:", allItemsPool.length);
-    
     const items = selectedItems
       .map((id) => {
         const numId = Number(id);
@@ -304,7 +302,7 @@ const AddCustomPackage = () => {
     return items;
   }, [selectedItems, allItemsPool]);
 
-  // Group items by category
+  // MODIFIED: Group items by category with per-category any items
   const selectedItemsByCategory = useMemo(() => {
     console.log("📊 Grouping items by category...");
     const grouped = {};
@@ -319,18 +317,9 @@ const AddCustomPackage = () => {
       grouped[category.name].push(item);
     });
 
-    const anyCount = parseInt(numberOfItems) || 0;
-    if (anyCount > 0) {
-      grouped[`Any ${anyCount} Items`] = [{ 
-        id: `any-${anyCount}`, 
-        name: `Any ${anyCount} items from selected categories`, 
-        isPlaceholder: true 
-      }];
-    }
-
     console.log("✅ Grouped categories:", Object.keys(grouped));
     return grouped;
-  }, [selectedMenuItems, categories, numberOfItems]);
+  }, [selectedMenuItems, categories]);
 
   const handleRemoveItem = (itemId) => {
     const numId = Number(itemId);
@@ -367,7 +356,6 @@ const AddCustomPackage = () => {
         return;
       }
 
-      // Get valid items from pool using menuItemId (not menuId)
       const validItems = selectedItems
         .map(id => {
           const numId = Number(id);
@@ -386,7 +374,6 @@ const AddCustomPackage = () => {
 
       console.log("📤 Preparing payload with items:", validItems);
 
-      // Group items by their parentId (category ID)
       const categoryMap = new Map();
       validItems.forEach(item => {
         const parentId = Number(item.parentId);
@@ -403,12 +390,12 @@ const AddCustomPackage = () => {
 
       console.log("📊 Grouped by category:", Object.fromEntries(categoryMap));
 
-      // Build customPackageDetails
+      // MODIFIED: Build customPackageDetails with per-category any items
       const customPackageDetails = Array.from(categoryMap.entries()).map(
         ([catId, { catName, items }], idx) => {
           const menuItems = items.map((item, itemIdx) => ({
-            id: isEditMode ? (item.dbRowId || 0) : 0, // Use dbRowId in edit mode, 0 for new
-            menuItemId: Number(item.id), // This is the actual menu item ID
+            id: isEditMode ? (item.dbRowId || 0) : 0,
+            menuItemId: Number(item.id),
             itemName: item.name || "Unnamed",
             itemInstruction: itemNotes[item.id] || "",
             itemPrice: Number(item.price || 0),
@@ -417,11 +404,11 @@ const AddCustomPackage = () => {
           }));
 
           return {
-            menuId: Number(catId), // This is the category/menu ID
+            menuId: Number(catId),
             menuName: catName,
             menuInstruction: categoryNotes[catId] || categoryNotes[catName] || "",
             menuSortOrder: idx + 1,
-            anyItem: parseInt(numberOfItems) || 0,
+            anyItem: categoryAnyItems[catId] || 0, // NEW: Per-category any items
             customPackageMenuItemDetails: menuItems,
           };
         }
@@ -453,7 +440,7 @@ const AddCustomPackage = () => {
         setSelectedItems([]);
         setItemNotes({});
         setCategoryNotes({});
-        setNumberOfItems("");
+        setCategoryAnyItems({}); // NEW: Reset per-category any items
         setEditModeItems([]);
       }
     } catch (err) {
@@ -536,44 +523,56 @@ const AddCustomPackage = () => {
                               />
                             </div>
 
-                            <div className="flex-1 overflow-auto p-2">
-                              {filteredCategories.map((cat) => {
-                                const isSelected = selectedCategoryId === cat.id;
-                                return (
-                                  <div
-                                    key={cat.id}
-                                    className={`mb-2 border rounded-md ${
-                                      isSelected
-                                        ? "border-primary bg-primary/5"
-                                        : "border-gray-200"
-                                    }`}
-                                  >
-                                   <button
-  type="button"
-  onClick={(e) => handleCategoryChange(cat.id, e)}
-  className="p-2 cursor-pointer flex justify-between items-center w-full text-left"
->
-  <span className="font-medium text-gray-800">{cat.name}</span>
-</button>
+                           <div className="flex-1 overflow-auto p-2">
+  {filteredCategories.map((cat) => {
+  const isSelected = selectedCategoryId === cat.id;
+  const anyItemsCount = categoryAnyItems[cat.id] || "";
 
-                                  </div>
-                                );
-                              })}
-                            </div>
+  return (
+    <div
+      key={cat.id}
+      className={`mb-2 border rounded-md transition-all duration-300 overflow-hidden ${
+        isSelected
+          ? "border-primary bg-primary/5 shadow-sm"
+          : "border-gray-200"
+      }`}
+    >
+      {/* Category Button */}
+      <button
+        type="button"
+        onClick={(e) => handleCategoryChange(cat.id, e)}
+        className="p-2 cursor-pointer flex justify-between items-center w-full text-left"
+      >
+        <span className="font-medium text-gray-800">{cat.name}</span>
+      </button>
 
-                            <div className="sticky bottom-0 z-20 bg-white border-t p-3">
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Number of Items (Any X mode)
-                              </label>
-                              <input
-                                type="number"
-                                min="1"
-                                className="w-full border rounded-md px-2 py-1 text-sm"
-                                placeholder="Enter number"
-                                value={numberOfItems || ""}
-                                onChange={(e) => setNumberOfItems(e.target.value)}
-                              />
-                            </div>
+      {/* Input shows ONLY when selected */}
+      <div
+        className={`transition-all duration-300 ${
+          isSelected ? "max-h-20 opacity-100 p-2" : "max-h-0 opacity-0 p-0"
+        } overflow-hidden`}
+      >
+        {isSelected && (
+          <input
+            type="number"
+            min="0"
+            placeholder={`Number of items for ${cat.name}`}
+            className="w-full border rounded-md px-2 py-1 text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+            value={anyItemsCount}
+            onChange={(e) =>
+              handleCategoryAnyItemsChange(cat.id, e.target.value)
+            }
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
+      </div>
+    </div>
+  );
+})}
+
+</div>
+
+
                           </div>
                         </div>
 
@@ -620,7 +619,7 @@ const AddCustomPackage = () => {
                                   categorySlogans: {},
                                 }}
                                 categories={categories}
-                                numberOfItems={numberOfItems}
+                                categoryAnyItems={categoryAnyItems} // NEW: Pass per-category any items
                                 onRemoveItem={handleRemoveItem}
                                 onReorder={handleReorder}
                                 onUpdateItemNote={handleUpdateItemNote}
@@ -710,12 +709,6 @@ const InputWithFormik = ({ label, name, type = "text" }) => (
 );
 
 export default AddCustomPackage;
-
-
-
-
-
-
 
 
 
@@ -1204,5 +1197,4 @@ export default AddCustomPackage;
 // );
 
 // export default AddCustomPackage;
-
 

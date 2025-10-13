@@ -91,6 +91,95 @@ const EventPreparationPage = () => {
     loadFunctionMenuData
   );
 
+// Add this updated handlePackageSelect function to your EventPreparationPage component
+
+const handlePackageSelect = (packageItems) => {
+  if (!selectedFunctionId) return;
+
+  // Group items by their menu category
+  const itemsByCategory = {};
+  packageItems.forEach(item => {
+    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
+    if (!itemsByCategory[categoryName]) {
+      itemsByCategory[categoryName] = [];
+    }
+    itemsByCategory[categoryName].push(item);
+  });
+
+  // Find or create category IDs for package items
+  const processedItems = packageItems.map(item => {
+    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
+    
+    // Try to find existing category
+    let category = categories.find(cat => cat.name === categoryName);
+    
+    // If category doesn't exist, we'll use a temporary ID
+    const categoryId = category?.id || `temp-${categoryName.replace(/\s+/g, '-').toLowerCase()}`;
+    
+    return {
+      ...item,
+      id: item.id || `pkg-${Date.now()}-${Math.random()}`,
+      parentId: categoryId,
+      image: item.image , // Add placeholder image if not provided
+      price: item.price || 0,
+      itemNotes: item.instruction || item.itemNotes || "",
+    };
+  });
+
+  // Add processed items to allMenuItems for the current function
+  const updatedAllMenuItems = {
+    ...allMenuItems,
+    [selectedFunctionId]: [
+      ...(allMenuItems[selectedFunctionId] || []),
+      ...processedItems.filter(newItem => 
+        !(allMenuItems[selectedFunctionId] || []).some(existingItem => 
+          existingItem.name === newItem.name
+        )
+      )
+    ]
+  };
+
+  setAllMenuItems(updatedAllMenuItems);
+
+  // Extract item IDs
+  const newItemIds = processedItems.map(item => item.id);
+
+  // Dispatch to update the reducer
+  dispatch({
+    type: "UPDATE_SELECTIONS",
+    functionId: selectedFunctionId,
+    selectedItems: [
+      ...(functionSelectionData[selectedFunctionId]?.selectedItems || []),
+      ...newItemIds.filter(id => 
+        !(functionSelectionData[selectedFunctionId]?.selectedItems || []).includes(id)
+      )
+    ],
+    itemNotes: {
+      ...functionSelectionData[selectedFunctionId]?.itemNotes,
+      ...processedItems.reduce((acc, item) => {
+        acc[item.id] = item.itemNotes || item.instruction || "";
+        return acc;
+      }, {}),
+    },
+    itemSlogans: {
+      ...functionSelectionData[selectedFunctionId]?.itemSlogans,
+      ...processedItems.reduce((acc, item) => {
+        acc[item.id] = item.itemSlogan || "";
+        return acc;
+      }, {}),
+    },
+    itemRates: {
+      ...functionSelectionData[selectedFunctionId]?.itemRates,
+      ...processedItems.reduce((acc, item) => {
+        acc[item.id] = item.price || rate || 0;
+        return acc;
+      }, {}),
+    },
+    isSaved: false,
+  });
+};
+
+
   useEffect(() => {
     initializeData();
   }, []);
@@ -409,18 +498,45 @@ const EventPreparationPage = () => {
     }, 0);
   };
 
-  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-  const selectedItems = currentFunctionData.selectedItems
-    .map((id) => allFunctionMenuItems.find((item) => item.id === id))
-    .filter(Boolean);
+ const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+const selectedItems = currentFunctionData.selectedItems
+  .map((id) => {
+    const item = allFunctionMenuItems.find((menuItem) => menuItem.id === id);
+    return item;
+  })
+  .filter(Boolean);
 
-  const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
-    const category = categories.find((cat) => cat.id === item.parentId);
-    const categoryName = category?.name || "Uncategorized";
-    if (!acc[categoryName]) acc[categoryName] = [];
-    acc[categoryName].push(item);
-    return acc;
-  }, {});
+console.log("Selected Items:", selectedItems); // Debug log
+console.log("All Function Menu Items:", allFunctionMenuItems); // Debug log
+
+const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
+  const category = categories.find((cat) => cat.id === item.parentId);
+  
+  // ✅ Handle both real categories and temporary package categories
+  let categoryName;
+  if (category) {
+    categoryName = category.name;
+  } else if (item.categoryName) {
+    categoryName = item.categoryName;
+  } else if (item.menuName) {
+    categoryName = item.menuName;
+  } else if (typeof item.parentId === 'string' && item.parentId.startsWith('temp-')) {
+    categoryName = item.parentId.replace('temp-', '').replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  } else {
+    categoryName = "Uncategorized";
+  }
+  
+  if (!acc[categoryName]) {
+    acc[categoryName] = [];
+  }
+  acc[categoryName].push(item);
+  return acc;
+}, {});
+
+console.log("Selected Items By Category:", selectedItemsByCategory); // Debug log
 
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
 
@@ -605,11 +721,14 @@ const EventPreparationPage = () => {
   </div>
 </div>
     </div>
-   <CustomPackageModal
+  <CustomPackageModal
   isOpen={showCustomPackageModal}
   onClose={() => setShowCustomPackageModal(false)}
-  userId={1} // Make sure this is the correct user ID
+  userId={1}
+  onPackageSelect={handlePackageSelect} // ✅ Just pass the function
 />
+
+
               {/* Tabs */}
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
@@ -706,7 +825,11 @@ const EventPreparationPage = () => {
                     </Tooltip>
                   </div>
                 </div>
+             
+
+  
                 <div className="flex-1 p-3 pr-2  h-auto overflow-auto  ">
+                  
                   <SelectedItemsList
                     rate={rate}
                     selectedItemsByCategory={selectedItemsByCategory}
