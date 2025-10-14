@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
@@ -6,6 +6,8 @@ import { Input, Checkbox, Select, InputNumber, Card, Badge } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
+import { GetEventMasterById } from "@/services/apiServices";
+
 const menuRowsSeed = [
   {
     key: "1",
@@ -261,6 +263,23 @@ const EventMenuAllocationPage = () => {
   const [isCategoryModal, setIsCategoryModal] = useState(false);
   const [iswhatsAppSidebar, setIsWhatsAppSidebar] = useState(false);
 
+  const FetchEventDetails = () => {
+    GetEventMasterById(Id)
+      .then((res) => {
+        if (res) {
+          const eventData = res.data;
+          console.log("Event Data:", eventData);
+        } else {
+          throw new Error(res?.message || "API call failed");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching event details:", error);
+      });
+  };
+  useEffect(() => {
+    FetchEventDetails();
+  }, []);
   const updateRow = (updated) => {
     setRows((r) => r.map((x) => (x.key === updated.key ? updated : x)));
   };
