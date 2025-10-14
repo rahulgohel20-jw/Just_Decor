@@ -50,11 +50,9 @@ export default function Signup() {
           countryId: Number(values.countryId),
           stateId: Number(values.stateId),
           cityId: Number(values.cityId),
-           roleId: 2,
-          // ✅ Default values instead of form inputs
+          roleId: 2,
           companyName: " ",
           remarks: " ",
-          planId: null,
           reportingManagerId: 0,
 
           companyEmail:
@@ -205,9 +203,7 @@ export default function Signup() {
                 />
               </label>
               {formik.errors.lastName && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.lastName}
-                </p>
+                <p className="text-red-500 text-sm">{formik.errors.lastName}</p>
               )}
             </div>
 
@@ -261,9 +257,7 @@ export default function Signup() {
                 />
               </label>
               {formik.errors.address && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.address}
-                </p>
+                <p className="text-red-500 text-sm">{formik.errors.address}</p>
               )}
             </div>
 
@@ -312,9 +306,7 @@ export default function Signup() {
                 </select>
               </label>
               {formik.errors.stateId && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.stateId}
-                </p>
+                <p className="text-red-500 text-sm">{formik.errors.stateId}</p>
               )}
             </div>
 
@@ -338,9 +330,7 @@ export default function Signup() {
                 </select>
               </label>
               {formik.errors.cityId && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.cityId}
-                </p>
+                <p className="text-red-500 text-sm">{formik.errors.cityId}</p>
               )}
             </div>
           </div>
@@ -348,10 +338,7 @@ export default function Signup() {
 
         {/* Submit */}
         <div className="text-center">
-          <button
-            type="submit"
-            className="btn btn-primary"
-          >
+          <button type="submit" className="btn btn-primary">
             Sign Up
           </button>
         </div>

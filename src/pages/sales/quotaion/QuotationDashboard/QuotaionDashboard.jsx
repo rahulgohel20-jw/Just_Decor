@@ -2,48 +2,26 @@ import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { columns, defaultData } from "./constant";
-import InvoiceTable from "@/components/InvoiceTable/InvoiceTable";
+import QuotationTable from "@/components/QuotationTable/QuotationTable";
 import { CommonHexagonBadge } from "@/partials/common";
 import { GetAllQuotation } from "@/services/apiServices";
 import { toAbsoluteUrl } from "@/utils";
+import { Download } from "lucide-react";
 const QuotationDashboard = () => {
   const [tableData, setTableData] = useState(defaultData);
+  const [totals, setTotals] = useState({
+    receivable: 0,
+    remaining: 0,
+    total: 0,
+  });
   const user = JSON.parse(localStorage.getItem("userData"));
   const userId = user?.id || 0;
-  const steps = [
-    {
-      title: "Total Outstanding Receivable",
-      value: "₹ 8,00,00,000.00",
-      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
-    },
-    {
-      title: "Due Today",
-      value: "₹ 0.00",
-      icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
-    },
-    {
-      title: "Due within 30 days",
-      value: "₹ 0.00",
-      icon: <i className="ki-filled ki-time text-xl text-primary"></i>,
-    },
-    {
-      title: "Over Due Invoice",
-      value: "₹ 0.00",
-      icon: <i className="ki-filled ki-information-3 text-xl text-primary"></i>,
-    },
-    {
-      // title: "Average No. of Days for Getting Paid",
-      title: "Average Payment Days",
-      value: "7 Days",
-      icon: <i className="ki-filled ki-timer text-xl text-primary"></i>,
-    },
-  ];
+
   const fetchQuotations = async () => {
     const response = await GetAllQuotation(userId);
-
-    const data = response?.data?.data["Event Functions Quotation Details"].map(
-      (quotation, index) => {
-        return {
+    const data =
+      response?.data?.data["Event Functions Quotation Details"]?.map(
+        (quotation, index) => ({
           Invoice: index + 1,
           EventId: quotation?.event?.id || "-",
           CustomerName: quotation?.event?.party?.nameEnglish || "-",
@@ -52,24 +30,56 @@ const QuotationDashboard = () => {
           eventDate: quotation?.event?.eventStartDateTime
             ? new Date(quotation.event.eventStartDateTime).toLocaleDateString(
                 "en-GB",
-                {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                }
+                { day: "2-digit", month: "short", year: "numeric" }
               )
             : "-",
           QuotationDate: quotation?.createdAt || "-",
           Amount: quotation?.totalAmount || "-",
           BalanceDue: quotation?.remainingAmount || "-",
-        };
-      }
-    );
-    setTableData(data || []);
+        })
+      ) || [];
+
+    setTableData(data);
+
+    const totalReciveAmt =
+      response?.data?.data?.["Event Functions Quotation Details"][0]
+        .overAllReceivableAmnt || 0;
+    const totalRemainingAmt =
+      response?.data?.data?.["Event Functions Quotation Details"][0]
+        .overAllRemainingAmnt || 0;
+    const totalAmt =
+      response?.data?.data?.["Event Functions Quotation Details"][0]
+        .overallTotalAmnt || 0;
+    console.log(totalReciveAmt);
+
+    setTotals({
+      receivable: totalReciveAmt,
+      remaining: totalRemainingAmt,
+      total: totalAmt,
+    });
   };
+
   useEffect(() => {
     fetchQuotations();
   }, []);
+  const steps = [
+    {
+      title: "Total Outstanding Receivable",
+      value: `₹ ${totals.receivable}`,
+      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
+    },
+    {
+      title: "Total Remaining",
+      value: `₹ ${totals.remaining}`,
+      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
+    },
+    {
+      title: "Total Amount",
+      value: `₹ ${totals.total}`,
+      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
+    },
+  ];
+
   return (
     <Fragment>
       <style>
@@ -88,7 +98,36 @@ const QuotationDashboard = () => {
           <Breadcrumbs items={[{ title: "Quotation Overview" }]} />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-4">
+        {/* filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+              <input
+                className="input pl-8"
+                placeholder="Search item"
+                type="text"
+              />
+            </div>
+            <div className="filItems relative">
+              <select defaultValue="All Invoice" className="select pe-7.5">
+                <option value="0" selected>
+                  All Quotation
+                </option>
+                <option value="1">Last 3 Months</option>
+                <option value="2">Last 6 Months</option>
+                <option value="3">Custom Date</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button className="btn btn-primary" title="Download">
+              <Download style={{ width: "18", height: "18" }} /> Download
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div
               key={index}
@@ -113,7 +152,7 @@ const QuotationDashboard = () => {
             </div>
           ))}
         </div>
-        <InvoiceTable columns={columns} data={tableData} />
+        <QuotationTable columns={columns} data={tableData} />
       </Container>
     </Fragment>
   );
