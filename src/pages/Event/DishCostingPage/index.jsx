@@ -34,7 +34,7 @@ const DishCostingPage = () => {
         {/* Customer Selection and View Type */}
         <div className="card mb-5">
           <div className="card-body">
-            <div className="flex items-end gap-4">
+            <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block text-2sm font-medium text-gray-700 mb-2">
                   Customer Name
@@ -54,7 +54,7 @@ const DishCostingPage = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-8 py-3 text-sm font-medium transition-colors rounded-lg ${
+                  className={`px-8 py-3 text-sm font-medium transition-colors w-full rounded-lg ${
                     activeTab === tab
                       ? 'bg-primary text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
@@ -187,7 +187,7 @@ const DishCostingPage = () => {
               </div>
 
               {/* Total General Fix Charges */}
-              <div className="bg-purple-50 rounded-lg p-5 border border-purple-100 relative">
+              <div className="bg-white-50 rounded-lg p-5 border border-purple-100 relative">
                 <div className="absolute top-4 right-4 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <i className="ki-filled ki-setting-2 text-purple-600 text-xl"></i>
                 </div>
