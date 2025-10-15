@@ -262,6 +262,11 @@ export const UpdateEventMaster = (Id, data) => {
 export const GetEventMasterById = (Id) => {
   return GET(`/eventmaster/getbyid?eventId=${Id}`);
 };
+export const GetMenuAllocation = (Id) => {
+  return GET(
+    `/menuallocation/getmenuallocation?eventFunctionId=2&eventId=${Id}`
+  );
+};
 //Delete event
 export const DeleteEventMaster = (Id) => {
   return DELETE(`/eventmaster/deleteeventbyid?eventId=${Id}`);
@@ -667,7 +672,6 @@ export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
 
-
 // custome package get api
 export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
@@ -680,9 +684,9 @@ export const AddCustomPackageapi = (data) => {
 //cusrome package update api
 export const UpdateCustomPackageapi = (id, data) => {
   return PUT(`/custompackage/update?id=${id}`, data);
-}
+};
 
 //custome package delete api
 export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
-}
+};

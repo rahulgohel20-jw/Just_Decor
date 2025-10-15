@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
 
 const WhatsAppIcon = () => (
   <svg
@@ -26,8 +27,111 @@ const BaseSelect = (props) => (
   </select>
 );
 
-export default function SidebarModal({ open, onClose }) {
-  const [rowCount, setRowCount] = useState(6);
+export default function SidebarModal({
+  open,
+  onClose,
+  eventId,
+  eventFunctionId,
+  row,
+}) {
+  const [menuAllocations, setMenuAllocations] = useState([]);
+  const [contactNames, setContactNames] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // ---- fetch data ----
+  useEffect(() => {
+    const FetchDetails = async () => {
+      try {
+        setLoading(true);
+        const menudata = await GetMenuAllocation(eventId, eventFunctionId);
+        const raw =
+          menudata?.data?.data["Menu Allocation Details"][0]?.menuAllocation ||
+          [];
+        console.log(raw);
+
+        // filter only outside == true
+        const outsideRows = raw
+          .filter((item) => item.outside === true)
+          .flatMap(
+            (item) =>
+              item.eventFunctionMenuAllocations?.map((alloc) => ({
+                partyName: alloc.partyName || "",
+                price: alloc.price || "",
+                quantity: alloc.quantity || "",
+                unitName: alloc.unitName || "Nos",
+                totalPrice: alloc.totalPrice || "",
+                isOutside: alloc.isOutside,
+              })) || []
+          );
+
+        // if no outside rows found, show one empty row
+        if (outsideRows.length === 0) {
+          setMenuAllocations([
+            {
+              partyName: "",
+              price: "",
+              quantity: "",
+              unitName: "Nos",
+              totalPrice: "",
+              isOutside: true,
+            },
+          ]);
+        } else {
+          setMenuAllocations(outsideRows);
+        }
+      } catch (error) {
+        console.error("Error fetching event details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const FetchContactName = async () => {
+      try {
+        let userData = JSON.parse(localStorage.getItem("userData"));
+        let Id = userData.id;
+        const res = await ContactNameItem(Id, "Outside Supplier (Food)");
+        if (res?.data?.data) {
+          setContactNames(res.data.data["Party Details"]);
+        }
+      } catch (error) {
+        console.error("Error fetching contact name:", error);
+      }
+    };
+
+    if (eventId && eventFunctionId && open) {
+      FetchDetails();
+      FetchContactName();
+    }
+  }, [eventId, eventFunctionId, open]);
+
+  // ---- Add Row ----
+  const handleAddRow = () => {
+    setMenuAllocations((prev) => [
+      ...prev,
+      {
+        partyName: "",
+        price: "",
+        quantity: "",
+        unitName: "Nos",
+        totalPrice: "",
+        isOutside: true,
+      },
+    ]);
+  };
+
+  const handleInputChange = (index, field, value) => {
+    const updated = [...menuAllocations];
+    updated[index][field] = value;
+
+    if (field === "price" || field === "quantity") {
+      const price = parseFloat(updated[index].price) || 0;
+      const qty = parseFloat(updated[index].quantity) || 0;
+      updated[index].totalPrice = price * qty;
+    }
+
+    setMenuAllocations(updated);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -49,9 +153,7 @@ export default function SidebarModal({ open, onClose }) {
             onClick={onClose}
           />
 
-          {/* Drawer in a padded track so gaps are visible */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* control the gaps here: top/right/bottom = 24px */}
             <motion.div
               role="dialog"
               aria-modal="true"
@@ -75,12 +177,10 @@ export default function SidebarModal({ open, onClose }) {
               </div>
 
               <div className="p-4">
+                {/* top buttons */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       Dinner
                     </button>
                   </div>
@@ -94,28 +194,28 @@ export default function SidebarModal({ open, onClose }) {
                           className="input"
                           type="text"
                           value="10/12/2025"
+                          readOnly
                         />
                         <input
                           className="input"
                           type="text"
                           value="10/12/2025"
+                          readOnly
                         />
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       Outside
                     </button>
                   </div>
                 </div>
-                <div className="flex justify-end">
+
+                <div className="flex justify-end mt-3">
                   <button
                     className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                    title="Share"
+                    onClick={handleAddRow}
                   >
                     Add
                   </button>
@@ -123,7 +223,6 @@ export default function SidebarModal({ open, onClose }) {
 
                 {/* TABLE */}
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                  {/* header */}
                   <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
                     <div>No.</div>
                     <div className="ml-3">Contact Name</div>
@@ -134,46 +233,76 @@ export default function SidebarModal({ open, onClose }) {
                     <div className="text-center">Action</div>
                   </div>
 
-                  {/* rows */}
-                  {Array.from({ length: rowCount }).map((_, idx) => (
+                  {menuAllocations.map((row, idx) => (
                     <div
                       key={idx}
                       className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
                     >
-                      <div className="text-[13px] text-gray-700 ">
+                      <div className="text-[13px] text-gray-700">
                         {idx + 1}.
                       </div>
 
                       <div>
-                        <BaseSelect defaultValue="">
-                          <option value="">Input Text</option>
-                          <option>Ajay</option>
-                          <option>Neha</option>
-                          <option>Ravi</option>
+                        <BaseSelect
+                          value={row.partyName}
+                          onChange={(e) =>
+                            handleInputChange(idx, "partyName", e.target.value)
+                          }
+                        >
+                          <option value="">Select Name</option>
+                          {contactNames.map((c) => (
+                            <option key={c.id} value={c.partyName}>
+                              {c.partyName}
+                            </option>
+                          ))}
                         </BaseSelect>
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Price"
+                          value={row.price}
+                          onChange={(e) =>
+                            handleInputChange(idx, "price", e.target.value)
+                          }
+                        />
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Qty"
+                          value={row.quantity}
+                          onChange={(e) =>
+                            handleInputChange(idx, "quantity", e.target.value)
+                          }
+                        />
                       </div>
 
                       <div>
-                        <BaseSelect defaultValue="Nos">
-                          {["Nos", "Kg", "Ltr", "Pack"].map((u) => (
+                        <BaseSelect
+                          value={row.unitName}
+                          onChange={(e) =>
+                            handleInputChange(idx, "unitName", e.target.value)
+                          }
+                        >
+                          {["Nos", "Kg", "Ltr", "Pack", "Gram"].map((u) => (
                             <option key={u}>{u}</option>
                           ))}
                         </BaseSelect>
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Total"
+                          readOnly
+                          value={row.totalPrice}
+                        />
                       </div>
 
-                      <div className="flex items-center justify-center ">
+                      <div className="flex items-center justify-center">
                         <button
                           type="button"
                           className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
@@ -190,10 +319,7 @@ export default function SidebarModal({ open, onClose }) {
                   <button className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">
                     Cancel
                   </button>
-                  <button
-                    className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                    title="Share"
-                  >
+                  <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                     Save
                   </button>
                 </div>
