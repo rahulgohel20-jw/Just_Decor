@@ -687,3 +687,9 @@ export const UpdateCustomPackageapi = (id, data) => {
 export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
 }
+
+//custome package updtae api 
+// Update custom package status API
+export const UpdateCustomPackageStatusapi = (id, isActive) => {
+  return PUT(`/custompackage/updatestatus?id=${id}&isActive=${isActive}`);
+};

@@ -25,9 +25,10 @@ export const columns = (onEdit, onDelete, onStatusChange) => [
     header: "Total Items",
     size: 140,
   },
-  {
+{
     accessorKey: "isActive",
     header: "Status",
+    size: 120,
     cell: ({ row }) => (
       <Switch
         checked={!!row.original.isActive}
@@ -36,8 +37,10 @@ export const columns = (onEdit, onDelete, onStatusChange) => [
         }
       />
     ),
-    size: 120,
   },
+
+
+,
   {
     accessorKey: "action",
     header: "Action",

@@ -602,15 +602,49 @@ const useSaveMenu = (
         })
       );
 
-      const payload = {
-        defaultPrice: rate || 0,
-        eventFunctionId: selectedFunctionId,
-        id: existingId,
-        pax: Number(pax) || 0,
-        price: calculateTotalPrice(),
-        selectedMenuPreparationItems: selectedMenuPreparationItems,
-        sortorder: 0,
-      };
+      // Example: fetch a package before building payload
+const fetchPackage = async (packageId) => {
+  try {
+    const res = await GetCustomPackageapi(packageId); // Your GET API
+    if (res.data.success) {
+      return res.data.data["Package Details"][0]; // first package
+    }
+  } catch (err) {
+    console.error("Failed to fetch package:", err);
+  }
+  return null;
+};
+
+   // Example: mapping package response to payload
+const packagePayload = {
+  defaultPrice: packageData.price || 0,
+  eventFunctionId: selectedFunctionId,
+  id: existingId,
+  pax: Number(pax) || 0,
+  price: packageData.price || 0,
+  isPackage: true,
+  packageId: packageData.id,
+  packageName: packageData.nameEnglish,
+  sortorder: 0,
+  selectedMenuPreparationItems: packageData.customPackageDetails.map((menu, menuIndex) => ({
+    menuCategoryId: menu.menuId,
+    menuCategoryName: menu.menuName,
+    menuNotes: menu.menuInstruction || "",
+    menuSlogan: "",
+    menuSortOrder: menuIndex,
+    startTime: dateandtime,
+    selectedMenuPreparationItems: menu.customPackageMenuItemDetails.map((item, itemIndex) => ({
+      id: 0,
+      itemNotes: item.itemInstruction || "",
+      itemPrice: item.itemPrice,
+      itemSlogan: "",
+      itemSortOrder: itemIndex,
+      menuItemId: item.menuItemId,
+      menuItemName: item.itemName
+    }))
+  }))
+};
+
 
       console.log("New payload structure:", JSON.stringify(payload, null, 2));
 

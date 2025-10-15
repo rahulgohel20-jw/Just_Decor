@@ -55,12 +55,13 @@ const EventPreparationPage = () => {
     clearFunctionCache,
     setAllMenuItems,
   } = useMenuData();
+
   const [functionSelectionData, dispatch] = useReducer(functionDataReducer, {});
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [pax, setPax] = useState(0);
   const [rate, setRate] = useState(0);
-  const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");
   const [childSearch, setChildSearch] = useState("");
   const [showDetails, setShowDetails] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -80,6 +81,9 @@ const EventPreparationPage = () => {
     categorySlogan: "",
   });
 
+  const userData = JSON.parse(localStorage.getItem("userData"));
+const userId = userData?.id;
+
   const { saveMenu } = useSaveMenu(
     functionSelectionData,
     allMenuItems,
@@ -92,92 +96,49 @@ const EventPreparationPage = () => {
   );
 
 // Add this updated handlePackageSelect function to your EventPreparationPage component
-
-const handlePackageSelect = (packageItems) => {
+const handlePackageSelect = (packageItems, packageInfo) => {
   if (!selectedFunctionId) return;
 
-  // Group items by their menu category
-  const itemsByCategory = {};
-  packageItems.forEach(item => {
-    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
-    if (!itemsByCategory[categoryName]) {
-      itemsByCategory[categoryName] = [];
-    }
-    itemsByCategory[categoryName].push(item);
-  });
+  // Merge selected items
+  const currentSelectedItems = functionSelectionData[selectedFunctionId]?.selectedItems || [];
+  const mergedSelectedIds = [
+    ...new Set([...currentSelectedItems, ...packageItems.map(item => item.id)]),
+  ];
 
-  // Find or create category IDs for package items
-  const processedItems = packageItems.map(item => {
-    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
-    
-    // Try to find existing category
-    let category = categories.find(cat => cat.name === categoryName);
-    
-    // If category doesn't exist, we'll use a temporary ID
-    const categoryId = category?.id || `temp-${categoryName.replace(/\s+/g, '-').toLowerCase()}`;
-    
-    return {
-      ...item,
-      id: item.id || `pkg-${Date.now()}-${Math.random()}`,
-      parentId: categoryId,
-      image: item.image , // Add placeholder image if not provided
-      price: item.price || 0,
-      itemNotes: item.instruction || item.itemNotes || "",
-    };
-  });
-
-  // Add processed items to allMenuItems for the current function
-  const updatedAllMenuItems = {
-    ...allMenuItems,
-    [selectedFunctionId]: [
-      ...(allMenuItems[selectedFunctionId] || []),
-      ...processedItems.filter(newItem => 
-        !(allMenuItems[selectedFunctionId] || []).some(existingItem => 
-          existingItem.name === newItem.name
-        )
-      )
-    ]
-  };
-
-  setAllMenuItems(updatedAllMenuItems);
-
-  // Extract item IDs
-  const newItemIds = processedItems.map(item => item.id);
-
-  // Dispatch to update the reducer
   dispatch({
     type: "UPDATE_SELECTIONS",
     functionId: selectedFunctionId,
-    selectedItems: [
-      ...(functionSelectionData[selectedFunctionId]?.selectedItems || []),
-      ...newItemIds.filter(id => 
-        !(functionSelectionData[selectedFunctionId]?.selectedItems || []).includes(id)
-      )
-    ],
+    selectedItems: mergedSelectedIds,
     itemNotes: {
       ...functionSelectionData[selectedFunctionId]?.itemNotes,
-      ...processedItems.reduce((acc, item) => {
-        acc[item.id] = item.itemNotes || item.instruction || "";
+      ...packageItems.reduce((acc, item) => {
+        acc[item.id] = item.itemNotes || "";
         return acc;
-      }, {}),
+      }, {})
     },
     itemSlogans: {
       ...functionSelectionData[selectedFunctionId]?.itemSlogans,
-      ...processedItems.reduce((acc, item) => {
+      ...packageItems.reduce((acc, item) => {
         acc[item.id] = item.itemSlogan || "";
         return acc;
-      }, {}),
+      }, {})
     },
     itemRates: {
       ...functionSelectionData[selectedFunctionId]?.itemRates,
-      ...processedItems.reduce((acc, item) => {
-        acc[item.id] = item.price || rate || 0;
+      ...packageItems.reduce((acc, item) => {
+        acc[item.id] = item.price || 0;
         return acc;
-      }, {}),
+      }, {})
     },
     isSaved: false,
   });
+
+  // Now packageInfo is defined
+  handleSave(true, packageInfo);
 };
+
+
+
 
 
   useEffect(() => {
@@ -721,12 +682,14 @@ console.log("Selected Items By Category:", selectedItemsByCategory); // Debug lo
   </div>
 </div>
     </div>
-  <CustomPackageModal
+
+<CustomPackageModal
   isOpen={showCustomPackageModal}
   onClose={() => setShowCustomPackageModal(false)}
-  userId={1}
-  onPackageSelect={handlePackageSelect} // ✅ Just pass the function
+  userId={userId}
+  onPackageSelect={(items, packageInfo) => handlePackageSelect(items, packageInfo)}
 />
+
 
 
               {/* Tabs */}
