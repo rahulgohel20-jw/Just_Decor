@@ -165,17 +165,16 @@ export const GetSuplier = (id) => {
   );
 };
 export const GetAllQuotation = (id) => {
-  return GET(`/quotation/getalluserid?userid=${id}`);
+  return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
-
 
 // Get All Supllier Vendors
 
 export const GetAllSupllierVendors = (Id) => {
-  return GET(`/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`);
+  return GET(
+    `/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`
+  );
 };
-
-
 
 //Raw Material Allocation
 export const GetAllRawMaterialAllocationCategory = (eventId) => {
@@ -186,7 +185,7 @@ export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
   return GET(
     `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
   );
-}
+};
 
 export const RawMaterialAllocation = (data) => {
   return POST("/event-raw-material/add-update", data);
