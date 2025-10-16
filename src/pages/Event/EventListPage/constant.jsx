@@ -122,13 +122,14 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
           </Tooltip>
 
           <Tooltip title="Menu Allocation">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Menu Allocation"
-              onClick={underConstruction}
-            >
-              <i className="ki-filled ki-grid  text-info"></i>
-            </button>
+            <Link to={`/menu-allocation/${row.original.eventid}`}>
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Menu Allocation"
+              >
+                <i className="ki-filled ki-grid  text-info"></i>
+              </button>
+            </Link>
           </Tooltip>
           <Tooltip title="Menu Report">
             <button
