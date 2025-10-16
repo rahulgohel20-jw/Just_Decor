@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
-
+import { ContactNameItem, Getunit } from "@/services/apiServices";
 const WhatsAppIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +17,7 @@ const BaseInput = (props) => (
     className="h-9 w-full rounded-md border border-gray-300 bg-white px-2 text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
   />
 );
+
 const BaseSelect = (props) => (
   <select
     {...props}
@@ -33,83 +33,108 @@ export default function SidebarModal({
   eventId,
   eventFunctionId,
   row,
+  functionName,
+  functionDateTime,
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [unit, setUnit] = useState([]);
 
-  // ---- fetch data ----
   useEffect(() => {
-    const FetchDetails = async () => {
-      try {
-        setLoading(true);
-        const menudata = await GetMenuAllocation(eventId, eventFunctionId);
-        const raw =
-          menudata?.data?.data["Menu Allocation Details"][0]?.menuAllocation ||
-          [];
-        console.log(raw);
+    if (!open || !row) return;
+    const allocations = row.eventFunctionMenuAllocations || [];
+    const outsideAllocations = allocations
+      .filter((alloc) => alloc.isOutside === true)
+      .map((alloc) => ({
+        partyId: alloc.partyId || null,
+        partyName: alloc.partyName || "",
+        price: alloc.price || "",
+        quantity: alloc.quantity || "",
+        unitName: alloc.unitName || "Nos",
+        totalPrice: alloc.totalPrice || "",
+        isOutside: alloc.isOutside,
+      }));
 
-        // filter only outside == true
-        const outsideRows = raw
-          .filter((item) => item.outside === true)
-          .flatMap(
-            (item) =>
-              item.eventFunctionMenuAllocations?.map((alloc) => ({
-                partyName: alloc.partyName || "",
-                price: alloc.price || "",
-                quantity: alloc.quantity || "",
-                unitName: alloc.unitName || "Nos",
-                totalPrice: alloc.totalPrice || "",
-                isOutside: alloc.isOutside,
-              })) || []
-          );
+    if (outsideAllocations.length === 0) {
+      setMenuAllocations([
+        {
+          partyId: null,
+          partyName: "",
+          price: "",
+          quantity: "",
+          unitName: "Nos",
+          totalPrice: "",
+          isOutside: true,
+        },
+      ]);
+    } else {
+      setMenuAllocations(outsideAllocations);
+    }
+  }, [open, row]);
 
-        // if no outside rows found, show one empty row
-        if (outsideRows.length === 0) {
-          setMenuAllocations([
-            {
-              partyName: "",
-              price: "",
-              quantity: "",
-              unitName: "Nos",
-              totalPrice: "",
-              isOutside: true,
-            },
-          ]);
-        } else {
-          setMenuAllocations(outsideRows);
-        }
-      } catch (error) {
-        console.error("Error fetching event details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     const FetchContactName = async () => {
       try {
-        let userData = JSON.parse(localStorage.getItem("userData"));
-        let Id = userData.id;
-        const res = await ContactNameItem(Id, "Outside Supplier (Food)");
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+        const userId = userData.id;
+
+        if (!userId) {
+          console.error("User ID not found");
+          return;
+        }
+
+        const res = await ContactNameItem(userId, "Outside Supplier (Food)");
+
         if (res?.data?.data) {
-          setContactNames(res.data.data["Party Details"]);
+          const formattedContacts = res.data.data["Party Details"].map(
+            (contact) => ({
+              id: contact.id,
+              partyName: contact.nameEnglish,
+            })
+          );
+
+          setContactNames(formattedContacts);
+        }
+      } catch (error) {
+        console.error("Error fetching contact name:", error);
+      }
+    };
+    const FetchUnits = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+        const userId = userData.id;
+
+        if (!userId) {
+          console.error("User ID not found");
+          return;
+        }
+
+        const res = await Getunit(userId);
+
+        if (res?.data?.data) {
+          const unitData = res.data.data["Unit Details"].map((unit) => ({
+            id: unit.id,
+            unitName: unit.nameEnglish,
+          }));
+
+          setUnit(unitData);
         }
       } catch (error) {
         console.error("Error fetching contact name:", error);
       }
     };
 
-    if (eventId && eventFunctionId && open) {
-      FetchDetails();
+    if (open) {
       FetchContactName();
+      FetchUnits();
     }
-  }, [eventId, eventFunctionId, open]);
+  }, [open]);
 
-  // ---- Add Row ----
   const handleAddRow = () => {
     setMenuAllocations((prev) => [
       ...prev,
       {
+        partyId: null,
         partyName: "",
         price: "",
         quantity: "",
@@ -133,12 +158,34 @@ export default function SidebarModal({
     setMenuAllocations(updated);
   };
 
+  const handlePartyChange = (index, partyName) => {
+    const updated = [...menuAllocations];
+    const selectedParty = contactNames.find((c) => c.partyName === partyName);
+    updated[index].partyId = selectedParty?.id || null;
+    updated[index].partyName = partyName;
+    setMenuAllocations(updated);
+  };
+
+  const handleSave = () => {
+    console.log("Saving allocations:", {
+      eventId,
+      eventFunctionId,
+      menuItemId: row?.menuItemId,
+      menuCategoryId: row?.menuCategoryId,
+      allocations: menuAllocations,
+    });
+    onClose();
+  };
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+  const handleRemoveRow = (index) => {
+    setMenuAllocations((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <AnimatePresence>
@@ -157,15 +204,21 @@ export default function SidebarModal({
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col"
               initial={{ x: "110%" }}
               animate={{ x: 0 }}
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
+              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <div className="text-[18px] font-semibold text-gray-800">
-                  Agency Order
+                <div className="flex flex-col">
+                  <div className="text-[18px] font-semibold text-gray-800">
+                    Agency Order
+                  </div>
+                  <div className="text-[13px] text-gray-600 mt-1">
+                    {row?.categoryName} - {row?.itemName}
+                  </div>
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -176,36 +229,31 @@ export default function SidebarModal({
                 </button>
               </div>
 
-              <div className="p-4">
-                {/* top buttons */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 mt-6">
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {/* Top buttons */}
+                <div className="flex items-end gap-4">
+                  <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
-                      Dinner
+                      {functionName || "Function"}
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col gap-1">
                       <div className="text-[12px] text-gray-600">
-                        Date and Time No.
+                        Date and Time
                       </div>
                       <div className="flex gap-3">
                         <input
-                          className="input"
+                          className="h-9 px-3 rounded-md border border-gray-300 text-sm"
                           type="text"
-                          value="10/12/2025"
-                          readOnly
-                        />
-                        <input
-                          className="input"
-                          type="text"
-                          value="10/12/2025"
+                          value={functionDateTime || ""}
                           readOnly
                         />
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-6">
+                  <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       Outside
                     </button>
@@ -238,7 +286,7 @@ export default function SidebarModal({
                       key={idx}
                       className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
                     >
-                      <div className="text-[13px] text-gray-700">
+                      <div className="text-[13px] text-gray-700 pt-2">
                         {idx + 1}.
                       </div>
 
@@ -246,7 +294,7 @@ export default function SidebarModal({
                         <BaseSelect
                           value={row.partyName}
                           onChange={(e) =>
-                            handleInputChange(idx, "partyName", e.target.value)
+                            handlePartyChange(idx, e.target.value)
                           }
                         >
                           <option value="">Select Name</option>
@@ -287,8 +335,11 @@ export default function SidebarModal({
                             handleInputChange(idx, "unitName", e.target.value)
                           }
                         >
-                          {["Nos", "Kg", "Ltr", "Pack", "Gram"].map((u) => (
-                            <option key={u}>{u}</option>
+                          <option value="">Select Name</option>
+                          {unit.map((c) => (
+                            <option key={c.id} value={c.unitName}>
+                              {c.unitName}
+                            </option>
                           ))}
                         </BaseSelect>
                       </div>
@@ -302,10 +353,19 @@ export default function SidebarModal({
                         />
                       </div>
 
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center pt-1">
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
+                          className="btn btn-sm btn-icon btn-clear"
+                          title="Remove Row"
+                          onClick={() => handleRemoveRow(idx)}
+                        >
+                          {" "}
+                          <i className="ki-filled ki-trash text-danger"></i>
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
                           title="Share on WhatsApp"
                         >
                           <WhatsAppIcon />
@@ -314,15 +374,22 @@ export default function SidebarModal({
                     </div>
                   ))}
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between gap-2 mt-3">
-                  <button className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">
-                    Cancel
-                  </button>
-                  <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
-                    Save
-                  </button>
-                </div>
+              {/* Footer */}
+              <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between gap-2">
+                <button
+                  className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-sm btn-primary w-[100px] flex justify-center"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
               </div>
             </motion.div>
           </div>

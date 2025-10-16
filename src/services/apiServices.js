@@ -187,7 +187,7 @@ export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
   );
 };
 
-export const RawMaterialAllocation = (data) => {
+export const RawMaterialallocation = (data) => {
   return POST("/event-raw-material/add-update", data);
 };
 

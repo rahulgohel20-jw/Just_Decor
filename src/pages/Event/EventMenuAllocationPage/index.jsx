@@ -343,6 +343,20 @@ const EventMenuAllocationPage = () => {
     setRows((r) => r.map((x) => (x.key === updated.key ? updated : x)));
   };
 
+  const handleAdjustPerson = () => {
+    const adjustment = Number(percentage);
+    if (isNaN(adjustment) || adjustment === 0) return;
+
+    setRows((prevRows) =>
+      prevRows.map((row) => ({
+        ...row,
+        personCount: Math.max(0, (row.personCount || 0) + adjustment),
+      }))
+    );
+
+    setPercentage("");
+  };
+
   const filtered = useMemo(
     () =>
       rows.map((r) => ({
@@ -514,6 +528,7 @@ const EventMenuAllocationPage = () => {
                   <button
                     className="btn btn-sm btn-primary"
                     title="Adjust Person"
+                    onClick={handleAdjustPerson}
                   >
                     Adjust Person
                   </button>

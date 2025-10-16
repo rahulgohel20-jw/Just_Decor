@@ -99,6 +99,9 @@ export default function SidebarChefModal({
       },
     ]);
   };
+  const handleRemoveRow = (index) => {
+    setExtraRows((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <AnimatePresence>
@@ -325,7 +328,16 @@ export default function SidebarChefModal({
                             <div className="flex items-center justify-center">
                               <button
                                 type="button"
-                                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
+                                className="btn btn-sm btn-icon btn-clear"
+                                title="Remove Row"
+                                onClick={() => handleRemoveRow(idx)}
+                              >
+                                {" "}
+                                <i className="ki-filled ki-trash text-danger"></i>
+                              </button>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
                                 title="Share on WhatsApp"
                               >
                                 <WhatsAppIcon />
@@ -385,7 +397,16 @@ export default function SidebarChefModal({
                       <div className="flex items-center justify-center">
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
+                          className="btn btn-sm btn-icon btn-clear"
+                          title="Remove Row"
+                          onClick={() => handleRemoveRow(idx)}
+                        >
+                          {" "}
+                          <i className="ki-filled ki-trash text-danger"></i>
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
                           title="Share on WhatsApp"
                         >
                           <WhatsAppIcon />

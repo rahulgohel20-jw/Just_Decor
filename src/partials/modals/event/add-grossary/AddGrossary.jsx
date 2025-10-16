@@ -1,15 +1,25 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 
-const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency, onAllocatePlace, onAllocateDate, agencies, loading }) => {
-  
+const AddGrossary = ({
+  isModalOpen,
+  setIsModalOpen,
+  modalData,
+  onAllocateAgency,
+  onAllocatePlace,
+  onAllocateDate,
+  agencies,
+  loading,
+}) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
 
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const handleAllocateAgency = () => {
     if (selectedAgency) {
@@ -40,7 +50,7 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
         title="Agency, Place & Date Allocation"
         width={900}
         footer={[
-          <div className="flex justify-end" key={"footer-buttons"}>
+          <div className="flex justify-between" key={"footer-buttons"}>
             <button
               key="cancel"
               className="btn btn-light"
@@ -49,13 +59,20 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
             >
               Cancel
             </button>
+            <button
+              className="btn btn-primary save-btn"
+              title="Save"
+              onClick={handleModalClose}
+            >
+              Save
+            </button>
           </div>,
         ]}
       >
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           {/* Agency Allocation */}
           <div className="flex flex-wrap items-end gap-2">
-            <select 
+            <select
               className="select pe-7.5"
               value={selectedAgency}
               onChange={(e) => setSelectedAgency(e.target.value)}
@@ -64,7 +81,10 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
               {loading && <option>Loading...</option>}
               {!loading && agencies.length > 0
                 ? agencies.map((agency) => (
-                    <option key={agency.id} value={agency.nameEnglish || agency.name}>
+                    <option
+                      key={agency.id}
+                      value={agency.nameEnglish || agency.name}
+                    >
                       {agency.nameEnglish || agency.name}
                     </option>
                   ))
@@ -78,13 +98,13 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
-              Allocate 
+              Allocate
             </button>
           </div>
-          
+
           {/* Place Allocation */}
           <div className="flex flex-wrap items-end gap-2">
-            <select 
+            <select
               className="select pe-7.5"
               value={selectedPlace}
               onChange={(e) => setSelectedPlace(e.target.value)}
@@ -101,21 +121,19 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
-              Allocate 
+              Allocate
             </button>
           </div>
-          
+
           {/* Date Allocation */}
           <div className="flex flex-wrap items-end gap-2">
-            <div className="input">
-              <i className="ki-filled ki-calendar"></i>
-              <input
-                type="datetime-local"
-                className="h-full"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-            </div>
+            <DatePicker
+              className="input "
+              showTime
+              format="MM/DD/YYYY hh:mm A"
+              value={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+            />
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -124,32 +142,12 @@ const AddGrossary = ({ isModalOpen, setIsModalOpen, modalData, onAllocateAgency,
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
-              Allocate 
+              Allocate
             </button>
           </div>
         </div>
-        
-        <div className={'flex flex-col gap-1 w-full'}>
-          {modalData()}
-        </div>
-        
-        <div className="flex items-center justify-center gap-5 bg-gray-200 border-b border-gray-300 py-2">
-          <button
-            className="btn btn-primary save-btn"
-            title="Save"
-            onClick={handleModalClose}
-          >
-            Save
-          </button>
-          <button
-            key="cancel"
-            className="btn btn-danger"
-            onClick={handleModalClose}
-            title="Cancel"
-          >
-            Cancel
-          </button>
-        </div>
+
+        <div className={"flex flex-col gap-1 w-full"}>{modalData()}</div>
       </CustomModal>
     )
   );
