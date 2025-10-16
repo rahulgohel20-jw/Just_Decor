@@ -27,7 +27,8 @@ import { toAbsoluteUrl } from "@/utils";
 const EventPreparationPage = () => {
   const navigate = useNavigate();
   const classes = useStyles();
-
+ const userData = JSON.parse(localStorage.getItem("userData"));
+const userId = userData?.id;
   const {
     eventAllData,
     orderDetails,
@@ -49,13 +50,12 @@ const EventPreparationPage = () => {
     clearFunctionCache,
     setAllMenuItems,
   } = useMenuData();
-
   const [functionSelectionData, dispatch] = useReducer(functionDataReducer, {});
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [pax, setPax] = useState(0);
   const [rate, setRate] = useState(0);
-    const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
   const [childSearch, setChildSearch] = useState("");
   const [showDetails, setShowDetails] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -76,9 +76,6 @@ const EventPreparationPage = () => {
     categoryNotes: "",
     categorySlogan: "",
   });
-
-  const userData = JSON.parse(localStorage.getItem("userData"));
-const userId = userData?.id;
 
   const { saveMenu } = useSaveMenu(
     functionSelectionData,
@@ -134,7 +131,7 @@ const userId = userData?.id;
     };
 
     setAllMenuItems(updatedAllMenuItems);
-
+ 
     // Extract item IDs
     const newItemIds = processedItems.map((item) => item.id);
 
@@ -606,30 +603,27 @@ const userId = userData?.id;
                       <span className="font-medium">Custom</span>
                     </button>
 
-    {/* Custom Package Tab */}
-   <button
-  onClick={() => setShowCustomPackageModal(true)}
-  className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
-    showCustomPackageModal
-      ? 'bg-blue-600 text-white shadow-md'
-      : 'bg-transparent text-gray-600 hover:bg-gray-50'
-  }`}
->
-  <Package className="w-4 h-4" />
-  <span className="font-medium">Custom Package</span>
-</button>
-
-  </div>
-</div>
-    </div>
-
-<CustomPackageModal
-  isOpen={showCustomPackageModal}
-  onClose={() => setShowCustomPackageModal(false)}
-  userId={userId}
-  onPackageSelect={(items, packageInfo) => handlePackageSelect(items, packageInfo)}
-/>
-
+                    {/* Custom Package Tab */}
+                    <button
+                      onClick={() => setShowCustomPackageModal(true)}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
+                        showCustomPackageModal
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-transparent text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Package className="w-4 h-4" />
+                      <span className="font-medium">Custom Package</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <CustomPackageModal
+                isOpen={showCustomPackageModal}
+                onClose={() => setShowCustomPackageModal(false)}
+                 userId={userId}
+                onPackageSelect={handlePackageSelect}
+              />
 
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
