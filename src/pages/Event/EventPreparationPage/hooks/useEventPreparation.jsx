@@ -351,7 +351,7 @@ const useMenuData = () => {
             id: item.menuItemId,
             parentId: item.menuCategoryId,
             name: item.menuItemName,
-            image: item.imagePath?.replace("jcupload", "uploads") || "",
+            image: item.imagePath || "",
             price: item.itemPrice,
             isSelected: false,
           })

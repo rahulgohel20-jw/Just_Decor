@@ -109,21 +109,6 @@ export const useMenuItems = () => {
           return [];
         }
 
-        /* 🧾 Debug raw API structure */
-        console.log(
-          "🧾 Raw API first few items:",
-          rawItems.slice(0, 5).map((x) => ({
-            id: x.id,
-            nameEnglish: x.nameEnglish,
-            menuCategoryId: x.menuCategoryId,
-            categoryId: x.categoryId,
-            menuItemCategoryId: x.menuItemCategoryId,
-            menuCategory: x.menuCategory,
-            category: x.category,
-          }))
-        );
-
-        /* ✅ Normalize items */
         const items = rawItems.map((item) => ({
           id: item.id,
           parentId:
@@ -134,7 +119,7 @@ export const useMenuItems = () => {
             item.category?.id ||
             0,
           name: item.nameEnglish || item.menuItemName || item.name,
-          image: item.imagePath?.replace("jcupload", "uploads") || "",
+          image: item.imagePath || "",
           price: item.price || 0,
           isSelected: false,
         }));
@@ -182,4 +167,3 @@ export const useMenuItems = () => {
 
   return { menuItems, loading, fetchMenuItems, setMenuItems, allMenuItems };
 };
- 

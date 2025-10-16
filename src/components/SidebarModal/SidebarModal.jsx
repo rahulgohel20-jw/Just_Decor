@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { ContactNameItem, Getunit } from "@/services/apiServices";
 const WhatsAppIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -17,6 +17,7 @@ const BaseInput = (props) => (
     className="h-9 w-full rounded-md border border-gray-300 bg-white px-2 text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
   />
 );
+
 const BaseSelect = (props) => (
   <select
     {...props}
@@ -26,8 +27,155 @@ const BaseSelect = (props) => (
   </select>
 );
 
-export default function SidebarModal({ open, onClose }) {
-  const [rowCount, setRowCount] = useState(6);
+export default function SidebarModal({
+  open,
+  onClose,
+  eventId,
+  eventFunctionId,
+  row,
+  functionName,
+  functionDateTime,
+}) {
+  const [menuAllocations, setMenuAllocations] = useState([]);
+  const [contactNames, setContactNames] = useState([]);
+  const [unit, setUnit] = useState([]);
+
+  useEffect(() => {
+    if (!open || !row) return;
+    const allocations = row.eventFunctionMenuAllocations || [];
+    const outsideAllocations = allocations
+      .filter((alloc) => alloc.isOutside === true)
+      .map((alloc) => ({
+        partyId: alloc.partyId || null,
+        partyName: alloc.partyName || "",
+        price: alloc.price || "",
+        quantity: alloc.quantity || "",
+        unitName: alloc.unitName || "Nos",
+        totalPrice: alloc.totalPrice || "",
+        isOutside: alloc.isOutside,
+      }));
+
+    if (outsideAllocations.length === 0) {
+      setMenuAllocations([
+        {
+          partyId: null,
+          partyName: "",
+          price: "",
+          quantity: "",
+          unitName: "Nos",
+          totalPrice: "",
+          isOutside: true,
+        },
+      ]);
+    } else {
+      setMenuAllocations(outsideAllocations);
+    }
+  }, [open, row]);
+
+  useEffect(() => {
+    const FetchContactName = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+        const userId = userData.id;
+
+        if (!userId) {
+          console.error("User ID not found");
+          return;
+        }
+
+        const res = await ContactNameItem(userId, "Outside Supplier (Food)");
+
+        if (res?.data?.data) {
+          const formattedContacts = res.data.data["Party Details"].map(
+            (contact) => ({
+              id: contact.id,
+              partyName: contact.nameEnglish,
+            })
+          );
+
+          setContactNames(formattedContacts);
+        }
+      } catch (error) {
+        console.error("Error fetching contact name:", error);
+      }
+    };
+    const FetchUnits = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+        const userId = userData.id;
+
+        if (!userId) {
+          console.error("User ID not found");
+          return;
+        }
+
+        const res = await Getunit(userId);
+
+        if (res?.data?.data) {
+          const unitData = res.data.data["Unit Details"].map((unit) => ({
+            id: unit.id,
+            unitName: unit.nameEnglish,
+          }));
+
+          setUnit(unitData);
+        }
+      } catch (error) {
+        console.error("Error fetching contact name:", error);
+      }
+    };
+
+    if (open) {
+      FetchContactName();
+      FetchUnits();
+    }
+  }, [open]);
+
+  const handleAddRow = () => {
+    setMenuAllocations((prev) => [
+      ...prev,
+      {
+        partyId: null,
+        partyName: "",
+        price: "",
+        quantity: "",
+        unitName: "Nos",
+        totalPrice: "",
+        isOutside: true,
+      },
+    ]);
+  };
+
+  const handleInputChange = (index, field, value) => {
+    const updated = [...menuAllocations];
+    updated[index][field] = value;
+
+    if (field === "price" || field === "quantity") {
+      const price = parseFloat(updated[index].price) || 0;
+      const qty = parseFloat(updated[index].quantity) || 0;
+      updated[index].totalPrice = price * qty;
+    }
+
+    setMenuAllocations(updated);
+  };
+
+  const handlePartyChange = (index, partyName) => {
+    const updated = [...menuAllocations];
+    const selectedParty = contactNames.find((c) => c.partyName === partyName);
+    updated[index].partyId = selectedParty?.id || null;
+    updated[index].partyName = partyName;
+    setMenuAllocations(updated);
+  };
+
+  const handleSave = () => {
+    console.log("Saving allocations:", {
+      eventId,
+      eventFunctionId,
+      menuItemId: row?.menuItemId,
+      menuCategoryId: row?.menuCategoryId,
+      allocations: menuAllocations,
+    });
+    onClose();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -35,6 +183,9 @@ export default function SidebarModal({ open, onClose }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+  const handleRemoveRow = (index) => {
+    setMenuAllocations((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <AnimatePresence>
@@ -49,21 +200,25 @@ export default function SidebarModal({ open, onClose }) {
             onClick={onClose}
           />
 
-          {/* Drawer in a padded track so gaps are visible */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* control the gaps here: top/right/bottom = 24px */}
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[950px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col"
               initial={{ x: "110%" }}
               animate={{ x: 0 }}
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
+              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <div className="text-[18px] font-semibold text-gray-800">
-                  Agency Order
+                <div className="flex flex-col">
+                  <div className="text-[18px] font-semibold text-gray-800">
+                    Agency Order
+                  </div>
+                  <div className="text-[13px] text-gray-600 mt-1">
+                    {row?.categoryName} - {row?.itemName}
+                  </div>
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -74,48 +229,41 @@ export default function SidebarModal({ open, onClose }) {
                 </button>
               </div>
 
-              <div className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
-                      Dinner
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {/* Top buttons */}
+                <div className="flex items-end gap-4">
+                  <div className="flex items-center gap-2">
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
+                      {functionName || "Function"}
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col gap-1">
                       <div className="text-[12px] text-gray-600">
-                        Date and Time No.
+                        Date and Time
                       </div>
                       <div className="flex gap-3">
                         <input
-                          className="input"
+                          className="h-9 px-3 rounded-md border border-gray-300 text-sm"
                           type="text"
-                          value="10/12/2025"
-                        />
-                        <input
-                          className="input"
-                          type="text"
-                          value="10/12/2025"
+                          value={functionDateTime || ""}
+                          readOnly
                         />
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-6">
-                    <button
-                      className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                      title="Share"
-                    >
+                  <div className="flex items-center gap-2">
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       Outside
                     </button>
                   </div>
                 </div>
-                <div className="flex justify-end">
+
+                <div className="flex justify-end mt-3">
                   <button
                     className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                    title="Share"
+                    onClick={handleAddRow}
                   >
                     Add
                   </button>
@@ -123,7 +271,6 @@ export default function SidebarModal({ open, onClose }) {
 
                 {/* TABLE */}
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                  {/* header */}
                   <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
                     <div>No.</div>
                     <div className="ml-3">Contact Name</div>
@@ -134,49 +281,91 @@ export default function SidebarModal({ open, onClose }) {
                     <div className="text-center">Action</div>
                   </div>
 
-                  {/* rows */}
-                  {Array.from({ length: rowCount }).map((_, idx) => (
+                  {menuAllocations.map((row, idx) => (
                     <div
                       key={idx}
                       className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
                     >
-                      <div className="text-[13px] text-gray-700 ">
+                      <div className="text-[13px] text-gray-700 pt-2">
                         {idx + 1}.
                       </div>
 
                       <div>
-                        <BaseSelect defaultValue="">
-                          <option value="">Input Text</option>
-                          <option>Ajay</option>
-                          <option>Neha</option>
-                          <option>Ravi</option>
-                        </BaseSelect>
-                      </div>
-
-                      <div>
-                        <BaseInput type="number" placeholder=" Number" />
-                      </div>
-
-                      <div>
-                        <BaseInput type="number" placeholder=" Number" />
-                      </div>
-
-                      <div>
-                        <BaseSelect defaultValue="Nos">
-                          {["Nos", "Kg", "Ltr", "Pack"].map((u) => (
-                            <option key={u}>{u}</option>
+                        <BaseSelect
+                          value={row.partyName}
+                          onChange={(e) =>
+                            handlePartyChange(idx, e.target.value)
+                          }
+                        >
+                          <option value="">Select Name</option>
+                          {contactNames.map((c) => (
+                            <option key={c.id} value={c.partyName}>
+                              {c.partyName}
+                            </option>
                           ))}
                         </BaseSelect>
                       </div>
 
                       <div>
-                        <BaseInput type="number" placeholder=" Number" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Price"
+                          value={row.price}
+                          onChange={(e) =>
+                            handleInputChange(idx, "price", e.target.value)
+                          }
+                        />
                       </div>
 
-                      <div className="flex items-center justify-center ">
+                      <div>
+                        <BaseInput
+                          type="number"
+                          placeholder="Qty"
+                          value={row.quantity}
+                          onChange={(e) =>
+                            handleInputChange(idx, "quantity", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <BaseSelect
+                          value={row.unitName}
+                          onChange={(e) =>
+                            handleInputChange(idx, "unitName", e.target.value)
+                          }
+                        >
+                          <option value="">Select Name</option>
+                          {unit.map((c) => (
+                            <option key={c.id} value={c.unitName}>
+                              {c.unitName}
+                            </option>
+                          ))}
+                        </BaseSelect>
+                      </div>
+
+                      <div>
+                        <BaseInput
+                          type="number"
+                          placeholder="Total"
+                          readOnly
+                          value={row.totalPrice}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-center pt-1">
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
+                          className="btn btn-sm btn-icon btn-clear"
+                          title="Remove Row"
+                          onClick={() => handleRemoveRow(idx)}
+                        >
+                          {" "}
+                          <i className="ki-filled ki-trash text-danger"></i>
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
                           title="Share on WhatsApp"
                         >
                           <WhatsAppIcon />
@@ -185,18 +374,22 @@ export default function SidebarModal({ open, onClose }) {
                     </div>
                   ))}
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between gap-2 mt-3">
-                  <button className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-sm btn-primary w-[100px] flex justify-center"
-                    title="Share"
-                  >
-                    Save
-                  </button>
-                </div>
+              {/* Footer */}
+              <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between gap-2">
+                <button
+                  className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-sm btn-primary w-[100px] flex justify-center"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
               </div>
             </motion.div>
           </div>
