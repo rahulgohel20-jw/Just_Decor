@@ -158,58 +158,63 @@ export default function SidebarRawMaterial({
   };
 
   const handleSave = () => {
-    // Validate required fields for all rows
-    for (let i = 0; i < functionRows.length; i++) {
-      const row = functionRows[i];
-      if (!row.agency || !row.qty || !row.place) {
-        alert(
-          `Please fill all required fields (Agency, Qty, Place) in row ${i + 1}`
-        );
-        return;
-      }
-    }
-
-    const enrichedRows = functionRows.map((row) => {
-      const selectedAgency = agencies.find(
-        (a) => (a.nameEnglish || a.name) === row.agency
+  // Validate required fields for all rows
+  for (let i = 0; i < functionRows.length; i++) {
+    const row = functionRows[i];
+    if (!row.agency || !row.qty || !row.place) {
+      alert(
+        `Please fill all required fields (Agency, Qty, Place) in row ${i + 1}`
       );
-
-      const selectedUnit = unit?.find((u) => u.unitName === row.unit);
-
-      return {
-        functionId: row.functionId,
-        eventFunctionId: row.eventFunctionId,
-        functionName: row.functionType,
-        qty: Number(row.qty),
-        itemName: row.menuItemName,
-        supplierId: selectedAgency?.id || row.supplierId,
-        supplierName: row.agency,
-        unitId: selectedUnit?.id || row.unitId,
-        unitName: selectedUnit?.unitName || row.unit,
-        place: row.place,
-        price: Number(row.price) || 0,
-        functiondatetime: row.dateTime
-          ? dayjs(row.dateTime).format("YYYY-MM-DD HH:mm:ss.0")
-          : "",
-      };
-    });
-
-    const totalQty = enrichedRows.reduce((sum, row) => sum + row.qty, 0);
-    const totalPrice = enrichedRows.reduce((sum, row) => sum + row.price, 0);
-
-    const dataToSave = {
-      ...selectedRow,
-      finalQty: totalQty,
-      total: totalPrice,
-      eventRawMaterialFunctions: enrichedRows,
-    };
-
-    if (onSave) {
-      onSave(dataToSave);
+      return;
     }
+  }
 
-    onClose();
+  const enrichedRows = functionRows.map((row) => {
+    const selectedAgency = agencies.find(
+      (a) => (a.nameEnglish || a.name) === row.agency
+    );
+
+    const selectedUnit = unit?.find((u) => u.unitName === row.unit);
+
+    return {
+      functionId: row.functionId || 0,
+      eventFunctionId: row.eventFunctionId || 0,
+      functionName: row.functionType || "",
+      qty: parseFloat(row.qty) || 0,
+      itemName: row.menuItemName || "",
+      supplierId: selectedAgency?.id || row.supplierId || 0,
+      supplierName: row.agency,
+      unitId: selectedUnit?.id || row.unitId || 1,
+      unitName: selectedUnit?.unitName || row.unit,
+      place: row.place,
+      price: parseFloat(row.price) || 0,
+      functiondatetime: row.dateTime
+        ? dayjs(row.dateTime).format("YYYY-MM-DD HH:mm:ss.0")
+        : "",
+    };
+  });
+
+  const totalQty = enrichedRows.reduce((sum, row) => sum + row.qty, 0);
+  const totalPrice = enrichedRows.reduce((sum, row) => sum + row.price, 0);
+
+  const dataToSave = {
+    ...selectedRow,
+    finalQty: totalQty,
+    total: totalPrice,
+    eventRawMaterialFunctions: enrichedRows,
+    // ✅ FIX: Preserve important IDs
+    id: selectedRow.id,
+    rawMaterialId: selectedRow.rawMaterialId || selectedRow.id,
   };
+
+  console.log("Data to save from sidebar:", dataToSave);
+
+  if (onSave) {
+    onSave(dataToSave);
+  }
+
+  onClose();
+};
 
   const handleCancel = () => {
     onClose();
