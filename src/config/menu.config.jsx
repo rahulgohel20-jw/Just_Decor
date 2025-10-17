@@ -271,7 +271,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Invoice",
-        path: "/invoice-dashboard",
+        path: "/sales/invoice-dashboard",
       },
     ],
   },

@@ -210,7 +210,12 @@ const EventViewModal = ({
               {
                 label: "Invoice",
                 icon: "/media/eventviewicon/invoice.png",
-                onClick: () => navigate("/add-invoice"),
+                onClick: () => navigate("/add-invoice", {
+                  state: {
+                    eventId: safeEventId,
+                    eventTypeId: eventTypeId
+                  }
+                }),
               },
             ].map((item, idx) => (
               <div
