@@ -690,3 +690,20 @@ export const UpdateCustomPackageapi = (id, data) => {
 export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
 };
+
+
+
+
+//Invoice api
+
+export const GetInvoiceByEventId = (eventId) => {
+  return GET(`/invoice/getbyeventid?eventId=${eventId}`);
+};
+
+export const GetInvoiceByUserId = (id) => {
+  return GET(`/invoice/getalluserid?userid=${id}`);
+}
+
+export const AddInvoice = (data) => {
+  return POST(`/invoice/add`, data);
+}

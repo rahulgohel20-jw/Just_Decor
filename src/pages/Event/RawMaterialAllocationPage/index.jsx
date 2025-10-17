@@ -84,40 +84,44 @@ const RawMaterialAllocation = () => {
   }, []);
 
   const fetchRawMaterialItems = async (categoryId) => {
-    setLoading(true);
-    try {
-      const response = await GetAllRawMaterialAllocationItems(
-        categoryId,
-        eventId
-      );
-      const items =
-        response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
-      console.log(items);
+  setLoading(true);
+  try {
+    const response = await GetAllRawMaterialAllocationItems(
+      categoryId,
+      eventId
+    );
+    const items =
+      response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
+    console.log("Fetched items:", items);
 
-      if (Array.isArray(items)) {
-        const formatted = items.map((item) => ({
-          id: 1,
-          material: item.rawMaterialNameEng || "N/A",
-          qty: item.qty || 0,
-          finalQty: item.final_qty || item.qty || 0,
-          unit: item.unit || "Kilogram",
-          agency: item.supplierName || "-",
-          place: item.place || "NA",
-          date: item.date || "",
-          total: item.totalprice || 0,
-          eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
-        }));
-        setData(formatted);
-      } else {
-        setData([]);
-      }
-    } catch (error) {
-      console.error("Error fetching raw material items:", error);
+    if (Array.isArray(items)) {
+      const formatted = items.map((item, index) => ({
+        // ✅ FIX: Add proper IDs
+        id: item.id || index + 1,
+        rawMaterialId: item.rawMaterialId || item.id || 0,
+        material: item.rawMaterialNameEng || "N/A",
+        qty: item.qty || 0,
+        finalQty: item.finalQty || item.final_qty || item.qty || 0,
+        unit: item.unitName || item.unit || "Kilogram",
+        unitId: item.unitId || 1,
+        agency: item.supplierName || "-",
+        supplierId: item.supplierId || 0,
+        place: item.place || "NA",
+        date: item.date || "",
+        total: item.totalprice || 0,
+        eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
+      }));
+      setData(formatted);
+    } else {
       setData([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching raw material items:", error);
+    setData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
@@ -126,65 +130,102 @@ const RawMaterialAllocation = () => {
   };
 
   const handleSave = async () => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("userData"));
-      const userId = storedUser?.id;
-
-      const payload = {
-        eventId: eventId,
-        eventRawMaterial: data.map((item) => ({
-          finalQty: Number(item.finalQty),
-          place: item.place,
-          qty: Number(item.qty),
-          rawMaterialId: item.rawMaterialId || 0,
-          supplierId:
-            agencies.find(
-              (a) => a.nameEnglish === item.agency || a.name === item.agency
-            )?.id || 0,
-          totalprice: item.total,
-          unitId: unitOptions.findIndex((u) => u === item.unit),
-          eventRawMatFunctions:
-            item.eventRawMaterialFunctions?.map((fn) => ({
-              eventFunctionId: fn.eventFunctionId || 0,
-              functionId: fn.functionId || 0,
-              functiondatetime: fn.functiondatetime || "",
-              itemName: fn.itemName || item.material || "",
-              place: item.place,
-              price: Number(fn.price || 0),
-              qty: Number(fn.qty || 0),
-              supplierId:
-                agencies.find(
-                  (a) => a.nameEnglish === item.agency || a.name === item.agency
-                )?.id || 0,
-              unitId: unitOptions.findIndex((u) => u === item.unit),
-            })) || [],
-        })),
-      };
-
-      const response = await RawMaterialallocation(payload);
-
-      if (response?.data?.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Saved",
-          text: "Raw Material Allocation saved successfully!",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Save Failed",
-          text: response?.data?.message || "Something went wrong.",
-        });
-      }
-    } catch (error) {
-      console.error("Error saving allocation:", error);
+  try {
+    if (!eventId) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "An error occurred while saving data.",
+        title: "Missing Event ID",
+        text: "Event ID is required.",
+      });
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Data",
+        text: "There are no raw materials to save.",
+      });
+      return;
+    }
+
+    const payload = {
+      eventId: parseInt(eventId),
+      eventRawMaterial: data.map((item) => {
+        // Find supplier ID
+        const supplierId = agencies.find(
+          (a) => a.nameEnglish === item.agency || a.name === item.agency
+        )?.id || item.supplierId || 0;
+
+        // Map functions
+        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((fn) => ({
+          eventFunctionId: fn.eventFunctionId || 0,
+          functionId: fn.functionId || 0,
+          functiondatetime: fn.functiondatetime || "",
+          itemName: fn.itemName || item.material || "",
+          place: fn.place || item.place || "",
+          price: parseFloat(fn.price) || 0,
+          qty: parseFloat(fn.qty) || 0,
+          supplierId: fn.supplierId || supplierId,
+          unitId: fn.unitId || item.unitId || 1,
+        }));
+
+        return {
+          eventRawMatFunctions: eventRawMatFunctions,
+          finalQty: parseFloat(item.finalQty) || 0,
+          place: item.place || "",
+          qty: parseFloat(item.qty) || 0,
+          rawMaterialId: item.rawMaterialId || 0,
+          supplierId: supplierId,
+          totalprice: parseFloat(item.total) || 0,
+          unitId: item.unitId || 1,
+        };
+      }),
+    };
+
+    console.log("=== SAVE PAYLOAD ===");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("===================");
+
+    const response = await RawMaterialallocation(payload);
+
+    console.log("=== API RESPONSE ===");
+    console.log(response);
+    console.log("===================");
+
+    if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+      await Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: "Raw Material Allocation saved successfully!",
+      });
+      
+      // Refresh data
+      const currentTab = tabs.find(tab => tab.value === activeTab);
+      if (currentTab?.categoryId) {
+        await fetchRawMaterialItems(currentTab.categoryId);
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text: response?.data?.message || "Something went wrong.",
       });
     }
-  };
+  } catch (error) {
+    console.error("=== ERROR SAVING ===");
+    console.error(error);
+    console.error("===================");
+    
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error?.response?.data?.message || 
+            error?.message || 
+            "An error occurred while saving data.",
+    });
+  }
+};
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -293,13 +334,33 @@ const RawMaterialAllocation = () => {
     setIsRawSidebar(true);
   };
   const handleSaveFromSidebar = (updatedRow) => {
-    // Find and update the specific row in data
-    const updatedData = data.map((item) =>
-      item.id === updatedRow.id ? updatedRow : item
-    );
-    setData(updatedData);
-    console.log("Updated data from sidebar:", updatedRow);
-  };
+  console.log("Saving from sidebar:", updatedRow);
+  
+  // Update the data array with the modified row
+  const updatedData = data.map((item) => {
+    if (item.id === updatedRow.id || item.rawMaterialId === updatedRow.rawMaterialId) {
+      return {
+        ...item,
+        ...updatedRow,
+        // Ensure these fields are preserved
+        rawMaterialId: item.rawMaterialId,
+        id: item.id,
+      };
+    }
+    return item;
+  });
+  
+  setData(updatedData);
+  
+  // Show confirmation
+  Swal.fire({
+    icon: "success",
+    title: "Updated",
+    text: "Row updated successfully. Don't forget to click the main Save button!",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
   const totalPrice = data.reduce(
     (acc, item) => acc + Number(item.total || 0),
     0
