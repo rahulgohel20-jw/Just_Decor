@@ -18,7 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toAbsoluteUrl } from "@/utils";
-
+ 
 const DraggableItem = ({
   item,
   showDetails,
@@ -38,13 +38,13 @@ const DraggableItem = ({
   } = useSortable({
     id: `item-${item.id}`,
   });
-
+ 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-
+ 
   return (
     <li
       ref={setNodeRef}
@@ -90,7 +90,7 @@ const DraggableItem = ({
             )}
           </div>
         </div>
-
+ 
         <div className="flex items-center gap-2">
           <Tooltip title="Notes">
             <button
@@ -126,7 +126,7 @@ const DraggableItem = ({
     </li>
   );
 };
-
+ 
 const DraggableCategory = ({
   categoryName,
   categoryId,
@@ -153,13 +153,13 @@ const DraggableCategory = ({
   } = useSortable({
     id: `category-${categoryId}`,
   });
-
+ 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-
+ 
   return (
     <section
       ref={setNodeRef}
@@ -181,7 +181,7 @@ const DraggableCategory = ({
             <span>{categoryName}</span>
           </div>
         </div>
-
+ 
         <div className="flex gap-2">
           <Tooltip title="Category Notes">
             <button
@@ -211,9 +211,9 @@ const DraggableCategory = ({
           </button>
         </div>
       </div>
-
+ 
       <hr className="mt-2 border border-gray-200" />
-
+ 
       {isExpanded && (
         <div className="mt-3">
           <SortableContext
@@ -246,7 +246,7 @@ const DraggableCategory = ({
     </section>
   );
 };
-
+ 
 const SelectedItemsList = ({
   selectedItemsByCategory,
   rate,
@@ -265,14 +265,14 @@ const SelectedItemsList = ({
   const [expandedCategories, setExpandedCategories] = useState({});
   const [categoryOrder, setCategoryOrder] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
-
+ 
   React.useEffect(() => {
     // Only initialize once when categories are loaded
     if (!isInitialized && categories.length > 0) {
       // Don't set categoryOrder on initial load
       // Let it be determined by selection order
       setIsInitialized(true);
-
+ 
       const expanded = {};
       categories.forEach((c) => {
         if (c.id !== 0) expanded[c.id] = true;
@@ -280,20 +280,20 @@ const SelectedItemsList = ({
       setExpandedCategories(expanded);
     }
   }, [categories, isInitialized]);
-
+ 
   const displayCategories = useMemo(() => {
     const categoriesWithItems = Object.entries(selectedItemsByCategory)
       .map(([categoryName, items]) => {
         const cat = categories.find((c) => c.name === categoryName);
         if (!cat || items.length === 0) return null;
-
+ 
         const earliestIndex = Math.min(
           ...items.map(
             (item) =>
               currentFunctionData.selectedItems?.indexOf(item.id) ?? Infinity
           )
         );
-
+ 
         return {
           categoryId: cat.id,
           categoryName: cat.name,
@@ -302,22 +302,22 @@ const SelectedItemsList = ({
         };
       })
       .filter((c) => c !== null);
-
+ 
     if (categoryOrder.length > 0) {
       return categoriesWithItems.sort((a, b) => {
         const indexA = categoryOrder.indexOf(a.categoryId);
         const indexB = categoryOrder.indexOf(b.categoryId);
-
+ 
         if (indexA !== -1 && indexB !== -1) {
           return indexA - indexB;
         }
         if (indexA !== -1) return -1;
         if (indexB !== -1) return 1;
-
+ 
         return a.earliestIndex - b.earliestIndex;
       });
     }
-
+ 
     return categoriesWithItems.sort(
       (a, b) => a.earliestIndex - b.earliestIndex
     );
@@ -327,12 +327,12 @@ const SelectedItemsList = ({
     categories,
     currentFunctionData.selectedItems,
   ]);
-
+ 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-
+ 
   if (currentFunctionData.selectedItems?.length === 0) {
     return (
       <div className="text-xs text-gray-400 p-3 text-center">
@@ -340,34 +340,34 @@ const SelectedItemsList = ({
       </div>
     );
   }
-
+ 
   const handleToggleExpand = (categoryId) => {
     setExpandedCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
   };
-
+ 
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
   };
-
+ 
   const handleDragEnd = (event) => {
     const { active, over } = event;
     setActiveId(null);
-
+ 
     if (!over) return;
-
+ 
     if (active.id.toString().startsWith("category-")) {
       const activeCatId = parseInt(
         active.id.toString().replace("category-", "")
       );
       const overCatId = parseInt(over.id.toString().replace("category-", ""));
-
+ 
       const currentDisplayedIds = displayCategories.map((c) => c.categoryId);
       const fromIdx = currentDisplayedIds.indexOf(activeCatId);
       const toIdx = currentDisplayedIds.indexOf(overCatId);
-
+ 
       if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
         const newOrder = arrayMove(currentDisplayedIds, fromIdx, toIdx);
         setCategoryOrder(newOrder);
@@ -375,18 +375,18 @@ const SelectedItemsList = ({
       }
       return;
     }
-
+ 
     if (active.id.toString().startsWith("item-")) {
       const itemId = active.id.toString().replace("item-", "");
       const draggedItem = Object.values(selectedItemsByCategory)
         .flat()
         .find((i) => i.id == itemId);
-
+ 
       if (!draggedItem) return;
-
+ 
       let targetCategoryId = null;
       let targetCategoryName = null;
-
+ 
       if (over.id.toString().startsWith("category-")) {
         targetCategoryId = parseInt(
           over.id.toString().replace("category-", "")
@@ -398,14 +398,14 @@ const SelectedItemsList = ({
         const targetItem = Object.values(selectedItemsByCategory)
           .flat()
           .find((i) => i.id == targetItemId);
-
+ 
         if (targetItem) {
           targetCategoryId = targetItem.parentId;
           const cat = categories.find((c) => c.id === targetCategoryId);
           targetCategoryName = cat?.name;
         }
       }
-
+ 
       if (
         targetCategoryId !== null &&
         targetCategoryId !== draggedItem.parentId
@@ -419,7 +419,7 @@ const SelectedItemsList = ({
       }
     }
   };
-
+ 
   return (
     <DndContext
       sensors={sensors}
@@ -453,7 +453,7 @@ const SelectedItemsList = ({
           ))}
         </SortableContext>
       </div>
-
+ 
       <DragOverlay>
         {activeId ? (
           <div className="bg-white px-4 py-2 rounded-md shadow-xl border border-blue-300">
@@ -468,5 +468,5 @@ const SelectedItemsList = ({
     </DndContext>
   );
 };
-
+ 
 export default SelectedItemsList;

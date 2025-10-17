@@ -1,7 +1,8 @@
 const MenuItemGrid = ({ items, searchTerm, onToggleSelection, loading }) => {
-  const filteredItems = items.filter((child) =>
-    child.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredItems = (items || []).filter((child) =>
+  (child?.name || "").toLowerCase().includes((searchTerm || "").toLowerCase())
+);
+
 
   if (loading) {
     return (

@@ -6,7 +6,7 @@ import { columns } from "../custom-package/constant";
 import useStyle from "./style";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { GetCustomPackageapi, DeleteCustomPackageapi } from "@/services/apiServices"; // Add delete API
+import { GetCustomPackageapi, DeleteCustomPackageapi, UpdateCustomPackageStatusapi } from "@/services/apiServices"; // Add delete API
 
 const CustomPackageMaster = () => {
   const classes = useStyle();
@@ -21,6 +21,11 @@ const CustomPackageMaster = () => {
       Swal.fire("Error", "User ID not found!", "error");
       return;
     }
+ 
+
+  
+
+
 
     const res = await GetCustomPackageapi(userData.id);
 
@@ -140,13 +145,34 @@ const CustomPackageMaster = () => {
     navigate(`/master/custom-package/addpackage?id=${id}`);
   };
 
-  const statusHandler = (id, status) => {
-    const updated = tableData.map((pkg) =>
-      pkg.packageid === id ? { ...pkg, isActive: status === 1 } : pkg
+  // Move this outside fetchPackages
+const statusHandler = async (packageid, isActive) => {
+  try {
+    const response = await UpdateCustomPackageStatusapi(packageid, isActive);
+    console.log("Status update response:", response);
+
+    if (response?.data?.success) {
+      // Refetch packages to get the latest data from backend
+      await fetchPackages();
+      Swal.fire("Updated!", "Status updated successfully", "success");
+    } else {
+      throw new Error(response?.data?.msg || "Failed to update status");
+    }
+  } catch (error) {
+    console.error("Status update error:", error);
+    Swal.fire("Error", error.message || "Failed to update status", "error");
+
+    // Optionally revert toggle on failure
+    setTableData((prev) =>
+      prev.map((pkg) =>
+        pkg.packageid === packageid ? { ...pkg, isActive: !isActive } : pkg
+      )
     );
-    setTableData(updated);
-    Swal.fire("Updated!", "Status updated successfully", "success");
-  };
+  }
+};
+
+
+
 
   return (
     <Fragment>
