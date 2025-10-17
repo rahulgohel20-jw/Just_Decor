@@ -167,6 +167,14 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+export const GetRawmaterialwithcatID = (catID, id) => {
+  return GET(
+    `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`
+  );
+};
+export const SelectedRawMenuallocation = (data) => {
+  return POST(`/menuallocation/addorupdatemenuitemrawmat`, data);
+};
 
 // Get All Supllier Vendors
 
@@ -211,6 +219,16 @@ export const EditMealType = (Id, data) => {
 export const RawMaterialName = (Id, name) => {
   return GET(
     `/contactcategory/getallbyuserid?categoryName=${name}&userId=${Id}`
+  );
+};
+
+export const SelectedItemNameMenuAllocation = (
+  eventfunctionid,
+  data,
+  menuitemid
+) => {
+  return GET(
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&isFromNewTable=${data}&menuItemId=${menuitemid}`
   );
 };
 export const ContactNameItem = (Id, name) => {

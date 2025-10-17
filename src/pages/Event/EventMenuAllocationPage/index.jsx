@@ -2,20 +2,15 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
-import {
-  Input,
-  Checkbox,
-  Select,
-  InputNumber,
-  Card,
-  Badge,
-  Tooltip,
-  Spin,
-} from "antd";
+import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
-import { GetEventMasterById, GetMenuAllocation } from "@/services/apiServices";
+import {
+  GetEventMasterById,
+  GetMenuAllocation,
+  SelectedItemNameMenuAllocation,
+} from "@/services/apiServices";
 import { useParams } from "react-router-dom";
 
 const TopTabs = ({ value, onChange, functions }) => {
@@ -278,6 +273,32 @@ const EventMenuAllocationPage = () => {
       FetchEventDetails();
     }
   }, [eventId]);
+
+  const handleOrderSummaryItemClick = async (item, group) => {
+    try {
+      setIsCategoryModal(true);
+      setMenuLoading(true);
+      const eventFunctionId = activeFunction?.id;
+      const isFromNewTable = item.isFromNewTable || false;
+      const menuItemId = item.menuItemId || item.id;
+
+      const res = await SelectedItemNameMenuAllocation(
+        eventFunctionId,
+        isFromNewTable,
+        menuItemId
+      );
+
+      if (res?.data?.success) {
+        setSelectedRow(res.data.data);
+      } else {
+        console.warn("No data returned from SelectedItemNameMenuAllocation");
+      }
+    } catch (error) {
+      console.error("Error fetching SelectedItemNameMenuAllocation:", error);
+    } finally {
+      setMenuLoading(false);
+    }
+  };
 
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
@@ -588,9 +609,7 @@ const EventMenuAllocationPage = () => {
             <OrderSummary
               groups={orderSummaryGroups}
               loading={menuLoading}
-              onItemClick={(item, group) => {
-                setIsCategoryModal(true);
-              }}
+              onItemClick={handleOrderSummaryItemClick}
             />
           </div>
         </div>
@@ -618,6 +637,7 @@ const EventMenuAllocationPage = () => {
         <CategorySidebarModal
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
+          selectedRowData={selectedRow}
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}
