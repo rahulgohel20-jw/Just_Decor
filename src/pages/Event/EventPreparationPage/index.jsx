@@ -80,6 +80,8 @@ const EventPreparationPage = () => {
     categoryNotes: "",
     categorySlogan: "",
   });
+const userId = Number(localStorage.getItem("userId")) || null;
+
 
   const { saveMenu } = useSaveMenu(
     functionSelectionData,
@@ -729,7 +731,7 @@ const handlePackageSelect = (packageData) => {
                 onClose={() => {
                   setShowCustomPackageModal(false);
                 }}
-                userId={1}
+              userId={userId} 
                 onPackageSelect={(data) => {
                   console.log(
                     "🎯 Package selected, data type:",

@@ -3,7 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useNavigate, useLocation } from "react-router-dom";
 import MenuItemGrid from "../../../Event/EventPreparationPage/components/MenuItemGrid";
-import SelectedItemsList from "../../../Event/EventPreparationPage/components/SelectedItemsList";
+import Selecteditemscustomepackage from "../../../Event/EventPreparationPage/components/Selecteditemcustomepackage";
 import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
 import { useCategories, useMenuItems } from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -648,7 +648,7 @@ const handleRemoveItem = (itemId) => {
                             </div>
 
                             <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
-                              <SelectedItemsList
+                              <Selecteditemscustomepackage
                                 selectedItemsByCategory={selectedItemsByCategory}
                                 showDetails={showDetails}
                                 currentFunctionData={{
