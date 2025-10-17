@@ -388,6 +388,7 @@ export const Deleteiteminmenu = (itemId, menuCatId, MenuprepId) => {
 export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
+
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);

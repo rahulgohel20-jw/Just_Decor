@@ -271,29 +271,29 @@ const handleSelectPackageItems = (pkg) => {
         itemNotes: item.instruction || "",
         categoryName: cat.menuName,
         menuName: cat.menuName,
-        image: '', // Add default image
+        image: '', // default if needed
         parentId: null,
       }))
     );
 
-    const packageInfo = {
-      packageId: pkg.id,
-      packageName: pkg.name,
-      packagePrice: pkg.price,
+    const payload = {
+      packageItems,
+      packageInfo: {
+        packageId: pkg.id,
+        packageName: pkg.name,
+        packagePrice: pkg.price,
+      },
     };
 
-    console.log("📦 PACKAGE ITEMS TO SEND:", packageItems);
-    console.log("📦 PACKAGE INFO TO SEND:", packageInfo);
-
-    onPackageSelect(packageItems, packageInfo); // ✅ send both
+    console.log("📦 Payload to send:", payload);
+    onPackageSelect(payload); // ✅ single object
     onClose();
-  
+  }}
+  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+>
+  Select Package
+</button>
 
-    }}
-    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
-  >
-    Select Package
-  </button>
 </div>
       {/* Subtle hover glow */}
       <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-gray-200 transition-all duration-300 pointer-events-none" />

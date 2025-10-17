@@ -198,18 +198,27 @@ const AddCustomPackage = () => {
     await fetchMenuItems(categoryId);
   };
 
- const handleGlobalAnyItemsChange = (value) => {
+const handleGlobalAnyItemsChange = (value) => {
   const numValue = parseInt(value) || 0;
   setGlobalAnyItems(numValue);
 
-  // Apply global value ONLY to selected categories
-  const updated = {};
-  const selectedCategoryIds = selectedMenuItems.map(item => item.parentId);
-  selectedCategoryIds.forEach(catId => {
-    updated[catId] = numValue;
-  });
-  setCategoryAnyItems(updated);
+  if (selectedCategoryId === 0) {
+    // If "All" selected → apply to all selected categories
+    const updated = {};
+    const selectedCategoryIds = selectedMenuItems.map(item => item.parentId);
+    selectedCategoryIds.forEach(catId => {
+      updated[catId] = numValue;
+    });
+    setCategoryAnyItems(prev => ({ ...prev, ...updated }));
+  } else {
+    // Apply only to the currently selected category
+    setCategoryAnyItems(prev => ({
+      ...prev,
+      [selectedCategoryId]: numValue
+    }));
+  }
 };
+
 
 
   const handleCategoryAnyItemsChange = (categoryId, value) => {
@@ -331,18 +340,46 @@ const AddCustomPackage = () => {
 }, [selectedMenuItems, categories]);
 
 
+const handleRemoveItem = (itemId) => {
+  const numId = Number(itemId);
 
-  const handleRemoveItem = (itemId) => {
-    const numId = Number(itemId);
-    
-    setSelectedItems((prev) => prev.filter((id) => Number(id) !== numId));
-    
-    setItemNotes((prev) => {
-      const newNotes = { ...prev };
-      delete newNotes[numId];
-      return newNotes;
+  // Find the parent category of this item
+  const removedItem = allItemsPool.find(i => Number(i.id) === numId);
+  const parentId = removedItem?.parentId;
+
+  setSelectedItems(prev => {
+    const newSelected = prev.filter(id => Number(id) !== numId);
+
+    // 🧼 If no items left in that category, clean up category state
+    const hasOtherItemsInCategory = newSelected.some(id => {
+      const item = allItemsPool.find(i => Number(i.id) === id);
+      return item?.parentId === parentId;
     });
-  };
+
+    if (!hasOtherItemsInCategory && parentId) {
+      setCategoryAnyItems(prev => {
+        const updated = { ...prev };
+        delete updated[parentId];
+        return updated;
+      });
+
+      setCategoryNotes(prev => {
+        const updated = { ...prev };
+        delete updated[parentId];
+        return updated;
+      });
+    }
+
+    return newSelected;
+  });
+
+  setItemNotes(prev => {
+    const newNotes = { ...prev };
+    delete newNotes[numId];
+    return newNotes;
+  });
+};
+
 
   const totalSelectedCount = selectedItems.length;
   const calculateTotalPrice = (packagePrice = 0) => Number(packagePrice || 0);
@@ -517,113 +554,70 @@ const AddCustomPackage = () => {
                         Custom Package Items
                       </h3>
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
-     <div className="col-span-3">
-  <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
-    
-    {/* Search bar */}
-    <div className="sticky top-0 z-10 bg-white border-b p-3">
-      <SearchInput
-        placeholder="Search categories"
-        value={search}
-        onChange={setSearch}
-      />
-    </div>
+                        <div className="col-span-3">
+                       <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
+  
+  {/* Search bar */}
+  <div className="sticky top-0 z-10 bg-white border-b p-3">
+    <SearchInput
+      placeholder="Search categories"
+      value={search}
+      onChange={setSearch}
+    />
+  </div>
 
-    {/* Category list */}
-    <div className="flex-1 overflow-auto p-2">
-      {filteredCategories.map((cat) => {
-        const isAllCategory = cat.id === 0; 
-        const isSelected = selectedCategoryId === cat.id;
-        
-        // Check if this category has a custom value
-        const hasCustomValue = categoryAnyItems[cat.id] !== undefined && 
-                               categoryAnyItems[cat.id] !== null && 
-                               categoryAnyItems[cat.id] !== "";
-        
-        // Display value: custom if exists, otherwise global
-        const effectiveValue = hasCustomValue ? categoryAnyItems[cat.id] : globalAnyItems;
+  {/* Category list */}
+  <div className="flex-1 overflow-auto p-2">
+    {filteredCategories.map((cat) => {
+      const isSelected = selectedCategoryId === cat.id;
+      const anyItemsCount = categoryAnyItems[cat.id] ?? "";
 
-        return (
+      return (
+        <div
+         key={cat.id}
+  className={`mb-2 border-2 rounded-md transition-all duration-300 ${
+    isSelected
+      ? "border-primary bg-primary/5 shadow-sm"
+      : "border-gray-200"
+  }`}
+>
+          <button
+    type="button"
+    onClick={(e) => handleCategoryChange(cat.id, e)}
+    className="p-2 cursor-pointer flex justify-between items-center w-full text-left hover:bg-gray-50"
+  >
+    <span className="font-medium text-gray-800">{cat.name}</span>
+  </button>
+
           <div
-            key={cat.id}
-            className={`mb-2 border-2 rounded-md transition-all duration-300 overflow-hidden ${
-              isSelected
-                ? "border-primary bg-primary/5 shadow-sm"
-                : "border-gray-200"
-            }`}
+            className={`transition-all duration-300 ${
+              isSelected ? "max-h-20 opacity-100 p-2" : "max-h-0 opacity-0 p-0"
+            } overflow-hidden bg-gray-50`}
           >
-            <button
-              type="button"
-              onClick={(e) => handleCategoryChange(cat.id, e)}
-              className="p-2 cursor-pointer flex justify-between items-center w-full text-left hover:bg-gray-50"
-            >
-              <span className="font-medium text-gray-800">{cat.name}</span>
-              {/* Badge showing any items count */}
-              {/* {effectiveValue > 0 && (
-                // <span className={`ml-2 px-2 py-0.5 text-xs rounded-full font-medium ${
-                //   !isAllCategory && hasCustomValue 
-                //     ? 'bg-green-100 text-green-700' 
-                //     : 'bg-blue-100 text-blue-700'
-                // }`}>
-                //   {effectiveValue} any
-                // </span>
-              )} */}
-            </button>
+          
           </div>
-        );
-      })}
-    </div>
+        </div>
+      );
+    })}
+  </div>
 
-    {/* Single Sticky input at bottom - changes based on selected category */}
-    <div className="p-3 border-t bg-white sticky bottom-0 z-20">
-      {selectedCategoryId === 0 ? (
-        // Global mode - when "All" is selected
-        <>
-          <label className="text-sm font-medium text-gray-700 block mb-2">
-             Any Items 
-          </label>
-          <input
-            type="number"
-            min="0"
-            placeholder="Set for all categories"
-            className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            value={globalAnyItems || ""}
-            onChange={(e) => handleGlobalAnyItemsChange(e.target.value)}
-          />
-          <p className="text-xs text-gray-500 mt-1.5">
-          
-          </p>
-        </>
-      ) : (
-        // Per-category mode - when specific category is selected
-        <>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-700">
-              📝 Any Items for {filteredCategories.find(c => c.id === selectedCategoryId)?.name}
-            </label>
-           
-          </div>
-          <input
-            type="number"
-            min="0"
-            placeholder={globalAnyItems ? `Default: ${globalAnyItems} (override here)` : "Set for this category"}
-            className={`w-full border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${
-              categoryAnyItems[selectedCategoryId] !== undefined && 
-              categoryAnyItems[selectedCategoryId] !== null && 
-              categoryAnyItems[selectedCategoryId] !== ""
-                ? 'border-green-300 bg-green-50' 
-                : 'border-gray-300'
-            }`}
-            value={categoryAnyItems[selectedCategoryId] !== undefined ? categoryAnyItems[selectedCategoryId] : ""}
-            onChange={(e) => handleCategoryAnyItemsChange(selectedCategoryId, e.target.value)}
-          />
-          
-        </>
-      )}
-    </div>
+  {/* ✅ Global Any Items Input at Bottom */}
+  <div className="sticky bottom-0 z-10 bg-blue-50 border-t-2 border-blue-200 p-3">
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
+       Any Items 
+    </label>
+    <input
+      type="number"
+      min="0"
+      placeholder="Set Any item for Category"
+      className="border-2 border-blue-300 rounded-md px-2 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+      value={globalAnyItems || ""}
+      onChange={(e) => handleGlobalAnyItemsChange(e.target.value)}
+    />
   </div>
 </div>
 
+                        </div>
 
                         <div className="col-span-6">
                           <div className="h-full flex flex-col">

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Tooltip } from "antd";
 import {
   DndContext,
@@ -8,7 +8,6 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
-  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -19,7 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toAbsoluteUrl } from "@/utils";
-
+ 
 const DraggableItem = ({
   item,
   showDetails,
@@ -38,23 +37,20 @@ const DraggableItem = ({
     isDragging,
   } = useSortable({
     id: `item-${item.id}`,
-    data: { type: "item", item },
   });
-
+ 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.55 : 1,
+    opacity: isDragging ? 0.5 : 1,
   };
-
+ 
   return (
     <li
       ref={setNodeRef}
       style={style}
-      className={`group relative flex flex-col rounded-md border border-gray-200 bg-[#F2F7FB] p-2 mb-2 last:mb-0 ${
-        isDragging
-          ? "shadow-lg ring-1 ring-blue-300"
-          : "shadow-[0_1px_0_#ececec]"
+      className={`group relative flex flex-col rounded-md border border-gray-200 bg-[#F2F7FB] p-2 mb-2 ${
+        isDragging ? "shadow-lg ring-2 ring-blue-400" : "shadow-sm"
       }`}
       {...attributes}
       {...listeners}
@@ -68,19 +64,14 @@ const DraggableItem = ({
               className="h-full w-full object-cover"
             />
           </span>
-          <div className="flex flex-col ">
-            <span className="text-[13px] font-medium text-gray-800 leading-none">
+          <div className="flex flex-col">
+            <span className="text-[13px] font-medium text-gray-800">
               {item.name}
             </span>
             {showDetails && (
-              <div
-                className="mt-1 flex items-center justify-between"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="mt-1" onClick={(e) => e.stopPropagation()}>
                 <label className="flex items-center gap-2">
-                  <span className="text-[11px] text-gray-500 tracking-wide">
-                    Rate :
-                  </span>
+                  <span className="text-[11px] text-gray-500">Rate:</span>
                   <input
                     type="number"
                     min={0}
@@ -92,35 +83,35 @@ const DraggableItem = ({
                           : item.price || 0
                     }
                     onChange={(e) => onItemRateChange(item.id, e.target.value)}
-                    className="h-5 w-16 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="h-5 w-16 rounded-md border border-gray-200 bg-gray-50 px-2 text-xs"
                   />
                 </label>
               </div>
             )}
           </div>
         </div>
-
+ 
         <div className="flex items-center gap-2">
           <Tooltip title="Notes">
             <button
               type="button"
-              className="inline-flex h-7 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="inline-flex h-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100"
               onClick={(e) => {
                 e.stopPropagation();
                 onNoteClick(item.id);
               }}
             >
               <img
-                className="w-3.5 h-3.5  text-[#64748B]"
+                className="w-3.5 h-3.5"
                 src={toAbsoluteUrl("/media/menu/notes.png")}
-                alt="profile"
+                alt="notes"
               />
             </button>
           </Tooltip>
           <Tooltip title="Remove">
             <button
               type="button"
-              className="inline-flex h-7  items-center justify-center rounded-md text-danger"
+              className="inline-flex h-7 items-center justify-center rounded-md text-red-500 hover:bg-red-50"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemoveItem(item.id);
@@ -129,15 +120,13 @@ const DraggableItem = ({
               <i className="ki-filled ki-trash text-[16px]" />
             </button>
           </Tooltip>
-          <span className="inline-flex h-7  items-center justify-center  text-[20px] text-[#64748B]">
-            ⋮⋮
-          </span>
+          <span className="text-[#64748B]">⋮⋮</span>
         </div>
       </div>
     </li>
   );
 };
-
+ 
 const DraggableCategory = ({
   categoryName,
   categoryId,
@@ -151,92 +140,66 @@ const DraggableCategory = ({
   onRemoveItem,
   isExpanded,
   onToggleExpand,
-  isDraggingCategory,
-  numberOfItems,
+  isDraggingOverlay,
 }) => {
-  const { isOver, setNodeRef: setDroppableRef } = useDroppable({
-    id: `category-${categoryId}`,
-    data: { type: "category", categoryId, categoryName },
-  });
-
   const {
     attributes,
     listeners,
-    setNodeRef: setSortableRef,
+    setNodeRef,
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({
-    id: `category-sort-${categoryId}`,
-    data: { type: "category-sort", categoryId, categoryName },
+    id: `category-${categoryId}`,
   });
-
-  const categoryStyle = {
+ 
+  const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.6 : 1,
+    opacity: isDragging ? 0.5 : 1,
   };
-
-  const setNodeRef = useCallback(
-    (node) => {
-      setDroppableRef(node);
-      setSortableRef(node);
-    },
-    [setDroppableRef, setSortableRef]
-  );
-
+ 
   return (
     <section
       ref={setNodeRef}
-      style={categoryStyle}
-      className="mb-3 rounded-md px-2.5 py-2 cursor-move border border-gray-200 bg-white"
+      style={style}
+      className={`mb-3 rounded-md px-2.5 py-2 border border-gray-200 bg-white transition-all ${
+        isDragging ? "shadow-lg ring-2 ring-blue-400" : "shadow-sm"
+      }`}
     >
       <div
-        className={`flex items-center justify-between`}
+        className="flex items-center justify-between cursor-move"
         {...attributes}
         {...listeners}
       >
         <div className="flex items-center gap-1">
-          <span className="inline-flex h-5 w-5 items-center justify-center  text-[20px] text-black">
+          <span className="text-[20px] text-gray-400 cursor-grab active:cursor-grabbing">
             ⋮⋮
           </span>
-          <div className="font-medium text-gray-800 flex items-center gap-1">
+          <div className="font-medium text-gray-800">
             <span>{categoryName}</span>
-            {numberOfItems > 0 && (
-              <span className="text-xs text-blue-600 font-normal">
-                (Any {numberOfItems})
-              </span>
-            )}
           </div>
         </div>
-
+ 
         <div className="flex gap-2">
-          <Tooltip title="11:20 AM">
-            <button className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-              <img
-                className="w-3.5 h-3.5   shadow"
-                src={toAbsoluteUrl("/media/menu/clock.png")}
-                alt="profile"
-              />
-            </button>
-          </Tooltip>
           <Tooltip title="Category Notes">
             <button
-              className="inline-flex h-7  items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="inline-flex h-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100"
               onClick={(e) => {
                 e.stopPropagation();
                 onCategoryNoteClick(categoryId);
               }}
             >
               <img
-                className="w-3.5 h-3.5  ring-4 ring-white shadow"
+                className="w-3.5 h-3.5"
                 src={toAbsoluteUrl("/media/menu/notes.png")}
-                alt="profile"
+                alt="notes"
               />
             </button>
           </Tooltip>
           <button
-            className="inline-flex h-7  items-center justify-center text-[#979797]"
+            className="inline-flex h-7 items-center justify-center text-gray-600"
             onClick={(e) => {
               e.stopPropagation();
               onToggleExpand(categoryId);
@@ -248,28 +211,21 @@ const DraggableCategory = ({
           </button>
         </div>
       </div>
+ 
       <hr className="mt-2 border border-gray-200" />
-
+ 
       {isExpanded && (
-        <div className={`mt-3`}>
+        <div className="mt-3">
           <SortableContext
             items={items.map((item) => `item-${item.id}`)}
             strategy={verticalListSortingStrategy}
           >
             {items.length === 0 ? (
-              <div
-                className={`grid place-items-center h-16 rounded-md border-2 border-dashed text-xs ${
-                  isOver && !isDraggingCategory
-                    ? "border-blue-300 text-blue-600 bg-blue-50/60"
-                    : "border-gray-200 text-gray-400"
-                }`}
-              >
-                {isOver && !isDraggingCategory
-                  ? "Drop item here"
-                  : "Drop items here"}
+              <div className="grid place-items-center h-16 rounded-md border-2 border-dashed border-gray-200 text-xs text-gray-400">
+                Drop items here
               </div>
             ) : (
-              <ul className="divide-y divide-transparent">
+              <ul>
                 {items.map((item) => (
                   <DraggableItem
                     key={item.id}
@@ -290,7 +246,7 @@ const DraggableCategory = ({
     </section>
   );
 };
-
+ 
 const SelectedItemsList = ({
   selectedItemsByCategory,
   rate,
@@ -306,168 +262,164 @@ const SelectedItemsList = ({
   categories = [],
 }) => {
   const [activeId, setActiveId] = useState(null);
-  const [activeItem, setActiveItem] = useState(null);
-  const [activeCategory, setActiveCategory] = useState(null);
-
   const [expandedCategories, setExpandedCategories] = useState({});
-  const [orderedCategoryContainers, setOrderedCategoryContainers] = useState([]);
-
+  const [categoryOrder, setCategoryOrder] = useState([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+ 
   React.useEffect(() => {
-    const newExpanded = {};
-    const newOrderedContainers = categories
-      .filter((cat) => cat.id !== 0)
-      .map((category) => {
-        const categoryItems = selectedItemsByCategory[category.name] || [];
-        if (category.id !== 0) newExpanded[category.id] = true;
+    // Only initialize once when categories are loaded
+    if (!isInitialized && categories.length > 0) {
+      // Don't set categoryOrder on initial load
+      // Let it be determined by selection order
+      setIsInitialized(true);
+ 
+      const expanded = {};
+      categories.forEach((c) => {
+        if (c.id !== 0) expanded[c.id] = true;
+      });
+      setExpandedCategories(expanded);
+    }
+  }, [categories, isInitialized]);
+ 
+  const displayCategories = useMemo(() => {
+    const categoriesWithItems = Object.entries(selectedItemsByCategory)
+      .map(([categoryName, items]) => {
+        const cat = categories.find((c) => c.name === categoryName);
+        if (!cat || items.length === 0) return null;
+ 
+        const earliestIndex = Math.min(
+          ...items.map(
+            (item) =>
+              currentFunctionData.selectedItems?.indexOf(item.id) ?? Infinity
+          )
+        );
+ 
         return {
-          categoryName: category.name,
-          categoryId: category.id,
-          items: categoryItems,
-          numberOfItems: categoryAnyItems[category.id] || 0,
+          categoryId: cat.id,
+          categoryName: cat.name,
+          items,
+          earliestIndex,
         };
       })
-      .filter((c) => c.items.length > 0 || c.numberOfItems > 0);
-
-    setExpandedCategories((prev) => {
-      const isEqual =
-        Object.keys(newExpanded).length === Object.keys(prev).length &&
-        Object.keys(newExpanded).every((key) => newExpanded[key] === prev[key]);
-      return isEqual ? prev : newExpanded;
-    });
-
-    setOrderedCategoryContainers((prev) => {
-      const isEqual =
-        prev.length === newOrderedContainers.length &&
-        prev.every(
-          (c, i) =>
-            c.categoryId === newOrderedContainers[i].categoryId &&
-            c.items.length === newOrderedContainers[i].items.length
-        );
-      return isEqual ? prev : newOrderedContainers;
-    });
-  }, [categories, selectedItemsByCategory, categoryAnyItems]);
-
+      .filter((c) => c !== null);
+ 
+    if (categoryOrder.length > 0) {
+      return categoriesWithItems.sort((a, b) => {
+        const indexA = categoryOrder.indexOf(a.categoryId);
+        const indexB = categoryOrder.indexOf(b.categoryId);
+ 
+        if (indexA !== -1 && indexB !== -1) {
+          return indexA - indexB;
+        }
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+ 
+        return a.earliestIndex - b.earliestIndex;
+      });
+    }
+ 
+    return categoriesWithItems.sort(
+      (a, b) => a.earliestIndex - b.earliestIndex
+    );
+  }, [
+    categoryOrder,
+    selectedItemsByCategory,
+    categories,
+    currentFunctionData.selectedItems,
+  ]);
+ 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-
-  if (currentFunctionData.selectedItems?.length === 0 && Object.keys(categoryAnyItems).length === 0) {
+ 
+  if (currentFunctionData.selectedItems?.length === 0) {
     return (
       <div className="text-xs text-gray-400 p-3 text-center">
         No items selected
       </div>
     );
   }
-
+ 
   const handleToggleExpand = (categoryId) => {
     setExpandedCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
   };
-
+ 
   const handleDragStart = (event) => {
-    const { active } = event;
-    setActiveId(active.id);
-
-    if (active.id.toString().startsWith("category-sort-")) {
-      const categoryId = active.id.toString().replace("category-sort-", "");
-      const draggedCategory = categories.find((cat) => cat.id == categoryId);
-      setActiveCategory(draggedCategory);
-
-      const collapsed = {};
-      categories.forEach((cat) => {
-        if (cat.id !== 0) collapsed[cat.id] = false;
-      });
-      setExpandedCategories(collapsed);
-    } else if (active.id.toString().startsWith("item-")) {
+    setActiveId(event.active.id);
+  };
+ 
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+ 
+    if (!over) return;
+ 
+    if (active.id.toString().startsWith("category-")) {
+      const activeCatId = parseInt(
+        active.id.toString().replace("category-", "")
+      );
+      const overCatId = parseInt(over.id.toString().replace("category-", ""));
+ 
+      const currentDisplayedIds = displayCategories.map((c) => c.categoryId);
+      const fromIdx = currentDisplayedIds.indexOf(activeCatId);
+      const toIdx = currentDisplayedIds.indexOf(overCatId);
+ 
+      if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+        const newOrder = arrayMove(currentDisplayedIds, fromIdx, toIdx);
+        setCategoryOrder(newOrder);
+        onCategoryOrderChange && onCategoryOrderChange(newOrder);
+      }
+      return;
+    }
+ 
+    if (active.id.toString().startsWith("item-")) {
       const itemId = active.id.toString().replace("item-", "");
       const draggedItem = Object.values(selectedItemsByCategory)
         .flat()
         .find((i) => i.id == itemId);
-      setActiveItem(draggedItem);
-    }
-  };
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    setActiveId(null);
-    setActiveItem(null);
-    setActiveCategory(null);
-    if (!over) return;
-
-    if (active.id.toString().startsWith("category-sort-")) {
-      const activeCategoryId = parseInt(
-        active.id.toString().replace("category-sort-", "")
-      );
-      if (over.id.toString().startsWith("category-sort-")) {
-        const overCategoryId = parseInt(
-          over.id.toString().replace("category-sort-", "")
+ 
+      if (!draggedItem) return;
+ 
+      let targetCategoryId = null;
+      let targetCategoryName = null;
+ 
+      if (over.id.toString().startsWith("category-")) {
+        targetCategoryId = parseInt(
+          over.id.toString().replace("category-", "")
         );
-        if (activeCategoryId !== overCategoryId) {
-          const from = orderedCategoryContainers.findIndex(
-            (c) => c.categoryId === activeCategoryId
-          );
-          const to = orderedCategoryContainers.findIndex(
-            (c) => c.categoryId === overCategoryId
-          );
-          if (from !== -1 && to !== -1) {
-            const newOrder = arrayMove(orderedCategoryContainers, from, to);
-            setOrderedCategoryContainers(newOrder);
-            onCategoryOrderChange &&
-              onCategoryOrderChange(activeCategoryId, overCategoryId);
-          }
+        const cat = categories.find((c) => c.id === targetCategoryId);
+        targetCategoryName = cat?.name;
+      } else if (over.id.toString().startsWith("item-")) {
+        const targetItemId = over.id.toString().replace("item-", "");
+        const targetItem = Object.values(selectedItemsByCategory)
+          .flat()
+          .find((i) => i.id == targetItemId);
+ 
+        if (targetItem) {
+          targetCategoryId = targetItem.parentId;
+          const cat = categories.find((c) => c.id === targetCategoryId);
+          targetCategoryName = cat?.name;
         }
       }
-      return;
-    }
-
-    const activeItemId = active.id.toString().replace("item-", "");
-    const draggedItem = Object.values(selectedItemsByCategory)
-      .flat()
-      .find((i) => i.id == activeItemId);
-    if (!draggedItem) return;
-
-    let targetCategoryId = null;
-    let targetCategoryName = null;
-
-    if (over.data?.current?.type === "category") {
-      targetCategoryId = over.data.current.categoryId;
-      targetCategoryName = over.data.current.categoryName;
-    } else if (over.id.toString().startsWith("item-")) {
-      const targetItemId = over.id.toString().replace("item-", "");
-      const targetItem = Object.values(selectedItemsByCategory)
-        .flat()
-        .find((i) => i.id == targetItemId);
-      if (targetItem) {
-        targetCategoryId = targetItem.parentId;
-        const targetCategory = categories.find(
-          (c) => c.id === targetCategoryId
-        );
-        targetCategoryName = targetCategory?.name || "Uncategorized";
+ 
+      if (
+        targetCategoryId !== null &&
+        targetCategoryId !== draggedItem.parentId
+      ) {
+        onItemCategoryChange &&
+          onItemCategoryChange(
+            parseInt(itemId),
+            targetCategoryId,
+            targetCategoryName
+          );
       }
     }
-
-    if (
-      targetCategoryId !== null &&
-      targetCategoryId !== draggedItem.parentId
-    ) {
-      onItemCategoryChange &&
-        onItemCategoryChange(
-          parseInt(activeItemId),
-          targetCategoryId,
-          targetCategoryName
-        );
-    }
   };
-
-  const categorySortableIds = orderedCategoryContainers.map(
-    ({ categoryId }) => `category-sort-${categoryId}`
-  );
-  const isDraggingCategory =
-    activeId && activeId.toString().startsWith("category-sort-");
-
+ 
   return (
     <DndContext
       sensors={sensors}
@@ -475,62 +427,46 @@ const SelectedItemsList = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-2 max-h-[70vh] overflow-auto scrollable-y ">
+      <div className="space-y-2 max-h-[70vh] overflow-auto scrollable-y">
         <SortableContext
-          items={categorySortableIds}
+          items={displayCategories.map(
+            ({ categoryId }) => `category-${categoryId}`
+          )}
           strategy={verticalListSortingStrategy}
         >
-          {orderedCategoryContainers.map(
-            ({ categoryName, categoryId, items, numberOfItems }) => (
-              <DraggableCategory
-                key={`${categoryName}-${categoryId}`}
-                categoryName={categoryName}
-                categoryId={categoryId}
-                items={items}
-                showDetails={showDetails}
-                currentFunctionData={currentFunctionData}
-                rate={rate}
-                onItemRateChange={onItemRateChange}
-                onNoteClick={onNoteClick}
-                onCategoryNoteClick={onCategoryNoteClick}
-                onRemoveItem={onRemoveItem}
-                isExpanded={expandedCategories[categoryId] || false}
-                onToggleExpand={handleToggleExpand}
-                isDraggingCategory={isDraggingCategory}
-                numberOfItems={numberOfItems}
-              />
-            )
-          )}
+          {displayCategories.map(({ categoryId, categoryName, items }) => (
+            <DraggableCategory
+              key={categoryId}
+              categoryId={categoryId}
+              categoryName={categoryName}
+              items={items}
+              showDetails={showDetails}
+              currentFunctionData={currentFunctionData}
+              rate={rate}
+              onItemRateChange={onItemRateChange}
+              onNoteClick={onNoteClick}
+              onCategoryNoteClick={onCategoryNoteClick}
+              onRemoveItem={onRemoveItem}
+              isExpanded={expandedCategories[categoryId] || false}
+              onToggleExpand={handleToggleExpand}
+            />
+          ))}
         </SortableContext>
       </div>
-
+ 
       <DragOverlay>
-        {activeCategory ? (
-          <div className="bg-white px-3 py-2 rounded-md shadow-lg border border-blue-300">
-            <div className="flex items-center gap-2">
-              <i className="ki-filled ki-menu text-gray-400" />
-              <span className="text-xs font-semibold">
-                {activeCategory.name}
-              </span>
-            </div>
-          </div>
-        ) : activeItem ? (
-          <div className="bg-white px-3 py-2 rounded-md shadow-lg border border-blue-300">
-            <div className="flex items-center gap-2">
-              <span className="h-8 w-8 rounded-md overflow-hidden bg-gray-100">
-                <img
-                  src={activeItem.image}
-                  alt={activeItem.name}
-                  className="w-full h-full object-cover"
-                />
-              </span>
-              <span className="text-xs font-medium">{activeItem.name}</span>
-            </div>
+        {activeId ? (
+          <div className="bg-white px-4 py-2 rounded-md shadow-xl border border-blue-300">
+            <span className="text-sm font-semibold text-gray-700">
+              {activeId.toString().startsWith("category-")
+                ? "Moving Category"
+                : "Moving Item"}
+            </span>
           </div>
         ) : null}
       </DragOverlay>
     </DndContext>
   );
 };
-
+ 
 export default SelectedItemsList;

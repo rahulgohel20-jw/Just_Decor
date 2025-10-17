@@ -24,11 +24,11 @@ import {
   functionDataReducer,
 } from "./hooks/useEventPreparation";
 import { toAbsoluteUrl } from "@/utils";
+
 const EventPreparationPage = () => {
   const navigate = useNavigate();
   const classes = useStyles();
- const userData = JSON.parse(localStorage.getItem("userData"));
-const userId = userData?.id;
+
   const {
     eventAllData,
     orderDetails,
@@ -50,6 +50,10 @@ const userId = userData?.id;
     clearFunctionCache,
     setAllMenuItems,
   } = useMenuData();
+
+  const [selectedPackageName, setSelectedPackageName] = useState(null);
+  const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
+  const [packageItemIds, setPackageItemIds] = useState([]);
   const [functionSelectionData, dispatch] = useReducer(functionDataReducer, {});
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
@@ -89,90 +93,110 @@ const userId = userData?.id;
     dispatch
   );
 
-  const handlePackageSelect = (packageItems) => {
-    if (!selectedFunctionId) return;
-    const itemsByCategory = {};
-    packageItems.forEach((item) => {
-      const categoryName =
-        item.categoryName || item.menuName || "Custom Package Items";
-      if (!itemsByCategory[categoryName]) {
-        itemsByCategory[categoryName] = [];
-      }
-      itemsByCategory[categoryName].push(item);
-    });
-    const processedItems = packageItems.map((item) => {
-      const categoryName =
-        item.categoryName || item.menuName || "Custom Package Items";
-      let category = categories.find((cat) => cat.name === categoryName);
-      const categoryId =
-        category?.id ||
-        `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
-      return {
-        ...item,
-        id: item.id || `pkg-${Date.now()}-${Math.random()}`,
-        parentId: categoryId,
-        image: item.image,
-        price: item.price || 0,
-        itemNotes: item.instruction || item.itemNotes || "",
-      };
-    });
+const handlePackageSelect = (packageData) => {
+  if (!selectedFunctionId) {
+    console.warn("⚠️ No function selected");
+    return;
+  }
 
-    const updatedAllMenuItems = {
-      ...allMenuItems,
-      [selectedFunctionId]: [
-        ...(allMenuItems[selectedFunctionId] || []),
-        ...processedItems.filter(
-          (newItem) =>
-            !(allMenuItems[selectedFunctionId] || []).some(
-              (existingItem) => existingItem.name === newItem.name
-            )
-        ),
-      ],
+  let items = [];
+  let packageName = "Custom Package";
+  let totalPrice = 0;
+  let packageId = null;
+
+  // Determine structure of packageData
+  if (Array.isArray(packageData)) {
+    items = packageData;
+    totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
+    packageName = selectedPackageName || `Package (${items.length} items)`;
+  } else if (packageData.items && Array.isArray(packageData.items)) {
+    items = packageData.items;
+    packageName = packageData.packageName;
+    totalPrice = packageData.totalPrice;
+    packageId = packageData.id;
+  } else if (packageData.packageInfo && packageData.packageItems) {
+    items = packageData.packageItems;
+    packageName = packageData.packageInfo.packageName;
+    totalPrice = packageData.packageInfo.packagePrice;
+    packageId = packageData.packageInfo.id;
+  } else {
+    console.warn("⚠️ Invalid package data structure", packageData);
+    return;
+  }
+
+  if (!items || items.length === 0) {
+    console.warn("⚠️ No items found in package");
+    return;
+  }
+
+  // Set selected package info
+  setSelectedPackageName(packageName);
+  setSelectedPackagePrice(totalPrice || 0);
+
+  // Process items with deterministic IDs
+  const processedItems = items.map((item, index) => {
+    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
+    const categoryId = categories.find((cat) => cat.name === categoryName)?.id ||
+      `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+
+    const newItemId = `pkg-${packageId || "custom"}-cat-${categoryId}-item-${index}`;
+
+    return {
+      ...item,
+      id: newItemId,
+      parentId: categoryId,
+      image: item.image || "",
+      price: item.price || item.itemPrice || 0,
+      itemNotes: item.instruction || item.itemNotes || "",
+      name: item.name || item.itemName || `Item ${index + 1}`,
+      isPackageItem: true,
+      packageId: packageId,
+      packageName: packageName,
     };
+  });
 
-    setAllMenuItems(updatedAllMenuItems);
- 
-    // Extract item IDs
-    const newItemIds = processedItems.map((item) => item.id);
+  // Update allMenuItems for this function
+  setAllMenuItems((prev) => ({
+    ...prev,
+    [selectedFunctionId]: processedItems,
+  }));
 
-    // Dispatch to update the reducer
-    dispatch({
-      type: "UPDATE_SELECTIONS",
-      functionId: selectedFunctionId,
-      selectedItems: [
-        ...(functionSelectionData[selectedFunctionId]?.selectedItems || []),
-        ...newItemIds.filter(
-          (id) =>
-            !(
-              functionSelectionData[selectedFunctionId]?.selectedItems || []
-            ).includes(id)
-        ),
-      ],
-      itemNotes: {
-        ...functionSelectionData[selectedFunctionId]?.itemNotes,
-        ...processedItems.reduce((acc, item) => {
-          acc[item.id] = item.itemNotes || item.instruction || "";
-          return acc;
-        }, {}),
-      },
-      itemSortOrders: {},
-      itemSlogans: {
-        ...functionSelectionData[selectedFunctionId]?.itemSlogans,
-        ...processedItems.reduce((acc, item) => {
-          acc[item.id] = item.itemSlogan || "";
-          return acc;
-        }, {}),
-      },
-      itemRates: {
-        ...functionSelectionData[selectedFunctionId]?.itemRates,
-        ...processedItems.reduce((acc, item) => {
-          acc[item.id] = item.price || rate || 0;
-          return acc;
-        }, {}),
-      },
-      isSaved: false,
-    });
-  };
+  // Update packageItemIds to match processed item IDs
+  const newItemIds = processedItems.map((item) => item.id);
+  setPackageItemIds(newItemIds);
+
+  // Dispatch to update functionSelectionData
+ dispatch({
+  type: "UPDATE_SELECTIONS",
+  functionId: selectedFunctionId,
+  selectedItems: newItemIds,
+  itemNotes: processedItems.reduce((acc, item) => {
+    acc[item.id] = item.itemNotes || "";
+    return acc;
+  }, {}),
+  itemSlogans: processedItems.reduce((acc, item) => {
+    acc[item.id] = item.itemSlogan || "";
+    return acc;
+  }, {}),
+  itemRates: processedItems.reduce((acc, item) => {
+    acc[item.id] = item.price || rate || 0;
+    return acc;
+  }, {}),
+  categoryNotes: {},
+  categorySlogans: {},
+  itemSortOrders: {},
+  isSaved: true,
+  isPackage: true,          // ✅ mark as package
+  packageId: packageId,      // ✅ store package ID
+  packageName: packageName,  // ✅ store package name
+  packagePrice: totalPrice,  // ✅ store package price
+});
+
+
+
+  console.log("✅ Package selection complete:", processedItems);
+};
+
 
   useEffect(() => {
     initializeData();
@@ -249,13 +273,46 @@ const userId = userData?.id;
       console.error("Error initializing data:", error);
     }
   };
+
   const handleCategoryChange = async (categoryId) => {
     setSelectedCategoryId(categoryId);
     if (selectedFunctionId) {
       await loadFunctionMenuData(selectedFunctionId, categoryId, categories);
     }
   };
+
   const handleSave = async () => {
+    const selectedItemsIds =
+      functionSelectionData[selectedFunctionId]?.selectedItems || [];
+
+    if (activeTab === "custom") {
+      const hasPackageItems = selectedItemsIds.some((id) =>
+        packageItemIds.includes(id)
+      );
+      if (hasPackageItems) {
+        console.warn(
+          "⚠️ Cannot save package items in custom tab. Switch to Package tab."
+        );
+        alert(
+          "Cannot save package items in custom tab. Please switch to Package tab."
+        );
+        return;
+      }
+    } else if (activeTab === "package") {
+      const hasCustomItems = selectedItemsIds.some(
+        (id) => !packageItemIds.includes(id)
+      );
+      if (hasCustomItems) {
+        console.warn(
+          "⚠️ Cannot save custom items in package tab. Switch to Custom tab."
+        );
+        alert(
+          "Cannot save custom items in package tab. Please switch to Custom tab."
+        );
+        return;
+      }
+    }
+
     const success = await saveMenu(
       selectedFunctionId,
       selectedCategoryId,
@@ -266,6 +323,19 @@ const userId = userData?.id;
       dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
     }
   };
+
+  const getFilteredSelectedItems = () => {
+    const selectedItemsIds =
+      functionSelectionData[selectedFunctionId]?.selectedItems || [];
+
+    if (activeTab === "custom") {
+      return selectedItemsIds.filter((id) => !packageItemIds.includes(id));
+    } else if (activeTab === "package") {
+      return selectedItemsIds.filter((id) => packageItemIds.includes(id));
+    }
+    return selectedItemsIds;
+  };
+
   const toggleChildSelection = (id) => {
     dispatch({
       type: "TOGGLE_ITEM_SELECTION",
@@ -273,6 +343,7 @@ const userId = userData?.id;
       itemId: id,
     });
   };
+
   const handleItemRateChange = (id, value) => {
     dispatch({
       type: "UPDATE_ITEM_RATE",
@@ -281,6 +352,8 @@ const userId = userData?.id;
       rate: value,
     });
   };
+  
+
   const handlePaxChange = (newPax) => {
     setPax(newPax);
     if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
@@ -292,6 +365,7 @@ const userId = userData?.id;
       });
     }
   };
+
   const handleRateChange = (newRate) => {
     setRate(newRate);
     if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
@@ -303,6 +377,7 @@ const userId = userData?.id;
       });
     }
   };
+
   const handleNoteSave = (savedNotes) => {
     if (currentItemForNotes) {
       dispatch({
@@ -324,6 +399,7 @@ const userId = userData?.id;
     setShowNoteModal(false);
     setCurrentItemForNotes(null);
   };
+
   const handleCategoryNoteSave = (savedNotes) => {
     if (currentCategoryForNotes !== null) {
       dispatch({
@@ -345,6 +421,7 @@ const userId = userData?.id;
     setShowCategoryNoteModal(false);
     setCurrentCategoryForNotes(null);
   };
+
   const handleItemCategoryChange = (itemId, newCategoryId, newCategoryName) => {
     dispatch({
       type: "UPDATE_ITEM_CATEGORY",
@@ -363,22 +440,39 @@ const userId = userData?.id;
 
     setAllMenuItems(updatedAllMenuItems);
   };
+
+  const handleCategoryOrderUpdate = (newOrder) => {
+    setOrderedCategoryIds(newOrder);
+    dispatch({
+      type: "UPDATE_CATEGORY_ORDER",
+      functionId: selectedFunctionId,
+      newOrder: newOrder,
+    });
+  };
+
+  // ============ CALCULATIONS SECTION ============
+
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
+
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
     selectedItems: [],
     itemNotes: {},
     itemRates: {},
   };
+
   const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
     ...item,
     isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
   }));
-  const calculateTotalPrice = () => {
-    if (!currentFunctionData.selectedItems) return 0;
-    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
 
-    return currentFunctionData.selectedItems.reduce((sum, itemId) => {
+  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
+  const calculateTabTotalPrice = () => {
+    const filteredIds = getFilteredSelectedItems();
+    if (!filteredIds || filteredIds.length === 0) return 0;
+
+    return filteredIds.reduce((sum, itemId) => {
       const item = allFunctionMenuItems.find(
         (menuItem) => menuItem.id === itemId
       );
@@ -390,15 +484,16 @@ const userId = userData?.id;
       return sum + itemRate;
     }, 0);
   };
-  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-  const selectedItems = currentFunctionData.selectedItems
+
+  const filteredSelectedItemIds = getFilteredSelectedItems();
+  const filteredSelectedItems = filteredSelectedItemIds
     .map((id) => {
       const item = allFunctionMenuItems.find((menuItem) => menuItem.id === id);
       return item;
     })
     .filter(Boolean);
 
-  const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
+  const selectedItemsByCategory = filteredSelectedItems.reduce((acc, item) => {
     const category = categories.find((cat) => cat.id === item.parentId);
     let categoryName;
     if (category) {
@@ -427,16 +522,10 @@ const userId = userData?.id;
     acc[categoryName].push(item);
     return acc;
   }, {});
-  const handleCategoryOrderUpdate = (newOrder) => {
-    setOrderedCategoryIds(newOrder);
-    dispatch({
-      type: "UPDATE_CATEGORY_ORDER",
-      functionId: selectedFunctionId,
-      newOrder: newOrder,
-    });
-  };
 
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
+
+  // ============ END CALCULATIONS ============
 
   return (
     <Fragment>
@@ -586,43 +675,89 @@ const userId = userData?.id;
                   </div>
                 </div>
               </div>
-              {/* custometab */}
-              <div className=" ">
-                <div className="max-w-lg mx-auto flex justify-center">
-                  <div className="flex gap-2 bg-white p-1.5 rounded-full shadow-sm w-fit">
-                    {/* Custom Tab */}
-                    <button
-                      onClick={() => setActiveTab("custom")}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
-                        activeTab === "custom"
-                          ? "bg-blue-600 text-white shadow-md"
-                          : "bg-transparent text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Layers className="w-4 h-4" />
-                      <span className="font-medium">Custom</span>
-                    </button>
 
-                    {/* Custom Package Tab */}
-                    <button
-                      onClick={() => setShowCustomPackageModal(true)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
-                        showCustomPackageModal
-                          ? "bg-blue-600 text-white shadow-md"
-                          : "bg-transparent text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Package className="w-4 h-4" />
-                      <span className="font-medium">Custom Package</span>
-                    </button>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={() => {
+                    setActiveTab("custom");
+                    setShowCustomPackageModal(false);
+                  }}
+                  className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
+                    activeTab === "custom"
+                      ? "bg-primary text-white shadow"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Custom
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveTab("package");
+                    setShowCustomPackageModal(true);
+                  }}
+                  className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
+                    activeTab === "package"
+                      ? "bg-primary text-white shadow"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Custom Package
+                </button>
+              </div>
+
+              {selectedPackageName && selectedPackagePrice > 0 && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-blue-700 block mb-1">
+                        📦 Selected Package: {selectedPackageName}
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        Total Price: ₹{selectedPackagePrice.toLocaleString()}
+                      </span>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">
+                      {currentFunctionData.selectedItems?.length || 0}
+                    </span>
                   </div>
                 </div>
-              </div>
+              )}
+
               <CustomPackageModal
                 isOpen={showCustomPackageModal}
-                onClose={() => setShowCustomPackageModal(false)}
-                 userId={userId}
-                onPackageSelect={handlePackageSelect}
+                onClose={() => {
+                  setShowCustomPackageModal(false);
+                }}
+                userId={1}
+                onPackageSelect={(data) => {
+                  console.log(
+                    "🎯 Package selected, data type:",
+                    typeof data,
+                    "Is Array:",
+                    Array.isArray(data)
+                  );
+                  console.log("🎯 Data:", data);
+
+                  const isValid =
+                    (Array.isArray(data) && data.length > 0) ||
+                    (data &&
+                      data.items &&
+                      Array.isArray(data.items) &&
+                      data.items.length > 0) ||
+                    (data &&
+                      data.packageItems &&
+                      Array.isArray(data.packageItems) &&
+                      data.packageItems.length > 0);
+
+                  if (isValid) {
+                    handlePackageSelect(data);
+                    setShowCustomPackageModal(false);
+                  } else {
+                    console.warn("⚠️ Invalid package data:", data);
+                  }
+                }}
+                 
               />
 
               <div
@@ -654,7 +789,6 @@ const userId = userData?.id;
                   </div>
                 </div>
 
-                {/* Menu Items */}
                 <div className="col-span-6">
                   <div className="h-full">
                     <div className="border-b p-3 bg-light flex items-center gap-3">
@@ -713,7 +847,11 @@ const userId = userData?.id;
                         className="text-primary hover:underline"
                         onClick={() => setShowDetails((prev) => !prev)}
                       >
-                        {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
+                        {showDetails ? (
+                          <Eye size={18} />
+                        ) : (
+                          <EyeOff size={18} />
+                        )}
                       </button>
                     </Tooltip>
                   </div>
@@ -752,6 +890,8 @@ const userId = userData?.id;
                     onRemoveItem={toggleChildSelection}
                     onItemCategoryChange={handleItemCategoryChange}
                     onCategoryOrderChange={handleCategoryOrderUpdate}
+                    selectedPackageName={selectedPackageName}
+                    selectedPackagePrice={selectedPackagePrice}
                     orderedCategoryIds={orderedCategoryIds}
                   />
                 </div>
@@ -761,7 +901,7 @@ const userId = userData?.id;
                       Total Items:
                     </span>
                     <span className="font-bold text-xs text-gray-900">
-                      {currentFunctionData.selectedItems?.length || 0}
+                      {getFilteredSelectedItems().length || 0}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -769,7 +909,7 @@ const userId = userData?.id;
                       Total:
                     </span>
                     <span className="font-bold text-xs text-gray-900">
-                      &#8377; {calculateTotalPrice()}
+                      &#8377; {calculateTabTotalPrice()}
                     </span>
                   </div>
                 </div>
@@ -785,13 +925,14 @@ const userId = userData?.id;
           <button
             className={`btn ${isUpdateOperation ? "btn-warning" : "btn-success"}`}
             onClick={handleSave}
-            disabled={loading || !currentFunctionData.selectedItems?.length}
+            disabled={loading || !getFilteredSelectedItems().length}
           >
             <i
-              className={`ki-filled ${isUpdateOperation ? "ki-pencil" : "ki-save-2"}`}
+              className={`ki-filled ${
+                isUpdateOperation ? "ki-pencil" : "ki-save-2"
+              }`}
             ></i>
             {isUpdateOperation ? "Update Menu" : "Save Menu"}
-            {currentFunctionData.isSaved}
           </button>
         </div>
 
@@ -814,17 +955,6 @@ const userId = userData?.id;
           itemId={currentItemForNotes}
           notes={itemNotes}
           onSave={handleNoteSave}
-        />
-        <CategoryNotes
-          isOpen={showCategoryNoteModal}
-          onClose={() => {
-            setShowCategoryNoteModal(false);
-            setCurrentCategoryForNotes(null);
-          }}
-          categoryId={currentCategoryForNotes}
-          notes={categoryNotes}
-          onSave={handleCategoryNoteSave}
-          categories={categoriesWithAll}
         />
       </Container>
     </Fragment>
