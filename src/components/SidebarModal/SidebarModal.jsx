@@ -35,6 +35,7 @@ export default function SidebarModal({
   row,
   functionName,
   functionDateTime,
+  onSave,
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
@@ -45,15 +46,22 @@ export default function SidebarModal({
     const allocations = row.eventFunctionMenuAllocations || [];
     const outsideAllocations = allocations
       .filter((alloc) => alloc.isOutside === true)
-      .map((alloc) => ({
-        partyId: alloc.partyId || null,
-        partyName: alloc.partyName || "",
-        price: alloc.price || "",
-        quantity: alloc.quantity || "",
-        unitName: alloc.unitName || "Nos",
-        totalPrice: alloc.totalPrice || "",
-        isOutside: alloc.isOutside,
-      }));
+      .map((alloc) => {
+        const price = parseFloat(alloc.price) || 0;
+        const quantity = parseFloat(alloc.quantity) || 0;
+        const totalPrice =
+          alloc.totalPrice || (price && quantity ? price * quantity : "");
+
+        return {
+          partyId: alloc.partyId || null,
+          partyName: alloc.partyName || "",
+          price: alloc.price || "",
+          quantity: alloc.quantity || "",
+          unitName: alloc.unitName || "Nos",
+          totalPrice: totalPrice,
+          isOutside: alloc.isOutside,
+        };
+      });
 
     if (outsideAllocations.length === 0) {
       setMenuAllocations([
@@ -167,13 +175,21 @@ export default function SidebarModal({
   };
 
   const handleSave = () => {
-    console.log("Saving allocations:", {
+    const saveData = {
       eventId,
       eventFunctionId,
       menuItemId: row?.menuItemId,
       menuCategoryId: row?.menuCategoryId,
-      allocations: menuAllocations,
-    });
+      allocationType: "outside",
+      allocations: menuAllocations.filter(
+        (alloc) => alloc.partyId && (alloc.price || alloc.quantity)
+      ),
+    };
+
+    if (onSave) {
+      onSave(saveData);
+    }
+
     onClose();
   };
 

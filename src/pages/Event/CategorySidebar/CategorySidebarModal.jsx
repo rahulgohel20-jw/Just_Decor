@@ -25,6 +25,9 @@ export default function CategorySidebarModal({
   open,
   onClose,
   selectedRowData,
+  eventFunctionId,
+  eventId,
+  onSave,
 }) {
   const [suppliers, setSuppliers] = useState([]);
   const [unit, setUnit] = useState([]);
@@ -95,28 +98,74 @@ export default function CategorySidebarModal({
 
   const handleSubmit = async () => {
     try {
-      const payload = rawMaterials.map((item) => ({
-        dateTime: item.dateTime
-          ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
-          : "",
-        eventFunctionId: selectedRowData?.eventFunctionId || 0,
-        eventId: selectedRowData?.eventId || 0,
-        id: item.id || 0,
-        menuItemId: selectedRowData?.menuItemId || 0,
-        partyId: suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0,
-        place: item.place || "",
-        rate: 0,
-        rawMaterialId:
-          selectedRowData?.["MenuItem RawMaterial Details"]?.find(
-            (r) => r.rawMaterialName === item.name
-          )?.rawMaterialId || 0,
-        rawmaterial_rate: 0,
-        rawmaterial_weight: Number(item.weight) || 0,
-        unitId: unit.find((u) => u.nameEnglish === item.unit)?.id || 0,
-        weight: Number(item.weight) || 0,
-      }));
+      if (
+        !selectedRowData ||
+        !selectedRowData["MenuItem RawMaterial Details"]
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Missing required data. Please try again.",
+        });
+        return;
+      }
 
-      console.log("Payload:", payload);
+      const rawMaterialDetails =
+        selectedRowData["MenuItem RawMaterial Details"];
+
+      const firstDetail = Array.isArray(rawMaterialDetails)
+        ? rawMaterialDetails[0]
+        : rawMaterialDetails;
+
+      const menuItemId = firstDetail?.menuItemId || 0;
+      const rate = firstDetail?.rate || 0;
+      const rawmaterial_rate = firstDetail?.rawmaterial_rate || 0;
+
+      const payload = rawMaterials.map((item) => {
+        const matchingDetail = Array.isArray(rawMaterialDetails)
+          ? rawMaterialDetails.find((r) => r.rawMaterialName === item.name)
+          : null;
+
+        const rawMaterialId = matchingDetail?.rawMaterialId || 0;
+        const partyId =
+          suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
+        const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
+
+        return {
+          id: 0,
+          eventId: eventId || 0,
+          eventFunctionId: eventFunctionId || 0,
+          menuItemId: menuItemId,
+          rawMaterialId: rawMaterialId,
+          partyId: partyId,
+          unitId: unitId,
+          dateTime: item.dateTime
+            ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
+            : "",
+          weight: Number(item.weight) || 0,
+          rawmaterial_weight: Number(item.weight) || 0,
+          rate: rate,
+          rawmaterial_rate: rawmaterial_rate,
+          place: item.place || "",
+        };
+      });
+
+      const hasInvalidData = payload.some(
+        (item) =>
+          !item.eventId ||
+          !item.eventFunctionId ||
+          !item.menuItemId ||
+          !item.rawMaterialId
+      );
+
+      if (hasInvalidData) {
+        Swal.fire({
+          icon: "warning",
+          title: "Incomplete Data",
+          text: "Please ensure all required fields are filled.",
+        });
+        return;
+      }
 
       const res = await SelectedRawMenuallocation(payload);
 
@@ -126,6 +175,17 @@ export default function CategorySidebarModal({
           title: "Saved!",
           text: "Raw material data saved successfully.",
         });
+
+        if (onSave) {
+          onSave({
+            menuItemId,
+            eventFunctionId,
+            eventId,
+            rawMaterials: payload,
+            response: res.data,
+          });
+        }
+
         onClose();
       } else {
         Swal.fire({
@@ -135,7 +195,7 @@ export default function CategorySidebarModal({
         });
       }
     } catch (err) {
-      console.error(err);
+      console.error("Submit Error:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -177,22 +237,20 @@ export default function CategorySidebarModal({
               </div>
 
               <div className="p-5">
-                {rawMaterials.map((row, idx) => (
-                  <div
-                    key={row.id}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="text-[18px] font-semibold text-gray-800">
-                      {row.menuItemName || "—"}
-                    </div>
-                    <button
-                      onClick={handleAddRow}
-                      className="h-9 px-4 rounded-md bg-primary text-white text-sm hover:bg-blue-700"
-                    >
-                      Add Raw Material
-                    </button>
+                {/* Header Section - Show only once */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-[18px] font-semibold text-gray-800">
+                    {rawMaterials.length > 0
+                      ? rawMaterials[0].menuItemName || "—"
+                      : "—"}
                   </div>
-                ))}
+                  <button
+                    onClick={handleAddRow}
+                    className="h-9 px-4 rounded-md bg-primary text-white text-sm hover:bg-blue-700"
+                  >
+                    Add Raw Material
+                  </button>
+                </div>
 
                 {/* Table */}
                 <div className="mt-4 rounded-xl border border-gray-200 overflow-hidden shadow-sm">

@@ -244,6 +244,9 @@ const EventMenuAllocationPage = () => {
   const [loading, setLoading] = useState(true);
   const [menuLoading, setMenuLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [allocationData, setAllocationData] = useState({});
+  const [orderItemPrice, setOrderItemPrice] = useState();
+  const [itemPrices, setItemPrices] = useState({});
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -271,8 +274,60 @@ const EventMenuAllocationPage = () => {
 
     if (eventId) {
       FetchEventDetails();
+      Fetchitems();
     }
   }, [eventId]);
+
+  useEffect(() => {
+    if (
+      orderSummaryGroups.length > 0 &&
+      orderSummaryGroups[0].items.length > 0
+    ) {
+      Fetchitems(orderSummaryGroups[0].items[0], orderSummaryGroups[0]);
+    }
+  }, [orderSummaryGroups]);
+
+  const Fetchitems = async (item, group) => {
+    try {
+      if (!item) {
+        console.warn("No item passed to Fetchitems");
+        return;
+      }
+
+      const eventFunctionId = activeFunction?.id;
+      const isFromNewTable = item.isFromNewTable || false;
+      const menuItemId = item.menuItemId || item.id;
+
+      const res = await SelectedItemNameMenuAllocation(
+        eventFunctionId,
+        isFromNewTable,
+        menuItemId
+      );
+
+      if (res?.data?.success) {
+        const rawMaterials =
+          res.data.data["MenuItem RawMaterial Details"] || [];
+
+        // Calculate base rate from all raw materials
+        const baseRate = rawMaterials.reduce((sum, material) => {
+          return sum + (material.rate || 0);
+        }, 0);
+
+        // Store the base rate for this item
+        setItemPrices((prev) => ({
+          ...prev,
+          [`${menuItemId}`]: {
+            baseRate: baseRate,
+            additionalPrice: prev[`${menuItemId}`]?.additionalPrice || 0,
+          },
+        }));
+      } else {
+        console.warn("No data returned from SelectedItemNameMenuAllocation");
+      }
+    } catch (error) {
+      console.error("Error fetching item data:", error);
+    }
+  };
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
@@ -304,7 +359,7 @@ const EventMenuAllocationPage = () => {
     try {
       setMenuLoading(true);
       const menudata = await GetMenuAllocation(eventId, eventFunctionId);
-      console.log(menudata);
+      console.log(menudata, "menu");
 
       if (
         menudata?.data?.success &&
@@ -413,6 +468,94 @@ const EventMenuAllocationPage = () => {
       </Container>
     );
   }
+
+  const handleOutsideSave = (saveData) => {
+    console.log("Outside allocation saved:", saveData);
+
+    setAllocationData((prev) => ({
+      ...prev,
+      [`${saveData.menuItemId}-${saveData.menuCategoryId}-outside`]: saveData,
+    }));
+
+    setRows((prevRows) =>
+      prevRows.map((r) => {
+        if (
+          r.menuItemId === saveData.menuItemId &&
+          r.menuCategoryId === saveData.menuCategoryId
+        ) {
+          return {
+            ...r,
+            eventFunctionMenuAllocations: [
+              ...(r.eventFunctionMenuAllocations || []).filter(
+                (a) => !a.isOutside
+              ),
+              ...saveData.allocations.map((alloc) => ({
+                ...alloc,
+                isOutside: true,
+              })),
+            ],
+          };
+        }
+        return r;
+      })
+    );
+  };
+
+  const handleChefLabourSave = (saveData) => {
+    console.log("Chef Labour allocation saved:", saveData);
+
+    setAllocationData((prev) => ({
+      ...prev,
+      [`${saveData.menuItemId}-${saveData.menuCategoryId}-chef`]: saveData,
+    }));
+
+    setRows((prevRows) =>
+      prevRows.map((r) => {
+        if (
+          r.menuItemId === saveData.menuItemId &&
+          r.menuCategoryId === saveData.menuCategoryId
+        ) {
+          return {
+            ...r,
+            eventFunctionMenuAllocations: [
+              ...(r.eventFunctionMenuAllocations || []).filter(
+                (a) => !a.isChefLabour
+              ),
+              ...saveData.allocations.map((alloc) => ({
+                ...alloc,
+                isChefLabour: true,
+              })),
+            ],
+          };
+        }
+        return r;
+      })
+    );
+  };
+
+  const handleCategorySave = (saveData) => {
+    console.log("Category raw material allocation saved:", saveData);
+
+    setAllocationData((prev) => ({
+      ...prev,
+      [`${saveData.menuItemId}-category`]: saveData,
+    }));
+  };
+
+  const handleMainSave = async () => {
+    try {
+      const backendData = {
+        eventId,
+        eventFunctionId: activeFunction?.id,
+        menuAllocations: rows,
+        detailedAllocations: Object.values(allocationData),
+      };
+
+      console.log("Sending to backend:", backendData);
+    } catch (error) {
+      console.error("Error saving:", error);
+    }
+  };
 
   return (
     <Fragment>
@@ -622,6 +765,7 @@ const EventMenuAllocationPage = () => {
           row={selectedRow}
           functionName={activeFunction?.function?.nameEnglish}
           functionDateTime={activeFunction?.functionStartDateTime}
+          onSave={handleOutsideSave}
         />
 
         <SidebarChefModal
@@ -632,12 +776,15 @@ const EventMenuAllocationPage = () => {
           row={selectedRow}
           functionName={activeFunction?.function?.nameEnglish}
           functionDateTime={activeFunction?.functionStartDateTime}
+          onSave={handleChefLabourSave}
         />
 
         <CategorySidebarModal
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
           selectedRowData={selectedRow}
+          eventFunctionId={activeFunction?.id}
+          eventId={eventId}
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}

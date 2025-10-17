@@ -36,6 +36,7 @@ export default function SidebarChefModal({
   row,
   functionName,
   functionDateTime,
+  onSave,
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
@@ -50,7 +51,30 @@ export default function SidebarChefModal({
         const raw =
           menudata?.data?.data["Menu Allocation Details"][0]?.menuAllocation ||
           [];
-        setMenuAllocations(raw);
+
+        const processedAllocations = raw.map((allocation) => ({
+          ...allocation,
+          eventFunctionMenuAllocations:
+            allocation.eventFunctionMenuAllocations?.map((alloc) => {
+              const counterQty = parseFloat(alloc.counterQuantity) || 0;
+              const helperQty = parseFloat(alloc.helperQuantity) || 0;
+              const counterPrice = parseFloat(alloc.counterPrice) || 0;
+              const helperPrice = parseFloat(alloc.helperPrice) || 0;
+
+              const calculatedTotal =
+                counterQty * counterPrice + helperQty * helperPrice;
+              const totalPrice =
+                alloc.totalPrice ||
+                (calculatedTotal > 0 ? calculatedTotal : "");
+
+              return {
+                ...alloc,
+                totalPrice,
+              };
+            }),
+        }));
+
+        setMenuAllocations(processedAllocations);
       } catch (error) {
         console.error("Error fetching event details:", error);
       } finally {
@@ -99,10 +123,102 @@ export default function SidebarChefModal({
       },
     ]);
   };
+
   const handleRemoveRow = (index) => {
     setExtraRows((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleExtraRowChange = (index, field, value) => {
+    setExtraRows((prev) => {
+      const updated = [...prev];
+      updated[index][field] = value;
+
+      if (
+        [
+          "counterQuantity",
+          "helperQuantity",
+          "counterPrice",
+          "helperPrice",
+        ].includes(field)
+      ) {
+        const counterQty = parseFloat(updated[index].counterQuantity) || 0;
+        const helperQty = parseFloat(updated[index].helperQuantity) || 0;
+        const counterPrice = parseFloat(updated[index].counterPrice) || 0;
+        const helperPrice = parseFloat(updated[index].helperPrice) || 0;
+
+        updated[index].totalPrice =
+          counterQty * counterPrice + helperQty * helperPrice;
+      }
+
+      return updated;
+    });
+  };
+
+  const handleExistingRowChange = (allocIndex, field, value) => {
+    setMenuAllocations((prev) => {
+      const updated = [...prev];
+      const currentItem = updated.find(
+        (m) =>
+          m.menuItemId === row?.menuItemId &&
+          m.menuCategoryId === row?.menuCategoryId &&
+          m.chefLabour === true
+      );
+
+      if (currentItem && currentItem.eventFunctionMenuAllocations) {
+        currentItem.eventFunctionMenuAllocations[allocIndex][field] = value;
+
+        if (
+          [
+            "counterQuantity",
+            "helperQuantity",
+            "counterPrice",
+            "helperPrice",
+          ].includes(field)
+        ) {
+          const alloc = currentItem.eventFunctionMenuAllocations[allocIndex];
+          const counterQty = parseFloat(alloc.counterQuantity) || 0;
+          const helperQty = parseFloat(alloc.helperQuantity) || 0;
+          const counterPrice = parseFloat(alloc.counterPrice) || 0;
+          const helperPrice = parseFloat(alloc.helperPrice) || 0;
+
+          alloc.totalPrice =
+            counterQty * counterPrice + helperQty * helperPrice;
+        }
+      }
+
+      return updated;
+    });
+  };
+
+  const handleSave = () => {
+    const currentItem = menuAllocations.find(
+      (m) =>
+        m.menuItemId === row?.menuItemId &&
+        m.menuCategoryId === row?.menuCategoryId &&
+        m.chefLabour === true
+    );
+
+    const existingAllocations = currentItem?.eventFunctionMenuAllocations || [];
+    const allAllocations = [...existingAllocations, ...extraRows].filter(
+      (alloc) =>
+        alloc.partyId && (alloc.counterQuantity || alloc.helperQuantity)
+    );
+
+    const saveData = {
+      eventId,
+      eventFunctionId,
+      menuItemId: row?.menuItemId,
+      menuCategoryId: row?.menuCategoryId,
+      allocationType: "chefLabour",
+      allocations: allAllocations,
+    };
+
+    if (onSave) {
+      onSave(saveData);
+    }
+
+    onClose();
+  };
   return (
     <AnimatePresence>
       {open && (
@@ -194,14 +310,12 @@ export default function SidebarChefModal({
                     <div className="text-center">Action</div>
                   </div>
 
-                  {/* Rows */}
                   {loading ? (
                     <div className="flex justify-center items-center h-32 text-gray-500 text-sm">
                       Loading data...
                     </div>
                   ) : (
                     (() => {
-                      // Filter to get only the specific row that was clicked
                       const currentItem = menuAllocations.find(
                         (m) =>
                           m.menuItemId === row?.menuItemId &&
@@ -209,7 +323,6 @@ export default function SidebarChefModal({
                           m.chefLabour === true
                       );
 
-                      // If chefLabour is true but no allocations exist yet, show empty row
                       if (
                         !currentItem ||
                         !currentItem.eventFunctionMenuAllocations ||
@@ -251,7 +364,11 @@ export default function SidebarChefModal({
                               />
                             </div>
                             <div>
-                              <BaseInput type="number" placeholder="Total" />
+                              <BaseInput
+                                type="number"
+                                placeholder="Total"
+                                readOnly
+                              />
                             </div>
                             <div className="flex items-center justify-center">
                               <button
@@ -266,7 +383,6 @@ export default function SidebarChefModal({
                         );
                       }
 
-                      // Show existing allocations for this specific item
                       return currentItem.eventFunctionMenuAllocations.map(
                         (alloc, idx) => (
                           <div
@@ -277,7 +393,16 @@ export default function SidebarChefModal({
                               {idx + 1}.
                             </div>
                             <div>
-                              <BaseSelect value={alloc.partyId || ""}>
+                              <BaseSelect
+                                value={alloc.partyId || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "partyId",
+                                    e.target.value
+                                  )
+                                }
+                              >
                                 <option value="">Select Name</option>
                                 {contactNames.map((c) => (
                                   <option key={c.id} value={c.id}>
@@ -287,7 +412,16 @@ export default function SidebarChefModal({
                               </BaseSelect>
                             </div>
                             <div>
-                              <BaseSelect value={alloc.serviceType || ""}>
+                              <BaseSelect
+                                value={alloc.serviceType || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "serviceType",
+                                    e.target.value
+                                  )
+                                }
+                              >
                                 <option value="">Select Options</option>
                                 <option>Counter Wise</option>
                                 <option>Day Wise</option>
@@ -299,11 +433,25 @@ export default function SidebarChefModal({
                                 type="number"
                                 placeholder="Counter"
                                 value={alloc.counterQuantity || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "counterQuantity",
+                                    e.target.value
+                                  )
+                                }
                               />
                               <BaseInput
                                 type="number"
                                 placeholder="Helper"
                                 value={alloc.helperQuantity || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "helperQuantity",
+                                    e.target.value
+                                  )
+                                }
                               />
                             </div>
                             <div className="flex gap-2">
@@ -311,11 +459,25 @@ export default function SidebarChefModal({
                                 type="number"
                                 placeholder="Counter"
                                 value={alloc.counterPrice || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "counterPrice",
+                                    e.target.value
+                                  )
+                                }
                               />
                               <BaseInput
                                 type="number"
                                 placeholder="Helper"
                                 value={alloc.helperPrice || ""}
+                                onChange={(e) =>
+                                  handleExistingRowChange(
+                                    idx,
+                                    "helperPrice",
+                                    e.target.value
+                                  )
+                                }
                               />
                             </div>
                             <div>
@@ -323,6 +485,7 @@ export default function SidebarChefModal({
                                 type="number"
                                 placeholder="Total"
                                 value={alloc.totalPrice || ""}
+                                readOnly
                               />
                             </div>
                             <div className="flex items-center justify-center">
@@ -349,7 +512,6 @@ export default function SidebarChefModal({
                     })()
                   )}
 
-                  {/* Extra rows added by user */}
                   {extraRows.map((extraRow, idx) => (
                     <div
                       key={extraRow.id}
@@ -366,7 +528,12 @@ export default function SidebarChefModal({
                         .
                       </div>
                       <div>
-                        <BaseSelect defaultValue="">
+                        <BaseSelect
+                          value={extraRow.partyId}
+                          onChange={(e) =>
+                            handleExtraRowChange(idx, "partyId", e.target.value)
+                          }
+                        >
                           <option value="">Select Name</option>
                           {contactNames.map((c) => (
                             <option key={c.id} value={c.id}>
@@ -376,7 +543,16 @@ export default function SidebarChefModal({
                         </BaseSelect>
                       </div>
                       <div>
-                        <BaseSelect defaultValue="">
+                        <BaseSelect
+                          value={extraRow.serviceType}
+                          onChange={(e) =>
+                            handleExtraRowChange(
+                              idx,
+                              "serviceType",
+                              e.target.value
+                            )
+                          }
+                        >
                           <option value="">Select Options</option>
                           <option>Counter Wise</option>
                           <option>Day Wise</option>
@@ -384,15 +560,64 @@ export default function SidebarChefModal({
                         </BaseSelect>
                       </div>
                       <div className="flex gap-2">
-                        <BaseInput type="number" placeholder="Counter" />
-                        <BaseInput type="number" placeholder="Helper" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Counter"
+                          value={extraRow.counterQuantity}
+                          onChange={(e) =>
+                            handleExtraRowChange(
+                              idx,
+                              "counterQuantity",
+                              e.target.value
+                            )
+                          }
+                        />
+                        <BaseInput
+                          type="number"
+                          placeholder="Helper"
+                          value={extraRow.helperQuantity}
+                          onChange={(e) =>
+                            handleExtraRowChange(
+                              idx,
+                              "helperQuantity",
+                              e.target.value
+                            )
+                          }
+                        />
                       </div>
                       <div className="flex gap-2">
-                        <BaseInput type="number" placeholder="Counter Price" />
-                        <BaseInput type="number" placeholder="Helper Price" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Counter Price"
+                          value={extraRow.counterPrice}
+                          onChange={(e) =>
+                            handleExtraRowChange(
+                              idx,
+                              "counterPrice",
+                              e.target.value
+                            )
+                          }
+                        />
+                        <BaseInput
+                          type="number"
+                          placeholder="Helper Price"
+                          value={extraRow.helperPrice}
+                          onChange={(e) =>
+                            handleExtraRowChange(
+                              idx,
+                              "helperPrice",
+                              e.target.value
+                            )
+                          }
+                        />
                       </div>
                       <div>
-                        <BaseInput type="number" placeholder="Total" />
+                        <BaseInput
+                          type="number"
+                          placeholder="Total"
+                          value={extraRow.totalPrice}
+                          readOnly
+                        />
                       </div>
                       <div className="flex items-center justify-center">
                         <button
@@ -416,12 +641,17 @@ export default function SidebarChefModal({
                   ))}
                 </div>
 
-                {/* Footer */}
                 <div className="flex items-center justify-between gap-2 mt-3">
-                  <button className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">
+                  <button
+                    className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={onClose}
+                  >
                     Cancel
                   </button>
-                  <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
+                  <button
+                    className="btn btn-sm btn-primary w-[100px] flex justify-center"
+                    onClick={handleSave}
+                  >
                     Save
                   </button>
                 </div>
