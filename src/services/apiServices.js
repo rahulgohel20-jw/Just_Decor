@@ -165,17 +165,16 @@ export const GetSuplier = (id) => {
   );
 };
 export const GetAllQuotation = (id) => {
-  return GET(`/quotation/getalluserid?userid=${id}`);
+  return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
-
 
 // Get All Supllier Vendors
 
 export const GetAllSupllierVendors = (Id) => {
-  return GET(`/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`);
+  return GET(
+    `/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`
+  );
 };
-
-
 
 //Raw Material Allocation
 export const GetAllRawMaterialAllocationCategory = (eventId) => {
@@ -186,9 +185,9 @@ export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
   return GET(
     `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
   );
-}
+};
 
-export const RawMaterialAllocation = (data) => {
+export const RawMaterialallocation = (data) => {
   return POST("/event-raw-material/add-update", data);
 };
 
@@ -262,6 +261,11 @@ export const UpdateEventMaster = (Id, data) => {
 //get event by id
 export const GetEventMasterById = (Id) => {
   return GET(`/eventmaster/getbyid?eventId=${Id}`);
+};
+export const GetMenuAllocation = (Id) => {
+  return GET(
+    `/menuallocation/getmenuallocation?eventFunctionId=2&eventId=${Id}`
+  );
 };
 //Delete event
 export const DeleteEventMaster = (Id) => {
@@ -668,7 +672,6 @@ export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
 
-
 // custome package get api
 export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
@@ -681,12 +684,12 @@ export const AddCustomPackageapi = (data) => {
 //cusrome package update api
 export const UpdateCustomPackageapi = (id, data) => {
   return PUT(`/custompackage/update?id=${id}`, data);
-}
+};
 
 //custome package delete api
 export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
-}
+};
 
 
 

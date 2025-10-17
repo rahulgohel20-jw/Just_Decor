@@ -21,6 +21,9 @@ const QuotationPage = () => {
   const classes = useStyles();
   const [quotationId, setQuotationId] = useState(null);
   const { eventId } = useParams();
+  const [billingName, setBillingName] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
+  const [dueDate, setDueDate] = useState(null);
   const todayDate = new Date().toLocaleDateString("en-GB");
   const [quotationData, setQuotationData] = useState({
     eventName: "",
@@ -81,6 +84,9 @@ const QuotationPage = () => {
             QuotationDate: quotationInfo.createdAt || todayDate,
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
+            billingname: quotationInfo.billingname || "",
+            gstnumber: quotationInfo.gstnumber || "",
+            duedate: quotationInfo.duedate || null,
             venueName: quotationInfo.event?.venue || "",
             mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
@@ -412,6 +418,9 @@ const QuotationPage = () => {
       roundOff: roundOff,
       totalAmount: totalPaid,
       userId: Id,
+      billingname: billingName,
+      duedate: dueDate ? dueDate.format("DD/MM/YYYY") : null,
+      gstnumber: gstNumber,
     };
   };
 
@@ -582,7 +591,7 @@ const QuotationPage = () => {
 
           {/* Event Details */}
           <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-            <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            <div className="flex items-center justify-between p-4 gap-3">
               <div className="flex flex-col gap-2.5">
                 <p className="text-lg font-semibold text-gray-900">
                   Event Name: {quotationData.eventName}
@@ -631,6 +640,47 @@ const QuotationPage = () => {
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.QuotationDate}
                       </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-user text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Billing Name:</span>
+                      <input
+                        className="input text-sm font-medium text-gray-900"
+                        type="text"
+                        value={billingName || quotationData.billingname}
+                        onChange={(e) => setBillingName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">GST Number:</span>
+                      <input
+                        className="input text-sm font-medium text-gray-900"
+                        type="text"
+                        value={gstNumber || quotationData.gstnumber}
+                        onChange={(e) => setGstNumber(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success"></i>
+                    <div className="flex flex-col">
+                      <span className="text-xs">Due Date:</span>
+                      <DatePicker
+                        format="DD/MM/YYYY"
+                        className="input w-full"
+                        value={
+                          dueDate ||
+                          (quotationData.duedate
+                            ? dayjs(quotationData.duedate, "DD/MM/YYYY")
+                            : null)
+                        }
+                        onChange={(date) => setDueDate(date)}
+                      />
                     </div>
                   </div>
                 </div>

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { 
-  GetAllSupllierVendors, 
+import {
+  GetAllSupllierVendors,
   GetAllRawMaterialAllocationItems,
-  RawMaterialAllocation
+  RawMaterialallocation,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
@@ -39,49 +39,75 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   // Fetch raw material items when categoryId or eventId changes
   useEffect(() => {
     if (categoryId && eventId) {
-      console.log("Fetching raw materials for categoryId:", categoryId, "eventId:", eventId);
+      console.log(
+        "Fetching raw materials for categoryId:",
+        categoryId,
+        "eventId:",
+        eventId
+      );
       fetchRawMaterialItems(categoryId, eventId);
     }
   }, [categoryId, eventId]);
 
   const fetchRawMaterialItems = async (categoryId, eventId) => {
-    setLoading(true);
-    setTableData([]);
-    setExpandedRows({});
-    try {
-      const response = await GetAllRawMaterialAllocationItems(categoryId, eventId);
-      console.log("Raw Material API Response:", response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]);
-      
-      if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
-        const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
-        if (Array.isArray(rawData)) {
-          setTableData(rawData);
-        } else {
-          console.error("API response is not an array:", rawData);
-          setTableData([]);
-        }
+  setLoading(true);
+  setTableData([]);
+  setExpandedRows({});
+  try {
+    const response = await GetAllRawMaterialAllocationItems(
+      categoryId,
+      eventId
+    );
+    console.log(
+      "Raw Material API Response:",
+      response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
+    );
+
+    if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
+      const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
+      if (Array.isArray(rawData)) {
+        // ✅ FIX: Ensure rawMaterialId is properly mapped
+        const mappedData = rawData.map(item => ({
+          ...item,
+          rawMaterialId: item.rawMaterialId || item.id || 0,
+          id: item.id,
+          supplierName: item.supplierName || "",
+          place: item.place || "",
+          finalQty: item.finalQty || item.final_qty || item.qty || 0,
+          qty: item.qty || 0,
+          totalprice: item.totalprice || 0,
+          unitId: item.unitId || 1,
+          eventRawMaterialFunctions: item.eventRawMaterialFunctions || []
+        }));
+        setTableData(mappedData);
       } else {
+        console.error("API response is not an array:", rawData);
         setTableData([]);
       }
-    } catch (error) {
-      console.error("Error fetching raw material items:", error);
+    } else {
       setTableData([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching raw material items:", error);
+    setTableData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const toggleExpand = (id) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const calculateTotalPrice = () => {
-    return tableData.reduce((total, item) => {
-      const qty = parseFloat(item.finalQty) || 0;
-      const pricePerUnit = parseFloat(item.totalprice) || 0;
-      const itemTotal = qty * pricePerUnit;
-      return total + itemTotal;
-    }, 0).toFixed(2);
+    return tableData
+      .reduce((total, item) => {
+        const qty = parseFloat(item.finalQty) || 0;
+        const pricePerUnit = parseFloat(item.totalprice) || 0;
+        const itemTotal = qty * pricePerUnit;
+        return total + itemTotal;
+      }, 0)
+      .toFixed(2);
   };
 
   const calculateRowTotal = (row) => {
@@ -92,34 +118,69 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
 
   // Helper function to get supplier ID by name
   const getSupplierIdByName = (supplierName) => {
-    if (!supplierName) return 0;
-    const agency = agencies.find(
-      (a) => (a.nameEnglish || a.name) === supplierName
-    );
-    return agency?.id || 0;
-  };
-
+  if (!supplierName || typeof supplierName !== 'string') return 0;
+  
+  const trimmedName = supplierName.trim();
+  if (!trimmedName) return 0;
+  
+  const agency = agencies.find(
+    (a) => {
+      const agencyName = (a.nameEnglish || a.name || '').trim();
+      return agencyName === trimmedName;
+    }
+  );
+  
+  return agency?.id || 0;
+};
   // Save function
   // Replace your handleSave function with this corrected version:
 
-const handleSave = async () => {
+ const handleSave = async () => {
   try {
     setSaving(true);
+
+    // Validate that we have data to save
+    if (!tableData || tableData.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Data",
+        text: "There are no raw materials to save.",
+      });
+      return;
+    }
+
+    // Validate eventId
+    if (!eventId) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Event ID",
+        text: "Event ID is required to save raw material allocation.",
+      });
+      return;
+    }
 
     // Transform tableData to match the API structure
     const eventRawMaterial = tableData.map((item) => {
       // Transform eventRawMaterialFunctions to eventRawMatFunctions
-      const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((func) => ({
-        eventFunctionId: func.eventFunctionId || 0,
-        functionId: func.functionId || 0,
-        functiondatetime: func.functiondatetime || "", // This is correct - from child row
-        itemName: func.itemName || "",
-        place: func.place || "",
-        price: parseFloat(func.price) || 0,
-        qty: parseFloat(func.qty) || 0,
-        supplierId: getSupplierIdByName(func.supplierName), // ✅ FIXED: Changed from func.supplierId to func.supplierName
-        unitId: func.unitId || 1
-      }));
+      const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map(
+        (func) => {
+          const supplierId = getSupplierIdByName(func.supplierName || "");
+          
+          return {
+            eventFunctionId: func.eventFunctionId || 0,
+            functionId: func.functionId || 0,
+            functiondatetime: func.functiondatetime || "",
+            itemName: func.itemName || "",
+            place: func.place || "",
+            price: parseFloat(func.price) || 0,
+            qty: parseFloat(func.qty) || 0,
+            supplierId: supplierId,
+            unitId: func.unitId || 1,
+          };
+        }
+      );
+
+      const supplierId = getSupplierIdByName(item.supplierName || "");
 
       return {
         eventRawMatFunctions: eventRawMatFunctions,
@@ -127,37 +188,59 @@ const handleSave = async () => {
         place: item.place || "",
         qty: parseFloat(item.qty) || 0,
         rawMaterialId: item.rawMaterialId || item.id || 0,
-        supplierId: getSupplierIdByName(item.supplierName), // ✅ FIXED: Changed from item.supplierId to item.supplierName
+        supplierId: supplierId,
         totalprice: parseFloat(item.totalprice) || 0,
-        unitId: item.unitId || 1
+        unitId: item.unitId || 1,
       };
     });
 
     const payload = {
-      eventId: eventId,
-      eventRawMaterial: eventRawMaterial
+      eventId: parseInt(eventId),
+      eventRawMaterial: eventRawMaterial,
     };
 
-    console.log("Payload to send:", JSON.stringify(payload, null, 2));
+    console.log("=== PAYLOAD TO SEND ===");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("======================");
 
     // Call the API
-    const response = await RawMaterialAllocation(payload);
-    
-    console.log("Save response:", response);
+    const response = await RawMaterialallocation(payload);
 
-    if (response?.data?.success || response?.status === 200) {
-      // Optionally refresh the data
-      fetchRawMaterialItems(categoryId, eventId);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Raw material allocation saved successfully!'
+    console.log("=== API RESPONSE ===");
+    console.log(response);
+    console.log("===================");
+
+    // Check for successful response
+    if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Raw material allocation saved successfully!",
       });
+      
+      // Refresh the data after successful save
+      await fetchRawMaterialItems(categoryId, eventId);
     } else {
-      toast.error("Failed to save raw material allocation");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: response?.data?.message || "Failed to save raw material allocation",
+      });
     }
   } catch (error) {
-    console.error("Error saving raw material allocation:", error);
+    console.error("=== ERROR SAVING ===");
+    console.error("Error object:", error);
+    console.error("Error response:", error?.response);
+    console.error("Error message:", error?.message);
+    console.error("==================");
+    
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error?.response?.data?.message || 
+            error?.message || 
+            "An error occurred while saving. Please try again.",
+    });
   } finally {
     setSaving(false);
   }
@@ -166,10 +249,12 @@ const handleSave = async () => {
     const updatedData = tableData.map((item) => ({
       ...item,
       supplierName: agencyName,
-      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map((func) => ({
-        ...func,
-        agency: agencyName
-      }))
+      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map(
+        (func) => ({
+          ...func,
+          agency: agencyName,
+        })
+      ),
     }));
     setTableData(updatedData);
   };
@@ -178,10 +263,12 @@ const handleSave = async () => {
     const updatedData = tableData.map((item) => ({
       ...item,
       place: placeName,
-      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map((func) => ({
-        ...func,
-        place: placeName
-      }))
+      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map(
+        (func) => ({
+          ...func,
+          place: placeName,
+        })
+      ),
     }));
     setTableData(updatedData);
   };
@@ -190,10 +277,12 @@ const handleSave = async () => {
     const updatedData = tableData.map((item) => ({
       ...item,
       date_time: dateTime,
-      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map((func) => ({
-        ...func,
-        date_time: dateTime
-      }))
+      eventRawMaterialFunctions: item.eventRawMaterialFunctions?.map(
+        (func) => ({
+          ...func,
+          date_time: dateTime,
+        })
+      ),
     }));
     setTableData(updatedData);
   };
@@ -203,7 +292,7 @@ const handleSave = async () => {
     if (updatedTableData[main_index].eventRawMaterialFunctions) {
       updatedTableData[main_index].eventRawMaterialFunctions[func_index] = {
         ...updatedTableData[main_index].eventRawMaterialFunctions[func_index],
-        [name]: value
+        [name]: value,
       };
       setTableData(updatedTableData);
     }
@@ -271,7 +360,10 @@ const handleSave = async () => {
         </div>
 
         {eventRawMaterialFunctions.map((func, index) => (
-          <div key={`${func.functionId}-${func.eventFunctionId}-${index}`} className="grid grid-cols-[150px_200px_200px_80px_120px_120px_160px_100px] border-b">
+          <div
+            key={`${func.functionId}-${func.eventFunctionId}-${index}`}
+            className="grid grid-cols-[150px_200px_200px_80px_120px_120px_160px_100px] border-b"
+          >
             <div className="mr-2 mb-2 font-medium text-gray-700">
               {func.functionName}
             </div>
@@ -279,47 +371,72 @@ const handleSave = async () => {
               {func.itemName}
             </div>
             <div className="mr-2 mb-2">
-              <select 
-  className="select" 
-  value={func.supplierName || ""}
-  onChange={(e) => handleFunctionChange(main_index, index, "supplierName", e.target.value)}
->
-  <option value="">Select Agency</option>
-  {loading && <option>Loading...</option>}
-  {!loading && agencies.length > 0
-    ? agencies.map((agency) => (
-        <option key={agency.id} value={agency.nameEnglish || agency.name}>
-          {agency.nameEnglish || agency.name}
-        </option>
-      ))
-    : !loading && <option>No agencies found</option>}
-</select>
+              <select
+                className="select"
+                value={func.supplierName || ""}
+                onChange={(e) =>
+                  handleFunctionChange(
+                    main_index,
+                    index,
+                    "supplierName",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="">Select Agency</option>
+                {loading && <option>Loading...</option>}
+                {!loading && agencies.length > 0
+                  ? agencies.map((agency) => (
+                      <option
+                        key={agency.id}
+                        value={agency.nameEnglish || agency.name}
+                      >
+                        {agency.nameEnglish || agency.name}
+                      </option>
+                    ))
+                  : !loading && <option>No agencies found</option>}
+              </select>
             </div>
             <div className="mr-2 mb-2">
-              <input 
-                type="number" 
-                className="input" 
+              <input
+                type="number"
+                className="input"
                 value={func.qty || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "qty", e.target.value)} 
+                onChange={(e) =>
+                  handleFunctionChange(main_index, index, "qty", e.target.value)
+                }
                 placeholder="Qty"
               />
             </div>
             <div className="mr-2 mb-2">
               <select
-               
-                className="select" 
+                className="select"
                 value={func.unitName || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "unitName", e.target.value)}
+                onChange={(e) =>
+                  handleFunctionChange(
+                    main_index,
+                    index,
+                    "unitName",
+                    e.target.value
+                  )
+                }
               >
                 <option value="Kilogram">Kilogram</option>
                 <option value="Gram">Gram</option>
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <select 
-                className="select" 
+              <select
+                className="select"
                 value={func.place || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "place", e.target.value)}
+                onChange={(e) =>
+                  handleFunctionChange(
+                    main_index,
+                    index,
+                    "place",
+                    e.target.value
+                  )
+                }
               >
                 <option value="">Select Place</option>
                 <option value="At Venue">At Venue</option>
@@ -327,19 +444,33 @@ const handleSave = async () => {
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <input 
-                type="datetime-local" 
-                className="input" 
+              <input
+                type="datetime-local"
+                className="input"
                 value={func.functiondatetime || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "functiondatetime", e.target.value)}
+                onChange={(e) =>
+                  handleFunctionChange(
+                    main_index,
+                    index,
+                    "functiondatetime",
+                    e.target.value
+                  )
+                }
               />
             </div>
             <div className="mr-2 mb-2">
-              <input 
-                type="number" 
-                className="input" 
+              <input
+                type="number"
+                className="input"
                 value={func.price || ""}
-                onChange={(e) => handleFunctionChange(main_index, index, "price", e.target.value)} 
+                onChange={(e) =>
+                  handleFunctionChange(
+                    main_index,
+                    index,
+                    "price",
+                    e.target.value
+                  )
+                }
                 placeholder="Price"
               />
             </div>
@@ -361,11 +492,14 @@ const handleSave = async () => {
         </div>
 
         {tableData.map((item, index) => (
-          <div key={index} className="grid grid-cols-[100px_200px_200px_150px_200px] border-b">
+          <div
+            key={index}
+            className="grid grid-cols-[100px_200px_200px_150px_200px] border-b"
+          >
             <div className="mr-2 ml-2 mb-2">{index + 1}</div>
             <div className="mr-2 mb-2">{item.rawMaterialNameEng}</div>
             <div className="mr-2 mb-2">
-              <select 
+              <select
                 className="select"
                 value={item.supplierName || ""}
                 onChange={(e) => handleRowAgencyChange(index, e.target.value)}
@@ -374,7 +508,10 @@ const handleSave = async () => {
                 {loading && <option>Loading...</option>}
                 {!loading && agencies.length > 0
                   ? agencies.map((agency) => (
-                      <option key={agency.id} value={agency.nameEnglish || agency.name}>
+                      <option
+                        key={agency.id}
+                        value={agency.nameEnglish || agency.name}
+                      >
                         {agency.nameEnglish || agency.name}
                       </option>
                     ))
@@ -382,8 +519,8 @@ const handleSave = async () => {
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <select 
-                className="select" 
+              <select
+                className="select"
                 value={item.place || ""}
                 onChange={(e) => handleRowPlaceChange(index, e.target.value)}
               >
@@ -393,11 +530,11 @@ const handleSave = async () => {
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <input 
-                type="datetime-local" 
-                className="input" 
+              <input
+                type="datetime-local"
+                className="input"
                 value={item.date_time || ""}
-                onChange={(e) => handleRowDateChange(index, e.target.value)} 
+                onChange={(e) => handleRowDateChange(index, e.target.value)}
               />
             </div>
           </div>
@@ -415,13 +552,18 @@ const handleSave = async () => {
             onClick={handleModalOpen}
             title="Agency, Place & Date Allocation"
           >
-            <i className="ki-filled ki-plus"></i> Agency, Place & Date Allocation 
+            <i className="ki-filled ki-plus"></i> Agency, Place & Date
+            Allocation
           </button>
         </div>
       </div>
-      <div className={'flex flex-col gap-1 w-full'}>
+      <div className={"flex flex-col gap-1 w-full"}>
         {/* Header */}
-        <div className={'flex items-center bg-gray-200 font-bold border-b border-gray-300 py-2'}>
+        <div
+          className={
+            "flex items-center bg-gray-200 font-bold border-b border-gray-300 py-2"
+          }
+        >
           <div className="px-2 w-13"></div>
           <div className="px-2 w-10">#</div>
           <div className="px-2 w-40">Raw Material</div>
@@ -441,67 +583,84 @@ const handleSave = async () => {
 
         {/* Empty State */}
         {!loading && tableData.length === 0 && (
-          <div className="text-center py-4 text-gray-500">No raw materials found for this category</div>
+          <div className="text-center py-4 text-gray-500">
+            No raw materials found for this category
+          </div>
         )}
 
         {/* Data Rows */}
-        {!loading && tableData.length > 0 && tableData.map((row, index) => (
-          <>
-            <div className={'flex items-center border-b border-gray-300 py-2'} key={row.id || index}>
+        {!loading &&
+          tableData.length > 0 &&
+          tableData.map((row, index) => (
+            <>
               <div
-                className="px-2 w-13 cursor-pointer flex justify-center"
-                onClick={() => toggleExpand(row.id || index)}
+                className={"flex items-center border-b border-gray-300 py-2"}
+                key={row.id || index}
               >
-                {expandedRows[row.id || index] ? (
-                  <ChevronUp className="w-5 h-5 text-gray-600" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-600" />
-                )}
+                <div
+                  className="px-2 w-13 cursor-pointer flex justify-center"
+                  onClick={() => toggleExpand(row.id || index)}
+                >
+                  {expandedRows[row.id || index] ? (
+                    <ChevronUp className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  )}
+                </div>
+                <div className="px-2 w-10">{index + 1}</div>
+                <div className="px-2 w-40">{row.rawMaterialNameEng}</div>
+                <div className="px-2 w-28">{row.qty}</div>
+                <div className="px-2 w-28">
+                  <input
+                    type="number"
+                    className="input"
+                    value={
+                      row.finalQty !== undefined && row.finalQty !== null
+                        ? row.finalQty
+                        : ""
+                    }
+                    onChange={(e) =>
+                      handleFinalQtyChange(index, e.target.value)
+                    }
+                  />
+                </div>
+                <div className="px-2 w-40">
+                  <select className="select pe-7.5" defaultValue={row.unitId}>
+                    <option>Kilogram</option>
+                    <option>Gram</option>
+                  </select>
+                </div>
+                <div className="px-2 w-40">
+                  {row.supplierName || "Not Assigned"}
+                </div>
+                <div className="px-2 w-40">{row.place || "Not Assigned"}</div>
+                <div className="px-2 w-35">
+                  <input
+                    type="number"
+                    className="input"
+                    value={
+                      row.totalprice !== undefined && row.totalprice !== null
+                        ? row.totalprice
+                        : ""
+                    }
+                    onChange={(e) =>
+                      handleTotalPriceChange(index, e.target.value)
+                    }
+                    placeholder="Price/Unit"
+                  />
+                </div>
+                <div className="px-2 w-35 font-semibold">
+                  ₹{calculateRowTotal(row)}
+                </div>
               </div>
-              <div className="px-2 w-10">{index + 1}</div>
-              <div className="px-2 w-40">{row.rawMaterialNameEng}</div>
-              <div className="px-2 w-28">{row.qty}</div>
-              <div className="px-2 w-28">
-                <input 
-                  type="number" 
-                  className="input" 
-                  value={row.finalQty !== undefined && row.finalQty !== null ? row.finalQty : ''} 
-                  onChange={(e) => handleFinalQtyChange(index, e.target.value)}
-                />
-              </div>
-              <div className="px-2 w-40">
-                <select className="select pe-7.5" defaultValue={row.unitId}>
-                  <option>Kilogram</option>
-                  <option>Gram</option>
-                </select>
-              </div>
-              <div className="px-2 w-40">
-                {row.supplierName || "Not Assigned"}
-              </div>
-              <div className="px-2 w-40">
-                {row.place || "Not Assigned"}
-              </div>
-              <div className="px-2 w-35">
-                <input 
-                  type="number" 
-                  className="input" 
-                  value={row.totalprice !== undefined && row.totalprice !== null ? row.totalprice : ''} 
-                  onChange={(e) => handleTotalPriceChange(index, e.target.value)}
-                  placeholder="Price/Unit"
-                />
-              </div>
-              <div className="px-2 w-35 font-semibold">
-                ₹{calculateRowTotal(row)}
-              </div>
-            </div>
-            {/* Expanded Details - Show Functions */}
-            {expandedRows[row.id || index] && (
-              <div className="bg-gray-50 text-sm px-4 py-2 mt-4 border-t border-gray-200">
-                {expanChildData(row.eventRawMaterialFunctions, index)}
-              </div>
-            )}
-          </>
-        ))}
+              {/* Expanded Details - Show Functions */}
+              {expandedRows[row.id || index] && (
+                <div className="bg-gray-50 text-sm px-4 py-2 mt-4 border-t border-gray-200">
+                  {expanChildData(row.eventRawMaterialFunctions, index)}
+                </div>
+              )}
+            </>
+          ))}
       </div>
       {/* Total Price and save button*/}
       {!loading && tableData.length > 0 && (

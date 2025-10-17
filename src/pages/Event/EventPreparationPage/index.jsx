@@ -1,7 +1,7 @@
 import { useState, useReducer, useEffect, Fragment } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Eye, EyeOff, Mic, PanelLeftOpen } from "lucide-react";
+import { Eye, EyeOff, Mic } from "lucide-react";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
@@ -15,7 +15,7 @@ import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
-import { Layers, Package } from 'lucide-react';
+import { Layers, Package } from "lucide-react";
 import {
   useEventData,
   useCategories,
@@ -36,19 +36,13 @@ const EventPreparationPage = () => {
     endDateandtime,
     fetchEventData,
   } = useEventData();
-  useEffect(() => {
-    console.log("menuPreparationsTabs changed:", menuPreparationsTabs);
-  }, [menuPreparationsTabs]);
-
-  useEffect(() => {
-    console.log("Event Data Loaded:", eventAllData);
-  }, [eventAllData]);
 
   const { categories, categoriesWithAll, fetchCategories } = useCategories();
   const {
     functionMenuData,
     allMenuItems,
     menuPreparationIds,
+    itemSortOrders,
     loading,
     loadFunctionMenuData,
     loadAllMenuDataForFunction,
@@ -69,8 +63,10 @@ const EventPreparationPage = () => {
   const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
-  const [activeTab, setActiveTab] = useState('custom');
+  const [activeTab, setActiveTab] = useState("custom");
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
+  const [orderedCategoryIds, setOrderedCategoryIds] = useState([]);
+
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
     itemSlogan: "",
@@ -88,97 +84,94 @@ const EventPreparationPage = () => {
     startDateandtime,
     endDateandtime,
     clearFunctionCache,
-    loadFunctionMenuData
+    loadFunctionMenuData,
+    dispatch
   );
 
-// Add this updated handlePackageSelect function to your EventPreparationPage component
+  const handlePackageSelect = (packageItems) => {
+    if (!selectedFunctionId) return;
+    const itemsByCategory = {};
+    packageItems.forEach((item) => {
+      const categoryName =
+        item.categoryName || item.menuName || "Custom Package Items";
+      if (!itemsByCategory[categoryName]) {
+        itemsByCategory[categoryName] = [];
+      }
+      itemsByCategory[categoryName].push(item);
+    });
+    const processedItems = packageItems.map((item) => {
+      const categoryName =
+        item.categoryName || item.menuName || "Custom Package Items";
+      let category = categories.find((cat) => cat.name === categoryName);
+      const categoryId =
+        category?.id ||
+        `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+      return {
+        ...item,
+        id: item.id || `pkg-${Date.now()}-${Math.random()}`,
+        parentId: categoryId,
+        image: item.image,
+        price: item.price || 0,
+        itemNotes: item.instruction || item.itemNotes || "",
+      };
+    });
 
-const handlePackageSelect = (packageItems) => {
-  if (!selectedFunctionId) return;
-
-  // Group items by their menu category
-  const itemsByCategory = {};
-  packageItems.forEach(item => {
-    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
-    if (!itemsByCategory[categoryName]) {
-      itemsByCategory[categoryName] = [];
-    }
-    itemsByCategory[categoryName].push(item);
-  });
-
-  // Find or create category IDs for package items
-  const processedItems = packageItems.map(item => {
-    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
-    
-    // Try to find existing category
-    let category = categories.find(cat => cat.name === categoryName);
-    
-    // If category doesn't exist, we'll use a temporary ID
-    const categoryId = category?.id || `temp-${categoryName.replace(/\s+/g, '-').toLowerCase()}`;
-    
-    return {
-      ...item,
-      id: item.id || `pkg-${Date.now()}-${Math.random()}`,
-      parentId: categoryId,
-      image: item.image , // Add placeholder image if not provided
-      price: item.price || 0,
-      itemNotes: item.instruction || item.itemNotes || "",
+    const updatedAllMenuItems = {
+      ...allMenuItems,
+      [selectedFunctionId]: [
+        ...(allMenuItems[selectedFunctionId] || []),
+        ...processedItems.filter(
+          (newItem) =>
+            !(allMenuItems[selectedFunctionId] || []).some(
+              (existingItem) => existingItem.name === newItem.name
+            )
+        ),
+      ],
     };
-  });
 
-  // Add processed items to allMenuItems for the current function
-  const updatedAllMenuItems = {
-    ...allMenuItems,
-    [selectedFunctionId]: [
-      ...(allMenuItems[selectedFunctionId] || []),
-      ...processedItems.filter(newItem => 
-        !(allMenuItems[selectedFunctionId] || []).some(existingItem => 
-          existingItem.name === newItem.name
-        )
-      )
-    ]
+    setAllMenuItems(updatedAllMenuItems);
+
+    // Extract item IDs
+    const newItemIds = processedItems.map((item) => item.id);
+
+    // Dispatch to update the reducer
+    dispatch({
+      type: "UPDATE_SELECTIONS",
+      functionId: selectedFunctionId,
+      selectedItems: [
+        ...(functionSelectionData[selectedFunctionId]?.selectedItems || []),
+        ...newItemIds.filter(
+          (id) =>
+            !(
+              functionSelectionData[selectedFunctionId]?.selectedItems || []
+            ).includes(id)
+        ),
+      ],
+      itemNotes: {
+        ...functionSelectionData[selectedFunctionId]?.itemNotes,
+        ...processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemNotes || item.instruction || "";
+          return acc;
+        }, {}),
+      },
+      itemSortOrders: {},
+      itemSlogans: {
+        ...functionSelectionData[selectedFunctionId]?.itemSlogans,
+        ...processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemSlogan || "";
+          return acc;
+        }, {}),
+      },
+      itemRates: {
+        ...functionSelectionData[selectedFunctionId]?.itemRates,
+        ...processedItems.reduce((acc, item) => {
+          acc[item.id] = item.price || rate || 0;
+          return acc;
+        }, {}),
+      },
+      isSaved: false,
+    });
   };
-
-  setAllMenuItems(updatedAllMenuItems);
-
-  // Extract item IDs
-  const newItemIds = processedItems.map(item => item.id);
-
-  // Dispatch to update the reducer
-  dispatch({
-    type: "UPDATE_SELECTIONS",
-    functionId: selectedFunctionId,
-    selectedItems: [
-      ...(functionSelectionData[selectedFunctionId]?.selectedItems || []),
-      ...newItemIds.filter(id => 
-        !(functionSelectionData[selectedFunctionId]?.selectedItems || []).includes(id)
-      )
-    ],
-    itemNotes: {
-      ...functionSelectionData[selectedFunctionId]?.itemNotes,
-      ...processedItems.reduce((acc, item) => {
-        acc[item.id] = item.itemNotes || item.instruction || "";
-        return acc;
-      }, {}),
-    },
-    itemSlogans: {
-      ...functionSelectionData[selectedFunctionId]?.itemSlogans,
-      ...processedItems.reduce((acc, item) => {
-        acc[item.id] = item.itemSlogan || "";
-        return acc;
-      }, {}),
-    },
-    itemRates: {
-      ...functionSelectionData[selectedFunctionId]?.itemRates,
-      ...processedItems.reduce((acc, item) => {
-        acc[item.id] = item.price || rate || 0;
-        return acc;
-      }, {}),
-    },
-    isSaved: false,
-  });
-};
-
 
   useEffect(() => {
     initializeData();
@@ -200,7 +193,6 @@ const handlePackageSelect = (packageItems) => {
             rate: fn.rate,
           });
         });
-        console.log(eventData, "rate");
 
         const firstFnId = eventData.functions[0].id;
         setSelectedFunctionId(firstFnId);
@@ -241,6 +233,7 @@ const handlePackageSelect = (packageItems) => {
               acc[item.menuItemId] = item.itemPrice || 0;
               return acc;
             }, {}),
+            itemSortOrders: responseData.sortOrderMap || {},
             isSaved: true,
             pax:
               responseData.responseData?.menuPreparation?.pax ||
@@ -255,96 +248,12 @@ const handlePackageSelect = (packageItems) => {
       console.error("Error initializing data:", error);
     }
   };
-
-  const handleTabChange = async (newFunctionId) => {
-    if (selectedFunctionId === newFunctionId) return;
-
-    try {
-      setSelectedFunctionId(newFunctionId);
-      const selectedFunction = eventAllData[0]?.eventFunctions?.find(
-        (fn) => fn.id === newFunctionId
-      );
-
-      if (selectedFunction) {
-        setPax(selectedFunction.pax || 0);
-        setRate(selectedFunction.rate || 0);
-      }
-
-      if (!allMenuItems[newFunctionId]) {
-        await loadAllMenuDataForFunction(newFunctionId, categories);
-      }
-
-      const responseData = await loadFunctionMenuData(
-        newFunctionId,
-        selectedCategoryId,
-        categories
-      );
-
-      // Load existing selections if any
-      if (
-        responseData.selectedItems?.length > 0 &&
-        !functionSelectionData[newFunctionId]?.selectedItems?.length
-      ) {
-        dispatch({
-          type: "UPDATE_SELECTIONS",
-          functionId: newFunctionId,
-          selectedItems: responseData.selectedItems.map(
-            (item) => item.menuItemId
-          ),
-          itemNotes: responseData.selectedItems.reduce((acc, item) => {
-            acc[item.menuItemId] = item.itemNotes || "";
-            return acc;
-          }, {}),
-          itemSlogans: responseData.selectedItems.reduce((acc, item) => {
-            acc[item.menuItemId] = item.itemSlogan || "";
-            return acc;
-          }, {}),
-          itemRates: responseData.selectedItems.reduce((acc, item) => {
-            acc[item.menuItemId] = item.itemPrice || 0;
-            return acc;
-          }, {}),
-          isSaved: true,
-        });
-      }
-    } catch (error) {
-      console.error("Error in handleTabChange:", error);
-    }
-  };
-
   const handleCategoryChange = async (categoryId) => {
     setSelectedCategoryId(categoryId);
     if (selectedFunctionId) {
       await loadFunctionMenuData(selectedFunctionId, categoryId, categories);
     }
   };
-
-  const handleCategoryOrderChange = (fromCategoryId, toCategoryId) => {
-    console.log("Reordering categories:", {
-      fromCategoryId,
-      toCategoryId,
-      selectedFunctionId,
-    });
-
-    // Update the category order in the reducer
-    dispatch({
-      type: "UPDATE_CATEGORY_ORDER",
-      functionId: selectedFunctionId,
-      fromCategoryId: fromCategoryId,
-      toCategoryId: toCategoryId,
-    });
-
-    // You can also implement API call here to save the category order
-    // For now, just marking as unsaved so user knows to save the changes
-    if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
-      dispatch({
-        type: "UPDATE_NOTES",
-        functionId: selectedFunctionId,
-        noteType: "isSaved",
-        value: false,
-      });
-    }
-  };
-
   const handleSave = async () => {
     const success = await saveMenu(
       selectedFunctionId,
@@ -356,7 +265,6 @@ const handlePackageSelect = (packageItems) => {
       dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
     }
   };
-
   const toggleChildSelection = (id) => {
     dispatch({
       type: "TOGGLE_ITEM_SELECTION",
@@ -364,7 +272,6 @@ const handlePackageSelect = (packageItems) => {
       itemId: id,
     });
   };
-
   const handleItemRateChange = (id, value) => {
     dispatch({
       type: "UPDATE_ITEM_RATE",
@@ -373,7 +280,6 @@ const handlePackageSelect = (packageItems) => {
       rate: value,
     });
   };
-
   const handlePaxChange = (newPax) => {
     setPax(newPax);
     if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
@@ -385,7 +291,6 @@ const handlePackageSelect = (packageItems) => {
       });
     }
   };
-
   const handleRateChange = (newRate) => {
     setRate(newRate);
     if (functionSelectionData[selectedFunctionId]?.selectedItems?.length > 0) {
@@ -397,7 +302,6 @@ const handlePackageSelect = (packageItems) => {
       });
     }
   };
-
   const handleNoteSave = (savedNotes) => {
     if (currentItemForNotes) {
       dispatch({
@@ -419,7 +323,6 @@ const handlePackageSelect = (packageItems) => {
     setShowNoteModal(false);
     setCurrentItemForNotes(null);
   };
-
   const handleCategoryNoteSave = (savedNotes) => {
     if (currentCategoryForNotes !== null) {
       dispatch({
@@ -441,15 +344,7 @@ const handlePackageSelect = (packageItems) => {
     setShowCategoryNoteModal(false);
     setCurrentCategoryForNotes(null);
   };
-
   const handleItemCategoryChange = (itemId, newCategoryId, newCategoryName) => {
-    console.log("handleItemCategoryChange called:", {
-      itemId,
-      newCategoryId,
-      newCategoryName,
-      selectedFunctionId,
-    });
-
     dispatch({
       type: "UPDATE_ITEM_CATEGORY",
       functionId: selectedFunctionId,
@@ -467,7 +362,6 @@ const handlePackageSelect = (packageItems) => {
 
     setAllMenuItems(updatedAllMenuItems);
   };
-
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
@@ -475,12 +369,10 @@ const handlePackageSelect = (packageItems) => {
     itemNotes: {},
     itemRates: {},
   };
-
   const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
     ...item,
     isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
   }));
-
   const calculateTotalPrice = () => {
     if (!currentFunctionData.selectedItems) return 0;
     const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
@@ -497,46 +389,51 @@ const handlePackageSelect = (packageItems) => {
       return sum + itemRate;
     }, 0);
   };
+  const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+  const selectedItems = currentFunctionData.selectedItems
+    .map((id) => {
+      const item = allFunctionMenuItems.find((menuItem) => menuItem.id === id);
+      return item;
+    })
+    .filter(Boolean);
 
- const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-const selectedItems = currentFunctionData.selectedItems
-  .map((id) => {
-    const item = allFunctionMenuItems.find((menuItem) => menuItem.id === id);
-    return item;
-  })
-  .filter(Boolean);
+  const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
+    const category = categories.find((cat) => cat.id === item.parentId);
+    let categoryName;
+    if (category) {
+      categoryName = category.name;
+    } else if (item.categoryName) {
+      categoryName = item.categoryName;
+    } else if (item.menuName) {
+      categoryName = item.menuName;
+    } else if (
+      typeof item.parentId === "string" &&
+      item.parentId.startsWith("temp-")
+    ) {
+      categoryName = item.parentId
+        .replace("temp-", "")
+        .replace(/-/g, " ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    } else {
+      categoryName = "Uncategorized";
+    }
 
-console.log("Selected Items:", selectedItems); // Debug log
-console.log("All Function Menu Items:", allFunctionMenuItems); // Debug log
-
-const selectedItemsByCategory = selectedItems.reduce((acc, item) => {
-  const category = categories.find((cat) => cat.id === item.parentId);
-  
-  // ✅ Handle both real categories and temporary package categories
-  let categoryName;
-  if (category) {
-    categoryName = category.name;
-  } else if (item.categoryName) {
-    categoryName = item.categoryName;
-  } else if (item.menuName) {
-    categoryName = item.menuName;
-  } else if (typeof item.parentId === 'string' && item.parentId.startsWith('temp-')) {
-    categoryName = item.parentId.replace('temp-', '').replace(/-/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  } else {
-    categoryName = "Uncategorized";
-  }
-  
-  if (!acc[categoryName]) {
-    acc[categoryName] = [];
-  }
-  acc[categoryName].push(item);
-  return acc;
-}, {});
-
-console.log("Selected Items By Category:", selectedItemsByCategory); // Debug log
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push(item);
+    return acc;
+  }, {});
+  const handleCategoryOrderUpdate = (newOrder) => {
+    setOrderedCategoryIds(newOrder);
+    dispatch({
+      type: "UPDATE_CATEGORY_ORDER",
+      functionId: selectedFunctionId,
+      newOrder: newOrder,
+    });
+  };
 
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
 
@@ -688,59 +585,54 @@ console.log("Selected Items By Category:", selectedItemsByCategory); // Debug lo
                   </div>
                 </div>
               </div>
-{/* custometab */}
-  <div className=" ">
-      <div className="max-w-lg mx-auto flex justify-center">
-  <div className="flex gap-2 bg-white p-1.5 rounded-full shadow-sm w-fit">
-    {/* Custom Tab */}
-    <button
-      onClick={() => setActiveTab('custom')}
-      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
-        activeTab === 'custom'
-          ? 'bg-blue-600 text-white shadow-md'
-          : 'bg-transparent text-gray-600 hover:bg-gray-50'
-      }`}
-    >
-      <Layers className="w-4 h-4" />
-      <span className="font-medium">Custom</span>
-    </button>
+              {/* custometab */}
+              <div className=" ">
+                <div className="max-w-lg mx-auto flex justify-center">
+                  <div className="flex gap-2 bg-white p-1.5 rounded-full shadow-sm w-fit">
+                    {/* Custom Tab */}
+                    <button
+                      onClick={() => setActiveTab("custom")}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
+                        activeTab === "custom"
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-transparent text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Layers className="w-4 h-4" />
+                      <span className="font-medium">Custom</span>
+                    </button>
 
-    {/* Custom Package Tab */}
-   <button
-  onClick={() => setShowCustomPackageModal(true)}
-  className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
-    showCustomPackageModal
-      ? 'bg-blue-600 text-white shadow-md'
-      : 'bg-transparent text-gray-600 hover:bg-gray-50'
-  }`}
->
-  <Package className="w-4 h-4" />
-  <span className="font-medium">Custom Package</span>
-</button>
+                    {/* Custom Package Tab */}
+                    <button
+                      onClick={() => setShowCustomPackageModal(true)}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 text-sm ${
+                        showCustomPackageModal
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-transparent text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Package className="w-4 h-4" />
+                      <span className="font-medium">Custom Package</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <CustomPackageModal
+                isOpen={showCustomPackageModal}
+                onClose={() => setShowCustomPackageModal(false)}
+                userId={1}
+                onPackageSelect={handlePackageSelect}
+              />
 
-  </div>
-</div>
-    </div>
-  <CustomPackageModal
-  isOpen={showCustomPackageModal}
-  onClose={() => setShowCustomPackageModal(false)}
-  userId={1}
-  onPackageSelect={handlePackageSelect} // ✅ Just pass the function
-/>
-
-
-              {/* Tabs */}
               <div
                 className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
               >
                 <TabComponent tabs={menuPreparationsTabs} />
               </div>
 
-              {/* Main Content */}
               <div
                 className={`grid grid-cols-1 lg:grid-cols-9 ${classes.customStyle}`}
               >
-                {/* Categories */}
                 <div className="col-span-3">
                   <div className="h-full lg:border-e lg:border-e-border">
                     <div className="border-b p-3 rounded-t-lg sg__inner relative w-full">
@@ -825,14 +717,12 @@ console.log("Selected Items By Category:", selectedItemsByCategory); // Debug lo
                     </Tooltip>
                   </div>
                 </div>
-             
 
-  
                 <div className="flex-1 p-3 pr-2  h-auto overflow-auto  ">
-                  
                   <SelectedItemsList
                     rate={rate}
                     selectedItemsByCategory={selectedItemsByCategory}
+                    itemSortOrders={itemSortOrders[selectedFunctionId] || {}}
                     showDetails={showDetails}
                     currentFunctionData={currentFunctionData}
                     categories={categories}
@@ -860,7 +750,8 @@ console.log("Selected Items By Category:", selectedItemsByCategory); // Debug lo
                     }}
                     onRemoveItem={toggleChildSelection}
                     onItemCategoryChange={handleItemCategoryChange}
-                    onCategoryOrderChange={handleCategoryOrderChange} // Add this line
+                    onCategoryOrderChange={handleCategoryOrderUpdate}
+                    orderedCategoryIds={orderedCategoryIds}
                   />
                 </div>
                 <div className="p-3 border-t flex items-center justify-between gap-4">

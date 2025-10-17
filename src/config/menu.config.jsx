@@ -43,19 +43,19 @@ export const MENU_SIDEBAR = [
       },
 
       {
-        title: "Function Type Master",
+        title: "Function Type",
         path: "/master/functions",
       },
       {
-        title: "Meal Type Master",
+        title: "Meal Type",
         path: "/master/meals",
       },
       {
-        title: "Event Type Master",
+        title: "Event Type",
         path: "/master/event-type",
       },
       {
-        title: "Unit Master",
+        title: "Unit ",
         path: "/master/unit",
       },
       {
@@ -63,7 +63,7 @@ export const MENU_SIDEBAR = [
         path: "/master/custom-package",
       },
       {
-        title: "Member Master",
+        title: "Member",
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
           {
@@ -221,20 +221,16 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-badge text-primary",
     children: [
       {
-        title: "Raw Material Category Master",
-        path: "/master/raw-material-master",
-      },
-      {
-        title: "Raw Material Type Master",
+        title: "Raw Material Type",
         path: "/master/raw-material-type-master",
       },
       {
-        title: "Raw Material Master",
-        path: "/master/raw-material",
+        title: "Raw Material Category",
+        path: "/master/raw-material-master",
       },
       {
-        title: "Raw Material Allocation",
-        path: "/raw-material-allocation",
+        title: "Raw Material",
+        path: "/master/raw-material",
       },
     ],
   },
@@ -244,12 +240,12 @@ export const MENU_SIDEBAR = [
     icon: "ki-filled ki-additem text-primary",
     children: [
       {
-        title: "Menu Item Category",
-        path: "/master/menu-category",
-      },
-      {
         title: "Menu Item Sub Category",
         path: "/master/menu-sub-category",
+      },
+      {
+        title: "Menu Item Category",
+        path: "/master/menu-category",
       },
       {
         title: "Kitchen Area",

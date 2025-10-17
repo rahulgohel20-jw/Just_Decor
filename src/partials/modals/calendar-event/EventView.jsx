@@ -175,17 +175,18 @@ const EventViewModal = ({
               {
                 label: "Menu Allocation",
                 icon: "/media/eventviewicon/menuallocation.png",
-                onClick: () => navigate(`/menu-allocation`),
+                onClick: () => navigate(`/menu-allocation/${safeEventId}`),
               },
               {
                 label: "Raw Material Allocation",
                 icon: "/media/eventviewicon/rawmaterial.png",
-                onClick: () => navigate("/raw-material-allocation", {
-                  state: {
-                    eventId: safeEventId,
-                    eventTypeId: eventTypeId
-                  }
-                }),
+                onClick: () =>
+                  navigate("/raw-material-allocation", {
+                    state: {
+                      eventId: safeEventId,
+                      eventTypeId: eventTypeId,
+                    },
+                  }),
               },
               {
                 label: "Labour / Other Management",
