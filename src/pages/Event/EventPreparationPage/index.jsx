@@ -80,7 +80,13 @@ const EventPreparationPage = () => {
     categoryNotes: "",
     categorySlogan: "",
   });
-const userId = Number(localStorage.getItem("userId")) || null;
+const userDataRaw = localStorage.getItem("userData");
+const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
+
+console.log("User ID from localStorage:", userId);
+console.log("User ID from localStorage:", userId);
+console.log(localStorage);
+
 
 
   const { saveMenu } = useSaveMenu(
