@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   GetAllSupllierVendors,
   GetAllRawMaterialAllocationItems,
-  RawMaterialAllocation,
+  RawMaterialallocation,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
@@ -50,37 +50,50 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   }, [categoryId, eventId]);
 
   const fetchRawMaterialItems = async (categoryId, eventId) => {
-    setLoading(true);
-    setTableData([]);
-    setExpandedRows({});
-    try {
-      const response = await GetAllRawMaterialAllocationItems(
-        categoryId,
-        eventId
-      );
-      console.log(
-        "Raw Material API Response:",
-        response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
-      );
+  setLoading(true);
+  setTableData([]);
+  setExpandedRows({});
+  try {
+    const response = await GetAllRawMaterialAllocationItems(
+      categoryId,
+      eventId
+    );
+    console.log(
+      "Raw Material API Response:",
+      response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
+    );
 
-      if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
-        const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
-        if (Array.isArray(rawData)) {
-          setTableData(rawData);
-        } else {
-          console.error("API response is not an array:", rawData);
-          setTableData([]);
-        }
+    if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
+      const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
+      if (Array.isArray(rawData)) {
+        // ✅ FIX: Ensure rawMaterialId is properly mapped
+        const mappedData = rawData.map(item => ({
+          ...item,
+          rawMaterialId: item.rawMaterialId || item.id || 0,
+          id: item.id,
+          supplierName: item.supplierName || "",
+          place: item.place || "",
+          finalQty: item.finalQty || item.final_qty || item.qty || 0,
+          qty: item.qty || 0,
+          totalprice: item.totalprice || 0,
+          unitId: item.unitId || 1,
+          eventRawMaterialFunctions: item.eventRawMaterialFunctions || []
+        }));
+        setTableData(mappedData);
       } else {
+        console.error("API response is not an array:", rawData);
         setTableData([]);
       }
-    } catch (error) {
-      console.error("Error fetching raw material items:", error);
+    } else {
       setTableData([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching raw material items:", error);
+    setTableData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const toggleExpand = (id) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -105,78 +118,133 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
 
   // Helper function to get supplier ID by name
   const getSupplierIdByName = (supplierName) => {
-    if (!supplierName) return 0;
-    const agency = agencies.find(
-      (a) => (a.nameEnglish || a.name) === supplierName
-    );
-    return agency?.id || 0;
-  };
-
+  if (!supplierName || typeof supplierName !== 'string') return 0;
+  
+  const trimmedName = supplierName.trim();
+  if (!trimmedName) return 0;
+  
+  const agency = agencies.find(
+    (a) => {
+      const agencyName = (a.nameEnglish || a.name || '').trim();
+      return agencyName === trimmedName;
+    }
+  );
+  
+  return agency?.id || 0;
+};
   // Save function
   // Replace your handleSave function with this corrected version:
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
+ const handleSave = async () => {
+  try {
+    setSaving(true);
 
-      // Transform tableData to match the API structure
-      const eventRawMaterial = tableData.map((item) => {
-        // Transform eventRawMaterialFunctions to eventRawMatFunctions
-        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map(
-          (func) => ({
+    // Validate that we have data to save
+    if (!tableData || tableData.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Data",
+        text: "There are no raw materials to save.",
+      });
+      return;
+    }
+
+    // Validate eventId
+    if (!eventId) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Event ID",
+        text: "Event ID is required to save raw material allocation.",
+      });
+      return;
+    }
+
+    // Transform tableData to match the API structure
+    const eventRawMaterial = tableData.map((item) => {
+      // Transform eventRawMaterialFunctions to eventRawMatFunctions
+      const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map(
+        (func) => {
+          const supplierId = getSupplierIdByName(func.supplierName || "");
+          
+          return {
             eventFunctionId: func.eventFunctionId || 0,
             functionId: func.functionId || 0,
-            functiondatetime: func.functiondatetime || "", // This is correct - from child row
+            functiondatetime: func.functiondatetime || "",
             itemName: func.itemName || "",
             place: func.place || "",
             price: parseFloat(func.price) || 0,
             qty: parseFloat(func.qty) || 0,
-            supplierId: getSupplierIdByName(func.supplierName), // ✅ FIXED: Changed from func.supplierId to func.supplierName
+            supplierId: supplierId,
             unitId: func.unitId || 1,
-          })
-        );
+          };
+        }
+      );
 
-        return {
-          eventRawMatFunctions: eventRawMatFunctions,
-          finalQty: parseFloat(item.finalQty) || 0,
-          place: item.place || "",
-          qty: parseFloat(item.qty) || 0,
-          rawMaterialId: item.rawMaterialId || item.id || 0,
-          supplierId: getSupplierIdByName(item.supplierName), // ✅ FIXED: Changed from item.supplierId to item.supplierName
-          totalprice: parseFloat(item.totalprice) || 0,
-          unitId: item.unitId || 1,
-        };
-      });
+      const supplierId = getSupplierIdByName(item.supplierName || "");
 
-      const payload = {
-        eventId: eventId,
-        eventRawMaterial: eventRawMaterial,
+      return {
+        eventRawMatFunctions: eventRawMatFunctions,
+        finalQty: parseFloat(item.finalQty) || 0,
+        place: item.place || "",
+        qty: parseFloat(item.qty) || 0,
+        rawMaterialId: item.rawMaterialId || item.id || 0,
+        supplierId: supplierId,
+        totalprice: parseFloat(item.totalprice) || 0,
+        unitId: item.unitId || 1,
       };
+    });
 
-      console.log("Payload to send:", JSON.stringify(payload, null, 2));
+    const payload = {
+      eventId: parseInt(eventId),
+      eventRawMaterial: eventRawMaterial,
+    };
 
-      // Call the API
-      const response = await RawMaterialAllocation(payload);
+    console.log("=== PAYLOAD TO SEND ===");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("======================");
 
-      console.log("Save response:", response);
+    // Call the API
+    const response = await RawMaterialallocation(payload);
 
-      if (response?.data?.success || response?.status === 200) {
-        // Optionally refresh the data
-        fetchRawMaterialItems(categoryId, eventId);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Raw material allocation saved successfully!",
-        });
-      } else {
-        toast.error("Failed to save raw material allocation");
-      }
-    } catch (error) {
-      console.error("Error saving raw material allocation:", error);
-    } finally {
-      setSaving(false);
+    console.log("=== API RESPONSE ===");
+    console.log(response);
+    console.log("===================");
+
+    // Check for successful response
+    if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Raw material allocation saved successfully!",
+      });
+      
+      // Refresh the data after successful save
+      await fetchRawMaterialItems(categoryId, eventId);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: response?.data?.message || "Failed to save raw material allocation",
+      });
     }
-  };
+  } catch (error) {
+    console.error("=== ERROR SAVING ===");
+    console.error("Error object:", error);
+    console.error("Error response:", error?.response);
+    console.error("Error message:", error?.message);
+    console.error("==================");
+    
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error?.response?.data?.message || 
+            error?.message || 
+            "An error occurred while saving. Please try again.",
+    });
+  } finally {
+    setSaving(false);
+  }
+};
   const handleAllocateAgency = (agencyName) => {
     const updatedData = tableData.map((item) => ({
       ...item,
