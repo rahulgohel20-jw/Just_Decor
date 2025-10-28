@@ -230,6 +230,7 @@ const AppRoutingSetup = () => {
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}
           />
+          <Route path="/labour-and-other-management/:eventId" element={<LabourOtherManagementPage mode="labour" />} />
           <Route
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
