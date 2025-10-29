@@ -167,6 +167,7 @@ import InvoiceList from "../pages/sales/invoice/InvoiceList/InvoiceList";
 import QuotationDashboard from "../pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
 import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationList";
 import QuickCustomPackage from "../pages/Event/QuickCustomPackage";
+import Labourshiftmaster from "../pages/master/labour-shift";
 
 const AppRoutingSetup = () => {
   return (
@@ -306,6 +307,7 @@ const AppRoutingSetup = () => {
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
           />
+          <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
