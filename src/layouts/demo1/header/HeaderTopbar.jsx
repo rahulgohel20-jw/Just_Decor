@@ -8,12 +8,16 @@ import {
   DropdownNotifications,
   DropdownMails,
 } from "@/partials/dropdowns/notifications";
+import { useNavigate } from "react-router-dom";
+
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";
 import CheckInModal from "@/partials/modals/CheckInModal";
-import Priceplan from "@/partials/modals/priceplan/Priceplan";
+
 const HeaderTopbar = () => {
+  const navigate = useNavigate();
+
   const { isRTL } = useLanguage();
   const itemChatRef = useRef(null);
   const itemAppsRef = useRef(null);
@@ -32,9 +36,7 @@ const HeaderTopbar = () => {
   return (
     <div className="flex items-center gap-2 lg:gap-3">
       <button
-        onClick={() => {
-          setPriceModal(true);
-        }}
+        onClick={() => navigate(`/price`)}
         className="btn btn-sm btn-primary"
         title="Upgrade"
       >
@@ -173,7 +175,6 @@ const HeaderTopbar = () => {
         isModalOpen={checkInModal}
         setIsModalOpen={setCheckInModal}
       />
-      <Priceplan isModalOpen={priceModal} setIsModalOpen={setPriceModal} />
     </div>
   );
 };
