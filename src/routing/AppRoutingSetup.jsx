@@ -167,6 +167,7 @@ import InvoiceList from "@/pages/sales/invoice/InvoiceList/InvoiceList";
 import QuotationDashboard from "@/pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
 import QuotationViewPage from "@/pages/sales/quotaion/QuotationList/QuotationList";
 import QuickCustomPackage from "@/pages/Event/QuickCustomPackage";
+import Labourshiftmaster from "../pages/master/labour-shift";
 import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import ReportsConfig from "@/pages/Reports/ReportsConfig";
 import DateWiseReport from "@/pages/Reports/DateWiseReport";
@@ -233,6 +234,10 @@ const AppRoutingSetup = () => {
           <Route
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}
+          />
+          <Route
+            path="/labour-and-other-management/:eventId"
+            element={<LabourOtherManagementPage mode="labour" />}
           />
           <Route
             path="/order-booking-reports"
@@ -309,6 +314,7 @@ const AppRoutingSetup = () => {
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
           />
+          <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>

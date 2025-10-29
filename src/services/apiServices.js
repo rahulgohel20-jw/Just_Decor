@@ -78,6 +78,13 @@ export const LoginUser = (data) => {
 export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
+//get customer by id by cat id
+export const GetPartyMasterByCatTypeId = (catTypeId, userId) => {
+  return GET(
+    `/partymaster/getallbycattypeid?catTypeId=${catTypeId}&userId=${userId}`
+  );
+};
+
 //Add customer
 export const AddCustomerapi = (data) => {
   return POST("/partymaster/add", data);
@@ -732,4 +739,16 @@ export const GetInvoiceByUserId = (id) => {
 
 export const AddInvoice = (data) => {
   return POST(`/invoice/add`, data);
+};
+
+//add labour
+export const AddUpdateLabor = (payload) => {
+  return POST("/labor/add-update", payload);
+};
+
+//get labour by event id
+export const GetEventLaborDetails = (eventFunctionId, eventId) => {
+  return GET(
+    `/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
 };

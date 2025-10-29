@@ -56,6 +56,10 @@ export const MENU_SIDEBAR = [
         path: "/master/unit",
       },
       {
+        title: "Labour Shift",
+        path: "/master/labour-shift",
+      },
+      {
         title: "Custom Package",
         path: "/master/custom-package",
       },
