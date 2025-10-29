@@ -10,8 +10,10 @@ import {
   GetEventMasterById,
   GetMenuAllocation,
   SelectedItemNameMenuAllocation,
+  MenuAllocationSave,
 } from "@/services/apiServices";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const TopTabs = ({ value, onChange, functions }) => {
   return (
@@ -307,13 +309,12 @@ const EventMenuAllocationPage = () => {
       if (res?.data?.success) {
         const rawMaterials =
           res.data.data["MenuItem RawMaterial Details"] || [];
+        console.log(rawMaterials);
 
-        // Calculate base rate from all raw materials
         const baseRate = rawMaterials.reduce((sum, material) => {
           return sum + (material.rate || 0);
         }, 0);
 
-        // Store the base rate for this item
         setItemPrices((prev) => ({
           ...prev,
           [`${menuItemId}`]: {
@@ -359,13 +360,13 @@ const EventMenuAllocationPage = () => {
     try {
       setMenuLoading(true);
       const menudata = await GetMenuAllocation(eventId, eventFunctionId);
-      console.log(menudata, "menu");
 
       if (
         menudata?.data?.success &&
         menudata.data.data["Menu Allocation Details"]?.length > 0
       ) {
         const menuDetails = menudata.data.data["Menu Allocation Details"][0];
+        console.log(menuDetails, "menbu");
 
         const transformedRows =
           menuDetails.menuAllocation?.map((item) => ({
@@ -470,8 +471,6 @@ const EventMenuAllocationPage = () => {
   }
 
   const handleOutsideSave = (saveData) => {
-    console.log("Outside allocation saved:", saveData);
-
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-outside`]: saveData,
@@ -502,8 +501,6 @@ const EventMenuAllocationPage = () => {
   };
 
   const handleChefLabourSave = (saveData) => {
-    console.log("Chef Labour allocation saved:", saveData);
-
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-chef`]: saveData,
@@ -534,8 +531,6 @@ const EventMenuAllocationPage = () => {
   };
 
   const handleCategorySave = (saveData) => {
-    console.log("Category raw material allocation saved:", saveData);
-
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-category`]: saveData,
@@ -544,16 +539,57 @@ const EventMenuAllocationPage = () => {
 
   const handleMainSave = async () => {
     try {
-      const backendData = {
-        eventId,
-        eventFunctionId: activeFunction?.id,
-        menuAllocations: rows,
-        detailedAllocations: Object.values(allocationData),
-      };
+      let userData = JSON.parse(localStorage.getItem("userData"));
+      let Id = userData.id;
+      const payload = rows.map((r) => ({
+        chefLabour: r.chefLabour || false,
+        eventFunctionId: activeFunction?.id || 0,
+        eventId: Number(eventId) || 0,
+        id: r.id || 0,
+        inside: r.inside || false,
+        instructions: r.instructions || "",
+        menuAllocationOrders:
+          allocationData[`${r.menuItemId}-${r.menuCategoryId}-outside`]
+            ?.allocations || [],
+        menuCategoryId: r.menuCategoryId || 0,
+        menuItemId: r.menuItemId || 0,
+        menuItemRawMaterials:
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials || [],
+        outside: r.outside || false,
+        personCount: r.personCount || 0,
+        place: r.place || "venue",
+        userId: Id,
+      }));
 
-      console.log("Sending to backend:", backendData);
+      console.log("Final payload:", payload);
+
+      // Call your save API
+      const res = await MenuAllocationSave(payload);
+
+      if (res?.data?.success) {
+        Swal.fire({
+          title: "Saved Successfully!",
+          text: "Menu Allocation details have been saved.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "OK",
+        });
+      } else {
+        Swal.fire({
+          title: "Save Failed",
+          text: res?.data?.message || "Unexpected response from server.",
+          icon: "error",
+          confirmButtonColor: "#d33",
+        });
+      }
     } catch (error) {
-      console.error("Error saving:", error);
+      console.error("Error saving menu allocation:", error);
+      Swal.fire({
+        title: "Error",
+        text: error?.message || "An unexpected error occurred.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -633,7 +669,11 @@ const EventMenuAllocationPage = () => {
                 </svg>
               </button>
 
-              <button className="btn btn-sm btn-primary" title="Save">
+              <button
+                className="btn btn-sm btn-primary"
+                title="Save"
+                onClick={handleMainSave}
+              >
                 Save
               </button>
               <button

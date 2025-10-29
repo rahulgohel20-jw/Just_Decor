@@ -1,6 +1,3 @@
-import { tr } from "@faker-js/faker";
-import { toAbsoluteUrl } from "@/utils";
-
 const userData = JSON.parse(localStorage.getItem("userData"));
 const roleId = userData?.userBasicDetails?.role?.id === 1;
 
@@ -258,6 +255,24 @@ export const MENU_SIDEBAR = [
     ],
   },
   {
+    title: "Reports",
+    icon: "ki-filled ki-airplane text-primary",
+    children: [
+      {
+        title: "All Data Report",
+        path: "",
+      },
+      {
+        title: "Date Wise Reports",
+        path: "/report-datewise",
+      },
+      {
+        title: "Report Configuration ",
+        path: "/report-congiguration",
+      },
+    ],
+  },
+  {
     title: "Sales",
     icon: "ki-filled ki-airplane text-primary",
     children: [
@@ -272,7 +287,7 @@ export const MENU_SIDEBAR = [
     ],
   },
   {
-    title: "Custom Design",
+    title: "Custom Themes",
     icon: "element-11 text-primary",
     path: "/event",
   },

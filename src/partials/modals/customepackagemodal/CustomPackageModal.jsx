@@ -1,30 +1,16 @@
-import  { useState, useEffect } from 'react';
-import { X, Sun, Loader2 } from 'lucide-react';
-import { GetCustomPackageapi } from '@/services/apiServices'; // Update the path to your API file
+import { useState, useEffect } from "react";
+import { X, Sun, Loader2 } from "lucide-react";
+import { GetCustomPackageapi } from "@/services/apiServices";
 
-export default function CustomPackageModal({ isOpen, onClose, userId ,onPackageSelect }) {
+export default function CustomPackageModal({
+  isOpen,
+  onClose,
+  userId,
+  onPackageSelect,
+}) {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const handleSelectPackage = (pkg) => {
-    // Pass the package items to the parent
-    if (onPackageSelect) {
-      // Flatten all items from all categories
-      const packageItems = pkg.categories.flatMap((cat) =>
-        cat.items.map((item) => ({
-          id: `${pkg.id}-${item.name}`, // unique temporary id
-          name: item.name,
-          price: item.price,
-          instruction: item.instruction,
-          parentId: null, // optional, you can add a category id if needed
-        }))
-      );
-      onPackageSelect(packageItems);
-    }
-    onClose(); // close modal after selection
-  };    
-
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -32,97 +18,106 @@ export default function CustomPackageModal({ isOpen, onClose, userId ,onPackageS
     }
   }, [isOpen, userId]);
 
- const fetchPackages = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+  const SelectPackage = (pkg) => {
+    const packageItems = pkg.categories.flatMap((cat, catIndex) =>
+      cat.items.map((item, itemIndex) => ({
+        id: `pkg-${pkg.id}-cat-${catIndex}-item-${itemIndex}-${Date.now()}`,
+        name: item.name,
+        price: item.price,
+        instruction: item.instruction,
+        itemNotes: item.instruction || "",
+        categoryName: cat.menuName,
+        menuName: cat.menuName,
+        anyItemCount: cat.anyItem,
+        image: "",
+        parentId: null,
+      }))
+    );
 
-    const response = await GetCustomPackageapi(userId);
-    console.log("📡 Full API Response:", response);
+    const payload = {
+      packageItems,
+      packageInfo: {
+        packageId: pkg.id,
+        packageName: pkg.name,
+        packagePrice: pkg.price,
+      },
+    };
 
-    // Extract the array from the nested response structure
-    const packageList = response.data?.data?.['Package Details'] || [];
-    console.log("📦 Raw Package List:", packageList);
+    onPackageSelect(payload);
+    onClose();
+  };
 
-    if (packageList.length === 0) {
-      console.warn("⚠️ No packages found for this user.");
-    } else {
-      console.log(`✅ ${packageList.length} package(s) found.`);
+  const fetchPackages = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await GetCustomPackageapi(userId);
+
+      const packageList = response.data?.data?.["Package Details"] || [];
+      console.log(packageList);
+
+      if (packageList.length === 0) {
+        console.warn(" No packages found for this user.");
+      } else {
+        console.log(` ${packageList.length} package(s) found.`);
+      }
+
+      // Map API response to your package structure
+      const mappedPackages = packageList.map((pkg, index) => ({
+        id: pkg.id,
+        name: pkg.nameEnglish,
+        nameGujarati: pkg.nameGujarati,
+        nameHindi: pkg.nameHindi,
+        price: pkg.price,
+        color: getColorByIndex(index),
+        categories: extractCategoriesFromPackage(pkg),
+      }));
+
+      setPackages(mappedPackages);
+    } catch (err) {
+      console.error("❌ Error fetching packages:", err);
+      setError("Failed to load packages. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // Map API response to your package structure
-    const mappedPackages = packageList.map((pkg, index) => ({
-      id: pkg.id,
-      name: pkg.nameEnglish,
-      nameGujarati: pkg.nameGujarati,
-      nameHindi: pkg.nameHindi,
-      price: pkg.price,
-      color: getColorByIndex(index),
-      categories: extractCategoriesFromPackage(pkg),
-    }));
-
-    console.log("🧭 Mapped Packages:", mappedPackages);
-
-    setPackages(mappedPackages);
-  } catch (err) {
-    console.error("❌ Error fetching packages:", err);
-    setError("Failed to load packages. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-const handleSelectPackageItems = (pkg) => {
-  const packageItems = pkg.categories.flatMap((cat, catIndex) =>
-    cat.items.map((item, itemIndex) => ({
-      id: `pkg-${pkg.id}-cat-${catIndex}-item-${itemIndex}-${Date.now()}`, // unique
-      name: item.name,
-      price: item.price,
-      instruction: item.instruction,
-      itemNotes: item.instruction || "",
-      categoryName: cat.menuName,
-      menuName: cat.menuName,
-      parentId: null, // will be set in EventPreparationPage
-    }))
-  );
-  onPackageSelect(packageItems);
-  onClose();
-};
-
-
-  // Helper function to get color by index
   const getColorByIndex = (index) => {
-    const colors = ['red', 'green', 'blue'];
+    const colors = ["red", "green", "blue"];
     return colors[index % colors.length];
   };
 
-  // Extract categories with items from customPackageDetails
   const extractCategoriesFromPackage = (pkg) => {
     const categories = [];
-    
+
     if (pkg.customPackageDetails && Array.isArray(pkg.customPackageDetails)) {
-      pkg.customPackageDetails.forEach(menu => {
+      pkg.customPackageDetails.forEach((menu) => {
         const categoryItems = [];
-        
-        if (menu.customPackageMenuItemDetails && Array.isArray(menu.customPackageMenuItemDetails)) {
-          menu.customPackageMenuItemDetails.forEach(item => {
+
+        if (
+          menu.customPackageMenuItemDetails &&
+          Array.isArray(menu.customPackageMenuItemDetails)
+        ) {
+          menu.customPackageMenuItemDetails.forEach((item) => {
             categoryItems.push({
               name: item.itemName,
               price: item.itemPrice,
-              instruction: item.itemInstruction
+              instruction: item.itemInstruction,
             });
           });
         }
-        
+
         if (categoryItems.length > 0) {
           categories.push({
             menuName: menu.menuName,
             items: categoryItems,
-            anyItem: menu.anyItem
+            anyItem: menu.anyItem,
           });
         }
       });
     }
-    
+
     return categories;
   };
 
@@ -131,28 +126,21 @@ const handleSelectPackageItems = (pkg) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-2xl">
-        {/* Header */}
-      {/* Header with Gradient */}
-{/* Header with gradient, rounded top, subtle shadow, and soft glow */}
-<div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-t-2xl shadow-lg relative overflow-hidden">
-  <h2 className="text-2xl font-semibold text-white drop-shadow-md">
-    Custom Package
-  </h2>
-  <button
-    onClick={onClose}
-    className="text-white/90 hover:text-white hover:bg-white/20 transition-all duration-200 rounded-full p-2"
-  >
-    <X className="w-6 h-6" />
-  </button>
+        <div className="flex items-center justify-between p-6 bg-primary rounded-t-2xl shadow-lg relative overflow-hidden">
+          <h2 className="text-2xl font-semibold text-white drop-shadow-md">
+            Custom Package
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-white/90 hover:text-white hover:bg-white/20 transition-all duration-200 rounded-full p-2"
+          >
+            <X className="w-6 h-6" />
+          </button>
 
-  {/* Optional subtle decorative shapes for more style */}
-  <span className="absolute -top-4 -left-4 w-20 h-20 bg-white/10 rounded-full blur-3xl pointer-events-none"></span>
-  <span className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none"></span>
-</div>
+          <span className="absolute -top-4 -left-4 w-20 h-20 bg-white/10 rounded-full blur-3xl pointer-events-none"></span>
+          <span className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none"></span>
+        </div>
 
-
-
-        {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-88px)]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -174,135 +162,91 @@ const handleSelectPackageItems = (pkg) => {
               <p className="text-gray-500">No packages available</p>
             </div>
           ) : (
-     <div
-  className="flex gap-6 overflow-x-auto pb-4 px-2"
-  style={{
-    scrollbarWidth: 'thin',
-    scrollbarColor: 'rgba(156,163,175,0.4) transparent',
-  }}
->
-  {packages.map((pkg) => (
-    <div
-      key={pkg.id}
-      className="min-w-[260px] max-w-[260px] bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex-shrink-0 border border-gray-200"
-      style={{
-        scrollSnapAlign: 'center',
-        scrollbarWidth: 'none',
-      }}
-    >
-      {/* Header */}
-<div
- className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-center py-6 rounded-t-2xl">
-  {/* <svg
-    className="absolute bottom-0 left-0 w-full"
-    viewBox="0 0 500 50"
-    preserveAspectRatio="none"
-  >
-    <path
-      d="M0,30 C150,70 350,0 500,30 L500,00 L0,0 Z"
-      fill="white"
-      opacity="0.9"
-    ></path>
-  </svg> */}
-  <div className="relative z-10">
-    <div className="w-14 h-14 bg-white/20 rounded-full mx-auto mb-2 flex items-center justify-center shadow-sm">
-      <Sun className="w-7 h-7 text-white" />
-    </div>
-    <h3 className="text-lg font-semibold tracking-wide">{pkg.name}</h3>
-    <p className="text-xs opacity-80 mt-0.5">Custom Package</p>
-  </div>
-</div>
-
-
-
-
-      {/* Categories */}
-      <div className="p-5 space-y-4">
-  {pkg.categories && pkg.categories.length > 0 ? (
-    pkg.categories.map((category, catIndex) => {
-      const bgColors = [
-        "from-blue-50 via-sky-50 to-blue-100",
-        "from-indigo-50 via-blue-50 to-sky-100",
-        "from-sky-50 via-cyan-50 to-blue-100",
-      ];
-      const bg = bgColors[catIndex % bgColors.length];
-      return (
-        <div
-          key={catIndex}
-          className={`rounded-xl p-3 transition-all duration-300 border border-blue-100 bg-gradient-to-br ${bg} hover:shadow-md`}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="text-blue-700 font-medium text-sm">
-              {category.menuName}
-            </h4>
-            {category.anyItem > 0 && (
-              <span className="text-xs text-blue-700 font-normal bg-white/60 px-2 py-0.5 rounded-full shadow-sm border border-blue-100">
-                Any {category.anyItem}
-              </span>
-            )}
-          </div>
-          <ul className="space-y-1.5 pl-2">
-            {category.items.map((item, itemIndex) => (
-              <li key={itemIndex} className="text-xs text-gray-600 flex items-start">
-                • {item.name}
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    })
-  ) : (
-    <p className="text-gray-400 text-sm text-center">No items available</p>
-  )}
-</div>
-
-
- {/* Replace the button in your CustomPackageModal (around line 186) */}
-
-<div className="p-5 flex justify-center border-t border-gray-100">
-<button
-  onClick={() => {
-    const packageItems = pkg.categories.flatMap((cat, catIndex) =>
-      cat.items.map((item, itemIndex) => ({
-        id: `pkg-${pkg.id}-cat-${catIndex}-item-${itemIndex}-${Date.now()}`,
-        name: item.name,
-        price: item.price,
-        instruction: item.instruction,
-        itemNotes: item.instruction || "",
-        categoryName: cat.menuName,
-        menuName: cat.menuName,
-        image: '', // default if needed
-        parentId: null,
-      }))
-    );
-
-    const payload = {
-      packageItems,
-      packageInfo: {
-        packageId: pkg.id,
-        packageName: pkg.name,
-        packagePrice: pkg.price,
-      },
-    };
-
-    console.log("📦 Payload to send:", payload);
-    onPackageSelect(payload); // ✅ single object
-    onClose();
-  }}
-  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
->
-  Select Package
-</button>
-
-</div>
-      {/* Subtle hover glow */}
-      <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-gray-200 transition-all duration-300 pointer-events-none" />
-    </div>
-  ))}
-</div>
-
-
-
+            <div
+              className="flex gap-6 overflow-x-auto pb-4 px-2"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "rgba(156,163,175,0.4) transparent",
+              }}
+            >
+              {packages.map((pkg) => (
+                <div
+                  key={pkg.id}
+                  className="min-w-[260px] max-w-[260px] bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex-shrink-0 border border-gray-200"
+                  style={{
+                    scrollSnapAlign: "center",
+                    scrollbarWidth: "none",
+                  }}
+                >
+                  <div className="bg-primary text-white text-center py-6 rounded-t-2xl">
+                    <div className="relative z-10">
+                      <div className="w-14 h-14 bg-white/20 rounded-full mx-auto mb-2 flex items-center justify-center shadow-sm">
+                        <Sun className="w-7 h-7 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold tracking-wide">
+                        {pkg.name}
+                      </h3>
+                      <p className="text-xs opacity-80 mt-0.5">
+                        Custom Package
+                      </p>
+                    </div>
+                  </div>
+                  {/* Categories */}
+                  <div className="p-5 space-y-4">
+                    {pkg.categories && pkg.categories.length > 0 ? (
+                      pkg.categories.map((category, catIndex) => {
+                        const bgColors = [
+                          "from-blue-50 via-sky-50 to-blue-100",
+                          "from-indigo-50 via-blue-50 to-sky-100",
+                          "from-sky-50 via-cyan-50 to-blue-100",
+                        ];
+                        const bg = bgColors[catIndex % bgColors.length];
+                        return (
+                          <div
+                            key={catIndex}
+                            className={`rounded-xl p-3 transition-all duration-300 border border-blue-100 bg-gradient-to-br ${bg} hover:shadow-md`}
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <h4 className="text-blue-700 font-medium text-sm">
+                                {category.menuName}
+                              </h4>
+                              {category.anyItem > 0 && (
+                                <span className="text-xs text-blue-700 font-normal bg-white/60 px-2 py-0.5 rounded-full shadow-sm border border-blue-100">
+                                  Any {category.anyItem}
+                                </span>
+                              )}
+                            </div>
+                            <ul className="space-y-1.5 pl-2">
+                              {category.items.map((item, itemIndex) => (
+                                <li
+                                  key={itemIndex}
+                                  className="text-xs text-gray-600 flex items-start"
+                                >
+                                  • {item.name}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-gray-400 text-sm text-center">
+                        No items available
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-5 flex justify-center border-t border-gray-100">
+                    <button
+                      onClick={() => SelectPackage(pkg)}
+                      className="px-6 py-2 bg-primary text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                    >
+                      Select Package
+                    </button>
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-gray-200 transition-all duration-300 pointer-events-none" />
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

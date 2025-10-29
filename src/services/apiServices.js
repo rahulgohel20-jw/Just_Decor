@@ -254,6 +254,10 @@ export const SearchEventType = (data, Id) => {
 export const Addeventtype = (data) => {
   return POST(`/eventtype/add`, data);
 };
+export const MenuAllocationSave = (data) => {
+  return POST(`/menuallocation/add-update`, data);
+};
+
 //Edit Event Type
 export const EditEventType = (Id, data) => {
   return PUT(`/eventtype/update?id=${Id}`, data);
@@ -710,14 +714,11 @@ export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
 };
 
-//custome package updtae api 
+//custome package updtae api
 // Update custom package status API
 export const UpdateCustomPackageStatusapi = (id, isActive) => {
   return PUT(`/custompackage/updatestatus?id=${id}&isActive=${isActive}`);
 };
-
-
-
 
 //Invoice api
 
@@ -727,8 +728,8 @@ export const GetInvoiceByEventId = (eventId) => {
 
 export const GetInvoiceByUserId = (id) => {
   return GET(`/invoice/getalluserid?userid=${id}`);
-}
+};
 
 export const AddInvoice = (data) => {
   return POST(`/invoice/add`, data);
-}
+};
