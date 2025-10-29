@@ -748,3 +748,10 @@ export const AddUpdateLabor = (payload) => {
 export const GetEventLaborDetails = (eventFunctionId, eventId) => {
   return GET(`/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`);
 };
+
+//get api for general/extra-expense
+export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
+  return GET(
+    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
+};

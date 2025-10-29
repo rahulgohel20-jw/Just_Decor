@@ -1,21 +1,49 @@
 import { useState, useEffect } from "react";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
+import { Translateapi } from "@/services/apiServices";
 
 const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   const [notes, setNotes] = useState(
     initialNotes || { notesEnglish: "", notesGujarati: "", notesHindi: "" }
   );
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
   useEffect(() => {
     setNotes(
       initialNotes || { notesEnglish: "", notesGujarati: "", notesHindi: "" }
     );
   }, [initialNotes, isOpen]);
 
+  // ✅ Translation Effect
+  useEffect(() => {
+    if (!notes.notesEnglish?.trim()) return;
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      Translateapi(notes.notesEnglish)
+        .then((res) => {
+          console.log("Translation Response:", res);
+          setNotes((prev) => ({
+            ...prev,
+            notesGujarati: res.data.gujarati || "",
+            notesHindi: res.data.hindi || "",
+          }));
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
+
+    return () => clearTimeout(timer);
+  }, [notes.notesEnglish]);
+
   if (!isOpen) return null;
 
   const handleChange = (field, value) => {
     setNotes((prev) => ({ ...prev, [field]: value }));
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
