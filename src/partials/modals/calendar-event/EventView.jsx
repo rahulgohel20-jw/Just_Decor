@@ -188,11 +188,13 @@ const EventViewModal = ({
                     },
                   }),
               },
-              {
-                label: "Labour / Other Management",
-                icon: "/media/eventviewicon/labour.png",
-                onClick: () => navigate(`/labour-and-other-management`),
-              },
+ {
+  label: "Labour / Other Management",
+  icon: "/media/eventviewicon/labour.png",
+  onClick: () => navigate(`/labour-and-other-management/${safeEventId}`),
+},
+
+
               {
                 label: "Menu Report",
                 icon: "/media/eventviewicon/menureport.png",
