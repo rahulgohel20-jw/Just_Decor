@@ -2,8 +2,7 @@ import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
-import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
-
+import AddGeneralfix from "../../../partials/modals/add-general-agencies-place/AddGeneralfix";
 import { DatePicker } from "antd";
 import { useParams } from "react-router-dom";
 import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
@@ -137,24 +136,36 @@ const [generalRawMaterialData, setGeneralRawMaterialData] = useState([]);  const
           );
         });
 
-        const formattedRows = laborData.map((item, index) => ({
-          id: index + 1,
-          labourType:
-            labourCategories.find((c) => c.id === item.labortypeid)
-              ?.nameEnglish?.trim() || item.labortypename?.trim() || "",
-          contact:
-            Object.values(allContacts)
-              .flat()
-              .find((c) => c.id === item.contactid)?.nameEnglish?.trim() ||
-            item.contactname?.trim() ||
-            "",
-          shift: item.laborshift || "",
-          dateTime: item.labordatetime || "",
-          price: item.price || "",
-          quantity: item.qty || "",
-          total: item.totalprice || "",
-          place: item.place || "",
-        }));
+       const formattedRows = laborData.map((item, index) => {
+  // Parse and validate date
+  const parsedDate = dayjs(item.labordatetime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD HH:mm:ss"], true);
+  const isValidDate = parsedDate.isValid();
+
+  return {
+    id: index + 1,
+    labourType:
+      labourCategories.find((c) => c.id === item.labortypeid)?.nameEnglish?.trim() ||
+      item.labortypename?.trim() ||
+      "",
+    contact:
+      Object.values(allContacts)
+        .flat()
+        .find((c) => c.id === item.contactid)?.nameEnglish?.trim() ||
+      item.contactname?.trim() ||
+      "",
+    shift: item.laborshift || "",
+    // ✅ If date invalid, use event’s start time or empty string
+    dateTime: isValidDate
+      ? parsedDate.format("DD/MM/YYYY hh:mm A")
+      : eventData?.eventStartDateTime
+      ? dayjs(eventData.eventStartDateTime).format("DD/MM/YYYY hh:mm A")
+      : "",
+    price: item.price || "",
+    quantity: item.qty || "",
+    total: item.totalprice || "",
+    place: item.place || "",
+  };
+});
 
 
         
@@ -321,8 +332,10 @@ useEffect(() => {
 
         return {
           contactid: contact?.id || 0,
-          labordatetime: dayjs(row.dateTime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD", "MMM D, YYYY"])
-            .format("DD/MM/YYYY hh:mm A"),
+        labordatetime: dayjs(row.dateTime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD", "MMM D, YYYY"], true).isValid()
+  ? dayjs(row.dateTime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD", "MMM D, YYYY"]).format("DD/MM/YYYY hh:mm A")
+  : "",
+
           laborshift: row.shift || "Morning",
           labortypeid: selectedCategory?.id || 0,
           place: row.place || "At Venue",
@@ -912,7 +925,7 @@ useEffect(() => {
           onClose={() => setIsLabourSidebarOpen(false)}
         />
 
-        <AddGrossary
+        <AddGeneralfix
           isModalOpen={isGrossaryModalOpen}
           setIsModalOpen={setIsGrossaryModalOpen}
           agencies={agencies}
