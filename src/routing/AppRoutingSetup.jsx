@@ -172,6 +172,7 @@ import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import ReportsConfig from "@/pages/Reports/ReportsConfig";
 import DateWiseReport from "@/pages/Reports/DateWiseReport";
 import ReportThemes from "@/pages/Event/ReportThemesPage";
+import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -254,6 +255,7 @@ const AppRoutingSetup = () => {
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
 <Route path="/report-themes" element={<ReportThemes />} />
+<Route path="/report-themes/editor" element={<Editor />} />
           {/* Sales */}
 
           <Route
