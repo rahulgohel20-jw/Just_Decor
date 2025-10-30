@@ -752,3 +752,10 @@ export const GetEventLaborDetails = (eventFunctionId, eventId) => {
     `/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
   );
 };
+
+//get api for general/extra-expense
+export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
+  return GET(
+    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
+};

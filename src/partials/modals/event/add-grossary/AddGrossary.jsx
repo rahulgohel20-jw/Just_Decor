@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { DatePicker } from "antd";
+import { DatePicker, Select } from "antd";
 import dayjs from "dayjs";
 
 const AddGrossary = ({
@@ -10,35 +10,66 @@ const AddGrossary = ({
   onAllocateAgency,
   onAllocatePlace,
   onAllocateDate,
-  agencies,
+  agencies = [],
   loading,
 }) => {
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
 
+  const [data, setData] = useState([
+    { material: "Sugar", agency: "", place: "", date: null },
+    { material: "Rice", agency: "", place: "", date: null },
+  ]);
+
+  const handleModalClose = () => setIsModalOpen(false);
+
+  // Dropdown options
+  const agencyOptions = agencies.map((a) => ({
+    label: a.nameEnglish || a.name,
+    value: a.nameEnglish || a.name,
+  }));
+
+  const placeOptions = [
+    { label: "At Venue", value: "At Venue" },
+    { label: "Kitchen", value: "Kitchen" },
+    { label: "Store", value: "Store" },
+  ];
+
+  // Handle inline table changes
+  const handleChange = (index, field, value) => {
+    setData((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  // Allocation handlers
   const handleAllocateAgency = () => {
     if (selectedAgency) {
-      console.log("Selected Agency:", selectedAgency);
       onAllocateAgency(selectedAgency);
+      setData((prev) =>
+        prev.map((item) => ({ ...item, agency: selectedAgency }))
+      );
     }
   };
 
   const handleAllocatePlace = () => {
     if (selectedPlace) {
-      console.log("Selected Place:", selectedPlace);
       onAllocatePlace(selectedPlace);
+      setData((prev) =>
+        prev.map((item) => ({ ...item, place: selectedPlace }))
+      );
     }
   };
 
   const handleAllocateDate = () => {
     if (selectedDate) {
-      console.log("Selected Date:", selectedDate);
       onAllocateDate(selectedDate);
+      setData((prev) =>
+        prev.map((item) => ({ ...item, date: selectedDate }))
+      );
     }
   };
 
@@ -55,13 +86,11 @@ const AddGrossary = ({
               key="cancel"
               className="btn btn-light"
               onClick={handleModalClose}
-              title="Cancel"
             >
               Cancel
             </button>
             <button
               className="btn btn-primary save-btn"
-              title="Save"
               onClick={handleModalClose}
             >
               Save
@@ -69,9 +98,10 @@ const AddGrossary = ({
           </div>,
         ]}
       >
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+        {/* Allocation Filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-3 mb-4">
           {/* Agency Allocation */}
-          <div className="flex flex-wrap items-end gap-2">
+          <div className="flex items-end gap-2">
             <select
               className="select pe-7.5"
               value={selectedAgency}
@@ -79,22 +109,21 @@ const AddGrossary = ({
             >
               <option value="">-- Select Agency --</option>
               {loading && <option>Loading...</option>}
-              {!loading && agencies.length > 0
-                ? agencies.map((agency) => (
-                    <option
-                      key={agency.id}
-                      value={agency.nameEnglish || agency.name}
-                    >
-                      {agency.nameEnglish || agency.name}
-                    </option>
-                  ))
-                : !loading && <option>No agencies found</option>}
+              {!loading && agencies.length > 0 ? (
+                agencies.map((agency) => (
+                  <option
+                    key={agency.id}
+                    value={agency.nameEnglish || agency.name}
+                  >
+                    {agency.nameEnglish || agency.name}
+                  </option>
+                ))
+              ) : (
+                !loading && <option>No agencies found</option>
+              )}
             </select>
-          </div>
-          <div className="flex flex-wrap gap-2">
             <button
               className="btn btn-primary"
-              title="Allocate Agency"
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
@@ -103,7 +132,7 @@ const AddGrossary = ({
           </div>
 
           {/* Place Allocation */}
-          <div className="flex flex-wrap items-end gap-2">
+          <div className="flex items-end gap-2">
             <select
               className="select pe-7.5"
               value={selectedPlace}
@@ -112,12 +141,11 @@ const AddGrossary = ({
               <option value="">-- Select Place --</option>
               <option value="At Venue">At Venue</option>
               <option value="Godown">Godown</option>
+              <option value="Kitchen">Kitchen</option>
+              <option value="Store">Store</option>
             </select>
-          </div>
-          <div className="flex flex-wrap gap-2">
             <button
               className="btn btn-primary"
-              title="Allocate Place"
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
@@ -126,19 +154,16 @@ const AddGrossary = ({
           </div>
 
           {/* Date Allocation */}
-          <div className="flex flex-wrap items-end gap-2">
+          <div className="flex items-end gap-2">
             <DatePicker
-              className="input "
+              className="input"
               showTime
               format="MM/DD/YYYY hh:mm A"
               value={selectedDate}
               onChange={(date) => setSelectedDate(date)}
             />
-          </div>
-          <div className="flex flex-wrap gap-2">
             <button
               className="btn btn-primary"
-              title="Allocate Date"
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
@@ -147,9 +172,80 @@ const AddGrossary = ({
           </div>
         </div>
 
-        <div className={"flex flex-col gap-1 w-full"}>{modalData()}</div>
+        {/* Table Section */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-gray-700">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+              <tr>
+                <th className="px-4 py-3 text-left">Raw Material</th>
+                <th className="px-4 py-3 text-left">Agency</th>
+                <th className="px-4 py-3 text-left">Place</th>
+                <th className="px-4 py-3 text-left">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="text-center py-4 text-gray-500"
+                  >
+                    No materials found
+                  </td>
+                </tr>
+              ) : (
+                data.map((item, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="px-4 py-3">{item.material}</td>
+                    <td className="px-4 py-3">
+                      <Select
+                        size="small"
+                        className="w-full"
+                        value={item.agency}
+                        options={agencyOptions}
+                        onChange={(value) =>
+                          handleChange(index, "agency", value)
+                        }
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Select
+                        size="small"
+                        className="w-full"
+                        value={item.place}
+                        options={placeOptions}
+                        onChange={(value) =>
+                          handleChange(index, "place", value)
+                        }
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <DatePicker
+                        className="input input-sm w-full"
+                        showTime
+                        format="MM/DD/YYYY hh:mm A"
+                        value={
+                          item.date && dayjs(item.date).isValid()
+                            ? dayjs(item.date)
+                            : null
+                        }
+                        onChange={(date) =>
+                          handleChange(index, "date", date)
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Optional Custom Data Section */}
+        <div className="mt-4">{modalData()}</div>
       </CustomModal>
     )
   );
 };
+
 export default AddGrossary;
