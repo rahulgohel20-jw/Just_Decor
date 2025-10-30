@@ -171,6 +171,7 @@ import Labourshiftmaster from "../pages/master/labour-shift";
 import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import ReportsConfig from "@/pages/Reports/ReportsConfig";
 import DateWiseReport from "@/pages/Reports/DateWiseReport";
+import ReportThemes from "@/pages/Event/ReportThemesPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -252,7 +253,7 @@ const AppRoutingSetup = () => {
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
-
+<Route path="/report-themes" element={<ReportThemes />} />
           {/* Sales */}
 
           <Route

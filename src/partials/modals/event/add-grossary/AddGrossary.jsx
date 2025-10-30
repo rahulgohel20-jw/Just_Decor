@@ -18,8 +18,7 @@ const AddGrossary = ({
   const [selectedDate, setSelectedDate] = useState(null);
 
   const [data, setData] = useState([
-    { material: "Sugar", agency: "", place: "", date: null },
-    { material: "Rice", agency: "", place: "", date: null },
+    
   ]);
 
   const handleModalClose = () => setIsModalOpen(false);
@@ -141,8 +140,7 @@ const AddGrossary = ({
               <option value="">-- Select Place --</option>
               <option value="At Venue">At Venue</option>
               <option value="Godown">Godown</option>
-              <option value="Kitchen">Kitchen</option>
-              <option value="Store">Store</option>
+             
             </select>
             <button
               className="btn btn-primary"
@@ -173,74 +171,7 @@ const AddGrossary = ({
         </div>
 
         {/* Table Section */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-gray-700">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
-              <tr>
-                <th className="px-4 py-3 text-left">Raw Material</th>
-                <th className="px-4 py-3 text-left">Agency</th>
-                <th className="px-4 py-3 text-left">Place</th>
-                <th className="px-4 py-3 text-left">Date & Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="4"
-                    className="text-center py-4 text-gray-500"
-                  >
-                    No materials found
-                  </td>
-                </tr>
-              ) : (
-                data.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="px-4 py-3">{item.material}</td>
-                    <td className="px-4 py-3">
-                      <Select
-                        size="small"
-                        className="w-full"
-                        value={item.agency}
-                        options={agencyOptions}
-                        onChange={(value) =>
-                          handleChange(index, "agency", value)
-                        }
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Select
-                        size="small"
-                        className="w-full"
-                        value={item.place}
-                        options={placeOptions}
-                        onChange={(value) =>
-                          handleChange(index, "place", value)
-                        }
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <DatePicker
-                        className="input input-sm w-full"
-                        showTime
-                        format="MM/DD/YYYY hh:mm A"
-                        value={
-                          item.date && dayjs(item.date).isValid()
-                            ? dayjs(item.date)
-                            : null
-                        }
-                        onChange={(date) =>
-                          handleChange(index, "date", date)
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
+    
         {/* Optional Custom Data Section */}
         <div className="mt-4">{modalData()}</div>
       </CustomModal>
