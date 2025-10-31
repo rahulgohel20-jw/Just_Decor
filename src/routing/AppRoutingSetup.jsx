@@ -173,6 +173,7 @@ import ReportsConfig from "@/pages/Reports/ReportsConfig";
 import DateWiseReport from "@/pages/Reports/DateWiseReport";
 import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
+import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -181,7 +182,7 @@ const AppRoutingSetup = () => {
           <Route path="/price" element={<Priceplan />} />
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<ClientDashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
@@ -254,8 +255,8 @@ const AppRoutingSetup = () => {
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
-<Route path="/report-themes" element={<ReportThemes />} />
-<Route path="/report-themes/editor" element={<Editor />} />
+          <Route path="/report-themes" element={<ReportThemes />} />
+          <Route path="/report-themes/editor" element={<Editor />} />
           {/* Sales */}
 
           <Route
