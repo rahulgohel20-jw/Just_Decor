@@ -4,6 +4,7 @@ import { AddUnitdata, EditUnit, Translateapi } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { FormattedMessage } from "react-intl";
 
 const AddUnit = ({
   isModalOpen,
@@ -131,7 +132,7 @@ const AddUnit = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedUnit ? "Edit Unit" : "New Unit"}
+            {selectedUnit ? <FormattedMessage id="USER.MASTER.EDIT_UNIT" defaultMessage="Edit Unit" /> : <FormattedMessage id="USER.MASTER.NEW_UNIT" defaultMessage="New Unit" />}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -146,7 +147,7 @@ const AddUnit = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <InputToTextLang
-                label="Name (English)"
+                label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
                 name="nameEnglish"
                 value={formik.values.nameEnglish}
                 onChange={formik.handleChange}
@@ -163,7 +164,7 @@ const AddUnit = ({
             </div>
             <div>
               <InputToTextLang
-                label="Name (ગુજરાતી)"
+                label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
                 name="nameGujarati"
                 value={formik.values.nameGujarati}
                 onChange={formik.handleChange}
@@ -180,7 +181,7 @@ const AddUnit = ({
             </div>
             <div>
               <InputToTextLang
-                label="Name (हिंदी)"
+                label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
                 name="nameHindi"
                 value={formik.values.nameHindi}
                 onChange={formik.handleChange}
@@ -201,7 +202,7 @@ const AddUnit = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <InputToTextLang
-                label="Symbol (English)"
+                label={<FormattedMessage id="COMMON.SYMBOL_ENGLISH" defaultMessage="Symbol (English)" />}
                 name="symbolEnglish"
                 value={formik.values.symbolEnglish}
                 onChange={formik.handleChange}
@@ -218,7 +219,7 @@ const AddUnit = ({
             </div>
             <div>
               <InputToTextLang
-                label="Symbol (ગુજરાતી)"
+                label={<FormattedMessage id="COMMON.SYMBOL_GUJARATI" defaultMessage="Symbol (ગુજરાતી)" />}
                 name="symbolGujarati"
                 value={formik.values.symbolGujarati}
                 onChange={formik.handleChange}
@@ -236,7 +237,7 @@ const AddUnit = ({
             </div>
             <div>
               <InputToTextLang
-                label="Symbol (हिंदी)"
+                label={<FormattedMessage id="COMMON.SYMBOL_HINDI" defaultMessage="Symbol (हिंदी)" />}
                 name="symbolHindi"
                 value={formik.values.symbolHindi}
                 onChange={formik.handleChange}
@@ -260,13 +261,13 @@ const AddUnit = ({
               onClick={() => setIsModalOpen(false)}
               className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
             >
-              Cancel
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button
               type="submit"
               className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             >
-              {selectedUnit ? "Update" : "Save"}
+              {selectedUnit ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
             </button>
           </div>
         </form>

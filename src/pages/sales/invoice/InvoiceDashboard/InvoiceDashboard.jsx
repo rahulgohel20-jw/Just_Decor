@@ -1,40 +1,119 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { columns, defaultData } from "./constant";
-import InvoiceTable from "@/components/InvoiceTable/InvoiceTable"; // ✅ use the component again
+import InvoiceTable from "@/components/InvoiceTable/InvoiceTable";
 import { useNavigate } from "react-router-dom";
 import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
+import { GetAllInvoice } from "@/services/apiServices";
 
 const InvoiceDashboard = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState(defaultData);
+  const [totals, setTotals] = useState({
+    receivable: 0,
+    dueToday: 0,
+    dueWithin30Days: 0,
+    overDue: 0,
+    avgPaymentDays: 7,
+  });
+
+  const user = JSON.parse(localStorage.getItem("userData"));
+  const userId = user?.id || 0;
+
+  const fetchInvoices = async () => {
+    try {
+      const response = await GetAllInvoice(userId);
+      console.log("Invoice API Response:", response);
+      
+      // Map the invoice data to table format
+      const invoiceData = response?.data?.data?.["Event Invoice Details"] || [];
+      
+      const data = invoiceData.map((invoice, index) => ({
+        Invoice: invoice?.invoiceCode || `INV-${String(index + 1).padStart(4, "0")}`,
+        CustomerName: invoice?.event?.party?.nameEnglish || "-",
+        PartyId: invoice?.event?.party?.id || "-",
+        EventId: invoice?.event?.id || "-",
+        Eventname: invoice?.event?.eventType?.nameEnglish || "-",
+        eventDate: invoice?.event?.eventStartDateTime
+          ? new Date(invoice.event.eventStartDateTime).toLocaleDateString(
+              "en-GB",
+              { day: "2-digit", month: "short", year: "numeric" }
+            )
+          : "-",
+        invoiceDate: invoice?.createdAt || "-",
+        Amount: `₹ ${(invoice?.grandTotal || 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`,
+        BalanceDue: `₹ ${(invoice?.remainingAmount || 0).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`,
+        Status: invoice?.remainingAmount === 0 ? "Paid" : "Pending",
+      }));
+
+      setTableData(data);
+
+      // Update totals from first invoice record (as per API structure)
+      if (invoiceData.length > 0) {
+        const firstInvoice = invoiceData[0];
+        setTotals({
+          receivable: firstInvoice?.overAllReceivableAmnt || 0,
+          remaining: firstInvoice?.overAllRemainingAmnt || 0,
+          total: firstInvoice?.overallTotalAmnt || 0,
+          dueToday: 0, // Calculate based on duedate
+          dueWithin30Days: 0, // Calculate based on duedate
+          overDue: 0, // Calculate based on duedate
+          avgPaymentDays: 7, // Default or calculate
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   const steps = [
     {
       title: "Total Outstanding Receivable",
-      value: "₹ 8,00,00,000.00",
+      value: `₹ ${totals.receivable.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
     {
       title: "Due Today",
-      value: "₹ 0.00",
+      value: `₹ ${totals.dueToday.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
     },
     {
       title: "Due within 30 days",
-      value: "₹ 0.00",
+      value: `₹ ${totals.dueWithin30Days.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       icon: <i className="ki-filled ki-time text-xl text-primary"></i>,
     },
     {
       title: "Over Due Invoice",
-      value: "₹ 0.00",
+      value: `₹ ${totals.overDue.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       icon: <i className="ki-filled ki-information-3 text-xl text-primary"></i>,
     },
     {
       title: "Average Payment Days",
-      value: "7 Days",
+      value: `${totals.avgPaymentDays} Days`,
       icon: <i className="ki-filled ki-timer text-xl text-primary"></i>,
     },
   ];
@@ -57,15 +136,31 @@ const InvoiceDashboard = () => {
       </style>
 
       <Container>
-        {/* 🧭 Breadcrumb + Button */}
-        <div className="gap-2 mb-3 flex justify-between items-center">
+        {/* 🧭 Breadcrumb */}
+        <div className="mb-3">
           <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
-          <button
-            onClick={handleAddInvoice}
-            className="bg-[#FDE7C7] text-[#845A12] border border-[#845A12] px-4 py-2 rounded-lg font-semibold hover:bg-[#FDE7C7]"
-          >
-            Add Invoice
-          </button>
+        </div>
+
+        {/* 🔍 Filters */}
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="filItems relative">
+              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+              <input
+                className="input pl-8"
+                placeholder="Search invoice"
+                type="text"
+              />
+            </div>
+            <div className="filItems relative">
+              <select defaultValue="0" className="select pe-7.5">
+                <option value="0">All Invoice</option>
+                <option value="1">Last 3 Months</option>
+                <option value="2">Last 6 Months</option>
+                <option value="3">Custom Date</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* 💰 Summary Cards */}

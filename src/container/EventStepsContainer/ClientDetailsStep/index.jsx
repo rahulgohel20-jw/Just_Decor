@@ -4,6 +4,11 @@ import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import CustomerDropdown from "@/components/dropdowns/customerDropdown";
 import { GetAllCustomer } from "@/services/apiServices";
 import useStyles from "./style";
+
+import { FormattedMessage } from "react-intl";
+import { useLanguage } from "@/i18n";
+
+
 const ClientDetailsStep = ({
   formData,
   setFormData,
@@ -78,7 +83,7 @@ const ClientDetailsStep = ({
         <div className="col-span-4 md:col-start-3 min-w-full space-y-3">
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              1. Client's Name
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NAME" defaultMessage="Client Name" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -91,8 +96,8 @@ const ClientDetailsStep = ({
                   value={formData.prefix || "Mr."}
                   onChange={handleChange}
                 >
-                  <option value="Mr.">Mr.</option>
-                  <option value="Ms.">Ms.</option>
+                  <option value="Mr."><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MR" defaultMessage="Mr." /></option>
+                  <option value="Ms."><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MS" defaultMessage="Ms." /></option>
                 </select>
                 <div className="sg__inner flex items-center gap-1 relative w-full">
                   <i className="ki-filled ki-user ms-2.5"></i>
@@ -121,7 +126,7 @@ const ClientDetailsStep = ({
           <div className="flex gap-3">
             <div className="flex flex-col w-full">
               <label className="text-sm font-normal text-black mb-1 block">
-                Address
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_ADDRESS" defaultMessage="Address" />
               </label>
               <div className="input">
                 <i className="ki-filled ki-geolocation"></i>
@@ -137,7 +142,7 @@ const ClientDetailsStep = ({
             </div>
             <div className="flex flex-col w-full">
               <label className="text-sm font-normal text-black mb-1 block">
-                Mobile Number
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_MOBILE" defaultMessage="Mobile Number" />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -162,7 +167,7 @@ const ClientDetailsStep = ({
           </div>
           <div className="flex flex-col">
             <label className="text-sm font-normal text-black mb-1 block">
-              Reference
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_REFERENCE" defaultMessage="Reference" />
             </label>
             <div className="input">
               <i className="ki-filled ki-instagram"></i>
@@ -179,7 +184,7 @@ const ClientDetailsStep = ({
           <div className="flex items-center gap-3">
             <label className="text-sm font-normal text-black block">
               {/* <i className="ki-filled ki-flag me-1"></i> */}
-              High Priority:
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_HIGH_PRIORITY" defaultMessage="High Priority" />
             </label>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-1 text-sm">
@@ -192,7 +197,7 @@ const ClientDetailsStep = ({
                     setFormData({ ...formData, isHighPriority: "Yes" })
                   }
                 />
-                Yes
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_YES" defaultMessage="Yes" />
               </label>
               <label className="flex items-center gap-1 text-sm">
                 <input
@@ -204,7 +209,7 @@ const ClientDetailsStep = ({
                     setFormData({ ...formData, isHighPriority: "No" })
                   }
                 />
-                No
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NO" defaultMessage="No" />
               </label>
             </div>
           </div>

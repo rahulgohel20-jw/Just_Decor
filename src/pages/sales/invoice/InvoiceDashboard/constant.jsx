@@ -73,7 +73,7 @@ export const columns = [
 export const defaultData = [
   {
     Invoice: "INV-0001",
-    CustomerName: "John Doe",
+    CustomerName: "John ",
     Eventname: "Wedding Ceremony",
     eventDate: "2023-10-15",
     invoiceDate: "2023-09-30",

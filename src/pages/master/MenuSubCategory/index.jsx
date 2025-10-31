@@ -11,11 +11,17 @@ import {
 import { columns } from "./constant";
 import { successMsgPopup } from "../../../underConstruction";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
 const MenuSubCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const intl = useIntl();
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
@@ -92,7 +98,7 @@ const MenuSubCategory = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Item Sub Category" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="MENU_ITEM_SUB_CATEGORY" defaultMessage="Menu Item Sub Category" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -101,7 +107,7 @@ const MenuSubCategory = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Sub Category"
+                placeholder={intl.formatMessage({ id: "SEARCH_SUB_CATEGORY", defaultMessage: "Search Sub Category" })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,7 +123,7 @@ const MenuSubCategory = () => {
               }}
               title="Add Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Sub Category
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="ADD_SUB_CATEGORY" defaultMessage="Add Sub Category" />
             </button>
           </div>
         </div>

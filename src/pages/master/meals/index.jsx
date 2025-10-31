@@ -11,6 +11,8 @@ import {
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
 
 const MealMaster = () => {
   const classes = useStyle();
@@ -18,6 +20,10 @@ const MealMaster = () => {
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const intl = useIntl();
+
+
   useEffect(() => {
     FetchMealType();
   }, []);
@@ -114,7 +120,7 @@ const MealMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Meals Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.MEAL_MASTER" defaultMessage="Meals Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -125,7 +131,7 @@ const MealMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Meal"
+                placeholder={intl.formatMessage({ id: "USER.MASTER.SEARCH_MEAL", defaultMessage: "Search Meal" })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -139,9 +145,9 @@ const MealMaster = () => {
                 setSelectedMeal(null);
                 setIsMemberModalOpen(true);
               }}
-              title="Add Meal"
+              title={<FormattedMessage id="USER.MASTER.ADD_MEAL" defaultMessage="Add Meal" />}
             >
-              <i className="ki-filled ki-plus"></i> Add Meal
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_MEAL" defaultMessage="Add Meal" />
             </button>
           </div>
         </div>

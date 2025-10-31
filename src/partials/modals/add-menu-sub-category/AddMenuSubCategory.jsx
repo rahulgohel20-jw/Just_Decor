@@ -8,6 +8,8 @@ import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
 import { formValidation } from "../../../lib/utils";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
 
 const AddMenuSubCategory = ({
   isModalOpen,
@@ -24,6 +26,9 @@ const AddMenuSubCategory = ({
   const [errors, setErrors] = useState({});
   const requiredFields = ["nameEnglish"];
   const [debounceTimer, setDebounceTimer] = useState(null);
+
+
+  const intl = useIntl();
 
   useEffect(() => {
     if (formData.nameEnglish) {
@@ -126,7 +131,7 @@ const AddMenuSubCategory = ({
       open={isModalOpen}
       width={1000}
       onClose={() => setIsModalOpen(false)}
-      title={editData ? "Edit Menu Sub Category" : "New Menu Sub Category"}
+      title={editData ? <FormattedMessage id="EDIT_MENU_SUB_CATEGORY" defaultMessage="Edit Menu Sub Category" /> : <FormattedMessage id="NEW_MENU_SUB_CATEGORY" defaultMessage="New Menu Sub Category" />}
       footer={[
         <div className="flex justify-end" key="footer-buttons">
           <button
@@ -134,14 +139,14 @@ const AddMenuSubCategory = ({
             className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
             onClick={() => setIsModalOpen(false)}
           >
-            Cancel
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
           <button
             type="button"
             className="btn-primary text-white px-4 py-2 rounded-md"
             onClick={handleSubmit}
           >
-            {editData ? "Update" : "Save"}
+            {editData ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
           </button>
         </div>,
       ]}
@@ -152,7 +157,7 @@ const AddMenuSubCategory = ({
           formData={formData}
           setFormData={setFormData}
           name="name"
-          label="Name"
+          label={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
           error={errors.nameEnglish}
           required
         />

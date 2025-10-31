@@ -1,18 +1,16 @@
 import { Fragment, useEffect, useState } from "react";
 import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
-import { GetAllMemberByUserId } from "@/services/apiServices"; // ✅ your API
-
+import { GetAllMemberByUserId } from "@/services/apiServices";
 import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import useStyle from "./style";
-
 import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import ViewMemberDetails from "@/partials/modals/view-member-details/ViewMemberDetails";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AllMemberMaster = () => {
   const classes = useStyle();
@@ -21,12 +19,10 @@ const AllMemberMaster = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
 
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
+  const intl = useIntl(); // ✅ fixed
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const Id = userData?.id;
 
   useEffect(() => {
     FetchMembers();
@@ -43,18 +39,20 @@ const AllMemberMaster = () => {
             sr_no: index + 1,
             email: member.email || "-",
             full_name:
-              `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
-              "-",
+              `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-",
             memberid: member.id,
-            country: member["userBasicDetails"].country.name || "-",
+            country: member["userBasicDetails"]?.country?.name || "-",
             contact: member.contactNo || "-",
-            role: member["userBasicDetails"].role.name || "-",
-            task_access: member["userBasicDetails"].isTaskAccess || "-",
+            role: member["userBasicDetails"]?.role?.name || "-",
+            task_access:
+              member["userBasicDetails"]?.isTaskAccess ? "Yes" : "No",
             leave_attendence_access:
-              member["userBasicDetails"].isAttendanceLeaveAccess || "-",
-            city: member["userBasicDetails"].city.name || "-",
-            state: member["userBasicDetails"].state.name || "-",
-            companyEmail: member["userBasicDetails"].companyEmail || "-",
+              member["userBasicDetails"]?.isAttendanceLeaveAccess
+                ? "Yes"
+                : "No",
+            city: member["userBasicDetails"]?.city?.name || "-",
+            state: member["userBasicDetails"]?.state?.name || "-",
+            companyEmail: member["userBasicDetails"]?.companyEmail || "-",
           }));
           setTableData(formatted);
         } else {
@@ -73,60 +71,29 @@ const AllMemberMaster = () => {
 
   const handleView = (member) => {
     setSelectedMember(member);
-
     setIsViewMemberModalOpen(true);
   };
 
-  const responseFormate = () => {
-    const data = defaultData.map((item) => {
-      return {
-        ...item,
-        proforma_invoice: (
-          // <Link to="/proforma-invoice">
-          <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div
-              className="flex justify-center items-center w-full"
-              onClick={underConstruction}
-            >
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </Tooltip>
-          // </Link>
-        ),
-        invoice: (
-          <Link to="/invoice-dashboard">
-            <Tooltip className="cursor-pointer" title="Invoice">
-              <div className="flex justify-center items-center w-full">
-                <Receipt className="w-5 h-5 text-success" />
-              </div>
-            </Tooltip>
-          </Link>
-        ),
-        quotation: (
-          <Link to="/quotation">
-            <Tooltip className="cursor-pointer" title="Quotation">
-              <div className="flex justify-center items-center w-full">
-                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-              </div>
-            </Tooltip>
-          </Link>
-        ),
-        handleModalOpen: handleModalOpen,
-      };
-    });
-    return data;
-  };
-  useEffect(() => {
-    setTableData(responseFormate());
-  }, []);
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "All Member Master" }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.ALL_MEMBER_MASTER"
+                    defaultMessage="All Member Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
-        {/* filters */}
+
+        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
             className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
@@ -135,11 +102,15 @@ const AllMemberMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Member"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_MEMBER",
+                  defaultMessage: "Search Member...",
+                })}
                 type="text"
               />
             </div>
           </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
@@ -147,17 +118,22 @@ const AllMemberMaster = () => {
                 setIsMemberModalOpen(true);
                 setSelectedMember(null);
               }}
-              title="Add Member"
             >
-              <i className="ki-filled ki-plus"></i> Add Member
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="USER.MASTER.ADD_MEMBER"
+                defaultMessage="Add Member"
+              />
             </button>
           </div>
         </div>
+
+        {/* Modals */}
         <AddMember
           isModalOpen={isMemberModalOpen}
           refreshData={FetchMembers}
           setIsModalOpen={setIsMemberModalOpen}
-          selectedMember={selectedMember} // ✅ pass selected member
+          selectedMember={selectedMember}
         />
 
         <ViewMemberDetails
@@ -166,6 +142,7 @@ const AllMemberMaster = () => {
           memberData={selectedMember}
         />
 
+        {/* Table */}
         <TableComponent
           columns={columns(handleEdit, handleView)}
           data={tableData}
@@ -175,4 +152,5 @@ const AllMemberMaster = () => {
     </Fragment>
   );
 };
+
 export default AllMemberMaster;

@@ -2,6 +2,7 @@ import { useState, useReducer, useEffect, Fragment, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Eye, EyeOff, Mic } from "lucide-react";
+import { Link } from "react-router-dom";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
@@ -1160,8 +1161,8 @@ const EventPreparationPage = () => {
                 </div>
 
                 <button
-                  className={`px-4 py-2 rounded-md font-medium bg-primary text-white `}
-                >
+                onClick={() => navigate("/report-themes")}
+                  className={`px-4 py-2 rounded-md font-medium bg-primary text-white `} >
                   Report
                 </button>
               </div>

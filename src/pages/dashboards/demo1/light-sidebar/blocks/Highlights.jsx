@@ -1,6 +1,7 @@
 import { KeenIcon, Menu, MenuItem, MenuToggle } from '@/components';
 import { useLanguage } from '@/i18n';
 import { DropdownCard1 } from '@/partials/dropdowns/general';
+import { FormattedMessage } from 'react-intl';
 const Highlights = ({
   limit
 }) => {
@@ -8,20 +9,17 @@ const Highlights = ({
     isRTL
   } = useLanguage();
   const rows = [{
-    
-    text: 'Total Lite Sales',
+    text: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_TOTAL_LITE_SALES" defaultMessage="Total Lite Sales" />,
     total: 172,
     stats: 3.9,
     increase: true
   }, {
-    
-    text: 'Total Elite Sales',
+    text: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_TOTAL_ELITE_SALES" defaultMessage="Total Elite Sales" />,
     total: 85,
     stats: 0.7,
     increase: false
   }, {
-    
-    text: 'Total Premium Sales',
+    text: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_TOTAL_PREMIUM_SALES" defaultMessage="Total Premium Sales" />,
     total: 36,
     stats: 8.2,
     increase: true
@@ -40,13 +38,13 @@ const Highlights = ({
   }];
   const items = [{
     badgeColor: 'badge-success',
-    lebel: 'Lite'
+    lebel: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_LITE_SALES" defaultMessage="Lite" />
   }, {
     badgeColor: 'badge-danger',
-    lebel: 'Elite'
+    lebel: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ELITE_SALES" defaultMessage="Elite" />
   }, {
     badgeColor: 'badge-info',
-    lebel: 'Premium'
+    lebel: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_PREMIUM_SALES" defaultMessage="Premium" />
   }];
   const renderRow = (row, index) => {
     return <div key={index} className="flex items-center justify-between flex-wrap gap-2">
@@ -72,7 +70,7 @@ const Highlights = ({
   };
   return <div className="card h-full">
       <div className="card-header">
-        <h3 className="card-title">Highlights</h3>
+        <h3 className="card-title"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHTS" defaultMessage="Highlights" /></h3>
 
         <Menu>
           <MenuItem toggle="dropdown" trigger="click" dropdownProps={{
@@ -94,7 +92,7 @@ const Highlights = ({
 
       <div className="card-body flex flex-col gap-4 p-5 lg:p-7.5 lg:pt-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-normal text-gray-700">All time sales</span>
+          <span className="text-sm font-normal text-gray-700"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ALLTIMEUSER" defaultMessage="All time sales" /></span>
 
           <div className="flex justify-between items-center gap-2.5">
             <span className="text-3xl font-semibold text-gray-900">$295.7k</span>

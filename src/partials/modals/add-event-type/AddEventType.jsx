@@ -7,6 +7,7 @@ import {
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
+import { FormattedMessage } from "react-intl";
 
 const AddEventType = ({
   isModalOpen,
@@ -125,7 +126,7 @@ const AddEventType = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedEvent ? "Edit Event" : "New Event"}
+            {selectedEvent ? <FormattedMessage id="USER.MASTER.EDIT_EVENT_TYPE" defaultMessage="Edit Event" /> : <FormattedMessage id="USER.MASTER.ADD_EVENT_TYPE" defaultMessage="New Event" />}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -140,7 +141,7 @@ const AddEventType = ({
           {/* English */}
           <div>
             <InputToTextLang
-              label="Name (English)"
+              label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
               name="nameEnglish"
               value={formData.nameEnglish}
               onChange={handleChange}
@@ -154,7 +155,7 @@ const AddEventType = ({
 
           {/* Gujarati */}
           <InputToTextLang
-            label="Name (ગુજરાતી)"
+            label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
             name="nameGujarati"
             value={formData.nameGujarati}
             onChange={handleChange}
@@ -163,7 +164,7 @@ const AddEventType = ({
 
           {/* Hindi */}
           <InputToTextLang
-            label="Name (हिंदी)"
+            label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
             name="nameHindi"
             value={formData.nameHindi}
             onChange={handleChange}
@@ -178,14 +179,14 @@ const AddEventType = ({
             onClick={() => setIsModalOpen(false)}
             className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
           >
-            Cancel
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
           <button
             type="button"
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {selectedEvent ? "Update" : "Save"}
+            {selectedEvent ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
           </button>
         </div>
       </div>

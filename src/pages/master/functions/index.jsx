@@ -15,12 +15,18 @@ import {
   GetFunctionsByFunctionName,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
 const FunctionsMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // ✅ state for search
+
+  const intl = useIntl();
 
   const formatData = (apiData) =>
     apiData.map((item, index) => ({
@@ -142,7 +148,7 @@ const FunctionsMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Functions Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.FUNCTIONS" defaultMessage="Functions Master" /> }]} />
         </div>
 
         {/* filters */}
@@ -154,7 +160,10 @@ const FunctionsMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Function"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_FUNCTION",
+                  defaultMessage: "Search Function",
+                })}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)} // ✅ triggers auto search
@@ -171,7 +180,7 @@ const FunctionsMaster = () => {
               }}
               title="Add Function"
             >
-              <i className="ki-filled ki-plus"></i> Add Function
+              <i className="ki-filled ki-plus"></i><FormattedMessage id="USER.MASTER.ADD_FUNCTION" defaultMessage="Add Function" />
             </button>
           </div>
         </div>

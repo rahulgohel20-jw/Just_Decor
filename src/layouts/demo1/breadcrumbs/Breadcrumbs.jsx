@@ -8,6 +8,8 @@ import AddEventType from "@/partials/modals/add-event-type/AddEventType";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import { useNavigate } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
+import { useLanguage } from "@/i18n";
 
 const Breadcrumbs = ({ items }) => {
   const [isCustomerModal, setisCustomerModal] = useState(false);
@@ -15,6 +17,8 @@ const Breadcrumbs = ({ items }) => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isFunctionModal, setIsFunctionModal] = useState(false);
   const navigate = useNavigate();
+
+  const { isRTL } = useLanguage();  
 
   const renderItems = (items) => {
     const dashboardItem = (
@@ -25,7 +29,7 @@ const Breadcrumbs = ({ items }) => {
           key={`item-${0}`}
           title="Dashboard"
         >
-          Dashboard
+          <FormattedMessage id="USER.DASHBOARD.DASHBOARD_LANGUAGE" defaultMessage="Dashboard" />
         </Link>
         <KeenIcon
           icon="right"

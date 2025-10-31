@@ -10,11 +10,17 @@ import {
   SearchEventType,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
+
 const EventTypeMaster = () => {
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
   useEffect(() => {
     FetchEventType();
   }, []);
@@ -109,7 +115,7 @@ const EventTypeMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Event Type Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.EVENT_TYPE_MASTER" defaultMessage="Event Type Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -118,7 +124,7 @@ const EventTypeMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Event"
+                placeholder={intl.formatMessage({ id: "USER.MASTER.SEARCH_EVENT_TYPE", defaultMessage: "Search Event Type" })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -131,7 +137,7 @@ const EventTypeMaster = () => {
               onClick={() => setIsEventTypeModalOpen(true)}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Event Type
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_EVENT_TYPE" defaultMessage="Add Event Type" />
             </button>
           </div>
         </div>

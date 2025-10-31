@@ -11,12 +11,17 @@ import {
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+import { Form } from "antd";
 
 const RawMaterialType = () => {
   const [isRawModalOpen, setIsRawModalOpen] = useState(false);
   const [selectedRawCategory, setSelectedRawCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
+
   useEffect(() => {
     FetchRawTypeCategory();
   }, []);
@@ -126,7 +131,7 @@ const RawMaterialType = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Raw Material Type Category" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE" defaultMessage="Raw Material Type Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -135,7 +140,7 @@ const RawMaterialType = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Raw Material Category"
+                placeholder={intl.formatMessage({ id: "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH", defaultMessage: "Raw Material Type Search..." })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -151,7 +156,7 @@ const RawMaterialType = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Raw Material Type
+              <i className="ki-filled ki-plus"></i> {<FormattedMessage id="USER.MASTER.ADD_RAW_MATERIAL_TYPE" defaultMessage="Add Raw Material Type" />}
             </button>
           </div>
         </div>

@@ -2,11 +2,12 @@ import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
 import { useEffect, useRef, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, handleView) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -14,7 +15,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "full_name",
-    header: "Full Name",
+    header: <FormattedMessage id="COMMON.FULL_NAME" defaultMessage="Full Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -22,7 +23,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "city",
-    header: "City",
+    header: <FormattedMessage id="COMMON.CITY" defaultMessage="City" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -30,7 +31,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "state",
-    header: "State",
+    header:<FormattedMessage id="COMMON.STATE" defaultMessage="State" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -39,7 +40,7 @@ export const columns = (onEdit, handleView) => [
 
   {
     accessorKey: "country",
-    header: "Country",
+    header: <FormattedMessage id="COMMON.COUNTRY" defaultMessage="Country" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -47,7 +48,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "contact",
-    header: "Contact No",
+    header: <FormattedMessage id="COMMON.CONTACT" defaultMessage="Contact No" />,
     meta: {
       headerClassName: "w-[8]",
       cellClassName: "w-[8%]",
@@ -55,7 +56,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "role",
-    header: "Role",
+    header: <FormattedMessage id="COMMON.ROLE" defaultMessage="Role" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -63,7 +64,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: <FormattedMessage id="COMMON.EMAIL" defaultMessage="Email" />,
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",
@@ -72,7 +73,7 @@ export const columns = (onEdit, handleView) => [
 
   {
     accessorKey: "task_access",
-    header: "Tast Access",
+    header: <FormattedMessage id="COMMON.TASK_ACCESS" defaultMessage="Task Access" />,
     meta: {
       headerClassName: "w-[10%]",
       cellClassName: "w-[10%]",
@@ -80,7 +81,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "leave_attendence_access",
-    header: "Leave Attendance Access",
+    header: <FormattedMessage id="COMMON.LEAVE_ATTENDANCE_ACCESS" defaultMessage="Leave Attendance Access" />,
     meta: {
       headerClassName: "w-[10%]",
       cellClassName: "w-[10%]",
@@ -89,7 +90,7 @@ export const columns = (onEdit, handleView) => [
 
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1">

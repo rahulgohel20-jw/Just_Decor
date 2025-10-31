@@ -1,5 +1,7 @@
 import { Fragment, useState } from "react";
+import { FormattedMessage } from 'react-intl';
 import { Container } from "@/components/container";
+import { useLanguage } from "@/i18n";
 import {
   Toolbar,
   ToolbarActions,
@@ -16,9 +18,7 @@ import { cn } from "@/lib/utils";
 import { KeenIcon } from "@/components/keenicons";
 import {
   ChannelStats,
-  Demo1LightSidebarContent,
   EarningsChart,
-  EntryCallout,
   Highlights,
   Teams,
 } from "../dashboards/demo1";
@@ -28,13 +28,15 @@ const Dashboard = () => {
     from: new Date(2025, 0, 20),
     to: addDays(new Date(2025, 0, 20), 20),
   });
+  const { isRTL } = useLanguage();
+  
   return (
     <Fragment>
       <Container>
         <Toolbar>
           <ToolbarHeading
-            title="Dashboard"
-            description="Central Hub for Personal Customization"
+            title={<FormattedMessage id="USER.DASHBOARD.DASHBOARD_LANGUAGE" defaultMessage="Dashboard" />}
+            description={<FormattedMessage id="USER.DASHBOARD.DASHBOARD_DESCRIPTION" defaultMessage="A Central Hub For Your Personal Customization" />}
           />
           <ToolbarActions>
             <Popover>
@@ -84,11 +86,8 @@ const Dashboard = () => {
                 <ChannelStats />
               </div>
             </div>
-
           </div>
-            {/* <div className="lg:col-span-2">
-              <EntryCallout className="h-full" />
-            </div> */}
+
           <div className="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
             <div className="lg:col-span-1">
               <Highlights limit={3} />
@@ -98,13 +97,14 @@ const Dashboard = () => {
               <EarningsChart />
             </div>
           </div>
+          
           <div>
             <Teams />
           </div>
-
         </div>
       </Container>
     </Fragment>
   );
 };
+
 export { Dashboard };

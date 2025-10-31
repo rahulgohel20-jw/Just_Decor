@@ -1,12 +1,36 @@
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
+import { FormattedMessage, useIntl } from "react-intl";
 
-const STATUS_OPTIONS = [
-  { label: "Inquiry", value: "0" },
-  { label: "Confirm", value: "1" },
-  { label: "Cancel", value: "2" },
-];
+
 
 const EventStatusDropdown = ({ value, onChange, ...rest }) => {
+
+  const intl = useIntl();
+
+
+  const STATUS_OPTIONS = [
+    {
+      label: intl.formatMessage({
+        id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
+        defaultMessage: "Inquiry",
+      }),
+      value: "0",
+    },
+    {
+      label: intl.formatMessage({
+        id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM",
+        defaultMessage: "Confirm",
+      }),
+      value: "1",
+    },
+    {
+      label: intl.formatMessage({
+        id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
+        defaultMessage: "Cancel",
+      }),
+      value: "2",
+    },
+  ];
   // If SelectDropdown calls onChange with (event) like a native select:
   const handleChange = (eOrVal) => {
     // support both shapes: native event or direct value
