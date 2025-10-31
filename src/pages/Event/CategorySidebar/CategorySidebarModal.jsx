@@ -54,8 +54,6 @@ export default function CategorySidebarModal({
   }, []);
 
   useEffect(() => {
-    console.log(selectedRowData);
-
     if (selectedRowData) {
       const details =
         selectedRowData?.["MenuItem RawMaterial Details"]?.map((item) => ({

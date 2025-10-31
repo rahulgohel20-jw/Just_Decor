@@ -78,6 +78,13 @@ export const LoginUser = (data) => {
 export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
+//get customer by id by cat id
+export const GetPartyMasterByCatTypeId = (catTypeId, userId) => {
+  return GET(
+    `/partymaster/getallbycattypeid?catTypeId=${catTypeId}&userId=${userId}`
+  );
+};
+
 //Add customer
 export const AddCustomerapi = (data) => {
   return POST("/partymaster/add", data);
@@ -254,6 +261,10 @@ export const SearchEventType = (data, Id) => {
 export const Addeventtype = (data) => {
   return POST(`/eventtype/add`, data);
 };
+export const MenuAllocationSave = (data) => {
+  return POST(`/menuallocation/add-update`, data);
+};
+
 //Edit Event Type
 export const EditEventType = (Id, data) => {
   return PUT(`/eventtype/update?id=${Id}`, data);
@@ -710,14 +721,11 @@ export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
 };
 
-//custome package updtae api 
+//custome package updtae api
 // Update custom package status API
 export const UpdateCustomPackageStatusapi = (id, isActive) => {
   return PUT(`/custompackage/updatestatus?id=${id}&isActive=${isActive}`);
 };
-
-
-
 
 //Invoice api
 
@@ -727,11 +735,30 @@ export const GetInvoiceByEventId = (eventId) => {
 
 export const GetInvoiceByUserId = (id) => {
   return GET(`/invoice/getalluserid?userid=${id}`);
-}
+};
 
 export const AddInvoice = (data) => {
   return POST(`/invoice/add`, data);
-}
+};
+
+//add labour
+export const AddUpdateLabor = (payload) => {
+  return POST("/labor/add-update", payload);
+};
+
+//get labour by event id
+export const GetEventLaborDetails = (eventFunctionId, eventId) => {
+  return GET(
+    `/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
+};
+
+//get api for general/extra-expense
+export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
+  return GET(
+    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
+};
 
 export const UpdateInvoice = (id, data) => {
   return PUT(`/invoice/update?id=${id}`, data);

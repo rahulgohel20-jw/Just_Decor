@@ -196,11 +196,13 @@ const EventViewModal = ({
                     },
                   }),
               },
-              {
-                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_LABOUR_OTHER_MANAGEMENT" defaultMessage="Labour / Other Management" />,
-                icon: "/media/eventviewicon/labour.png",
-                onClick: () => navigate(`/labour-and-other-management`),
-              },
+ {
+  label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_LABOUR_OTHER_MANAGEMENT" defaultMessage="Labour / Other Management" />,
+  icon: "/media/eventviewicon/labour.png",
+  onClick: () => navigate(`/labour-and-other-management/${safeEventId}`),
+},
+
+
               {
                 label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_REPORT" defaultMessage="Menu Report" />,
                 icon: "/media/eventviewicon/menureport.png",

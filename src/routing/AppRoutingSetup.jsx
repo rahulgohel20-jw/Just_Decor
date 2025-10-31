@@ -138,7 +138,7 @@ import QuotationPage from "@/pages/Event/QuotationPage";
 import EventInvoicePage from "@/pages/Event/EventInvoicePage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 import AddInvoicePage from "@/pages/Event/AddInvoicePage";
-import InvoiceViewPage from "../pages/Event/InvoiceViewPage";
+import InvoiceViewPage from "@/pages/Event/InvoiceViewPage";
 import CustomerMaster from "@/pages/master/customer";
 import AllMemberMaster from "@/pages/master/all-menbers";
 import FunctionsMaster from "@/pages/master/functions";
@@ -150,11 +150,11 @@ import MenuCategoryMaster from "@/pages/master/MenuCategory";
 import MenuSubCategory from "@/pages/master/MenuSubCategory";
 import MenuKitchenArea from "@/pages/master/MenuKitchenArea";
 import MenuItemsMaster from "@/pages/master/MenuItems";
-import EstimatePage from "../pages/Event/EstimatePage";
+import EstimatePage from "@/pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
-import StateSearchForm from "../pages/StateSearch";
-import AllUser from "../pages/master/user-master/alluser";
-import AllPlan from "../pages/master/user-master/allplan";
+import StateSearchForm from "@/pages/StateSearch";
+import AllUser from "@/pages/master/user-master/alluser";
+import AllPlan from "@/pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import RawMaterialMaster from "@/pages/master/raw-material-category";
 import RawMaterialTypeMaster from "@/pages/master/raw-material-type";
@@ -163,16 +163,22 @@ import RawMaterial from "@/pages/master/Raw-Material";
 import CustomPackageMaster from "@/pages/master/custom-package";
 import AddCustomPackage from "@/pages/master/custom-package/Add-customepackage/AddCustomPackage";
 import InvoiceDashboard from "@/pages/sales/invoice/InvoiceDashboard/InvoiceDashboard";
-import InvoiceList from "../pages/sales/invoice/InvoiceList/InvoiceList";
-import QuotationDashboard from "../pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
-import QuotationViewPage from "../pages/sales/quotaion/QuotationList/QuotationList";
-import QuickCustomPackage from "../pages/Event/QuickCustomPackage";
-
+import InvoiceList from "@/pages/sales/invoice/InvoiceList/InvoiceList";
+import QuotationDashboard from "@/pages/sales/quotaion/QuotationDashboard/QuotaionDashboard";
+import QuotationViewPage from "@/pages/sales/quotaion/QuotationList/QuotationList";
+import QuickCustomPackage from "@/pages/Event/QuickCustomPackage";
+import Labourshiftmaster from "../pages/master/labour-shift";
+import Priceplan from "@/partials/modals/priceplan/Priceplan";
+import ReportsConfig from "@/pages/Reports/ReportsConfig";
+import DateWiseReport from "@/pages/Reports/DateWiseReport";
+import ReportThemes from "@/pages/Event/ReportThemesPage";
+import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 const AppRoutingSetup = () => {
   return (
     <Routes>
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
+          <Route path="/price" element={<Priceplan />} />
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<Dashboard />} />
@@ -225,10 +231,15 @@ const AppRoutingSetup = () => {
             element={<RawMaterialAllocationPage />}
           />
           <Route path="/custom-package" element={<CustomPackage />} />
-
+          <Route path="/report-congiguration" element={<ReportsConfig />} />
+          <Route path="/report-datewise" element={<DateWiseReport />} />
           <Route
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}
+          />
+          <Route
+            path="/labour-and-other-management/:eventId"
+            element={<LabourOtherManagementPage mode="labour" />}
           />
           <Route
             path="/order-booking-reports"
@@ -243,7 +254,8 @@ const AppRoutingSetup = () => {
           <Route path="/add-invoice" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
-
+<Route path="/report-themes" element={<ReportThemes />} />
+<Route path="/report-themes/editor" element={<Editor />} />
           {/* Sales */}
 
           <Route
@@ -305,6 +317,7 @@ const AppRoutingSetup = () => {
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
           />
+          <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
 
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
@@ -343,6 +356,7 @@ const AppRoutingSetup = () => {
             element={<NotificationsSettingsPage />}
           />
           {/* Support routes */}
+
           <Route path="/support/events" element={<EventsPage />} />
           <Route path="/support/tutorials" element={<TutorialsPage />} />
           <Route path="/support/tickets" element={<TicketsPage />} />

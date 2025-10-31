@@ -2,6 +2,7 @@ import { useState, useReducer, useEffect, Fragment } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Eye, EyeOff, Mic } from "lucide-react";
+import { Link } from "react-router-dom";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
@@ -71,6 +72,7 @@ const EventPreparationPage = () => {
   const [activeTab, setActiveTab] = useState("custom");
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [orderedCategoryIds, setOrderedCategoryIds] = useState([]);
+  const [categoryAnyItems, setCategoryAnyItems] = useState({});
 
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
@@ -80,14 +82,8 @@ const EventPreparationPage = () => {
     categoryNotes: "",
     categorySlogan: "",
   });
-const userDataRaw = localStorage.getItem("userData");
-const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
-
-console.log("User ID from localStorage:", userId);
-console.log("User ID from localStorage:", userId);
-console.log(localStorage);
-
-
+  const userDataRaw = localStorage.getItem("userData");
+  const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
 
   const { saveMenu } = useSaveMenu(
     functionSelectionData,
@@ -101,110 +97,130 @@ console.log(localStorage);
     dispatch
   );
 
-const handlePackageSelect = (packageData) => {
-  if (!selectedFunctionId) {
-    console.warn("⚠️ No function selected");
-    return;
-  }
+  const handlePackageSelect = (packageData) => {
+    if (!selectedFunctionId) {
+      console.warn("⚠️ No function selected");
+      return;
+    }
 
-  let items = [];
-  let packageName = "Custom Package";
-  let totalPrice = 0;
-  let packageId = null;
+    let items = [];
+    let packageName = "Custom Package";
+    let totalPrice = 0;
+    let packageId = null;
 
-  // Determine structure of packageData
-  if (Array.isArray(packageData)) {
-    items = packageData;
-    totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
-    packageName = selectedPackageName || `Package (${items.length} items)`;
-  } else if (packageData.items && Array.isArray(packageData.items)) {
-    items = packageData.items;
-    packageName = packageData.packageName;
-    totalPrice = packageData.totalPrice;
-    packageId = packageData.id;
-  } else if (packageData.packageInfo && packageData.packageItems) {
-    items = packageData.packageItems;
-    packageName = packageData.packageInfo.packageName;
-    totalPrice = packageData.packageInfo.packagePrice;
-    packageId = packageData.packageInfo.id;
-  } else {
-    console.warn("⚠️ Invalid package data structure", packageData);
-    return;
-  }
+    // Determine structure of packageData
+    if (Array.isArray(packageData)) {
+      items = packageData;
+      totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
+      packageName = selectedPackageName || `Package (${items.length} items)`;
+    } else if (packageData.items && Array.isArray(packageData.items)) {
+      items = packageData.items;
+      packageName = packageData.packageName;
+      totalPrice = packageData.totalPrice;
+      packageId = packageData.id;
+    } else if (packageData.packageInfo && packageData.packageItems) {
+      items = packageData.packageItems;
+      packageName = packageData.packageInfo.packageName;
+      totalPrice = packageData.packageInfo.packagePrice;
+      packageId = packageData.packageInfo.id;
+    } else {
+      console.warn("⚠️ Invalid package data structure", packageData);
+      return;
+    }
 
-  if (!items || items.length === 0) {
-    console.warn("⚠️ No items found in package");
-    return;
-  }
+    if (!items || items.length === 0) {
+      console.warn("⚠️ No items found in package");
+      return;
+    }
 
-  // Set selected package info
-  setSelectedPackageName(packageName);
-  setSelectedPackagePrice(totalPrice || 0);
+    // Set selected package info
+    setSelectedPackageName(packageName);
+    setSelectedPackagePrice(totalPrice || 0);
 
-  // Process items with deterministic IDs
-  const processedItems = items.map((item, index) => {
-    const categoryName = item.categoryName || item.menuName || "Custom Package Items";
-    const categoryId = categories.find((cat) => cat.name === categoryName)?.id ||
-      `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+    // Process items with deterministic IDs
+    const processedItems = items.map((item, index) => {
+      const categoryName =
+        item.categoryName || item.menuName || "Custom Package Items";
+      const categoryId =
+        categories.find((cat) => cat.name === categoryName)?.id ||
+        `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
 
-    const newItemId = `pkg-${packageId || "custom"}-cat-${categoryId}-item-${index}`;
+      const newItemId = `pkg-${packageId || "custom"}-cat-${categoryId}-item-${index}`;
 
-    return {
-      ...item,
-      id: newItemId,
-      parentId: categoryId,
-      image: item.image || "",
-      price: item.price || item.itemPrice || 0,
-      itemNotes: item.instruction || item.itemNotes || "",
-      name: item.name || item.itemName || `Item ${index + 1}`,
-      isPackageItem: true,
+      return {
+        ...item,
+        id: newItemId,
+        parentId: categoryId,
+        image: item.image || "",
+        price: item.price || item.itemPrice || 0,
+        itemNotes: item.instruction || item.itemNotes || "",
+        name: item.name || item.itemName || `Item ${index + 1}`,
+        isPackageItem: true,
+        packageId: packageId,
+        packageName: packageName,
+      };
+    });
+
+    // Extract category "Any" counts from package data if available
+    const categoryAnyItems = {};
+
+    if (Array.isArray(packageData.packageItems)) {
+      packageData.packageItems.forEach((pkgCat) => {
+        if (pkgCat.categoryName && pkgCat.anyItemCount) {
+          const cat = categories.find(
+            (c) => c.name.toLowerCase() === pkgCat.categoryName.toLowerCase()
+          );
+          const catId = cat
+            ? cat.id
+            : `temp-${pkgCat.categoryName.toLowerCase().replace(/\s+/g, "-")}`;
+          categoryAnyItems[catId] = pkgCat.anyItemCount;
+        }
+      });
+    }
+
+    // Save it to state
+    setCategoryAnyItems((prev) => {
+      const newState = { ...prev, [selectedFunctionId]: categoryAnyItems };
+      return newState;
+    });
+
+    // Update allMenuItems for this function
+    setAllMenuItems((prev) => ({
+      ...prev,
+      [selectedFunctionId]: processedItems,
+    }));
+
+    // Update packageItemIds to match processed item IDs
+    const newItemIds = processedItems.map((item) => item.id);
+    setPackageItemIds(newItemIds);
+
+    // Dispatch to update functionSelectionData
+    dispatch({
+      type: "UPDATE_SELECTIONS",
+      functionId: selectedFunctionId,
+      selectedItems: newItemIds,
+      itemNotes: processedItems.reduce((acc, item) => {
+        acc[item.id] = item.itemNotes || "";
+        return acc;
+      }, {}),
+      itemSlogans: processedItems.reduce((acc, item) => {
+        acc[item.id] = item.itemSlogan || "";
+        return acc;
+      }, {}),
+      itemRates: processedItems.reduce((acc, item) => {
+        acc[item.id] = item.price || rate || 0;
+        return acc;
+      }, {}),
+      categoryNotes: {},
+      categorySlogans: {},
+      itemSortOrders: {},
+      isSaved: true,
+      isPackage: true,
       packageId: packageId,
       packageName: packageName,
-    };
-  });
-
-  // Update allMenuItems for this function
-  setAllMenuItems((prev) => ({
-    ...prev,
-    [selectedFunctionId]: processedItems,
-  }));
-
-  // Update packageItemIds to match processed item IDs
-  const newItemIds = processedItems.map((item) => item.id);
-  setPackageItemIds(newItemIds);
-
-  // Dispatch to update functionSelectionData
- dispatch({
-  type: "UPDATE_SELECTIONS",
-  functionId: selectedFunctionId,
-  selectedItems: newItemIds,
-  itemNotes: processedItems.reduce((acc, item) => {
-    acc[item.id] = item.itemNotes || "";
-    return acc;
-  }, {}),
-  itemSlogans: processedItems.reduce((acc, item) => {
-    acc[item.id] = item.itemSlogan || "";
-    return acc;
-  }, {}),
-  itemRates: processedItems.reduce((acc, item) => {
-    acc[item.id] = item.price || rate || 0;
-    return acc;
-  }, {}),
-  categoryNotes: {},
-  categorySlogans: {},
-  itemSortOrders: {},
-  isSaved: true,
-  isPackage: true,          // ✅ mark as package
-  packageId: packageId,      // ✅ store package ID
-  packageName: packageName,  // ✅ store package name
-  packagePrice: totalPrice,  // ✅ store package price
-});
-
-
-
-  console.log("✅ Package selection complete:", processedItems);
-};
-
+      packagePrice: totalPrice,
+    });
+  };
 
   useEffect(() => {
     initializeData();
@@ -345,6 +361,30 @@ const handlePackageSelect = (packageData) => {
   };
 
   const toggleChildSelection = (id) => {
+    const item = currentMenuItems.find((menuItem) => menuItem.id === id);
+
+    // Check if we're in package tab
+    if (activeTab === "package") {
+      // When adding a new item in package tab, add it to packageItemIds
+      if (item && !currentFunctionData.selectedItems?.includes(id)) {
+        setPackageItemIds((prev) => [...prev, id]);
+
+        // Also add the item to allMenuItems for this function if not already there
+        setAllMenuItems((prev) => {
+          const existingItems = prev[selectedFunctionId] || [];
+          const itemExists = existingItems.some((i) => i.id === id);
+
+          if (!itemExists) {
+            return {
+              ...prev,
+              [selectedFunctionId]: [...existingItems, item],
+            };
+          }
+          return prev;
+        });
+      }
+    }
+
     dispatch({
       type: "TOGGLE_ITEM_SELECTION",
       functionId: selectedFunctionId,
@@ -360,7 +400,6 @@ const handlePackageSelect = (packageData) => {
       rate: value,
     });
   };
-  
 
   const handlePaxChange = (newPax) => {
     setPax(newPax);
@@ -458,8 +497,6 @@ const handlePackageSelect = (packageData) => {
     });
   };
 
-  // ============ CALCULATIONS SECTION ============
-
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentMenuItems = functionMenuData[cacheKey] || [];
 
@@ -532,8 +569,6 @@ const handlePackageSelect = (packageData) => {
   }, {});
 
   const isUpdateOperation = menuPreparationIds[selectedFunctionId] > 0;
-
-  // ============ END CALCULATIONS ============
 
   return (
     <Fragment>
@@ -683,70 +718,70 @@ const handlePackageSelect = (packageData) => {
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-4 mt-6">
-                <button
-                  onClick={() => {
-                    setActiveTab("custom");
-                    setShowCustomPackageModal(false);
-                  }}
-                  className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
-                    activeTab === "custom"
-                      ? "bg-primary text-white shadow"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Custom
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab("package");
-                    setShowCustomPackageModal(true);
-                  }}
-                  className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
-                    activeTab === "package"
-                      ? "bg-primary text-white shadow"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Custom Package
-                </button>
+              <div className={`pt-3 px-3 shrink-0 ${classes.customStyle}`}>
+                <TabComponent tabs={menuPreparationsTabs} />
               </div>
 
-              {selectedPackageName && selectedPackagePrice > 0 && (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md transition-all duration-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-blue-700 block mb-1">
-                        📦 Selected Package: {selectedPackageName}
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        Total Price: ₹{selectedPackagePrice.toLocaleString()}
-                      </span>
-                    </div>
-                    <span className="text-2xl font-bold text-blue-600">
-                      {currentFunctionData.selectedItems?.length || 0}
-                    </span>
-                  </div>
-                </div>
-              )}
+              <div className="flex gap-1 px-3 justify-between">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setActiveTab("custom");
+                      setShowCustomPackageModal(false);
+                    }}
+                    className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
+                      activeTab === "custom"
+                        ? "bg-primary text-white shadow"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Custom
+                  </button>
 
+                  <button
+                    onClick={() => {
+                      setActiveTab("package");
+                      setShowCustomPackageModal(true);
+                    }}
+                    className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
+                      activeTab === "package"
+                        ? "bg-primary text-white shadow"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Custom Package
+                  </button>
+                </div>
+
+                <button
+                onClick={() => navigate("/report-themes")}
+                  className={`px-4 py-2 rounded-md font-medium bg-primary text-white `} >
+                  Report
+                </button>
+              </div>
+              <div className="px-3 ">
+                {selectedPackageName && selectedPackagePrice > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md ">
+                    <div className="flex items-center justify-between">
+                      <div className="w-full flex  items-center justify-between">
+                        <span className="font-semibold text-blue-700 block mb-1">
+                          Selected Package: {selectedPackageName}
+                        </span>
+                        <span className=" font-semibold  text-sm text-gray-700">
+                          Total Price: ₹{selectedPackagePrice.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <CustomPackageModal
                 isOpen={showCustomPackageModal}
                 onClose={() => {
                   setShowCustomPackageModal(false);
                 }}
-              userId={userId} 
+                userId={userId}
                 onPackageSelect={(data) => {
-                  console.log(
-                    "🎯 Package selected, data type:",
-                    typeof data,
-                    "Is Array:",
-                    Array.isArray(data)
-                  );
-                  console.log("🎯 Data:", data);
-
                   const isValid =
                     (Array.isArray(data) && data.length > 0) ||
                     (data &&
@@ -765,14 +800,7 @@ const handlePackageSelect = (packageData) => {
                     console.warn("⚠️ Invalid package data:", data);
                   }
                 }}
-                 
               />
-
-              <div
-                className={`pt-3 px-3 border-b shrink-0 ${classes.customStyle}`}
-              >
-                <TabComponent tabs={menuPreparationsTabs} />
-              </div>
 
               <div
                 className={`grid grid-cols-1 lg:grid-cols-9 ${classes.customStyle}`}
@@ -802,7 +830,7 @@ const handlePackageSelect = (packageData) => {
                     <div className="border-b p-3 bg-light flex items-center gap-3">
                       <div className="select__grp flex flex-col w-full">
                         <div className="sg__inner flex items-center gap-1 relative">
-                          <div className="relative w-full">
+                          <div className="border-none relative w-full">
                             <SearchInput
                               placeholder="Search items"
                               value={childSearch}
@@ -855,11 +883,7 @@ const handlePackageSelect = (packageData) => {
                         className="text-primary hover:underline"
                         onClick={() => setShowDetails((prev) => !prev)}
                       >
-                        {showDetails ? (
-                          <Eye size={18} />
-                        ) : (
-                          <EyeOff size={18} />
-                        )}
+                        {showDetails ? <Eye size={18} /> : <EyeOff size={18} />}
                       </button>
                     </Tooltip>
                   </div>
@@ -901,6 +925,9 @@ const handlePackageSelect = (packageData) => {
                     selectedPackageName={selectedPackageName}
                     selectedPackagePrice={selectedPackagePrice}
                     orderedCategoryIds={orderedCategoryIds}
+                    categoryAnyItems={
+                      categoryAnyItems?.[selectedFunctionId?.toString()]
+                    }
                   />
                 </div>
                 <div className="p-3 border-t flex items-center justify-between gap-4">
