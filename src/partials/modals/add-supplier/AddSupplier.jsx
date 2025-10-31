@@ -1,13 +1,15 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { useEffect, useState } from "react";
 import { GetSuplier } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
 
 const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
   const [formData, setFormData] = useState({
     suplierlistid: "",
   });
   const [suplierList, setSuplierList] = useState([]);
-
+  const intl = useIntl();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -77,14 +79,14 @@ const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
       <CustomModal
         open={isOpen}
         onClose={() => onClose(false)}
-        title={supplierData ? "Edit Supplier" : "New Supplier"}
+        title={supplierData ? <FormattedMessage id="USER.SUPPLIER.EDIT_TITLE" defaultMessage="Edit Supplier" /> : <FormattedMessage id="USER.SUPPLIER.NEW_TITLE" defaultMessage="New Supplier" />}
         footer={[
           <div className="flex justify-between " key="footer-buttons">
             <button className="btn btn-light" onClick={() => onClose(false)}>
-              Cancel
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button className="btn btn-success" onClick={handleSave}>
-              {supplierData ? "Update" : "Save"}
+              {supplierData ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
             </button>
           </div>,
         ]}
@@ -92,14 +94,14 @@ const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
         <div className="flex flex-col gap-y-4 max-h-[450px] overflow-auto scrollable-y">
           {/* Supplier */}
           <div className="flex flex-col">
-            <label className="form-label">Supplier</label>
+            <label className="form-label"><FormattedMessage id="COMMON.SUPPLIER" defaultMessage="Supplier" /></label>
             <select
               className="select"
               name="suplierlistid"
               value={formData.suplierlistid}
               onChange={handleChange}
             >
-              <option value="">Select Supplier</option>
+              <option value=""><FormattedMessage id="COMMON.SELECT_SUPPLIER" defaultMessage="Select Supplier" /></option>
               {suplierList.map((suplier) => (
                 <option key={suplier.value} value={suplier.value}>
                   {suplier.label}

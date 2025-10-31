@@ -12,6 +12,12 @@ import {
 } from "@/services/apiServices";
 import ViewCustomer from "../../../partials/modals/view-customer/ViewCustomer";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
+
+
 const CustomerMaster = () => {
   const classes = useStyle();
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +25,8 @@ const CustomerMaster = () => {
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [tableData, setTableData] = useState();
+
+  const intl = useIntl();
 
   useEffect(() => {
     FetchCustomer();
@@ -150,7 +158,7 @@ const CustomerMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Customer Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.CUSTOMER_MASTER" defaultMessage="Customer Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -159,13 +167,16 @@ const CustomerMaster = () => {
           >
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input
-                className="input pl-8"
-                placeholder="Search Customer"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+               <input
+      className="input pl-8"
+      placeholder={intl.formatMessage({
+        id: "USER.MASTER.SEARCH_CUSTOMER",
+        defaultMessage: "Search Customer...",
+      })}
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -174,7 +185,7 @@ const CustomerMaster = () => {
               onClick={handleAddCustomer}
               title="Add Customer"
             >
-              <i className="ki-filled ki-plus"></i> Add Customer
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_CUSTOMER" defaultMessage="Add Customer" />
             </button>
           </div>
         </div>

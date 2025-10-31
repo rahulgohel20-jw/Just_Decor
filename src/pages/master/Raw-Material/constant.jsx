@@ -1,9 +1,10 @@
 import { Popconfirm, Tooltip } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -11,7 +12,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "raw_material_name",
-    header: "Raw Material Name",
+    header: <FormattedMessage id="COMMON.RAW_MATERIAL_NAME" defaultMessage="Raw Material Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -19,7 +20,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "raw_material_category",
-    header: "Raw Material Category",
+    header: <FormattedMessage id="COMMON.RAW_MATERIAL_CATEGORY" defaultMessage="Raw Material Category" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -27,7 +28,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "unit",
-    header: "Unit",
+    header: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -36,7 +37,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
 
   {
     accessorKey: "priority",
-    header: "Priority",
+    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -44,7 +45,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "isActive",
-    header: "Status",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center  gap-1">
@@ -82,7 +83,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
 
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">

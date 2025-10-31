@@ -13,11 +13,18 @@ import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
+import { useIntl } from "react-intl";
+import { useLanguage } from "@/i18n";
+
 const EventListPage = () => {
   const classes = useStyle();
+  const intl = useIntl();
+  const { isRTL } = useLanguage();
+
   useEffect(() => {
     FetchEvent();
   }, []);
+
   const [tableData, setTableData] = useState();
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [viewEventModal, setViewEventModal] = useState(false);
@@ -28,6 +35,7 @@ const EventListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   let Id = userData.id;
+
   const FetchEvent = () => {
     GetEventMaster(Id)
       .then((res) => {
@@ -81,6 +89,7 @@ const EventListPage = () => {
         console.error("Error fetching events:", error);
       });
   };
+
   const handleSearch = (e) => {
     const value = e.target.value.toUpperCase();
     setSearchTerm(value);
@@ -130,10 +139,12 @@ const EventListPage = () => {
       }
     });
   };
+
   const viewEvent = (eventId) => {
     setSelectedEventId(eventId);
     setViewEventModal(true);
   };
+
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
@@ -144,7 +155,16 @@ const EventListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs 
+            items={[
+              {
+                title: intl.formatMessage({ 
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT", 
+                  defaultMessage: "Events" 
+                })
+              }
+            ]} 
+          />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">

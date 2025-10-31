@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormattedMessage } from "react-intl";
 
 const fetchEarningsChart = () => {
   return axios.get(`${import.meta.env.VITE_APP_API_URL}/sales/index`);
@@ -180,7 +181,7 @@ const EarningsChart = () => {
   return (
     <div className="card h-full">
       <div className="card-header">
-        <h3 className="card-title">Earnings</h3>
+        <h3 className="card-title"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_EARNINGS" defaultMessage="Earnings" /></h3>
 
         <div className="flex items-center gap-5">
           
@@ -189,10 +190,10 @@ const EarningsChart = () => {
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent className="w-32">
-              <SelectItem value="1">All</SelectItem>
-              <SelectItem value="lite">Lite</SelectItem>
-              <SelectItem value="elite">Elite</SelectItem>
-              <SelectItem value="premium">Premium</SelectItem>
+              <SelectItem value="1"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ALL_SALES" defaultMessage="All" /></SelectItem>
+              <SelectItem value="lite"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_LITE_SALES" defaultMessage="Lite" /></SelectItem>
+              <SelectItem value="elite"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ELITE_SALES" defaultMessage="Elite" /></SelectItem>
+              <SelectItem value="premium"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_PREMIUM_SALES" defaultMessage="Premium" /></SelectItem>
             </SelectContent>
           </Select>
           <Select defaultValue="1">
@@ -200,10 +201,10 @@ const EarningsChart = () => {
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent className="w-32">
-              <SelectItem value="1">1 month</SelectItem>
-              <SelectItem value="3">3 months</SelectItem>
-              <SelectItem value="6">6 months</SelectItem>
-              <SelectItem value="12">12 months</SelectItem>
+              <SelectItem value="1"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_1MONTH_SALES" defaultMessage="1 Month" /></SelectItem>
+              <SelectItem value="3"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_3MONTH_SALES" defaultMessage="3 Months" /></SelectItem>
+              <SelectItem value="6"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_6MONTH_SALES" defaultMessage="6 Months" /></SelectItem>
+              <SelectItem value="12"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_12MONTH_SALES" defaultMessage="12 Months" /></SelectItem>
             </SelectContent>
           </Select>
         </div>

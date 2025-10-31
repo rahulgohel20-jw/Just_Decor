@@ -11,6 +11,10 @@ import {
 import useStyle from "./style";
 import Swal from "sweetalert2";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
 
 const ContactCategoryMaster = () => {
   const classes = useStyle();
@@ -18,6 +22,9 @@ const ContactCategoryMaster = () => {
   const [selectedconatctCategory, setSelectedconatctCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
+
+
   useEffect(() => {
     FetchConatctCategory();
   }, []);
@@ -118,7 +125,7 @@ const ContactCategoryMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Contact Category Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY_MASTER" defaultMessage="Contact Category Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -129,7 +136,10 @@ const ContactCategoryMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Contact"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_CONTACT_CATEGORY",
+                  defaultMessage: "Search Contact Category",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -142,7 +152,7 @@ const ContactCategoryMaster = () => {
               onClick={() => setIsContactModalOpen(true)}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Contact Category
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_CONTACT_CATEGORY" defaultMessage="Add Contact Category" />
             </button>
           </div>
         </div>

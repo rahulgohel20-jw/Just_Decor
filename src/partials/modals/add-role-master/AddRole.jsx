@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { message } from "antd";
 import { AddRole as AddRoleApi } from "@/services/apiServices"; 
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
+import { FormattedMessage } from "react-intl";
 
 const AddRole = ({ isOpen, onClose, selectedRole, refreshData, onSuccess }) => {
   const initialState = {
@@ -70,7 +71,7 @@ const AddRole = ({ isOpen, onClose, selectedRole, refreshData, onSuccess }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedRole ? "Edit Role" : "New Role"}
+            {selectedRole ? <FormattedMessage id="USER.MASTER.EDIT_ROLE" defaultMessage="Edit Role" /> : <FormattedMessage id="USER.MASTER.NEW_ROLE" defaultMessage="New Role" />}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -83,7 +84,7 @@ const AddRole = ({ isOpen, onClose, selectedRole, refreshData, onSuccess }) => {
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <InputToTextLang
-            label="Name*"
+            label={<FormattedMessage id="COMMON.ROLE_NAME" defaultMessage="Role Name*" />}
             value={formData.nameEnglish}
             onChange={(e) => handleChange("name", e.target.value)}
             lng="en-US"
@@ -112,14 +113,14 @@ const AddRole = ({ isOpen, onClose, selectedRole, refreshData, onSuccess }) => {
             onClick={() => onClose(false)}
             className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
           >
-            Cancel
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
           >
-            {selectedRole ? "Update" : "Save"}
+            {selectedRole ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
           </button>
         </div>
       </div>

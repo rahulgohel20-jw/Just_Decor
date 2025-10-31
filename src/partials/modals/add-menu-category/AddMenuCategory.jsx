@@ -10,6 +10,9 @@ import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox
 import { uploadFile } from "@/services/apiServices";
 import { formValidation } from "../../../lib/utils";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
 
 const AddMenuCategory = ({
   isModalOpen,
@@ -18,6 +21,8 @@ const AddMenuCategory = ({
   editData,
 }) => {
   if (!isModalOpen) return null;
+
+  const intl = useIntl();
 
   const initialFormState = {
     nameEnglish: "",
@@ -168,14 +173,14 @@ const AddMenuCategory = ({
           onClick={() => setIsModalOpen(false)}
           className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
         >
-          Cancel
+          <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
         </button>,
         <button
           type="button"
           className="btn-success text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
           onClick={handleSubmit}
         >
-          {editData ? "Update" : "Save"}
+          {editData ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
         </button>,
       ]}
     >
@@ -185,14 +190,15 @@ const AddMenuCategory = ({
           formData={formData}
           setFormData={setFormData}
           name="name"
-          label="Name"
+          label={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
+          placeholder={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
           error={errors.nameEnglish}
         />
 
         <div className="relative">
           <label className="block text-gray-600 mb-1">
-            {"Price"}
-            <span className="mandatory ms-0.5 text-base text-red-500 font-mediumml-1">
+            <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
+            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
               *
             </span>
           </label>
@@ -202,7 +208,7 @@ const AddMenuCategory = ({
             value={formData.price}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={"price"}
+            placeholder={intl.formatMessage({ id: "COMMON.PRICE", defaultMessage: "Price" })}
           />
           {errors.price && (
             <span className="text-red-500 text-sm">{errors.price}</span>
@@ -210,7 +216,7 @@ const AddMenuCategory = ({
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">
-            {"Priority"}
+            <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />
             <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
               *
             </span>
@@ -221,14 +227,16 @@ const AddMenuCategory = ({
             value={formData.sequence}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={"Priority"}
+            placeholder={intl.formatMessage({ id: "COMMON.PRIORITY", defaultMessage: "Priority" })}
           />
           {errors.sequence && (
             <span className="text-red-500 text-sm">{errors.sequence}</span>
           )}
         </div>
         <div className="relative">
-          <label className="block text-gray-600 mb-1">{"Image"}</label>
+          <label className="block text-gray-600 mb-1">
+            <FormattedMessage id="COMMON.IMAGE" defaultMessage="Image" />
+          </label>
           <input
             type="file"
             name={"file"}
@@ -241,18 +249,20 @@ const AddMenuCategory = ({
               }));
             }}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={"image"}
+            placeholder={intl.formatMessage({ id: "COMMON.IMAGE", defaultMessage: "Image" })}
           />
         </div>
         <div className="relative">
-          <label className="block text-gray-600 mb-1">{"Slogun"}</label>
+          <label className="block text-gray-600 mb-1">
+            <FormattedMessage id="COMMON.SLOGAN" defaultMessage="Slogan" />
+          </label>
           <textarea
             type="text"
             name={"menuSlogan"}
             value={formData.menuSlogan}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={"Slogun"}
+            placeholder={intl.formatMessage({ id: "COMMON.SLOGAN", defaultMessage: "Slogan" })}
           />
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { DataGrid, KeenIcon, DataGridRowSelect, DataGridRowSelectAll, DataGridColumnHeader, useDataGrid } from '@/components';
@@ -10,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 const Teams = () => {
+  const intl = useIntl();
+  
   // Default mock data
   const defaultData = [
     {
@@ -61,13 +64,19 @@ const Teams = () => {
     const handleChange = event => {
       setInputValue(event.target.value);
     };
-    return <Input placeholder="Filter..." value={inputValue} onChange={handleChange} onKeyDown={handleKeyDown} className="h-9 w-full max-w-40" />;
+    return <Input 
+      placeholder={intl.formatMessage({ id: 'TEAMS.FILTER_PLACEHOLDER', defaultMessage: 'Filter...' })} 
+      value={inputValue} 
+      onChange={handleChange} 
+      onKeyDown={handleKeyDown} 
+      className="h-9 w-full max-w-40" 
+    />;
   };
   
   const columns = useMemo(() => [{
     accessorFn: (row, index) => index + 1,
     id: 'srNo',
-    header: () => 'Sr. no.',
+    header: () => intl.formatMessage({ id: 'TEAMS.SR_NO', defaultMessage: 'Sr. no.' }),
     enableSorting: false,
     enableHiding: false,
     cell: ({row, table}) => {
@@ -83,7 +92,11 @@ const Teams = () => {
     id: 'name',
     header: ({
       column
-    }) => <DataGridColumnHeader title="Name" filter={<ColumnFilter column={column} />} column={column} />,
+    }) => <DataGridColumnHeader 
+      title={intl.formatMessage({ id: 'TEAMS.NAME', defaultMessage: 'Name' })} 
+      filter={<ColumnFilter column={column} />} 
+      column={column} 
+    />,
     enableSorting: true,
     cell: info => <span className="text-sm text-gray-900">{info.row.original.name}</span>,
     meta: {
@@ -94,7 +107,10 @@ const Teams = () => {
     id: 'phone',
     header: ({
       column
-    }) => <DataGridColumnHeader title="Phone no." column={column} />,
+    }) => <DataGridColumnHeader 
+      title={intl.formatMessage({ id: 'TEAMS.PHONE_NO', defaultMessage: 'Phone no.' })} 
+      column={column} 
+    />,
     enableSorting: false,
     cell: info => <span className="text-sm text-gray-700">{info.row.original.phone || 'N/A'}</span>,
     meta: {
@@ -105,13 +121,19 @@ const Teams = () => {
     id: 'is_active',
     header: ({
       column
-    }) => <DataGridColumnHeader title="Active User" column={column} />,
+    }) => <DataGridColumnHeader 
+      title={intl.formatMessage({ id: 'TEAMS.ACTIVE_USER', defaultMessage: 'Active User' })} 
+      column={column} 
+    />,
     enableSorting: true,
     cell: info => {
       const isActive = info.row.original.is_active;
       return (
         <span className={`text-sm font-medium ${isActive ? 'text-green-600' : 'text-red-600'}`}>
-          {isActive ? 'Active' : 'Deactive'}
+          {isActive 
+            ? intl.formatMessage({ id: 'TEAMS.ACTIVE', defaultMessage: 'Active' })
+            : intl.formatMessage({ id: 'TEAMS.DEACTIVE', defaultMessage: 'Deactive' })
+          }
         </span>
       );
     },
@@ -124,18 +146,21 @@ const Teams = () => {
     enableSorting: true,
     header: ({
       column
-    }) => <DataGridColumnHeader title="Date" column={column} />,
+    }) => <DataGridColumnHeader 
+      title={intl.formatMessage({ id: 'TEAMS.DATE', defaultMessage: 'Date' })} 
+      column={column} 
+    />,
     cell: info => <span className="text-sm text-gray-600">{formatIsoDate(info.row.original.created_at)}</span>,
     meta: {
       className: 'min-w-[120px]'
     }
-  }], []);
+  }], [intl]);
 
   const handleDownload = () => {
-    toast('Download Started', {
-      description: 'Teams data is being downloaded...',
+    toast(intl.formatMessage({ id: 'TEAMS.DOWNLOAD_STARTED', defaultMessage: 'Download Started' }), {
+      description: intl.formatMessage({ id: 'TEAMS.DOWNLOAD_DESCRIPTION', defaultMessage: 'Teams data is being downloaded...' }),
       action: {
-        label: 'Ok',
+        label: intl.formatMessage({ id: 'TEAMS.OK', defaultMessage: 'Ok' }),
         onClick: () => console.log('Ok')
       }
     });
@@ -162,13 +187,15 @@ const Teams = () => {
     };
     
     return <div className="card-header border-b-0 px-5">
-        <h3 className="card-title">Teams</h3>
+        <h3 className="card-title">
+          <FormattedMessage id="TEAMS.TITLE" defaultMessage="Teams" />
+        </h3>
         <div className="flex items-center gap-2">
           <div className="input input-sm max-w-48">
             <KeenIcon icon="magnifier" />
             <input 
               type="text" 
-              placeholder="Search Teams" 
+              placeholder={intl.formatMessage({ id: 'TEAMS.SEARCH_PLACEHOLDER', defaultMessage: 'Search Teams' })} 
               value={inputValue} 
               onChange={handleChange} 
               onKeyDown={handleKeyDown} 
@@ -181,7 +208,7 @@ const Teams = () => {
             className="flex items-center gap-2"
           >
             <KeenIcon icon="exit-down" />
-            Download
+            <FormattedMessage id="TEAMS.DOWNLOAD" defaultMessage="Download" />
           </Button>
         </div>
       </div>;

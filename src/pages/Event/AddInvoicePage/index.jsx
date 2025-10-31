@@ -4,8 +4,10 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { DatePicker, Input, Switch, Button, Spin } from "antd";
 import ItemTable from "@/components/InvoiceTable/ItemTable";
 import InvoiceFooter from "@/components/InvoiceTable/InvoiceFooter";
-import { AddInvoice } from "@/services/apiServices"; // adjust path if needed
-
+import { AddInvoice, UpdateInvoice } from "@/services/apiServices";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import Swal from "sweetalert2";
 
 import { Tooltip, message } from "antd";
 import {
@@ -21,6 +23,8 @@ import { Download } from "lucide-react";
 import { useLocation } from "react-router";
 import { GetInvoiceByEventId } from "@/services/apiServices";
 
+dayjs.extend(customParseFormat);
+
 const { TextArea } = Input;
 
 const AddInvoicePage = () => {
@@ -30,6 +34,24 @@ const AddInvoicePage = () => {
   console.log("Event Type ID:", eventTypeId);
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
+  const [dueDate, setDueDate] = useState(null);
+  
+  // New state for invoice footer data
+  const [footerData, setFooterData] = useState({
+    notes: "Thanks for your Business...",
+    gst: 0,
+    cgst: 0,
+    sgst: 0,
+    igst: 0,
+    discount: 0,
+    roundOff: 0,
+    subTotal: 0,
+    totalAmount: 0,
+    cgstAmnt: 0,
+    sgstAmnt: 0,
+    igstAmnt: 0,
+    grandTotal: 0
+  });
   
   const [rows, setRows] = useState([
     {
@@ -42,9 +64,6 @@ const AddInvoicePage = () => {
       amount: "",
     },
   ]);
-
-
-  
 
   // Edit states for different sections
   const [editStates, setEditStates] = useState({
@@ -62,6 +81,19 @@ const AddInvoicePage = () => {
     shipname: "",
     gstnumber: "",
   });
+
+  // Initialize billing name and GST number from invoiceData
+  useEffect(() => {
+    if (invoiceData) {
+      setTempValues({
+        billingaddress: invoiceData.billingaddress || "",
+        billingname: invoiceData.billingname || "",
+        shipaddress: invoiceData.shipaddress || "",
+        shipname: invoiceData.shipname || "",
+        gstnumber: invoiceData.gstnumber || "",
+      });
+    }
+  }, [invoiceData]);
 
   // Fetch invoice data when component mounts
   useEffect(() => {
@@ -85,7 +117,69 @@ const AddInvoicePage = () => {
           console.log("Fetched Invoice Data:", invoiceDetails);
           setInvoiceData(invoiceDetails);
           
-          // Initialize temp values
+          // Set due date if available
+          if (invoiceDetails.duedate) {
+            setDueDate(dayjs(invoiceDetails.duedate, "DD/MM/YYYY"));
+          }
+          
+          let mappedRows = [];
+          console.log("Invoice Details for Rows:", invoiceDetails);
+          
+          const formatDateForDisplay = (dateString) => {
+            if (!dateString) return "";
+            try {
+              let datePart;
+              if (dateString.includes(" ")) {
+                datePart = dateString.split(" ")[0];
+              } else {
+                datePart = dateString;
+              }
+              
+              const [day, month, year] = datePart.split("/");
+              const date = new Date(year, month - 1, day);
+              
+              return date.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              });
+            } catch (error) {
+              console.error("Error formatting date:", dateString, error);
+              return dateString;
+            }
+          };
+          
+          if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
+            mappedRows = invoiceDetails.invoiceFunctionItems.map((item, index) => ({
+              key: `${index + 1}-${Math.random()}`,
+              name: item.functionName || item.name || "",
+              date: formatDateForDisplay(item.functionDate || item.date),
+              person: item.pax || item.person || 0,
+              extra: item.extraPax || item.extra || 0,
+              rate: item.ratePerPlate || item.rate || 0,
+              amount: item.amount || (Number(item.person || item.pax || 0) + Number(item.extra || item.extraPax || 0)) * Number(item.rate || item.ratePerPlate || 0),
+              isCustom: false,
+              isEventFunction: item.isEventFunction !== false, // Default true if from API
+            }));
+          } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
+            mappedRows = invoiceDetails.event.eventFunctions.map((func, index) => ({
+              key: `${index + 1}-${Math.random()}`,
+              name: func.function?.nameEnglish || "N/A",
+              date: formatDateForDisplay(func.functionStartDateTime),
+              person: func.pax || 0,
+              extra: 0,
+              rate: func.rate || 0,
+              amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
+              isCustom: false,
+              isEventFunction: true,
+            }));
+          }
+
+          console.log("Mapped Rows:", mappedRows);
+
+          setRows(mappedRows.length > 0 ? mappedRows : rows);
+          
+          // Initialize temp values AFTER setting invoice data
           setTempValues({
             billingaddress: invoiceDetails.billingaddress || "",
             billingname: invoiceDetails.billingname || "",
@@ -93,34 +187,23 @@ const AddInvoicePage = () => {
             shipname: invoiceDetails.shipname || "",
             gstnumber: invoiceDetails.gstnumber || "",
           });
-          
-          let mappedRows = [];
-          console.log("Invoice Details for Rows:", invoiceDetails);
-          if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
-  mappedRows = invoiceDetails.invoiceFunctionItems.map((item, index) => ({
-    key: `${index + 1}-${Math.random()}`,
-    name: item.name || "",
-    date: item.date || "",
-    person: item.person || 0,
-    extra: item.extra || 0,
-    rate: item.rate || 0,
-    amount: (Number(item.person) + Number(item.extra)) * Number(item.rate || 0),
-    isCustom: false, // 🚫 From API → not custom
-  }));
-} else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
-  mappedRows = invoiceDetails.event.eventFunctions.map((func, index) => ({
-    key: `${index + 1}-${Math.random()}`,
-    name: func.function?.nameEnglish || "N/A",
-    date: func.functionStartDateTime || "",
-    person: func.pax || 0,
-    extra: 0,
-    rate: func.rate || 0,
-    amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
-    isCustom: false, // 🚫 From API
-  }));
-}
 
-          setRows(mappedRows.length > 0 ? mappedRows : rows);
+          // Initialize footer data from API
+          setFooterData({
+            notes: invoiceDetails.notes || "Thanks for your Business...",
+            gst: 0, // Will be calculated as cgst + sgst + igst
+            cgst: parseFloat(invoiceDetails.cgst) || 0,
+            sgst: parseFloat(invoiceDetails.sgst) || 0,
+            igst: parseFloat(invoiceDetails.igst) || 0,
+            discount: parseFloat(invoiceDetails.discount) || 0,
+            roundOff: parseFloat(invoiceDetails.roundOff) || 0,
+            subTotal: parseFloat(invoiceDetails.subTotal) || 0,
+            totalAmount: parseFloat(invoiceDetails.totalAmount) || 0,
+            cgstAmnt: parseFloat(invoiceDetails.cgstAmnt) || 0,
+            sgstAmnt: parseFloat(invoiceDetails.sgstAmnt) || 0,
+            igstAmnt: parseFloat(invoiceDetails.igstAmnt) || 0,
+            grandTotal: parseFloat(invoiceDetails.grandTotal) || 0
+          });
           
           message.success("Invoice data loaded successfully");
         } else {
@@ -146,23 +229,28 @@ const AddInvoicePage = () => {
   };
 
   const handleAddRow = () => {
-  const lastRow = rows[rows.length - 1];
-  setRows([
-    ...rows,
-    {
-      key: `${rows.length + 1}-${Math.random()}`,
-      name: "",
-      date: "",
-      person: lastRow ? lastRow.person : 0, // ✅ copy person from previous row
-      extra: 0,
-      rate: 0,
-      amount: 0,
-      isCustom: true,
-    },
-  ]);
-};
+    const lastRow = rows[rows.length - 1];
+    setRows([
+      ...rows,
+      {
+        key: `${rows.length + 1}-${Math.random()}`,
+        name: "",
+        date: "",
+        person: lastRow ? lastRow.person : 0,
+        extra: 0,
+        rate: 0,
+        amount: 0,
+        isCustom: true,
+        isEventFunction: false, // Manually added rows are not event functions
+        id: 0,
+      },
+    ]);
+  };
 
-
+  // Callback to update footer data from InvoiceFooter component
+  const handleFooterDataChange = (newFooterData) => {
+    setFooterData(newFooterData);
+  };
 
   // Toggle edit mode
   const toggleEdit = (field) => {
@@ -218,102 +306,202 @@ const AddInvoicePage = () => {
     );
   }
 
-
-
-
-
-//Add Invoice Handler
+  // Add Invoice Handler
   const handleSaveInvoice = async () => {
+    const userDataString = localStorage.getItem("userData");
+    const userData = JSON.parse(userDataString);
+    const UserId = userData.id;
 
-    // Get the string from localStorage
-const userDataString = localStorage.getItem("userData");
+    console.log(UserId);
+    console.log("User Data:", userData);
 
-// Parse it into an object
-const userData = JSON.parse(userDataString);
+    try {
+      // Helper function to format date as DD/MM/YYYY hh:mm A
+      const formatDateForAPI = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const formattedHours = String(hours % 12 || 12).padStart(2, "0");
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+      };
 
-// Get the id
-const UserId = userData.id;
+      const convertDisplayDateToAPI = (displayDate) => {
+        if (!displayDate) return null;
+        try {
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
+            return `${displayDate} 12:00 AM`;
+          }
 
-console.log(UserId); // should log 1
-    console.log("💾 Saving Invoice...");
-  try {
-    // Helper function to format date as DD-MM-YYYY
-    const formatDateForAPI = (date) => {
-      if (!date) date = new Date();
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${day}-${month}-${year}`;
-    };
+          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
+            return displayDate;
+          }
 
-    // 🧾 Prepare payload
-    const payload = {
-      billingaddress: tempValues.billingaddress || "",
-      billingname: tempValues.billingname || "",
-      cgst: "",
-      cgstAmnt: 0,
-      discount: 0,
-      duedate: formatDateForAPI(invoiceData?.duedate),
-      eventId: eventId,
-      eventInvoiceFunctionPayments: [
-        {
-          advancePayment: 0,
-          advancePaymentDate: formatDateForAPI(new Date()),
-          advancePaymentNotes: "",
+          const monthMap = {
+            Jan: "01", Feb: "02", Mar: "03", Apr: "04",
+            May: "05", Jun: "06", Jul: "07", Aug: "08",
+            Sep: "09", Oct: "10", Nov: "11", Dec: "12",
+          };
+
+          const parts = displayDate.split(" ");
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, "0");
+            const month = monthMap[parts[1]];
+            const year = parts[2];
+            if (month) {
+              return `${day}/${month}/${year} 12:00 AM`;
+            }
+          }
+
+          const date = new Date(displayDate);
+          if (!isNaN(date.getTime())) {
+            const d = String(date.getDate()).padStart(2, "0");
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const y = date.getFullYear();
+            return `${d}/${m}/${y} 12:00 AM`;
+          }
+
+          return null;
+        } catch (error) {
+          console.error("Error converting date:", displayDate, error);
+          return null;
+        }
+      };
+
+      // Calculate remaining amount (grandTotal - advance payments)
+      const totalAdvancePayment = invoiceData?.eventInvoiceFunctionPayments?.reduce(
+        (sum, payment) => sum + (Number(payment.advancePayment) || 0), 
+        0
+      ) || 0;
+      
+      const remainingAmount = footerData.grandTotal - totalAdvancePayment;
+
+      // Prepare payload with all data including footer data
+      const payload = {
+        billingaddress: tempValues.billingaddress || "",
+        billingname: tempValues.billingname || "",
+        cgst: String(footerData.cgst),
+        cgstAmnt: footerData.cgstAmnt,
+        discount: footerData.discount,
+        duedate: dueDate ? dueDate.format("DD/MM/YYYY hh:mm A") : null,
+        eventId: eventId,
+        eventInvoiceFunctionPayments: invoiceData?.eventInvoiceFunctionPayments?.map(payment => ({
+          advancePayment: Number(payment.advancePayment) || 0,
+          advancePaymentDate: payment.advancePaymentDate || formatDateForAPI(new Date()),
+          advancePaymentNotes: payment.advancePaymentNotes || "",
+          id: payment.id || 0,
+        })) || [
+          {
+            advancePayment: 0,
+            advancePaymentDate: formatDateForAPI(new Date()),
+            advancePaymentNotes: "",
+            id: 0,
+          },
+        ],
+        grandTotal: footerData.grandTotal,
+        gstnumber: tempValues.gstnumber || "",
+        igst: String(footerData.igst),
+        igstAmnt: footerData.igstAmnt,
+        invoiceFunctionItems: rows.map((r) => ({
+          amount: Number(r.amount) || 0,
+          extraPax: Number(r.extra) || 0,
+          functionDate: convertDisplayDateToAPI(r.date),
+          functionName: r.name || "",
           id: 0,
+          isEventFunction: !r.isCustom,
+          pax: Number(r.person) || 0,
+          ratePerPlate: Number(r.rate) || 0,
+        })),
+        notes: footerData.notes,
+        remainingAmount: remainingAmount,
+        roundOff: footerData.roundOff,
+        sgst: String(footerData.sgst),
+        sgstAmnt: footerData.sgstAmnt,
+        shipaddress: tempValues.shipaddress || "",
+        shipname: tempValues.shipname || "",
+        subTotal: footerData.subTotal,
+        totalAmount: footerData.totalAmount,
+        userId: UserId,
+      };
+
+      console.log("🧾 Invoice Payload =>", payload);
+      console.log("Invoice Data ID:", invoiceData?.id);
+      const response = await UpdateInvoice(invoiceData?.id, payload);
+      console.log("API Response:", response);
+
+      if (response?.data?.success) {
+        // ✅ SUCCESS ALERT
+        Swal.fire({
+          title: response?.data?.msg || "Invoice saved successfully!",
+          text: "",
+          icon: "success",
+          background: "#f5faff",
+          color: "#003f73",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#005BA8",
+          showClass: {
+            popup: `
+              animate__animated
+              animate__fadeInDown
+              animate__faster
+            `,
+          },
+          hideClass: {
+            popup: `
+              animate__animated
+              animate__fadeOutUp
+              animate__faster
+            `,
+          },
+          customClass: {
+            popup: "rounded-2xl shadow-xl",
+            title: "text-2xl font-bold",
+            confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+          },
+        });
+      } else {
+        // ❌ ERROR ALERT
+        Swal.fire({
+          title: "Failed to save invoice",
+          text: response?.data?.msg || "Please try again later.",
+          icon: "error",
+          background: "#fff5f5",
+          color: "#8b0000",
+          confirmButtonText: "Retry",
+          confirmButtonColor: "#d9534f",
+          customClass: {
+            popup: "rounded-2xl shadow-xl",
+            title: "text-2xl font-bold",
+            confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("❌ Error saving invoice:", error);
+      Swal.fire({
+        title: "Something went wrong",
+        text: error?.message || "Unable to save invoice. Please try again.",
+        icon: "error",
+        background: "#fff5f5",
+        color: "#8b0000",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#d9534f",
+        customClass: {
+          popup: "rounded-2xl shadow-xl",
+          title: "text-2xl font-bold",
+          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
         },
-      ],
-      grandTotal: 0,
-      gstnumber: tempValues.gstnumber || "",
-      igst: "",
-      igstAmnt: 0,
-      invoiceFunctionItems: rows.map((r) => ({
-        amount: Number(r.amount) || 0,
-        extraPax: Number(r.extra) || 0,
-        functionDate: r.date || "",
-        functionName: r.name || "",
-        id: 0,
-        isEventFunction: !r.isCustom,
-        pax: Number(r.person) || 0,
-        ratePerPlate: Number(r.rate) || 0,
-      })),
-      notes: "Thanks for your Business...",
-      remainingAmount: 0,
-      roundOff: 0,
-      sgst: "",
-      sgstAmnt: 0,
-      shipaddress: tempValues.shipaddress || "",
-      shipname: tempValues.shipname || "",
-      subTotal: rows.reduce((sum, r) => sum + Number(r.amount || 0), 0),
-      totalAmount: rows.reduce((sum, r) => sum + Number(r.amount || 0), 0),
-      userId: UserId,
-    };
-   
-    
-    console.log("🧾 Invoice Payload =>", payload);
-
-    // 🚀 Call API
-    const response = await AddInvoice(payload);
-    console.log("API Response:", response);
-
-    if (response?.data?.success) {
-      message.success("Invoice saved successfully!");
-  console.log("✅ Invoice saved:", response.data);
-    } else {
-      message.error("Failed to save invoice");
+      });
     }
-  } catch (error) {
-    console.error("❌ Error saving invoice:", error);
-    message.error("Something went wrong while saving invoice");
-  }
-};
-
+  };
 
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "Invoice" }]} />
         </div>
@@ -354,15 +542,6 @@ console.log(UserId); // should log 1
                         </span>
                       </div>
                     </div>
-                    {/* <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success"></i>
-                      <div className="flex flex-col">
-                        <span className="text-xs">Invoice Number:</span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {invoiceData?.invoiceCode || "N/A"}
-                        </span>
-                      </div>
-                    </div> */}
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-calendar-tick text-success"></i>
                       <div className="flex flex-col">
@@ -370,6 +549,19 @@ console.log(UserId); // should log 1
                         <span className="text-sm font-medium text-gray-900">
                           {formatDate(invoiceData?.event?.inquiryDate)}
                         </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <div className="flex flex-col">
+                        <span className="text-xs">Due Date:</span>
+                        <DatePicker
+                          format="DD/MM/YYYY"
+                          className="input w-full"
+                          value={dueDate}
+                          onChange={(date) => setDueDate(date)}
+                          placeholder="Select due date"
+                        />
                       </div>
                     </div>
                   </div>
@@ -427,13 +619,6 @@ console.log(UserId); // should log 1
                         placeholder="Enter billing address"
                         rows={3}
                       />
-                      {/* <Input
-                        value={tempValues.billingname}
-                        onChange={(e) =>
-                          handleTempValueChange("billingname", e.target.value)
-                        }
-                        placeholder="Enter billing name"
-                      /> */}
                     </div>
                   ) : (
                     <p className="text-sm text-gray-700">
@@ -612,6 +797,8 @@ console.log(UserId); // should log 1
             <InvoiceFooter 
               invoiceData={invoiceData}
               rows={rows}
+              footerData={footerData}
+              onFooterDataChange={handleFooterDataChange}
               onSave={handleSaveInvoice}
             />
           </div>

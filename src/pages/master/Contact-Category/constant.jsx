@@ -1,9 +1,10 @@
 import { Popconfirm, Tooltip } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No#" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -11,7 +12,7 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "contact_name",
-    header: "Contact Category ",
+    header: <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY" defaultMessage="Contact Category" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -19,7 +20,7 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "sequence",
-    header: "Priority",
+    header: <FormattedMessage id="USER.MASTER.PRIORITY" defaultMessage="Priority" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -27,7 +28,7 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "contcatTypeId",
-    header: "Contact Type",
+    header: <FormattedMessage id="USER.MASTER.CONTACT_TYPE" defaultMessage="Contact Type" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -36,7 +37,7 @@ export const columns = (onEdit, onDelete) => [
 
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">

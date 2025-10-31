@@ -1,8 +1,12 @@
 import { Steps, theme } from "antd";
 import useStyles from "./style";
+import { FormattedMessage } from "react-intl";
+import {useLanguage} from "@/i18n";
 const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
   const classes = useStyles();
   const { token } = theme.useToken();
+
+  const { direction } = useLanguage();
 
   const contentStyle = {
     // padding: 24,
@@ -25,7 +29,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
               onClick={onPrev}
               title="Prev"
             >
-              <i className="ki-filled ki-arrow-left font-14"></i> Prev
+              <i className="ki-filled ki-arrow-left font-14"></i> <FormattedMessage id="COMMON.PREVIOUS" defaultMessage="Previous" />
             </button>
           )}
           {current < steps.length - 1 && (
@@ -34,7 +38,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
               onClick={onNext}
               title="Next"
             >
-              Next <i className="ki-filled ki-arrow-right font-14"></i>
+              <FormattedMessage id="COMMON.NEXT" defaultMessage="Next" /> <i className="ki-filled ki-arrow-right font-14"></i>
             </button>
           )}
           {current === steps.length - 1 && (
@@ -44,7 +48,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
               onClick={onFinish}
               title="Finish"
             >
-              Finish <i className="ki-filled ki-save-2 font-14"></i>
+              <FormattedMessage id="COMMON.FINISH" defaultMessage="Finish" /> <i className="ki-filled ki-save-2 font-14"></i>
             </button>
           )}
         </div>

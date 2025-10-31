@@ -11,6 +11,12 @@ import {
 import useStyle from "./style";
 import AddContactType from "@/partials/modals/add-contact-type/AddContactType";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+import { Form } from "antd";
+
+
+
 
 const ContactTypeMaster = () => {
   const classes = useStyle();
@@ -18,6 +24,7 @@ const ContactTypeMaster = () => {
   const [selectedcontactType, setSelectedcontactType] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
   useEffect(() => {
     FetchContactType();
   }, []);
@@ -129,7 +136,7 @@ const ContactTypeMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Contact Type Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.CONTACT_TYPE_MASTER" defaultMessage="Contact Type Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -139,12 +146,15 @@ const ContactTypeMaster = () => {
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
-                className="input pl-8"
-                placeholder="Search Contact"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+      className="input pl-8"
+      placeholder={intl.formatMessage({
+        id: "USER.MASTER.SEARCH_CONTACT_TYPE",
+        defaultMessage: "Search Contact Type",
+      })}
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -156,7 +166,7 @@ const ContactTypeMaster = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Contact Type
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_CONTACT_TYPE" defaultMessage="Add Contact Type" />
             </button>
           </div>
         </div>

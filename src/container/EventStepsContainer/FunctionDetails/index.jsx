@@ -20,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GetAllFunctionsByUserId } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
 
 // Row for drag & drop
 const SortableRow = ({ id, children }) => {
@@ -238,7 +239,7 @@ const FunctionsDetails = ({
               <th className="text-sm font-semibold text-gray-900 p-3">
                 <div className="flex items-center gap-2">
                   <span className="flex items-center">
-                    Function Type
+                    <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE" defaultMessage="Function Type" />
                     <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                       *
                     </span>
@@ -254,25 +255,25 @@ const FunctionsDetails = ({
                 </div>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                Start Date
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE" defaultMessage="Start Date" />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                End Date
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE" defaultMessage="End Date" />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
-                Person
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON" defaultMessage="Person" />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
-                Rate
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE" defaultMessage="Rate" />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                Function Venue
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE" defaultMessage="Function Venue" />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
-                Actions
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS" defaultMessage="Actions" />
               </th>
             </tr>
           </thead>

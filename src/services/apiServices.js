@@ -732,3 +732,12 @@ export const GetInvoiceByUserId = (id) => {
 export const AddInvoice = (data) => {
   return POST(`/invoice/add`, data);
 }
+
+export const UpdateInvoice = (id, data) => {
+  return PUT(`/invoice/update?id=${id}`, data);
+}
+
+export const GetAllInvoice = (id) => {
+  return GET(`/invoice/getallbyfilter?userid=${id}`);
+}
+

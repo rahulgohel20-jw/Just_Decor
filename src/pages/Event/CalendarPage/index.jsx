@@ -5,9 +5,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import EventViewModal from "@/partials/modals/calendar-event/EventView";
 import { useNavigate } from "react-router-dom";
 import { GetEventMaster } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useLanguage } from "@/i18n";
 
 const CalendarPage = () => {
   const navigate = useNavigate();
+  const intl = useIntl();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalData, setEventModalData] = useState(false);
   const [data, setData] = useState([]);
@@ -17,6 +20,8 @@ const CalendarPage = () => {
     setEventModalData(data);
     setIsModalOpen(true);
   };
+
+  const { isRTL } = useLanguage();
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
@@ -168,28 +173,52 @@ const CalendarPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+          <Breadcrumbs 
+            items={[
+              {
+                title: intl.formatMessage({ 
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT", 
+                  defaultMessage: "Events" 
+                })
+              }
+            ]} 
+          />
         </div>
 
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1">
-            <span className="filItems text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
-              Inquiry
-            </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
-              Confirm
-            </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
-              Confirm Without Menu
-            </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
-              Completed
-            </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
-              Cancel
-            </span>
-          </div>
+  <span className="filItems text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
+    {intl.formatMessage({ 
+      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY", 
+      defaultMessage: "Inquiry" 
+    })}
+  </span>
+  <span className="filItems text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
+    {intl.formatMessage({ 
+      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM", 
+      defaultMessage: "Confirm" 
+    })}
+  </span>
+  <span className="filItems text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
+    {intl.formatMessage({ 
+      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU", 
+      defaultMessage: "Confirm Without Menu" 
+    })}
+  </span>
+  <span className="filItems text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
+    {intl.formatMessage({ 
+      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED", 
+      defaultMessage: "Completed" 
+    })}
+  </span>
+  <span className="filItems text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
+    {intl.formatMessage({ 
+      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL", 
+      defaultMessage: "Cancel" 
+    })}
+  </span>
+</div>
           <button
             className="btn btn-primary"
             title="Add Event"
@@ -197,7 +226,7 @@ const CalendarPage = () => {
               navigate("/add-event");
             }}
           >
-            <i className="ki-filled ki-plus"></i> Add Event
+            <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON" defaultMessage="Add Event" />
           </button>
         </div>
 

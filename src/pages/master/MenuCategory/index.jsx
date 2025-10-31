@@ -11,12 +11,20 @@ import {
   UpdateStatus,
 } from "@/services/apiServices";
 import ViewMenuCategory from "../../../partials/modals/view-menu-category/ViewMenuCategory";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
+
+
 const MenuCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isViewCategoryModalOpen, setIsViewCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const intl = useIntl();
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
@@ -102,7 +110,7 @@ const MenuCategory = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Category Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="MENU_CATEGORY.MASTER" defaultMessage="Menu Category Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -111,7 +119,7 @@ const MenuCategory = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Category"
+                placeholder={intl.formatMessage({ id: "MENU_CATEGORY.SEARCH_PLACEHOLDER", defaultMessage: "Search Category..." })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -124,7 +132,7 @@ const MenuCategory = () => {
               onClick={() => setIsCategoryModalOpen(true)}
               title="Add Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Category
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="MENU_CATEGORY.ADD_CATEGORY_BUTTON" defaultMessage="Add Category" />
             </button>
           </div>
         </div>

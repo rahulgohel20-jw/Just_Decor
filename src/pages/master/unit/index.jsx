@@ -11,11 +11,16 @@ import {
   updateunit,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import{ useIntl } from "react-intl";
+
+
 const UnitMaster = () => {
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
   useEffect(() => {
     Fetchunit();
   }, []);
@@ -141,7 +146,7 @@ const UnitMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Unit Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.UNIT_MASTER" defaultMessage="Unit Master" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -150,7 +155,7 @@ const UnitMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Event"
+                placeholder={intl.formatMessage({ id: "COMMON.SEARCH_UNIT", defaultMessage: "Search Unit..." })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -166,7 +171,7 @@ const UnitMaster = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> Add Unit
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_UNIT" defaultMessage="Add Unit" />
             </button>
           </div>
         </div>

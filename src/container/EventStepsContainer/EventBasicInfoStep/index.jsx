@@ -9,6 +9,8 @@ import useStyles from "./style";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import AddEventType from "@/partials/modals/add-event-type/AddEventType";
 import { GetEventType, Fetchmanager } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
+import { useLanguage } from "@/i18n";
 
 const EventBasicInfoStep = ({
   formData,
@@ -67,6 +69,8 @@ const EventBasicInfoStep = ({
     setIsEventTypeModalOpen(true);
   };
 
+  const { isRTL } = useLanguage();
+
   return (
     <Form>
       <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
@@ -74,7 +78,7 @@ const EventBasicInfoStep = ({
           {/* Inquiry Date */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              Inquiry Date
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_INQUIRY_DATE" defaultMessage="Inquiry Date" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -104,7 +108,7 @@ const EventBasicInfoStep = ({
           {/* Status */}
           <div className="flex flex-col">
             <label className="form-label">
-              Status
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_STATUS_LABEL" defaultMessage="Status" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -124,7 +128,7 @@ const EventBasicInfoStep = ({
           {/* Event Type */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              Event Type
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_EVENT_TYPE_LABEL" defaultMessage="Event Type" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -155,7 +159,7 @@ const EventBasicInfoStep = ({
           {/* Start Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
-              Start Event Date
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_START_EVENT_DATE_LABEL" defaultMessage="Start Event Date" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -193,7 +197,7 @@ const EventBasicInfoStep = ({
           {/* End Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
-              End Event Date
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_END_EVENT_DATE_LABEL" defaultMessage="End Event Date" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -231,7 +235,7 @@ const EventBasicInfoStep = ({
           {/* Venue */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              Venue
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_VENUE" defaultMessage="Venue" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -253,7 +257,7 @@ const EventBasicInfoStep = ({
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              Manager
+              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_MANAGER_LABEL" defaultMessage="Manager" />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
