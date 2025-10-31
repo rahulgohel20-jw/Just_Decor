@@ -8,9 +8,14 @@ import "tippy.js/dist/tippy.css";
 import useStyles from "./style";
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useIntl } from "react-intl";
+import { useLanguage } from "@/i18n";
 
 const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const classes = useStyles();
+  const intl = useIntl();
+  const { isRTL } = useLanguage();
+
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
@@ -20,13 +25,13 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
       {/* Add Event Button */}
       {/* <div style={{ marginBottom: "10px", textAlign: "right" }}>
         <Link to="/add-event" style={{ textDecoration: "none" }}>
-                        <button
-                className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Event"
-              >
-                <i className="ki-filled ki-plus"></i> Add Event
-              </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleModalOpen}
+            title="Add Event"
+          >
+            <i className="ki-filled ki-plus"></i> Add Event
+          </button>
         </Link>
       </div> */}
 
@@ -41,11 +46,26 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
           right: "dayGridMonth,dayGridWeek,timeGridDay,listWeek",
         }}
         buttonText={{
-          today: "Today",
-          dayGridMonth: "Month",
-          dayGridWeek: "Week",
-          timeGridDay: "Day",
-          listWeek: "List",
+          today: intl.formatMessage({ 
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_TODAY", 
+            defaultMessage: "Today" 
+          }),
+          month: intl.formatMessage({ 
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_MONTH", 
+            defaultMessage: "Month" 
+          }),
+          week: intl.formatMessage({ 
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_WEEK", 
+            defaultMessage: "Week" 
+          }),
+          day: intl.formatMessage({ 
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_DAY", 
+            defaultMessage: "Day" 
+          }),
+          list: intl.formatMessage({ 
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_LIST", 
+            defaultMessage: "List" 
+          }),
         }}
         dateClick={handleDateClick}
         eventDidMount={(info) => {

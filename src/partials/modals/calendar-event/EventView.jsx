@@ -8,6 +8,10 @@ import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
+import { Form } from "antd";
+import { FormattedMessage } from "react-intl";
+import {useLanguage} from "@/i18n";
+
 const EventViewModal = ({
   isModalOpen,
   setIsModalOpen,
@@ -42,6 +46,8 @@ const EventViewModal = ({
       errorMsgPopup("Event ID missing.");
       return;
     }
+
+    
 
     Swal.fire({
       title: "Confirm Status Change",
@@ -105,61 +111,63 @@ const EventViewModal = ({
     });
   };
 
+  const { isRTL } = useLanguage();
+
   return (
     isModalOpen && (
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="View Event Details"
+        title={<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_TITLE" defaultMessage="Event View" />}
         width={1100}
       >
         <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="col-span-1 flex flex-col gap-6 mb-1">
             <div className="bg-white p-4 rounded-xl shadow">
-              <p className="text-gray-600">Name</p>
+              <p className="text-gray-600"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_NAME" defaultMessage="Event Details" /></p>
               <h3 className="font-semibold text-base mb-2">
                 {eventData?.event?._def?.title}
               </h3>
 
-              <p className="text-gray-600">Mobile No.</p>
+              <p className="text-gray-600"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MOBILE" defaultMessage="Mobile No." /></p>
               <h3 className="font-semibold text-base mb-2">
                 {eventDataAll?.mobile}
               </h3>
 
-              <p className="text-gray-600">Date</p>
+              <p className="text-gray-600"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DATE" defaultMessage="Date" /></p>
               <h3 className="font-semibold text-base mb-2">
                 {eventData?.event?.start?.toLocaleDateString?.("en-CA")}
               </h3>
 
-              <p className="text-gray-600">Venue</p>
+              <p className="text-gray-600"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_VENUE" defaultMessage="Venue" /></p>
               <h3 className="font-semibold text-base mb-2">
                 {eventDataAll?.address}
               </h3>
             </div>
 
             <div className="bg-white p-4 rounded-xl shadow ">
-              <h2 className="mb-2 text-gray-600">Status</h2>
+              <h2 className="mb-2 text-gray-600"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_STATUS" defaultMessage="Status" /></h2>
               <select
                 className="w-full border rounded px-2 py-1 mb-3"
                 value={statusId}
                 onChange={(e) => setStatusId(e.target.value)}
               >
-                <option value="0">Inquiry</option>
-                <option value="1">Confirm</option>
-                <option value="2">Cancel</option>
+                <option value="0"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY" defaultMessage="Inquiry" /></option>
+                <option value="1"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM" defaultMessage="Confirm" /></option>
+                <option value="2"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL" defaultMessage="Cancel" /></option>
               </select>
               <div className="flex justify-end gap-2">
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded"
                   onClick={handleStatusChange}
                 >
-                  Save
+                  <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_SAVE_BUTTON" defaultMessage="Save" />
                 </button>
                 <button
                   className="bg-red-500 text-white px-3 py-1 rounded"
                   onClick={() => setStatusId(eventDataAll?.statusId ?? "0")}
                 >
-                  Cancel
+                  <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CANCEL_BUTTON" defaultMessage="Cancel" />
                 </button>
               </div>
             </div>
@@ -168,17 +176,17 @@ const EventViewModal = ({
           <div className="col-span-3 grid grid-cols-3 gap-4">
             {[
               {
-                label: "Menu Preparation",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_PREPARATION" defaultMessage="Menu Preparation" />,
                 icon: "/media/eventviewicon/menuprep.png",
                 onClick: () => navigate(`/menu-preparation/${safeEventId}`),
               },
               {
-                label: "Menu Allocation",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_ALLOCATION" defaultMessage="Menu Allocation" />,
                 icon: "/media/eventviewicon/menuallocation.png",
                 onClick: () => navigate(`/menu-allocation/${safeEventId}`),
               },
               {
-                label: "Raw Material Allocation",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_RAW_MATERIAL_ALLOCATION" defaultMessage="Raw Material Allocation" />,
                 icon: "/media/eventviewicon/rawmaterial.png",
                 onClick: () =>
                   navigate("/raw-material-allocation", {
@@ -189,29 +197,29 @@ const EventViewModal = ({
                   }),
               },
  {
-  label: "Labour / Other Management",
+  label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_LABOUR_OTHER_MANAGEMENT" defaultMessage="Labour / Other Management" />,
   icon: "/media/eventviewicon/labour.png",
   onClick: () => navigate(`/labour-and-other-management/${safeEventId}`),
 },
 
 
               {
-                label: "Menu Report",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_REPORT" defaultMessage="Menu Report" />,
                 icon: "/media/eventviewicon/menureport.png",
                 onClick: () => openMenuReport(safeEventId),
               },
               {
-                label: "Dish Costing",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DISH_COSTING" defaultMessage="Dish Costing" />,
                 icon: "/media/eventviewicon/dishcost.png",
                 onClick: () => navigate(`/dish-costing`),
               },
               {
-                label: "Quotation",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_QUOTATION" defaultMessage="Quotation" />,
                 icon: "/media/eventviewicon/quotation.png",
                 onClick: () => navigate(`/quotation/${safeEventId}`),
               },
               {
-                label: "Invoice",
+                label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_INVOICE" defaultMessage="Invoice" />,
                 icon: "/media/eventviewicon/invoice.png",
                 onClick: () => navigate("/add-invoice", {
                   state: {
@@ -245,20 +253,20 @@ const EventViewModal = ({
         <div className="flex justify-center gap-6 mt-3">
           <Link to={`/edit-event/${safeEventId}`}>
             <button className="bg-primary text-white w-[300px] h-12 rounded-md font-medium">
-              <i className="ki-filled ki-notepad-edit me-1"></i>Edit Event
+              <i className="ki-filled ki-notepad-edit me-1"></i><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON" defaultMessage="Edit Event" />
             </button>
           </Link>
           <button
             className="bg-success text-white w-[300px] h-12 rounded-md font-medium"
             onClick={() => navigate(`/edit-event/${safeEventId}/copy`)}
           >
-            <i className="ki-filled ki-copy me-1"></i> Copy of Event
+            <i className="ki-filled ki-copy me-1"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_COPY_EVENT_BUTTON" defaultMessage="Copy Event" />
           </button>
           <button
             className="bg-danger text-white w-[300px] h-12 rounded-md font-medium"
             onClick={DeleteEvent}
           >
-            <i className="ki-filled ki-trash me-1"></i> Delete
+            <i className="ki-filled ki-trash me-1"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DELETE_EVENT_BUTTON" defaultMessage="Delete Event" />
           </button>
         </div>
 

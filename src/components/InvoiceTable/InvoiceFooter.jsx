@@ -10,62 +10,116 @@ import { Download } from "lucide-react";
 
 const { TextArea } = Input;
 
-const InvoiceFooter = ({ invoiceData, rows, onSave }) => {
+const InvoiceFooter = ({ invoiceData, rows, footerData, onFooterDataChange, onSave }) => {
   const [notes, setNotes] = useState("");
-  const [gst, setGst] = useState(0);
+  const [cgst, setCgst] = useState(0);
   const [sgst, setSgst] = useState(0);
+  const [igst, setIgst] = useState(0);
+  const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(0);
   const [subTotal, setSubTotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [cgstAmnt, setCgstAmnt] = useState(0);
+  const [sgstAmnt, setSgstAmnt] = useState(0);
+  const [igstAmnt, setIgstAmnt] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
 
   // Calculate subtotal from rows
- useEffect(() => {
-  console.log("Rows in InvoiceFooter:", rows);
-  if (rows && rows.length > 0) {
-    const calculatedSubTotal = rows.reduce((sum, row) => {
-      const person = Number(row.person) || 0;
-      const rate = Number(row.rate) || 0;
-      const extra = Number(row.extra) || 0;
-      const amount = row.amount
-        ? Number(row.amount)
-        : person * rate + extra;
-      return sum + amount;
-    }, 0);
-    setSubTotal(calculatedSubTotal);
-  } else {
-    setSubTotal(0);
-  }
-}, [rows]);
-
-
-  // Calculate total amount when values change
   useEffect(() => {
-    const gstAmount = (subTotal * Number(gst)) / 100;
-    const sgstAmount = (subTotal * Number(sgst)) / 100;
-    const total = subTotal + gstAmount + sgstAmount + Number(roundOff);
-    setTotalAmount(total);
-  }, [subTotal, gst, sgst, roundOff]);
-
-  // Initialize data from invoiceData prop
-  useEffect(() => {
-    if (invoiceData) {
-      setNotes(invoiceData.notes || "Thanks for your Business...");
-      setGst(invoiceData.gst || 0);
-      setSgst(invoiceData.sgst || 0);
-      setRoundOff(invoiceData.roundOff || 0);
+    console.log("Rows in InvoiceFooter:", rows);
+    if (rows && rows.length > 0) {
+      const calculatedSubTotal = rows.reduce((sum, row) => {
+        const person = Number(row.person) || 0;
+        const rate = Number(row.rate) || 0;
+        const extra = Number(row.extra) || 0;
+        const amount = row.amount ? Number(row.amount) : person * rate + extra;
+        return sum + amount;
+      }, 0);
+      setSubTotal(calculatedSubTotal);
+    } else {
+      setSubTotal(0);
     }
-  }, [invoiceData]);
+  }, [rows]);
 
-  const handleGstChange = (e) => {
+  // Calculate all amounts when values change
+  useEffect(() => {
+    const cgstAmount = (subTotal * Number(cgst)) / 100;
+    const sgstAmount = (subTotal * Number(sgst)) / 100;
+    const igstAmount = (subTotal * Number(igst)) / 100;
+    const discountAmount = Number(discount);
+    const roundOffAmount = Number(roundOff);
+    
+    // Total before discount and roundoff
+    const beforeDiscount = subTotal + cgstAmount + sgstAmount + igstAmount;
+    
+    // Total amount after discount but before roundoff
+    const afterDiscount = beforeDiscount - discountAmount;
+    
+    // Grand total after roundoff
+    const finalTotal = afterDiscount + roundOffAmount;
+    
+    setCgstAmnt(cgstAmount);
+    setSgstAmnt(sgstAmount);
+    setIgstAmnt(igstAmount);
+    setTotalAmount(afterDiscount);
+    setGrandTotal(finalTotal);
+  }, [subTotal, cgst, sgst, igst, discount, roundOff]);
+
+  // Initialize data from footerData prop ONLY ONCE
+  useEffect(() => {
+    if (footerData && !notes) {
+      setNotes(footerData.notes || "Thanks for your Business...");
+      setCgst(footerData.cgst || 0);
+      setSgst(footerData.sgst || 0);
+      setIgst(footerData.igst || 0);
+      setDiscount(footerData.discount || 0);
+      setRoundOff(footerData.roundOff || 0);
+    }
+  }, []);
+
+  // Sync local state changes back to parent
+  useEffect(() => {
+    if (onFooterDataChange) {
+      onFooterDataChange({
+        notes,
+        gst: cgst + sgst + igst, // Total GST
+        cgst,
+        sgst,
+        igst,
+        discount,
+        roundOff,
+        subTotal,
+        totalAmount,
+        cgstAmnt,
+        sgstAmnt,
+        igstAmnt,
+        grandTotal,
+      });
+    }
+  }, [notes, cgst, sgst, igst, discount, roundOff, subTotal, totalAmount, cgstAmnt, sgstAmnt, igstAmnt, grandTotal]);
+
+  const handleCgstChange = (e) => {
     const value = e.target.value;
     const numValue = value === "" ? 0 : parseFloat(value);
-    setGst(isNaN(numValue) ? 0 : numValue);
+    setCgst(isNaN(numValue) ? 0 : numValue);
   };
 
   const handleSgstChange = (e) => {
     const value = e.target.value;
     const numValue = value === "" ? 0 : parseFloat(value);
     setSgst(isNaN(numValue) ? 0 : numValue);
+  };
+
+  const handleIgstChange = (e) => {
+    const value = e.target.value;
+    const numValue = value === "" ? 0 : parseFloat(value);
+    setIgst(isNaN(numValue) ? 0 : numValue);
+  };
+
+  const handleDiscountChange = (e) => {
+    const value = e.target.value;
+    const numValue = value === "" ? 0 : parseFloat(value);
+    setDiscount(isNaN(numValue) ? 0 : numValue);
   };
 
   const handleRoundOffChange = (e) => {
@@ -99,23 +153,21 @@ const InvoiceFooter = ({ invoiceData, rows, onSave }) => {
               <span className="font-semibold">₹{subTotal.toFixed(2)}</span>
             </div>
             
-            {/* GST */}
+            {/* CGST */}
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-900">GST (%)</span>
+                <span className="text-sm text-gray-900">CGST (%)</span>
                 <Input
                   className="w-20 text-right"
                   type="number"
-                  value={gst}
-                  onChange={handleGstChange}
+                  value={cgst}
+                  onChange={handleCgstChange}
                   min={0}
                   max={100}
                   step="0.01"
                 />
               </div>
-              <span className="font-semibold">
-                ₹{((subTotal * gst) / 100).toFixed(2)}
-              </span>
+              <span className="font-semibold">₹{cgstAmnt.toFixed(2)}</span>
             </div>
             
             {/* SGST */}
@@ -132,8 +184,41 @@ const InvoiceFooter = ({ invoiceData, rows, onSave }) => {
                   step="0.01"
                 />
               </div>
-              <span className="font-semibold">
-                ₹{((subTotal * sgst) / 100).toFixed(2)}
+              <span className="font-semibold">₹{sgstAmnt.toFixed(2)}</span>
+            </div>
+            
+            {/* IGST */}
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-900">IGST (%)</span>
+                <Input
+                  className="w-20 text-right"
+                  type="number"
+                  value={igst}
+                  onChange={handleIgstChange}
+                  min={0}
+                  max={100}
+                  step="0.01"
+                />
+              </div>
+              <span className="font-semibold">₹{igstAmnt.toFixed(2)}</span>
+            </div>
+            
+            {/* Discount */}
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-900">Discount</span>
+                <Input
+                  className="w-20 text-right"
+                  type="number"
+                  value={discount}
+                  onChange={handleDiscountChange}
+                  min={0}
+                  step="0.01"
+                />
+              </div>
+              <span className="font-semibold text-red-600">
+                -₹{Number(discount).toFixed(2)}
               </span>
             </div>
             
@@ -152,11 +237,11 @@ const InvoiceFooter = ({ invoiceData, rows, onSave }) => {
               <span className="font-semibold">₹{Number(roundOff).toFixed(2)}</span>
             </div>
             
-            {/* Total */}
+            {/* Grand Total */}
             <div className="flex justify-between border-t pt-2 font-semibold">
-              <span className="text-base text-primary">Total Amount</span>
+              <span className="text-base text-primary">Grand Total</span>
               <span className="text-base text-primary">
-                ₹{totalAmount.toFixed(2)}
+                ₹{grandTotal.toFixed(2)}
               </span>
             </div>
           </div>
@@ -207,7 +292,7 @@ const InvoiceFooter = ({ invoiceData, rows, onSave }) => {
         <button className="btn btn-light" title="Cancel">
           Cancel
         </button>
-        <button className="btn btn-primary" title="Save & Send"  onClick={onSave}>
+        <button className="btn btn-primary" title="Save & Send" onClick={onSave}>
           <i className="ki-outline ki-paper-plane"></i>
           Save & Send
         </button>

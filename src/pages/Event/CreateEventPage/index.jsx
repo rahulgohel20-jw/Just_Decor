@@ -20,6 +20,7 @@ import {
   UpdateEventMaster,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
 
 const STEP_KEYS = ["basic_info", "client_info", "functions", "other"];
 
@@ -367,7 +368,7 @@ const CreateEventPage = () => {
   const steps = useMemo(
     () => [
       {
-        title: "Event Information",
+        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EVENT_INFO_STEP_TITLE" defaultMessage="Event Information" />),
         content: (
           <EventBasicInfoStep
             formData={formData}
@@ -379,7 +380,7 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-calendar"></i>,
       },
       {
-        title: "Client Details",
+        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CLIENT_DETAILS_STEP_TITLE" defaultMessage="Client Details" />),
         content: (
           <ClientDetailsStep
             formData={formData}
@@ -392,7 +393,7 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-security-user" />,
       },
       {
-        title: "Functions",
+        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_FUNCTIONS_STEP_TITLE" defaultMessage="Functions" />),
         content: (
           <FunctionsDetails
             formData={formData}
@@ -406,7 +407,7 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-setting-4" />,
       },
       {
-        title: "Other Details",
+        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_OTHER_DETAILS_STEP_TITLE" defaultMessage="Other Details" />),
         content: (
           <OtherInfoStep
             formData={formData}
@@ -422,7 +423,7 @@ const CreateEventPage = () => {
   );
 
   const breadcrumbItems = useMemo(
-    () => [{ title: mode === "edit" ? "Edit Event" : "Create Event" }],
+    () => [{ title: mode === "edit" ? <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON" defaultMessage="Edit Event" /> : <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON" defaultMessage="Create Event" /> }],
     [mode]
   );
 

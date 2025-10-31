@@ -11,6 +11,8 @@ import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
 
 const AddFunctionType = ({
   isOpen,
@@ -27,6 +29,8 @@ const AddFunctionType = ({
     startTime: null,
     endTime: null,
   };
+
+  const intl = useIntl();
 
   const validationSchema = Yup.object({
     nameEnglish: Yup.string().required("Name is required"),
@@ -135,7 +139,7 @@ const AddFunctionType = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedFunction ? "Edit Function" : "New Function"}
+            {selectedFunction ? <FormattedMessage id="USER.MASTER.EDIT_FUNCTION" defaultMessage="Edit Function" /> : <FormattedMessage id="USER.MASTER.NEW_FUNCTION" defaultMessage="New Function" />}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -149,17 +153,18 @@ const AddFunctionType = ({
         <form onSubmit={formik.handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InputToTextLang
-              label="Name (English)"
+              label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
               value={formik.values.nameEnglish}
               onChange={(e) =>
                 formik.setFieldValue("nameEnglish", e.target.value)
               }
               lng="en-US"
+              
               required
               error={formik.touched.nameEnglish && formik.errors.nameEnglish}
             />
             <InputToTextLang
-              label="Name (ગુજરાતી)"
+              label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
               value={formik.values.nameGujarati}
               onChange={(e) =>
                 formik.setFieldValue("nameGujarati", e.target.value)
@@ -167,7 +172,7 @@ const AddFunctionType = ({
               lng="gu"
             />
             <InputToTextLang
-              label="Name (हिंदी)"
+              label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
               value={formik.values.nameHindi}
               onChange={(e) =>
                 formik.setFieldValue("nameHindi", e.target.value)
@@ -180,7 +185,7 @@ const AddFunctionType = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <div className="flex flex-col">
               <label className="form-label  text-gray-600">
-                Start Time
+                <FormattedMessage id="USER.MASTER.START_TIME" defaultMessage="Start Time" />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -189,7 +194,7 @@ const AddFunctionType = ({
                 className="input"
                 format="HH:mm"
                 value={formik.values.startTime}
-                onChange={(time) => formik.setFieldValue("startTime", time)}
+                onChange={(time) => formik.setFieldValue({ id: "USER.MASTER.START_TIME", value: time })}
               />
               {formik.touched.startTime && formik.errors.startTime && (
                 <span className="text-red-500 text-sm">
@@ -199,7 +204,7 @@ const AddFunctionType = ({
             </div>
             <div className="flex flex-col">
               <label className="form-label  text-gray-600">
-                End Time{" "}
+                <FormattedMessage id="USER.MASTER.END_TIME" defaultMessage="End Time" />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -208,7 +213,7 @@ const AddFunctionType = ({
                 className="input"
                 format="HH:mm"
                 value={formik.values.endTime}
-                onChange={(time) => formik.setFieldValue("endTime", time)}
+                onChange={(time) => formik.setFieldValue({ id: "USER.MASTER.END_TIME", value: time })}
               />
               {formik.touched.endTime && formik.errors.endTime && (
                 <span className="text-red-500 text-sm">
@@ -225,13 +230,13 @@ const AddFunctionType = ({
               onClick={() => onClose(false)}
               className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
             >
-              Cancel
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button
               type="submit"
               className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             >
-              {selectedFunction ? "Update" : "Save"}
+              {selectedFunction ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
             </button>
           </div>
         </form>

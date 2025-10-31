@@ -759,3 +759,12 @@ export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
     `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
   );
 };
+
+export const UpdateInvoice = (id, data) => {
+  return PUT(`/invoice/update?id=${id}`, data);
+}
+
+export const GetAllInvoice = (id) => {
+  return GET(`/invoice/getallbyfilter?userid=${id}`);
+}
+

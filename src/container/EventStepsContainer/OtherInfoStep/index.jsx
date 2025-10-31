@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 import useStyles from "./style";
 import { GetMealType } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
 const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const classes = useStyles();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -55,13 +56,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             <div className="flex flex-wrap items-center gap-2 p-4">
               <Sparkles className="text-primary" />
               <p className="text-base font-medium text-gray-900">
-                Meal Information
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES" defaultMessage="Meal And Notes" />
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
               <div className="sg__inner  ssssssssssssss flex flex-col w-full gap-1">
                 <label className="form-label">
-                  Meal Typeas
+                  <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_TYPE" defaultMessage="Meal Type" />
                   <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                     *
                   </span>
@@ -95,7 +96,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label">Meal Notes</label>
+                <label className="form-label"></label>
+                  <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_NOTES" defaultMessage="Meal Notes" />
+                
                 <div className="input">
                   <input
                     className="h-full"
@@ -115,12 +118,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             <div className="flex flex-wrap items-center gap-2 p-4">
               <Sparkles className="text-primary" />
               <p className="text-base font-medium text-gray-900">
-                Service/Remark
+                
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_SERVICE_AND_REMARK" defaultMessage="Service/Remark" />
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
               <div className="sg__inner flex flex-col w-full gap-1">
-                <label className="form-label">Service</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_SERVICE" defaultMessage="Service" /></label>
                 <div className="input">
                   <input
                     className="h-full"
@@ -134,7 +138,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label">Theme</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_THEME" defaultMessage="Theme" /></label>
                 <div className="input">
                   <input
                     className="h-full"
@@ -148,7 +152,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label">remark</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_REMARK" defaultMessage="Remark" /></label>
                 <div className="input">
                   <input
                     className="h-full"
@@ -168,12 +172,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             <div className="flex flex-wrap items-center gap-2 p-4">
               <Crown className="text-primary" />
               <p className="text-base font-medium text-gray-900">
-                Groom Information
+               
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_INFORMATION" defaultMessage="Groom Information" />
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
               <div className="flex flex-col">
-                <label className="form-label">Groom Name</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_NAME" defaultMessage="Groom Name" /></label>
                 <div className="input">
                   <i className="ki-filled ki-autobrightness"></i>
                   <input
@@ -188,7 +193,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label">Instagram Link</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_INSTAGRAM_LINK" defaultMessage="Instagram Link" /></label>
                 <div className="input">
                   <i className="ki-filled ki-instagram"></i>
                   <input
@@ -202,7 +207,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Birth Date</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_BIRTH_DATE" defaultMessage="Birth Date" /></label>
                 <DatePicker
                   className="input"
                   placeholder="Groom Birth Date"
@@ -215,7 +220,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Community</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_COMMUNITY" defaultMessage="Community" /></label>
                 <div className="input">
                   <i className="ki-filled ki-autobrightness"></i>
                   <input
@@ -229,7 +234,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Phone Number</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_GROOM_PHONE_NUMBER" defaultMessage="Phone Number" /></label>
                 <div className="input">
                   <i className="ki-filled ki-phone"></i>
                   <input
@@ -250,12 +255,12 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             <div className="flex flex-wrap items-center gap-2 p-4">
               <Sparkles className="text-primary" />
               <p className="text-base font-medium text-gray-900">
-                Bride Information
+                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_INFORMATION" defaultMessage="Bride Information" />
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
               <div className="flex flex-col">
-                <label className="form-label">Bride Name</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_NAME" defaultMessage="Bride Name" /></label>
                 <div className="input">
                   <i className="ki-filled ki-autobrightness"></i>
                   <input
@@ -269,7 +274,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Instagram Link</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_INSTAGRAM_LINK" defaultMessage="Instagram Link" /></label>
                 <div className="input">
                   <i className="ki-filled ki-instagram"></i>
                   <input
@@ -283,7 +288,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Birth Date</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_BIRTH_DATE" defaultMessage="Birth Date" /></label>
                 <DatePicker
                   className="input"
                   placeholder="Bride Birth Date"
@@ -296,7 +301,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Community</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_COMMUNITY" defaultMessage="Community" /></label>
                 <div className="input">
                   <i className="ki-filled ki-autobrightness"></i>
                   <input
@@ -310,7 +315,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="form-label">Phone Number</label>
+                <label className="form-label"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_BRAID_PHONE_NUMBER" defaultMessage="Phone Number" /></label>
                 <div className="input">
                   <i className="ki-filled ki-phone"></i>
                   <input
