@@ -1,4 +1,5 @@
 import { useState, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 
@@ -7,6 +8,7 @@ const ReportThemes = () => {
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const navigate = useNavigate();
 
   const themes = [
     { title: "Elegant – Wedding", img: "/justcaterings/images/report-theme1.png" },
@@ -21,93 +23,89 @@ const ReportThemes = () => {
 
   const allThemes = showMore ? [...themes, ...themes] : themes;
 
-  // Generate PDF from image
+  // ✅ Navigate to Editor Page on Card Click
+  const handleCardClick = (theme) => {
+    navigate("/report-themes/editor", { state: { theme } });
+  };
+
+  // ✅ Generate PDF
   const generatePDF = async (theme) => {
     setIsGenerating(true);
     setSelectedTheme(theme);
-    
+
     try {
       // Load jsPDF dynamically if not already loaded
       if (!window.jspdf) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        const script = document.createElement("script");
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
         script.async = true;
-        
+
         await new Promise((resolve, reject) => {
           script.onload = resolve;
           script.onerror = reject;
           document.head.appendChild(script);
         });
-        
-        // Wait a bit for the library to initialize
-        await new Promise(resolve => setTimeout(resolve, 100));
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      
+
       const { jsPDF } = window.jspdf;
-      
-      // Create new PDF document
+
       const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
-      // Add title
       pdf.setFontSize(24);
       pdf.setTextColor(0, 91, 168);
-      pdf.text('Report Theme Preview', 105, 20, { align: 'center' });
+      pdf.text("Report Theme Preview", 105, 20, { align: "center" });
 
-      // Add theme title
       pdf.setFontSize(18);
       pdf.setTextColor(51, 51, 51);
-      pdf.text(theme.title, 105, 35, { align: 'center' });
+      pdf.text(theme.title, 105, 35, { align: "center" });
 
-      // Load and add image
       const img = new Image();
-      img.crossOrigin = 'anonymous';
-      
-      img.onload = function() {
-        // Calculate dimensions to fit A4 page
-        const pageWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
+      img.crossOrigin = "anonymous";
+
+      img.onload = function () {
+        const pageWidth = 210;
+        const pageHeight = 297;
         const margin = 20;
-        const maxWidth = pageWidth - (margin * 2);
-        const maxHeight = pageHeight - 80; // Leave space for title
+        const maxWidth = pageWidth - margin * 2;
+        const maxHeight = pageHeight - 80;
 
         let imgWidth = maxWidth;
         let imgHeight = (img.height * maxWidth) / img.width;
 
-        // If image is too tall, scale by height instead
         if (imgHeight > maxHeight) {
           imgHeight = maxHeight;
           imgWidth = (img.width * maxHeight) / img.height;
         }
 
-        // Center the image
         const x = (pageWidth - imgWidth) / 2;
         const y = 50;
 
-        pdf.addImage(img, 'PNG', x, y, imgWidth, imgHeight);
+        pdf.addImage(img, "PNG", x, y, imgWidth, imgHeight);
 
-        // Convert PDF to blob URL
-        const pdfBlob = pdf.output('blob');
+        const pdfBlob = pdf.output("blob");
         const url = URL.createObjectURL(pdfBlob);
         setPdfUrl(url);
         setIsGenerating(false);
       };
 
-      img.onerror = function() {
-        console.error('Failed to load image');
+      img.onerror = function () {
+        console.error("Failed to load image");
         setIsGenerating(false);
-        alert('Failed to load image. Please check the image path.');
+        alert("Failed to load image. Please check the image path.");
       };
 
       img.src = theme.img;
-      
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error("Error generating PDF:", error);
       setIsGenerating(false);
-      alert('Error generating PDF. Please try again.');
+      alert("Error generating PDF. Please try again.");
     }
   };
 
@@ -124,7 +122,7 @@ const ReportThemes = () => {
       <Container className="flex flex-col min-h-screen">
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-        <Breadcrumbs items={[{ title: "Menu Report Themes" }]} />
+          <Breadcrumbs items={[{ title: "Menu Report Themes" }]} />
           <p className="text-sm text-gray-500 mt-1">
             Discover unique designs, crafted for your reports.
           </p>
@@ -135,11 +133,15 @@ const ReportThemes = () => {
           {allThemes.map((theme, index) => (
             <div
               key={index}
-              className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              onClick={() => handleCardClick(theme)} // ✅ Navigate to editor on click
+              className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
             >
               {/* View Icon */}
               <button
-                onClick={() => generatePDF(theme)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent navigation when clicking View PDF
+                  generatePDF(theme);
+                }}
                 className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition"
                 title="View PDF"
               >

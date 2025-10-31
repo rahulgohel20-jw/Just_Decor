@@ -49,7 +49,7 @@ export default function ReportEditor() {
           <EditorHeader onSave={handleSave} />
 
           {/* Main workspace */}
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden gap-3">
 
   <div className="flex-[0.6] flex justify-center bg-gray-50 overflow-y-auto py-10 rounded-xl">
     <PreviewPane design={design} />
