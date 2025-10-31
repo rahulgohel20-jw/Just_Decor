@@ -1,10 +1,21 @@
-const CategoryList = ({ categories, selectedId, onSelect, searchTerm }) => {
+const CategoryList = ({
+  categories,
+  selectedId,
+  onSelect,
+  searchTerm,
+  mode = "custom",
+}) => {
   const filteredCategories = categories.filter(({ name }) =>
     name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="flex-1 max-h-[520px] overflow-auto scrollable-y">
+      {mode === "package" && (
+        <div className="p-2 bg-blue-50 border-b border-blue-200 text-xs text-blue-700 font-medium">
+          Package Mode: Categories show package items
+        </div>
+      )}
       {filteredCategories.length === 0 ? (
         <div className="p-2 text-gray-400 text-xs text-center">
           No categories found

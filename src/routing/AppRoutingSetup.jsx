@@ -171,6 +171,7 @@ import Labourshiftmaster from "../pages/master/labour-shift";
 import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import ReportsConfig from "@/pages/Reports/ReportsConfig";
 import DateWiseReport from "@/pages/Reports/DateWiseReport";
+import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -179,7 +180,7 @@ const AppRoutingSetup = () => {
           <Route path="/price" element={<Priceplan />} />
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<ClientDashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />

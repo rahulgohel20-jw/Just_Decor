@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect, Fragment } from "react";
+import { useState, useReducer, useEffect, Fragment, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Eye, EyeOff, Mic } from "lucide-react";
@@ -21,6 +21,7 @@ import {
   useCategories,
   useMenuData,
   useSaveMenu,
+  useSavePackageMenu,
   functionDataReducer,
 } from "./hooks/useEventPreparation";
 import { toAbsoluteUrl } from "@/utils";
@@ -72,7 +73,10 @@ const EventPreparationPage = () => {
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [orderedCategoryIds, setOrderedCategoryIds] = useState([]);
   const [categoryAnyItems, setCategoryAnyItems] = useState({});
-
+  const [currentPackageInfo, setCurrentPackageInfo] = useState(null);
+  const [customSelectedItems, setCustomSelectedItems] = useState({});
+  const [packageSelectedItems, setPackageSelectedItems] = useState({});
+  const [isPackageMode, setIsPackageMode] = useState(false);
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
     itemSlogan: "",
@@ -85,6 +89,17 @@ const EventPreparationPage = () => {
   const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
 
   const { saveMenu } = useSaveMenu(
+    functionSelectionData,
+    allMenuItems,
+    menuPreparationIds,
+    categories,
+    startDateandtime,
+    endDateandtime,
+    clearFunctionCache,
+    loadFunctionMenuData,
+    dispatch
+  );
+  const { savePackageMenu } = useSavePackageMenu(
     functionSelectionData,
     allMenuItems,
     menuPreparationIds,
@@ -132,37 +147,63 @@ const EventPreparationPage = () => {
       return;
     }
 
-    // Set selected package info
+    // Store package info
+    setCurrentPackageInfo({
+      id: packageId,
+      packageName: packageName,
+      packagePrice: totalPrice,
+    });
+
     setSelectedPackageName(packageName);
     setSelectedPackagePrice(totalPrice || 0);
 
-    // Process items with deterministic IDs
+    // Process items with better image handling and unique IDs
     const processedItems = items.map((item, index) => {
       const categoryName =
         item.categoryName || item.menuName || "Custom Package Items";
-      const categoryId =
-        categories.find((cat) => cat.name === categoryName)?.id ||
-        `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
 
-      const newItemId = `pkg-${packageId || "custom"}-cat-${categoryId}-item-${index}`;
+      let categoryId = categories.find(
+        (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+      )?.id;
+
+      if (!categoryId) {
+        categoryId = `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+      }
+
+      // CRITICAL FIX: Extract the NUMERIC menuItemId correctly
+      // The menuItemId should be the actual database ID (a number)
+      const originalMenuItemId = item.menuItemId || item.id;
+
+      // Create unique package item ID
+      const newItemId = `pkg-${packageId || "custom"}-item-${originalMenuItemId}`;
+
+      // Better image handling
+      let itemImage = item.imagePath || item.image || item.imageUrl || "";
+
+      if (!itemImage || itemImage.trim() === "") {
+        itemImage =
+          "https://via.placeholder.com/150?text=" +
+          encodeURIComponent(item.itemName || item.name || "Item");
+      }
 
       return {
-        ...item,
         id: newItemId,
+        menuItemId: originalMenuItemId, // Store ONLY the numeric ID
         parentId: categoryId,
-        image: item.image || "",
-        price: item.price || item.itemPrice || 0,
+        categoryName: categoryName,
+        name: item.itemName || item.name || `Item ${index + 1}`,
+        image: itemImage,
+        price: item.itemPrice || item.price || 0,
         itemNotes: item.instruction || item.itemNotes || "",
-        name: item.name || item.itemName || `Item ${index + 1}`,
+        itemSlogan: item.itemSlogan || "",
         isPackageItem: true,
         packageId: packageId,
         packageName: packageName,
       };
     });
 
-    // Extract category "Any" counts from package data if available
+    // Extract category "Any" counts
     const categoryAnyItems = {};
-
     if (Array.isArray(packageData.packageItems)) {
       packageData.packageItems.forEach((pkgCat) => {
         if (pkgCat.categoryName && pkgCat.anyItemCount) {
@@ -177,23 +218,42 @@ const EventPreparationPage = () => {
       });
     }
 
-    // Save it to state
-    setCategoryAnyItems((prev) => {
-      const newState = { ...prev, [selectedFunctionId]: categoryAnyItems };
-      return newState;
-    });
-
-    // Update allMenuItems for this function
-    setAllMenuItems((prev) => ({
+    setCategoryAnyItems((prev) => ({
       ...prev,
-      [selectedFunctionId]: processedItems,
+      [selectedFunctionId]: categoryAnyItems,
     }));
 
-    // Update packageItemIds to match processed item IDs
+    // CRITICAL: Clear existing package items first, then add new ones
+    setAllMenuItems((prev) => {
+      const existingItems = prev[selectedFunctionId] || [];
+
+      // Keep only non-package items
+      const nonPackageItems = existingItems.filter(
+        (item) => !item.isPackageItem && !item.packageId
+      );
+
+      // Use Map to ensure uniqueness by menuItemId
+      const itemMap = new Map();
+
+      // Add non-package items
+      nonPackageItems.forEach((item) => {
+        itemMap.set(item.id, item);
+      });
+
+      // Add new package items (using their unique pkg- IDs)
+      processedItems.forEach((item) => {
+        itemMap.set(item.id, item);
+      });
+
+      return {
+        ...prev,
+        [selectedFunctionId]: Array.from(itemMap.values()),
+      };
+    });
+
     const newItemIds = processedItems.map((item) => item.id);
     setPackageItemIds(newItemIds);
 
-    // Dispatch to update functionSelectionData
     dispatch({
       type: "UPDATE_SELECTIONS",
       functionId: selectedFunctionId,
@@ -213,12 +273,41 @@ const EventPreparationPage = () => {
       categoryNotes: {},
       categorySlogans: {},
       itemSortOrders: {},
-      isSaved: true,
+      isSaved: false,
       isPackage: true,
       packageId: packageId,
       packageName: packageName,
       packagePrice: totalPrice,
     });
+
+    setPackageSelectedItems({
+      ...packageSelectedItems,
+      [selectedFunctionId]: {
+        selectedItems: newItemIds,
+        itemNotes: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemNotes || "";
+          return acc;
+        }, {}),
+        itemSlogans: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemSlogan || "";
+          return acc;
+        }, {}),
+        itemRates: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.price || rate || 0;
+          return acc;
+        }, {}),
+        categoryNotes: {},
+        categorySlogans: {},
+        itemSortOrders: {},
+        isSaved: false,
+        isPackage: true,
+        packageId: packageId,
+        packageName: packageName,
+        packagePrice: totalPrice,
+      },
+    });
+
+    setSelectedCategoryId(0);
   };
 
   useEffect(() => {
@@ -300,6 +389,12 @@ const EventPreparationPage = () => {
   const handleCategoryChange = async (categoryId) => {
     setSelectedCategoryId(categoryId);
     if (selectedFunctionId) {
+      // In package mode, don't reload data as it might cause duplicates
+      if (activeTab === "package") {
+        // Just change the category filter, don't reload
+        return;
+      }
+      // In custom mode, load the category data
       await loadFunctionMenuData(selectedFunctionId, categoryId, categories);
     }
   };
@@ -308,87 +403,219 @@ const EventPreparationPage = () => {
     const selectedItemsIds =
       functionSelectionData[selectedFunctionId]?.selectedItems || [];
 
+    if (selectedItemsIds.length === 0) {
+      alert("Please select at least one item");
+      return;
+    }
+
     if (activeTab === "custom") {
-      const hasPackageItems = selectedItemsIds.some((id) =>
-        packageItemIds.includes(id)
-      );
+      // In custom mode: Check if any selected item is a package item
+      const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+      const hasPackageItems = selectedItemsIds.some((id) => {
+        const item = allFunctionMenuItems.find((i) => i.id === id);
+        return item && item.isPackageItem;
+      });
+
       if (hasPackageItems) {
-        console.warn(
-          "⚠️ Cannot save package items in custom tab. Switch to Package tab."
-        );
         alert(
           "Cannot save package items in custom tab. Please switch to Package tab."
         );
         return;
       }
-    } else if (activeTab === "package") {
-      const hasCustomItems = selectedItemsIds.some(
-        (id) => !packageItemIds.includes(id)
+
+      // Save as custom menu
+      const success = await saveMenu(
+        selectedFunctionId,
+        selectedCategoryId,
+        pax,
+        rate
       );
-      if (hasCustomItems) {
-        console.warn(
-          "⚠️ Cannot save custom items in package tab. Switch to Custom tab."
-        );
-        alert(
-          "Cannot save custom items in package tab. Please switch to Custom tab."
-        );
+      if (success) {
+        dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
+      }
+    } else if (activeTab === "package") {
+      // In package mode: Must have package selected
+      if (!currentPackageInfo || !currentPackageInfo.id) {
+        alert("Please select a package first");
         return;
       }
-    }
 
-    const success = await saveMenu(
-      selectedFunctionId,
-      selectedCategoryId,
-      pax,
-      rate
-    );
-    if (success) {
-      dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
+      // Save as package menu (can include both package items and custom items)
+      const success = await savePackageMenu(
+        selectedFunctionId,
+        selectedCategoryId,
+        pax,
+        rate,
+        currentPackageInfo
+      );
+      if (success) {
+        dispatch({ type: "MARK_SAVED", functionId: selectedFunctionId });
+      }
     }
   };
 
-  const getFilteredSelectedItems = () => {
-    const selectedItemsIds =
-      functionSelectionData[selectedFunctionId]?.selectedItems || [];
+  const handleTabChange = (newTab) => {
+    if (!selectedFunctionId) return;
 
+    // Save current state before switching
     if (activeTab === "custom") {
-      return selectedItemsIds.filter((id) => !packageItemIds.includes(id));
+      setCustomSelectedItems({
+        ...customSelectedItems,
+        [selectedFunctionId]: functionSelectionData[selectedFunctionId] || {},
+      });
     } else if (activeTab === "package") {
-      return selectedItemsIds.filter((id) => packageItemIds.includes(id));
+      setPackageSelectedItems({
+        ...packageSelectedItems,
+        [selectedFunctionId]: functionSelectionData[selectedFunctionId] || {},
+      });
     }
-    return selectedItemsIds;
-  };
 
-  const toggleChildSelection = (id) => {
-    const item = currentMenuItems.find((menuItem) => menuItem.id === id);
+    setActiveTab(newTab);
+    setIsPackageMode(newTab === "package");
 
-    // Check if we're in package tab
-    if (activeTab === "package") {
-      // When adding a new item in package tab, add it to packageItemIds
-      if (item && !currentFunctionData.selectedItems?.includes(id)) {
-        setPackageItemIds((prev) => [...prev, id]);
-
-        // Also add the item to allMenuItems for this function if not already there
-        setAllMenuItems((prev) => {
-          const existingItems = prev[selectedFunctionId] || [];
-          const itemExists = existingItems.some((i) => i.id === id);
-
-          if (!itemExists) {
-            return {
-              ...prev,
-              [selectedFunctionId]: [...existingItems, item],
-            };
-          }
-          return prev;
+    // Restore state for new tab
+    if (newTab === "custom") {
+      const savedCustomData = customSelectedItems[selectedFunctionId];
+      if (savedCustomData && savedCustomData.selectedItems?.length > 0) {
+        dispatch({
+          type: "UPDATE_SELECTIONS",
+          functionId: selectedFunctionId,
+          ...savedCustomData,
+        });
+      } else {
+        // Load fresh custom data only if switching to custom
+        loadFunctionMenuData(
+          selectedFunctionId,
+          selectedCategoryId,
+          categories
+        );
+      }
+    } else if (newTab === "package") {
+      const savedPackageData = packageSelectedItems[selectedFunctionId];
+      if (savedPackageData && savedPackageData.selectedItems?.length > 0) {
+        dispatch({
+          type: "UPDATE_SELECTIONS",
+          functionId: selectedFunctionId,
+          ...savedPackageData,
+        });
+      } else {
+        // Clear items when entering package mode without package
+        dispatch({
+          type: "CLEAR_SELECTED_ITEMS",
+          functionId: selectedFunctionId,
         });
       }
     }
 
+    // Reset category to "All" when switching tabs to avoid confusion
+    setSelectedCategoryId(0);
+  };
+
+  const getFilteredSelectedItems = () => {
+    if (!selectedFunctionId) return [];
+
+    const selectedItemsIds =
+      functionSelectionData[selectedFunctionId]?.selectedItems || [];
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
+    if (activeTab === "custom") {
+      // In custom mode, show only non-package items
+      return selectedItemsIds.filter((id) => {
+        const item = allFunctionMenuItems.find((i) => i.id === id);
+        return item && !item.isPackageItem;
+      });
+    } else if (activeTab === "package") {
+      // In package mode, show ALL selected items (both package and custom)
+      return selectedItemsIds;
+    }
+
+    return selectedItemsIds;
+  };
+
+  const toggleChildSelection = (id) => {
+    const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+    const item = allFunctionMenuItems.find((menuItem) => menuItem.id === id);
+
+    if (!item) return;
+
+    const isCurrentlySelected = currentFunctionData.selectedItems?.includes(id);
+
+    // In package mode
+    if (activeTab === "package") {
+      // Only show alert if NO package has been selected at all
+      if (!selectedPackageName && !currentPackageInfo?.id) {
+        alert("Please select a package first before adding items");
+        return;
+      }
+
+      // Allow toggling both package items AND custom items
+      if (item.isPackageItem) {
+        // Handle package item toggle
+        if (!isCurrentlySelected) {
+          setPackageItemIds((prev) => {
+            if (!prev.includes(id)) {
+              return [...prev, id];
+            }
+            return prev;
+          });
+        } else {
+          setPackageItemIds((prev) => prev.filter((itemId) => itemId !== id));
+        }
+      } else {
+        // Handle custom item being added to package - NO ALERT
+        if (!isCurrentlySelected) {
+          // Add custom item to allMenuItems for this function if not exists
+          setAllMenuItems((prev) => {
+            const existingItems = prev[selectedFunctionId] || [];
+            const itemExists = existingItems.some((i) => i.id === id);
+
+            if (!itemExists) {
+              return {
+                ...prev,
+                [selectedFunctionId]: [...existingItems, item],
+              };
+            }
+            return prev;
+          });
+        }
+      }
+    } else {
+      // In custom mode, don't allow package items
+      if (item.isPackageItem) {
+        alert("Package items can only be modified in Package mode");
+        return;
+      }
+    }
+
+    // Toggle selection
     dispatch({
       type: "TOGGLE_ITEM_SELECTION",
       functionId: selectedFunctionId,
       itemId: id,
     });
+
+    // Save to appropriate state
+    if (activeTab === "custom") {
+      setCustomSelectedItems({
+        ...customSelectedItems,
+        [selectedFunctionId]: {
+          ...functionSelectionData[selectedFunctionId],
+          selectedItems: isCurrentlySelected
+            ? currentFunctionData.selectedItems.filter((i) => i !== id)
+            : [...(currentFunctionData.selectedItems || []), id],
+        },
+      });
+    } else if (activeTab === "package") {
+      setPackageSelectedItems({
+        ...packageSelectedItems,
+        [selectedFunctionId]: {
+          ...functionSelectionData[selectedFunctionId],
+          selectedItems: isCurrentlySelected
+            ? currentFunctionData.selectedItems.filter((i) => i !== id)
+            : [...(currentFunctionData.selectedItems || []), id],
+        },
+      });
+    }
   };
 
   const handleItemRateChange = (id, value) => {
@@ -497,20 +724,195 @@ const EventPreparationPage = () => {
   };
 
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
-  const currentMenuItems = functionMenuData[cacheKey] || [];
-
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
     selectedItems: [],
     itemNotes: {},
     itemRates: {},
+    itemSlogans: {},
+    categoryNotes: {},
+    categorySlogans: {},
+  };
+  // Update the menuItemsWithSelectionState calculation
+  const currentMenuItems = useMemo(() => {
+    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+    const baseItems = functionMenuData[cacheKey] || [];
+    const allFunctionItems = allMenuItems[selectedFunctionId] || [];
+
+    if (activeTab === "package") {
+      // Build sets for tracking
+      const packageItemOriginalIds = new Set();
+      const uniqueItemsMap = new Map();
+
+      // STEP 1: Process package items
+      const packageItems = allFunctionItems.filter(
+        (item) => item.isPackageItem
+      );
+
+      packageItems.forEach((item) => {
+        // Add to map using package ID
+        uniqueItemsMap.set(item.id, item);
+
+        // Track original ID (handle both string and number)
+        if (item.menuItemId !== undefined && item.menuItemId !== null) {
+          // Convert to string for Set comparison
+          const originalId = String(item.menuItemId);
+          packageItemOriginalIds.add(originalId);
+          // Also add as number if it's numeric
+          if (!isNaN(item.menuItemId)) {
+            packageItemOriginalIds.add(Number(item.menuItemId));
+          }
+        }
+      });
+
+      // STEP 2: Add base items (skip if already in package)
+      baseItems.forEach((item) => {
+        const itemIdStr = String(item.id);
+        const itemIdNum = Number(item.id);
+
+        // Check if this item exists in package (check both formats)
+        const isDuplicate =
+          packageItemOriginalIds.has(item.id) ||
+          packageItemOriginalIds.has(itemIdStr) ||
+          packageItemOriginalIds.has(itemIdNum);
+
+        if (!isDuplicate && !item.isPackageItem) {
+          uniqueItemsMap.set(item.id, item);
+        } else {
+          console.log(error);
+        }
+      });
+
+      const uniqueItems = Array.from(uniqueItemsMap.values());
+
+      // Apply category filter
+      if (selectedCategoryId !== 0) {
+        return uniqueItems.filter(
+          (item) => item.parentId === selectedCategoryId
+        );
+      }
+
+      return uniqueItems;
+    } else {
+      return baseItems.filter((item) => !item.isPackageItem);
+    }
+  }, [
+    functionMenuData,
+    allMenuItems,
+    selectedFunctionId,
+    selectedCategoryId,
+    activeTab,
+  ]);
+
+  const debugMenuItems = () => {
+    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+    const baseItems = functionMenuData[cacheKey] || [];
+    const allFunctionItems = allMenuItems[selectedFunctionId] || [];
+
+    // Check for duplicates
+    const packageOriginalIds = allFunctionItems
+      .filter((i) => i.isPackageItem)
+      .map((i) => i.menuItemId);
+
+    const duplicates = baseItems.filter((item) =>
+      packageOriginalIds.includes(item.id)
+    );
+
+    if (duplicates.length > 0) {
+      console.warn(
+        "⚠️ Found duplicates:",
+        duplicates.map((d) => ({ id: d.id, name: d.name }))
+      );
+    }
+
+    console.groupEnd();
   };
 
-  const menuItemsWithSelectionState = currentMenuItems.map((item) => ({
-    ...item,
-    isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
-  }));
+  useEffect(() => {
+    if (selectedFunctionId && activeTab === "package") {
+      debugMenuItems();
+    }
+  }, [
+    selectedFunctionId,
+    selectedCategoryId,
+    activeTab,
+    functionMenuData,
+    allMenuItems,
+  ]);
+
+  const menuItemsWithSelectionState = useMemo(() => {
+    return currentMenuItems.map((item) => ({
+      ...item,
+      isSelected: currentFunctionData.selectedItems?.includes(item.id) || false,
+    }));
+  }, [currentMenuItems, currentFunctionData.selectedItems]);
 
   const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
+
+  const handleFunctionTabChange = async (newFunctionId) => {
+    // Save current function state
+    if (selectedFunctionId) {
+      if (activeTab === "custom") {
+        setCustomSelectedItems({
+          ...customSelectedItems,
+          [selectedFunctionId]: functionSelectionData[selectedFunctionId] || {},
+        });
+      } else if (activeTab === "package") {
+        setPackageSelectedItems({
+          ...packageSelectedItems,
+          [selectedFunctionId]: functionSelectionData[selectedFunctionId] || {},
+        });
+      }
+    }
+
+    // Set new function
+    setSelectedFunctionId(newFunctionId);
+
+    // Find function data
+    const fn = eventAllData[0]?.eventFunctions?.find(
+      (f) => f.id === newFunctionId
+    );
+    if (fn) {
+      setPax(fn.pax || 0);
+      setRate(fn.rate || 0);
+    }
+
+    // Load menu data for new function
+    await loadAllMenuDataForFunction(newFunctionId, categories);
+    await loadFunctionMenuData(newFunctionId, 0, categories);
+
+    // Restore state for new function
+    if (activeTab === "custom") {
+      const savedCustomData = customSelectedItems[newFunctionId];
+      if (savedCustomData?.selectedItems?.length > 0) {
+        dispatch({
+          type: "UPDATE_SELECTIONS",
+          functionId: newFunctionId,
+          ...savedCustomData,
+        });
+      }
+    } else if (activeTab === "package") {
+      const savedPackageData = packageSelectedItems[newFunctionId];
+      if (savedPackageData?.selectedItems?.length > 0) {
+        dispatch({
+          type: "UPDATE_SELECTIONS",
+          functionId: newFunctionId,
+          ...savedPackageData,
+        });
+
+        // Restore package info
+        if (savedPackageData.packageName) {
+          setSelectedPackageName(savedPackageData.packageName);
+          setSelectedPackagePrice(savedPackageData.packagePrice || 0);
+          setPackageItemIds(savedPackageData.selectedItems || []);
+          setCurrentPackageInfo({
+            id: savedPackageData.packageId,
+            packageName: savedPackageData.packageName,
+            packagePrice: savedPackageData.packagePrice,
+          });
+        }
+      }
+    }
+  };
 
   const calculateTabTotalPrice = () => {
     const filteredIds = getFilteredSelectedItems();
@@ -718,15 +1120,20 @@ const EventPreparationPage = () => {
                 </div>
               </div>
               <div className={`pt-3 px-3 shrink-0 ${classes.customStyle}`}>
-                <TabComponent tabs={menuPreparationsTabs} />
+                <TabComponent
+                  tabs={menuPreparationsTabs}
+                  onChange={handleFunctionTabChange}
+                />
               </div>
 
               <div className="flex gap-1 px-3 justify-between">
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
-                      setActiveTab("custom");
+                      handleTabChange("custom");
                       setShowCustomPackageModal(false);
+                      setSelectedPackageName(null);
+                      setSelectedPackagePrice(0);
                     }}
                     className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
                       activeTab === "custom"
@@ -739,7 +1146,7 @@ const EventPreparationPage = () => {
 
                   <button
                     onClick={() => {
-                      setActiveTab("package");
+                      handleTabChange("package");
                       setShowCustomPackageModal(true);
                     }}
                     className={`px-4 py-2 rounded-md font-medium transition-all duration-300 ${
@@ -759,20 +1166,45 @@ const EventPreparationPage = () => {
                 </button>
               </div>
               <div className="px-3 ">
-                {selectedPackageName && selectedPackagePrice > 0 && (
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md ">
-                    <div className="flex items-center justify-between">
-                      <div className="w-full flex  items-center justify-between">
-                        <span className="font-semibold text-blue-700 block mb-1">
-                          Selected Package: {selectedPackageName}
-                        </span>
-                        <span className=" font-semibold  text-sm text-gray-700">
-                          Total Price: ₹{selectedPackagePrice.toLocaleString()}
-                        </span>
+                {activeTab === "package" &&
+                  selectedPackageName &&
+                  selectedPackagePrice > 0 && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div className="w-full flex items-center justify-between">
+                          <span className="font-semibold text-blue-700 block mb-1">
+                            Selected Package: {selectedPackageName}
+                          </span>
+                          <span className="font-semibold text-sm text-gray-700">
+                            Total Price: ₹
+                            {selectedPackagePrice.toLocaleString()}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Clear package selection
+                            setSelectedPackageName(null);
+                            setSelectedPackagePrice(0);
+                            setPackageItemIds([]);
+                            setCurrentPackageInfo(null);
+
+                            dispatch({
+                              type: "CLEAR_SELECTED_ITEMS",
+                              functionId: selectedFunctionId,
+                            });
+
+                            setPackageSelectedItems({
+                              ...packageSelectedItems,
+                              [selectedFunctionId]: {},
+                            });
+                          }}
+                          className="ml-3 px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                        >
+                          Clear Package
+                        </button>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
               <CustomPackageModal
                 isOpen={showCustomPackageModal}
@@ -820,6 +1252,7 @@ const EventPreparationPage = () => {
                       selectedId={selectedCategoryId}
                       onSelect={handleCategoryChange}
                       searchTerm={search}
+                      mode={activeTab}
                     />
                   </div>
                 </div>
@@ -862,6 +1295,7 @@ const EventPreparationPage = () => {
                         searchTerm={childSearch}
                         onToggleSelection={toggleChildSelection}
                         loading={loading}
+                        mode={activeTab}
                       />
                     </div>
                   </div>
@@ -969,6 +1403,17 @@ const EventPreparationPage = () => {
             {isUpdateOperation ? "Update Menu" : "Save Menu"}
           </button>
         </div>
+
+        <CategoryNotes
+          isOpen={showCategoryNoteModal}
+          onClose={() => {
+            setShowCategoryNoteModal(false);
+            setCurrentCategoryForNotes(null);
+          }}
+          categoryId={currentCategoryForNotes}
+          notes={categoryNotes}
+          onSave={handleCategoryNoteSave}
+        />
 
         <AddMenuItem
           isModalOpen={isItemModalOpen}
