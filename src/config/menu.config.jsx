@@ -1,14 +1,23 @@
-const userData = JSON.parse(localStorage.getItem("userData"));
-const roleId = userData?.userBasicDetails?.role?.id === 1;
+const getUserRole = () => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    return userData?.userBasicDetails?.role?.id;
+  } catch (error) {
+    console.error("Error parsing userData:", error);
+    return null;
+  }
+};
 
-export const MENU_SIDEBAR = [
+const userRoleId = getUserRole();
+const isSuperAdmin = userRoleId === 1;
+
+const allMenuItems = [
   {
     title: "Dashboard",
     icon: "element-11 text-primary",
     path: "/",
   },
   {
-    // title: "Event Management",
     title: "Events",
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
@@ -38,7 +47,6 @@ export const MENU_SIDEBAR = [
         title: "Customers",
         path: "/master/customers",
       },
-
       {
         title: "Function Type",
         path: "/master/functions",
@@ -79,144 +87,6 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-  // {
-  //   title: "Leads",
-  //   icon: "ki-filled ki-abstract-18 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Overview",
-  //       path: "/overview",
-  //     },
-  //     {
-  //       title: "Leads",
-  //       path: "/lead",
-  //     },
-  //     {
-  //       title: "Contacts",
-  //       path: "/contacts",
-  //     },
-  //     {
-  //       title: "Companies",
-  //       path: "/company",
-  //     },
-  //     {
-  //       title: "Follow Up",
-  //       path: "/followup",
-  //     },
-  //     {
-  //       title: "Products",
-  //       path: "/product",
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Tasks",
-  //   icon: "ki-filled ki-abstract-16 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Dashboard",
-  //       path: "/tasks/dashboard",
-  //     },
-  //     {
-  //       title: "My Task",
-  //       path: "/task/mytask",
-  //     },
-  //     {
-  //       title: "All Tasks",
-  //       path: "/tasks",
-  //     },
-  //     {
-  //       title: "Tasks Templates",
-  //       path: "/tasks-template",
-  //     },
-  //     {
-  //       title: "Tasks Directory",
-  //       path: "/tasks-directory",
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   title: "leaves",
-  //   icon: "ki-filled ki-abstract-17 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Dashboard",
-  //       path: "/leave-dashboard",
-  //     },
-
-  //     {
-  //       title: "My Attendance",
-  //       path: "/myattendance",
-  //     },
-  //     {
-  //       title: "Approval",
-  //       path: "/approval",
-  //     },
-  //     {
-  //       title: "Holidays",
-  //       path: "/holiday",
-  //     },
-  //     {
-  //       title: "My Leaves",
-  //       path: "/myleaves",
-  //     },
-  //     {
-  //       title: "All Leaves",
-  //       path: "/allleave",
-  //     },
-  //     {
-  //       title: "All Attendance",
-  //       path: "/allattendance",
-  //     },
-  //     {
-  //       title: "Settings",
-  //       icon: "ki-filled ki-setting-2 text-primary",
-  //       children: [
-  //         {
-  //           title: "Leave Type",
-  //           path: "/leavetype",
-  //         },
-  //         {
-  //           title: "Attendance Settings",
-  //           path: "/attendance-setting",
-  //         },
-  //         {
-  //           title: "Office Settings",
-  //           path: "/officesettings",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Links",
-  //   icon: "ki-filled ki-disconnect text-primary",
-  //   disabled: false,
-  //   path: "/links",
-  // },
-  // {
-  //   title: "Team",
-  //   icon: "ki-filled ki-users text-primary",
-  //   disabled: true,
-  //   children: [
-  //     {
-  //       title: "Sales Team",
-  //       path: "/team/seals-team",
-  //     },
-  //     {
-  //       title: "User Roles",
-  //       path: "team/user-role",
-  //     },
-  //     {
-  //       title: "All Members",
-  //       path: "team/all-members",
-  //     },
-  //   ],
-  // },
   {
     title: "Raw Material",
     icon: "ki-filled ki-badge text-primary",
@@ -235,7 +105,6 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-
   {
     title: "Menu Item",
     icon: "ki-filled ki-additem text-primary",
@@ -295,18 +164,6 @@ export const MENU_SIDEBAR = [
     icon: "element-11 text-primary",
     path: "/event",
   },
-  ...(roleId
-    ? [
-        {
-          title: "User Master",
-          icon: "ki-filled ki-user text-primary",
-          children: [
-            { title: "All User", path: "/master/user-master/" },
-            { title: "User Plan", path: "/master/user-master/plan" },
-          ],
-        },
-      ]
-    : []),
   {
     title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
@@ -334,21 +191,43 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
-
-  // {
-  //   title: "Support",
-  //   icon: "ki-filled ki-support text-primary",
-  //   disabled: false,
-  //   children: [
-  //     { title: "Events", path: "/support/events" },
-  //     { title: "Tutorials", path: "/support/tutorials" },
-  //     { title: "Tickets", path: "/support/tickets" },
-  //     { title: "Application", path: "/support/application" },
-  //     { title: "Progress Checklist", path: "/support/progress-checklist" },
-  //     { title: "Raise Ticket", path: "/support/raise-ticket" },
-  //   ],
-  // },
 ];
+
+const superAdminMenuItems = [
+  {
+    title: "Dashboard",
+    icon: "element-11 text-primary",
+    path: "/super-dashboard",
+  },
+  {
+    title: "Member List",
+    icon: "ki-filled ki-user text-primary",
+    path: "/master/user-master/",
+  },
+  {
+    title: "Member Plans",
+    icon: "element-11 text-primary",
+    path: "/master/user-master/plan",
+  },
+  {
+    title: "Invoice List",
+    icon: "ki-filled ki-user text-primary",
+    path: "/sales/invoice-dashboard",
+  },
+  {
+    title: "Custom Themes",
+    icon: "element-11 text-primary",
+    path: "/event",
+  },
+  {
+    title: "Plans",
+    icon: "element-11 text-primary",
+    path: "/event",
+  },
+];
+
+export const MENU_SIDEBAR = isSuperAdmin ? superAdminMenuItems : allMenuItems;
+
 export const MENU_MEGA = [
   {
     title: "Home",
@@ -973,7 +852,6 @@ export const MENU_MEGA = [
       {
         title: "Getting Started",
         icon: "coffee",
-        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
       },
       {
         title: "Support Forum",
@@ -982,17 +860,14 @@ export const MENU_MEGA = [
           {
             title: "All Questions",
             icon: "questionnaire-tablet",
-            // path: "https://devs.keenthemes.com",
           },
           {
             title: "Popular Questions",
             icon: "star",
-            // path: "https://devs.keenthemes.com/popular",
           },
           {
             title: "Ask Question",
             icon: "message-question",
-            // path: "https://devs.keenthemes.com/question/create",
           },
         ],
       },
@@ -1003,12 +878,10 @@ export const MENU_MEGA = [
           placement: "right",
         },
         icon: "subtitle",
-        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
       },
       {
         title: "Documentation",
         icon: "questionnaire-tablet",
-        // path: "https://keenthemes.com/metronic/tailwind/docs",
       },
       {
         separator: true,
@@ -1016,11 +889,11 @@ export const MENU_MEGA = [
       {
         title: "Contact Us",
         icon: "share",
-        // path: "https://keenthemes.com/contact",
       },
     ],
   },
 ];
+
 export const MENU_ROOT = [
   {
     title: "Public Profile",
