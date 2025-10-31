@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AlignLeft, AlignCenter, AlignRight } from "lucide-react"
 
 export default function ControlPanel({ design, setDesign }) {
   const [activeTab, setActiveTab] = useState("heading");
@@ -30,8 +31,7 @@ export default function ControlPanel({ design, setDesign }) {
   const typographyTabs = ["heading", "subHeading", "body"];
 
   return (
-    <div className="p-4 space-y-6 bg-gray-50 min-h-screen">
-      {/* TYPOGRAPHY BOX */}
+<div className="bg-white min-h-screen flex flex-col border border-gray-200 shadow-md rounded-xl px-3 py-4">      {/* TYPOGRAPHY BOX */}
       <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
         <div className="bg-[#E6EFFF] px-4 py-2 border-b flex items-center gap-2">
        <span className="text-blue-600">
@@ -46,16 +46,17 @@ export default function ControlPanel({ design, setDesign }) {
       <div className="flex justify-center border-b mb-4 bg-[#FAFDFF]">
   {typographyTabs.map((tab) => (
     <button
-      key={tab}
-      className={`px-4 py-2 text-sm font-semibold capitalize transition-all ${
-        activeTab === tab
-          ? "border-b-2 border-blue-500 text-blue-800"
-          : "text-gray-500 hover:text-blue-500"
-      }`}
-      onClick={() => setActiveTab(tab)}
-    >
-      {tab === "subHeading" ? "Sub-Heading" : tab}
-    </button>
+  key={tab}
+  className={`px-4 py-2 text-sm font-semibold capitalize transition-all ${
+    activeTab === tab
+      ? "border-b-2 border-blue-500 text-blue-800 font-bold"
+      : "text-gray-500 hover:text-blue-500"
+  }`}
+  onClick={() => setActiveTab(tab)}
+>
+  {tab === "subHeading" ? "Sub-Heading" : tab}
+</button>
+
   ))}
 </div>
 
@@ -65,13 +66,13 @@ export default function ControlPanel({ design, setDesign }) {
             {/* Font Family + Font Weight */}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-xs text-gray-600 mb-1">Font Family</label>
+                <label className="block text-sm text-black mb-1">Font Family</label>
                  <select
                   value={design.typography[`${activeTab}Weight`] || "normal"}
                   onChange={(e) =>
                     updateTypography(activeTab, "Weight", e.target.value)
                   }
-                  className="w-full border rounded-lg px-3 py-1 text-sm"
+                  className="w-full border rounded-lg px-3 py-1 text-xs"
                 >
                   <option value="normal">Normal</option>
                   <option value="Popping">Popping</option>
@@ -80,13 +81,13 @@ export default function ControlPanel({ design, setDesign }) {
                 </select>
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-gray-600 mb-1">Font Weight</label>
+                <label className="block text-sm text-black mb-1">Font Weight</label>
                 <select
                   value={design.typography[`${activeTab}Weight`] || "normal"}
                   onChange={(e) =>
                     updateTypography(activeTab, "Weight", e.target.value)
                   }
-                  className="w-full border rounded-lg px-2 py-1 text-sm"
+                  className="w-full border rounded-lg px-2 py-1 text-xs"
                 >
                   <option value="normal">Normal</option>
                   <option value="bold">Bold</option>
@@ -99,7 +100,7 @@ export default function ControlPanel({ design, setDesign }) {
             {/* Font Size + Line Height */}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-xs text-gray-600 mb-1">Font Size</label>
+                <label className="block text-sm text-black mb-1">Font Size</label>
                 <div className="flex items-center">
                   <input
                     type="number"
@@ -107,14 +108,14 @@ export default function ControlPanel({ design, setDesign }) {
                     onChange={(e) =>
                       updateTypography(activeTab, "Size", +e.target.value)
                     }
-                    className="w-full border rounded px-2 py-1 text-sm"
+                    className="w-full border rounded px-2 py-1 text-xs"
                   />
                   <span className="ml-1 text-xs text-gray-500">px</span>
                 </div>
               </div>
 
               <div className="flex-1">
-                <label className="block text-xs text-gray-600 mb-1">Line Height</label>
+                <label className="block text-sm text-black mb-1">Line Height</label>
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -122,7 +123,7 @@ export default function ControlPanel({ design, setDesign }) {
                     onChange={(e) =>
                       updateTypography(activeTab, "LineHeight", e.target.value)
                     }
-                    className="w-full border rounded px-2 py-1 text-sm"
+                    className="w-full border rounded px-2 py-1 text-xs"
                   />
                   <span className="ml-1 text-xs text-gray-500">%</span>
                 </div>
@@ -130,37 +131,44 @@ export default function ControlPanel({ design, setDesign }) {
             </div>
 
             {/* Text Alignment */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Text Alignment</label>
-              <div className="flex gap-2">
-                {["left", "center", "right"].map((align) => (
-                  <button
-                    key={align}
-                    className={`flex-1 border rounded py-1 text-sm ${
-                      design.typography.textAlign === align
-                        ? "bg-blue-100 border-blue-500 text-blue-600"
-                        : "text-gray-600"
-                    }`}
-                    onClick={() =>
-                      setDesign((prev) => ({
-                        ...prev,
-                        typography: { ...prev.typography, textAlign: align },
-                      }))
-                    }
-                  >
-                    {align.charAt(0).toUpperCase() + align.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
+
+<div>
+  <label className="block text-sm text-black mb-1">Text Alignment</label>
+  <div className="flex gap-2">
+    {[
+      { align: "left", icon: <AlignLeft size={18} /> },
+      { align: "center", icon: <AlignCenter size={18} /> },
+      { align: "right", icon: <AlignRight size={18} /> },
+    ].map(({ align, icon }) => (
+      <button
+        key={align}
+        className={`flex-1 flex justify-center items-center border rounded py-2 text-sm transition-all ${
+          design.typography.textAlign === align
+            ? "bg-blue-100 border-blue-500 text-blue-600"
+            : "text-gray-600 hover:bg-gray-50"
+        }`}
+        onClick={() =>
+          setDesign((prev) => ({
+            ...prev,
+            typography: { ...prev.typography, textAlign: align },
+          }))
+        }
+      >
+        {icon}
+      </button>
+    ))}
+  </div>
+</div>
+
           </div>
         </div>
       </div>
 
       {/* COLORS BOX */}
-      <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white border rounded-lg shadow-sm overflow-hidden mt-8 ">
         <div className="bg-blue-50 px-4 py-2 border-b flex items-center gap-2">
-          <span className="text-blue-600">🎨</span>
+          <span className="text-blue-600">  <img src={`${import.meta.env.BASE_URL}images/coloricon.png`} alt="icon" className="inline-block w-5 h-5" />
+</span>
           <h3 className="font-semibold text-gray-800 text-sm">Colors</h3>
         </div>
 
