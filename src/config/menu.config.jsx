@@ -217,7 +217,7 @@ const superAdminMenuItems = [
   {
     title: "Custom Themes",
     icon: "element-11 text-primary",
-    path: "/event",
+    path: "/super-reportcustomethemes",
   },
   {
     title: "Plans",

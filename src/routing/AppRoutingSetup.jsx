@@ -191,6 +191,7 @@ const AppRoutingSetup = () => {
           <Route path="/lead/details" element={<LeadDetailPage />} />
           <Route path="/overview" element={<OverviewPage />} />
 
+
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/followup" element={<FollowUpListPage />}></Route>
@@ -260,6 +261,7 @@ const AppRoutingSetup = () => {
           <Route path="/report-themes" element={<ReportThemes />} />
           <Route path="/report-themes/editor" element={<Editor />} />
           <Route path ="/reportcustomethemes" element={<ReportCustomTheme/>}/>
+          <Route path ="/super-reportcustomethemes" element ={<ReportCustomTheme/>}/>
           {/* Sales */}
 
           <Route
