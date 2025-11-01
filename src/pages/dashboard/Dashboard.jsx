@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage } from "react-intl";
 import { Container } from "@/components/container";
 import { useLanguage } from "@/i18n";
 import {
@@ -29,14 +29,24 @@ const Dashboard = () => {
     to: addDays(new Date(2025, 0, 20), 20),
   });
   const { isRTL } = useLanguage();
-  
+
   return (
     <Fragment>
       <Container>
         <Toolbar>
           <ToolbarHeading
-            title={<FormattedMessage id="USER.DASHBOARD.DASHBOARD_LANGUAGE" defaultMessage="Dashboard" />}
-            description={<FormattedMessage id="USER.DASHBOARD.DASHBOARD_DESCRIPTION" defaultMessage="A Central Hub For Your Personal Customization" />}
+            title={
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_LANGUAGE"
+                defaultMessage="Dashboard"
+              />
+            }
+            description={
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_DESCRIPTION"
+                defaultMessage="A Central Hub For Your Personal Customization"
+              />
+            }
           />
           <ToolbarActions>
             <Popover>
@@ -97,7 +107,7 @@ const Dashboard = () => {
               <EarningsChart />
             </div>
           </div>
-          
+
           <div>
             <Teams />
           </div>
@@ -107,4 +117,4 @@ const Dashboard = () => {
   );
 };
 
-export { Dashboard };
+export default Dashboard;

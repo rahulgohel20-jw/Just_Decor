@@ -103,7 +103,6 @@ import {
   ProgressChecklistPage,
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
-import { Dashboard } from "@/pages/dashboard";
 import {
   TaskListPage,
   TaskTemplatePage,
@@ -174,6 +173,7 @@ import DateWiseReport from "@/pages/Reports/DateWiseReport";
 import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
+import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 const AppRoutingSetup = () => {
   return (
@@ -184,6 +184,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
+          <Route path="/super-dashboard" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
