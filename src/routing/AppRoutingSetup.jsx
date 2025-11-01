@@ -174,6 +174,7 @@ import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
+import ReportCustomTheme from "@/pages/Reportcustomethemes";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -189,6 +190,7 @@ const AppRoutingSetup = () => {
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/lead/details" element={<LeadDetailPage />} />
           <Route path="/overview" element={<OverviewPage />} />
+
 
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
@@ -258,6 +260,8 @@ const AppRoutingSetup = () => {
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/report-themes" element={<ReportThemes />} />
           <Route path="/report-themes/editor" element={<Editor />} />
+          <Route path ="/reportcustomethemes" element={<ReportCustomTheme/>}/>
+          <Route path ="/super-reportcustomethemes" element ={<ReportCustomTheme/>}/>
           {/* Sales */}
 
           <Route

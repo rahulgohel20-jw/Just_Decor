@@ -102,6 +102,7 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("userData");
     localStorage.removeItem("userToken");
     localStorage.removeItem("email");
+     localStorage.removeItem("userProfileForm"); 
     saveAuth(undefined);
     setCurrentUser(undefined);
   };

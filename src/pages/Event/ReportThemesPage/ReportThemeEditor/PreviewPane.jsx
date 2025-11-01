@@ -15,59 +15,70 @@ export default function PreviewPane({ design }) {
     <div
       style={{
         position: "relative",
-        width: "629px", // fixed frame width
-        height: "1079px", // fixed frame height
-       
+        width: "629px",
+        height: "1079px",
+        borderRadius: "12px",
         overflow: "hidden",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+        backgroundColor: "#fff",
       }}
     >
-      {/* 🖼 Full frame background */}
+      {/* Decorative frame background (uploaded image) */}
       <img
         src={`${import.meta.env.BASE_URL}images/report-frame.jpg`}
-        alt="Frame Background"
+        alt="Report Frame"
         style={{
           position: "absolute",
           inset: 0,
           width: "100%",
           height: "100%",
-          objectFit: "cover", // ✅ fills container fully
+          objectFit: "cover",
           zIndex: 0,
         }}
       />
 
-      {/* 🧾 Content Layer */}
+      {/* Content area */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 2,
-          padding: "133px 40px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          padding: "100px 70px",
           textAlign: typography.textAlign || "center",
-          backgroundColor: "transparent", // ✅ no white overlay
+          color: colors.body,
         }}
       >
         {/* Logo */}
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "60px" }}>
           {logo ? (
             <img
               src={logo}
               alt="Logo"
               style={{
-                width: "120px",
+                width: "140px",
                 height: "auto",
-                margin: "0 auto",
+                borderRadius: "8px",
+                objectFit: "contain",
               }}
             />
           ) : (
             <div
               style={{
-                width: "120px",
-                margin: "0 auto",
-                padding: "5px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                marginBottom: "50px",
-                background: "transparent",
+                width: "140px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1.5px dashed rgba(0,0,0,0.2)",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "rgba(0,0,0,0.3)",
+                backgroundColor: "rgba(255,255,255,0.5)",
               }}
             >
               LOGO
@@ -80,10 +91,11 @@ export default function PreviewPane({ design }) {
           style={{
             fontFamily: typography.headingFont,
             fontWeight: typography.headingWeight,
-            fontSize: typography.headingSize,
+            fontSize: `${typography.headingSize}px`,
             color: colors.heading,
             marginBottom: "10px",
-            padding: "6px 20px",
+            lineHeight: "1.2",
+             textAlign: typography.headingTextAlign || "left",
           }}
         >
           {heading}
@@ -93,9 +105,11 @@ export default function PreviewPane({ design }) {
           style={{
             fontFamily: typography.subHeadingFont,
             fontWeight: typography.subHeadingWeight,
-            fontSize: typography.subHeadingSize,
+            fontSize: `${typography.subHeadingSize}px`,
             color: colors.subHeading,
-            marginBottom: "10px",
+            marginBottom: "20px",
+            lineHeight: "1.4",
+             textAlign: typography.subHeadingTextAlign || "left",
           }}
         >
           {subHeading}
@@ -105,9 +119,11 @@ export default function PreviewPane({ design }) {
           style={{
             fontFamily: typography.bodyFont,
             fontWeight: typography.bodyWeight,
-            fontSize: typography.bodySize,
-            color: colors.body,
-            marginBottom: "40px",
+            fontSize: `${typography.bodySize}px`,
+            lineHeight: "1.6",
+            maxWidth: "420px",
+            marginBottom: "60px",
+              textAlign: typography.bodyTextAlign || "left",
           }}
         >
           {body}
@@ -116,48 +132,53 @@ export default function PreviewPane({ design }) {
         {/* Watermark */}
         <div
           style={{
-            position: "absolute",
-            bottom: "120px",
-            left: 0,
-            right: 0,
+            fontSize: "18px",
+            fontWeight: "700",
             opacity: 0.15,
-            fontSize: "24px",
-            fontWeight: "bold",
-            textAlign: "center",
-            pointerEvents: "none",
+            letterSpacing: "2px",
+            marginBottom: "40px",
           }}
         >
           {watermark}
         </div>
 
-        {/* Main image */}
-        <div>
+        {/* Main Image */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "400px",
+            height: "250px",
+            borderRadius: `${imageSettings.radius}px`,
+            overflow: "hidden",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            backgroundColor: "rgba(255,255,255,0.3)",
+          }}
+        >
           {image ? (
             <img
               src={image}
               alt="Main"
               style={{
-                borderRadius: `${imageSettings.radius}px`,
-                width: "100%", // ✅ always 100% width
-                height: "auto",
+                width: "100%",
+                height: "100%",
                 objectFit: "cover",
               }}
             />
           ) : (
             <div
               style={{
-                width: "100%", // ✅ full width
-                height: "200px",
-                border: "1px dashed #aaa",
-                borderRadius: `${imageSettings.radius}px`,
-                margin: "0 auto",
+                width: "100%",
+                height: "100%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "transparent", // ✅ no white
+                border: "2px dashed rgba(0,0,0,0.2)",
+                color: "rgba(0,0,0,0.3)",
+                fontWeight: "600",
+                fontSize: "14px",
               }}
             >
-              Image
+              IMAGE
             </div>
           )}
         </div>
