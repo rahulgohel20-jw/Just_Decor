@@ -42,7 +42,7 @@ const AllUser = () => {
       }));
   };
 
-  const handleFetchByRoleId = async (roleId = 2) => {
+  const handleFetchByRoleId = async (roleId = 1) => {
     try {
       setLoading(true);
       const response = await getAllByRoleId(roleId);

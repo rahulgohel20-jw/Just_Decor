@@ -174,6 +174,7 @@ import DateWiseReport from "@/pages/Reports/DateWiseReport";
 import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
+import ReportCustomTheme from "@/pages/Reportcustomethemes";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -257,6 +258,7 @@ const AppRoutingSetup = () => {
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/report-themes" element={<ReportThemes />} />
           <Route path="/report-themes/editor" element={<Editor />} />
+          <Route path ="/reportcustomethemes" element={<ReportCustomTheme/>}/>
           {/* Sales */}
 
           <Route

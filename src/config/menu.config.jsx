@@ -293,7 +293,7 @@ export const MENU_SIDEBAR = [
   {
     title: "Custom Themes",
     icon: "element-11 text-primary",
-    path: "/event",
+    path: "/reportcustomethemes",
   },
   ...(roleId
     ? [

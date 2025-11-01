@@ -2,7 +2,7 @@ import { Undo2, Redo2, MoreVertical } from "lucide-react";
 
 export default function EditorHeader({ onSave }) {
   return (
-    <div className="flex items-center justify-between bg-white px-6 py-3 shadow-sm rounded-t-xl">
+    <div className="flex items-center justify-between bg-white px-6 py-3 shadow-sm ">
       {/* Left: Title + Subtitle */}
       <div>
         <h2 className="text-lg font-semibold text-gray-800">
