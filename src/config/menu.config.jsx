@@ -224,6 +224,11 @@ const superAdminMenuItems = [
     icon: "element-11 text-primary",
     path: "/event",
   },
+  {
+    title: "Database",
+    icon: "element-11 text-primary",
+    path: "/database",
+  },
 ];
 
 export const MENU_SIDEBAR = isSuperAdmin ? superAdminMenuItems : allMenuItems;

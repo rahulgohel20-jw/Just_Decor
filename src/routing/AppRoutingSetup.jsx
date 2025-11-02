@@ -174,12 +174,12 @@ import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
+import Database from "../pages/master/superadmindatabase";
 const AppRoutingSetup = () => {
   return (
     <Routes>
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
-          <Route path="/price" element={<Priceplan />} />
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
@@ -202,6 +202,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
+          <Route path="/database" element={<Database />} />
 
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
@@ -267,6 +268,7 @@ const AppRoutingSetup = () => {
           <Route path="/sales/invoice-list" element={<InvoiceList />} />
           <Route path="/sales/add-invoice" element={<AddInvoicePage />} />
           <Route path="/quotation-dashboard" element={<QuotationDashboard />} />
+          <Route path="/price" element={<Priceplan />} />
           <Route
             path="/sales/quotation-list/:PartyId/:EventId"
             element={<QuotationViewPage />}
