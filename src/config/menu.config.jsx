@@ -222,7 +222,7 @@ const superAdminMenuItems = [
   {
     title: "Plans",
     icon: "element-11 text-primary",
-    path: "/event",
+    path: "/plans",
   },
   {
     title: "Database",

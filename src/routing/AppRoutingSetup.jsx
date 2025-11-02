@@ -176,6 +176,7 @@ import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 import Database from "../pages/master/superadmindatabase";
+import Plan from "../components/plan/Plan";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -190,6 +191,7 @@ const AppRoutingSetup = () => {
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/lead/details" element={<LeadDetailPage />} />
           <Route path="/overview" element={<OverviewPage />} />
+          <Route path="/plans" element={<Plan />} />
 
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>

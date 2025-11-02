@@ -1,6 +1,6 @@
 import { DataGridColumnHeader } from "@/components";
 
-export const getColumns = (onPlusClick) => [
+export const getColumns = (onPlusClick, onAddCustomerDb) => [
   {
     accessorKey: "sr_no",
     header: ({ column }) => (
@@ -35,7 +35,11 @@ export const getColumns = (onPlusClick) => [
             <i className="ki-filled ki-eye text-success"></i>
           </button>
 
-          <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="Edit"
+            onClick={() => onAddCustomerDb(row.original)}
+          >
             <i className="ki-filled ki-user text-primary"></i>
           </button>
 
