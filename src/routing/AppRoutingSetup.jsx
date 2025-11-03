@@ -177,6 +177,7 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 import Database from "../pages/master/superadmindatabase";
 import Plan from "../components/plan/Plan";
+import SuperCalendarPage from "../pages/super-admin/calender";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -266,7 +267,9 @@ const AppRoutingSetup = () => {
           <Route
             path="/super-reportcustomethemes"
             element={<ReportCustomTheme />}
+
           />
+          <Route path="/super-calendar" element={<SuperCalendarPage />} />
           {/* Sales */}
 
           <Route
