@@ -12,7 +12,7 @@
   dayjs.extend(customParseFormat);
   import Swal from "sweetalert2";
   import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
-  import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails, GetExtraExpenseByEvent,DeleteExtraExpense } from "@/services/apiServices";
+  import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails, GetExtraExpenseByEvent, DeleteExtraExpense } from "@/services/apiServices";
   import AddExtraExpense from "../../../partials/modals/add-extra-expense/AddExtraExpense";
 
   const LabourOtherManagementPage = () => {
@@ -21,15 +21,11 @@
     const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
     const [allContacts, setAllContacts] = useState([]);
     const [filteredContacts, setFilteredContacts] = useState({});
-    const unitOptions = ["pcs", "kg", "litre", "meter", "box"];
-    const [agencies, setAgencies] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const { eventId } = useParams();
     const [activeTab, setActiveTab] = useState("Dinner");
-    const [data, setData] = useState([]);
     const [activeCategory, setActiveCategory] = useState("Labour");
-    const [personCount, setPersonCount] = useState(450);
     const [eventData, setEventData] = useState(null);
     const [loading, setLoading] = useState(false);
   const [labourData, setLabourData] = useState([]);
@@ -37,12 +33,11 @@
   const [labourCategories, setLabourCategories] = useState([]);
   const [extraexpenseData, setExtraExpenseData] = useState([]);
   const [isExtraExpenseModalOpen, setIsExtraExpenseModalOpen] = useState(false);
-    // add near other state declarations
+
   const [selectedExpense, setSelectedExpense] = useState(null);
 
 
     const [isLabourSidebarOpen, setIsLabourSidebarOpen] = useState(false); 
-    const [isGrossaryModalOpen, setIsGrossaryModalOpen] = useState(false); 
     const [isNotesOpen, setIsNotesOpen] = useState(false);
     const [notes, setNotes] = useState("");
 
@@ -50,7 +45,6 @@
     const userId = storedUser?.id || eventData?.user?.id || 0;
 
     const handleSaveNotes = (newNotes) => {
-      console.log("📝 Saved Notes:", newNotes);
       setNotes(newNotes);
       setIsNotesOpen(false);
     };
@@ -129,7 +123,6 @@
 
           const laborData = res?.data?.data?.eventLabor || [];
 
-          console.log("📦 All Party Master (Contacts):", allContacts);
           Object.entries(allContacts).forEach(([labourTypeId, contacts]) => {
           
           });
@@ -146,7 +139,7 @@
           });
 
         const formattedRows = laborData.map((item, index) => {
-    // Parse and validate date
+   
     const parsedDate = dayjs(item.labordatetime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD HH:mm:ss"], true);
     const isValidDate = parsedDate.isValid();
 
@@ -163,7 +156,7 @@
         item.contactname?.trim() ||
         "",
       shift: item.laborshift || "",
-      // ✅ If date invalid, use event’s start time or empty string
+    
       dateTime: isValidDate
         ? parsedDate.format("DD/MM/YYYY hh:mm A")
         : eventData?.eventStartDateTime
@@ -175,27 +168,7 @@
       place: item.place || "",
     };
   });
-
-
-          
-
-          setLabourData(
-            formattedRows.length
-              ? formattedRows
-              : [
-                  {
-                    id: 1,
-                    labourType: "",
-                    contact: "",
-                    shift: "",
-                    dateTime: dayjs().format("DD/MM/YYYY hh:mm A"),
-                    price: "",
-                    quantity: "",
-                    total: "",
-                    place: "",
-                  },
-                ]
-          );
+ 
         } catch (error) {
           console.error("❌ Error fetching labour details:", error);
         }
@@ -213,7 +186,6 @@
 
   const fetchExtraExpense = async (eventFunctionId, eventId) => {
     try {
-      console.log("🟢 Fetching extra expense for:", { eventFunctionId, eventId });
       const res = await GetExtraExpenseByEvent(eventFunctionId, eventId);
       console.log("🟢 API response:", res?.data);
 
@@ -237,18 +209,15 @@
         place: item.place || "",
       }));
 
-      console.log("🟢 Formatted expenses:", formattedExpenses);
       setExtraExpenseData(formattedExpenses);
     } catch (err) {
       console.error("❌ Error fetching extra expense data:", err);
     }
   };
 
-  // 🗑️ Delete Extra Expense
-  // 🗑️ Delete Extra Expense
+ 
   const deleteExtraExpenceRow = async (id) => {
     try {
-      // 🔹 Confirm deletion
       const confirmResult = await Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -271,7 +240,6 @@
           showConfirmButton: false,
         });
 
-        // ✅ Get the current active function ID dynamically
         const activeFunction = eventData?.eventFunctions?.find(
           (fn) => fn.function?.nameEnglish === activeTab
         );
@@ -315,9 +283,7 @@
     
     if (activeCategory === 'Labour') {
       setLabourData((prev) => [...prev, newRow]);
-    } else if (activeCategory === 'General / Fix Raw Material') {
-      setGeneralRawMaterialData((prev) => [...prev, newRow]);
-    }
+    } 
     else if (activeCategory === 'Extra Expense') {
       setExtraExpenseData((prev) => [...prev, newRow]);
     }
@@ -400,23 +366,8 @@
     }
   }, []);
 
-  useEffect(() => {
-    if (extraexpenseData.length === 0) {
-      setExtraExpenseData([
-        {
-          id: 1,
-          labourType: "",
-          contact: "",
-          shift: "",
-          dateTime: "",
-          price: "",
-          quantity: "",
-          total: "",
-          place: "",
-        },
-      ]);
-    }
-  }, []);
+
+
   useEffect(() => {
     if (!eventData) return;
 
@@ -490,7 +441,6 @@
         });
 
         const res = await AddUpdateLabor(payload);
-        console.log("✅ Labor Save Response:", res.data);
 
         const backendMessage = res?.data?.message || res?.data?.msg;
 
@@ -526,46 +476,9 @@
       }
     };
 
-    const renderModalData = () => {
-      const agencyOptions = agencies.map((agency) => ({
-        value: agency.nameEnglish || agency.name,
-        label: agency.nameEnglish || agency.name,
-      }));
-
-      const placeOptions = [
-        { value: "At Venue", label: "At venue" },
-        { value: "Godown", label: "GoDown" },
-      ];
-
-      
-    };
-
-    const handleAllocateAgency = (agency) => {
-      const updated = data.map((item) => ({
-        ...item,
-        agency: agency,
-      }));
-      setData(updated);
-    };
-
-    const handleAllocatePlace = (place) => {
-      const updated = data.map((item) => ({
-        ...item,
-        place: place,
-      }));
-      setData(updated);
-    };
-
-    const handleAllocateDate = (date) => {
-      if (!date) return;
-      const formatted = dayjs(date).format("MM/DD/YYYY hh:mm A");
-      const updated = data.map((item) => ({
-        ...item,
-        date: formatted,
-      }));
-      setData(updated);
-    };
-
+    
+    
+   
     const handleEditExpense = (expense) => {
     setSelectedExpense(expense);
     setIsExtraExpenseModalOpen(true);
@@ -871,7 +784,6 @@
                             </td>
                             <td className="px-3 py-2">
                               <div className="flex items-center justify-center gap-1">
-                                {/* ✅ Opens Labour Detail Sidebar */}
                                 <button 
                                   className="btn btn-sm btn-icon btn-clear" 
                                   onClick={handleLabourDetailView}
@@ -933,7 +845,7 @@
             + Add Extra Expense
           </button>
         </div>
-          <table className="table table-auto w-full">
+         <table className="table table-auto w-full">
             <thead>
               <tr className="bg-gray-50">
                 <th className="px-3 py-2 text-center w-[4%]">#</th>
@@ -945,6 +857,7 @@
                 <th className="px-3 py-2 w-[15%]">Action </th>
               </tr>
             </thead>
+            <tbody>
           {extraexpenseData.length > 0 ? (
     extraexpenseData.map((row, index) => (
       <tr key={row.id}>
@@ -956,7 +869,6 @@
         <td>{row.total}</td>
           <td className="px-3 py-2">
                               <div className="flex items-center justify-left gap-1">
-                                {/* ✅ Opens Labour Detail Sidebar */}
                                 <button 
                                 className="btn bt-sm btn-con btn-clear"
                                 title="Edit"
@@ -966,13 +878,7 @@
                                 >
                                   <i className="ki-filled ki-notepad-edit text-primary"></i>
                                 </button>
-                                <button
-                                  className="btn btn-sm btn-icon btn-clear"
-                                  title="Add Notes"
-                                  onClick={() => setIsNotesOpen(true)}
-                                >
-                                  <i className="ki-filled ki-notepad text-primary"></i>
-                                </button>
+                              
 
                                 <button
                                   onClick={() => deleteExtraExpenceRow(row.id)}
@@ -991,7 +897,7 @@
       </td>
     </tr>
   )}
-
+            </tbody>
           </table>
         </div>
       </div>
@@ -1016,12 +922,11 @@
         
   {isExtraExpenseModalOpen && (
     <AddExtraExpense
-      isOpen={isExtraExpenseModalOpen}  // ✅ Correct prop name
+      isOpen={isExtraExpenseModalOpen}  
       onClose={() => setIsExtraExpenseModalOpen(false)}
       eventData={eventData} 
-        selectedMeal={selectedExpense}  // ✅ Pass event data
+        selectedMeal={selectedExpense}  
       refreshData={() => {
-        console.log('Expense saved successfully');
       }}
       onSave={(newExpense) => {
         setExtraExpenseData((prev) => [...prev, { id: Date.now(), ...newExpense }]);

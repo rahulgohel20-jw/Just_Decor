@@ -13,22 +13,20 @@ const AllUser = () => {
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [editingUserId, setEditingUserId] = useState(null); // store user id for modal
+  const [editingUserId, setEditingUserId] = useState(null); 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatUsers = (users) => {
-    // create map of userId -> fullName
     const managerMap = {};
     users.forEach((u) => {
       managerMap[u.id] = `${u.firstName} ${u.lastName}`;
     });
     return users
-      .sort((a, b) => b.id - a.id) // newest first
+      .sort((a, b) => b.id - a.id) 
       .map((user) => ({
         id: user.id,
         fullName: `${user.firstName} ${user.lastName}`,
         city: user.userBasicDetails?.city?.name || "-",
-        // email: user.email,
         contactNo: user.contactNo,
         companyName: user.userBasicDetails?.companyName || "-",
         plan: user.plan?.name || "-",
@@ -84,7 +82,7 @@ const AllUser = () => {
     }
   }, [searchText, tableData]);
 
-  // 🔹 Open modal and set user id
+
   const handleEdit = (user) => {
     setEditingUserId(user);
     setIsModalOpen(true);
@@ -114,7 +112,6 @@ const AllUser = () => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        {/* Left side → Search input */}
         <Input.Search
           placeholder="Search users..."
           allowClear
@@ -122,7 +119,6 @@ const AllUser = () => {
           style={{ width: 250 }}
         />
 
-        {/* Right side → Add User button */}
         <Link to="/auth/signup">
           <button className="btn btn-primary flex items-center gap-1">
             <i className="ki-filled ki-plus"></i> Add User

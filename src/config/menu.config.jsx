@@ -200,6 +200,12 @@ const superAdminMenuItems = [
     path: "/super-dashboard",
   },
   {
+    title: "Calander",
+    icon: "ki-filled ki-calendar-tick text-primary",
+    path: "/super-calendar",
+
+  },
+  {
     title: "Member List",
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
