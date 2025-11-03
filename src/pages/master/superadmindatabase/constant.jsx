@@ -1,0 +1,131 @@
+import { DataGridColumnHeader } from "@/components";
+
+export const getColumns = (onPlusClick, onAddCustomerDb) => [
+  {
+    accessorKey: "sr_no",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="SR_NO" column={column} />
+    ),
+  },
+  {
+    accessorKey: "database_name",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Database Name" column={column} />
+    ),
+  },
+  {
+    accessorKey: "state",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="State" column={column} />
+    ),
+  },
+  {
+    accessorKey: "version",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Version" column={column} />
+    ),
+  },
+  {
+    accessorKey: "action",
+    header: "Action",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center justify-center gap-1">
+          <button className="btn btn-sm btn-icon btn-clear" title="View">
+            <i className="ki-filled ki-eye text-success"></i>
+          </button>
+
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="Edit"
+            onClick={() => onAddCustomerDb(row.original)}
+          >
+            <i className="ki-filled ki-user text-primary"></i>
+          </button>
+
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="Menu Preparation"
+            onClick={() => onPlusClick(row.original)}
+          >
+            <i className="ki-filled ki-plus text-primary"></i>
+          </button>
+
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="database lock"
+          >
+            <i className="ki-filled ki-lock text-primary"></i>
+          </button>
+        </div>
+      );
+    },
+    meta: {
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
+    },
+  },
+];
+
+export const defaultData = [
+  {
+    sr_no: 1,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 2,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 3,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 4,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 5,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 6,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 7,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 8,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 9,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+  {
+    sr_no: 10,
+    database_name: "Tiger Nixon",
+    state: "Gujarat",
+    version: "Lite",
+  },
+];
