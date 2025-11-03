@@ -1,354 +1,219 @@
-const userData = JSON.parse(localStorage.getItem("userData"));
+import { FormattedMessage } from "react-intl";
+
+// Don't read from localStorage directly - get it from a function or context
+const getUserData = () => {
+  try {
+    return JSON.parse(localStorage.getItem("userData"));
+  } catch {
+    return null;
+  }
+};
+
+const userData = getUserData();
 const roleId = userData?.userBasicDetails?.role?.id === 1;
 
+// For MENU_SIDEBAR: Include BOTH title (as FormattedMessage component) AND titleId/defaultTitle
 export const MENU_SIDEBAR = [
   {
-    title: "Dashboard",
+    title: <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />,
     icon: "element-11 text-primary",
     path: "/",
   },
   {
-    // title: "Event Management",
-    title: "Events",
+    title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
-        title: "Calendar",
+        title: <FormattedMessage id="COMMON.CALENDAR" defaultMessage="Calendar" />,
         path: "/calendar",
       },
       {
-        title: "Event List",
+        title: <FormattedMessage id="COMMON.EVENT_LIST" defaultMessage="Event List" />,
         path: "/event",
       },
     ],
   },
   {
-    title: "Master",
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
-        title: "Contact Type",
+        title: <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Contact Type" />,
         path: "/master/contact-type",
       },
       {
-        title: "Contact Categories",
+        title: <FormattedMessage id="COMMON.CONTACT_CATEGORIES" defaultMessage="Contact Categories" />,
         path: "/master/contact-categories",
       },
       {
-        title: "Customers",
+        title: <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Customers" />,
         path: "/master/customers",
       },
-
       {
-        title: "Function Type",
+        title: <FormattedMessage id="COMMON.FUNCTION_TYPE" defaultMessage="Function Type" />,
         path: "/master/functions",
       },
       {
-        title: "Meal Type",
+        title: <FormattedMessage id="COMMON.MEAL_TYPE" defaultMessage="Meal Type" />,
         path: "/master/meals",
       },
       {
-        title: "Event Type",
+        title: <FormattedMessage id="COMMON.EVENT_TYPE" defaultMessage="Event Type" />,
         path: "/master/event-type",
       },
       {
-        title: "Unit ",
+        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
         path: "/master/unit",
       },
       {
-        title: "Labour Shift",
+        title: <FormattedMessage id="COMMON.LABOUR_SHIFT" defaultMessage="Labour Shift" />,
         path: "/master/labour-shift",
       },
       {
-        title: "Custom Package",
+        title: <FormattedMessage id="COMMON.CUSTOM_PACKAGE" defaultMessage="Custom Package" />,
         path: "/master/custom-package",
       },
       {
-        title: "Member",
+        title: <FormattedMessage id="COMMON.MEMBER" defaultMessage="Member" />,
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
           {
-            title: "All Members",
+            title: <FormattedMessage id="COMMON.ALL_MEMBERS" defaultMessage="All Members" />,
             path: "/master/all-members",
           },
           {
-            title: "Role",
+            title: <FormattedMessage id="COMMON.ROLE" defaultMessage="Role" />,
             path: "/master/role",
           },
         ],
       },
     ],
   },
-  // {
-  //   title: "Leads",
-  //   icon: "ki-filled ki-abstract-18 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Overview",
-  //       path: "/overview",
-  //     },
-  //     {
-  //       title: "Leads",
-  //       path: "/lead",
-  //     },
-  //     {
-  //       title: "Contacts",
-  //       path: "/contacts",
-  //     },
-  //     {
-  //       title: "Companies",
-  //       path: "/company",
-  //     },
-  //     {
-  //       title: "Follow Up",
-  //       path: "/followup",
-  //     },
-  //     {
-  //       title: "Products",
-  //       path: "/product",
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Tasks",
-  //   icon: "ki-filled ki-abstract-16 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Dashboard",
-  //       path: "/tasks/dashboard",
-  //     },
-  //     {
-  //       title: "My Task",
-  //       path: "/task/mytask",
-  //     },
-  //     {
-  //       title: "All Tasks",
-  //       path: "/tasks",
-  //     },
-  //     {
-  //       title: "Tasks Templates",
-  //       path: "/tasks-template",
-  //     },
-  //     {
-  //       title: "Tasks Directory",
-  //       path: "/tasks-directory",
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   title: "leaves",
-  //   icon: "ki-filled ki-abstract-17 text-primary",
-  //   disabled: false,
-  //   children: [
-  //     {
-  //       title: "Dashboard",
-  //       path: "/leave-dashboard",
-  //     },
-
-  //     {
-  //       title: "My Attendance",
-  //       path: "/myattendance",
-  //     },
-  //     {
-  //       title: "Approval",
-  //       path: "/approval",
-  //     },
-  //     {
-  //       title: "Holidays",
-  //       path: "/holiday",
-  //     },
-  //     {
-  //       title: "My Leaves",
-  //       path: "/myleaves",
-  //     },
-  //     {
-  //       title: "All Leaves",
-  //       path: "/allleave",
-  //     },
-  //     {
-  //       title: "All Attendance",
-  //       path: "/allattendance",
-  //     },
-  //     {
-  //       title: "Settings",
-  //       icon: "ki-filled ki-setting-2 text-primary",
-  //       children: [
-  //         {
-  //           title: "Leave Type",
-  //           path: "/leavetype",
-  //         },
-  //         {
-  //           title: "Attendance Settings",
-  //           path: "/attendance-setting",
-  //         },
-  //         {
-  //           title: "Office Settings",
-  //           path: "/officesettings",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Links",
-  //   icon: "ki-filled ki-disconnect text-primary",
-  //   disabled: false,
-  //   path: "/links",
-  // },
-  // {
-  //   title: "Team",
-  //   icon: "ki-filled ki-users text-primary",
-  //   disabled: true,
-  //   children: [
-  //     {
-  //       title: "Sales Team",
-  //       path: "/team/seals-team",
-  //     },
-  //     {
-  //       title: "User Roles",
-  //       path: "team/user-role",
-  //     },
-  //     {
-  //       title: "All Members",
-  //       path: "team/all-members",
-  //     },
-  //   ],
-  // },
   {
-    title: "Raw Material",
+    title: <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />,
     icon: "ki-filled ki-badge text-primary",
     children: [
       {
-        title: "Raw Material Type",
+        title: <FormattedMessage id="COMMON.RAW_MATERIAL_TYPE" defaultMessage="Raw Material Type" />,
         path: "/master/raw-material-type-master",
       },
       {
-        title: "Raw Material Category",
+        title: <FormattedMessage id="COMMON.RAW_MATERIAL_CATEGORY" defaultMessage="Raw Material Category" />,
         path: "/master/raw-material-master",
       },
       {
-        title: "Raw Material",
+        title: <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />,
         path: "/master/raw-material",
       },
     ],
   },
-
   {
-    title: "Menu Item",
+    title: <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />,
     icon: "ki-filled ki-additem text-primary",
     children: [
       {
-        title: "Menu Item Sub Category",
+        title: <FormattedMessage id="COMMON.MENU_ITEM_SUB_CATEGORY" defaultMessage="Menu Item Sub Category" />,
         path: "/master/menu-sub-category",
       },
       {
-        title: "Menu Item Category",
+        title: <FormattedMessage id="COMMON.MENU_ITEM_CATEGORY" defaultMessage="Menu Item Category" />,
         path: "/master/menu-category",
       },
       {
-        title: "Kitchen Area",
+        title: <FormattedMessage id="COMMON.KITCHEN_AREA" defaultMessage="Kitchen Area" />,
         path: "/master/menu-kitchan-area",
       },
       {
-        title: "Menu Item",
+        title: <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />,
         path: "/master/menu-item",
       },
     ],
   },
   {
-    title: "Reports",
+    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
-        title: "All Data Report",
+        title: <FormattedMessage id="COMMON.ALL_DATA_REPORT" defaultMessage="All Data Report" />,
         path: "",
       },
       {
-        title: "Date Wise Reports",
+        title: <FormattedMessage id="COMMON.DATE_WISE_REPORTS" defaultMessage="Date Wise Reports" />,
         path: "/report-datewise",
       },
       {
-        title: "Report Configuration ",
+        title: <FormattedMessage id="COMMON.REPORT_CONFIGURATION" defaultMessage="Report Configuration" />,
         path: "/report-congiguration",
       },
     ],
   },
   {
-    title: "Sales",
+    title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
-        title: "Quotation",
+        title: <FormattedMessage id="COMMON.QUOTATION" defaultMessage="Quotation" />,
         path: "/quotation-dashboard",
       },
       {
-        title: "Invoice",
+        title: <FormattedMessage id="COMMON.INVOICE" defaultMessage="Invoice" />,
         path: "/sales/invoice-dashboard",
       },
     ],
   },
   {
-    title: "Custom Themes",
+    title: <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Custom Themes" />,
     icon: "element-11 text-primary",
     path: "/event",
   },
   ...(roleId
     ? [
         {
-          title: "User Master",
+          title: <FormattedMessage id="COMMON.USER_MASTER" defaultMessage="User Master" />,
           icon: "ki-filled ki-user text-primary",
           children: [
-            { title: "All User", path: "/master/user-master/" },
-            { title: "User Plan", path: "/master/user-master/plan" },
+            {
+              title: <FormattedMessage id="COMMON.ALL_USER" defaultMessage="All User" />,
+              path: "/master/user-master/",
+            },
+            {
+              title: <FormattedMessage id="COMMON.USER_PLAN" defaultMessage="User Plan" />,
+              path: "/master/user-master/plan",
+            },
           ],
         },
       ]
     : []),
   {
-    title: "Settings",
+    title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary",
     disabled: false,
     children: [
       {
-        title: "Company Profile",
+        title: <FormattedMessage id="COMMON.COMPANY_PROFILE" defaultMessage="Company Profile" />,
         path: "settings/general",
       },
       {
-        title: "Utility Page",
+        title: <FormattedMessage id="COMMON.UTILITY_PAGE" defaultMessage="Utility Page" />,
         path: "settings/utility",
       },
       {
-        title: "Subscription",
+        title: <FormattedMessage id="COMMON.SUBSCRIPTION" defaultMessage="Subscription" />,
         path: "settings/subscription",
       },
       {
-        title: "Payment History",
+        title: <FormattedMessage id="COMMON.PAYMENT_HISTORY" defaultMessage="Payment History" />,
         path: "settings/channel",
       },
       {
-        title: "Notifications",
+        title: <FormattedMessage id="COMMON.NOTIFICATIONS" defaultMessage="Notifications" />,
         path: "settings/notifications",
       },
     ],
   },
-
-  // {
-  //   title: "Support",
-  //   icon: "ki-filled ki-support text-primary",
-  //   disabled: false,
-  //   children: [
-  //     { title: "Events", path: "/support/events" },
-  //     { title: "Tutorials", path: "/support/tutorials" },
-  //     { title: "Tickets", path: "/support/tickets" },
-  //     { title: "Application", path: "/support/application" },
-  //     { title: "Progress Checklist", path: "/support/progress-checklist" },
-  //     { title: "Raise Ticket", path: "/support/raise-ticket" },
-  //   ],
-  // },
 ];
+
+// For MENU_MEGA and MENU_ROOT: Keep using plain 'title' property (no translation needed)
 export const MENU_MEGA = [
   {
     title: "Home",
@@ -973,7 +838,6 @@ export const MENU_MEGA = [
       {
         title: "Getting Started",
         icon: "coffee",
-        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/installation",
       },
       {
         title: "Support Forum",
@@ -982,17 +846,14 @@ export const MENU_MEGA = [
           {
             title: "All Questions",
             icon: "questionnaire-tablet",
-            // path: "https://devs.keenthemes.com",
           },
           {
             title: "Popular Questions",
             icon: "star",
-            // path: "https://devs.keenthemes.com/popular",
           },
           {
             title: "Ask Question",
             icon: "message-question",
-            // path: "https://devs.keenthemes.com/question/create",
           },
         ],
       },
@@ -1003,12 +864,10 @@ export const MENU_MEGA = [
           placement: "right",
         },
         icon: "subtitle",
-        // path: "https://keenthemes.com/metronic/tailwind/docs/getting-started/license",
       },
       {
         title: "Documentation",
         icon: "questionnaire-tablet",
-        // path: "https://keenthemes.com/metronic/tailwind/docs",
       },
       {
         separator: true,
@@ -1016,11 +875,11 @@ export const MENU_MEGA = [
       {
         title: "Contact Us",
         icon: "share",
-        // path: "https://keenthemes.com/contact",
       },
     ],
   },
 ];
+
 export const MENU_ROOT = [
   {
     title: "Public Profile",
@@ -1051,3 +910,27 @@ export const MENU_ROOT = [
     childrenIndex: 5,
   },
 ];
+
+/* 
+IMPORTANT: For page titles in Helmet, use useIntl hook:
+
+import { useIntl } from 'react-intl';
+import { Helmet } from 'react-helmet';
+
+const YourPage = () => {
+  const intl = useIntl();
+  const pageTitle = intl.formatMessage({ 
+    id: "COMMON.DASHBOARD", 
+    defaultMessage: "Dashboard" 
+  });
+  
+  return (
+    <>
+      <Helmet>
+        <title>{pageTitle}</title>
+      </Helmet>
+      {/* Your page content *//*}
+    </>
+  );
+};
+*/

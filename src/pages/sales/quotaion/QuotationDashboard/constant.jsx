@@ -1,54 +1,55 @@
 import { DataGridColumnHeader } from "@/components";
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = [
   {
     accessorKey: "Invoice",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Sr No#" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.SR_NO" defaultMessage="Sr No#" />} column={column} />
     ),
   },
   {
     accessorKey: "CustomerName",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Customer Name" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.CUSTOMER_NAME" defaultMessage="Customer Name" />} column={column} />
     ),
   },
   {
     accessorKey: "Eventname",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Event Name" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.EVENT_NAME" defaultMessage="Event Name" />} column={column} />
     ),
   },
   {
     accessorKey: "eventDate",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Event Date" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.EVENT_DATE" defaultMessage="Event Date" />} column={column} />
     ),
   },
   {
     accessorKey: "QuotationDate",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Quotation Date" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.QUOTATION_DATE" defaultMessage="Quotation Date" />} column={column} />
     ),
   },
 
   {
     accessorKey: "Amount",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Total Paid" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.TOTAL_PAID" defaultMessage="Total Paid" />} column={column} />
     ),
   },
   {
     accessorKey: "BalanceDue",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Balance Due" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="SALES.BALANCE_DUE" defaultMessage="Balance Due" />} column={column} />
     ),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
       const PartyId = row.original?.PartyId;
       const eventId = row.original?.EventId;

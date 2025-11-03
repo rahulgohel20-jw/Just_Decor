@@ -3,11 +3,16 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
+import { FormattedMessage, useIntl } from "react-intl";
+
 
 const NotificationsSettingsPage = () => {
   const [emailNotification, setEmailNotification] = useState(false);
   const [whatsappNotification, setWhatsappNotification] = useState(false);
   const [reportTime, setReportTime] = useState("11:53 AM");
+  const intl = useIntl();
+
+
   const handleSave = () => {
     alert("Settings saved!");
   };
@@ -27,12 +32,14 @@ const NotificationsSettingsPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Notifications" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="SETTING.NOTIFICATIONS" defaultMessage="Notifications" /> }]} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-8 gap-3 lg:gap-4 mb-4">
           <div className="col-span-4 md:col-start-3 card min-w-full">
             <div className="flex justify-between items-center p-5 border-b">
-              <h4 className="font-semibold text-gray-900">General Settings</h4>
+              <h4 className="font-semibold text-gray-900">
+                <FormattedMessage id="SETTING.GENERAL_SETTINGS" defaultMessage="General Settings" />
+              </h4>
             </div>
             <div className="flex flex-col rtl:[background-position:center_center] [background-position:center_center] bg-no-repeat bg-[length:650px] user-access-bg">
               <div className="flex justify-between items-center p-5 gap-2 border-b">
@@ -47,11 +54,10 @@ const NotificationsSettingsPage = () => {
                   />
                   <div className="flex flex-col">
                     <h3 className="text-base font-medium text-gray-900">
-                      New lead email notification to team
+                      <FormattedMessage id="SETTING.NEW_LEAD_EMAIL_NOTIFICATION" defaultMessage="New lead email notification to team" />
                     </h3>
                     <p className="text-sm text-gray-700">
-                      An email notification will be sent to the team whenever a
-                      new lead is added.
+                      <FormattedMessage id="SETTING.NEW_LEAD_EMAIL_NOTIFICATION_DESC" defaultMessage="An email notification will be sent to the team whenever a new lead is added." />
                     </p>
                   </div>
                 </div>
@@ -79,11 +85,10 @@ const NotificationsSettingsPage = () => {
                   />
                   <div className="flex flex-col">
                     <h3 className="text-base font-medium text-gray-900">
-                      New lead whatsapp notification to team
+                      <FormattedMessage id="SETTING.NEW_LEAD_WHATSAPP_NOTIFICATION" defaultMessage="New lead whatsapp notification to team" />
                     </h3>
                     <p className="text-sm text-gray-700">
-                      Get instant WhatsApp alerts to the team whenever a new
-                      lead is generated.
+                      <FormattedMessage id="SETTING.NEW_LEAD_WHATSAPP_NOTIFICATION_DESC" defaultMessage="Get instant WhatsApp alerts to the team whenever a new lead is generated." />
                     </p>
                   </div>
                 </div>
@@ -113,10 +118,10 @@ const NotificationsSettingsPage = () => {
                   />
                   <div className="flex flex-col">
                     <h3 className="text-base font-medium text-gray-900">
-                      Set report time
+                      <FormattedMessage id="SETTING.SET_REPORT_TIME" defaultMessage="Set report time" />
                     </h3>
                     <p className="text-sm text-gray-700">
-                      Define report sending time as needed.
+                      <FormattedMessage id="SETTING.SET_REPORT_TIME_DESC" defaultMessage="Define report sending time as needed." />
                     </p>
                   </div>
                 </div>
@@ -136,7 +141,7 @@ const NotificationsSettingsPage = () => {
                 title="Save Changes"
                 disabled
               >
-                Save Changes <i className="ki-filled ki-save-2 font-14"></i>
+                <FormattedMessage id="SETTING.SAVE_CHANGES" defaultMessage="Save Changes" /> <i className="ki-filled ki-save-2 font-14"></i>
               </button>
             </div>
           </div>

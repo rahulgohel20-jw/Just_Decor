@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
 import { Translateapi } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   const [notes, setNotes] = useState(
     initialNotes || { notesEnglish: "", notesGujarati: "", notesHindi: "" }
   );
   const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const intl= useIntl();
 
   useEffect(() => {
     setNotes(
@@ -49,7 +52,13 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Add Notes</h2>
+          <h2 className="text-xl font-semibold">
+  <FormattedMessage
+    id="COMMON.ADD_NOTES"
+    defaultMessage="Add Notes"
+  />
+</h2>
+
           <button onClick={onClose} className="text-2xl text-gray-600">
             &times;
           </button>
@@ -58,20 +67,21 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name fields */}
           <InputWithIcon
-            label="Notes (English)"
-            value={notes.notesEnglish}
-            onChange={(e) => handleChange("notesEnglish", e.target.value)}
-          />
-          <InputWithIcon
-            label="Notes (ગુજરાતી)"
-            value={notes.notesGujarati}
-            onChange={(e) => handleChange("notesGujarati", e.target.value)}
-          />
-          <InputWithIcon
-            label="Notes (हिंदी)"
-            value={notes.notesHindi}
-            onChange={(e) => handleChange("notesHindi", e.target.value)}
-          />
+  label={<FormattedMessage id="COMMON.NOTES_ENGLISH" defaultMessage="Notes (English)" />}
+  value={notes.notesEnglish}
+  onChange={(e) => handleChange("notesEnglish", e.target.value)}
+/>
+<InputWithIcon
+  label={<FormattedMessage id="COMMON.NOTES_GUJARATI" defaultMessage="Notes (ગુજરાતી)" />}
+  value={notes.notesGujarati}
+  onChange={(e) => handleChange("notesGujarati", e.target.value)}
+/>
+<InputWithIcon
+  label={<FormattedMessage id="COMMON.NOTES_HINDI" defaultMessage="Notes (हिंदी)" />}
+  value={notes.notesHindi}
+  onChange={(e) => handleChange("notesHindi", e.target.value)}
+/>
+
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
@@ -79,14 +89,14 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
             onClick={onClose}
             className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
           >
-            Cancel
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
           <button
             type="button"
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={() => onSave(notes)}
           >
-            Save
+            <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
           </button>
         </div>
       </div>

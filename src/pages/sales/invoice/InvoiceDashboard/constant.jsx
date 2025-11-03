@@ -52,10 +52,12 @@ export const columns = [
     cell: ({ row }) => {
       const PartyId = row.original?.PartyId;
       const eventId = row.original?.EventId;
+
+      console.log(PartyId,eventId);
       return (
         <div className="flex items-center gap-2">
           <Tooltip title="View">
-            <Link to={`/sales/invoice-list`}>
+            <Link to={`/sales/invoice-list/${PartyId}/${eventId}`}>
               <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 title="View"

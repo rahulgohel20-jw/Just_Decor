@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { DatePicker, Select } from "antd";
+import { DatePicker, Form, Select } from "antd";
 import dayjs from "dayjs";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddGeneralfix = ({
   isModalOpen,
@@ -22,7 +23,7 @@ const AddGeneralfix = ({
   ]);
 
   const handleModalClose = () => setIsModalOpen(false);
-
+  const intl = useIntl();
   // Dropdown options
   const agencyOptions = agencies.map((a) => ({
     label: a.nameEnglish || a.name,
@@ -30,9 +31,21 @@ const AddGeneralfix = ({
   }));
 
   const placeOptions = [
-    { label: "At Venue", value: "At Venue" },
-    { label: "Kitchen", value: "Kitchen" },
-    { label: "Store", value: "Store" },
+    [
+  { 
+    label: <FormattedMessage id="COMMON.AT_VENUE" defaultMessage="At Venue" />, 
+    value: "At Venue" 
+  },
+  { 
+    label: <FormattedMessage id="COMMON.KITCHEN" defaultMessage="Kitchen" />, 
+    value: "Kitchen" 
+  },
+  { 
+    label: <FormattedMessage id="COMMON.STORE" defaultMessage="Store" />, 
+    value: "Store" 
+  },
+]
+
   ];
 
   // Handle inline table changes
@@ -77,7 +90,11 @@ const AddGeneralfix = ({
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Agency, Place & Date Allocation"
+        title={intl.formatMessage({
+  id: "RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE",
+  defaultMessage: "Agency, Place & Date Allocation",
+})}
+
         width={900}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -86,13 +103,13 @@ const AddGeneralfix = ({
               className="btn btn-light"
               onClick={handleModalClose}
             >
-              Cancel
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel"  />
             </button>
             <button
               className="btn btn-primary save-btn"
               onClick={handleModalClose}
             >
-              Save
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
             </button>
           </div>,
         ]}
@@ -106,9 +123,9 @@ const AddGeneralfix = ({
               value={selectedAgency}
               onChange={(e) => setSelectedAgency(e.target.value)}
             >
-              <option value="">-- Select Agency --</option>
-              {loading && <option>Loading...</option>}
-              {!loading && agencies.length > 0 ? (
+              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
+              {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>} 
+              {!loading && agencies.length > 0 ? (  
                 agencies.map((agency) => (
                   <option
                     key={agency.id}
@@ -118,7 +135,7 @@ const AddGeneralfix = ({
                   </option>
                 ))
               ) : (
-                !loading && <option>No agencies found</option>
+                !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="no agencies found" /></option>
               )}
             </select>
             <button
@@ -126,7 +143,7 @@ const AddGeneralfix = ({
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
             </button>
           </div>
 
@@ -137,9 +154,9 @@ const AddGeneralfix = ({
               value={selectedPlace}
               onChange={(e) => setSelectedPlace(e.target.value)}
             >
-              <option value="">-- Select Place --</option>
-              <option value="At Venue">At Venue</option>
-              <option value="Godown">Godown</option>
+              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select place" /></option>
+              <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
+              <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
              
             </select>
             <button
@@ -147,7 +164,7 @@ const AddGeneralfix = ({
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
             </button>
           </div>
 
@@ -166,7 +183,7 @@ const AddGeneralfix = ({
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
             </button>
           </div>
         </div>
@@ -176,17 +193,30 @@ const AddGeneralfix = ({
             <table className="min-w-full text-sm text-gray-700">
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                  <th className="px-4 py-3 text-left">Raw Material</th>
-                  <th className="px-4 py-3 text-left">Agency</th>
-                  <th className="px-4 py-3 text-left">Place</th>
-                  <th className="px-4 py-3 text-left">Date & Time</th>
+                  <th className="px-4 py-3 text-left">
+  <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />
+</th>
+<th className="px-4 py-3 text-left">
+  <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
+</th>
+<th className="px-4 py-3 text-left">
+  <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+</th>
+<th className="px-4 py-3 text-left">
+  <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />
+</th>
+
                 </tr>
               </thead>
               <tbody>
                 {data.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="text-center py-4 text-gray-500">
-                      No materials found
+                      <FormattedMessage
+  id="COMMON.NO_MATERIALS_FOUND"
+  defaultMessage="No materials found"
+/>
+
                     </td>
                   </tr>
                 ) : (

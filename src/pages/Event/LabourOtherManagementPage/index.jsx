@@ -3,7 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import AddGeneralfix from "../../../partials/modals/add-general-agencies-place/AddGeneralfix";
-import { DatePicker } from "antd";
+import { DatePicker, Form } from "antd";
 import { useParams } from "react-router-dom";
 import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
 import { Select } from "antd";
@@ -14,6 +14,9 @@ dayjs.extend(customParseFormat);
 import Swal from "sweetalert2";
 import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+
+
 
 const LabourOtherManagementPage = () => {
   const classes = useStyles();
@@ -42,6 +45,9 @@ const [generalRawMaterialData, setGeneralRawMaterialData] = useState([]);  const
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?.id || eventData?.user?.id || 0;
+
+
+  const intl = useIntl();
 
   const handleSaveNotes = (newNotes) => {
     console.log("📝 Saved Notes:", newNotes);
@@ -432,7 +438,7 @@ useEffect(() => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Labour/Other Management" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="LABOUR.LABOUR_OTHER_MANAGEMENT" defaultMessage="Labour/Other Management" /> }]} />
         </div>
 
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
@@ -442,7 +448,7 @@ useEffect(() => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-calendar-tick text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Party Name:</span>
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.PARTY_NAME" defaultMessage="Party Name: " /></span>
                     <span className="text-sm font-medium text-gray-900">
                       {eventData?.party?.nameEnglish || "-"}
                     </span>
@@ -452,7 +458,7 @@ useEffect(() => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-user text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Event Name:</span>
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_NAME" defaultMessage="Event Name: " /></span>
                     <span className="text-sm font-medium text-gray-900">
                       {eventData?.eventType?.nameEnglish || "-"}
                     </span>
@@ -462,7 +468,7 @@ useEffect(() => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-geolocation-home text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Function Name:</span>
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.FUNCTION_NAME" defaultMessage="Function Name: " /></span>
                     <span className="text-sm font-medium text-gray-900">
                       {eventData?.eventType?.nameEnglish || "N/A"}
                     </span>
@@ -472,7 +478,7 @@ useEffect(() => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-calendar-tick text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Event Venue:</span>
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_VENUE" defaultMessage="Event Venue: " /></span>
                     <span className="text-sm font-medium text-gray-900">
                       {eventData?.venue || "-"}
                     </span>
@@ -482,7 +488,7 @@ useEffect(() => {
                 <div className="flex items-center gap-3">
                   <i className="ki-filled ki-calendar-tick text-success"></i>
                   <div className="flex flex-col">
-                    <span className="text-xs">Event Date & Time:</span>
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME" defaultMessage="Event Date & Time:" /></span>
                     <span className="text-sm font-medium text-gray-900">
                       {eventData?.eventStartDateTime || ""}
                     </span>
@@ -493,7 +499,7 @@ useEffect(() => {
 
             <div className="flex flex-row items-end gap-2">
               <button className="btn btn-sm btn-primary" onClick={handleSave} title="Save">
-                Save
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" /> 
               </button>
             </div>
           </div>
@@ -520,7 +526,7 @@ useEffect(() => {
                 {fn.function?.nameEnglish}
               </button>
             )) || (
-              <span className="text-gray-500 px-4 py-2">No functions available</span>
+              <span className="text-gray-500 px-4 py-2"><FormattedMessage id="LABOUR.NO_FUNCTION_AVAILABLE" defaultMessage="No functions available" /></span>
             )}
           </div>
         </div>
@@ -530,23 +536,23 @@ useEffect(() => {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span><i className="ki-filled ki-users text-primary"></i></span>
-                <span className="text-2sm font-medium text-gray-700">Person</span>
+                <span className="text-2sm font-medium text-gray-700"><FormattedMessage id="COMMON.PERSON" defaultMessage="Person" /></span>
                 <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
                   {selectedFunctionPax || "-"}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <button className="btn btn-light btn-sm">
-                  <i className="ki-filled ki-document"></i> Report
+                  <i className="ki-filled ki-document"></i> <FormattedMessage id="COMMON.REPORT" defaultMessage="Report" />
                 </button>
                 <button className="btn btn-light btn-sm">
                   <i className="ki-filled ki-document"></i>
-                  Checklist
+                  <FormattedMessage id="COMMON.CHECKLIST" defaultMessage="Checklist" />
                 </button>
                 <div className="relative ms-5">
                   <input
                     type="text"
-                    placeholder="Search labour type..."
+                    placeholder={intl.formatMessage({ id: "COMMON.SEARCH_LABOUR_TYPE", defaultMessage: "Search labour type..." })}
                     className="input input-sm"
                     style={{ width: "300px" }}
                     value={searchTerm}
@@ -586,15 +592,15 @@ useEffect(() => {
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="text-center px-3 py-3 w-[10%]">#</th>
-                      <th className="px-3 py-3 w-[10%]">Labour Type</th>
-                      <th className="px-3 py-3 w-[5%]">Contact</th>
-                      <th className="px-3 py-3 w-[10%]">Labour Shift</th>
-                      <th className="px-3 py-3 w-[19%]">Date & Time</th>
-                      <th className="px-3 py-3 w-[10%]">Price</th>
-                      <th className="px-3 py-3 w-[10%]">Qty</th>
-                      <th className="px-3 py-3 w-[10%]">Total Price</th>
-                      <th className="px-3 py-3 w-[14%]">Place</th>
-                      <th className="text-center px-3 py-3 w-[10%]">Action</th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="LABOUR.LABOUR_TYPE" defaultMessage="Labour Type" /></th>
+                      <th className="px-3 py-3 w-[5%]"><FormattedMessage id="COMMON.CONTACT" defaultMessage="Contact"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="LABOUR.LABOUR_SHIFT" defaultMessage="Labour Shift" /></th>
+                      <th className="px-3 py-3 w-[19%]"><FormattedMessage id="COMMON.DATE_TIME" defaultMessage="Date & Time" /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.PRICE" defaultMessage="Price"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.QTY" defaultMessage="Qty"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price"  /></th>
+                      <th className="px-3 py-3 w-[14%]"><FormattedMessage id="COMMON.PLACE" defaultMessage="Place"  /></th>
+                      <th className="text-center px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action"  /></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -611,7 +617,12 @@ useEffect(() => {
                             <Select
                               className="custom-select-sm"
                               showSearch
-                              placeholder="Select Labour Type"
+                              placeholder={
+  intl.formatMessage({
+    id: "COMMON.SELECT_LABOUR_TYPE",
+    defaultMessage: "Select Labour Type",
+  })
+}
                               value={row.labourType || undefined}
                               onChange={(value) => {
                                 const selectedCategory = labourCategories.find(
@@ -642,7 +653,11 @@ useEffect(() => {
                             <Select
                               className="custom-select-sm"
                               showSearch
-                              placeholder="Select Contact"
+                              placeholder={intl.formatMessage({
+  id: "COMMON.SELECT_CONTACT",
+  defaultMessage: "Select Contact",
+})}
+
                               value={row.contact || undefined}
                               onChange={(value) =>
                                 setLabourData((prev) =>
@@ -662,9 +677,16 @@ useEffect(() => {
                           </td>
                           <td className="px-3 py-2">
                             <select className="select select-sm w-full">
-                              <option>Morning Shift</option>
-                              <option>Evening Shift</option>
-                              <option>Full Day</option>
+                              <option>
+  <FormattedMessage id="COMMON.MORNING_SHIFT" defaultMessage="Morning Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.EVENING_SHIFT" defaultMessage="Evening Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.FULL_DAY" defaultMessage="Full Day" />
+</option>
+
                             </select>
                           </td>
                           <td className="px-3 py-2">
@@ -694,7 +716,11 @@ useEffect(() => {
                             <input
                               type="number"
                               className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                              placeholder="Price"
+                              placeholder={intl.formatMessage({
+  id: "COMMON.PRICE",
+  defaultMessage: "Price",
+})}
+
                               value={row.price || ""}
                               onChange={(e) => handleRowChange(row.id, "price", e.target.value)}
                             />
@@ -704,7 +730,11 @@ useEffect(() => {
                             <input
                               type="number"
                               className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                              placeholder="Qty"
+                             placeholder={intl.formatMessage({
+  id: "COMMON.QTY",
+  defaultMessage: "Qty",
+})}
+
                               value={row.quantity || ""}
                               onChange={(e) => handleRowChange(row.id, "quantity", e.target.value)}
                             />
@@ -714,7 +744,11 @@ useEffect(() => {
                             <input
                               type="number"
                               className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
-                              placeholder="Total"
+                              placeholder={intl.formatMessage({
+  id: "COMMON.TOTAL",
+  defaultMessage: "Total",
+})}
+
                               value={row.total || ""}
                               readOnly
                             />
@@ -722,8 +756,13 @@ useEffect(() => {
 
                           <td className="px-3 py-2">
                             <select className="select select-sm w-full">
-                              <option>At Venue</option>
-                              <option>At Godown</option>
+                              <option >
+  <FormattedMessage id="COMMON.AT_VENUE" defaultMessage="At Venue" />
+</option>
+<option >
+  <FormattedMessage id="COMMON.AT_GODOWN" defaultMessage="At Godown" />
+</option>
+
                             </select>
                           </td>
                           <td className="px-3 py-2">
@@ -732,13 +771,21 @@ useEffect(() => {
                               <button 
                                 className="btn btn-sm btn-icon btn-clear" 
                                 onClick={handleLabourDetailView}
-                                title="View Details"
+                                title={intl.formatMessage({
+  id: "COMMON.VIEW_DETAILS",
+  defaultMessage: "View Details",
+})}
+
                               >
                                 <i className="ki-filled ki-eye text-success"></i>
                               </button>
                               <button
                                 className="btn btn-sm btn-icon btn-clear"
-                                title="Add Notes"
+                                title={intl.formatMessage({
+  id: "COMMON.ADD_NOTES",
+  defaultMessage: "Add Notes",
+})}
+
                                 onClick={() => setIsNotesOpen(true)}
                               >
                                 <i className="ki-filled ki-notepad text-primary"></i>
@@ -767,7 +814,11 @@ useEffect(() => {
                   className="btn btn-primary btn-sm"
                 >
                   <i className="ki-filled ki-plus"></i>
-                  Add Another Labour Type
+                  <FormattedMessage
+  id="COMMON.ADD_ANOTHER_LABOUR_TYPE"
+  defaultMessage="Add Another Labour Type"
+/>
+
                 </button>
               </div>
             </div>
@@ -782,18 +833,35 @@ useEffect(() => {
           className="bg-primary text-white text-sm px-4 py-2 rounded-lg mb-3 ml-4 mt-4"
           onClick={handleGrossaryModalOpen}
         >
-          + Agency, Place & Date Allocation
+          <FormattedMessage
+  id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE"
+  defaultMessage="+ Agency, Place & Date Allocation"
+/>
+
         </button>
         <table className="table table-auto w-full">
           <thead>
             <tr className="bg-gray-50">
               <th className="text-center px-3 py-3" style={{ width: '50px' }}>#</th>
-              <th className="px-3 py-3" style={{ minWidth: '140px' }}>Name</th>
-              <th className="px-3 py-3" style={{ minWidth: '140px' }}>Qnty</th>
-              <th className="px-3 py-3" style={{ minWidth: '140px' }}>Agency</th>
-              <th className="px-3 py-3" style={{ minWidth: '140px' }}>Date & Time</th>
-              <th className="px-3 py-3" style={{ minWidth: '100px' }}>Place</th>
-              <th className="px-3 py-3" style={{ minWidth: '130px' }}>Price</th>
+              <th className="px-3 py-3" style={{ minWidth: '140px' }}>
+  <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
+</th>
+<th className="px-3 py-3" style={{ minWidth: '140px' }}>
+  <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+</th>
+<th className="px-3 py-3" style={{ minWidth: '140px' }}>
+  <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
+</th>
+<th className="px-3 py-3" style={{ minWidth: '140px' }}>
+  <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />
+</th>
+<th className="px-3 py-3" style={{ minWidth: '100px' }}>
+  <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+</th>
+<th className="px-3 py-3" style={{ minWidth: '130px' }}>
+  <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
+</th>
+
             </tr>
           </thead>
           <tbody>
@@ -819,14 +887,22 @@ useEffect(() => {
                       <input
                         type="number"
                         className="input input-sm w-24 border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                        placeholder="Price"
+                        placeholder={intl.formatMessage({
+  id: "COMMON.PRICE",
+  defaultMessage: "Price",
+})}
+
                         value={row.price || ""}
                         onChange={(e) => handleRowChange(row.id, "price", e.target.value)}
                       />
 
                       <Select
                         showSearch
-                        placeholder="Select Contact"
+                        placeholder={intl.formatMessage({
+  id: "COMMON.SELECT_CONTACT",
+  defaultMessage: "Select Contact",
+})}
+
                         value={row.contact || undefined}
                         onChange={(value) =>
                           setGeneralRawMaterialData((prev) =>
@@ -848,9 +924,16 @@ useEffect(() => {
 
                   <td className="px-3 py-2">
                     <select className="select select-sm w-full">
-                      <option>Morning Shift</option>
-                      <option>Evening Shift</option>
-                      <option>Full Day</option>
+                      <option>
+  <FormattedMessage id="COMMON.MORNING_SHIFT" defaultMessage="Morning Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.EVENING_SHIFT" defaultMessage="Evening Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.FULL_DAY" defaultMessage="Full Day" />
+</option>
+
                     </select>
                   </td>
                   <td className="px-3 py-2">
@@ -880,16 +963,27 @@ useEffect(() => {
                     <div className="flex items-center gap-2">
                       <Select
                         showSearch
-                        placeholder="Select Place"
+                        placeholder={intl.formatMessage({
+  id: "COMMON.SELECT_PLACE",
+  defaultMessage: "Select Place",
+})}
+
                         value={row.place || undefined}
                         onChange={(value) =>
                           handleRowChange(row.id, "place", value)
                         }
                         style={{ width: "100%" }}
                       >
-                        <Select.Option value="At Venue">At Venue</Select.Option>
-                        <Select.Option value="Kitchen">Kitchen</Select.Option>
-                        <Select.Option value="Store">Store</Select.Option>
+                        <Select.Option value="At Venue">
+  <FormattedMessage id="COMMON.AT_VENUE" defaultMessage="At Venue" />
+</Select.Option>
+<Select.Option value="Kitchen">
+  <FormattedMessage id="COMMON.KITCHEN" defaultMessage="Kitchen" />
+</Select.Option>
+<Select.Option value="Store">
+  <FormattedMessage id="COMMON.STORE" defaultMessage="Store" />
+</Select.Option>
+
                       </Select>
                     </div>
                   </td>
@@ -897,7 +991,11 @@ useEffect(() => {
                     <input
                       type="number"
                       className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                      placeholder="Price"
+                     placeholder={intl.formatMessage({
+  id: "COMMON.PRICE",
+  defaultMessage: "Price",
+})}
+
                       value={row.price || ""}
                       onChange={(e) => handleRowChange(row.id, "price", e.target.value)}
                     />

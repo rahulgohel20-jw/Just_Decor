@@ -1,85 +1,94 @@
 import { useEffect, useState } from "react";
-import { Button, Dropdown, Menu, Spin } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
-import { GetInvoiceByUserId } from "@/services/apiServices"; // adjust path
+import { useParams } from "react-router-dom";
+import { GeteventInvoicedata } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
 
-export default function InvoiceList({ userId, onSelectInvoice }) {
+export default function InvoiceList({ onSelectInvoice }) {
   const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { PartyId } = useParams();
 
   const fetchInvoices = async () => {
-    setLoading(true);
     try {
-      const response = await GetInvoiceByUserId(userId);
-      console.log("Fetched invoices:", response?.data?.data?.["Event Invoice Details"]);
-      if (response?.data?.data?.["Event Invoice Details"]) {
-        setInvoices(response?.data?.data?.["Event Invoice Details"]);
-      }
-    } catch (err) {
-      console.error("Error fetching invoices:", err);
-    } finally {
-      setLoading(false);
+      const response = await GeteventInvoicedata(PartyId);
+      console.log("invoicelist",response);
+      const invoiceList =
+        response?.data?.data?.["Event Details"]?.map((event) => ({
+          eventId: event?.id || "-",
+          EventNo: event?.eventNo || "-",
+          date: event?.eventStartDateTime || "-",
+          name: event?.party?.nameEnglish || "-",
+          Event: event?.eventType?.nameEnglish || "-",
+          Venue: event?.venue || "-",
+        })) || [];
+
+      setInvoices(invoiceList);
+      console.log("Invoice list", invoiceList);
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+      setInvoices([]);
     }
   };
 
   useEffect(() => {
-    if (userId) fetchInvoices();
-  }, [userId]);
+    if (PartyId) {
+      fetchInvoices();
+    }
+  }, [PartyId]);
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="3">Delete</Menu.Item>
-    </Menu>
-  );
+  const handleEventClick = (eventId) => {
+    if (onSelectInvoice) {
+      onSelectInvoice(eventId);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl p-4 w-full max-w-xs h-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black">
-          <option>All Invoice</option>
-          <option>Draft</option>
-          <option>Save/Send</option>
-          <option>Paid</option>
+      <div className="filItems w-1/2 mb-6">
+        <select defaultValue="All Invoice" className="select pe-7.5">
+          <option value="0">
+            <FormattedMessage id="SALES.ALL_INVOICE" defaultMessage="All Invoices" />
+          </option>
+          <option value="1">
+            <FormattedMessage id="SALES.LAST_3_MONTHS" defaultMessage="Last 3 Months" />
+          </option>
+          <option value="2">
+            <FormattedMessage id="SALES.LAST_6_MONTHS" defaultMessage="Last 6 Months" />
+          </option>
+          <option value="3">
+            <FormattedMessage id="SALES.CUSTOM_DATE" defaultMessage="Custom Date" />
+          </option>
         </select>
-        <Dropdown overlay={menu} trigger={["click"]}>
-          <Button className="rounded-lg border font-bold shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] border-[#ADD8E6] text-[##004986]">
-            <MoreOutlined />
-          </Button>
-        </Dropdown>
       </div>
 
       {/* Invoice Items */}
-      {loading ? (
-        <div className="flex justify-center py-6">
-          <Spin />
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {invoices.map((inv) => (
-            <div
-              key={inv.id}
-              onClick={() => onSelectInvoice(inv)}
-              className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-            >
-              <div className="flex items-start gap-2">
-                <div className="text-sm">
-                  <p className="font-medium text-gray-800">
-                    {inv.billingname}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {inv.invoiceCode || "No Code"} - {inv.createdAt} -{" "}
-                    {inv.event?.venue}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm font-semibold text-gray-800">
-                ₹ {inv.grandTotal || 0}
-              </p>
+      <div className="grid gap-4">
+        {invoices.map((inv) => (
+          <div
+            key={inv.eventId}
+            onClick={() => handleEventClick(inv.eventId)}
+            className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer p-5"
+          >
+            <div className="flex justify-between items-center mb-2 gap-4">
+              <span className="text-xs font-semibold bg-[#005BA8]/10 text-[#005BA8] px-3 py-1 rounded-full uppercase tracking-wide">
+                {inv.Event}
+              </span>
             </div>
-          ))}
-        </div>
-      )}
+
+            <div className="flex justify-between items-end">
+              <div>
+                <p className="font-semibold text-gray-900 text-base">
+                  {inv.name}
+                </p>
+                <span className="text-sm text-gray-500">{inv.date}</span>
+                <p className="text-xs text-gray-500 mt-1">
+                  {inv.EventNo} • {inv.Venue}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

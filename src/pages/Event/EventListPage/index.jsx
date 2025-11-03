@@ -13,7 +13,7 @@ import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import Swal from "sweetalert2";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { useLanguage } from "@/i18n";
 
 const EventListPage = () => {
@@ -175,7 +175,10 @@ const EventListPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search event"
+                placeholder={intl.formatMessage({ 
+                  id: "COMMON.SEARCH", 
+                  defaultMessage: "Search..." 
+                })}
                 type="text"
                 value={searchTerm}
                 onChange={handleSearch}
@@ -185,7 +188,7 @@ const EventListPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
               <button className="btn btn-primary" title="Add Event">
-                <i className="ki-filled ki-plus"></i> Add Event
+                <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON" defaultMessage="Add Event" />
               </button>
             </Link>
           </div>

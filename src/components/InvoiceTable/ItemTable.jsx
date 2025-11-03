@@ -2,9 +2,12 @@ import { Table, Input, Button, DatePicker } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { FormattedMessage, useIntl } from "react-intl";
 
 // Extend dayjs to parse custom formats
 dayjs.extend(customParseFormat);
+
+
 
 const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
   // Helper function to parse different date formats
@@ -52,13 +55,16 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
     return null;
   };
 
+
+  const intl = useIntl();
   const columns = [
     {
-      title: "Function",
+      title: <FormattedMessage id="COMMON.FUNCTION" defaultMessage="Function" />,
       dataIndex: "name",
       render: (text, record, index) => (
         <Input
-          placeholder="Name"
+          placeholder={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
+
           value={record.name}
           disabled={!record.isCustom} // ❌ Disable for API rows
           onChange={(e) => onInputChange(index, "name", e.target.value)}
@@ -67,7 +73,8 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       ),
     },
     {
-      title: "Date & Time",
+      title: <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />
+,
       dataIndex: "date",
       render: (text, record, index) => {
         const dateValue = parseDateValue(record.date);
@@ -90,7 +97,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       },
     },
     {
-      title: "Person",
+      title: <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />,
       dataIndex: "person",
       render: (text, record, index) => (
         <Input
@@ -103,7 +110,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       ),
     },
     {
-      title: "Extra",
+      title: <FormattedMessage id="COMMON.EXTRA" defaultMessage="Extra" />,
       dataIndex: "extra",
       render: (text, record, index) => (
         <Input
@@ -116,7 +123,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       ),
     },
     {
-      title: "Rate",
+      title: <FormattedMessage id="COMMON.RATE" defaultMessage="Rate" />,
       dataIndex: "rate",
       render: (text, record, index) => (
         <Input
@@ -129,7 +136,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       ),
     },
     {
-      title: "Amount",
+      title: <FormattedMessage id="COMMON.AMOUNT" defaultMessage="Amount" />,
       dataIndex: "amount",
       render: (_, record) => {
         const amount =
@@ -138,7 +145,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       },
     },
     {
-      title: "Actions",
+      title: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
       key: "actions",
       render: (_, record) =>
         record.isCustom ? ( // ✅ Only show delete for custom rows
@@ -154,7 +161,8 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
   return (
     <div className="min-w-full mb-7">
       <h4 className="text-base font-semibold leading-none text-gray-900 mb-2">
-        Function Table
+        <FormattedMessage id="COMMON.FUNCTION_TABLE" defaultMessage="Function Table" />
+
       </h4>
       <Table
         dataSource={rows}
@@ -167,9 +175,11 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
         <button
           className="btn btn-sm btn-primary"
           onClick={onAddRow}
-          title="Add New Row"
+          title={<FormattedMessage id="COMMON.ADD_NEW_ROW" defaultMessage="Add New Row" />
+}
         >
-          <i className="ki-filled ki-plus"></i> Add New Row
+          <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_NEW_ROW" defaultMessage="Add New Row" />
+
         </button>
       </div>
     </div>

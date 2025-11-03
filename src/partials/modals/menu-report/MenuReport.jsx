@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { MenuReportData } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
   if (!isModalOpen) return null;
@@ -14,6 +15,8 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
   });
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+
+  const intl = useIntl();
 
 
   const allChecked = useMemo(
@@ -124,7 +127,11 @@ else {
   return (
     <CustomModal
       open={isModalOpen}
-      title="Menu Report"
+      title={intl.formatMessage({
+  id: "COMMON.MENU_REPORT",
+  defaultMessage: "Menu Report",
+})}
+
       onClose={handleClose}
       footer={[
         <div key="footer" className="flex flex-row justify-end gap-2">
@@ -134,7 +141,7 @@ else {
             className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
             disabled={loading}
           >
-            Cancel
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
           <button
             type="button"
@@ -142,7 +149,10 @@ else {
             className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "Reporting..." : "Report"}
+            {loading
+  ? intl.formatMessage({ id: "COMMON.REPORTING", defaultMessage: "Reporting..." })
+  : intl.formatMessage({ id: "COMMON.REPORT", defaultMessage: "Report" })}
+
           </button>
         </div>,
       ]}
@@ -154,7 +164,8 @@ else {
             checked={allChecked}
             onChange={(e) => toggleAll(e.target.checked)}
           />
-          <span className="font-medium">Check All</span>
+          <span className="font-medium"><FormattedMessage id="COMMON.CHECK_ALL" defaultMessage="Check All" />
+</span>
         </label>
 
         <label className="flex items-center gap-3 p-3 border rounded-lg">
@@ -163,7 +174,8 @@ else {
             checked={options.categorySlogan}
             onChange={() => toggleOne("categorySlogan")}
           />
-          <span>Add Category Slogan</span>
+          <span><FormattedMessage id="COMMON.ADD_CATEGORY_SLOGAN" defaultMessage="Add Category Slogan" />
+</span>
         </label>
 
         <label className="flex items-center gap-3 p-3 border rounded-lg">
@@ -172,7 +184,8 @@ else {
             checked={options.categoryInstruction}
             onChange={() => toggleOne("categoryInstruction")}
           />
-          <span>Add Category Instruction</span>
+          <span><FormattedMessage id="COMMON.ADD_CATEGORY_INSTRUCTION" defaultMessage="Add Category Instruction" />
+</span>
         </label>
 
         <label className="flex items-center gap-3 p-3 border rounded-lg">
@@ -181,7 +194,8 @@ else {
             checked={options.categoryImage}
             onChange={() => toggleOne("categoryImage")}
           />
-          <span>Add Category Image</span>
+          <span><FormattedMessage id="COMMON.ADD_CATEGORY_IMAGE" defaultMessage="Add Category Image" />
+</span>
         </label>
 
         <label className="flex items-center gap-3 p-3 border rounded-lg">
@@ -190,7 +204,8 @@ else {
             checked={options.itemSlogan}
             onChange={() => toggleOne("itemSlogan")}
           />
-          <span>Add Item Slogan</span>
+          <span><FormattedMessage id="COMMON.ADD_ITEM_SLOGAN" defaultMessage="Add Item Slogan" />
+</span>
         </label>
       </div>
     </CustomModal>

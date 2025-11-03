@@ -1,34 +1,35 @@
 import { DataGridColumnHeader } from "@/components";
+import { FormattedMessage } from "react-intl";
 
 // Reusable Status Dropdown component
 
 export const columns = [
   {
     accessorKey: "Sr",
-    header: ({ column }) => <DataGridColumnHeader title="Sr" column={column} />,
+    header: ({ column }) => <DataGridColumnHeader title={<FormattedMessage id="COMMON.SR" defaultMessage="Sr" />} column={column} />,
   },
   {
     accessorKey: "Date",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Date" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="COMMON.DATE" defaultMessage="Date" />} column={column} />
     ),
   },
   {
     accessorKey: "Time",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Time" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="COMMON.TIME" defaultMessage="Time" />} column={column} />
     ),
   },
   {
     accessorKey: "Username",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Username" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="COMMON.USERNAME" defaultMessage="Username" />} column={column} />
     ),
   },
   {
     accessorKey: "ip_Address",
     header: ({ column }) => (
-      <DataGridColumnHeader title="ip_Address" column={column} />
+      <DataGridColumnHeader title={<FormattedMessage id="COMMON.IP_ADDRESS" defaultMessage="IP Address" />} column={column} />
     ),
   },
 ];

@@ -1,21 +1,35 @@
 import { Fragment, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet, useLocation } from 'react-router';
+import { useIntl } from 'react-intl';
 import { useMenuCurrentItem } from '@/components/menu';
 import { Footer, Header, Sidebar, useDemo1Layout } from '../';
 import { useMenus } from '@/providers';
+
 const Main = () => {
-  const {
-    layout
-  } = useDemo1Layout();
-  const {
-    pathname
-  } = useLocation();
-  const {
-    getMenuConfig
-  } = useMenus();
+  const intl = useIntl();
+  const { layout } = useDemo1Layout();
+  const { pathname } = useLocation();
+  const { getMenuConfig } = useMenus();
   const menuConfig = getMenuConfig('primary');
   const menuItem = useMenuCurrentItem(pathname, menuConfig);
+
+  // Convert menuItem title to string for Helmet
+  const getPageTitle = () => {
+    if (!menuItem?.title) return 'Default Title';
+    
+    // If title is a FormattedMessage component (React element)
+    if (menuItem.title?.props) {
+      return intl.formatMessage({
+        id: menuItem.title.props.id,
+        defaultMessage: menuItem.title.props.defaultMessage
+      });
+    }
+    
+    // If title is already a plain string
+    return menuItem.title;
+  };
+
   useEffect(() => {
     const bodyClass = document.body.classList;
 
@@ -33,6 +47,7 @@ const Main = () => {
       bodyClass.remove('header-fixed');
     };
   }, [layout]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       document.body.classList.add('layout-initialized');
@@ -44,14 +59,22 @@ const Main = () => {
       clearTimeout(timer);
     };
   }, []);
-  return <Fragment>
-      <Helmet><title>{menuItem?.title}</title></Helmet>
+
+  return (
+    <Fragment>
+      <Helmet>
+        <title>{getPageTitle()}</title>
+      </Helmet>
       <Sidebar />
       <div className="wrapper flex grow flex-col">
         <Header />    
-        <main className="grow content pt-5" role="content"><Outlet /></main>
+        <main className="grow content pt-5" role="content">
+          <Outlet />
+        </main>
         <Footer />
       </div>
-    </Fragment>;
+    </Fragment>
+  );
 };
+
 export { Main };

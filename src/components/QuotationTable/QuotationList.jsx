@@ -1,5 +1,6 @@
 import { GeteventQuoataiondata } from "@/services/apiServices";
 import { useState, useEffect } from "react";
+import { FormattedMessage } from "react-intl";
 import { useParams } from "react-router-dom";
 
 export default function QuotationList({ onEventSelect }) {
@@ -42,13 +43,19 @@ export default function QuotationList({ onEventSelect }) {
       {/* Header */}
       <div className="filItems w-1/2 mb-6">
         <select defaultValue="All Invoice" className="select pe-7.5">
-          <option value="0" selected>
-            All Quotation
-          </option>
-          <option value="1">Last 3 Months</option>
-          <option value="2">Last 6 Months</option>
-          <option value="3">Custom Date</option>
-        </select>
+                <option value="0" selected>
+                  <FormattedMessage id="SALES.ALL_QUOTATION" defaultMessage="All Quotations" />
+                </option>
+                <option value="1">
+                  <FormattedMessage id="SALES.LAST_3_MONTHS" defaultMessage="Last 3 Months" />
+                </option>
+                <option value="2">
+                  <FormattedMessage id="SALES.LAST_6_MONTHS" defaultMessage="Last 6 Months" />
+                </option>
+                <option value="3">
+                  <FormattedMessage id="SALES.CUSTOM_DATE" defaultMessage="Custom Date" />
+                </option>
+              </select>
       </div>
 
       {/* Invoice Items */}

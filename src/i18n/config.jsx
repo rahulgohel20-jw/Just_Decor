@@ -23,27 +23,7 @@ const I18N_LANGUAGES = [
     flag: toAbsoluteUrl("/media/flags/united-states.svg"),
     messages: I18N_MESSAGES.en,
   },
-  {
-    label: "Arabic (Saudi)",
-    code: "ar",
-    direction: "rtl",
-    flag: toAbsoluteUrl("/media/flags/saudi-arabia.svg"),
-    messages: I18N_MESSAGES.ar,
-  },
-  {
-    label: "French",
-    code: "fr",
-    direction: "ltr",
-    flag: toAbsoluteUrl("/media/flags/france.svg"),
-    messages: I18N_MESSAGES.fr,
-  },
-  {
-    label: "Chinese",
-    code: "zh",
-    direction: "ltr",
-    flag: toAbsoluteUrl("/media/flags/china.svg"),
-    messages: I18N_MESSAGES.zh,
-  },
+  
   {
     label: "Hindi",
     code: "hi",

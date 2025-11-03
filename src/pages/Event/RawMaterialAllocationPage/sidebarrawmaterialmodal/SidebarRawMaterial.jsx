@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { GetAllSupllierVendors, Getunit } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const FieldLabel = ({ children }) => (
   <div className="text-[16px] text-black leading-none mb-1">{children}</div>
@@ -36,6 +37,7 @@ export default function SidebarRawMaterial({
   const [unit, setUnit] = useState();
   const unitOptions = ["Kilogram", "Gram", "Litre", "NOS"];
   const placeOptions = ["At Venue", "Godown"];
+  const intl = useIntl();
 
   // Fetch agencies when component mounts
   useEffect(() => {
@@ -247,14 +249,14 @@ export default function SidebarRawMaterial({
               {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Raw Material Allocation - Edit
+                  <FormattedMessage id="SIDEBAR_RAW_MATERIAL.RAW_MATERIAL_ALLOCATION_EDIT" defaultMessage="Raw Material Allocation - Edit" />
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                   autoFocus
                 >
-                  Close
+                  <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
                 </button>
               </div>
 
@@ -263,21 +265,21 @@ export default function SidebarRawMaterial({
                 <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* Header */}
                   <div className="grid grid-cols-[64px_1fr_1fr_1fr_1fr_1fr_1fr_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[13px] font-medium text-gray-700">
-                    <div>No.</div>
-                    <div className="ml-2">Function Type</div>
-                    <div>Menu Item Name</div>
-                    <div>Agency</div>
-                    <div>Qty</div>
-                    <div>Unit</div>
-                    <div>Place</div>
-                    <div>Date & Time</div>
-                    <div className="text-center">Price</div>
+                    <div><FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr." /></div>
+                    <div className="ml-2"><FormattedMessage id="COMMON.FUNCTION_TYPE" defaultMessage="Function Type" /></div>
+                    <div><FormattedMessage id="COMMON.MENU_ITEM_NAME" defaultMessage="Menu Item Name" /></div>
+                    <div><FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" /></div>
+                    <div><FormattedMessage id="COMMON.QTY" defaultMessage="Qty" /> </div>
+                    <div><FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" /></div>
+                    <div><FormattedMessage id="COMMON.PLACE" defaultMessage="Place" /></div>
+                    <div><FormattedMessage id="COMMON.DATE_TIME" defaultMessage="Date & Time" /></div>
+                    <div className="text-center"><FormattedMessage id="COMMON.PRICE" defaultMessage="Qty" /></div>
                   </div>
 
                   {/* Form Rows */}
                   {functionRows.length === 0 ? (
                     <div className="px-4 py-8 text-center text-gray-500">
-                      No data available
+                      <FormattedMessage id="COMMON.NO_DATA_AVAILABLE" defaultMessage="No data available" />
                     </div>
                   ) : (
                     functionRows.map((row, rowIndex) => (
@@ -311,11 +313,11 @@ export default function SidebarRawMaterial({
                               )
                             }
                           >
-                            <option value="">Select Agency</option>
+                            <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
                             {loading ? (
-                              <option disabled>Loading...</option>
+                              <option disabled><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>
                             ) : agencies.length === 0 ? (
-                              <option disabled>No agencies found</option>
+                              <option disabled><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="No Agency Found" /></option>
                             ) : (
                               agencies.map((agency, idx) => (
                                 <option
@@ -333,7 +335,7 @@ export default function SidebarRawMaterial({
                         <div>
                           <BaseInput
                             type="number"
-                            placeholder="Qty"
+                            placeholder={intl.formatMessage({ id: "COMMON.QTY", defaultMessage: "Qty" })}
                             value={row.qty}
                             onChange={(e) =>
                               handleInputChange(rowIndex, "qty", e.target.value)
@@ -354,7 +356,7 @@ export default function SidebarRawMaterial({
                               )
                             }
                           >
-                            <option value="">Select Unit</option>
+                            <option value=""><FormattedMessage id="COMMON.SELECT_UNIT" defaultMessage="Select Unit" /></option>
                             {unit?.length > 0 ? (
                               unit.map((u) => (
                                 <option key={u.id} value={u.unitName}>
@@ -362,7 +364,7 @@ export default function SidebarRawMaterial({
                                 </option>
                               ))
                             ) : (
-                              <option disabled>Loading Units...</option>
+                              <option disabled><FormattedMessage id="COMMON.LOADING_UNIT" defaultMessage="Loading unit..." /></option>
                             )}
                           </BaseSelect>
                         </div>
@@ -379,7 +381,7 @@ export default function SidebarRawMaterial({
                               )
                             }
                           >
-                            <option value="">Select Place</option>
+                            <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select place" /> </option>
                             {placeOptions.map((place) => (
                               <option key={place} value={place}>
                                 {place}
@@ -405,7 +407,7 @@ export default function SidebarRawMaterial({
                         <div>
                           <BaseInput
                             type="number"
-                            placeholder="Price"
+                            placeholder={intl.formatMessage({ id: "COMMON.PRICE", defaultMessage: "Price" })}
                             value={row.price}
                             onChange={(e) =>
                               handleInputChange(
@@ -428,14 +430,14 @@ export default function SidebarRawMaterial({
                   className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={handleCancel}
                 >
-                  Cancel
+                  <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
                 </button>
                 <button
                   className="h-9 px-6 rounded-md bg-primary text-white text-sm hover:bg-primary/90"
                   onClick={handleSave}
                   disabled={loading}
                 >
-                  {loading ? "Loading..." : "Save"}
+                  {loading ? <FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
                 </button>
               </div>
             </motion.div>
