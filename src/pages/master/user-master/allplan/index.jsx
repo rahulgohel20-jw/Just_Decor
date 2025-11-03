@@ -14,30 +14,6 @@ const PlanTable = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
   useEffect(() => {
-    // If not superadmin, stop fetching
-    if (!currentUser || currentUser.role !== "superadmin") {
-      message.error("Access denied. Only superadmin can view this page.");
-      setLoading(false);
-      return;
-    }
-
-    const fetchAdmins = async () => {
-      setLoading(true);
-      try {
-        const response = await getAllByRoleId(1);
-        // ... rest of your existing fetch logic
-      } catch (err) {
-        console.error("❌ Fetch error:", err);
-        message.error("Error fetching admins");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAdmins();
-  }, [currentUser]);
-
-  useEffect(() => {
     const fetchAdmins = async () => {
       setLoading(true);
 
@@ -93,21 +69,21 @@ const PlanTable = () => {
       <div className="gap-2 pb-2 mb-3">
         <Breadcrumbs items={[{ title: "User Plans" }]} />
       </div>
-
-      <div className="mb-4">
+      <div className="w-[200px] filItems relative mb-4">
+        <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
         <input
+          className="input pl-8"
+          placeholder="Search invoice"
           type="text"
-          placeholder="Search Users"
           value={searchText}
           onChange={handleSearch}
-          className="border border-gray-300 rounded px-3 py-2 w-full md:w-1/3"
         />
       </div>
 
       <Spin spinning={loading}>
         <TableComponent
           columns={planColumns}
-          data={filteredPlans} // ✅ show filtered plans
+          data={filteredPlans}
           paginationSize={10}
         />
       </Spin>

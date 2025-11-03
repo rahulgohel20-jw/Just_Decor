@@ -212,7 +212,7 @@ const superAdminMenuItems = [
   {
     title: "Invoice List",
     icon: "ki-filled ki-user text-primary",
-    path: "/sales/invoice-dashboard",
+    path: "/admin-invoice",
   },
   {
     title: "Custom Themes",
@@ -228,6 +228,11 @@ const superAdminMenuItems = [
     title: "Database",
     icon: "element-11 text-primary",
     path: "/database",
+  },
+  {
+    title: "Renewal Customer",
+    icon: "element-11 text-primary",
+    path: "/renewal-history",
   },
 ];
 

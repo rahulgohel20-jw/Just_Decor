@@ -177,6 +177,9 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 import Database from "../pages/master/superadmindatabase";
 import Plan from "../components/plan/Plan";
+import SuperadminInvoice from "../components/superadmininvoice/SuperadminInvoice";
+import Addinvoice from "../components/superadminInvoice/Addinvoice";
+import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -224,6 +227,11 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="copy" />}
           />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
+          <Route path="/admin-invoice" element={<SuperadminInvoice />} />
+          <Route path="/renewal-history" element={<RenewalCustomer />} />
+
+          <Route path="/addInvoice" element={<Addinvoice />} />
+
           <Route
             path="/menu-preparation/:eventId"
             element={<EventPreparationPage mode="menu" />}
