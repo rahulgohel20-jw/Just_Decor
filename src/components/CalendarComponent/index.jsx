@@ -22,19 +22,6 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
 
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
-      {/* Add Event Button */}
-      {/* <div style={{ marginBottom: "10px", textAlign: "right" }}>
-        <Link to="/add-event" style={{ textDecoration: "none" }}>
-          <button
-            className="btn btn-primary"
-            onClick={handleModalOpen}
-            title="Add Event"
-          >
-            <i className="ki-filled ki-plus"></i> Add Event
-          </button>
-        </Link>
-      </div> */}
-
       <FullCalendar
         events={data}
         eventClick={(e) => openEvent(e)}
@@ -46,45 +33,68 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
           right: "dayGridMonth,dayGridWeek,timeGridDay,listWeek",
         }}
         buttonText={{
-          today: intl.formatMessage({ 
-            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_TODAY", 
-            defaultMessage: "Today" 
+          today: intl.formatMessage({
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_TODAY",
+            defaultMessage: "Today",
           }),
-          month: intl.formatMessage({ 
-            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_MONTH", 
-            defaultMessage: "Month" 
+          month: intl.formatMessage({
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_MONTH",
+            defaultMessage: "Month",
           }),
-          week: intl.formatMessage({ 
-            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_WEEK", 
-            defaultMessage: "Week" 
+          week: intl.formatMessage({
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_WEEK",
+            defaultMessage: "Week",
           }),
-          day: intl.formatMessage({ 
-            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_DAY", 
-            defaultMessage: "Day" 
+          day: intl.formatMessage({
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_DAY",
+            defaultMessage: "Day",
           }),
-          list: intl.formatMessage({ 
-            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_LIST", 
-            defaultMessage: "List" 
+          list: intl.formatMessage({
+            id: "USER.DASHBOARD.DASHBOARD_CALENDAR_LIST",
+            defaultMessage: "List",
           }),
         }}
         dateClick={handleDateClick}
         eventDidMount={(info) => {
           const { event, el } = info;
+
+          // ✅ Detect if it’s a “User Calendar” event (from Super Calendar)
+          const company = event.extendedProps.company;
+          const contact = event.extendedProps.contact;
+          const email = event.extendedProps.email;
+
+          // ✅ Otherwise, fallback to default event details
           const time = event.extendedProps.time || "";
           const address = event.extendedProps.address || "";
           const events = event.extendedProps.event || "";
           const mobile = event.extendedProps.mobile || "";
 
+          // ✅ Tooltip content logic
+          const tooltipContent = company || email || contact
+            ? `
+                <div class="p-1">
+                  <p class="mb-1"><strong>${event.title}</strong></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-briefcase text-success"></i>
+                    <span>${company || "No Company"}</span></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-call text-success"></i>
+                    <span>${contact || "N/A"}</span></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-message text-success"></i>
+                    <span>${email || "N/A"}</span></p>
+                </div>
+              `
+            : `
+                <div class="p-1">
+                  <p class="mb-1"><strong>${event.title}</strong></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-call text-success"></i><span>${mobile}</span></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-time text-success"></i><span>${time}</span></p>
+                  <p class="mb-1"><i class="me-1 ki-filled ki-geolocation text-success"></i><span>${address}</span></p>
+                </div>
+              `;
+
+          // ✅ Initialize Tippy Tooltip
           tippy(el, {
-            content: `
-              <div class="p-1">
-                <p class="mb-1"><strong>${event.title}</strong></p>
-                <p class="mb-1"><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>
-                <p class="mb-1"><i class="me-1 ki-filled ki-call text-success"></i><span>${mobile}</span></p>
-                <p class="mb-1"><i class="me-1 ki-filled ki-time text-success"></i><span>${time}</span></p>
-                <p class="mb-1"><i class="me-1 ki-filled ki-geolocation text-success"></i><span>${address}</span></p>
-              </div>
-            `,
+            content: tooltipContent,
             allowHTML: true,
             theme: "light",
           });

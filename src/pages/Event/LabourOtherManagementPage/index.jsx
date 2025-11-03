@@ -24,15 +24,11 @@ import { FormattedMessage, useIntl } from "react-intl";
     const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
     const [allContacts, setAllContacts] = useState([]);
     const [filteredContacts, setFilteredContacts] = useState({});
-    const unitOptions = ["pcs", "kg", "litre", "meter", "box"];
-    const [agencies, setAgencies] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const { eventId } = useParams();
     const [activeTab, setActiveTab] = useState("Dinner");
-    const [data, setData] = useState([]);
     const [activeCategory, setActiveCategory] = useState("Labour");
-    const [personCount, setPersonCount] = useState(450);
     const [eventData, setEventData] = useState(null);
     const [loading, setLoading] = useState(false);
   const [labourData, setLabourData] = useState([]);
@@ -40,12 +36,11 @@ import { FormattedMessage, useIntl } from "react-intl";
   const [labourCategories, setLabourCategories] = useState([]);
   const [extraexpenseData, setExtraExpenseData] = useState([]);
   const [isExtraExpenseModalOpen, setIsExtraExpenseModalOpen] = useState(false);
-    // add near other state declarations
+
   const [selectedExpense, setSelectedExpense] = useState(null);
 
 
     const [isLabourSidebarOpen, setIsLabourSidebarOpen] = useState(false); 
-    const [isGrossaryModalOpen, setIsGrossaryModalOpen] = useState(false); 
     const [isNotesOpen, setIsNotesOpen] = useState(false);
     const [notes, setNotes] = useState("");
 
@@ -56,7 +51,6 @@ import { FormattedMessage, useIntl } from "react-intl";
   const intl = useIntl();
 
     const handleSaveNotes = (newNotes) => {
-      console.log("📝 Saved Notes:", newNotes);
       setNotes(newNotes);
       setIsNotesOpen(false);
     };
@@ -135,7 +129,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
           const laborData = res?.data?.data?.eventLabor || [];
 
-          console.log("📦 All Party Master (Contacts):", allContacts);
           Object.entries(allContacts).forEach(([labourTypeId, contacts]) => {
           
           });
@@ -152,7 +145,7 @@ import { FormattedMessage, useIntl } from "react-intl";
           });
 
         const formattedRows = laborData.map((item, index) => {
-    // Parse and validate date
+   
     const parsedDate = dayjs(item.labordatetime, ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD HH:mm:ss"], true);
     const isValidDate = parsedDate.isValid();
 
@@ -169,7 +162,7 @@ import { FormattedMessage, useIntl } from "react-intl";
         item.contactname?.trim() ||
         "",
       shift: item.laborshift || "",
-      // ✅ If date invalid, use event’s start time or empty string
+    
       dateTime: isValidDate
         ? parsedDate.format("DD/MM/YYYY hh:mm A")
         : eventData?.eventStartDateTime
@@ -181,27 +174,7 @@ import { FormattedMessage, useIntl } from "react-intl";
       place: item.place || "",
     };
   });
-
-
-          
-
-          setLabourData(
-            formattedRows.length
-              ? formattedRows
-              : [
-                  {
-                    id: 1,
-                    labourType: "",
-                    contact: "",
-                    shift: "",
-                    dateTime: dayjs().format("DD/MM/YYYY hh:mm A"),
-                    price: "",
-                    quantity: "",
-                    total: "",
-                    place: "",
-                  },
-                ]
-          );
+ 
         } catch (error) {
           console.error("❌ Error fetching labour details:", error);
         }
@@ -219,7 +192,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
   const fetchExtraExpense = async (eventFunctionId, eventId) => {
     try {
-      console.log("🟢 Fetching extra expense for:", { eventFunctionId, eventId });
       const res = await GetExtraExpenseByEvent(eventFunctionId, eventId);
       console.log("🟢 API response:", res?.data);
 
@@ -243,18 +215,15 @@ import { FormattedMessage, useIntl } from "react-intl";
         place: item.place || "",
       }));
 
-      console.log("🟢 Formatted expenses:", formattedExpenses);
       setExtraExpenseData(formattedExpenses);
     } catch (err) {
       console.error("❌ Error fetching extra expense data:", err);
     }
   };
 
-  // 🗑️ Delete Extra Expense
-  // 🗑️ Delete Extra Expense
+ 
   const deleteExtraExpenceRow = async (id) => {
     try {
-      // 🔹 Confirm deletion
       const confirmResult = await Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -277,7 +246,6 @@ import { FormattedMessage, useIntl } from "react-intl";
           showConfirmButton: false,
         });
 
-        // ✅ Get the current active function ID dynamically
         const activeFunction = eventData?.eventFunctions?.find(
           (fn) => fn.function?.nameEnglish === activeTab
         );
@@ -321,9 +289,7 @@ import { FormattedMessage, useIntl } from "react-intl";
     
     if (activeCategory === 'Labour') {
       setLabourData((prev) => [...prev, newRow]);
-    } else if (activeCategory === 'General / Fix Raw Material') {
-      setGeneralRawMaterialData((prev) => [...prev, newRow]);
-    }
+    } 
     else if (activeCategory === 'Extra Expense') {
       setExtraExpenseData((prev) => [...prev, newRow]);
     }
@@ -406,23 +372,8 @@ import { FormattedMessage, useIntl } from "react-intl";
     }
   }, []);
 
-  useEffect(() => {
-    if (extraexpenseData.length === 0) {
-      setExtraExpenseData([
-        {
-          id: 1,
-          labourType: "",
-          contact: "",
-          shift: "",
-          dateTime: "",
-          price: "",
-          quantity: "",
-          total: "",
-          place: "",
-        },
-      ]);
-    }
-  }, []);
+
+
   useEffect(() => {
     if (!eventData) return;
 
@@ -496,7 +447,6 @@ import { FormattedMessage, useIntl } from "react-intl";
         });
 
         const res = await AddUpdateLabor(payload);
-        console.log("✅ Labor Save Response:", res.data);
 
         const backendMessage = res?.data?.message || res?.data?.msg;
 
@@ -532,46 +482,9 @@ import { FormattedMessage, useIntl } from "react-intl";
       }
     };
 
-    const renderModalData = () => {
-      const agencyOptions = agencies.map((agency) => ({
-        value: agency.nameEnglish || agency.name,
-        label: agency.nameEnglish || agency.name,
-      }));
-
-      const placeOptions = [
-        { value: "At Venue", label: "At venue" },
-        { value: "Godown", label: "GoDown" },
-      ];
-
-      
-    };
-
-    const handleAllocateAgency = (agency) => {
-      const updated = data.map((item) => ({
-        ...item,
-        agency: agency,
-      }));
-      setData(updated);
-    };
-
-    const handleAllocatePlace = (place) => {
-      const updated = data.map((item) => ({
-        ...item,
-        place: place,
-      }));
-      setData(updated);
-    };
-
-    const handleAllocateDate = (date) => {
-      if (!date) return;
-      const formatted = dayjs(date).format("MM/DD/YYYY hh:mm A");
-      const updated = data.map((item) => ({
-        ...item,
-        date: formatted,
-      }));
-      setData(updated);
-    };
-
+    
+    
+   
     const handleEditExpense = (expense) => {
     setSelectedExpense(expense);
     setIsExtraExpenseModalOpen(true);
@@ -984,7 +897,7 @@ import { FormattedMessage, useIntl } from "react-intl";
             + Add Extra Expense
           </button>
         </div>
-          <table className="table table-auto w-full">
+         <table className="table table-auto w-full">
             <thead>
               <tr className="bg-gray-50">
                 <th className="px-3 py-2 text-center w-[4%]">#</th>
@@ -996,6 +909,7 @@ import { FormattedMessage, useIntl } from "react-intl";
                 <th className="px-3 py-2 w-[15%]">Action </th>
               </tr>
             </thead>
+            <tbody>
           {extraexpenseData.length > 0 ? (
     extraexpenseData.map((row, index) => (
       <tr key={row.id}>
@@ -1007,7 +921,6 @@ import { FormattedMessage, useIntl } from "react-intl";
         <td>{row.total}</td>
           <td className="px-3 py-2">
                               <div className="flex items-center justify-left gap-1">
-                                {/* ✅ Opens Labour Detail Sidebar */}
                                 <button 
                                 className="btn bt-sm btn-con btn-clear"
                                 title="Edit"
@@ -1017,13 +930,7 @@ import { FormattedMessage, useIntl } from "react-intl";
                                 >
                                   <i className="ki-filled ki-notepad-edit text-primary"></i>
                                 </button>
-                                <button
-                                  className="btn btn-sm btn-icon btn-clear"
-                                  title="Add Notes"
-                                  onClick={() => setIsNotesOpen(true)}
-                                >
-                                  <i className="ki-filled ki-notepad text-primary"></i>
-                                </button>
+                              
 
                                 <button
                                   onClick={() => deleteExtraExpenceRow(row.id)}
@@ -1042,7 +949,7 @@ import { FormattedMessage, useIntl } from "react-intl";
       </td>
     </tr>
   )}
-
+            </tbody>
           </table>
         </div>
       </div>
@@ -1067,12 +974,11 @@ import { FormattedMessage, useIntl } from "react-intl";
         
   {isExtraExpenseModalOpen && (
     <AddExtraExpense
-      isOpen={isExtraExpenseModalOpen}  // ✅ Correct prop name
+      isOpen={isExtraExpenseModalOpen}  
       onClose={() => setIsExtraExpenseModalOpen(false)}
       eventData={eventData} 
-        selectedMeal={selectedExpense}  // ✅ Pass event data
+        selectedMeal={selectedExpense}  
       refreshData={() => {
-        console.log('Expense saved successfully');
       }}
       onSave={(newExpense) => {
         setExtraExpenseData((prev) => [...prev, { id: Date.now(), ...newExpense }]);

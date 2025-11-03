@@ -1,6 +1,6 @@
 import { DataGridColumnHeader } from "@/components";
 
-export const getColumns = () => [
+export const getColumns = (onDelete, onEdit,onView) => [
   {
     accessorKey: "sr_no",
     header: ({ column }) => (
@@ -35,94 +35,34 @@ export const getColumns = () => [
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => {
+      const plan = row.original;
       return (
         <div className="flex items-center justify-center gap-1">
-          <button className="btn btn-sm btn-icon btn-clear" title="View">
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="View"
+            onClick={() => onView(plan)}
+          >
             <i className="ki-filled ki-eye text-success"></i>
           </button>
 
-          <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            title="Edit"
+            onClick={() => onEdit(plan)} // ✅ Trigger edit
+          >
             <i className="ki-filled ki-notepad-edit text-primary"></i>
           </button>
 
           <button
             className="btn btn-sm btn-icon btn-clear"
-            title="Menu Preparation"
+            title="Delete"
+            onClick={() => onDelete(plan.id)} // ✅ Trigger delete
           >
             <i className="ki-filled ki-trash text-danger"></i>
           </button>
         </div>
       );
     },
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
-];
-
-export const defaultData = [
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
-  },
-  {
-    sr_no: 1,
-    plan_name: "Elite",
-    billingCycle: "Monthly",
-    isPopular: "yes",
-    price: "35000",
   },
 ];

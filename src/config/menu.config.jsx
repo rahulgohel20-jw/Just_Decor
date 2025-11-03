@@ -217,6 +217,7 @@ const superAdminMenuItems = [
     title: <FormattedMessage id="COMMON.INVOICE_LIST" defaultMessage="Invoice List" />,
     icon: "ki-filled ki-user text-primary",
     path: "/admin-invoice",
+    path: "/admin-invoice",
   },
   {
     title: <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Custom Themes" />,
