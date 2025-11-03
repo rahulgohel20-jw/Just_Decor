@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { DatePicker, Select } from "antd";
 import dayjs from "dayjs";
+import { FormattedMessage } from "react-intl";
 
 const AddGrossary = ({
   isModalOpen,
@@ -77,7 +78,7 @@ const AddGrossary = ({
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Agency, Place & Date Allocation"
+        title={<FormattedMessage id="GROSSARY.AGENCY_PLACE_DATE_ALLOCATION" defaultMessage="Agency, Place & Date Allocation"/>}
         width={900}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -86,13 +87,14 @@ const AddGrossary = ({
               className="btn btn-light"
               onClick={handleModalClose}
             >
-              Cancel
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button
               className="btn btn-primary save-btn"
               onClick={handleModalClose}
             >
-              Save
+            <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+
             </button>
           </div>,
         ]}
@@ -106,8 +108,8 @@ const AddGrossary = ({
               value={selectedAgency}
               onChange={(e) => setSelectedAgency(e.target.value)}
             >
-              <option value="">-- Select Agency --</option>
-              {loading && <option>Loading...</option>}
+              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
+              {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>}
               {!loading && agencies.length > 0 ? (
                 agencies.map((agency) => (
                   <option
@@ -118,7 +120,7 @@ const AddGrossary = ({
                   </option>
                 ))
               ) : (
-                !loading && <option>No agencies found</option>
+                !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="No agnecies found" /></option>
               )}
             </select>
             <button
@@ -126,7 +128,7 @@ const AddGrossary = ({
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
             </button>
           </div>
 
@@ -137,9 +139,9 @@ const AddGrossary = ({
               value={selectedPlace}
               onChange={(e) => setSelectedPlace(e.target.value)}
             >
-              <option value="">-- Select Place --</option>
-              <option value="At Venue">At Venue</option>
-              <option value="Godown">Godown</option>
+              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select Place" /></option>
+                <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
+                <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
              
             </select>
             <button
@@ -147,7 +149,7 @@ const AddGrossary = ({
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
             </button>
           </div>
 
@@ -165,7 +167,7 @@ const AddGrossary = ({
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
-              Allocate
+              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
             </button>
           </div>
         </div>

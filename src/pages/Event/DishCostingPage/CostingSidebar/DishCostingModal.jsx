@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import { FormattedMessage } from "react-intl";
 
 const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
   const [viewType, setViewType] = useState(parentViewType || "Function Wise");
@@ -51,13 +52,17 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Total Raw Material Charges
+                  <FormattedMessage
+  id="COMMON.TOTAL_RAW_MATERIAL_CHARGES"
+  defaultMessage="Total Raw Material Charges"
+/>
+
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                 >
-                  Close
+                  <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" /> 
                 </button>
               </div>
 
@@ -70,7 +75,11 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-2">
-                      Customer Name
+                      <FormattedMessage
+  id="COMMON.CUSTOMER_NAME"
+  defaultMessage="Customer Name"
+/>
+
                     </label>
                     <select className="select w-full border border-gray-300 rounded-md text-sm">
                       <option>
@@ -80,7 +89,11 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-2">
-                      View Type
+                     <FormattedMessage
+  id="COMMON.VIEW_TYPE"
+  defaultMessage="View Type"
+/>
+
                     </label>
                     <div className="flex gap-2">
                       <button
@@ -91,7 +104,11 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                             : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        Function Wise
+                        <FormattedMessage
+  id="COMMON.FUNCTION_WISE"
+  defaultMessage="Function Wise"
+/>
+
                       </button>
                       <button
                         onClick={() => setViewType("Total Wise")}
@@ -101,7 +118,11 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                             : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                         }`}
                       >
-                        Total Wise
+                        <FormattedMessage
+  id="COMMON.TOTAL_WISE"
+  defaultMessage="Total Wise"
+/>
+
                       </button>
                     </div>
                   </div>
@@ -111,7 +132,11 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                 <div className="grid grid-cols-3 gap-6 mb-6 pb-6 border-b border-gray-200">
                   <div>
                     <label className="block text-xs text-gray-600 mb-1">
-                      Date and Time No.
+                      <FormattedMessage
+  id="COMMON.DATE_AND_TIME"
+  defaultMessage="Date and Time"
+/>
+
                     </label>
                     <div className="text-sm font-medium text-gray-900">
                       02.10.2025 04:00 PM
@@ -127,7 +152,7 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-600 mb-1">
-                      Person
+                      <FormattedMessage id="COMMON.PeRSON" defaultMessage="Person" />
                     </label>
                     <div className="text-sm font-medium text-gray-900">450</div>
                   </div>
@@ -145,11 +170,12 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                   {/* Header */}
                   <div className="grid grid-cols-2 gap-4 pb-3 mb-4 border-b-2 border-gray-300">
                     <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                      CATEGORY
-                    </div>
-                    <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide text-right">
-                      AMOUNT
-                    </div>
+  <FormattedMessage id="COMMON.CATEGORY" defaultMessage="Category" />
+</div>
+<div className="text-sm font-semibold text-gray-600 uppercase tracking-wide text-right">
+  <FormattedMessage id="COMMON.AMOUNT" defaultMessage="Amount" />
+</div>
+
                   </div>
 
                   {/* Rows */}
@@ -180,7 +206,7 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                     className="grid grid-cols-2 gap-4 pt-4 mt-4 border-t-2 border-gray-300"
                   >
                     <div className="text-base font-bold text-primary">
-                      FINAL AMOUNT
+                     <FormattedMessage id="COMMON.FINAL_AMOUNT" defaultMessage="Final Amount" />
                     </div>
                     <div className="text-base font-bold text-primary text-right tabular-nums">
                       {totalAmount}

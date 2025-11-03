@@ -2,7 +2,7 @@
   import { Container } from "@/components/container";
   import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
   import useStyles from "./style";
-  import { DatePicker } from "antd";
+  import { DatePicker, Form } from "antd";
   import { useParams } from "react-router-dom";
   import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
   import { Select } from "antd";
@@ -12,7 +12,10 @@
   dayjs.extend(customParseFormat);
   import Swal from "sweetalert2";
   import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
-  import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails, GetExtraExpenseByEvent, DeleteExtraExpense } from "@/services/apiServices";
+  import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails, GetExtraExpenseByEvent,DeleteExtraExpense } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+
+
   import AddExtraExpense from "../../../partials/modals/add-extra-expense/AddExtraExpense";
 
   const LabourOtherManagementPage = () => {
@@ -43,6 +46,9 @@
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id || eventData?.user?.id || 0;
+
+
+  const intl = useIntl();
 
     const handleSaveNotes = (newNotes) => {
       setNotes(newNotes);
@@ -484,135 +490,135 @@
     setIsExtraExpenseModalOpen(true);
   };
 
-    return (
-      <Fragment>
-        <Container>
-          <div className="gap-2 mb-3">
-            <Breadcrumbs items={[{ title: "Labour/Other Management" }]} />
-          </div>
+  return (
+    <Fragment>
+      <Container>
+        <div className="gap-2 mb-3">
+          <Breadcrumbs items={[{ title: <FormattedMessage id="LABOUR.LABOUR_OTHER_MANAGEMENT" defaultMessage="Labour/Other Management" /> }]} />
+        </div>
 
-          <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-            <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-              <div className="flex flex-col gap-2.5">
-                <div className="flex items-center gap-7">
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">Party Name:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {eventData?.party?.nameEnglish || "-"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-user text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">Event Name:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {eventData?.eventType?.nameEnglish || "-"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-geolocation-home text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">Function Name:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {eventData?.eventType?.nameEnglish || "N/A"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">Event Venue:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {eventData?.venue || "-"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">Event Date & Time:</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {eventData?.eventStartDateTime || ""}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-row items-end gap-2">
-                <button className="btn btn-sm btn-primary" onClick={handleSave} title="Save">
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4">
-            <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden">
-              {eventData?.eventFunctions?.map((fn, index) => (
-                <button
-                  key={fn.id}
-                  onClick={() => {
-                    setActiveTab(fn.function?.nameEnglish);
-                    setSelectedFunctionPax(fn.pax || 0);
-                  }}
-                  className={`px-8 py-3 text-sm font-medium transition-all duration-200 
-                    ${
-                      activeTab === fn.function?.nameEnglish
-                        ? "bg-primary text-white"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }
-                    ${index !== 0 ? "border-l border-gray-300" : ""}
-                  `}
-                >
-                  {fn.function?.nameEnglish}
-                </button>
-              )) || (
-                <span className="text-gray-500 px-4 py-2">No functions available</span>
-              )}
-            </div>
-          </div>
-
-          <div className="card mb-5">
-            <div className="card-body p-4">
-              <div className="flex items-center justify-between gap-4">
+        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-7">
                 <div className="flex items-center gap-3">
-                  <span><i className="ki-filled ki-users text-primary"></i></span>
-                  <span className="text-2sm font-medium text-gray-700">Person</span>
-                  <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
-                    {selectedFunctionPax || "-"}
-                  </span>
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.PARTY_NAME" defaultMessage="Party Name: " /></span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.party?.nameEnglish || "-"}
+                    </span>
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-3">
-                  <button className="btn btn-light btn-sm">
-                    <i className="ki-filled ki-document"></i> Report
-                  </button>
-                  <button className="btn btn-light btn-sm">
-                    <i className="ki-filled ki-document"></i>
-                    Checklist
-                  </button>
-                  <div className="relative ms-5">
-                    <input
-                      type="text"
-                      placeholder="Search labour type..."
-                      className="input input-sm"
-                      style={{ width: "300px" }}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                  <i className="ki-filled ki-user text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_NAME" defaultMessage="Event Name: " /></span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.eventType?.nameEnglish || "-"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-geolocation-home text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.FUNCTION_NAME" defaultMessage="Function Name: " /></span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.eventType?.nameEnglish || "N/A"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_VENUE" defaultMessage="Event Venue: " /></span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.venue || "-"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME" defaultMessage="Event Date & Time:" /></span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.eventStartDateTime || ""}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div className="flex flex-row items-end gap-2">
+              <button className="btn btn-sm btn-primary" onClick={handleSave} title="Save">
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" /> 
+              </button>
+            </div>
           </div>
+        </div>
+
+        <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4">
+          <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden">
+            {eventData?.eventFunctions?.map((fn, index) => (
+              <button
+                key={fn.id}
+                onClick={() => {
+                  setActiveTab(fn.function?.nameEnglish);
+                  setSelectedFunctionPax(fn.pax || 0);
+                }}
+                className={`px-8 py-3 text-sm font-medium transition-all duration-200 
+                  ${
+                    activeTab === fn.function?.nameEnglish
+                      ? "bg-primary text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }
+                  ${index !== 0 ? "border-l border-gray-300" : ""}
+                `}
+              >
+                {fn.function?.nameEnglish}
+              </button>
+            )) || (
+              <span className="text-gray-500 px-4 py-2"><FormattedMessage id="LABOUR.NO_FUNCTION_AVAILABLE" defaultMessage="No functions available" /></span>
+            )}
+          </div>
+        </div>
+
+        <div className="card mb-5">
+          <div className="card-body p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span><i className="ki-filled ki-users text-primary"></i></span>
+                <span className="text-2sm font-medium text-gray-700"><FormattedMessage id="COMMON.PERSON" defaultMessage="Person" /></span>
+                <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
+                  {selectedFunctionPax || "-"}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button className="btn btn-light btn-sm">
+                  <i className="ki-filled ki-document"></i> <FormattedMessage id="COMMON.REPORT" defaultMessage="Report" />
+                </button>
+                <button className="btn btn-light btn-sm">
+                  <i className="ki-filled ki-document"></i>
+                  <FormattedMessage id="COMMON.CHECKLIST" defaultMessage="Checklist" />
+                </button>
+                <div className="relative ms-5">
+                  <input
+                    type="text"
+                    placeholder={intl.formatMessage({ id: "COMMON.SEARCH_LABOUR_TYPE", defaultMessage: "Search labour type..." })}
+                    className="input input-sm"
+                    style={{ width: "300px" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
           <div className="card mb-5">
             <div className="card-body p-3">
@@ -634,170 +640,212 @@
             </div>
           </div>
 
-          {activeCategory === 'Labour' && (
-            <div className="card">
-              <div className="card-body p-0">
-                <div className="overflow-x-hidden">
-                  <table className="table table-auto w-full">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="text-center  w-[4%]">#</th>
-                        <th className=" w-[9%]">Labour Type</th>
-                        <th className=" w-[5%]">Contact</th>
-                        <th className=" w-[13]">Labour Shift</th>
-                        <th className=" w-[16%]">Date & Time</th>
-                        <th className=" w-[7%]">Price</th>
-                        <th className=" w-[7%]">Qty</th>
-                        <th className=" w-[8%]">Total Price</th>
-                        <th className=" w-[8%]">Place</th>
-                        <th className="text-center  w-[10%]">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {labourData
-                        .filter((row) => {
-                          if (!row.labourType) return true;
-                          if (!searchTerm.trim()) return true;
-                          return row.labourType.toLowerCase().includes(searchTerm.toLowerCase());
-                        })
-                        .map((row, index) => (
-                          <tr key={row.id} className="border-t">
-                            <td className="text-center px-3 py-2">{index + 1}.</td>
-                            <td className="px-3 py-2">
-                              <Select
-                                className="custom-select-sm"
-                                showSearch
-                                placeholder="Select Labour Type"
-                                value={row.labourType || undefined}
-                                onChange={(value) => {
-                                  const selectedCategory = labourCategories.find(
-                                    (c) => c.nameEnglish === value
-                                  );
-                                  setLabourData((prev) =>
-                                    prev.map((r) =>
-                                      r.id === row.id ? { ...r, labourType: value, contact: "" } : r
-                                    )
-                                  );
-                                  const matchingContacts = allContacts[selectedCategory?.id] || [];
-                                  setFilteredContacts((prev) => ({
-                                    ...prev,
-                                    [row.id]: matchingContacts,
-                                  }));
-                                }}
-                                style={{ width: "100%" }}
-                              >
-                                {labourCategories.map((item) => (
-                                  <Select.Option key={item.id} value={item.nameEnglish}>
-                                    {item.nameEnglish}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </td>
+        {activeCategory === 'Labour' && (
+          <div className="card">
+            <div className="card-body p-0">
+              <div className="overflow-x-hidden">
+                <table className="table table-auto w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-center px-3 py-3 w-[10%]">#</th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="LABOUR.LABOUR_TYPE" defaultMessage="Labour Type" /></th>
+                      <th className="px-3 py-3 w-[5%]"><FormattedMessage id="COMMON.CONTACT" defaultMessage="Contact"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="LABOUR.LABOUR_SHIFT" defaultMessage="Labour Shift" /></th>
+                      <th className="px-3 py-3 w-[19%]"><FormattedMessage id="COMMON.DATE_TIME" defaultMessage="Date & Time" /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.PRICE" defaultMessage="Price"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.QTY" defaultMessage="Qty"  /></th>
+                      <th className="px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price"  /></th>
+                      <th className="px-3 py-3 w-[14%]"><FormattedMessage id="COMMON.PLACE" defaultMessage="Place"  /></th>
+                      <th className="text-center px-3 py-3 w-[10%]"><FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action"  /></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {labourData
+                      .filter((row) => {
+                        if (!row.labourType) return true;
+                        if (!searchTerm.trim()) return true;
+                        return row.labourType.toLowerCase().includes(searchTerm.toLowerCase());
+                      })
+                      .map((row, index) => (
+                        <tr key={row.id} className="border-t">
+                          <td className="text-center px-3 py-2">{index + 1}.</td>
+                          <td className="px-3 py-2">
+                            <Select
+                              className="custom-select-sm"
+                              showSearch
+                              placeholder={
+  intl.formatMessage({
+    id: "COMMON.SELECT_LABOUR_TYPE",
+    defaultMessage: "Select Labour Type",
+  })
+}
+                              value={row.labourType || undefined}
+                              onChange={(value) => {
+                                const selectedCategory = labourCategories.find(
+                                  (c) => c.nameEnglish === value
+                                );
+                                setLabourData((prev) =>
+                                  prev.map((r) =>
+                                    r.id === row.id ? { ...r, labourType: value, contact: "" } : r
+                                  )
+                                );
+                                const matchingContacts = allContacts[selectedCategory?.id] || [];
+                                setFilteredContacts((prev) => ({
+                                  ...prev,
+                                  [row.id]: matchingContacts,
+                                }));
+                              }}
+                              style={{ width: "100%" }}
+                            >
+                              {labourCategories.map((item) => (
+                                <Select.Option key={item.id} value={item.nameEnglish}>
+                                  {item.nameEnglish}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </td>
 
-                            <td className="px-3 py-2">
-                              <Select
-                                className="custom-select-sm"
-                                showSearch
-                                placeholder="Select Contact"
-                                value={row.contact || undefined}
-                                onChange={(value) =>
-                                  setLabourData((prev) =>
-                                    prev.map((r) =>
-                                      r.id === row.id ? { ...r, contact: value } : r
-                                    )
+                          <td className="px-3 py-2">
+                            <Select
+                              className="custom-select-sm"
+                              showSearch
+                              placeholder={intl.formatMessage({
+  id: "COMMON.SELECT_CONTACT",
+  defaultMessage: "Select Contact",
+})}
+
+                              value={row.contact || undefined}
+                              onChange={(value) =>
+                                setLabourData((prev) =>
+                                  prev.map((r) =>
+                                    r.id === row.id ? { ...r, contact: value } : r
+                                  )
+                                )
+                              }
+                              style={{ width: "100%" }}
+                            >
+                              {(filteredContacts[row.id] || []).map((c) => (
+                                <Select.Option key={c.id} value={c.nameEnglish}>
+                                  {c.nameEnglish}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </td>
+                          <td className="px-3 py-2">
+                            <select className="select select-sm w-full">
+                              <option>
+  <FormattedMessage id="COMMON.MORNING_SHIFT" defaultMessage="Morning Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.EVENING_SHIFT" defaultMessage="Evening Shift" />
+</option>
+<option>
+  <FormattedMessage id="COMMON.FULL_DAY" defaultMessage="Full Day" />
+</option>
+
+                            </select>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <DatePicker
+                                className="input input-sm w-full"
+                                format="DD/MM/YYYY hh:mm A"
+                                showTime={{ use12Hours: true, format: "hh:mm A" }}
+                                value={
+                                  row.dateTime
+                                    ? dayjs(row.dateTime, "DD/MM/YYYY hh:mm A")
+                                    : eventData?.eventStartDateTime
+                                    ? dayjs(eventData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
+                                    : null
+                                }
+                                onChange={(date) =>
+                                  handleRowChange(
+                                    row.id,
+                                    "dateTime",
+                                    date ? date.format("DD/MM/YYYY hh:mm A") : ""
                                   )
                                 }
-                                style={{ width: "100%" }}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                              placeholder={intl.formatMessage({
+  id: "COMMON.PRICE",
+  defaultMessage: "Price",
+})}
+
+                              value={row.price || ""}
+                              onChange={(e) => handleRowChange(row.id, "price", e.target.value)}
+                            />
+                          </td>
+
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                             placeholder={intl.formatMessage({
+  id: "COMMON.QTY",
+  defaultMessage: "Qty",
+})}
+
+                              value={row.quantity || ""}
+                              onChange={(e) => handleRowChange(row.id, "quantity", e.target.value)}
+                            />
+                          </td>
+
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
+                              placeholder={intl.formatMessage({
+  id: "COMMON.TOTAL",
+  defaultMessage: "Total",
+})}
+
+                              value={row.total || ""}
+                              readOnly
+                            />
+                          </td>
+
+                          <td className="px-3 py-2">
+                            <select className="select select-sm w-full">
+                              <option >
+  <FormattedMessage id="COMMON.AT_VENUE" defaultMessage="At Venue" />
+</option>
+<option >
+  <FormattedMessage id="COMMON.AT_GODOWN" defaultMessage="At Godown" />
+</option>
+
+                            </select>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center justify-center gap-1">
+                              {/* ✅ Opens Labour Detail Sidebar */}
+                              <button 
+                                className="btn btn-sm btn-icon btn-clear" 
+                                onClick={handleLabourDetailView}
+                                title={intl.formatMessage({
+  id: "COMMON.VIEW_DETAILS",
+  defaultMessage: "View Details",
+})}
+
                               >
-                                {(filteredContacts[row.id] || []).map((c) => (
-                                  <Select.Option key={c.id} value={c.nameEnglish}>
-                                    {c.nameEnglish}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </td>
-                            <td className="px-3 py-2">
-                              <select className="select select-sm w-full">
-                                <option>Morning Shift</option>
-                                <option>Evening Shift</option>
-                                <option>Full Day</option>
-                              </select>
-                            </td>
-                            <td className="px-3 py-2">
-                              <div className="flex items-center gap-2">
-                                <DatePicker
-                                  className="input input-sm w-full"
-                                  format="DD/MM/YYYY hh:mm A"
-                                  showTime={{ use12Hours: true, format: "hh:mm A" }}
-                                  value={
-                                    row.dateTime
-                                      ? dayjs(row.dateTime, "DD/MM/YYYY hh:mm A")
-                                      : eventData?.eventStartDateTime
-                                      ? dayjs(eventData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
-                                      : null
-                                  }
-                                  onChange={(date) =>
-                                    handleRowChange(
-                                      row.id,
-                                      "dateTime",
-                                      date ? date.format("DD/MM/YYYY hh:mm A") : ""
-                                    )
-                                  }
-                                />
-                              </div>
-                            </td>
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder="Price"
-                                value={row.price || ""}
-                                onChange={(e) => handleRowChange(row.id, "price", e.target.value)}
-                              />
-                            </td>
+                                <i className="ki-filled ki-eye text-success"></i>
+                              </button>
+                              <button
+                                className="btn btn-sm btn-icon btn-clear"
+                                title={intl.formatMessage({
+  id: "COMMON.ADD_NOTES",
+  defaultMessage: "Add Notes",
+})}
 
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder="Qty"
-                                value={row.quantity || ""}
-                                onChange={(e) => handleRowChange(row.id, "quantity", e.target.value)}
-                              />
-                            </td>
-
-                            <td className="px-3 py-2">
-                              <input
-                                type="number"
-                                className="input input-sm w-full border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
-                                placeholder="Total"
-                                value={row.total || ""}
-                                readOnly
-                              />
-                            </td>
-
-                            <td className="px-3 py-2">
-                              <select className="select select-sm w-full">
-                                <option>At Venue</option>
-                                <option>At Godown</option>
-                              </select>
-                            </td>
-                            <td className="px-3 py-2">
-                              <div className="flex items-center justify-center gap-1">
-                                <button 
-                                  className="btn btn-sm btn-icon btn-clear" 
-                                  onClick={handleLabourDetailView}
-                                  title="View Details"
-                                >
-                                  <i className="ki-filled ki-eye text-success"></i>
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-icon btn-clear"
-                                  title="Add Notes"
-                                  onClick={() => setIsNotesOpen(true)}
-                                >
-                                  <i className="ki-filled ki-notepad text-primary"></i>
-                                </button>
+                                onClick={() => setIsNotesOpen(true)}
+                              >
+                                <i className="ki-filled ki-notepad text-primary"></i>
+                              </button>
 
                                 <button className="btn btn-sm btn-icon btn-clear">
                                   <i className="ki-filled ki-whatsapp text-green-600"></i>
@@ -816,18 +864,22 @@
                   </table>
                 </div>
 
-                <div className="p-4 border-t">
-                  <button
-                    onClick={addLabourRow}
-                    className="btn btn-primary btn-sm"
-                  >
-                    <i className="ki-filled ki-plus"></i>
-                    Add Another Labour Type
-                  </button>
-                </div>
+              <div className="p-4 border-t">
+                <button
+                  onClick={addLabourRow}
+                  className="btn btn-primary btn-sm"
+                >
+                  <i className="ki-filled ki-plus"></i>
+                  <FormattedMessage
+  id="COMMON.ADD_ANOTHER_LABOUR_TYPE"
+  defaultMessage="Add Another Labour Type"
+/>
+
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
       
 

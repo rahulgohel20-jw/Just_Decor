@@ -9,9 +9,13 @@ import {
   getUserById,
   updateusermaster,
 } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+
 
 const LOCAL_STORAGE_KEY = "userProfileForm";
 
@@ -37,6 +41,9 @@ const getPlanAndRoleFromLocalStorage = () => {
 };
 
 const ProfileForm = ({ isEditing, onSaveSuccess }) => {
+
+  const intl = useIntl();
+
   const [form] = Form.useForm();
   const userMasterId = getUserIdFromLocalStorage();
 
@@ -255,95 +262,95 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Form.Item
-          label="First Name"
+          label={<FormattedMessage id="COMMON.FIRST_NAME" defaultMessage="First Name" />}
           name="firstName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_FIRST_NAME", defaultMessage: "Enter your first name.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label="last Name"
+          label={<FormattedMessage id="COMMON.LAST_NAME" defaultMessage="Last Name" />}
           name="lastName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_LAST_NAME", defaultMessage: "Enter your last name.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label="Email ID"
+          label={<FormattedMessage id="COMMON.EMAIL" defaultMessage="Email" />}
           name="email"
           rules={[{ required: true, type: "email" }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_EMAIL", defaultMessage: "Enter your email.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
         <Form.Item
-          label="Phone Number"
+          label={<FormattedMessage id="COMMON.PHONE_NUMBER" defaultMessage="Phone Number" />}
           name="phone"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_PHONE_NUMBER", defaultMessage: "Enter your phone number.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label="Company Name"
+          label={<FormattedMessage id="COMMON.COMPANY_NAME" defaultMessage="Company Name" />}
           name="companyName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_COMPANY_NAME", defaultMessage: "Enter your company name.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
         <Form.Item
-          label="Company Email ID"
+          label={<FormattedMessage id="COMMON.COMPANY_EMAIL" defaultMessage="Company Email ID" />}
           name="companyEmail"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_COMPANY_EMAIL", defaultMessage: "Enter your company email.." })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label="Office Number"
+          label={<FormattedMessage id="COMMON.OFFICE_PHONE" defaultMessage="Office Number" />}
           name="officePhone"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
-            placeholder="Enter your full name.."
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_OFFICE_PHONE", defaultMessage: "Enter your office number.." })}
             readOnly={!isEditing}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
-        <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+        <Form.Item label={<FormattedMessage id="COMMON.ADDRESS" defaultMessage="Address" />} name="address" rules={[{ required: true }]}>
           <Input
             size="large"
-            placeholder="Enter your address"
+            placeholder={intl.formatMessage({ id: "COMMON.ENTER_ADDRESS", defaultMessage: "Enter your address" })}
             readOnly={!isEditing}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
@@ -352,7 +359,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {renderLocationSelect(
-          "Country ",
+          <FormattedMessage id="COMMON.COUNTRY" defaultMessage="Country" />,
           "country",
           countries,
           "country",
@@ -367,7 +374,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           }
         )}
         {renderLocationSelect(
-          "State ",
+          <FormattedMessage id="COMMON.STATE" defaultMessage="State" />,
           "state",
           states,
           "state",
@@ -378,7 +385,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           }
         )}
         {renderLocationSelect(
-          "City ",
+          <FormattedMessage id="COMMON.CITY" defaultMessage="City" />,
           "city",
           cities,
           "city",
@@ -387,12 +394,12 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
         )}
       </div>
 
-      <Form.Item label="Bio (optional)" name="bio" className="mb-9">
+      <Form.Item label={<FormattedMessage id="COMMON.BIO" defaultMessage="Bio (optional)" />} name="bio" className="mb-9">
         <TextArea
           rows={4}
           readOnly={!isEditing}
           className="rounded-xl bg-[#F2F7FB] border border-[#E6ECF1]"
-          placeholder=" "
+          placeholder={intl.formatMessage({ id: "COMMON.ENTER_BIO", defaultMessage: "Enter your bio..." })}
         />
       </Form.Item>
 

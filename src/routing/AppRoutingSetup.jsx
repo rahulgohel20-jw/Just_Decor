@@ -283,7 +283,7 @@ const AppRoutingSetup = () => {
             path="/sales/invoice-dashboard"
             element={<InvoiceDashboard />}
           />
-          <Route path="/sales/invoice-list" element={<InvoiceList />} />
+          <Route path="/sales/invoice-list/:PartyId/:EventId" element={<InvoiceList />} />
           <Route path="/sales/add-invoice" element={<AddInvoicePage />} />
           <Route path="/quotation-dashboard" element={<QuotationDashboard />} />
           <Route path="/price" element={<Priceplan />} />

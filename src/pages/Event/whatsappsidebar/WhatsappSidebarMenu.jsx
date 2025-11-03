@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const WhatsAppIcon = () => (
   <svg
@@ -31,6 +32,8 @@ const BaseSelect = (props) => (
 
 export default function SidebarModal({ open, onClose }) {
   const [rowCount, setRowCount] = useState(8);
+
+  const intl = useIntl();
 
   useEffect(() => {
     if (!open) return;
@@ -66,14 +69,14 @@ export default function SidebarModal({ open, onClose }) {
             >
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Send SMS
+                  <FormattedMessage id="SIDEBAR_MODAL.SEND_SMS" defaultMessage="Send SMS" />
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                   autoFocus
                 >
-                  Close
+                  <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
                 </button>
               </div>
 
@@ -82,7 +85,7 @@ export default function SidebarModal({ open, onClose }) {
                   <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                   <input
                     className="input pl-8"
-                    placeholder="Search item"
+                    placeholder={intl.formatMessage({ id: "COMMON.SEARCH", defaultMessage: "Search..." })}
                     type="text"
                   />
                 </div>
@@ -90,12 +93,12 @@ export default function SidebarModal({ open, onClose }) {
                 <div className=" rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* header */}
                   <div className="grid grid-cols-[64px_2fr_1fr_1fr_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
-                    <div>No.</div>
-                    <div className="ml-3">Supplier</div>
-                    <div>Date</div>
-                    <div>Mobile No</div>
-                    <div>Message</div>
-                    <div className="text-center">Action</div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.NO" defaultMessage="No." /></div>
+                    <div className="ml-3"><FormattedMessage id="SIDEBAR_MODAL.SUPPLIER" defaultMessage="Supplier" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.DATE" defaultMessage="Date" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.MOBILE_NO" defaultMessage="Mobile No" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.MESSAGE" defaultMessage="Message" /></div>
+                    <div className="text-center"><FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" /></div>
                   </div>
 
                   {/* rows */}
@@ -139,13 +142,13 @@ export default function SidebarModal({ open, onClose }) {
 
                 <div className="flex items-center justify-between gap-2 mt-3">
                   <button className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50">
-                    Cancel
+                    <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
                   </button>
                   <button
                     className="btn btn-sm btn-primary w-[100px] flex justify-center"
                     title="Share"
                   >
-                    Save
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
                   </button>
                 </div>
               </div>

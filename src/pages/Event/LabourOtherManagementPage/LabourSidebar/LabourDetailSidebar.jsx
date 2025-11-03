@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input, DatePicker, Spin, message } from "antd";
 import dayjs from "dayjs";
+import { FormattedMessage, useIntl } from "react-intl";
 import { GetEventLabourBySupplier } from "@/services/apiServices";
 
 const LabourDetailSidebar = ({ isOpen, onClose, eventFunctionId, eventId, partyId }) => {
@@ -110,7 +111,8 @@ const LabourDetailSidebar = ({ isOpen, onClose, eventFunctionId, eventId, partyI
     }
   };
 
-  // 🔹 Fetch data when sidebar opens
+  const intl = useIntl();
+
   useEffect(() => {
     if (isOpen) {
       console.log("📋 Sidebar opened with Props:", { 
@@ -161,16 +163,22 @@ const LabourDetailSidebar = ({ isOpen, onClose, eventFunctionId, eventId, partyI
               {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Labour Overview
+                  <FormattedMessage
+                    id="COMMON.LABOUR_OVERVIEW"
+                    defaultMessage="Labour Overview"
+                  />
                   <p className="text-gray-500 text-sm mt-3">
-                    Review and manage your labor details
+                    <FormattedMessage
+                      id="COMMON.REVIEW_MANAGE_LABOR_DETAILS"
+                      defaultMessage="Review and manage your labor details"
+                    />
                   </p>
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                 >
-                  Close
+                  <FormattedMessage id="COMMON_CLOSE" defaultMessage="Close" /> 
                 </button>
               </div>
 
@@ -184,33 +192,59 @@ const LabourDetailSidebar = ({ isOpen, onClose, eventFunctionId, eventId, partyI
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     {/* Header Row */}
                     <div className="grid grid-cols-9 text-sm font-semibold text-gray-700 border-b pb-3 mb-3">
-                      <div className="col-span-3">Labour Details</div>
+                      <div className="col-span-3">
+                        <FormattedMessage id="COMMON.LABOUR_DETAILS" defaultMessage="Labour Details" />
+                      </div>
                       <div className="col-span-6 text-center">
-                        Shift Details
+                        <FormattedMessage id="COMMON.SHIFT_DETAILS" defaultMessage="Shift Details" />
                       </div>
                     </div>
 
-                    {/* Sub Header */}
+                    {/* Sub Header Row */}
                     <div className="grid grid-cols-9 text-xs font-bold text-dark border-b pb-2 mb-3">
-                      <div className="text-center">Labour Type</div>
-                      <div className="text-center">Contact</div>
-                      <div className="text-center">Price</div>
-                      <div className="text-center col-span-2">Morning</div>
-                      <div className="text-center col-span-2">Evening</div>
-                      <div className="text-center col-span-2">Night</div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.LABOUR_TYPE" defaultMessage="Labour Type" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.CONTACT" defaultMessage="Contact" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
+                      </div>
+                      <div className="text-center col-span-2">
+                        <FormattedMessage id="COMMON.MORNING" defaultMessage="Morning" />
+                      </div>
+                      <div className="text-center col-span-2">
+                        <FormattedMessage id="COMMON.EVENING" defaultMessage="Evening" />
+                      </div>
+                      <div className="text-center col-span-2">
+                        <FormattedMessage id="COMMON.NIGHT" defaultMessage="Night" />
+                      </div>
                     </div>
 
-                    {/* Sub-sub header */}
+                    {/* Sub-sub header for Date / Qty */}
                     <div className="grid grid-cols-9 text-[11px] text-gray-900 uppercase tracking-wide border-b pb-2 mb-3">
                       <div></div>
                       <div></div>
                       <div></div>
-                      <div className="text-center">Date</div>
-                      <div className="text-center">Qty</div>
-                      <div className="text-center">Date</div>
-                      <div className="text-center">Qty</div>
-                      <div className="text-center">Date</div>
-                      <div className="text-center">Qty</div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />
+                      </div>
+                      <div className="text-center">
+                        <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+                      </div>
                     </div>
 
                     {/* Data Row */}
@@ -314,17 +348,13 @@ const LabourDetailSidebar = ({ isOpen, onClose, eventFunctionId, eventId, partyI
                     <div className="flex justify-end items-center gap-6 mt-6 border-t pt-4">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-gray-700">
-                          Total Qty.
+                          <FormattedMessage id="COMMON.TOTAL_QTY" defaultMessage="Total Qty." />
                         </span>
-                        <Input
-                          value={totalQty}
-                          readOnly
-                          className="w-20 text-center"
-                        />
+                        <Input value={totalQty} readOnly className="w-20 text-center" />
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-gray-700">
-                          Total Price
+                          <FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" />
                         </span>
                         <Input
                           value={totalPrice.toLocaleString()}

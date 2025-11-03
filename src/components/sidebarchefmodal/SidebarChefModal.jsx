@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+import { Form } from "antd";
 
 const WhatsAppIcon = () => (
   <svg
@@ -42,6 +44,7 @@ export default function SidebarChefModal({
   const [contactNames, setContactNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [extraRows, setExtraRows] = useState([]);
+  const intl = useIntl();
 
   useEffect(() => {
     const FetchDetails = async () => {
@@ -246,14 +249,14 @@ export default function SidebarChefModal({
               {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="text-[18px] font-semibold text-gray-800">
-                  Agency Order - {row?.itemName}
+                  <FormattedMessage id="SIDEBAR_MODAL.AGENCY_ORDER" defaultMessage="Agency Order - " /> {row?.itemName}
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                   autoFocus
                 >
-                  Close
+                  <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
                 </button>
               </div>
 
@@ -269,7 +272,7 @@ export default function SidebarChefModal({
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col gap-1">
                         <div className="text-[12px] text-gray-600">
-                          Date and Time No.
+                          <FormattedMessage id="SIDEBAR_MODAL.DATE_TIME" defaultMessage="Date and Time No." />
                         </div>
                         <div className="flex gap-3">
                           <input
@@ -283,7 +286,7 @@ export default function SidebarChefModal({
                     </div>
                     <div className="flex items-center gap-2 mt-6">
                       <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
-                        Chef Labour
+                        <FormattedMessage id="SIDEBAR_MODAL.CHEF_LABOUR" defaultMessage="Chef Labour" />
                       </button>
                     </div>
                   </div>
@@ -292,7 +295,7 @@ export default function SidebarChefModal({
                       className="btn btn-sm btn-primary w-[100px] flex justify-center"
                       onClick={handleAddRow}
                     >
-                      Add
+                      <FormattedMessage id="SIDEBAR_MODAL.ADD" defaultMessage="Add" />
                     </button>
                   </div>
                 </div>
@@ -301,18 +304,18 @@ export default function SidebarChefModal({
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   {/* Header */}
                   <div className="grid grid-cols-[64px_1fr_1fr_1fr_1fr_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
-                    <div>No.</div>
-                    <div className="ml-2">Contact Name</div>
-                    <div>Type</div>
-                    <div>Quantity</div>
-                    <div>Price</div>
-                    <div>Total Price</div>
-                    <div className="text-center">Action</div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.NO" defaultMessage="No." /></div>
+                    <div className="ml-2"><FormattedMessage id="SIDEBAR_MODAL.CONTACT_NAME" defaultMessage="Contact Name" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.TYPE" defaultMessage="Type" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.QUANTITY" defaultMessage="Quantity" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.PRICE" defaultMessage="Price" /></div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.TOTAL_PRICE" defaultMessage="Total Price" /></div>
+                    <div className="text-center"><FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" /></div>
                   </div>
 
                   {loading ? (
                     <div className="flex justify-center items-center h-32 text-gray-500 text-sm">
-                      Loading data...
+                      <FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." />
                     </div>
                   ) : (
                     (() => {
@@ -333,7 +336,7 @@ export default function SidebarChefModal({
                             <div className="text-[13px] text-gray-700">1.</div>
                             <div>
                               <BaseSelect defaultValue="">
-                                <option value="">Select Name</option>
+                                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_NAME" defaultMessage="Select Name" /></option>
                                 {contactNames.map((c) => (
                                   <option key={c.id} value={c.id}>
                                     {c.nameEnglish}
@@ -343,30 +346,30 @@ export default function SidebarChefModal({
                             </div>
                             <div>
                               <BaseSelect defaultValue="">
-                                <option value="">Select Options</option>
-                                <option>Counter Wise</option>
-                                <option>Day Wise</option>
-                                <option>Plate Wise</option>
+                                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_OPTIONS" defaultMessage="Select Options" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.COUNTER_WISE" defaultMessage="Counter Wise" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.DAY_WISE" defaultMessage="Day Wise" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.PLATE_WISE" defaultMessage="Plate Wise" /></option>
                               </BaseSelect>
                             </div>
                             <div className="flex gap-2">
-                              <BaseInput type="number" placeholder="Counter" />
-                              <BaseInput type="number" placeholder="Helper" />
+                              <BaseInput type="number" placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER", defaultMessage: "Counter" })} />
+                              <BaseInput type="number" placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER", defaultMessage: "Helper" })} />
                             </div>
                             <div className="flex gap-2">
                               <BaseInput
                                 type="number"
-                                placeholder="Counter Price"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER_PRICE", defaultMessage: "Counter Price" })}
                               />
                               <BaseInput
                                 type="number"
-                                placeholder="Helper Price"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER_PRICE", defaultMessage: "Helper Price" })}
                               />
                             </div>
                             <div>
                               <BaseInput
                                 type="number"
-                                placeholder="Total"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.TOTAL", defaultMessage: "Total" })}
                                 readOnly
                               />
                             </div>
@@ -403,7 +406,7 @@ export default function SidebarChefModal({
                                   )
                                 }
                               >
-                                <option value="">Select Name</option>
+                                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_NAME" defaultMessage="Select Name" /></option>
                                 {contactNames.map((c) => (
                                   <option key={c.id} value={c.id}>
                                     {c.nameEnglish}
@@ -422,16 +425,16 @@ export default function SidebarChefModal({
                                   )
                                 }
                               >
-                                <option value="">Select Options</option>
-                                <option>Counter Wise</option>
-                                <option>Day Wise</option>
-                                <option>Plate Wise</option>
+                                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_OPTIONS" defaultMessage="Select Options" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.COUNTER_WISE" defaultMessage="Counter Wise" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.DAY_WISE" defaultMessage="Day Wise" /></option>
+                                <option><FormattedMessage id="SIDEBAR_MODAL.PLATE_WISE" defaultMessage="Plate Wise" /></option>
                               </BaseSelect>
                             </div>
                             <div className="flex gap-2">
                               <BaseInput
                                 type="number"
-                                placeholder="Counter"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER", defaultMessage: "Counter" })}
                                 value={alloc.counterQuantity || ""}
                                 onChange={(e) =>
                                   handleExistingRowChange(
@@ -443,7 +446,7 @@ export default function SidebarChefModal({
                               />
                               <BaseInput
                                 type="number"
-                                placeholder="Helper"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER", defaultMessage: "Helper" })}
                                 value={alloc.helperQuantity || ""}
                                 onChange={(e) =>
                                   handleExistingRowChange(
@@ -457,7 +460,7 @@ export default function SidebarChefModal({
                             <div className="flex gap-2">
                               <BaseInput
                                 type="number"
-                                placeholder="Counter"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER", defaultMessage: "Counter" })}
                                 value={alloc.counterPrice || ""}
                                 onChange={(e) =>
                                   handleExistingRowChange(
@@ -469,7 +472,7 @@ export default function SidebarChefModal({
                               />
                               <BaseInput
                                 type="number"
-                                placeholder="Helper"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER", defaultMessage: "Helper" })}
                                 value={alloc.helperPrice || ""}
                                 onChange={(e) =>
                                   handleExistingRowChange(
@@ -483,7 +486,7 @@ export default function SidebarChefModal({
                             <div>
                               <BaseInput
                                 type="number"
-                                placeholder="Total"
+                                placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.TOTAL", defaultMessage: "Total" })}
                                 value={alloc.totalPrice || ""}
                                 readOnly
                               />
@@ -534,7 +537,7 @@ export default function SidebarChefModal({
                             handleExtraRowChange(idx, "partyId", e.target.value)
                           }
                         >
-                          <option value="">Select Name</option>
+                          <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_NAME" defaultMessage="Select Name" /></option>
                           {contactNames.map((c) => (
                             <option key={c.id} value={c.id}>
                               {c.nameEnglish}
@@ -553,16 +556,16 @@ export default function SidebarChefModal({
                             )
                           }
                         >
-                          <option value="">Select Options</option>
-                          <option>Counter Wise</option>
-                          <option>Day Wise</option>
-                          <option>Plate Wise</option>
+                          <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_OPTIONS" defaultMessage="Select Options" /></option>
+                          <option><FormattedMessage id="SIDEBAR_MODAL.COUNTER_WISE" defaultMessage="Counter Wise" /></option>
+                          <option><FormattedMessage id="SIDEBAR_MODAL.DAY_WISE" defaultMessage="Day Wise" /></option>
+                          <option><FormattedMessage id="SIDEBAR_MODAL.PLATE_WISE" defaultMessage="Plate Wise" /></option>
                         </BaseSelect>
                       </div>
                       <div className="flex gap-2">
                         <BaseInput
                           type="number"
-                          placeholder="Counter"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER", defaultMessage: "Counter" })}
                           value={extraRow.counterQuantity}
                           onChange={(e) =>
                             handleExtraRowChange(
@@ -574,7 +577,7 @@ export default function SidebarChefModal({
                         />
                         <BaseInput
                           type="number"
-                          placeholder="Helper"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER", defaultMessage: "Helper" })}
                           value={extraRow.helperQuantity}
                           onChange={(e) =>
                             handleExtraRowChange(
@@ -588,7 +591,7 @@ export default function SidebarChefModal({
                       <div className="flex gap-2">
                         <BaseInput
                           type="number"
-                          placeholder="Counter Price"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.COUNTER_PRICE", defaultMessage: "Counter Price" })}
                           value={extraRow.counterPrice}
                           onChange={(e) =>
                             handleExtraRowChange(
@@ -600,7 +603,7 @@ export default function SidebarChefModal({
                         />
                         <BaseInput
                           type="number"
-                          placeholder="Helper Price"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.HELPER_PRICE", defaultMessage: "Helper Price" })}
                           value={extraRow.helperPrice}
                           onChange={(e) =>
                             handleExtraRowChange(
@@ -614,7 +617,7 @@ export default function SidebarChefModal({
                       <div>
                         <BaseInput
                           type="number"
-                          placeholder="Total"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.TOTAL", defaultMessage: "Total" })}
                           value={extraRow.totalPrice}
                           readOnly
                         />
@@ -646,13 +649,13 @@ export default function SidebarChefModal({
                     className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
                     onClick={onClose}
                   >
-                    Cancel
+                    <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
                   </button>
                   <button
                     className="btn btn-sm btn-primary w-[100px] flex justify-center"
                     onClick={handleSave}
                   >
-                    Save
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
                   </button>
                 </div>
               </div>

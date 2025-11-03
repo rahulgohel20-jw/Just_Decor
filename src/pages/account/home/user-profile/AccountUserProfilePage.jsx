@@ -7,11 +7,13 @@ import Log from "@/components/profile/log";
 import clsx from "clsx";
 import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import { toAbsoluteUrl } from "@/utils";
+import { FormattedMessage } from "react-intl";
+import { Form } from "antd";
 
 const TABS = [
-  { key: "account", title: "Profile" },
-  { key: "security", title: "Security" },
-  { key: "logs", title: "User Log" },
+  { key: "account", title: <FormattedMessage id="PROFILE.PROFILE" defaultMessage="Profile" /> },
+  { key: "security", title: <FormattedMessage id="PROFILE.SECURITY" defaultMessage="Security" /> },
+  { key: "logs", title: <FormattedMessage id="PROFILE.LOGS" defaultMessage="User Log" /> },
 ];
 
 const AccountUserProfilePage = () => {
@@ -47,7 +49,7 @@ const AccountUserProfilePage = () => {
     <Fragment>
       <Container>
         <div className="mb-3">
-          <Breadcrumbs items={[{ title: "User Profile" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="PROFILE.USER_PROFILE" defaultMessage="User Profile" /> }]} />
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -65,7 +67,7 @@ const AccountUserProfilePage = () => {
                     "—"}{" "}
                   {JSON.parse(localStorage.getItem("userData"))?.lastName ?? ""}
                 </h3>
-                <p className="text-sm text-[#B5B5C3]">Owner</p>
+                <p className="text-sm text-[#B5B5C3]"><FormattedMessage id="PROFILE.USER_ROLE" defaultMessage="Owner" /></p>
               </div>
 
               <div className="grid grid-cols-3 gap-3 mt-6 mb-6">
@@ -78,7 +80,7 @@ const AccountUserProfilePage = () => {
                       alt="profile"
                     />
                   </div>
-                  <div className="text-xs text-gray-500">Earnings</div>
+                  <div className="text-xs text-gray-500"><FormattedMessage id="PROFILE.USER_EARNINGS" defaultMessage="Earnings" /></div>
                 </div>
                 <div className="rounded-xl border border-[#EEF2F6] bg-white p-4 text-center">
                   <div className=" flex gap-2  text-base font-semibold mb-2">
@@ -89,7 +91,7 @@ const AccountUserProfilePage = () => {
                       alt="profile"
                     />
                   </div>
-                  <div className="  text-xs text-gray-500">Events</div>
+                  <div className="  text-xs text-gray-500"><FormattedMessage id="PROFILE.USER_EVENTS" defaultMessage="Events" /></div>
                 </div>
                 <div className="rounded-xl border border-[#EEF2F6] bg-white p-4 text-center">
                   <div className=" flex gap-2 text-base font-semibold mb-2">
@@ -100,28 +102,29 @@ const AccountUserProfilePage = () => {
                       alt="profile"
                     />
                   </div>
-                  <div className="text-xs text-gray-500">Hours</div>
+                  <div className="text-xs text-gray-500"><FormattedMessage id="PROFILE.USER_HOURS" defaultMessage="Hours" /></div>
                 </div>
               </div>
 
               <hr className="border-2 border-dotted" />
               <div className=" mt-1 rounded-2xl  bg-white">
                 <button className="w-full flex items-center justify-between px-3 py-2">
-                  <span className="text-base  text-[#0F172A]">Details</span>
+                  <span className="text-base  text-[#0F172A]"><FormattedMessage id="PROFILE.DETAILS" defaultMessage="Details" /></span>
                 </button>
                 <div className="px-5 pb-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="w-[200px]">
                       <span className="text-sm bg-primary text-white p-2 rounded-2xl">
-                        Lite Version
+                        <FormattedMessage id="PROFILE.LITE_VERSION" defaultMessage="Lite Version" />
                       </span>
                     </div>
                     <div className="flex flex-col w-[200px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
                       <span className="text-xs text-center text-[#005BA8]">
-                        Upgrade Your Plan
+                        <FormattedMessage id="PROFILE.UPGRADE_YOUR_PLAN" defaultMessage="Upgrade Your Plan" />
                       </span>
                       <span className="text-xs text-center">
-                        Go Pro for more Features and better support.
+                        <FormattedMessage id="PROFILE.GO_PRO_DESCRIPTION" defaultMessage="Go Pro for more Features and better support." />
+                        
                       </span>
                       <button
                         className="rounded-full bg-primary text-white text-xs px-3 py-1"
@@ -129,7 +132,7 @@ const AccountUserProfilePage = () => {
                           setPriceModal(true);
                         }}
                       >
-                        Upgrade Now
+                        <FormattedMessage id="PROFILE.UPGRADE_NOW" defaultMessage="Upgrade Now" />
                       </button>
                     </div>
                   </div>
@@ -137,21 +140,21 @@ const AccountUserProfilePage = () => {
                 <hr className="border-2 border-dotted mb-4" />
                 <div className="px-5 pb-5 space-y-4">
                   <div>
-                    <div className="text-base text-black">Account ID</div>
+                    <div className="text-base text-black"><FormattedMessage id="PROFILE.ACCOUNT_ID" defaultMessage="Account ID" /></div>
                     <div className="text-sm text-[#B5B5C3]">ID-45453423</div>
                   </div>
                   <div>
-                    <div className="text-base  text-black">Company Address</div>
+                    <div className="text-base  text-black"><FormattedMessage id="PROFILE.COMPANY_ADDRESS" defaultMessage="Company Address" /></div>
                     <div className="text-sm text-[#B5B5C3]">
                       101 Collin Street, Gujarat 3000 VIC Ahmedabad
                     </div>
                   </div>
                   <div>
-                    <div className="text-base  text-black">Language</div>
+                    <div className="text-base  text-black"><FormattedMessage id="PROFILE.LANGUAGE" defaultMessage="Language" /></div>
                     <div className="text-sm text-[#B5B5C3]">English</div>
                   </div>
                   <div>
-                    <div className="text-base  text-black">GST No</div>
+                    <div className="text-base  text-black"><FormattedMessage id="PROFILE.GST_NO" defaultMessage="GST No" /></div>
                     <div className="text-sm text-[#B5B5C3]">TX-8674</div>
                   </div>
                 </div>
@@ -188,14 +191,14 @@ const AccountUserProfilePage = () => {
                     className="rounded-md bg-primary text-white text-sm px-4 py-2"
                     onClick={handleSave}
                   >
-                    Save
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
                   </button>
                 ) : (
                   <button
                     className="rounded-md bg-[#EDF2F7] text-primary text-sm px-4 py-2"
                     onClick={() => setIsEditing(true)}
                   >
-                    Edit
+                    <FormattedMessage id="COMMON.EDIT" defaultMessage="Edit" />
                   </button>
                 )}
               </div>
@@ -205,6 +208,7 @@ const AccountUserProfilePage = () => {
           </section>
         </div>
 
+        
       </Container>
     </Fragment>
   );

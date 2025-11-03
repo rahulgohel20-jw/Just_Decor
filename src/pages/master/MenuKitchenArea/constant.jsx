@@ -1,9 +1,10 @@
 import { Tooltip, Popconfirm, message } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete, onToggleStatus) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -11,7 +12,7 @@ export const columns = (onEdit, onDelete, onToggleStatus) => [
   },
   {
     accessorKey: "category",
-    header: "Name",
+    header: <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -19,7 +20,7 @@ export const columns = (onEdit, onDelete, onToggleStatus) => [
   },
   {
     accessorKey: "isActive",
-    header: "Status",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {
       const isActive = row.original.isActive; // from formatted data
       return (
@@ -56,7 +57,7 @@ export const columns = (onEdit, onDelete, onToggleStatus) => [
 
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">

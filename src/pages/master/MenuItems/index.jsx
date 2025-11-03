@@ -10,11 +10,17 @@ import {
   updatestatusmneuitem,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+import { Form } from "antd";
+
+
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData?.id;
@@ -118,7 +124,7 @@ const MenuItems = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Menu Items Master" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="MASTER.MENU_ITEMS" defaultMessage="Menu Items Master" /> }]} />
         </div>
 
         {/* filters */}
@@ -128,7 +134,7 @@ const MenuItems = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search item"
+                placeholder={intl.formatMessage({ id: "MASTER.SEARCH_MENU_ITEMS", defaultMessage: "Search Menu Items" })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -142,9 +148,9 @@ const MenuItems = () => {
                 setSelectedMenuItem(null);
                 setIsItemModalOpen(true);
               }}
-              title="Add Item"
+              title={intl.formatMessage({ id: "MASTER.ADD_MENU_ITEM", defaultMessage: "Add Item" })}
             >
-              <i className="ki-filled ki-plus"></i> Add Item
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="MASTER.ADD_MENU_ITEM" defaultMessage="Add Menu Item" />
             </button>
           </div>
         </div>

@@ -112,7 +112,9 @@ const DropdownUser = ({ menuItemRef }) => {
               <MenuIcon>
                 <KeenIcon icon="setting-2" />
               </MenuIcon>
-              <MenuTitle>Settings</MenuTitle>
+              <MenuTitle>
+                <FormattedMessage id="USER.MENU.SETTINGS" defaultMessage="Settings" />
+              </MenuTitle>
             </MenuLink>
           </MenuItem>
 

@@ -1,9 +1,10 @@
-import { Tooltip, Popconfirm, message } from "antd";
+import { Tooltip, Popconfirm, message, Form } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete, onstatus) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -11,7 +12,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "image",
-    header: "Image",
+    header: <FormattedMessage id="COMMON.IMAGE" defaultMessage="Image" />,
     cell: ({ row }) => {
       return (
         <img
@@ -29,7 +30,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
 
   {
     accessorKey: "name",
-    header: "Name",
+    header: <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -37,7 +38,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "category",
-    header: "Menu Item Category",
+    header: <FormattedMessage id="MASTER.MENU_ITEM_CATEGORY" defaultMessage="Menu Item Category" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -45,7 +46,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "priority",
-    header: "Priority",
+    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -53,7 +54,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {
       return (
         <Popconfirm
@@ -83,7 +84,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center  gap-1">

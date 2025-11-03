@@ -10,11 +10,16 @@ import {
   UpdateStatusKitchenArea,
 } from "../../../services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
+
+
 const MenuKitchenArea = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const intl = useIntl();
 
   useEffect(() => {
     FetchCategoryData();
@@ -112,7 +117,7 @@ const MenuKitchenArea = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Kitchen Area" }]} />
+          <Breadcrumbs items={[{ title: <FormattedMessage id="COMMON.KITCHEN_AREA" defaultMessage="Kitchen Area" /> }]} />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -121,7 +126,7 @@ const MenuKitchenArea = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search"
+                placeholder={intl.formatMessage({ id: "COMMON.SEARCH_KITCHEN_AREA", defaultMessage: "Search" })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -137,7 +142,7 @@ const MenuKitchenArea = () => {
               }}
               title="Add Kitchen Area"
             >
-              <i className="ki-filled ki-plus"></i> Add Kitchen Area
+              <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_KITCHEN_AREA" defaultMessage="Add Kitchen Area" />
             </button>
           </div>
         </div>

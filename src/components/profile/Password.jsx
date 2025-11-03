@@ -1,6 +1,7 @@
 import { Input, Button, Form, message } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 import { ChangePassword } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
 
 export default function Password() {
   const [form] = Form.useForm();
@@ -44,10 +45,10 @@ export default function Password() {
       <div className="relative">
         <div className="h-18 flex flex-col rounded-t-lg gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[#505050] text-2xl font-extrabold">Password</span>
+            <span className="text-[#505050] text-2xl font-extrabold"><FormattedMessage id="PROFILE.CHANGE_PASSWORD" defaultMessage="Change Password" /></span>
           </div>
           <span className="text-gray-500 text-sm">
-            Please enter your current password to change your password.
+            <FormattedMessage id="PROFILE.CHANGE_PASSWORD_DESC" defaultMessage="Please enter your current password to change your password." />
           </span>
         </div>
         <div className="border-b"></div>
@@ -63,7 +64,7 @@ export default function Password() {
           <Form.Item
             label={
               <span>
-                Your Password{" "}
+                <FormattedMessage id="PROFILE.CURRENT_PASSWORD" defaultMessage="Current Password" />{" "}
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -80,7 +81,7 @@ export default function Password() {
           <Form.Item
             label={
               <span>
-                New Password{" "}
+                <FormattedMessage id="PROFILE.NEW_PASSWORD" defaultMessage="New Password" />{" "}
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -122,7 +123,7 @@ export default function Password() {
                   <span className={`text-sm transition-colors ${
                     isValid ? 'text-green-600 font-medium' : 'text-gray-500'
                   }`}>
-                    Your new password must be 8 - 12 characters long
+                    <FormattedMessage id="PROFILE.NEW_PASSWORD_REQUIREMENTS" defaultMessage="Your new password must be 8 - 12 characters long" />
                   </span>
                 </div>
               );
@@ -132,7 +133,7 @@ export default function Password() {
           <Form.Item
             label={
               <span>
-                Confirm Password{" "}
+                <FormattedMessage id="PROFILE.CONFIRM_PASSWORD" defaultMessage="Confirm Password" />{" "}
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -177,7 +178,7 @@ export default function Password() {
                   <span className={`text-sm transition-colors ${
                     isMatching ? 'text-green-600 font-medium' : 'text-gray-500'
                   }`}>
-                    Passwords must match
+                    <FormattedMessage id="PROFILE.PASSWORDS_MATCH" defaultMessage="Passwords must match" />
                   </span>
                 </div>
               );
@@ -190,7 +191,7 @@ export default function Password() {
               htmlType="submit"
               className="p-2 bg-[#004986] border-none rounded-md px-8"
             >
-              Save
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
             </Button>
           </Form.Item>
         </Form>

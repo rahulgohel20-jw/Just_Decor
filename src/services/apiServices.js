@@ -768,6 +768,16 @@ export const GetAllInvoice = (id) => {
   return GET(`/invoice/getallbyfilter?userid=${id}`);
 }
 
+export const GeteventInvoicedata = (id) => {
+  return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
+};
+
+export const GetInvoice = (id) => {
+  return GET(`/invoice/getbyeventid?eventId=${id}`);
+};
+
+
+
 
 //  Fetch Event Labour by Supplier
 export const GetEventLabourBySupplier = (eventFunctionId, eventId, partyId) => {

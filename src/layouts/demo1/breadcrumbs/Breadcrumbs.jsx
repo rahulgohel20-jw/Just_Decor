@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Fragment, useState } from "react";
-import { Link } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import { KeenIcon } from "@/components";
 import AddFunctionType from "@/partials/modals/add-function-type/AddFunctionType";
 import { Dropdown, Space } from "antd";
@@ -80,7 +80,7 @@ const Breadcrumbs = ({ items }) => {
       label: (
         <div onClick={() => setisCustomerModal(true)}>
           <i className="ki-filled ki-user me-1.5"></i>
-          Customer
+          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Customers" />
         </div>
       ),
       key: "0",
@@ -88,7 +88,7 @@ const Breadcrumbs = ({ items }) => {
     {
       label: (
         <div onClick={() => setIsEventTypeModalOpen(true)}>
-          <i className="ki-filled ki-bank me-1.5"></i>Event Type
+          <i className="ki-filled ki-bank me-1.5"></i><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_EVENT_TYPE_LABEL" defaultMessage="Event Type" />
         </div>
       ),
       key: "1",
@@ -96,7 +96,7 @@ const Breadcrumbs = ({ items }) => {
     {
       label: (
         <div onClick={() => setIsFunctionModal(true)}>
-          <i className="ki-filled ki-bank me-1.5"></i>Function Type
+          <i className="ki-filled ki-bank me-1.5"></i><FormattedMessage id="COMMON.FUNCTION_TYPE" defaultMessage="Function Type" />
         </div>
       ),
       key: "2",
@@ -104,7 +104,7 @@ const Breadcrumbs = ({ items }) => {
     {
       label: (
         <div onClick={() => setIsMemberModalOpen(true)}>
-          <i className="ki-filled ki-user me-1.5"></i>Manager
+          <i className="ki-filled ki-user me-1.5"></i><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_MANAGER_LABEL" defaultMessage="Manager" />
         </div>
       ),
       key: "3",
@@ -112,7 +112,7 @@ const Breadcrumbs = ({ items }) => {
     {
       label: (
         <div onClick={() => navigate("/quick-custom-package")}>
-          <i className="ki-filled ki-package me-1.5"></i>Custom Package
+          <i className="ki-filled ki-package me-1.5"></i><FormattedMessage id="BREADCRUMBS_CUSTOM_PACKAGE" defaultMessage="Custom Package" />
         </div>
       ),
       key: "4",
@@ -137,7 +137,7 @@ const Breadcrumbs = ({ items }) => {
             <Space>
               <button className="btn btn-sm btn-success" title="Create New">
                 <i className="ki-filled ki-plus"></i>
-                Create New
+                <FormattedMessage id="BREADCRUMBS_CREATE_NEW" defaultMessage="Create New" />
               </button>
             </Space>
           </a>

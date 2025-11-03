@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip, DatePicker } from "antd";
+import { Tooltip, DatePicker, Form } from "antd";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import {
@@ -8,6 +8,8 @@ import {
   GetUnitData,
   SelectedRawMenuallocation,
 } from "@/services/apiServices";
+
+import { FormattedMessage, useIntl } from "react-intl";
 
 const baseField =
   "h-10 w-full rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500";
@@ -32,6 +34,7 @@ export default function CategorySidebarModal({
   const [suppliers, setSuppliers] = useState([]);
   const [unit, setUnit] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
+  const intl = useIntl();
 
   const FetchAllSuplier = async () => {
     try {
@@ -230,7 +233,7 @@ export default function CategorySidebarModal({
                   onClick={onClose}
                   autoFocus
                 >
-                  Close
+                  <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
                 </button>
               </div>
 
@@ -246,7 +249,7 @@ export default function CategorySidebarModal({
                     onClick={handleAddRow}
                     className="h-9 px-4 rounded-md bg-primary text-white text-sm hover:bg-blue-700"
                   >
-                    Add Raw Material
+                    <FormattedMessage id="SIDEBAR_MODAL.ADD_RAW_MATERIAL" defaultMessage="Add Raw Material" />
                   </button>
                 </div>
 
@@ -256,14 +259,14 @@ export default function CategorySidebarModal({
                   <div
                     className={`${GRID} items-center px-5 py-3 bg-[#F9FAFC] text-[13px] font-medium text-gray-900`}
                   >
-                    <div>No.</div>
-                    <div className="pl-6">Item Name</div>
-                    <div className="pl-4">Agency</div>
-                    <div className="pl-4">Date &amp; Time</div>
-                    <div className="pl-3">Weight</div>
-                    <div className="pl-2">Unit</div>
-                    <div className="pl-2">Place</div>
-                    <div className="text-center">Action</div>
+                    <div><FormattedMessage id="SIDEBAR_MODAL.NO" defaultMessage="No." /></div>
+                    <div className="pl-6"><FormattedMessage id="SIDEBAR_MODAL.ITEM_NAME" defaultMessage="Item Name" /></div>
+                    <div className="pl-4"><FormattedMessage id="SIDEBAR_MODAL.AGENCY" defaultMessage="Agency" /></div>
+                    <div className="pl-4"><FormattedMessage id="SIDEBAR_MODAL.DATE_TIME" defaultMessage="Date &amp; Time" /></div>
+                    <div className="pl-3"><FormattedMessage id="SIDEBAR_MODAL.WEIGHT" defaultMessage="Weight" /></div>
+                    <div className="pl-2"><FormattedMessage id="SIDEBAR_MODAL.UNIT" defaultMessage="Unit" /></div>
+                    <div className="pl-2"><FormattedMessage id="SIDEBAR_MODAL.PLACE" defaultMessage="Place" /></div>
+                    <div className="text-center"><FormattedMessage id="SIDEBAR_MODAL.ACTIONS" defaultMessage="Action" /></div>
                   </div>
 
                   {/* Rows */}
@@ -286,7 +289,7 @@ export default function CategorySidebarModal({
                             handleChange(row.id, "agency", e.target.value)
                           }
                         >
-                          <option value="">Select Agency</option>
+                          <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
                           {suppliers.map((s, i) => (
                             <option key={i} value={s.nameEnglish}>
                               {s.nameEnglish}
@@ -314,7 +317,7 @@ export default function CategorySidebarModal({
                           onChange={(e) =>
                             handleChange(row.id, "weight", e.target.value)
                           }
-                          placeholder="Enter weight"
+                          placeholder={intl.formatMessage({ id: "SIDEBAR_MODAL.WEIGHT_PLACEHOLDER", defaultMessage: "Enter weight" })}
                         />
                       </div>
 
@@ -325,7 +328,7 @@ export default function CategorySidebarModal({
                             handleChange(row.id, "unit", e.target.value)
                           }
                         >
-                          <option value="">Select Unit</option>
+                          <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_UNIT" defaultMessage="Select Unit" /></option>
                           {unit.map((u, i) => (
                             <option key={i} value={u.nameEnglish}>
                               {u.nameEnglish}
@@ -341,9 +344,9 @@ export default function CategorySidebarModal({
                             handleChange(row.id, "place", e.target.value)
                           }
                         >
-                          <option value="">Select Place</option>
-                          <option>At Venue</option>
-                          <option>GoDown</option>
+                          <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select Place" /></option>
+                          <option><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
+                          <option><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="GoDown" /></option>
                         </BaseSelect>
                       </div>
 
@@ -367,13 +370,13 @@ export default function CategorySidebarModal({
                     onClick={onClose}
                     className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Cancel
+                    <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
                   </button>
                   <button
                     onClick={handleSubmit}
                     className="h-9 px-4 rounded-md bg-primary text-white text-sm hover:bg-blue-700"
                   >
-                    Save
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
                   </button>
                 </div>
               </div>
