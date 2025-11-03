@@ -754,11 +754,11 @@ export const GetEventLaborDetails = (eventFunctionId, eventId) => {
 };
 
 //get api for general/extra-expense
-export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
-  return GET(
-    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
-  );
-};
+// export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
+//   return GET(
+//     `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+//   );
+// };
 
 export const UpdateInvoice = (id, data) => {
   return PUT(`/invoice/update?id=${id}`, data);
@@ -776,3 +776,32 @@ export const GetInvoice = (id) => {
   return GET(`/invoice/getbyeventid?eventId=${id}`);
 };
 
+
+
+
+//  Fetch Event Labour by Supplier
+export const GetEventLabourBySupplier = (eventFunctionId, eventId, partyId) => {
+  return GET(
+    `/labor/getBySupplier?eventFunctionId=${eventFunctionId}&eventId=${eventId}&partyId=${partyId}`
+  );
+};
+
+
+//extra expense add api
+export const AddExtraExpenseApi = (data) => {
+  return POST(`/extra-expense/add`, data);
+};
+
+// Fetch Extra Expense by Event
+export const GetExtraExpenseByEvent = (eventFunctionId, eventId) => {
+  return GET(`/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`);
+};
+
+//delete extra expense
+export const DeleteExtraExpense = (id) => {
+  return DELETE(`/extra-expense/delete?id=${id}`);
+};
+
+export const UpdateExtraExpense = (id, payload) => {
+  return PUT(`/extra-expense/update?id=${id}`, payload);
+};

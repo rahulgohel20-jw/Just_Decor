@@ -28,21 +28,20 @@ const AllUser = () => {
         id: user.id,
         fullName: `${user.firstName} ${user.lastName}`,
         city: user.userBasicDetails?.city?.name || "-",
-        email: user.email,
+        // email: user.email,
         contactNo: user.contactNo,
         companyName: user.userBasicDetails?.companyName || "-",
         plan: user.plan?.name || "-",
         isActive: user.isActive,
         isApprove: user.isApprove,
         createdAt: user.createdAt,
-        reportingManager: user.userBasicDetails?.reportingManagerId || "-",
 
         userCode: user.userCode || "-",
         remark: user.remarks || "-",
       }));
   };
 
-  const handleFetchByRoleId = async (roleId = 2) => {
+  const handleFetchByRoleId = async (roleId = 1) => {
     try {
       setLoading(true);
       const response = await getAllByRoleId(roleId);
@@ -111,7 +110,7 @@ const AllUser = () => {
   return (
     <Container>
       <div className="gap-2 pb-2 mb-3">
-        <Breadcrumbs items={[{ title: "All Users" }]} />
+        <Breadcrumbs items={[{ title: "Members" }]} />
       </div>
 
       <div className="flex items-center justify-between mb-4">

@@ -1,15 +1,20 @@
 // // constant.js
- import { Tooltip } from "antd";
- export const columns = (onEdit, handleApprove) => [
-   {
-     accessorKey: "userCode",
-     header: "User Code",
-     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-   },
+import { Tooltip } from "antd";
+export const columns = (onEdit, handleApprove) => [
+  {
+    accessorKey: "userCode",
+    header: "User Code",
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
   {
     accessorKey: "companyName",
     header: "Company",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
+  },
+  {
+    accessorKey: "fullName",
+    header: "Full Name",
+    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
   },
   {
     accessorKey: "city",
@@ -22,30 +27,25 @@
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
   {
-    accessorKey: "email",
-    header: "Email",
-    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
-  },
-  {
-    accessorKey: "fullName",
-    header: "Full Name",
-    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
-  },
-  {
     accessorKey: "plan",
     header: "Plan",
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
-  accessorKey: "reportingManager",
-  header: "Reporting Manager",
-  meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-},
-{
-  accessorKey: "remark",
-  header: "Remark",
-  meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-},
+    accessorKey: "database",
+    header: "Database",
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
+  {
+    accessorKey: "theme",
+    header: "Themes",
+    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+  },
+  {
+    accessorKey: "remark",
+    header: "Remark",
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
 
   {
     accessorKey: "isActive",
@@ -120,9 +120,6 @@
   // },
 ];
 
-
-
-
 // import { underConstruction } from "@/underConstruction";
 
 // export const columns = (onEdit ,handleApprove) => [
@@ -156,7 +153,7 @@
 //     header: "Company",
 //     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
 //   },
- 
+
 //   {
 //     accessorKey: "plan",
 //     header: "Plan",
@@ -184,7 +181,7 @@
 //   accessorKey: "isApprove",
 //   header: "Approved",
 //   cell: ({ row }) => {
-//     const value = row.original.isApprove; 
+//     const value = row.original.isApprove;
 //     const userId = row.original.id;
 
 //     if (value) {
@@ -198,8 +195,8 @@
 
 //     const handleClick = async () => {
 //       try {
-//         await handleApprove(userId, true); 
- 
+//         await handleApprove(userId, true);
+
 //       } catch (err) {
 //         console.error("Approval failed", err);
 //       }

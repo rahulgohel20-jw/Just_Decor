@@ -51,16 +51,21 @@ const Login = () => {
         } else {
           localStorage.removeItem("rememberedEmail");
         }
+
         const userData = JSON.parse(localStorage.getItem("userData"));
         const firstTimeLogin = userData ? userData.isFirstTime : null;
-        console.log("First Time Login:", firstTimeLogin);
+
         if (firstTimeLogin === true) {
           navigate("/auth/reset-password/change", { replace: true });
           return;
         }
 
-        localStorage.setItem("email", values.email);
-        navigate("/", { replace: true });
+        const roleId = userData?.userBasicDetails?.role?.id;
+        if (roleId === 1) {
+          navigate("/super-dashboard", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       } catch (error) {
         console.error("Login error:", error);
         let errorMessage = "The login details are incorrect";

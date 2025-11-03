@@ -1,19 +1,20 @@
 import { FormattedMessage } from "react-intl";
 
-// Don't read from localStorage directly - get it from a function or context
-const getUserData = () => {
+const getUserRole = () => {
   try {
-    return JSON.parse(localStorage.getItem("userData"));
-  } catch {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    return userData?.userBasicDetails?.role?.id;
+  } catch (error) {
+    console.error("Error parsing userData:", error);
     return null;
   }
 };
 
-const userData = getUserData();
-const roleId = userData?.userBasicDetails?.role?.id === 1;
+const userRoleId = getUserRole();
+const isSuperAdmin = userRoleId === 1;
 
-// For MENU_SIDEBAR: Include BOTH title (as FormattedMessage component) AND titleId/defaultTitle
-export const MENU_SIDEBAR = [
+// Regular user menu items with FormattedMessage
+const allMenuItems = [
   {
     title: <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />,
     icon: "element-11 text-primary",
@@ -164,26 +165,8 @@ export const MENU_SIDEBAR = [
   {
     title: <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Custom Themes" />,
     icon: "element-11 text-primary",
-    path: "/event",
+    path: "/reportcustomethemes",
   },
-  ...(roleId
-    ? [
-        {
-          title: <FormattedMessage id="COMMON.USER_MASTER" defaultMessage="User Master" />,
-          icon: "ki-filled ki-user text-primary",
-          children: [
-            {
-              title: <FormattedMessage id="COMMON.ALL_USER" defaultMessage="All User" />,
-              path: "/master/user-master/",
-            },
-            {
-              title: <FormattedMessage id="COMMON.USER_PLAN" defaultMessage="User Plan" />,
-              path: "/master/user-master/plan",
-            },
-          ],
-        },
-      ]
-    : []),
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary",
@@ -213,7 +196,53 @@ export const MENU_SIDEBAR = [
   },
 ];
 
-// For MENU_MEGA and MENU_ROOT: Keep using plain 'title' property (no translation needed)
+// Super admin menu items with FormattedMessage
+const superAdminMenuItems = [
+  {
+    title: <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />,
+    icon: "element-11 text-primary",
+    path: "/super-dashboard",
+  },
+  {
+    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />,
+    icon: "ki-filled ki-user text-primary",
+    path: "/master/user-master/",
+  },
+  {
+    title: <FormattedMessage id="COMMON.MEMBER_PLANS" defaultMessage="Member Plans" />,
+    icon: "element-11 text-primary",
+    path: "/master/user-master/plan",
+  },
+  {
+    title: <FormattedMessage id="COMMON.INVOICE_LIST" defaultMessage="Invoice List" />,
+    icon: "ki-filled ki-user text-primary",
+    path: "/admin-invoice",
+  },
+  {
+    title: <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Custom Themes" />,
+    icon: "element-11 text-primary",
+    path: "/super-reportcustomethemes",
+  },
+  {
+    title: <FormattedMessage id="COMMON.PLANS" defaultMessage="Plans" />,
+    icon: "element-11 text-primary",
+    path: "/plans",
+  },
+  {
+    title: <FormattedMessage id="COMMON.DATABASE" defaultMessage="Database" />,
+    icon: "element-11 text-primary",
+    path: "/database",
+  },
+  {
+    title: <FormattedMessage id="COMMON.RENEWAL_CUSTOMER" defaultMessage="Renewal Customer" />,
+    icon: "element-11 text-primary",
+    path: "/renewal-history",
+  },
+];
+
+// Export the appropriate menu based on user role
+export const MENU_SIDEBAR = isSuperAdmin ? superAdminMenuItems : allMenuItems;
+
 export const MENU_MEGA = [
   {
     title: "Home",
@@ -911,26 +940,3 @@ export const MENU_ROOT = [
   },
 ];
 
-/* 
-IMPORTANT: For page titles in Helmet, use useIntl hook:
-
-import { useIntl } from 'react-intl';
-import { Helmet } from 'react-helmet';
-
-const YourPage = () => {
-  const intl = useIntl();
-  const pageTitle = intl.formatMessage({ 
-    id: "COMMON.DASHBOARD", 
-    defaultMessage: "Dashboard" 
-  });
-  
-  return (
-    <>
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
-      {/* Your page content *//*}
-    </>
-  );
-};
-*/
