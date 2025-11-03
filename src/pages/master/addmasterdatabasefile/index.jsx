@@ -5,6 +5,11 @@ import { Upload, X, Trash2 } from "lucide-react";
 export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [formData, setFormData] = useState({
+    databaseName: selectedRow?.database_name || "",
+    customer: selectedRow?.customer || "",
+    instructions: "",
+  });
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -56,6 +61,10 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       size: (file.size / 1024).toFixed(2) + " KB",
       type: file.type,
     });
+  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRemoveFile = () => {
@@ -117,10 +126,48 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                 </button>
               </div>
 
-              {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto p-4 md:p-6">
                 <div className="space-y-4 md:space-y-5">
-                  {/* Upload Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Database Name
+                      </label>
+                      <input
+                        type="text"
+                        name="remarks"
+                        value={formData.databaseName}
+                        onChange={handleInputChange}
+                        placeholder="Placeholder text"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        name="remarks"
+                        value={formData.databaseName}
+                        onChange={handleInputChange}
+                        placeholder="Placeholder text"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Instructions
+                    </label>
+                    <textarea
+                      name=""
+                      id=""
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    ></textarea>
+                  </div>
+
                   <div>
                     <div className="mb-2">
                       <h3 className="text-sm font-semibold text-gray-800">
