@@ -205,7 +205,6 @@ const AccountUserProfilePage = () => {
           </section>
         </div>
 
-        <Priceplan isModalOpen={priceModal} setIsModalOpen={setPriceModal} />
       </Container>
     </Fragment>
   );

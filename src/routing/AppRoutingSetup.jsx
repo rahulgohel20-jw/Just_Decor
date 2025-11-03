@@ -180,6 +180,7 @@ import Plan from "../components/plan/Plan";
 import SuperadminInvoice from "../components/superadmininvoice/SuperadminInvoice";
 import Addinvoice from "../components/superadminInvoice/Addinvoice";
 import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
+import SuperCalendarPage from "../pages/super-admin/calender";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -275,6 +276,7 @@ const AppRoutingSetup = () => {
             path="/super-reportcustomethemes"
             element={<ReportCustomTheme />}
           />
+          <Route path="/super-calendar" element={<SuperCalendarPage />} />
           {/* Sales */}
 
           <Route
