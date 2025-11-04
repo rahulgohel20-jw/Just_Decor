@@ -1,3 +1,5 @@
+import { FormattedMessage } from "react-intl";
+
 const getUserRole = () => {
   try {
     const userData = JSON.parse(localStorage.getItem("userData"));
@@ -375,7 +377,6 @@ const superAdminMenuItems = [
     path: "/super-calendar",
   },
   {
-    title: "Member List",
     title: (
       <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />
     ),
@@ -429,7 +430,11 @@ const superAdminMenuItems = [
 export const getMenuSidebar = () => {
   const userRoleId = getUserRole();
   const isSuperAdmin = userRoleId === 1;
-  return isSuperAdmin ? superAdminMenuItems : allMenuItems;
+  return isSuperAdmin
+    ? superAdminMenuItems
+    : isNormalUser && hasNoPlan
+      ? disableMenuItems(allMenuItems)
+      : allMenuItems;
 };
 
 // For backward compatibility - this will still work but won't be dynamic
