@@ -9,6 +9,8 @@ import { Search, RefreshCcw } from "lucide-react";
 import { invoicecolumns, defaultinvoiceData } from "./invoiceconstant";
 import { itemcolumns, defaultitemData } from "./itemconstant";
 import { Phone, MessageCircle, HelpCircle } from "lucide-react";
+import { toAbsoluteUrl } from "@/utils/Assets";
+
 
 const ClientDashboard = () => {
   const expenseChart = {
@@ -87,35 +89,50 @@ const ClientDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="flex items-center justify-between bg-[#FFF5E6] p-5 rounded-xl shadow-sm">
+          {/* Total Events Card */}
+          <div className="flex items-center justify-between bg-[#FFF5E6] p-6 rounded-2xl shadow-sm">
             <div>
-              <p className="text-gray-600 font-medium">Total Events</p>
-              <h2 className="text-2xl font-semibold text-gray-800">10,000</h2>
+              <p className="text-sm text-gray-600 font-medium mb-1">Total Events</p>
+              <h2 className="text-3xl font-bold text-gray-900">10,000</h2>
             </div>
-            <div className="text-5xl text-[#F59E0B]">
-              <i className="ki-filled ki-file-down"></i>
+            <div className="w-16 h-16 flex items-center justify-center bg-[#FF947A] rounded-full shadow-md">
+              <img 
+                src={toAbsoluteUrl(`/media/brand-logos/total_events.svg`)} 
+                alt="Total Events"
+                className="w-8 h-8"
+              />
             </div>
           </div>
 
-          <div className="flex items-center justify-between bg-[#E6FFF1] p-5 rounded-xl shadow-sm">
+          {/* Generate Invoices Card */}
+          <div className="flex items-center justify-between bg-[#E6FFF1] p-6 rounded-2xl shadow-sm">
             <div>
-              <p className="text-gray-600 font-medium">Generate Invoices</p>
-              <h2 className="text-2xl font-semibold text-gray-800">15,000</h2>
+              <p className="text-sm text-gray-600 font-medium mb-1">Generate Invoices</p>
+              <h2 className="text-3xl font-bold text-gray-900">15000</h2>
             </div>
-            <div className="text-5xl text-[#10B981]">
-              <i className="ki-filled ki-file-down"></i>
+            <div className="w-16 h-16 flex items-center justify-center bg-[#4ADE80] rounded-full shadow-md">
+              <img 
+                src={toAbsoluteUrl(`/media/brand-logos/generate_invoice.svg`)} 
+                alt="Total Events"
+                className="w-8 h-8"
+              />
             </div>
           </div>
 
-          <div className="flex items-center justify-between bg-[#F3E8FF] p-5 rounded-xl shadow-sm">
+          {/* Total Receivable Amount Card */}
+          <div className="flex items-center justify-between bg-[#F3E8FF] p-6 rounded-2xl shadow-sm">
             <div>
-              <p className="text-gray-600 font-medium">
+              <p className="text-sm text-gray-600 font-medium mb-1">
                 Total Receivable Amount
               </p>
-              <h2 className="text-2xl font-semibold text-gray-800">40,000</h2>
+              <h2 className="text-3xl font-bold text-gray-900">40000</h2>
             </div>
-            <div className="text-5xl text-[#8B5CF6]">
-              <i className="ki-filled ki-file-down"></i>
+            <div className="w-16 h-16 flex items-center justify-center bg-[#A78BFA] rounded-full shadow-md">
+              <img 
+                src={toAbsoluteUrl(`/media/brand-logos/total_receivable_amt.svg`)} 
+                alt="Total Events"
+                className="w-8 h-8"
+              />
             </div>
           </div>
         </div>
@@ -239,7 +256,7 @@ const ClientDashboard = () => {
             <div className="flex flex-col  md:flex-row md:items-center md:justify-between mb-4 gap-3">
               {/* Title */}
               <h2 className="text-base font-semibold text-gray-800">
-                Most Salable Item
+                Most Selling Item
               </h2>
 
               {/* Right Controls */}
@@ -281,32 +298,44 @@ const ClientDashboard = () => {
               </h2>
             </div>
 
-            {/* First Box */}
+            {/* First Box - WhatsApp Contact */}
             <div className="border border-[#D9E6FF] rounded-lg p-4 mb-4">
               <div className="flex items-start gap-3">
-                <div className="bg-[#EAF2FF] p-2 rounded-full">
-                  <Phone size={20} className="text-[#005AA7]" />
+                <div className="w-12 h-12 flex items-center justify-center  rounded-full flex-shrink-0">
+                  <img 
+                    src={toAbsoluteUrl(`/media/brand-logos/support.png`)} 
+                    alt="Support"
+                    className="w-7 h-7 object-contain"
+                  />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800">Pandey Ashutosh</p>
+                  <p className="font-semibold text-gray-800">Manan Gandhi</p>
                   <p className="text-sm text-gray-600">
-                    Pandey Ashutosh is Point of Contact (POC). Feel free to
+                    Manan Gandhi is Point of Contact (POC). Feel free to
                     connect between 10 AM to 7 PM.
                   </p>
                 </div>
               </div>
 
               <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-sm font-medium hover:bg-[#d6f4e3] transition">
-                <MessageCircle size={18} />
+                <img 
+                  src={toAbsoluteUrl(`/media/brand-logos/whatsapp.png`)} 
+                  alt="WhatsApp"
+                  className="w-5 h-5 object-contain"
+                />
                 Contact On WhatsApp
               </button>
             </div>
 
-            {/* Second Box */}
+            {/* Second Box - Phone Support */}
             <div className="border border-[#D9E6FF] rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <div className="bg-[#EAF2FF] p-2 rounded-full">
-                  <HelpCircle size={20} className="text-[#005AA7]" />
+                <div className="w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0">
+                  <img 
+                    src={toAbsoluteUrl(`/media/brand-logos/query.png`)} 
+                    alt="Query"
+                    className="w-7 h-7 object-contain"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">

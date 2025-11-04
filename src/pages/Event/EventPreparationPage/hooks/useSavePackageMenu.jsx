@@ -1,3 +1,5 @@
+// Replace your useSavePackageMenu function with this updated version
+
 const useSavePackageMenu = (
   functionSelectionData,
   allMenuItems,
@@ -94,12 +96,27 @@ const useSavePackageMenu = (
           };
         }
 
-        // CRITICAL FIX: Extract the correct menuItemId
+        // ✅ CRITICAL FIX: Extract numeric menuItemId properly
         let apiItemId = item.id;
 
-        // If it's a package item (ID starts with "pkg-"), extract the original menuItemId
-        if (item.isPackageItem && item.menuItemId) {
+        // Check if item has menuItemId property (package items)
+        if (item.menuItemId !== undefined && item.menuItemId !== null) {
           apiItemId = item.menuItemId;
+        }
+
+        // Validate it's not a string "pkg-" ID
+        if (typeof apiItemId === 'string' && apiItemId.startsWith('pkg-')) {
+          console.error(`❌ Invalid ID detected: ${apiItemId} for item: ${item.name}`);
+          apiItemId = item.menuItemId || item.id;
+        }
+
+        // Convert to number
+        apiItemId = Number(apiItemId);
+
+        // Skip if invalid
+        if (isNaN(apiItemId)) {
+          console.error(`❌ Could not convert to number: ${item.id} for item: ${item.name}`);
+          return;
         }
 
         itemsByCategory[finalCategoryId].selectedMenuPreparationItems.push({
@@ -108,7 +125,7 @@ const useSavePackageMenu = (
           itemPrice: itemPrice,
           itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
           itemSortOrder: index,
-          menuItemId: apiItemId, // Use the correct ID for API
+          menuItemId: apiItemId, // ✅ Guaranteed numeric ID
           menuItemName: item.name,
         });
       });
@@ -147,6 +164,22 @@ const useSavePackageMenu = (
         sortorder: 0,
       };
 
+      // ✅ Log payload for debugging
+      console.log("📦 Final Package Payload:", JSON.stringify(payload, null, 2));
+
+      // ✅ Validate no invalid IDs before sending
+      const hasInvalidIds = selectedMenuPreparationItems.some(cat => 
+        cat.selectedMenuPreparationItems.some(item => 
+          typeof item.menuItemId !== 'number' || isNaN(item.menuItemId)
+        )
+      );
+
+      if (hasInvalidIds) {
+        console.error("❌ Payload contains invalid menuItemIds!");
+        errorMsgPopup("Error: Invalid item IDs detected. Please try again.");
+        return false;
+      }
+
       try {
         const res = await AddMenuprep(payload);
 
@@ -171,7 +204,10 @@ const useSavePackageMenu = (
         return true;
       } catch (err) {
         console.error("❌ Save package menu error:", err);
-        errorMsgPopup("Failed to save package menu");
+        console.error("Error response:", err?.response?.data);
+        errorMsgPopup(
+          err?.response?.data?.message || "Failed to save package menu"
+        );
         return false;
       }
     },
