@@ -181,6 +181,8 @@ import SuperadminInvoice from "../components/superadmininvoice/SuperadminInvoice
 import Addinvoice from "../components/superadminInvoice/Addinvoice";
 import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
 import SuperCalendarPage from "../pages/super-admin/calender";
+import SuperAdminMember from "../pages/superadminmember/SuperAdminMember";
+import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -196,7 +198,6 @@ const AppRoutingSetup = () => {
           <Route path="/lead/details" element={<LeadDetailPage />} />
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/plans" element={<Plan />} />
-
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/followup" element={<FollowUpListPage />}></Route>
@@ -210,7 +211,6 @@ const AppRoutingSetup = () => {
           <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
           <Route path="/database" element={<Database />} />
-
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
           <Route
@@ -230,9 +230,7 @@ const AppRoutingSetup = () => {
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
           <Route path="/renewal-history" element={<RenewalCustomer />} />
-
           <Route path="/addInvoice" element={<Addinvoice />} />
-
           <Route
             path="/menu-preparation/:eventId"
             element={<EventPreparationPage mode="menu" />}
@@ -278,12 +276,14 @@ const AppRoutingSetup = () => {
           />
           <Route path="/super-calendar" element={<SuperCalendarPage />} />
           {/* Sales */}
-
           <Route
             path="/sales/invoice-dashboard"
             element={<InvoiceDashboard />}
           />
-          <Route path="/sales/invoice-list/:PartyId/:EventId" element={<InvoiceList />} />
+          <Route
+            path="/sales/invoice-list/:PartyId/:EventId"
+            element={<InvoiceList />}
+          />
           <Route path="/sales/add-invoice" element={<AddInvoicePage />} />
           <Route path="/quotation-dashboard" element={<QuotationDashboard />} />
           <Route path="/price" element={<Priceplan />} />
@@ -291,7 +291,6 @@ const AppRoutingSetup = () => {
             path="/sales/quotation-list/:PartyId/:EventId"
             element={<QuotationViewPage />}
           />
-
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
           <Route
@@ -311,10 +310,14 @@ const AppRoutingSetup = () => {
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
-
           <Route path="/master/user-master" element={<AllUser />} />
-          <Route path="/master/user-master/plan" element={<AllPlan />} />
+          <Route path="/Superadmin-member" element={<SuperAdminMember />} />
+          <Route
+            path="/Superadmin-member-edit"
+            element={<SuperAdminMemberEdit />}
+          />
 
+          <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"
             element={<MenuCategoryMaster />}
@@ -340,7 +343,6 @@ const AppRoutingSetup = () => {
             element={<AddCustomPackage />}
           />
           <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
-
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
           <Route path="task/mytask" element={<MyTask />}></Route>
@@ -350,7 +352,6 @@ const AppRoutingSetup = () => {
             element={<TaskDirectoryPage />}
           ></Route>
           <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
-
           {/* leavs route */}
           <Route path="/approval" element={<Approval />}></Route>
           <Route path="/holiday" element={<Holiday />}></Route>
@@ -378,7 +379,6 @@ const AppRoutingSetup = () => {
             element={<NotificationsSettingsPage />}
           />
           {/* Support routes */}
-
           <Route path="/support/events" element={<EventsPage />} />
           <Route path="/support/tutorials" element={<TutorialsPage />} />
           <Route path="/support/tickets" element={<TicketsPage />} />
