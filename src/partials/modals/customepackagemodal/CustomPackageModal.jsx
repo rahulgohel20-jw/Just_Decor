@@ -19,34 +19,37 @@ export default function CustomPackageModal({
   }, [isOpen, userId]);
 
   const SelectPackage = (pkg) => {
-    const packageItems = pkg.categories.flatMap((cat, catIndex) =>
-      cat.items.map((item, itemIndex) => ({
-        id: `pkg-${pkg.id}-cat-${catIndex}-item-${itemIndex}-${Date.now()}`,
-        name: item.name,
-        price: item.price,
-        instruction: item.instruction,
-        itemNotes: item.instruction || "",
-        categoryName: cat.menuName,
-        menuName: cat.menuName,
-        anyItemCount: cat.anyItem,
-        image: "",
-        parentId: null,
-      }))
-    );
+  const packageItems = pkg.categories.flatMap((cat, catIndex) =>
+    cat.items.map((item, itemIndex) => ({
+      menuItemId: item.menuItemId, // Numeric ID
+      id: `pkg-${pkg.id}-cat-${catIndex}-item-${item.menuItemId || itemIndex}`,
+      name: item.name,
+      price: item.price,
+      instruction: item.instruction,
+      itemNotes: item.instruction || "",
+      categoryName: cat.menuName,
+      menuName: cat.menuName,
+      anyItemCount: cat.anyItem,
+      image: item.image || "", // Pass image
+      parentId: null,
+      isPackageItem: true,
+      packageId: pkg.id,
+      packageName: pkg.name,
+    }))
+  );
 
-    const payload = {
-      packageItems,
-      packageInfo: {
-        packageId: pkg.id,
-        packageName: pkg.name,
-        packagePrice: pkg.price,
-      },
-    };
-
-    onPackageSelect(payload);
-    onClose();
+  const payload = {
+    packageItems,
+    packageInfo: {
+      id: pkg.id,
+      packageName: pkg.name,
+      packagePrice: pkg.price,
+    },
   };
 
+  onPackageSelect(payload);
+  onClose();
+};
   const fetchPackages = async () => {
     try {
       setLoading(true);
@@ -89,37 +92,39 @@ export default function CustomPackageModal({
   };
 
   const extractCategoriesFromPackage = (pkg) => {
-    const categories = [];
+  const categories = [];
 
-    if (pkg.customPackageDetails && Array.isArray(pkg.customPackageDetails)) {
-      pkg.customPackageDetails.forEach((menu) => {
-        const categoryItems = [];
+  if (pkg.customPackageDetails && Array.isArray(pkg.customPackageDetails)) {
+    pkg.customPackageDetails.forEach((menu) => {
+      const categoryItems = [];
 
-        if (
-          menu.customPackageMenuItemDetails &&
-          Array.isArray(menu.customPackageMenuItemDetails)
-        ) {
-          menu.customPackageMenuItemDetails.forEach((item) => {
-            categoryItems.push({
-              name: item.itemName,
-              price: item.itemPrice,
-              instruction: item.itemInstruction,
-            });
+      if (
+        menu.customPackageMenuItemDetails &&
+        Array.isArray(menu.customPackageMenuItemDetails)
+      ) {
+        menu.customPackageMenuItemDetails.forEach((item) => {
+          categoryItems.push({
+            menuItemId: item.menuItemId || item.id, // Original numeric ID
+            name: item.itemName,
+            price: item.itemPrice,
+            instruction: item.itemInstruction,
+            image: item.imagePath || item.image || "", // Get image from API
           });
-        }
+        });
+      }
 
-        if (categoryItems.length > 0) {
-          categories.push({
-            menuName: menu.menuName,
-            items: categoryItems,
-            anyItem: menu.anyItem,
-          });
-        }
-      });
-    }
+      if (categoryItems.length > 0) {
+        categories.push({
+          menuName: menu.menuName,
+          items: categoryItems,
+          anyItem: menu.anyItem,
+        });
+      }
+    });
+  }
 
-    return categories;
-  };
+  return categories;
+};
 
   if (!isOpen) return null;
 

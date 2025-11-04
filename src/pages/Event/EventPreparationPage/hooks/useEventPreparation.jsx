@@ -8,6 +8,7 @@ import {
 } from "@/services/apiServices";
 import { errorMsgPopup } from "@/underConstruction";
 import Swal from "sweetalert2";
+import { AddCustomPackageapi } from "../../../../services/apiServices";
 
 const useEventData = () => {
   const { eventId } = useParams();
@@ -19,25 +20,34 @@ const useEventData = () => {
   const fetchEventData = useCallback(async () => {
     try {
       const res = await GetEventMasterById(eventId);
+      console.log("responed", res);
+      const alleventdata = (res?.data?.data?.["Event Details"] || []).map((item) => ({
+  userid: item?.user?.id || 0,
+  party: item?.party?.nameEnglish?.trim() || item?.party?.name || "Unnamed Party",
+  eventType:
+    item?.eventType?.nameEnglish?.trim() ||
+    item?.eventType?.name ||
+    "Unknown Event",
+  eventStartDateTime: item?.eventStartDateTime || "",
+  eventEnddateTime: item?.eventEndDateTime || "",
+  venue: item?.venue || "N/A",
+  eventFunctions:
+    item?.eventFunctions?.map((f) => ({
+      id: f?.id || 0,
+      name:
+        f?.function?.nameEnglish?.trim() ||
+        f?.function?.name ||
+        "Unnamed Function",
+      startTime: f?.function?.startTime || "",
+      endTime: f?.function?.endTime || "",
+      pax: f?.pax || 0,
+      rate: f?.rate || 0,
+      venue: f?.function_venue || "N/A",
+    })) || [],
+}));
 
-      const alleventdata = res?.data?.data["Event Details"].map((item) => ({
-        userid: item.user.id,
-        party: item.party.nameEnglish,
-        eventType: item.eventType.nameEnglish,
-        eventStartDateTime: item.eventStartDateTime,
-        eventEnddateTime: item.eventEndDateTime,
-        venue: item.venue,
-        eventFunctions: item.eventFunctions.map((f) => ({
-          id: f.id,
-          name: f.function.nameEnglish,
-          startTime: f.function.startTime,
-          endTime: f.function.endTime,
-          pax: f.pax,
-          rate: f.rate,
-          venue: f.function_venue,
-        })),
-      }));
-
+      
+      
       if (alleventdata.length > 0) {
         const firstEvent = alleventdata[0];
 
@@ -690,170 +700,184 @@ const useSavePackageMenu = (
   loadFunctionMenuData,
   dispatch
 ) => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData?.id || 0;
+
   const savePackageMenu = useCallback(
-    async (selectedFunctionId, selectedCategoryId, pax, rate, packageInfo) => {
-      const currentFunctionData = functionSelectionData[selectedFunctionId];
+    async (functionId, categoryId, pax, rate, packageInfo) => {
+      try {
+        const currentFunction = functionSelectionData[functionId];
+        
+        if (!currentFunction?.selectedItems?.length) {
+          errorMsgPopup("No items selected");
+          return false;
+        }
 
-      if (
-        !currentFunctionData ||
-        currentFunctionData.selectedItems.length === 0
-      ) {
-        errorMsgPopup("Please select at least one item from the package");
-        return false;
-      }
+        const allFunctionMenuItems = allMenuItems[functionId] || [];
+        
+        // Group items by category
+        const itemsByCategory = {};
+        let itemIndex = 0;
+        
+        currentFunction.selectedItems.forEach((itemId) => {
+          const item = allFunctionMenuItems.find((i) => i.id === itemId);
+          if (!item) {
+            console.warn(`Item not found for ID: ${itemId}`);
+            return;
+          }
 
-      const allFunctionMenuItems = allMenuItems[selectedFunctionId] || [];
-      const selectedItems = currentFunctionData.selectedItems
-        .map((id) => {
-          let item = allFunctionMenuItems.find((item) => item.id === id);
-          if (currentFunctionData.itemCategories?.[id]) {
-            const categoryChange = currentFunctionData.itemCategories[id];
-            item = {
-              ...item,
-              parentId: categoryChange.newCategoryId,
+          // Extract numeric menu item ID
+          let numericItemId;
+          
+          // Check if item has menuItemId property (from package items)
+          if (item.menuItemId) {
+            numericItemId = Number(item.menuItemId);
+          } else if (typeof item.id === 'number') {
+            // Regular menu item with numeric ID
+            numericItemId = item.id;
+          } else if (typeof item.id === 'string') {
+            // Try to parse numeric ID from string
+            const parsed = parseInt(item.id);
+            if (!isNaN(parsed)) {
+              numericItemId = parsed;
+            } else {
+              console.warn(`Cannot extract numeric ID from: ${item.id}`);
+              return;
+            }
+          } else {
+            console.warn(`Invalid item ID type: ${typeof item.id}`);
+            return;
+          }
+
+          // Validate numeric ID
+          if (isNaN(numericItemId) || numericItemId === 0) {
+            console.warn(`Invalid numeric ID: ${numericItemId} for item:`, item);
+            return;
+          }
+
+          let finalCategoryId = item.parentId || item.menuCategoryId;
+          let finalCategoryName = "";
+
+          // Check if category was changed
+          if (currentFunction.itemCategories?.[itemId]) {
+            finalCategoryId = currentFunction.itemCategories[itemId].newCategoryId;
+            finalCategoryName = currentFunction.itemCategories[itemId].newCategoryName;
+          } else {
+            const category = categories.find((cat) => cat.id === finalCategoryId);
+            finalCategoryName = category?.name || category?.nameEnglish || "";
+          }
+
+          // Ensure category ID is numeric
+          const numericCategoryId = Number(finalCategoryId);
+          if (isNaN(numericCategoryId)) {
+            console.warn(`Invalid category ID: ${finalCategoryId}`);
+            return;
+          }
+
+          if (!itemsByCategory[numericCategoryId]) {
+            itemsByCategory[numericCategoryId] = {
+              menuId: numericCategoryId,
+              menuName: finalCategoryName,
+              menuInstruction: currentFunction.categoryNotes?.[finalCategoryId] || "",
+              menuSortOrder: 0,
+              anyItem: 1, // Default to 1, will be updated based on category item count
+              customPackageMenuItemDetails: [],
             };
           }
-          return item;
-        })
-        .filter(Boolean);
 
-      const existingId = menuPreparationIds[selectedFunctionId] || 0;
+          const itemPrice = currentFunction.itemRates?.[itemId] !== undefined 
+            ? Number(currentFunction.itemRates[itemId])
+            : (rate > 0 ? Number(rate) : Number(item.price) || 0);
 
-      const calculateTotalPrice = () => {
-        return currentFunctionData.selectedItems.reduce((sum, itemId) => {
-          const item = allFunctionMenuItems.find(
-            (menuItem) => menuItem.id === itemId
-          );
-          let itemRate;
-          if (currentFunctionData.itemRates?.[itemId] !== undefined) {
-            itemRate = Number(currentFunctionData.itemRates[itemId]);
-          } else if (rate > 0) {
-            itemRate = Number(rate);
-          } else {
-            itemRate = Number(item?.price) || 0;
-          }
-          return sum + itemRate;
-        }, 0);
-      };
-
-      const itemsByCategory = {};
-
-      selectedItems.forEach((item, index) => {
-        let finalCategoryId = item.parentId;
-        let finalCategoryName = "";
-
-        if (currentFunctionData.itemCategories?.[item.id]) {
-          finalCategoryId =
-            currentFunctionData.itemCategories[item.id].newCategoryId;
-          finalCategoryName =
-            currentFunctionData.itemCategories[item.id].newCategoryName;
-        } else {
-          const category = categories.find((cat) => cat.id === item.parentId);
-          finalCategoryName = category?.name || item.categoryName || "";
-        }
-
-        let itemPrice;
-        if (currentFunctionData.itemRates?.[item.id] !== undefined) {
-          itemPrice = Number(currentFunctionData.itemRates[item.id]);
-        } else if (rate > 0) {
-          itemPrice = Number(rate);
-        } else {
-          itemPrice = Number(item.price) || 0;
-        }
-
-        if (!itemsByCategory[finalCategoryId]) {
-          itemsByCategory[finalCategoryId] = {
-            menuCategoryId: finalCategoryId,
-            menuCategoryName: finalCategoryName,
-            menuNotes:
-              currentFunctionData.categoryNotes?.[finalCategoryId] || "",
-            menuSlogan:
-              currentFunctionData.categorySlogans?.[finalCategoryId] || "",
-            menuSortOrder: 0,
-            startTime: startDateandtime,
-            selectedMenuPreparationItems: [],
-          };
-        }
-
-        itemsByCategory[finalCategoryId].selectedMenuPreparationItems.push({
-          id: 0,
-          itemNotes: currentFunctionData.itemNotes[item.id] || "",
-          itemPrice: itemPrice,
-          itemSlogan: currentFunctionData.itemSlogans?.[item.id] || "",
-          itemSortOrder: index,
-          menuItemId: item.id,
-          menuItemName: item.name,
+          itemsByCategory[numericCategoryId].customPackageMenuItemDetails.push({
+            id: 0,
+            menuItemId: numericItemId,
+            itemName: item.name || item.menuItemName || "",
+            itemPrice: itemPrice,
+            itemInstruction: currentFunction.itemNotes?.[itemId] || "",
+            itemSortOrder: itemIndex++,
+            userId: userId,
+          });
         });
-      });
 
-      const categoryOrderArray = currentFunctionData.categoryOrder || [];
-      const sortedCategories = Object.entries(itemsByCategory).sort((a, b) => {
-        const categoryIdA = parseInt(a[0]);
-        const categoryIdB = parseInt(b[0]);
-        const indexA = categoryOrderArray.indexOf(categoryIdA);
-        const indexB = categoryOrderArray.indexOf(categoryIdB);
+        // Validate that we have at least one valid item after filtering
+        if (Object.keys(itemsByCategory).length === 0) {
+          errorMsgPopup("No valid menu items to save. Please ensure items have valid IDs.");
+          return false;
+        }
 
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-        return 0;
-      });
+        // Sort categories based on category order
+        const categoryOrderArray = currentFunction.categoryOrder || [];
+        const sortedCategories = Object.entries(itemsByCategory).sort((a, b) => {
+          const categoryIdA = parseInt(a[0]);
+          const categoryIdB = parseInt(b[0]);
+          const indexA = categoryOrderArray.indexOf(categoryIdA);
+          const indexB = categoryOrderArray.indexOf(categoryIdB);
 
-      const selectedMenuPreparationItems = sortedCategories.map(
-        ([categoryId, categoryGroup], categoryIndex) => ({
-          ...categoryGroup,
-          menuSortOrder: categoryIndex,
-        })
-      );
+          if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+          if (indexA !== -1) return -1;
+          if (indexB !== -1) return 1;
+          return 0;
+        });
 
-      const payload = {
-        defaultPrice: rate || 0,
-        isPackage: true, // Key difference from custom save
-        packageId: packageInfo?.id || null,
-        packageName: packageInfo?.packageName || "",
-        packagePrice: packageInfo?.packagePrice || calculateTotalPrice(),
-        eventFunctionId: selectedFunctionId,
-        id: existingId,
-        pax: Number(pax) || 0,
-        price: calculateTotalPrice(),
-        selectedMenuPreparationItems: selectedMenuPreparationItems,
-        sortorder: 0,
-      };
+        const customPackageDetails = sortedCategories.map(
+          ([categoryId, categoryGroup], categoryIndex) => ({
+            ...categoryGroup,
+            menuSortOrder: categoryIndex,
+            // Set anyItem to number of items in this category
+            anyItem: categoryGroup.customPackageMenuItemDetails.length,
+          })
+        );
 
-      try {
-        const res = await AddMenuprep(payload);
+        // Calculate total price from valid items only
+        let totalPrice = 0;
+        customPackageDetails.forEach(category => {
+          category.customPackageMenuItemDetails.forEach(item => {
+            totalPrice += item.itemPrice || 0;
+          });
+        });
 
-        if (res.data?.msg) {
+        const payload = {
+          nameEnglish: packageInfo?.packageName || `Custom Package ${functionId}`,
+          nameGujarati: packageInfo?.packageNameGujarati || "",
+          nameHindi: packageInfo?.packageNameHindi || "",
+          price: packageInfo?.packagePrice || totalPrice,
+          sequence: packageInfo?.sequence || 0,
+          userId: userId,
+          customPackageDetails: customPackageDetails,
+        };
+
+        console.log("📦 Sending package payload:", JSON.stringify(payload, null, 2));
+
+        const response = await AddCustomPackageapi(payload);
+        
+        if (response.data?.msg || response.data?.status === "success") {
           Swal.fire({
-            title: `${res.data?.msg}`,
+            title: response.data?.msg || "Package saved successfully!",
             icon: "success",
             background: "#f5faff",
             color: "#003f73",
             confirmButtonText: "Okay",
             confirmButtonColor: "#005BA8",
           });
+
+          clearFunctionCache(functionId);
+          await loadFunctionMenuData(functionId, categoryId);
+          return true;
         }
-
-        clearFunctionCache(selectedFunctionId);
-        await loadFunctionMenuData(
-          selectedFunctionId,
-          selectedCategoryId,
-          categories
-        );
-
-        return true;
-      } catch (err) {
-        console.error("Save package menu error:", err);
+        
+        return false;
+      } catch (error) {
+        console.error("Error saving package menu:", error);
+        errorMsgPopup(error?.response?.data?.msg || "Failed to save package menu");
         return false;
       }
     },
     [
       functionSelectionData,
       allMenuItems,
-      menuPreparationIds,
       categories,
-      startDateandtime,
-      endDateandtime,
+      userId,
       clearFunctionCache,
       loadFunctionMenuData,
     ]

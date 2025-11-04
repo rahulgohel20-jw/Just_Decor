@@ -1,13 +1,45 @@
-import { FormattedMessage } from "react-intl";
-
 const getUserRole = () => {
   try {
     const userData = JSON.parse(localStorage.getItem("userData"));
-    return userData?.userBasicDetails?.role?.id;
+    return userData?.userBasicDetails?.role?.id || null;
   } catch (error) {
     console.error("Error parsing userData:", error);
     return null;
   }
+};
+
+const getUserPlan = () => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    return userData?.plan || null;
+  } catch (error) {
+    console.error("Error parsing userData:", error);
+    return null;
+  }
+};
+
+// --------------------
+// 2️⃣ User Info
+// --------------------
+const userRoleId = getUserRole();
+const userPlan = getUserPlan();
+
+const isSuperAdmin = userRoleId === 1;
+const isNormalUser = userRoleId === 2;
+const hasNoPlan = userPlan === null;
+
+// --------------------
+// 3️⃣ Utility to disable all menus
+// --------------------
+// 3️⃣ Utility to disable all menus (show "Locked" instead of "Coming Soon")
+// 🔒 Disable all menu items and mark them as locked
+const disableMenuItems = (menuItems) => {
+  return menuItems.map((item) => ({
+    ...item,
+    disabled: true,
+    statusLabel: "Locked 🔒", // <--- add this
+    children: item.children ? disableMenuItems(item.children) : undefined,
+  }));
 };
 
 // Regular user menu items with FormattedMessage
@@ -20,7 +52,7 @@ const allMenuItems = [
     path: "/",
   },
   {
-    title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
+    title: "Events",
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
@@ -41,7 +73,7 @@ const allMenuItems = [
     ],
   },
   {
-    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
+    title: "Master",
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
@@ -93,7 +125,7 @@ const allMenuItems = [
         path: "/master/event-type",
       },
       {
-        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
+        title: "Unit ",
         path: "/master/unit",
       },
       {
@@ -115,7 +147,7 @@ const allMenuItems = [
         path: "/master/custom-package",
       },
       {
-        title: <FormattedMessage id="COMMON.MEMBER" defaultMessage="Member" />,
+        title: "Member",
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
           {
@@ -128,7 +160,7 @@ const allMenuItems = [
             path: "/master/all-members",
           },
           {
-            title: <FormattedMessage id="COMMON.ROLE" defaultMessage="Role" />,
+            title: "Role",
             path: "/master/role",
           },
         ],
@@ -215,7 +247,7 @@ const allMenuItems = [
     ],
   },
   {
-    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
+    title: "Reports",
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
@@ -248,7 +280,7 @@ const allMenuItems = [
     ],
   },
   {
-    title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
+    title: "Sales",
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
@@ -276,7 +308,7 @@ const allMenuItems = [
     path: "/reportcustomethemes",
   },
   {
-    title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
+    title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
     disabled: false,
     children: [
@@ -329,7 +361,6 @@ const allMenuItems = [
   },
 ];
 
-// Super admin menu items with FormattedMessage
 const superAdminMenuItems = [
   {
     title: (
@@ -339,6 +370,12 @@ const superAdminMenuItems = [
     path: "/super-dashboard",
   },
   {
+    title: "Calander",
+    icon: "ki-filled ki-calendar-tick text-primary",
+    path: "/super-calendar",
+  },
+  {
+    title: "Member List",
     title: (
       <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />
     ),
@@ -367,12 +404,12 @@ const superAdminMenuItems = [
     path: "/super-reportcustomethemes",
   },
   {
-    title: <FormattedMessage id="COMMON.PLANS" defaultMessage="Plans" />,
+    title: "Plans",
     icon: "element-11 text-primary",
     path: "/plans",
   },
   {
-    title: <FormattedMessage id="COMMON.DATABASE" defaultMessage="Database" />,
+    title: "Database",
     icon: "element-11 text-primary",
     path: "/database",
   },
@@ -633,6 +670,8 @@ export const MENU_MEGA = [
               {
                 title: "User Profile",
                 path: "/account/home/user-profile",
+                disabled: true,
+                statusLabel: "Locked ",
               },
               {
                 title: "Company Profile",

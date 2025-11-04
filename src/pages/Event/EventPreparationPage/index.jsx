@@ -113,151 +113,183 @@ const EventPreparationPage = () => {
   );
 
   const handlePackageSelect = (packageData) => {
-    if (!selectedFunctionId) {
-      console.warn("⚠️ No function selected");
-      return;
+  if (!selectedFunctionId) {
+    console.warn("⚠️ No function selected");
+    return;
+  }
+
+  let items = [];
+  let packageName = "Custom Package";
+  let totalPrice = 0;
+  let packageId = null;
+
+  if (Array.isArray(packageData)) {
+    items = packageData;
+    totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
+    packageName = selectedPackageName || `Package (${items.length} items)`;
+  } else if (packageData.items && Array.isArray(packageData.items)) {
+    items = packageData.items;
+    packageName = packageData.packageName;
+    totalPrice = packageData.totalPrice;
+    packageId = packageData.id;
+  } else if (packageData.packageInfo && packageData.packageItems) {
+    items = packageData.packageItems;
+    packageName = packageData.packageInfo.packageName;
+    totalPrice = packageData.packageInfo.packagePrice;
+    packageId = packageData.packageInfo.id;
+  } else {
+    console.warn("⚠️ Invalid package data structure", packageData);
+    return;
+  }
+
+  if (!items || items.length === 0) {
+    console.warn("⚠️ No items found in package");
+    return;
+  }
+
+  setCurrentPackageInfo({
+    id: packageId,
+    packageName: packageName,
+    packagePrice: totalPrice,
+  });
+
+  setSelectedPackageName(packageName);
+  setSelectedPackagePrice(totalPrice || 0);
+
+  // Process package items with proper image handling
+  const processedItems = items.map((item, index) => {
+    const categoryName =
+      item.categoryName || item.menuName || "Custom Package Items";
+
+    let categoryId = categories.find(
+      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+    )?.id;
+
+    if (!categoryId) {
+      categoryId = `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
     }
 
-    let items = [];
-    let packageName = "Custom Package";
-    let totalPrice = 0;
-    let packageId = null;
+    // CRITICAL: Extract numeric menuItemId
+    const originalMenuItemId = item.menuItemId;
+    
+    // Create unique display ID (not sent to backend)
+    const newItemId = `pkg-${packageId || "custom"}-item-${originalMenuItemId || index}`;
 
-    // Determine structure of packageData
-    if (Array.isArray(packageData)) {
-      items = packageData;
-      totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
-      packageName = selectedPackageName || `Package (${items.length} items)`;
-    } else if (packageData.items && Array.isArray(packageData.items)) {
-      items = packageData.items;
-      packageName = packageData.packageName;
-      totalPrice = packageData.totalPrice;
-      packageId = packageData.id;
-    } else if (packageData.packageInfo && packageData.packageItems) {
-      items = packageData.packageItems;
-      packageName = packageData.packageInfo.packageName;
-      totalPrice = packageData.packageInfo.packagePrice;
-      packageId = packageData.packageInfo.id;
-    } else {
-      console.warn("⚠️ Invalid package data structure", packageData);
-      return;
-    }
-
-    if (!items || items.length === 0) {
-      console.warn("⚠️ No items found in package");
-      return;
-    }
-
-    // Store package info
-    setCurrentPackageInfo({
-      id: packageId,
-      packageName: packageName,
-      packagePrice: totalPrice,
-    });
-
-    setSelectedPackageName(packageName);
-    setSelectedPackagePrice(totalPrice || 0);
-
-    // Process items with better image handling and unique IDs
-    const processedItems = items.map((item, index) => {
-      const categoryName =
-        item.categoryName || item.menuName || "Custom Package Items";
-
-      let categoryId = categories.find(
-        (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
-      )?.id;
-
-      if (!categoryId) {
-        categoryId = `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
-      }
-
-      // CRITICAL FIX: Extract the NUMERIC menuItemId correctly
-      // The menuItemId should be the actual database ID (a number)
-      const originalMenuItemId = item.menuItemId || item.id;
-
-      // Create unique package item ID
-      const newItemId = `pkg-${packageId || "custom"}-item-${originalMenuItemId}`;
-
-      // Better image handling
-      let itemImage = item.imagePath || item.image || item.imageUrl || "";
-
-      if (!itemImage || itemImage.trim() === "") {
-        itemImage =
-          "https://via.placeholder.com/150?text=" +
-          encodeURIComponent(item.itemName || item.name || "Item");
-      }
-
-      return {
-        id: newItemId,
-        menuItemId: originalMenuItemId, // Store ONLY the numeric ID
-        parentId: categoryId,
-        categoryName: categoryName,
-        name: item.itemName || item.name || `Item ${index + 1}`,
-        image: itemImage,
-        price: item.itemPrice || item.price || 0,
-        itemNotes: item.instruction || item.itemNotes || "",
-        itemSlogan: item.itemSlogan || "",
-        isPackageItem: true,
-        packageId: packageId,
-        packageName: packageName,
-      };
-    });
-
-    // Extract category "Any" counts
-    const categoryAnyItems = {};
-    if (Array.isArray(packageData.packageItems)) {
-      packageData.packageItems.forEach((pkgCat) => {
-        if (pkgCat.categoryName && pkgCat.anyItemCount) {
-          const cat = categories.find(
-            (c) => c.name.toLowerCase() === pkgCat.categoryName.toLowerCase()
-          );
-          const catId = cat
-            ? cat.id
-            : `temp-${pkgCat.categoryName.toLowerCase().replace(/\s+/g, "-")}`;
-          categoryAnyItems[catId] = pkgCat.anyItemCount;
-        }
-      });
-    }
-
-    setCategoryAnyItems((prev) => ({
-      ...prev,
-      [selectedFunctionId]: categoryAnyItems,
-    }));
-
-    // CRITICAL: Clear existing package items first, then add new ones
-    setAllMenuItems((prev) => {
-      const existingItems = prev[selectedFunctionId] || [];
-
-      // Keep only non-package items
-      const nonPackageItems = existingItems.filter(
-        (item) => !item.isPackageItem && !item.packageId
+    // Better image handling with multiple fallbacks
+    let itemImage = item.image || item.imagePath || item.imageUrl || "";
+    
+    // If no image, try to get from existing menu items
+    if (!itemImage || itemImage.trim() === "") {
+      const existingItem = allMenuItems[selectedFunctionId]?.find(
+        (menuItem) => menuItem.id === originalMenuItemId
       );
+      itemImage = existingItem?.image || "";
+    }
 
-      // Use Map to ensure uniqueness by menuItemId
-      const itemMap = new Map();
+    // Final fallback to placeholder
+    if (!itemImage || itemImage.trim() === "") {
+      itemImage =
+        "https://via.placeholder.com/150?text=" +
+        encodeURIComponent(item.itemName || item.name || "Item");
+    }
 
-      // Add non-package items
-      nonPackageItems.forEach((item) => {
-        itemMap.set(item.id, item);
-      });
+    return {
+      id: newItemId, // For display/UI only
+      menuItemId: originalMenuItemId, // CRITICAL: Numeric ID for backend
+      parentId: categoryId,
+      categoryName: categoryName,
+      name: item.itemName || item.name || `Item ${index + 1}`,
+      image: itemImage,
+      price: item.itemPrice || item.price || 0,
+      itemNotes: item.instruction || item.itemNotes || "",
+      itemSlogan: item.itemSlogan || "",
+      isPackageItem: true,
+      packageId: packageId,
+      packageName: packageName,
+    };
+  });
 
-      // Add new package items (using their unique pkg- IDs)
-      processedItems.forEach((item) => {
-        itemMap.set(item.id, item);
-      });
+  // Extract category "Any" counts
+  const categoryAnyItems = {};
+  if (Array.isArray(packageData.packageItems)) {
+    packageData.packageItems.forEach((pkgCat) => {
+      if (pkgCat.categoryName && pkgCat.anyItemCount) {
+        const cat = categories.find(
+          (c) => c.name.toLowerCase() === pkgCat.categoryName.toLowerCase()
+        );
+        const catId = cat
+          ? cat.id
+          : `temp-${pkgCat.categoryName.toLowerCase().replace(/\s+/g, "-")}`;
+        categoryAnyItems[catId] = pkgCat.anyItemCount;
+      }
+    });
+  }
 
-      return {
-        ...prev,
-        [selectedFunctionId]: Array.from(itemMap.values()),
-      };
+  setCategoryAnyItems((prev) => ({
+    ...prev,
+    [selectedFunctionId]: categoryAnyItems,
+  }));
+
+  // Build set of package menuItemIds for duplicate prevention
+  const packageMenuItemIds = new Set(
+    processedItems
+      .map(item => item.menuItemId)
+      .filter(id => id !== null && id !== undefined)
+      .flatMap(id => [id, String(id), Number(id)])
+  );
+
+  // Update allMenuItems - remove duplicates
+  setAllMenuItems((prev) => {
+    const existingItems = prev[selectedFunctionId] || [];
+
+    const filteredItems = existingItems.filter((item) => {
+      if (item.isPackageItem || item.packageId) {
+        return false;
+      }
+
+      return !packageMenuItemIds.has(item.id) && 
+             !packageMenuItemIds.has(String(item.id)) && 
+             !packageMenuItemIds.has(Number(item.id));
     });
 
-    const newItemIds = processedItems.map((item) => item.id);
-    setPackageItemIds(newItemIds);
+    return {
+      ...prev,
+      [selectedFunctionId]: [...filteredItems, ...processedItems],
+    };
+  });
 
-    dispatch({
-      type: "UPDATE_SELECTIONS",
-      functionId: selectedFunctionId,
+  const newItemIds = processedItems.map((item) => item.id);
+  setPackageItemIds(newItemIds);
+
+  dispatch({
+    type: "UPDATE_SELECTIONS",
+    functionId: selectedFunctionId,
+    selectedItems: newItemIds,
+    itemNotes: processedItems.reduce((acc, item) => {
+      acc[item.id] = item.itemNotes || "";
+      return acc;
+    }, {}),
+    itemSlogans: processedItems.reduce((acc, item) => {
+      acc[item.id] = item.itemSlogan || "";
+      return acc;
+    }, {}),
+    itemRates: processedItems.reduce((acc, item) => {
+      acc[item.id] = item.price || rate || 0;
+      return acc;
+    }, {}),
+    categoryNotes: {},
+    categorySlogans: {},
+    itemSortOrders: {},
+    isSaved: false,
+    isPackage: true,
+    packageId: packageId,
+    packageName: packageName,
+    packagePrice: totalPrice,
+  });
+
+  setPackageSelectedItems({
+    ...packageSelectedItems,
+    [selectedFunctionId]: {
       selectedItems: newItemIds,
       itemNotes: processedItems.reduce((acc, item) => {
         acc[item.id] = item.itemNotes || "";
@@ -279,37 +311,11 @@ const EventPreparationPage = () => {
       packageId: packageId,
       packageName: packageName,
       packagePrice: totalPrice,
-    });
+    },
+  });
 
-    setPackageSelectedItems({
-      ...packageSelectedItems,
-      [selectedFunctionId]: {
-        selectedItems: newItemIds,
-        itemNotes: processedItems.reduce((acc, item) => {
-          acc[item.id] = item.itemNotes || "";
-          return acc;
-        }, {}),
-        itemSlogans: processedItems.reduce((acc, item) => {
-          acc[item.id] = item.itemSlogan || "";
-          return acc;
-        }, {}),
-        itemRates: processedItems.reduce((acc, item) => {
-          acc[item.id] = item.price || rate || 0;
-          return acc;
-        }, {}),
-        categoryNotes: {},
-        categorySlogans: {},
-        itemSortOrders: {},
-        isSaved: false,
-        isPackage: true,
-        packageId: packageId,
-        packageName: packageName,
-        packagePrice: totalPrice,
-      },
-    });
-
-    setSelectedCategoryId(0);
-  };
+  setSelectedCategoryId(0);
+};
 
   useEffect(() => {
     initializeData();
@@ -735,75 +741,49 @@ const EventPreparationPage = () => {
   };
   // Update the menuItemsWithSelectionState calculation
   const currentMenuItems = useMemo(() => {
-    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
-    const baseItems = functionMenuData[cacheKey] || [];
-    const allFunctionItems = allMenuItems[selectedFunctionId] || [];
+  const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+  const baseItems = functionMenuData[cacheKey] || [];
+  const allFunctionItems = allMenuItems[selectedFunctionId] || [];
 
-    if (activeTab === "package") {
-      // Build sets for tracking
-      const packageItemOriginalIds = new Set();
-      const uniqueItemsMap = new Map();
-
-      // STEP 1: Process package items
-      const packageItems = allFunctionItems.filter(
-        (item) => item.isPackageItem
-      );
-
-      packageItems.forEach((item) => {
-        // Add to map using package ID
-        uniqueItemsMap.set(item.id, item);
-
-        // Track original ID (handle both string and number)
-        if (item.menuItemId !== undefined && item.menuItemId !== null) {
-          // Convert to string for Set comparison
-          const originalId = String(item.menuItemId);
-          packageItemOriginalIds.add(originalId);
-          // Also add as number if it's numeric
-          if (!isNaN(item.menuItemId)) {
-            packageItemOriginalIds.add(Number(item.menuItemId));
-          }
-        }
-      });
-
-      // STEP 2: Add base items (skip if already in package)
-      baseItems.forEach((item) => {
-        const itemIdStr = String(item.id);
-        const itemIdNum = Number(item.id);
-
-        // Check if this item exists in package (check both formats)
-        const isDuplicate =
-          packageItemOriginalIds.has(item.id) ||
-          packageItemOriginalIds.has(itemIdStr) ||
-          packageItemOriginalIds.has(itemIdNum);
-
-        if (!isDuplicate && !item.isPackageItem) {
-          uniqueItemsMap.set(item.id, item);
-        } else {
-          console.log(error);
-        }
-      });
-
-      const uniqueItems = Array.from(uniqueItemsMap.values());
-
-      // Apply category filter
-      if (selectedCategoryId !== 0) {
-        return uniqueItems.filter(
-          (item) => item.parentId === selectedCategoryId
-        );
+  if (activeTab === "package") {
+    const packageItems = allFunctionItems.filter((item) => item.isPackageItem);
+    
+    const packageMenuItemIds = new Set();
+    packageItems.forEach((item) => {
+      if (item.menuItemId !== undefined && item.menuItemId !== null) {
+        packageMenuItemIds.add(item.menuItemId);
+        packageMenuItemIds.add(String(item.menuItemId));
+        packageMenuItemIds.add(Number(item.menuItemId));
       }
+    });
 
-      return uniqueItems;
-    } else {
-      return baseItems.filter((item) => !item.isPackageItem);
+    const filteredBaseItems = baseItems.filter((item) => {
+      const isPackageItem = item.isPackageItem || item.packageId;
+      const isDuplicate =
+        packageMenuItemIds.has(item.id) ||
+        packageMenuItemIds.has(String(item.id)) ||
+        packageMenuItemIds.has(Number(item.id));
+
+      return !isPackageItem && !isDuplicate;
+    });
+
+    const combinedItems = [...packageItems, ...filteredBaseItems];
+
+    if (selectedCategoryId !== 0) {
+      return combinedItems.filter((item) => item.parentId === selectedCategoryId);
     }
-  }, [
-    functionMenuData,
-    allMenuItems,
-    selectedFunctionId,
-    selectedCategoryId,
-    activeTab,
-  ]);
 
+    return combinedItems;
+  } else {
+    return baseItems.filter((item) => !item.isPackageItem);
+  }
+}, [
+  functionMenuData,
+  allMenuItems,
+  selectedFunctionId,
+  selectedCategoryId,
+  activeTab,
+]);
   const debugMenuItems = () => {
     const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
     const baseItems = functionMenuData[cacheKey] || [];
