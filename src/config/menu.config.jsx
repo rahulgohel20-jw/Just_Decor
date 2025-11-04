@@ -1,3 +1,4 @@
+import { FormattedMessage } from "react-intl";
 
 const getUserRole = () => {
   try {
@@ -43,9 +44,12 @@ const disableMenuItems = (menuItems) => {
   }));
 };
 
+// Regular user menu items with FormattedMessage
 const allMenuItems = [
   {
-    title: "Dashboard",
+    title: (
+      <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />
+    ),
     icon: "element-11 text-primary",
     path: "/",
   },
@@ -54,11 +58,18 @@ const allMenuItems = [
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
-        title: "Calendar",
+        title: (
+          <FormattedMessage id="COMMON.CALENDAR" defaultMessage="Calendar" />
+        ),
         path: "/calendar",
       },
       {
-        title: "Event List",
+        title: (
+          <FormattedMessage
+            id="COMMON.EVENT_LIST"
+            defaultMessage="Event List"
+          />
+        ),
         path: "/event",
       },
     ],
@@ -68,27 +79,51 @@ const allMenuItems = [
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
-        title: "Contact Type",
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Contact Type"
+          />
+        ),
         path: "/master/contact-type",
       },
       {
-        title: "Contact Categories",
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_CATEGORIES"
+            defaultMessage="Contact Categories"
+          />
+        ),
         path: "/master/contact-categories",
       },
       {
-        title: "Customers",
+        title: (
+          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Customers" />
+        ),
         path: "/master/customers",
       },
       {
-        title: "Function Type",
+        title: (
+          <FormattedMessage
+            id="COMMON.FUNCTION_TYPE"
+            defaultMessage="Function Type"
+          />
+        ),
         path: "/master/functions",
       },
       {
-        title: "Meal Type",
+        title: (
+          <FormattedMessage id="COMMON.MEAL_TYPE" defaultMessage="Meal Type" />
+        ),
         path: "/master/meals",
       },
       {
-        title: "Event Type",
+        title: (
+          <FormattedMessage
+            id="COMMON.EVENT_TYPE"
+            defaultMessage="Event Type"
+          />
+        ),
         path: "/master/event-type",
       },
       {
@@ -96,11 +131,21 @@ const allMenuItems = [
         path: "/master/unit",
       },
       {
-        title: "Labour Shift",
+        title: (
+          <FormattedMessage
+            id="COMMON.LABOUR_SHIFT"
+            defaultMessage="Labour Shift"
+          />
+        ),
         path: "/master/labour-shift",
       },
       {
-        title: "Custom Package",
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOM_PACKAGE"
+            defaultMessage="Custom Package"
+          />
+        ),
         path: "/master/custom-package",
       },
       {
@@ -108,7 +153,12 @@ const allMenuItems = [
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
           {
-            title: "All Members",
+            title: (
+              <FormattedMessage
+                id="COMMON.ALL_MEMBERS"
+                defaultMessage="All Members"
+              />
+            ),
             path: "/master/all-members",
           },
           {
@@ -120,41 +170,80 @@ const allMenuItems = [
     ],
   },
   {
-    title: "Raw Material",
+    title: (
+      <FormattedMessage
+        id="COMMON.RAW_MATERIAL"
+        defaultMessage="Raw Material"
+      />
+    ),
     icon: "ki-filled ki-badge text-primary",
     children: [
       {
-        title: "Raw Material Type",
+        title: (
+          <FormattedMessage
+            id="COMMON.RAW_MATERIAL_TYPE"
+            defaultMessage="Raw Material Type"
+          />
+        ),
         path: "/master/raw-material-type-master",
       },
       {
-        title: "Raw Material Category",
+        title: (
+          <FormattedMessage
+            id="COMMON.RAW_MATERIAL_CATEGORY"
+            defaultMessage="Raw Material Category"
+          />
+        ),
         path: "/master/raw-material-master",
       },
       {
-        title: "Raw Material",
+        title: (
+          <FormattedMessage
+            id="COMMON.RAW_MATERIAL"
+            defaultMessage="Raw Material"
+          />
+        ),
         path: "/master/raw-material",
       },
     ],
   },
   {
-    title: "Menu Item",
+    title: (
+      <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />
+    ),
     icon: "ki-filled ki-additem text-primary",
     children: [
       {
-        title: "Menu Item Sub Category",
+        title: (
+          <FormattedMessage
+            id="COMMON.MENU_ITEM_SUB_CATEGORY"
+            defaultMessage="Menu Item Sub Category"
+          />
+        ),
         path: "/master/menu-sub-category",
       },
       {
-        title: "Menu Item Category",
+        title: (
+          <FormattedMessage
+            id="COMMON.MENU_ITEM_CATEGORY"
+            defaultMessage="Menu Item Category"
+          />
+        ),
         path: "/master/menu-category",
       },
       {
-        title: "Kitchen Area",
+        title: (
+          <FormattedMessage
+            id="COMMON.KITCHEN_AREA"
+            defaultMessage="Kitchen Area"
+          />
+        ),
         path: "/master/menu-kitchan-area",
       },
       {
-        title: "Menu Item",
+        title: (
+          <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />
+        ),
         path: "/master/menu-item",
       },
     ],
@@ -164,15 +253,30 @@ const allMenuItems = [
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
-        title: "All Data Report",
+        title: (
+          <FormattedMessage
+            id="COMMON.ALL_DATA_REPORT"
+            defaultMessage="All Data Report"
+          />
+        ),
         path: "",
       },
       {
-        title: "Date Wise Reports",
+        title: (
+          <FormattedMessage
+            id="COMMON.DATE_WISE_REPORTS"
+            defaultMessage="Date Wise Reports"
+          />
+        ),
         path: "/report-datewise",
       },
       {
-        title: "Report Configuration ",
+        title: (
+          <FormattedMessage
+            id="COMMON.REPORT_CONFIGURATION"
+            defaultMessage="Report Configuration"
+          />
+        ),
         path: "/report-congiguration",
       },
     ],
@@ -182,17 +286,26 @@ const allMenuItems = [
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
-        title: "Quotation",
+        title: (
+          <FormattedMessage id="COMMON.QUOTATION" defaultMessage="Quotation" />
+        ),
         path: "/quotation-dashboard",
       },
       {
-        title: "Invoice",
+        title: (
+          <FormattedMessage id="COMMON.INVOICE" defaultMessage="Invoice" />
+        ),
         path: "/sales/invoice-dashboard",
       },
     ],
   },
   {
-    title: "Custom Themes",
+    title: (
+      <FormattedMessage
+        id="COMMON.CUSTOM_THEMES"
+        defaultMessage="Custom Themes"
+      />
+    ),
     icon: "element-11 text-primary",
     path: "/reportcustomethemes",
   },
@@ -202,23 +315,48 @@ const allMenuItems = [
     disabled: false,
     children: [
       {
-        title: "Company Profile",
+        title: (
+          <FormattedMessage
+            id="COMMON.COMPANY_PROFILE"
+            defaultMessage="Company Profile"
+          />
+        ),
         path: "settings/general",
       },
       {
-        title: "Utility Page",
+        title: (
+          <FormattedMessage
+            id="COMMON.UTILITY_PAGE"
+            defaultMessage="Utility Page"
+          />
+        ),
         path: "settings/utility",
       },
       {
-        title: "Subscription",
+        title: (
+          <FormattedMessage
+            id="COMMON.SUBSCRIPTION"
+            defaultMessage="Subscription"
+          />
+        ),
         path: "settings/subscription",
       },
       {
-        title: "Payment History",
+        title: (
+          <FormattedMessage
+            id="COMMON.PAYMENT_HISTORY"
+            defaultMessage="Payment History"
+          />
+        ),
         path: "settings/channel",
       },
       {
-        title: "Notifications",
+        title: (
+          <FormattedMessage
+            id="COMMON.NOTIFICATIONS"
+            defaultMessage="Notifications"
+          />
+        ),
         path: "settings/notifications",
       },
     ],
@@ -227,7 +365,9 @@ const allMenuItems = [
 
 const superAdminMenuItems = [
   {
-    title: "Dashboard",
+    title: (
+      <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />
+    ),
     icon: "element-11 text-primary",
     path: "/super-dashboard",
   },
@@ -235,25 +375,32 @@ const superAdminMenuItems = [
     title: "Calander",
     icon: "ki-filled ki-calendar-tick text-primary",
     path: "/super-calendar",
-
   },
   {
-    title: "Member List",
+    title: (
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />
+    ),
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
   },
+
   {
-    title: "Member Plans",
-    icon: "element-11 text-primary",
-    path: "/master/user-master/plan",
-  },
-  {
-    title: "Invoice List",
+    title: (
+      <FormattedMessage
+        id="COMMON.INVOICE_LIST"
+        defaultMessage="Invoice List"
+      />
+    ),
     icon: "ki-filled ki-user text-primary",
-    path: "/sales/invoice-dashboard",
+    path: "/admin-invoice",
   },
   {
-    title: "Custom Themes",
+    title: (
+      <FormattedMessage
+        id="COMMON.CUSTOM_THEMES"
+        defaultMessage="Custom Themes"
+      />
+    ),
     icon: "element-11 text-primary",
     path: "/super-reportcustomethemes",
   },
@@ -267,14 +414,32 @@ const superAdminMenuItems = [
     icon: "element-11 text-primary",
     path: "/database",
   },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.RENEWAL_CUSTOMER"
+        defaultMessage="Renewal Customer"
+      />
+    ),
+    icon: "element-11 text-primary",
+    path: "/renewal-history",
+  },
 ];
 
-export const MENU_SIDEBAR =
-  isSuperAdmin
+// Export a function that dynamically determines the menu based on current user role
+export const getMenuSidebar = () => {
+  const userRoleId = getUserRole();
+  const isSuperAdmin = userRoleId === 1;
+  return isSuperAdmin
     ? superAdminMenuItems
     : isNormalUser && hasNoPlan
-    ? disableMenuItems(allMenuItems)
-    : allMenuItems;
+      ? disableMenuItems(allMenuItems)
+      : allMenuItems;
+};
+
+// For backward compatibility - this will still work but won't be dynamic
+// It's better to use getMenuSidebar() function in your components
+export const MENU_SIDEBAR = getMenuSidebar();
 
 export const MENU_MEGA = [
   {
@@ -510,8 +675,8 @@ export const MENU_MEGA = [
               {
                 title: "User Profile",
                 path: "/account/home/user-profile",
-                 disabled: true,
-      statusLabel: "Locked "
+                disabled: true,
+                statusLabel: "Locked ",
               },
               {
                 title: "Company Profile",
@@ -974,4 +1139,3 @@ export const MENU_ROOT = [
     childrenIndex: 5,
   },
 ];
-
