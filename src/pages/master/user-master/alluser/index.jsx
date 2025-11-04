@@ -13,16 +13,18 @@ const AllUser = () => {
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [editingUserId, setEditingUserId] = useState(null); 
+  const [editingUserId, setEditingUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatUsers = (users) => {
+    console.log(users);
+
     const managerMap = {};
     users.forEach((u) => {
       managerMap[u.id] = `${u.firstName} ${u.lastName}`;
     });
     return users
-      .sort((a, b) => b.id - a.id) 
+      .sort((a, b) => b.id - a.id)
       .map((user) => ({
         id: user.id,
         fullName: `${user.firstName} ${user.lastName}`,
@@ -33,7 +35,7 @@ const AllUser = () => {
         isActive: user.isActive,
         isApprove: user.isApprove,
         createdAt: user.createdAt,
-
+        email: user.email,
         userCode: user.userCode || "-",
         remark: user.remarks || "-",
       }));
@@ -81,7 +83,6 @@ const AllUser = () => {
       );
     }
   }, [searchText, tableData]);
-
 
   const handleEdit = (user) => {
     setEditingUserId(user);
