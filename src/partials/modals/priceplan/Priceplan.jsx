@@ -32,6 +32,32 @@ const Priceplan = () => {
     return [...others, ...popular];
   })();
 
+
+  const handlePayment = (plan) => {
+  const options = {
+    key: "rzp_test_XXXXXX", // 🔑 Replace with your Razorpay test Key ID
+    amount: plan.price * 100, // Razorpay expects amount in paise
+    currency: "INR",
+    name: "Automate Business", // your SaaS name
+    description: `Subscription for ${plan.name} plan`,
+    handler: function (response) {
+      alert(`✅ Payment successful for ${plan.name}`);
+      console.log("Payment Success:", response);
+    },
+    prefill: {
+      name: "Test User",
+      email: "testuser@example.com",
+      contact: "9999999999",
+    },
+    theme: {
+      color: "#005BA8",
+    },
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.open();
+};
+
   return (
     <div className="container mx-auto px-4 ">
       {/* Header */}
@@ -138,14 +164,15 @@ const Priceplan = () => {
                   {/* Button */}
                   <div>
                     <button
-                      className={`w-full  px-8 py-2.5 rounded-lg font-semibold transition-all duration-300 ${
-                        isPopular
-                          ? "bg-[#005BA8] text-white hover:bg-[#004a8a]"
-                          : "border border-[#D9DBE9] text-[#170F49] hover:bg-blue-50"
-                      }`}
-                    >
-                      Choose plan
-                    </button>
+    onClick={() => handlePayment(plan)} // 🟢 Add this
+    className={`w-full  px-8 py-2.5 rounded-lg font-semibold transition-all duration-300 ${
+      isPopular
+        ? "bg-[#005BA8] text-white hover:bg-[#004a8a]"
+        : "border border-[#D9DBE9] text-[#170F49] hover:bg-blue-50"
+    }`}
+  >
+    Choose plan
+  </button>
                   </div>
                 </div>
               );

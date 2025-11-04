@@ -46,26 +46,46 @@ const Login = () => {
 
         await login(values.email, values.password);
 
+        // 🔹 Save user plan info for sidebar control
+const userData = JSON.parse(localStorage.getItem("userData"));
+const userPlan = userData?.plan || null;
+localStorage.setItem("userPlan", userPlan ? JSON.stringify(userPlan) : null);
+
+const firstTimeLogin = userData?.isFirstTime ?? false;
         if (values.remember) {
           localStorage.setItem("rememberedEmail", values.email);
         } else {
           localStorage.removeItem("rememberedEmail");
         }
 
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        const firstTimeLogin = userData ? userData.isFirstTime : null;
+    
 
-        if (firstTimeLogin === true) {
-          navigate("/auth/reset-password/change", { replace: true });
-          return;
-        }
+if (firstTimeLogin) {
+  navigate("/auth/reset-password/change", { replace: true });
+  return;
+}
 
-        const roleId = userData?.userBasicDetails?.role?.id;
-        if (roleId === 1) {
-          navigate("/super-dashboard", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
+const roleId = Number(userData?.userBasicDetails?.role?.id);
+
+if (roleId === 1) {
+  // Super Admin → unrestricted
+  navigate("/super-dashboard", { replace: true });
+} else if (roleId === 2) {
+  // Normal Admin → check plan
+  const userPlan = userData?.plan;
+  if (userPlan === null) {
+    // No plan → lock sidebar, redirect to /price
+    navigate("/price", { replace: true });
+  } else {
+    // Has plan → full access
+    navigate("/", { replace: true });
+  }
+} else {
+  // Fallback
+  navigate("/", { replace: true });
+}
+
+
       } catch (error) {
         console.error("Login error:", error);
         let errorMessage = "The login details are incorrect";

@@ -59,17 +59,7 @@ const SuperCalendarPage = () => {
     FetchUserByRoleId();
   }, []);
 
-  const handleDateClick = (info) => {
-    const clickedDate = new Date(info.dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (clickedDate > today) {
-      navigate("/add-event", {
-        state: { event_date: clickedDate },
-      });
-    }
-  };
+ 
 
   return (
     <Fragment>
@@ -103,14 +93,8 @@ const SuperCalendarPage = () => {
         {/* Calendar */}
         <CalendarComponent
           data={data}
-          handleDateClick={handleDateClick}
-          openEvent={(item) => {
-            alert(
-              `Name: ${item.title}\nEmail: ${item.email}\nContact: ${item.contact}\nCompany: ${item.company}\nApproved: ${
-                item.isApprove ? "Yes" : "No"
-              }`
-            );
-          }}
+          
+        
           // ✅ Tooltip Template
           customTooltip={(event) => `
             <div class="p-1">
