@@ -175,7 +175,7 @@ const AddInvoicePage = () => {
             }));
           }
 
-          console.log("Mapped Rows:", mappedRows);
+          console.log("Mapped Rows:", mappedRows, rows);
 
           setRows(mappedRows.length > 0 ? mappedRows : rows);
           
