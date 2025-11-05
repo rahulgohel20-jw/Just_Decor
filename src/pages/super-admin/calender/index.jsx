@@ -95,7 +95,7 @@ const SuperCalendarPage = () => {
           data={data}
           
         
-          // ✅ Tooltip Template
+        
           customTooltip={(event) => `
             <div class="p-1">
               <p class="mb-1 font-semibold text-[#005BA8]">${event.title}</p>

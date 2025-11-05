@@ -2,6 +2,8 @@ import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
+
 import {
   GetAllRawMaterialAllocationCategory,
   GetAllRawMaterialAllocationItems,
@@ -28,6 +30,8 @@ const RawMaterialAllocation = () => {
   const unitOptions = ["Kilogram", "Gram", "Litre", "NOS"];
   const [isRawSidebar, setIsRawSidebar] = useState();
   const [selectedRow, setSelectedRow] = useState(null);
+    const [menuReportEventId, setMenuReportEventId] = useState(null);
+      const [isMenuReport, setIsMenuReport] = useState(false);
 
   const intl = useIntl(); 
 
@@ -231,6 +235,11 @@ const RawMaterialAllocation = () => {
     });
   }
 };
+ const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
+
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -340,6 +349,7 @@ const RawMaterialAllocation = () => {
       </div>
     );
   };
+
   const handleEditRow = (row) => {
     setSelectedRow(row);
     setIsRawSidebar(true);
@@ -347,7 +357,6 @@ const RawMaterialAllocation = () => {
   const handleSaveFromSidebar = (updatedRow) => {
   console.log("Saving from sidebar:", updatedRow);
   
-  // Update the data array with the modified row
   const updatedData = data.map((item) => {
     if (item.id === updatedRow.id || item.rawMaterialId === updatedRow.rawMaterialId) {
       return {
@@ -363,7 +372,7 @@ const RawMaterialAllocation = () => {
   
   setData(updatedData);
   
-  // Show confirmation
+  
   Swal.fire({
     icon: "success",
     title: "Updated",
@@ -439,6 +448,11 @@ const RawMaterialAllocation = () => {
             </div>
 
             <div className="flex flex-row items-end gap-2">
+              <button  onClick={openMenuReport} 
+                className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
+                title="Report">
+                  Report
+                </button>
               <button
                 className="bg-primary text-white text-sm px-5 py-2 rounded-md transition"
                 title="Save"
@@ -611,6 +625,11 @@ const RawMaterialAllocation = () => {
           selectedRow={selectedRow}
           onSave={handleSaveFromSidebar}
         />
+         <MenuReport
+                          isModalOpen={isMenuReport}
+                          setIsModalOpen={setIsMenuReport}
+                          eventId={menuReportEventId}
+                        />
       </Container>
     </Fragment>
   );

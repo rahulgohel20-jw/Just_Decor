@@ -6,6 +6,9 @@ import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin, Form } from "antd"
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
+
+
 import {
   GetEventMasterById,
   GetMenuAllocation,
@@ -252,6 +255,9 @@ const EventMenuAllocationPage = () => {
   const [allocationData, setAllocationData] = useState({});
   const [orderItemPrice, setOrderItemPrice] = useState();
   const [itemPrices, setItemPrices] = useState({});
+    const [menuReportEventId, setMenuReportEventId] = useState(null);
+    const [isMenuReport, setIsMenuReport] = useState(false);
+
 
   const intl = useIntl();
 
@@ -598,6 +604,11 @@ const EventMenuAllocationPage = () => {
     }
   };
 
+     const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
+
   return (
     <Fragment>
       <Container>
@@ -758,7 +769,10 @@ const EventMenuAllocationPage = () => {
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-start gap-5 md:justify-end">
-                  <button className="btn btn-sm btn-primary p-4" title="Report">
+                  <button 
+                   onClick={openMenuReport} 
+                                 className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+ title="Report">
                     <FormattedMessage id="EVENT_MENU_ALLOCATION.REPORT" defaultMessage="Report" />
                   </button>
                 </div>
@@ -835,6 +849,11 @@ const EventMenuAllocationPage = () => {
           open={iswhatsAppSidebar}
           onClose={() => setIsWhatsAppSidebar(false)}
         />
+         <MenuReport
+                          isModalOpen={isMenuReport}
+                          setIsModalOpen={setIsMenuReport}
+                          eventId={menuReportEventId}
+                        />
       </Container>
     </Fragment>
   );

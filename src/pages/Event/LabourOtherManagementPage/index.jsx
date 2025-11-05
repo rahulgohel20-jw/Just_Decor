@@ -8,6 +8,8 @@
   import { Select } from "antd";
   import dayjs from "dayjs";
   import customParseFormat from "dayjs/plugin/customParseFormat";
+  import MenuReport from "@/partials/modals/menu-report/MenuReport";
+
 
   dayjs.extend(customParseFormat);
   import Swal from "sweetalert2";
@@ -36,7 +38,8 @@ import { FormattedMessage, useIntl } from "react-intl";
   const [labourCategories, setLabourCategories] = useState([]);
   const [extraexpenseData, setExtraExpenseData] = useState([]);
   const [isExtraExpenseModalOpen, setIsExtraExpenseModalOpen] = useState(false);
-
+ const [menuReportEventId, setMenuReportEventId] = useState(null);
+      const [isMenuReport, setIsMenuReport] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
 
 
@@ -489,6 +492,10 @@ import { FormattedMessage, useIntl } from "react-intl";
     setSelectedExpense(expense);
     setIsExtraExpenseModalOpen(true);
   };
+ const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
 
   return (
     <Fragment>
@@ -554,7 +561,13 @@ import { FormattedMessage, useIntl } from "react-intl";
             </div>
 
             <div className="flex flex-row items-end gap-2">
-              <button className="btn btn-sm btn-primary" onClick={handleSave} title="Save">
+              <button  onClick={openMenuReport} 
+                className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+                title="Report">
+                  Report
+                </button>
+              <button
+               className="bg-[#005BA8] text-white text-sm px-3 py-2 rounded-md transition " onClick={handleSave} title="Save">
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" /> 
               </button>
             </div>
@@ -987,7 +1000,11 @@ import { FormattedMessage, useIntl } from "react-intl";
     />
   )}
 
-
+  <MenuReport
+                          isModalOpen={isMenuReport}
+                          setIsModalOpen={setIsMenuReport}
+                          eventId={menuReportEventId}
+                        />
         </Container>
       </Fragment>
     );

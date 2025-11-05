@@ -16,6 +16,8 @@ import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
+
 import { Layers, Package } from "lucide-react";
 import {
   useEventData,
@@ -78,6 +80,9 @@ const EventPreparationPage = () => {
   const [customSelectedItems, setCustomSelectedItems] = useState({});
   const [packageSelectedItems, setPackageSelectedItems] = useState({});
   const [isPackageMode, setIsPackageMode] = useState(false);
+  const [menuReportEventId, setMenuReportEventId] = useState(null);
+    const [isMenuReport, setIsMenuReport] = useState(false);
+
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
     itemSlogan: "",
@@ -730,6 +735,11 @@ const EventPreparationPage = () => {
     });
   };
 
+   const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
+
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
     selectedItems: [],
@@ -739,7 +749,6 @@ const EventPreparationPage = () => {
     categoryNotes: {},
     categorySlogans: {},
   };
-  // Update the menuItemsWithSelectionState calculation
   const currentMenuItems = useMemo(() => {
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const baseItems = functionMenuData[cacheKey] || [];
@@ -789,7 +798,7 @@ const EventPreparationPage = () => {
     const baseItems = functionMenuData[cacheKey] || [];
     const allFunctionItems = allMenuItems[selectedFunctionId] || [];
 
-    // Check for duplicates
+    
     const packageOriginalIds = allFunctionItems
       .filter((i) => i.isPackageItem)
       .map((i) => i.menuItemId);
@@ -966,19 +975,54 @@ const EventPreparationPage = () => {
               <div className="border-b p-3 shrink-0 bg-white">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex flex-col">
-                    <span className=" flex  cursor-pointer text-sm font-semibold mb-2">
-                      <div className="flex gap-2">
-                        <img
-                          className="w-4 h-4   "
-                          src={toAbsoluteUrl("/media/menu/eventno.png")}
-                          alt="id"
-                        />
-                        <span className="text-gray-900 ">Event No:</span>
+                   <div className="flex items-center justify-between gap-6 mb-2">
+  {/* Event No */}
+  <div className="flex items-center gap-2 cursor-pointer text-sm font-semibold">
+    <img
+      className="w-4 h-4"
+      src={toAbsoluteUrl("/media/menu/eventno.png")}
+      alt="event"
+    />
+    <span className="text-gray-900">Event No:</span>
+    <span className="text-primary ms-1">{orderDetails.id}</span>
+  </div>
+
+  {/* Person */}
+  <div className="flex items-center gap-2">
+    <img
+      className="w-4 h-4"
+      src={toAbsoluteUrl("/media/menu/person.png")}
+      alt="person"
+    />
+    <span className="text-sm font-semibold text-gray-900">Person:</span>
+     <input
+                        type="number"
+                        min={1}
+                        className="input input-sm w-20"
+                        value={pax}
+                        onChange={(e) => handlePaxChange(e.target.value)}
+                      />
+    <span className="text-primary ms-1">{orderDetails.personName}</span>
+  </div>
+   <div className="flex gap-1">
+                        <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
+                          <span className="text-base text-primary">
+                            &#8377;
+                          </span>
+                        </strong>
+                        <span className="text-sm font-medium text-gray-900">
+                          Default Rate:
+                        </span>
                       </div>
-                      <span className=" text-primary ms-1">
-                        {orderDetails.id}
-                      </span>
-                    </span>
+
+                      <input
+                        type="number"
+                        value={rate}
+                        onChange={(e) => handleRateChange(e.target.value)}
+                        className="input input-sm w-20"
+                      />
+</div>
+
                     <span className="flex cursor-pointer text-sm font-semibold">
                       <div className="flex gap-2">
                         <img
@@ -994,7 +1038,7 @@ const EventPreparationPage = () => {
                     </span>
                   </div>
                 </div>
-                <div className="border-b p-3 shrink-0  rounded-xl bg-[#FAFAFA]">
+                <div className="   shrink-0  rounded-xl">
                   <div className="flex  gap-6 mb-2">
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
@@ -1012,58 +1056,16 @@ const EventPreparationPage = () => {
                       </span>
                     </p>
                     <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-2">
-                        <img
-                          className="w-4 h-4  "
-                          src={toAbsoluteUrl("/media/menu/person.png")}
-                          alt="id"
-                        />
-                        <span className="text-sm font-semibold text-gray-900">
-                          Person:
-                        </span>
-                      </div>
+                      
 
-                      <input
-                        type="number"
-                        min={1}
-                        className="input input-sm w-20"
-                        value={pax}
-                        onChange={(e) => handlePaxChange(e.target.value)}
-                      />
+                     
                     </p>
-                    <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-2">
-                        <img
-                          className="w-4 h-4  "
-                          src={toAbsoluteUrl("/media/menu/venue.png")}
-                          alt="id"
-                        />
-                        <span className="text-sm font-semibold text-gray-900">
-                          Venue:
-                        </span>
-                      </div>
-                      <span className="font-semibold text-sm  text-primary">
-                        {orderDetails.venue}
-                      </span>
-                    </p>
-                    <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-1">
-                        <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                          <span className="text-base text-primary">
-                            &#8377;
-                          </span>
-                        </strong>
-                        <span className="text-sm font-medium text-gray-900">
-                          Default Rate:
-                        </span>
-                      </div>
+                    
 
-                      <input
-                        type="number"
-                        value={rate}
-                        onChange={(e) => handleRateChange(e.target.value)}
-                        className="input input-sm w-20"
-                      />
+                    <p className="flex items-center gap-1 mb-1">
+                     
+
+                      
                     </p>
                   </div>
                   <div className="flex  gap-6">
@@ -1099,7 +1101,25 @@ const EventPreparationPage = () => {
                     </p>
                   </div>
                 </div>
+                <p className="flex items-center gap-1 mb-1 mt-1">
+                      <div className="flex gap-2">
+                        <img
+                          className="w-4 h-4  "
+                          src={toAbsoluteUrl("/media/menu/venue.png")}
+                          alt="id"
+                        />
+                        <span className="text-sm font-semibold text-gray-900">
+                          Venue:
+                        </span>
+                      </div>
+                      <span className="font-semibold text-sm  text-primary">
+                        {orderDetails.venue}
+                      </span>
+                    </p>
+                    
               </div>
+         
+                    
               <div className={`pt-3 px-3 shrink-0 ${classes.customStyle}`}>
                 <TabComponent
                   tabs={menuPreparationsTabs}
@@ -1140,11 +1160,12 @@ const EventPreparationPage = () => {
                   </button>
                 </div>
 
-                <button
-                onClick={() => navigate("/report-themes")}
-                  className={`px-4 py-2 rounded-md font-medium bg-primary text-white `} >
-                  Report
-                </button>
+             <button
+    onClick={openMenuReport}
+                className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+  >
+    Report
+  </button>
               </div>
               <div className="px-3 ">
                 {activeTab === "package" &&
@@ -1416,6 +1437,11 @@ const EventPreparationPage = () => {
           notes={itemNotes}
           onSave={handleNoteSave}
         />
+         <MenuReport
+                  isModalOpen={isMenuReport}
+                  setIsModalOpen={setIsMenuReport}
+                  eventId={menuReportEventId}
+                />
       </Container>
     </Fragment>
   );

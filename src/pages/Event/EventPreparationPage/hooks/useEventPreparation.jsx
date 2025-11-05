@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { Tooltip } from "antd";
+
 import {
   GetAllCategoryformenu,
   GetEventMasterById,
@@ -32,18 +34,21 @@ const useEventData = () => {
   eventEnddateTime: item?.eventEndDateTime || "",
   venue: item?.venue || "N/A",
   eventFunctions:
-    item?.eventFunctions?.map((f) => ({
-      id: f?.id || 0,
-      name:
-        f?.function?.nameEnglish?.trim() ||
-        f?.function?.name ||
-        "Unnamed Function",
-      startTime: f?.function?.startTime || "",
-      endTime: f?.function?.endTime || "",
-      pax: f?.pax || 0,
-      rate: f?.rate || 0,
-      venue: f?.function_venue || "N/A",
-    })) || [],
+  item?.eventFunctions?.map((f) => ({
+    id: f?.id || 0,
+    name:
+      f?.function?.nameEnglish?.trim() ||
+      f?.function?.name ||
+      "Unnamed Function",
+    startTime: f?.function?.startTime || "",
+    endTime: f?.function?.endTime || "",
+    functionStartDateTime: f?.functionStartDateTime || "",
+    functionEndDateTime: f?.functionEndDateTime || "",
+    pax: f?.pax || 0,
+    rate: f?.rate || 0,
+    venue: f?.function_venue || "N/A",
+  })) || [],
+
 }));
 
       
@@ -59,22 +64,46 @@ const useEventData = () => {
           venue: firstEvent.venue,
         });
 
-        const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
-          label: (
-            <div className="cursor-pointer flex flex-col gap-1">
-              <div className="flex items-center gap-1">
-                <i className="ki-filled ki-disk"></i>
-                <span>{fn.name}</span>
-              </div>
 
-              <span className="text-xs text-gray-500">
-                Time: {fn.startTime}
-              </span>
-            </div>
-          ),
-          value: fn.id,
-          children: "",
-        }));
+const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
+  label: (
+    <Tooltip
+      color="#fff"
+      overlayInnerStyle={{ color: "#000" }}
+      placement="top"
+      title={
+        <div className="p-1 text-xs leading-tight">
+          <p className="mb-1">
+            <i className="ki-filled ki-map-pin text-success me-1"></i>
+            <strong>  <i className="ki-filled ki-calendar text-success me-1"></i>Venue:</strong> {fn.function_venue || "N/A"}
+          </p>
+          
+        
+        </div>
+      }
+    >
+      <div className="cursor-pointer flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          <i className="ki-filled ki-disk"></i>
+          <span>{fn.name}</span>
+        </div>
+
+        <div className="text-xs text-gray-500 flex flex-col leading-tight">
+          <span>Time: {fn.startTime}</span>
+          <span>
+            Date:{" "}
+            {fn.functionStartDateTime
+              ? fn.functionStartDateTime.split(" ")[0]
+              : "N/A"}
+          </span>
+        </div>
+      </div>
+    </Tooltip>
+  ),
+  value: fn.id,
+  children: "",
+}));
+
 
         setMenuPreparationsTabs(dynamicTabs);
         setStartDateandtime(firstEvent.eventStartDateTime.split(" ")[0] || "");
