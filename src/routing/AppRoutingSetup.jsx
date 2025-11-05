@@ -184,6 +184,7 @@ import SuperCalendarPage from "../pages/super-admin/calender";
 import SuperAdminMember from "../pages/superadminmember/SuperAdminMember";
 import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit";
 import UserRights from "../pages/userrights/UserRights";
+import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -314,6 +315,8 @@ const AppRoutingSetup = () => {
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
+
           <Route path="/Superadmin-member" element={<SuperAdminMember />} />
           <Route
             path="/Superadmin-member-edit"
