@@ -17,7 +17,6 @@
   import { GetEventMasterById, GetAllContactCategory, GetPartyMasterByCatTypeId, AddUpdateLabor, GetEventLaborDetails, GetExtraExpenseByEvent,DeleteExtraExpense } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
   import AddExtraExpense from "../../../partials/modals/add-extra-expense/AddExtraExpense";
 
   const LabourOtherManagementPage = () => {
@@ -496,6 +495,18 @@ import { FormattedMessage, useIntl } from "react-intl";
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+  const fetchExtraExpenseData = async () => {
+  const res = await GetExtraExpenseByEventId(eventId);
+  setExtraExpense(res.data.data || []);
+};
+const refreshExtraExpense = async () => {
+  const activeFunction = eventData?.eventFunctions?.find(
+    (fn) => fn.function?.nameEnglish === activeTab
+  );
+  if (activeFunction) {
+    await fetchExtraExpense(activeFunction.id, eventData.id);
+  }
+};
 
   return (
     <Fragment>
@@ -836,7 +847,6 @@ import { FormattedMessage, useIntl } from "react-intl";
                           </td>
                           <td className="px-3 py-2">
                             <div className="flex items-center justify-center gap-1">
-                              {/* ✅ Opens Labour Detail Sidebar */}
                               <button 
                                 className="btn btn-sm btn-icon btn-clear" 
                                 onClick={handleLabourDetailView}
@@ -916,52 +926,38 @@ import { FormattedMessage, useIntl } from "react-intl";
                 <th className="px-3 py-2 text-center w-[4%]">#</th>
                 <th className="px-3 py-2 w-[20%]">Expense Type</th>
                 <th className="px-3 py-2 w-[10%]">Qty</th>
-                <th className="px-3 py-2 w-[10%]">Unit</th>
                 <th className="px-3 py-2 w-[10%]">Rate</th>
                 <th className="px-3 py-2 w-[10%]">Total</th>
                 <th className="px-3 py-2 w-[15%]">Action </th>
               </tr>
             </thead>
             <tbody>
-          {extraexpenseData.length > 0 ? (
-    extraexpenseData.map((row, index) => (
-      <tr key={row.id}>
-        <td className="text-center">{index + 1}</td>
-        <td>{row.name}</td>
-        <td>{row.qty}</td>
-        <td>pcs</td>
-        <td>{row.rate}</td>
-        <td>{row.total}</td>
-          <td className="px-3 py-2">
-                              <div className="flex items-center justify-left gap-1">
-                                <button 
-                                className="btn bt-sm btn-con btn-clear"
-                                title="Edit"
-                      
-          onClick={() => handleEditExpense(row)}
-
-                                >
-                                  <i className="ki-filled ki-notepad-edit text-primary"></i>
-                                </button>
-                              
-
-                                <button
-                                  onClick={() => deleteExtraExpenceRow(row.id)}
-                                  className="btn btn-sm btn-icon btn-clear"
-                                >
-                                  <i className="ki-filled ki-trash text-danger"></i>
-                                </button>
-                              </div>
-                            </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="7" className="text-center py-3 text-gray-500">
-        No extra expenses found.
+ {Array.isArray(extraexpenseData) && extraexpenseData.length > 0 ? (
+  extraexpenseData.map((row, index) => (
+    <tr key={row.id}>
+      <td className="text-center">{index + 1}</td>
+      <td>{row.name}</td>
+      <td>{row.qty}</td>
+      <td>{row.rate}</td>
+      <td>{row.total}</td>
+      <td className="flex gap-1">
+        <button onClick={() => handleEditExpense(row)}>
+          <i className="ki-filled ki-notepad-edit text-primary"></i>
+        </button>
+        <button onClick={() => deleteExtraExpenceRow(row.id)}>
+          <i className="ki-filled ki-trash text-danger"></i>
+        </button>
       </td>
     </tr>
-  )}
+  ))
+) : (
+  <tr>
+    <td colSpan="7" className="text-center py-3 text-gray-500">
+      No extra expenses found.
+    </td>
+  </tr>
+)}
+
             </tbody>
           </table>
         </div>
@@ -988,11 +984,13 @@ import { FormattedMessage, useIntl } from "react-intl";
   {isExtraExpenseModalOpen && (
     <AddExtraExpense
       isOpen={isExtraExpenseModalOpen}  
-      onClose={() => setIsExtraExpenseModalOpen(false)}
+  onClose={() => {
+    setIsExtraExpenseModalOpen(false);
+    refreshExtraExpense(); 
+  }}       refreshData={fetchExtraExpenseData} 
       eventData={eventData} 
         selectedMeal={selectedExpense}  
-      refreshData={() => {
-      }}
+    
       onSave={(newExpense) => {
         setExtraExpenseData((prev) => [...prev, { id: Date.now(), ...newExpense }]);
         setIsExtraExpenseModalOpen(false);
@@ -1011,3 +1009,4 @@ import { FormattedMessage, useIntl } from "react-intl";
   };
 
   export default LabourOtherManagementPage;
+	

@@ -6,6 +6,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
   if (!isModalOpen) return null;
+  const [selectedLanguage, setSelectedLanguage] = useState("english");
+
 
   const [options, setOptions] = useState({
     categorySlogan: false,
@@ -41,7 +43,6 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
 
   const handleClose = () => setIsModalOpen(false);
 
-  // open a URL in new tab (more reliable than window.open in async handlers)
   const openInNewTab = (url) => {
     const a = document.createElement("a");
     a.href = url;
@@ -52,13 +53,12 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
     a.remove();
   };
 
-  // fallback: fetch as blob and open
+  
   const openAsBlob = async (url) => {
-    const res = await fetch(url, { credentials: "include" }); // adjust if auth not needed
+    const res = await fetch(url, { credentials: "include" }); 
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
     openInNewTab(blobUrl);
-    // optionally revoke after a delay
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
   };
 
@@ -92,7 +92,6 @@ const MenuReport = ({ isModalOpen, setIsModalOpen, eventId }) => {
   openInNewTab(data.filePath);
 }
 else {
-        // 👇 override error message if it matches
         if (data?.msg === "Failed to get Event Menu Report") {
           errorMsgPopup("Menu preparation is not done");
         } else {
@@ -125,90 +124,148 @@ else {
   }, [isModalOpen]);
 
   return (
-    <CustomModal
-      open={isModalOpen}
-      title={intl.formatMessage({
-  id: "COMMON.MENU_REPORT",
-  defaultMessage: "Menu Report",
-})}
+   <CustomModal
+  open={isModalOpen}
+  title={intl.formatMessage({
+    id: "COMMON.MENU_REPORT",
+    defaultMessage: "Menu Report",
+  })}
+  onClose={handleClose}
+  footer={[
+    <div key="footer" className="flex flex-row justify-end gap-2">
+      <button
+        type="button"
+        onClick={handleClose}
+        className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
+        disabled={loading}
+      >
+        <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
+      </button>
+      <button
+        type="button"
+        onClick={handleReport}
+        className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
+        disabled={loading}
+      >
+        {loading
+          ? intl.formatMessage({
+              id: "COMMON.REPORTING",
+              defaultMessage: "Reporting...",
+            })
+          : intl.formatMessage({ id: "COMMON.REPORT", defaultMessage: "Report" })}
+      </button>
+    </div>,
+  ]}
+>
+ 
+  <div className="flex  justify-center items-center gap-6 mb-4">
+    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <input
+        type="radio"
+        name="language"
+        value="english"
+        checked={selectedLanguage === "english"}
+        onChange={() => setSelectedLanguage("english")}
+        className="text-blue-600 focus:ring-blue-500"
+      />
+      English
+    </label>
 
-      onClose={handleClose}
-      footer={[
-        <div key="footer" className="flex flex-row justify-end gap-2">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700"
-            disabled={loading}
-          >
-            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
-          </button>
-          <button
-            type="button"
-            onClick={handleReport}
-            className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
-            disabled={loading}
-          >
-            {loading
-  ? intl.formatMessage({ id: "COMMON.REPORTING", defaultMessage: "Reporting..." })
-  : intl.formatMessage({ id: "COMMON.REPORT", defaultMessage: "Report" })}
+    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <input
+        type="radio"
+        name="language"
+        value="gujarati"
+        checked={selectedLanguage === "gujarati"}
+        onChange={() => setSelectedLanguage("gujarati")}
+        className="text-blue-600 focus:ring-blue-500"
+      />
+      Gujarati
+    </label>
 
-          </button>
-        </div>,
-      ]}
-    >
-      <div className="flex flex-col gap-3">
-        <label className="flex items-center gap-3 p-3 border rounded-lg">
-          <input
-            type="checkbox"
-            checked={allChecked}
-            onChange={(e) => toggleAll(e.target.checked)}
-          />
-          <span className="font-medium"><FormattedMessage id="COMMON.CHECK_ALL" defaultMessage="Check All" />
-</span>
-        </label>
+    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <input
+        type="radio"
+        name="language"
+        value="hindi"
+        checked={selectedLanguage === "hindi"}
+        onChange={() => setSelectedLanguage("hindi")}
+        className="text-blue-600 focus:ring-blue-500"
+      />
+      Hindi
+    </label>
+  </div>
 
-        <label className="flex items-center gap-3 p-3 border rounded-lg">
-          <input
-            type="checkbox"
-            checked={options.categorySlogan}
-            onChange={() => toggleOne("categorySlogan")}
-          />
-          <span><FormattedMessage id="COMMON.ADD_CATEGORY_SLOGAN" defaultMessage="Add Category Slogan" />
-</span>
-        </label>
+  <div className="flex flex-col gap-3">
+    <label className="flex items-center gap-3 p-3 border rounded-lg">
+      <input
+        type="checkbox"
+        checked={allChecked}
+        onChange={(e) => toggleAll(e.target.checked)}
+      />
+      <span className="font-medium">
+        <FormattedMessage id="COMMON.CHECK_ALL" defaultMessage="Check All" />
+      </span>
+    </label>
 
-        <label className="flex items-center gap-3 p-3 border rounded-lg">
-          <input
-            type="checkbox"
-            checked={options.categoryInstruction}
-            onChange={() => toggleOne("categoryInstruction")}
-          />
-          <span><FormattedMessage id="COMMON.ADD_CATEGORY_INSTRUCTION" defaultMessage="Add Category Instruction" />
-</span>
-        </label>
+    <label className="flex items-center gap-3 p-3 border rounded-lg">
+      <input
+        type="checkbox"
+        checked={options.categorySlogan}
+        onChange={() => toggleOne("categorySlogan")}
+      />
+      <span>
+        <FormattedMessage
+          id="COMMON.ADD_CATEGORY_SLOGAN"
+          defaultMessage="Add Category Slogan"
+        />
+      </span>
+    </label>
 
-        <label className="flex items-center gap-3 p-3 border rounded-lg">
-          <input
-            type="checkbox"
-            checked={options.categoryImage}
-            onChange={() => toggleOne("categoryImage")}
-          />
-          <span><FormattedMessage id="COMMON.ADD_CATEGORY_IMAGE" defaultMessage="Add Category Image" />
-</span>
-        </label>
+    <label className="flex items-center gap-3 p-3 border rounded-lg">
+      <input
+        type="checkbox"
+        checked={options.categoryInstruction}
+        onChange={() => toggleOne("categoryInstruction")}
+      />
+      <span>
+        <FormattedMessage
+          id="COMMON.ADD_CATEGORY_INSTRUCTION"
+          defaultMessage="Add Category Instruction"
+        />
+      </span>
+    </label>
 
-        <label className="flex items-center gap-3 p-3 border rounded-lg">
-          <input
-            type="checkbox"
-            checked={options.itemSlogan}
-            onChange={() => toggleOne("itemSlogan")}
-          />
-          <span><FormattedMessage id="COMMON.ADD_ITEM_SLOGAN" defaultMessage="Add Item Slogan" />
-</span>
-        </label>
-      </div>
-    </CustomModal>
+    <label className="flex items-center gap-3 p-3 border rounded-lg">
+      <input
+        type="checkbox"
+        checked={options.categoryImage}
+        onChange={() => toggleOne("categoryImage")}
+      />
+      <span>
+        <FormattedMessage
+          id="COMMON.ADD_CATEGORY_IMAGE"
+          defaultMessage="Add Category Image"
+        />
+      </span>
+    </label>
+
+    <label className="flex items-center gap-3 p-3 border rounded-lg">
+      <input
+        type="checkbox"
+        checked={options.itemSlogan}
+        onChange={() => toggleOne("itemSlogan")}
+      />
+      <span>
+        <FormattedMessage
+          id="COMMON.ADD_ITEM_SLOGAN"
+          defaultMessage="Add Item Slogan"
+        />
+      </span>
+    </label>
+  </div>
+</CustomModal>
+
   );
 };
 

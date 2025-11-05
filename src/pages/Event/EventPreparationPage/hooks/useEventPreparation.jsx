@@ -34,6 +34,7 @@ const useEventData = () => {
   eventEnddateTime: item?.eventEndDateTime || "",
   venue: item?.venue || "N/A",
   eventFunctions:
+  
   item?.eventFunctions?.map((f) => ({
     id: f?.id || 0,
     name:
@@ -46,8 +47,7 @@ const useEventData = () => {
     functionEndDateTime: f?.functionEndDateTime || "",
     pax: f?.pax || 0,
     rate: f?.rate || 0,
-    venue: f?.function_venue || "N/A",
-  })) || [],
+ venue: f?.function_venue || "N/A",  })) || [],
 
 }));
 
@@ -75,7 +75,9 @@ const dynamicTabs = firstEvent.eventFunctions.map((fn) => ({
         <div className="p-1 text-xs leading-tight">
           <p className="mb-1">
             <i className="ki-filled ki-map-pin text-success me-1"></i>
-            <strong>  <i className="ki-filled ki-calendar text-success me-1"></i>Venue:</strong> {fn.function_venue || "N/A"}
+            <strong> 
+               <i className="ki-filled ki-calendar text-success me-1"></i>
+               Venue:</strong> {fn.venue || "N/A"}
           </p>
           
         
