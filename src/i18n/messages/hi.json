@@ -715,7 +715,8 @@
   "COMMON.SUBSCRIPTION": "सब्सक्रिप्शन",
   "COMMON.PAYMENT_HISTORY": "पेमेंट हिस्ट्री",
   "COMMON.NOTIFICATIONS": "नोटिफिकेशन्स",
-  
+
   "BREADCRUMBS_CUSTOM_PACKAGE": "कस्टम पैकेज",
-  "BREADCRUMBS_CREATE_NEW": "नया बनाएं"
+  "BREADCRUMBS_CREATE_NEW": "नया बनाएं",
+  "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स"
 }

@@ -710,11 +710,11 @@
   "COMMON.SETTINGS": "સેટિંગ્સ",
   "COMMON.COMPANY_PROFILE": "કંપની પ્રોફાઇલ",
   "COMMON.UTILITY_PAGE": "યુટિલિટી પેજ",
-  "COMMON.SUBSCRIPTION": "સબ્સ્ક્રિપ્શન",  
+  "COMMON.SUBSCRIPTION": "સબ્સ્ક્રિપ્શન",
   "COMMON.PAYMENT_HISTORY": "પેમેન્ટ હિસ્ટરી",
   "COMMON.NOTIFICATIONS": "નોટિફિકેશન્સ",
-  
-  "BREADCRUMBS_CUSTOM_PACKAGE": "કસ્ટમ પેકેજ",
-  "BREADCRUMBS_CREATE_NEW": "નવું બનાવો"
 
+  "BREADCRUMBS_CUSTOM_PACKAGE": "કસ્ટમ પેકેજ",
+  "BREADCRUMBS_CREATE_NEW": "નવું બનાવો",
+  "BREADCRUMBS_USER_RIGHTS": "યુઝર રાઇટ્સ"
 }
