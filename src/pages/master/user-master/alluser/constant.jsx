@@ -79,6 +79,25 @@ export const columns = (onEdit, handleApprove) => {
       meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
     },
     {
+      accessorKey: "call",
+      header: "Call",
+      meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+       cell: ({ row }) => {
+       
+        return (
+          <div className="flex items-center justify-center gap-1">
+            
+            <Tooltip title="Call File">
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-call text-success"></i>
+              </button>
+            </Tooltip>
+            
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "isApprove",
       header: "Approved",
       cell: ({ row }) => {
