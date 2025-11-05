@@ -4,6 +4,8 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import DishCostingModal from "./CostingSidebar/DishCostingModal";
 import { FormattedMessage, useIntl } from "react-intl";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
+
 
 const DishCostingPage = () => {
   const classes = useStyles();
@@ -11,6 +13,13 @@ const DishCostingPage = () => {
   const [viewType, setViewType] = useState('Function Wise');
   const [functionType, setFunctionType] = useState('Dinner');
   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [menuReportEventId, setMenuReportEventId] = useState(null);
+      const [isMenuReport, setIsMenuReport] = useState(false);
+
+ const openMenuReport = (eventId) => {
+    setMenuReportEventId(eventId);
+    setIsMenuReport(true);
+  };
 
   const intl = useIntl();
 
@@ -77,25 +86,34 @@ const DishCostingPage = () => {
                   <FormattedMessage id="COMMON.VIEW_TYPE" defaultMessage="View Type" />
 
                 </label>
-                <div className="card mb-5">
-          <div className="card-body p-0">
-            <div className="flex">
-              {['Function Wise', 'Total Wise'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-8 py-3 text-sm font-medium transition-colors w-full rounded-lg ${
-                    activeTab === tab
-                      ? 'bg-primary text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+              <div className="mb-5">
+  <div className="flex items-center justify-between">
+    {/* Tabs */}
+    <div className="flex gap-2">
+      {['Function Wise', 'Total Wise'].map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          className={`px-6 py-2 text-sm font-medium transition-colors rounded-lg shadow-sm ${
+            activeTab === tab
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+
+    {/* Add Button */}
+    <button onClick={openMenuReport} 
+                className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+    >
+      Report
+    </button>
+  </div>
+</div>
+
 
               </div>
             </div>
@@ -279,6 +297,11 @@ const DishCostingPage = () => {
   onClose={() => setIsModalOpen(false)}
   viewType={viewType}
 />
+  <MenuReport
+                          isModalOpen={isMenuReport}
+                          setIsModalOpen={setIsMenuReport}
+                          eventId={menuReportEventId}
+                        />
 
       </Container>
     </Fragment>
