@@ -54,7 +54,9 @@ const allMenuItems = [
     path: "/",
   },
   {
-    title: "Events",
+    title: (
+          <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />
+        ),
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
@@ -75,7 +77,9 @@ const allMenuItems = [
     ],
   },
   {
-    title: "Master",
+    title: (
+          <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />
+        ),
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
@@ -249,7 +253,9 @@ const allMenuItems = [
     ],
   },
   {
-    title: "Reports",
+    title: (
+          <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />
+        ),
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
@@ -282,7 +288,9 @@ const allMenuItems = [
     ],
   },
   {
-    title: "Sales",
+    title: (
+          <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />
+        ),
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
