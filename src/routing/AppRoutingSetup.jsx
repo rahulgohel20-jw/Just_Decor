@@ -183,6 +183,7 @@ import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
 import SuperCalendarPage from "../pages/super-admin/calender";
 import SuperAdminMember from "../pages/superadminmember/SuperAdminMember";
 import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit";
+import UserRights from "../pages/userrights/UserRights";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -229,6 +230,8 @@ const AppRoutingSetup = () => {
           />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
+          <Route path="/user-rights" element={<UserRights />} />
+
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
           <Route
