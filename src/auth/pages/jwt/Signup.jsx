@@ -92,7 +92,6 @@ export default function Signup() {
     },
   });
 
-  // ✅ Load countries
   useEffect(() => {
     const loadCountries = async () => {
       try {

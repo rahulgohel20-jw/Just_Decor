@@ -326,6 +326,15 @@ const allMenuItems = [
       {
         title: (
           <FormattedMessage
+            id="COMMON.USER_RIGHTS"
+            defaultMessage="User Rights"
+          />
+        ),
+        path: "/user-rights",
+      },
+      {
+        title: (
+          <FormattedMessage
             id="COMMON.UTILITY_PAGE"
             defaultMessage="Utility Page"
           />
