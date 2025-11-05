@@ -1,42 +1,61 @@
 import { useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { Card } from "antd";
-import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { ReloadOutlined } from "@ant-design/icons";
 
 export default function SuperAdminUserLogs() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    // Fetch or mock API data
+    // Mock data (replace with API)
     const mockLogs = [
       {
         id: 1,
-        userName: "John Doe",
-        action: "Created a new Event ‘Wedding Ceremony’",
-        module: "Event",
-        timestamp: "05 Nov 2025, 12:31 PM",
+        date: "16/05/2025",
+        time: "12:53 PM",
+        oldValue: "Yes",
+        newValue: "No",
+        field: "Active",
+        updatedBy: "Admin",
+        highlight: false,
       },
       {
         id: 2,
-        userName: "Sarah Kapoor",
-        action: "Updated quotation for client ‘Mr. Sharma’",
-        module: "Quotation",
-        timestamp: "05 Nov 2025, 12:10 PM",
+        date: "13/05/2025",
+        time: "03:54 PM",
+        oldValue: "No",
+        newValue: "Yes",
+        field: "Active",
+        updatedBy: "Admin",
+        highlight: false,
       },
       {
         id: 3,
-        userName: "Ravi Kumar",
-        action: "Logged into the system",
-        module: "Authentication",
-        timestamp: "05 Nov 2025, 11:45 AM",
+        date: "13/05/2025",
+        time: "03:54 PM",
+        oldValue: "Yes",
+        newValue: "No",
+        field: "Active",
+        updatedBy: "Admin",
+        highlight: false,
       },
       {
         id: 4,
-        userName: "Anjali Singh",
-        action: "Deleted supplier ‘Floral Heaven’",
-        module: "Supplier",
-        timestamp: "04 Nov 2025, 06:22 PM",
+        date: "08/11/2024",
+        time: "03:15 PM",
+        oldValue: "",
+        newValue: "KYC Doc 2",
+        field: "",
+        updatedBy: "Admin",
+        highlight: false,
+      },
+      {
+        id: 5,
+        date: "08/11/2024",
+        time: "03:15 PM",
+        message: "Member Updated and Code is : TBHSIG999",
+        updatedBy: "Admin",
+        highlight: true,
       },
     ];
     setLogs(mockLogs);
@@ -44,48 +63,72 @@ export default function SuperAdminUserLogs() {
 
   return (
     <Container>
-      <Breadcrumbs items={[{ title: "Super Admin" }, { title: "User Logs" }]} />
+      <Breadcrumbs items={[{ title: "Super Admin" }, { title: " " }]} />
 
-      <div className="min-h-screen  rounded-lg mt-3">
-        <div className="space-y-4">
-          {logs.map((log) => (
-            <Card
-              key={log.id}
-              className="rounded-2xl shadow-sm border border-primary bg-white hover:shadow-md transition-all duration-200"
-              bodyStyle={{ padding: "16px 20px" }}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-                    <UserOutlined className="text-white" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-primary">{log.userName}</p>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <ClockCircleOutlined className="text-[10px]" />
-                      <span>{log.timestamp}</span>
-                    </div>
-                  </div>
-                </div>
+      <div className="bg-white mt-5 rounded-md border border-gray-200 shadow-sm">
+        <div className="bg-[#005BA8] text-white px-5 py-3 text-lg font-semibold rounded-t-md">
+          Member Logs
+        </div>
 
-                <span className="text-xs font-medium text-white bg-primary px-3 py-1 rounded-full border border-[#EAD9BF]">
-                  {log.module}
-                </span>
+        {/* Timeline section */}
+        <div className="relative pl-9 py-6">
+          {/* Main vertical line */}
+
+          {logs.map((log, index) => (
+            <div key={log.id} className="relative flex items-start mb-8">
+              {/* Date and time */}
+              <div className="w-40 text-sm font-semibold text-gray-700">
+                {log.date} <br /> {log.time}
               </div>
 
-              <div className="border-t border-gray-100 my-3" />
+              {/* Circle icon */}
+        <div
+  className={`relative flex items-center justify-center w-7 h-7 rounded-full border-2 border-dotted bg-white ${
+    log.highlight
+      ? "border-red-500 text-red-500"
+      : "border-[#28375F] text-[#28375F]"
+  }`}
+>
+  <ReloadOutlined className="text-sm" />
+  {index !== logs.length - 1 && (
+    <div className="absolute top-7 left-1/2 -translate-x-1/2 w-[2px] h-8 bg-gray-300"></div>
+  )}
+</div>
 
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {log.action}
-              </p>
-            </Card>
-          ))}
 
-          {logs.length === 0 && (
-            <div className="text-center py-20 text-gray-500 text-sm">
-              No logs available.
+              <div className="ml-6">
+                {log.message ? (
+                  <p className="text-sm text-red-600 font-medium">
+                    {log.message}, updated by{" "}
+                    <span className="font-semibold text-gray-700">
+                      {log.updatedBy}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-sm">
+                    {log.oldValue !== "" && (
+                      <>
+                        <span className="font-semibold">Old:</span>{" "}
+                        {log.oldValue} <br />
+                      </>
+                    )}
+                    {log.newValue !== "" && (
+                      <>
+                        <span className="font-semibold">New:</span>{" "}
+                        {log.newValue} <br />
+                      </>
+                    )}
+                    {log.field && (
+                      <>
+                        {log.field} updated by{" "}
+                        <span className="font-semibold">{log.updatedBy}</span>
+                      </>
+                    )}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </Container>
