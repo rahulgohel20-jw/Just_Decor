@@ -77,10 +77,9 @@ const SuperAdminMemberEdit = () => {
           {/* ------------ Add Members ------------ */}
           <section className="border rounded-md">
             <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
-              Add Members
+              Member Details
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-              <Input placeholder="TBH516999" />
               <Select
                 defaultValue="Mr."
                 options={[
@@ -89,27 +88,45 @@ const SuperAdminMemberEdit = () => {
                   { label: "Ms.", value: "Ms." },
                 ]}
               />
+              <Input placeholder="JCE253366" />
               <Input placeholder="Jyotiben K Patel" />
-              <DatePicker placeholder="DOB" className="w-full" />
-              <Input placeholder="Email" />
-              <DatePicker placeholder="Anniversary Date" className="w-full" />
+              
+              
               <Input placeholder="Address" />
-              <Input placeholder="Res Pin Code" />
               <Input placeholder="City" />
-              <Input placeholder="State" />
+              <Input placeholder="Mobile" />
               <Select
-                defaultValue="Individual"
+                defaultValue="Divyesh"
+                placeholder="Reporting Manager"
                 options={[
-                  { label: "Individual", value: "Individual" },
-                  { label: "Corporate", value: "Corporate" },
+                  { label: "Divyesh", value: "Divyesh" },
+                  { label: "Jay", value: "Jay" },
                 ]}
               />
-              <Input placeholder="Campaign Name" />
+              <Select
+                defaultValue="Select Plan"
+               
+                options={[
+                  { label: "Lite", value: "lite" },
+                  { label: "E-Lite", value: "elite" },
+                  { label: "Premium", value: "premium" },
+                ]}
+              />
+              <Select
+                defaultValue="Profile"
+               
+                options={[
+                  { label: "Normal", value: "normal" },
+                  { label: "Average", value: "average" },
+                  { label: "High", value: "high" },
+                ]}
+              />
+              
             </div>
           </section>
 
           {/* ------------ Other Info ------------ */}
-          <section className="border rounded-md">
+          {/* <section className="border rounded-md">
             <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               Other Info
             </div>
@@ -124,10 +141,10 @@ const SuperAdminMemberEdit = () => {
               <DatePicker placeholder="Cancellation Date" className="w-full" />
               <Select placeholder="Sales Status" />
             </div>
-          </section>
+          </section> */}
 
           {/* ------------ Product & Price Info ------------ */}
-          <section className="border rounded-md">
+          {/* <section className="border rounded-md">
             <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               Product & Price Info
             </div>
@@ -141,7 +158,7 @@ const SuperAdminMemberEdit = () => {
               <Input placeholder="City" />
               <Input placeholder="Remarks" />
             </div>
-          </section>
+          </section> */}
 
           {/* ------------ Down Payment Details ------------ */}
           <section className="border rounded-md">
@@ -150,6 +167,7 @@ const SuperAdminMemberEdit = () => {
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
+                className="bg-primary p-4 hover:bg-blue-500"
                 size="small"
                 onClick={addDownPayment}
               >
@@ -160,10 +178,11 @@ const SuperAdminMemberEdit = () => {
               {downPayments.map((row, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center"
+                  className="flex gap-3"
                 >
                   <Select
                     value={row.mode}
+                    className="w-[500px]"
                     onChange={(v) => handleDownPaymentChange(index, "mode", v)}
                     options={[
                       { label: "Cash", value: "cash" },
@@ -200,6 +219,7 @@ const SuperAdminMemberEdit = () => {
                       handleDownPaymentChange(index, "txnDate", date)
                     }
                   />
+                  <Input placeholder="Remarks" />
                   <div className="flex gap-2">
                     <Button
                       icon={<DeleteOutlined />}
@@ -215,7 +235,7 @@ const SuperAdminMemberEdit = () => {
           {/* ------------ KYC Info ------------ */}
           <section className="border rounded-md">
             <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
-              KYC Info
+              KYC Information
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
               <Select placeholder="KYC Type" />
@@ -224,12 +244,17 @@ const SuperAdminMemberEdit = () => {
               <Select placeholder="KYC Type" />
               <Input placeholder="KYC Doc No." />
               <Input type="file" />
+              
+            </div>
+            <div className="gap-4 p-4">
+              <label>Import call file</label>
+              <Input type="file"  />
             </div>
           </section>
 
           {/* ------------ Footer Buttons ------------ */}
           <div className="flex justify-end gap-3 mt-6">
-            <Button type="primary">Update</Button>
+            <Button type="primary" className="bg-primary">Update</Button>
             <Button>Cancel</Button>
           </div>
         </div>
