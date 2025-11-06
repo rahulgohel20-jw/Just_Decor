@@ -41,18 +41,16 @@ const ReportsConfig = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
+  
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Report Configuration" }]} />
         </div>
 
-        {/* Tabs Section */}
-     {/* Tabs Section with Hidden Scrollbar (visible on hover) */}
 <div className=" mb-5">
   <div
     className="tab-scroll flex flex-nowrap overflow-x-auto border-b border-gray-200 text-sm font-medium scroll-smooth"
     style={{
-      scrollbarWidth: "none", // hide scrollbar in Firefox
+      scrollbarWidth: "none", 
     }}
   >
     {[
@@ -78,7 +76,6 @@ const ReportsConfig = () => {
     ))}
   </div>
 
-  {/* Scrollbar styling (visible only on hover) */}
   <style jsx>{`
     .tab-scroll {
       scrollbar-width: none; /* Firefox */
@@ -104,7 +101,6 @@ const ReportsConfig = () => {
 </div>
 
 
-        {/* Table Section */}
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200 rounded-lg text-sm">
             <thead className="bg-gray-50">

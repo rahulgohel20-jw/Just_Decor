@@ -32,18 +32,12 @@ export const columns = (onEdit, onDelete, onStatus) => [
       <div className="flex items-center justify-center">
         <Popconfirm
           title="Are you sure to change this status?"
-          onConfirm={() =>
-            onStatus(row.original.id, !row.original.isActive)
-          }
+          onConfirm={() => onStatus(row.original.id, !row.original.isActive)}
           okText="Yes"
           cancelText="No"
         >
           <label className="switch switch-lg">
-            <input
-              type="checkbox"
-              readOnly
-              checked={row.original.isActive}
-            />
+            <input type="checkbox" readOnly checked={row.original.isActive} />
           </label>
         </Popconfirm>
       </div>
@@ -54,7 +48,6 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
   {
-    accessorKey: "action",
     header: "Action",
     cell: ({ row }) => (
       <div className="flex items-center justify-center gap-2">
@@ -83,33 +76,10 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
 ];
 
+// Optional: default data for testing
 export const defaultData = [
-  {
-    id: 1,
-    sr_no: 1,
-    shift_name: "Morning",
-    shift_time: "08:00 AM - 12:00 PM",
-    isActive: true,
-  },
-  {
-    id: 2,
-    sr_no: 2,
-    shift_name: "Afternoon",
-    shift_time: "12:00 PM - 04:00 PM",
-    isActive: true,
-  },
-  {
-    id: 3,
-    sr_no: 3,
-    shift_name: "Evening",
-    shift_time: "04:00 PM - 08:00 PM",
-    isActive: false,
-  },
-  {
-    id: 4,
-    sr_no: 4,
-    shift_name: "Night",
-    shift_time: "08:00 PM - 12:00 AM",
-    isActive: true,
-  },
+  { id: 1, sr_no: 1, shift_name: "Morning", shift_time: "08:00 AM - 12:00 PM", isActive: true },
+  { id: 2, sr_no: 2, shift_name: "Afternoon", shift_time: "12:00 PM - 04:00 PM", isActive: true },
+  { id: 3, sr_no: 3, shift_name: "Evening", shift_time: "04:00 PM - 08:00 PM", isActive: false },
+  { id: 4, sr_no: 4, shift_name: "Night", shift_time: "08:00 PM - 12:00 AM", isActive: true },
 ];

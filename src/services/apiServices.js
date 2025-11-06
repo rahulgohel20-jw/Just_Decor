@@ -776,9 +776,6 @@ export const GetInvoice = (id) => {
   return GET(`/invoice/getbyeventid?eventId=${id}`);
 };
 
-
-
-
 //  Fetch Event Labour by Supplier
 export const GetEventLabourBySupplier = (eventFunctionId, eventId, partyId) => {
   return GET(
@@ -824,4 +821,20 @@ export const DeletePlanById = (id) => {
 //update plan api
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
+};
+
+//get api for labour shift 
+export const GetAllLabourShift = (Id) => {
+  return GET(`/shift/getallbyuserid?userId=${Id}`);
+};
+
+export const AddLabourShift = (data) => {
+  return POST(`/shift/add`, data);
+}
+
+export const deleteLabourShiftById = (id) => {
+  return DELETE(`/shift/deletebyid?id=${id}`);
+}
+export const EditLabourShiftAPI = (id, data) => {
+  return PUT(`/shift/update?id=${id}`, data);
 };

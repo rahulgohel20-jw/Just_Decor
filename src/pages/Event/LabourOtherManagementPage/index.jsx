@@ -572,11 +572,7 @@ const refreshExtraExpense = async () => {
             </div>
 
             <div className="flex flex-row items-end gap-2">
-              <button  onClick={openMenuReport} 
-                className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
-                title="Report">
-                  Report
-                </button>
+          
               <button
                className="bg-[#005BA8] text-white text-sm px-3 py-2 rounded-md transition " onClick={handleSave} title="Save">
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" /> 
@@ -622,7 +618,7 @@ const refreshExtraExpense = async () => {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <button className="btn btn-light btn-sm">
+                <button onClick={openMenuReport}  className="btn btn-light btn-sm">
                   <i className="ki-filled ki-document"></i> <FormattedMessage id="COMMON.REPORT" defaultMessage="Report" />
                 </button>
                 <button className="btn btn-light btn-sm">

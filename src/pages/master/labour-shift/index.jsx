@@ -4,139 +4,142 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
-  GetAllContactType,
-  DeleteContactTypeMaster,
-  updateContactTypeStatus,
+  GetAllLabourShift,
+  deleteLabourShiftById,
+  
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
 import Swal from "sweetalert2";
 
-// ✅ STATIC DATA (for first load)
-const staticData = [
-  { sr_no: 1, shift_name: "Morning", shift_time: "08:00 AM", isActive: true, id: 1 },
-  { sr_no: 2, shift_name: "Afternoon", shift_time: "12:00 PM", isActive: true, id: 2 },
-  { sr_no: 3, shift_name: "Evening", shift_time: "04:00 PM", isActive: false, id: 3 },
-  { sr_no: 4, shift_name: "Night", shift_time: "08:00 PM", isActive: true, id: 4 },
-];
-
-
 const Labourshiftmaster = () => {
   const classes = useStyle();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedcontactType, setSelectedcontactType] = useState(null);
-  const [tableData, setTableData] = useState(staticData); // ✅ load static data initially
+  const [tableData, setTableData] = useState([]); // filtered data
+  const [originalData, setOriginalData] = useState([]); // unfiltered API data
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    FetchContactType(); // Try fetching API data after mount
-  }, []);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (!searchQuery.trim()) {
-        setTableData(staticData);
-        return;
-      }
-
-      // Optional: if SearchContactCategory API exists
-      // else do local search on static data
-      const filtered = staticData.filter((item) =>
-        item.contact_type.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setTableData(filtered);
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
   const userData = JSON.parse(localStorage.getItem("userData"));
   const Id = userData?.id;
 
-  const FetchContactType = () => {
-    if (!Id) return; // no user logged in — keep static data
+  // Fetch labour shifts from API
+  const FetchLabourShift = () => {
+    if (!Id) return; // No user logged in
 
-    GetAllContactType(Id)
+    GetAllLabourShift(Id)
       .then((res) => {
-        const formatted =
-          res?.data?.data?.["Contact Type Details"]?.map((cust, index) => ({
-            sr_no: index + 1,
-            shift_name: cust.nameEnglish || "-",
-shift_time: cust.nameHindi || "-", // or another field if you have time data
-id: cust.id,
+       const shifts = res?.data?.data?.["Function Details"]?.map((shift, index) => ({
+  sr_no: index + 1,
+  shift_name: shift.nameEnglish || "-",
+  shift_time: shift.shiftTime || "-",
+  isActive: shift.isActive !== undefined ? shift.isActive : true,
+  id: shift.id,
+  nameHindi: shift.nameHindi || "",
+  nameGujarati: shift.nameGujarati || "",
+})) || [];
 
-           
-            isActive: cust.isActive,
-          })) || [];
 
-        if (formatted.length) setTableData(formatted);
+        setOriginalData(shifts);
+        setTableData(shifts);
       })
       .catch((error) => {
-        console.error("Error fetching contact types:", error);
+        console.error("Error fetching labour shifts:", error);
       });
   };
 
-  const DeleteContactType = (contacttypeid) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will remove the shift permanently.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // If API available:
-        DeleteContactTypeMaster(contacttypeid)
-          .then((response) => {
-            if (response?.success || response?.status === 200) {
-              FetchContactType();
-            }
-          })
-          .catch(() => console.error("Error deleting shift"))
-          .finally(() => {
-            setTableData((prev) =>
-              prev.filter((item) => item.contacttypeid !== contacttypeid)
-            );
+  useEffect(() => {
+    FetchLabourShift();
+  }, []);
+
+  // Search functionality
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        setTableData(originalData); // reset to original data
+        return;
+      }
+
+      const filtered = originalData.filter(
+        (item) =>
+          item.shift_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.shift_time.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.nameHindi.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.nameGujarati.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      setTableData(filtered);
+    }, 300); // debounce 300ms
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, originalData]);
+
+  // Delete shift
+const DeleteShift = (shiftId) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This will remove the shift permanently.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteLabourShiftById(shiftId) // <-- corrected here
+        .then((res) => {
+          if (res?.data?.success) {
+            setTableData((prev) => prev.filter((item) => item.id !== shiftId));
+            setOriginalData((prev) => prev.filter((item) => item.id !== shiftId));
             Swal.fire({
               title: "Deleted!",
-              text: "Shift removed successfully.",
+              text: res.data.msg || "Shift removed successfully.",
               icon: "success",
               timer: 1200,
               showConfirmButton: false,
             });
-          });
-      }
-    });
-  };
+          } else {
+            Swal.fire("Error!", res?.data?.msg || "Could not delete shift", "error");
+          }
+        })
+        .catch((err) => {
+          console.error("Error deleting shift:", err);
+          Swal.fire("Error!", "Something went wrong!", "error");
+        });
+    }
+  });
+};
 
-  const handleEdit = (event) => {
-    setSelectedcontactType(event);
+
+  // Edit shift
+  const handleEdit = (shift) => {
+    setSelectedcontactType(shift);
     setIsContactModalOpen(true);
   };
 
-  const statusCategory = (id, status) => {
-    updateContactTypeStatus(id, status)
-      .then(() => {
-        setTableData((prev) =>
-          prev.map((item) =>
-            item.contacttypeid === id ? { ...item, isActive: status } : item
-          )
-        );
-        Swal.fire({
-          title: "Updated!",
-          text: "Shift status changed successfully.",
-          icon: "success",
-          timer: 1000,
-          showConfirmButton: false,
-        });
-      })
-      .catch((error) => {
-        console.error("Error updating status:", error);
-      });
-  };
+  // Toggle status
+  // const statusCategory = (id, status) => {
+  //   UpdateLabourShiftStatus(id, status)
+  //     .then(() => {
+  //       setTableData((prev) =>
+  //         prev.map((item) => (item.id === id ? { ...item, isActive: status } : item))
+  //       );
+  //       setOriginalData((prev) =>
+  //         prev.map((item) => (item.id === id ? { ...item, isActive: status } : item))
+  //       );
+  //       Swal.fire({
+  //         title: "Updated!",
+  //         text: "Shift status changed successfully.",
+  //         icon: "success",
+  //         timer: 1000,
+  //         showConfirmButton: false,
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error updating status:", error);
+  //     });
+  // };
 
   return (
     <Fragment>
@@ -176,16 +179,16 @@ id: cust.id,
         </div>
 
         {/* Modal */}
-        <AddLabourshift
-          isOpen={isContactModalOpen}
-          onClose={setIsContactModalOpen}
-          refreshData={FetchContactType}
-          contactType={selectedcontactType}
-        />
+       <AddLabourshift
+  isOpen={isContactModalOpen}
+  onClose={(val) => setIsContactModalOpen(val)}
+  refreshData={FetchLabourShift}
+  shiftData={selectedcontactType}
+/>
 
         {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, DeleteContactType, statusCategory)}
+          columns={columns(handleEdit, DeleteShift)}
           data={tableData || []}
           paginationSize={10}
         />
