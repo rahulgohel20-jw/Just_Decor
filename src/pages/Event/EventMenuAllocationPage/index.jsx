@@ -2,12 +2,20 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
-import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin, Form } from "antd";
+import {
+  Input,
+  Checkbox,
+  Select,
+  Card,
+  Badge,
+  Tooltip,
+  Spin,
+  Form,
+} from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
-
 
 import {
   GetEventMasterById,
@@ -38,7 +46,12 @@ const TopTabs = ({ value, onChange, functions }) => {
           </button>
         ))
       ) : (
-        <p className="text-gray-500 text-sm"><FormattedMessage id="COMMON.NO_FUNCTIONS" defaultMessage="No functions available" /></p>
+        <p className="text-gray-500 text-sm">
+          <FormattedMessage
+            id="COMMON.NO_FUNCTIONS"
+            defaultMessage="No functions available"
+          />
+        </p>
       )}
     </div>
   );
@@ -48,7 +61,10 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
   return (
     <div className="flex flex-col gap-2">
       <button className="btn btn-sm btn-primary p-6 flex justify-center text-lg">
-        <FormattedMessage id="EVENT_MENU_ALLOCATION.SHOW_COUNTER" defaultMessage="Show Counter" />
+        <FormattedMessage
+          id="EVENT_MENU_ALLOCATION.SHOW_COUNTER"
+          defaultMessage="Show Counter"
+        />
       </button>
       <Card
         className="w-full border border-gray-200 shadow-sm"
@@ -58,7 +74,12 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">
               ✱
             </span>
-            <span className="text-gray-800"><FormattedMessage id="EVENT_MENU_ALLOCATION.ORDER_SUMMARY" defaultMessage="Order Summary" /></span>
+            <span className="text-gray-800">
+              <FormattedMessage
+                id="EVENT_MENU_ALLOCATION.ORDER_SUMMARY"
+                defaultMessage="Order Summary"
+              />
+            </span>
           </div>
         }
       >
@@ -68,7 +89,10 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
           </div>
         ) : groups.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
-            <FormattedMessage id="EVENT_MENU_ALLOCATION.NO_ITEMS" defaultMessage="No items available" />
+            <FormattedMessage
+              id="EVENT_MENU_ALLOCATION.NO_ITEMS"
+              defaultMessage="No items available"
+            />
           </div>
         ) : (
           <>
@@ -102,13 +126,19 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
             <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA]">
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
-                  <FormattedMessage id="EVENT_MENU_ALLOCATION.DISH_COSTING" defaultMessage="Dish Costing :" />
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.DISH_COSTING"
+                    defaultMessage="Dish Costing :"
+                  />
                 </span>
                 <span>1200</span>
               </div>
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
-                  <FormattedMessage id="EVENT_MENU_ALLOCATION.TOTAL" defaultMessage="Total :" />
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.TOTAL"
+                    defaultMessage="Total :"
+                  />
                 </span>
                 <span>₹25000</span>
               </div>
@@ -122,13 +152,36 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
 
 const TableHeader = () => (
   <div className="grid grid-cols-12 items-center gap-5 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
-    <div className="col-span-2"> <FormattedMessage id="COMMON.NAME" defaultMessage="Name" /></div>
-    <div className="col-span-2 text-center"> <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" /></div>
-    <div className="col-span-1 text-center"> <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outside" /></div>
-    <div className="col-span-2 text-center"> <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside" /></div>
-    <div className="col-span-1 text-center"> <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" /></div>
-    <div className="col-span-2 text-center"> <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" /></div>
-    <div className="col-span-2"><FormattedMessage id="COMMON.INSTRUCTIONS" defaultMessage="Instructions" /></div>
+    <div className="col-span-2">
+      {" "}
+      <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
+    </div>
+    <div className="col-span-2 text-center">
+      {" "}
+      <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
+    </div>
+    <div className="col-span-1 text-center">
+      {" "}
+      <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outside" />
+    </div>
+    <div className="col-span-2 text-center">
+      {" "}
+      <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside" />
+    </div>
+    <div className="col-span-1 text-center">
+      {" "}
+      <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
+    </div>
+    <div className="col-span-2 text-center">
+      {" "}
+      <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+    </div>
+    <div className="col-span-2">
+      <FormattedMessage
+        id="COMMON.INSTRUCTIONS"
+        defaultMessage="Instructions"
+      />
+    </div>
   </div>
 );
 
@@ -255,9 +308,8 @@ const EventMenuAllocationPage = () => {
   const [allocationData, setAllocationData] = useState({});
   const [orderItemPrice, setOrderItemPrice] = useState();
   const [itemPrices, setItemPrices] = useState({});
-    const [menuReportEventId, setMenuReportEventId] = useState(null);
-    const [isMenuReport, setIsMenuReport] = useState(false);
-
+  const [menuReportEventId, setMenuReportEventId] = useState(null);
+  const [isMenuReport, setIsMenuReport] = useState(false);
 
   const intl = useIntl();
 
@@ -266,6 +318,7 @@ const EventMenuAllocationPage = () => {
       try {
         setLoading(true);
         const res = await GetEventMasterById(eventId);
+        console.log(res, "data");
 
         if (res?.data?.data && res.data.data["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
@@ -316,6 +369,7 @@ const EventMenuAllocationPage = () => {
         isFromNewTable,
         menuItemId
       );
+      console.log(res, "data");
 
       if (res?.data?.success) {
         const rawMaterials =
@@ -370,6 +424,8 @@ const EventMenuAllocationPage = () => {
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
+      console.log(eventFunctionId, "data dtaa ");
+
       const menudata = await GetMenuAllocation(eventId, eventFunctionId);
 
       if (
@@ -400,6 +456,8 @@ const EventMenuAllocationPage = () => {
           })) || [];
 
         setRows(transformedRows);
+
+        console.log("Transformed Rows:", transformedRows);
 
         const summaryGroups =
           menuDetails.selectedItemDetails?.map((category) => ({
@@ -604,7 +662,7 @@ const EventMenuAllocationPage = () => {
     }
   };
 
-     const openMenuReport = (eventId) => {
+  const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
@@ -613,7 +671,18 @@ const EventMenuAllocationPage = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="EVENT_MENU_ALLOCATION.MENU_ALLOCATION" defaultMessage="Menu Allocation" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.MENU_ALLOCATION"
+                    defaultMessage="Menu Allocation"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* Event Details */}
@@ -622,7 +691,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success"></i>
               <div className="flex flex-col">
-                <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_ID" defaultMessage="Event ID:" /></span>
+                <span className="text-xs">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                    defaultMessage="Event ID:"
+                  />
+                </span>
                 <span className="text-sm font-medium text-gray-900">
                   {eventData?.eventNo || "-"}
                 </span>
@@ -632,7 +706,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-user text-success"></i>
               <div className="flex flex-col">
-                <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.PARTY_NAME" defaultMessage="Party Name:" /></span>
+                <span className="text-xs">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                    defaultMessage="Party Name:"
+                  />
+                </span>
                 <span className="text-sm font-medium text-gray-900">
                   {eventData?.party?.nameEnglish || "-"}
                 </span>
@@ -642,7 +721,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-geolocation-home text-success"></i>
               <div className="flex flex-col">
-                <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_NAME" defaultMessage="Event Name:" /></span>
+                <span className="text-xs">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                    defaultMessage="Event Name:"
+                  />
+                </span>
                 <span className="text-sm font-medium text-gray-900">
                   {eventData?.eventType?.nameEnglish || "N/A"}
                 </span>
@@ -652,7 +736,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success"></i>
               <div className="flex flex-col">
-                <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_VENUE" defaultMessage="Event Venue:" /></span>
+                <span className="text-xs">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
                 <span className="text-sm font-medium text-gray-900">
                   {eventData?.venue || "-"}
                 </span>
@@ -662,7 +751,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success"></i>
               <div className="flex flex-col">
-                <span className="text-xs"><FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME" defaultMessage="Event Date & Time:" /></span>
+                <span className="text-xs">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                    defaultMessage="Event Date & Time:"
+                  />
+                </span>
                 <span className="text-sm font-medium text-gray-900">
                   {eventData?.eventStartDateTime || ""}
                 </span>
@@ -696,10 +790,16 @@ const EventMenuAllocationPage = () => {
                 className="btn btn-sm btn-primary"
                 title="Sync Raw Material"
               >
-                <FormattedMessage id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL" defaultMessage="Sync Raw Material" />
+                <FormattedMessage
+                  id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
+                  defaultMessage="Sync Raw Material"
+                />
               </button>
               <button className="btn btn-sm btn-primary" title="Sync Agency">
-                <FormattedMessage id="EVENT_MENU_ALLOCATION.SYNC_AGENCY" defaultMessage="Sync Agency" />
+                <FormattedMessage
+                  id="EVENT_MENU_ALLOCATION.SYNC_AGENCY"
+                  defaultMessage="Sync Agency"
+                />
               </button>
             </div>
           </div>
@@ -718,7 +818,12 @@ const EventMenuAllocationPage = () => {
             <div className="flex flex-row gap-4">
               <div className="flex flex-row gap-4 items-end">
                 <div className="flex flex-col">
-                  <span className="text-sm text-gray-600"><FormattedMessage id="EVENT_MENU_ALLOCATION.DATE_TIME" defaultMessage="Date & Time" /></span>
+                  <span className="text-sm text-gray-600">
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.DATE_TIME"
+                      defaultMessage="Date & Time"
+                    />
+                  </span>
                   <Input
                     className="p-1 w-[200px] text-black"
                     type="text"
@@ -727,7 +832,12 @@ const EventMenuAllocationPage = () => {
                   />
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="text-sm text-gray-600"><FormattedMessage id="COMMON.PERSON" defaultMessage="Person" /></span>
+                  <span className="text-sm text-gray-600">
+                    <FormattedMessage
+                      id="COMMON.PERSON"
+                      defaultMessage="Person"
+                    />
+                  </span>
                   <Input
                     className="p-1 w-[70px] text-black text-center"
                     type="text"
@@ -739,7 +849,10 @@ const EventMenuAllocationPage = () => {
 
               <div className="flex flex-row gap-4 items-end">
                 <Input
-                  placeholder={intl.formatMessage({ id: "EVENT_MENU_ALLOCATION.ENTER_PERSON", defaultMessage: "Enter Person" })}
+                  placeholder={intl.formatMessage({
+                    id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                    defaultMessage: "Enter Person",
+                  })}
                   value={percentage}
                   onChange={(e) => setPercentage(e.target.value)}
                   className="p-1 pl-2 w-28"
@@ -750,7 +863,10 @@ const EventMenuAllocationPage = () => {
                     title="Adjust Person"
                     onClick={handleAdjustPerson}
                   >
-                    <FormattedMessage id="EVENT_MENU_ALLOCATION.ADJUST_PERSON" defaultMessage="Adjust Person" />
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                      defaultMessage="Adjust Person"
+                    />
                   </button>
                 </Tooltip>
               </div>
@@ -763,17 +879,24 @@ const EventMenuAllocationPage = () => {
                     <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                     <input
                       className="input pl-8"
-                      placeholder={intl.formatMessage({ id: "EVENT_MENU_ALLOCATION.SEARCH_ITEM", defaultMessage: "Search item" })}
+                      placeholder={intl.formatMessage({
+                        id: "EVENT_MENU_ALLOCATION.SEARCH_ITEM",
+                        defaultMessage: "Search item",
+                      })}
                       type="text"
                     />
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-start gap-5 md:justify-end">
-                  <button 
-                   onClick={openMenuReport} 
-                                 className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
- title="Report">
-                    <FormattedMessage id="EVENT_MENU_ALLOCATION.REPORT" defaultMessage="Report" />
+                  <button
+                    onClick={openMenuReport}
+                    className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+                    title="Report"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="Report"
+                    />
                   </button>
                 </div>
               </div>
@@ -788,7 +911,10 @@ const EventMenuAllocationPage = () => {
                     <TableHeader />
                     {filtered.length === 0 ? (
                       <div className="p-8 text-center text-gray-500">
-                        <FormattedMessage id="EVENT_MENU_ALLOCATION.NO_ITEMS_AVAILABLE" defaultMessage="No menu items available." />
+                        <FormattedMessage
+                          id="EVENT_MENU_ALLOCATION.NO_ITEMS_AVAILABLE"
+                          defaultMessage="No menu items available."
+                        />
                       </div>
                     ) : (
                       <div className="divide-y">
@@ -849,11 +975,11 @@ const EventMenuAllocationPage = () => {
           open={iswhatsAppSidebar}
           onClose={() => setIsWhatsAppSidebar(false)}
         />
-         <MenuReport
-                          isModalOpen={isMenuReport}
-                          setIsModalOpen={setIsMenuReport}
-                          eventId={menuReportEventId}
-                        />
+        <MenuReport
+          isModalOpen={isMenuReport}
+          setIsModalOpen={setIsMenuReport}
+          eventId={menuReportEventId}
+        />
       </Container>
     </Fragment>
   );
