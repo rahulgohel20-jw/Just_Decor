@@ -170,7 +170,8 @@ export default function ControlPanel({ design, setDesign }) {
       {/* COLORS BOX */}
       <div className="bg-white border rounded-lg shadow-sm overflow-hidden mt-8 ">
         <div className="bg-blue-50 px-4 py-2 border-b flex items-center gap-2">
-          <span className="text-blue-600">  <img src={`${import.meta.env.BASE_URL}images/coloricon.png`} alt="icon" className="inline-block w-5 h-5" />
+          <span className="text-blue-600"> 
+             <img src={`${import.meta.env.BASE_URL}images/coloricon.png`} alt="icon" className="inline-block w-5 h-5" />
 </span>
           <h3 className="font-semibold text-gray-800 text-md"   style={{ fontWeight: 800 }}>Colors</h3>
         </div>
