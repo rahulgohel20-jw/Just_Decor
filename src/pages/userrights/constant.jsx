@@ -16,7 +16,7 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "active_status",
+    accessorKey: "Active Status",
     headerKey: "Active Status",
     cell: ({ row }) => {
       return (
@@ -34,8 +34,8 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "rights",
-    headerKey: "rights",
+    accessorKey: "Rights",
+    headerKey: "Rights",
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export const columns = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Actions",
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">

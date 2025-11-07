@@ -15,6 +15,11 @@ const UserRights = () => {
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "User Rights" }]} />
         </div>
+
+        <div className="w-fit filItems relative mb-4">
+          <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+          <input className="input pl-8" type="text" placeholder="Search Role" />
+        </div>
         <TableComponent columns={columns} data={tableData} />
       </Container>
     </Fragment>

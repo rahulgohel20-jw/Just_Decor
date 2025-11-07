@@ -593,26 +593,21 @@ export const verifyOtp = async ({ email, otp }) => {
 // Mobile OTP verification
 export const verifyMobileOtp = async ({ phone, otp }) => {
   return axios.post(`/auth/verifyotpformobile`, null, {
-    params: { mobileNo: phone, otp }, // use `mobileNo` if backend requires this
+    params: { mobileNo: phone, otp },
   });
 };
 
 // reset password API
 export const resetPassword = async (emailId, newPassword, conPassword) => {
   return axios.post(`/auth/resetpassword`, null, {
-    params: { emailId, newPassword, conPassword }, // query params
+    params: { emailId, newPassword, conPassword },
   });
 };
 
-// ✅ Correct API call with query param `mobileNo`
 export const LoginWithOtp = async (phone) => {
-  return axios.post(
-    "http://103.1.101.244:9091/v1/api/auth/loginwithotp",
-    null,
-    {
-      params: { mobileNo: phone },
-    }
-  );
+  return axios.post("/auth/loginwithotp", null, {
+    params: { mobileNo: phone },
+  });
 };
 
 //raw material type
@@ -702,32 +697,24 @@ export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
 
-// custome package get api
 export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
 };
-//custome package post api
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
 };
 
-//cusrome package update api
 export const UpdateCustomPackageapi = (id, data) => {
   return PUT(`/custompackage/update?id=${id}`, data);
 };
 
-//custome package delete api
 export const DeleteCustomPackageapi = (id) => {
   return DELETE(`/custompackage/deletebyid?id=${id}`);
 };
 
-//custome package updtae api
-// Update custom package status API
 export const UpdateCustomPackageStatusapi = (id, isActive) => {
   return PUT(`/custompackage/updatestatus?id=${id}&isActive=${isActive}`);
 };
-
-//Invoice api
 
 export const GetInvoiceByEventId = (eventId) => {
   return GET(`/invoice/getbyeventid?eventId=${eventId}`);
@@ -753,20 +740,13 @@ export const GetEventLaborDetails = (eventFunctionId, eventId) => {
   );
 };
 
-//get api for general/extra-expense
-// export const GetExtraExpenseByEvent = (eventId, eventFunctionId) => {
-//   return GET(
-//     `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
-//   );
-// };
-
 export const UpdateInvoice = (id, data) => {
   return PUT(`/invoice/update?id=${id}`, data);
-}
+};
 
 export const GetAllInvoice = (id) => {
   return GET(`/invoice/getallbyfilter?userid=${id}`);
-}
+};
 
 export const GeteventInvoicedata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
@@ -776,28 +756,22 @@ export const GetInvoice = (id) => {
   return GET(`/invoice/getbyeventid?eventId=${id}`);
 };
 
-
-
-
-//  Fetch Event Labour by Supplier
 export const GetEventLabourBySupplier = (eventFunctionId, eventId, partyId) => {
   return GET(
     `/labor/getBySupplier?eventFunctionId=${eventFunctionId}&eventId=${eventId}&partyId=${partyId}`
   );
 };
 
-
-//extra expense add api
 export const AddExtraExpenseApi = (data) => {
   return POST(`/extra-expense/add`, data);
 };
 
-// Fetch Extra Expense by Event
 export const GetExtraExpenseByEvent = (eventFunctionId, eventId) => {
-  return GET(`/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`);
+  return GET(
+    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+  );
 };
 
-//delete extra expense
 export const DeleteExtraExpense = (id) => {
   return DELETE(`/extra-expense/delete?id=${id}`);
 };
@@ -806,22 +780,18 @@ export const UpdateExtraExpense = (id, payload) => {
   return PUT(`/extra-expense/update?id=${id}`, payload);
 };
 
-//plan api for superadimn 
 export const GetAllPlansForSuperAdmin = () => {
   return GET(`/plans/getall`);
 };
 
-// Add New Plan API
 export const AddNewPlan = (data) => {
   return POST(`/plans/add`, data);
-}
+};
 
-//delete plan api
 export const DeletePlanById = (id) => {
   return DELETE(`/plans/deletebyid?id=${id}`);
 };
 
-//update plan api
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
