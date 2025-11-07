@@ -165,7 +165,8 @@ const AddInvoicePage = () => {
                     Number(item.extra || item.extraPax || 0)) *
                     Number(item.rate || item.ratePerPlate || 0),
                 isCustom: false,
-                isEventFunction: item.isEventFunction !== false, // Default true if from API
+                isEventFunction: item.isEventFunction !== false,
+                id: item.id || 0, // ✅ ADD THIS LINE - Preserve the original id
               })
             );
           } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
@@ -180,6 +181,7 @@ const AddInvoicePage = () => {
                 amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
                 isCustom: false,
                 isEventFunction: true,
+                id: 0, // New rows from eventFunctions will have id: 0
               })
             );
           }
@@ -431,7 +433,7 @@ const AddInvoicePage = () => {
           extraPax: Number(r.extra) || 0,
           functionDate: convertDisplayDateToAPI(r.date),
           functionName: r.name || "",
-          id: 0,
+          id: r.id || 0,
           isEventFunction: !r.isCustom,
           pax: Number(r.person) || 0,
           ratePerPlate: Number(r.rate) || 0,

@@ -50,8 +50,7 @@ const allMenuItems = [
   },
   {
     title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
-    icon: toAbsoluteUrl("/media/sidebaricons/event.png"),
-
+    icon: "ki-filled ki-calendar-tick text-primary",
     children: [
       {
         title: (
@@ -246,7 +245,7 @@ const allMenuItems = [
   },
   {
     title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
-    icon: "ki-filled ki-airplane text-primary",
+    icon: "ki-duotone ki-document text-primary",
     children: [
       {
         title: (
@@ -270,7 +269,7 @@ const allMenuItems = [
   },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
-    icon: "ki-filled ki-airplane text-primary",
+    icon: "ki-filled ki-graph-up text-primary",
     children: [
       {
         title: (
@@ -293,7 +292,7 @@ const allMenuItems = [
         defaultMessage="Custom Themes"
       />
     ),
-    icon: "element-11 text-primary",
+    icon: "ki-duotone ki-dropbox text-primary",
     path: "/reportcustomethemes",
   },
   {

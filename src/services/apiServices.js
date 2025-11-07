@@ -291,9 +291,9 @@ export const UpdateEventMaster = (Id, data) => {
 export const GetEventMasterById = (Id) => {
   return GET(`/eventmaster/getbyid?eventId=${Id}`);
 };
-export const GetMenuAllocation = (Id) => {
+export const GetMenuAllocation = (eventid, Id) => {
   return GET(
-    `/menuallocation/getmenuallocation?eventFunctionId=2&eventId=${Id}`
+    `/menuallocation/getmenuallocation?eventFunctionId=${Id}&eventId=${eventid}`
   );
 };
 //Delete event
