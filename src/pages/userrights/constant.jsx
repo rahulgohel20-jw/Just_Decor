@@ -16,7 +16,7 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "active_status",
+    accessorKey: "Active Status",
     headerKey: "Active Status",
     cell: ({ row }) => {
       return (
@@ -34,8 +34,8 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "rights",
-    headerKey: "rights",
+    accessorKey: "Rights",
+    headerKey: "Rights",
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
@@ -46,13 +46,15 @@ export const columns = [
       );
     },
   },
- {
-  accessorKey: "action",
-  header: "Action",
-  cell: ({ row }) => {
-    return (
-      <div className="flex items-center gap-2">
-       <button
+  {
+    accessorKey: "status",
+    header: "Actions",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-2">
+          <Tooltip title="View">
+            <Link to={""}>
+              <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 onClick={() => handleActionClick(row.original)} 
                 title="View"

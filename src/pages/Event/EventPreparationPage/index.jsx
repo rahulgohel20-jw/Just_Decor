@@ -81,7 +81,7 @@ const EventPreparationPage = () => {
   const [packageSelectedItems, setPackageSelectedItems] = useState({});
   const [isPackageMode, setIsPackageMode] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
-    const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isMenuReport, setIsMenuReport] = useState(false);
 
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
@@ -118,183 +118,159 @@ const EventPreparationPage = () => {
   );
 
   const handlePackageSelect = (packageData) => {
-  if (!selectedFunctionId) {
-    console.warn("⚠️ No function selected");
-    return;
-  }
-
-  let items = [];
-  let packageName = "Custom Package";
-  let totalPrice = 0;
-  let packageId = null;
-
-  if (Array.isArray(packageData)) {
-    items = packageData;
-    totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
-    packageName = selectedPackageName || `Package (${items.length} items)`;
-  } else if (packageData.items && Array.isArray(packageData.items)) {
-    items = packageData.items;
-    packageName = packageData.packageName;
-    totalPrice = packageData.totalPrice;
-    packageId = packageData.id;
-  } else if (packageData.packageInfo && packageData.packageItems) {
-    items = packageData.packageItems;
-    packageName = packageData.packageInfo.packageName;
-    totalPrice = packageData.packageInfo.packagePrice;
-    packageId = packageData.packageInfo.id;
-  } else {
-    console.warn("⚠️ Invalid package data structure", packageData);
-    return;
-  }
-
-  if (!items || items.length === 0) {
-    console.warn("⚠️ No items found in package");
-    return;
-  }
-
-  setCurrentPackageInfo({
-    id: packageId,
-    packageName: packageName,
-    packagePrice: totalPrice,
-  });
-
-  setSelectedPackageName(packageName);
-  setSelectedPackagePrice(totalPrice || 0);
-
-  // Process package items with proper image handling
-  const processedItems = items.map((item, index) => {
-    const categoryName =
-      item.categoryName || item.menuName || "Custom Package Items";
-
-    let categoryId = categories.find(
-      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
-    )?.id;
-
-    if (!categoryId) {
-      categoryId = `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+    if (!selectedFunctionId) {
+      console.warn("⚠️ No function selected");
+      return;
     }
 
-    // CRITICAL: Extract numeric menuItemId
-    const originalMenuItemId = item.menuItemId;
-    
-    // Create unique display ID (not sent to backend)
-    const newItemId = `pkg-${packageId || "custom"}-item-${originalMenuItemId || index}`;
+    let items = [];
+    let packageName = "Custom Package";
+    let totalPrice = 0;
+    let packageId = null;
 
-    // Better image handling with multiple fallbacks
-    let itemImage = item.image || item.imagePath || item.imageUrl || "";
-    
-    // If no image, try to get from existing menu items
-    if (!itemImage || itemImage.trim() === "") {
-      const existingItem = allMenuItems[selectedFunctionId]?.find(
-        (menuItem) => menuItem.id === originalMenuItemId
-      );
-      itemImage = existingItem?.image || "";
+    if (Array.isArray(packageData)) {
+      items = packageData;
+      totalPrice = items.reduce((sum, item) => sum + (item.price || 0), 0);
+      packageName = selectedPackageName || `Package (${items.length} items)`;
+    } else if (packageData.items && Array.isArray(packageData.items)) {
+      items = packageData.items;
+      packageName = packageData.packageName;
+      totalPrice = packageData.totalPrice;
+      packageId = packageData.id;
+    } else if (packageData.packageInfo && packageData.packageItems) {
+      items = packageData.packageItems;
+      packageName = packageData.packageInfo.packageName;
+      totalPrice = packageData.packageInfo.packagePrice;
+      packageId = packageData.packageInfo.id;
+    } else {
+      console.warn("⚠️ Invalid package data structure", packageData);
+      return;
     }
 
-    // Final fallback to placeholder
-    if (!itemImage || itemImage.trim() === "") {
-      itemImage =
-        "https://via.placeholder.com/150?text=" +
-        encodeURIComponent(item.itemName || item.name || "Item");
+    if (!items || items.length === 0) {
+      console.warn("⚠️ No items found in package");
+      return;
     }
 
-    return {
-      id: newItemId, // For display/UI only
-      menuItemId: originalMenuItemId, // CRITICAL: Numeric ID for backend
-      parentId: categoryId,
-      categoryName: categoryName,
-      name: item.itemName || item.name || `Item ${index + 1}`,
-      image: itemImage,
-      price: item.itemPrice || item.price || 0,
-      itemNotes: item.instruction || item.itemNotes || "",
-      itemSlogan: item.itemSlogan || "",
-      isPackageItem: true,
-      packageId: packageId,
+    setCurrentPackageInfo({
+      id: packageId,
       packageName: packageName,
-    };
-  });
+      packagePrice: totalPrice,
+    });
 
-  // Extract category "Any" counts
-  const categoryAnyItems = {};
-  if (Array.isArray(packageData.packageItems)) {
-    packageData.packageItems.forEach((pkgCat) => {
-      if (pkgCat.categoryName && pkgCat.anyItemCount) {
-        const cat = categories.find(
-          (c) => c.name.toLowerCase() === pkgCat.categoryName.toLowerCase()
+    setSelectedPackageName(packageName);
+    setSelectedPackagePrice(totalPrice || 0);
+
+    // Process package items with proper image handling
+    const processedItems = items.map((item, index) => {
+      const categoryName =
+        item.categoryName || item.menuName || "Custom Package Items";
+
+      let categoryId = categories.find(
+        (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+      )?.id;
+
+      if (!categoryId) {
+        categoryId = `temp-${categoryName.replace(/\s+/g, "-").toLowerCase()}`;
+      }
+
+      // CRITICAL: Extract numeric menuItemId
+      const originalMenuItemId = item.menuItemId;
+
+      // Create unique display ID (not sent to backend)
+      const newItemId = `pkg-${packageId || "custom"}-item-${originalMenuItemId || index}`;
+
+      // Better image handling with multiple fallbacks
+      let itemImage = item.image || item.imagePath || item.imageUrl || "";
+
+      // If no image, try to get from existing menu items
+      if (!itemImage || itemImage.trim() === "") {
+        const existingItem = allMenuItems[selectedFunctionId]?.find(
+          (menuItem) => menuItem.id === originalMenuItemId
         );
-        const catId = cat
-          ? cat.id
-          : `temp-${pkgCat.categoryName.toLowerCase().replace(/\s+/g, "-")}`;
-        categoryAnyItems[catId] = pkgCat.anyItemCount;
-      }
-    });
-  }
-
-  setCategoryAnyItems((prev) => ({
-    ...prev,
-    [selectedFunctionId]: categoryAnyItems,
-  }));
-
-  // Build set of package menuItemIds for duplicate prevention
-  const packageMenuItemIds = new Set(
-    processedItems
-      .map(item => item.menuItemId)
-      .filter(id => id !== null && id !== undefined)
-      .flatMap(id => [id, String(id), Number(id)])
-  );
-
-  // Update allMenuItems - remove duplicates
-  setAllMenuItems((prev) => {
-    const existingItems = prev[selectedFunctionId] || [];
-
-    const filteredItems = existingItems.filter((item) => {
-      if (item.isPackageItem || item.packageId) {
-        return false;
+        itemImage = existingItem?.image || "";
       }
 
-      return !packageMenuItemIds.has(item.id) && 
-             !packageMenuItemIds.has(String(item.id)) && 
-             !packageMenuItemIds.has(Number(item.id));
+      // Final fallback to placeholder
+      if (!itemImage || itemImage.trim() === "") {
+        itemImage =
+          "https://via.placeholder.com/150?text=" +
+          encodeURIComponent(item.itemName || item.name || "Item");
+      }
+
+      return {
+        id: newItemId, // For display/UI only
+        menuItemId: originalMenuItemId, // CRITICAL: Numeric ID for backend
+        parentId: categoryId,
+        categoryName: categoryName,
+        name: item.itemName || item.name || `Item ${index + 1}`,
+        image: itemImage,
+        price: item.itemPrice || item.price || 0,
+        itemNotes: item.instruction || item.itemNotes || "",
+        itemSlogan: item.itemSlogan || "",
+        isPackageItem: true,
+        packageId: packageId,
+        packageName: packageName,
+      };
     });
 
-    return {
+    // Extract category "Any" counts
+    const categoryAnyItems = {};
+    if (Array.isArray(packageData.packageItems)) {
+      packageData.packageItems.forEach((pkgCat) => {
+        if (pkgCat.categoryName && pkgCat.anyItemCount) {
+          const cat = categories.find(
+            (c) => c.name.toLowerCase() === pkgCat.categoryName.toLowerCase()
+          );
+          const catId = cat
+            ? cat.id
+            : `temp-${pkgCat.categoryName.toLowerCase().replace(/\s+/g, "-")}`;
+          categoryAnyItems[catId] = pkgCat.anyItemCount;
+        }
+      });
+    }
+
+    setCategoryAnyItems((prev) => ({
       ...prev,
-      [selectedFunctionId]: [...filteredItems, ...processedItems],
-    };
-  });
+      [selectedFunctionId]: categoryAnyItems,
+    }));
 
-  const newItemIds = processedItems.map((item) => item.id);
-  setPackageItemIds(newItemIds);
+    // Build set of package menuItemIds for duplicate prevention
+    const packageMenuItemIds = new Set(
+      processedItems
+        .map((item) => item.menuItemId)
+        .filter((id) => id !== null && id !== undefined)
+        .flatMap((id) => [id, String(id), Number(id)])
+    );
 
-  dispatch({
-    type: "UPDATE_SELECTIONS",
-    functionId: selectedFunctionId,
-    selectedItems: newItemIds,
-    itemNotes: processedItems.reduce((acc, item) => {
-      acc[item.id] = item.itemNotes || "";
-      return acc;
-    }, {}),
-    itemSlogans: processedItems.reduce((acc, item) => {
-      acc[item.id] = item.itemSlogan || "";
-      return acc;
-    }, {}),
-    itemRates: processedItems.reduce((acc, item) => {
-      acc[item.id] = item.price || rate || 0;
-      return acc;
-    }, {}),
-    categoryNotes: {},
-    categorySlogans: {},
-    itemSortOrders: {},
-    isSaved: false,
-    isPackage: true,
-    packageId: packageId,
-    packageName: packageName,
-    packagePrice: totalPrice,
-  });
+    // Update allMenuItems - remove duplicates
+    setAllMenuItems((prev) => {
+      const existingItems = prev[selectedFunctionId] || [];
 
-  setPackageSelectedItems({
-    ...packageSelectedItems,
-    [selectedFunctionId]: {
+      const filteredItems = existingItems.filter((item) => {
+        if (item.isPackageItem || item.packageId) {
+          return false;
+        }
+
+        return (
+          !packageMenuItemIds.has(item.id) &&
+          !packageMenuItemIds.has(String(item.id)) &&
+          !packageMenuItemIds.has(Number(item.id))
+        );
+      });
+
+      return {
+        ...prev,
+        [selectedFunctionId]: [...filteredItems, ...processedItems],
+      };
+    });
+
+    const newItemIds = processedItems.map((item) => item.id);
+    setPackageItemIds(newItemIds);
+
+    dispatch({
+      type: "UPDATE_SELECTIONS",
+      functionId: selectedFunctionId,
       selectedItems: newItemIds,
       itemNotes: processedItems.reduce((acc, item) => {
         acc[item.id] = item.itemNotes || "";
@@ -316,11 +292,37 @@ const EventPreparationPage = () => {
       packageId: packageId,
       packageName: packageName,
       packagePrice: totalPrice,
-    },
-  });
+    });
 
-  setSelectedCategoryId(0);
-};
+    setPackageSelectedItems({
+      ...packageSelectedItems,
+      [selectedFunctionId]: {
+        selectedItems: newItemIds,
+        itemNotes: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemNotes || "";
+          return acc;
+        }, {}),
+        itemSlogans: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.itemSlogan || "";
+          return acc;
+        }, {}),
+        itemRates: processedItems.reduce((acc, item) => {
+          acc[item.id] = item.price || rate || 0;
+          return acc;
+        }, {}),
+        categoryNotes: {},
+        categorySlogans: {},
+        itemSortOrders: {},
+        isSaved: false,
+        isPackage: true,
+        packageId: packageId,
+        packageName: packageName,
+        packagePrice: totalPrice,
+      },
+    });
+
+    setSelectedCategoryId(0);
+  };
 
   useEffect(() => {
     initializeData();
@@ -735,7 +737,7 @@ const EventPreparationPage = () => {
     });
   };
 
-   const openMenuReport = (eventId) => {
+  const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
@@ -750,55 +752,58 @@ const EventPreparationPage = () => {
     categorySlogans: {},
   };
   const currentMenuItems = useMemo(() => {
-  const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
-  const baseItems = functionMenuData[cacheKey] || [];
-  const allFunctionItems = allMenuItems[selectedFunctionId] || [];
+    const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
+    const baseItems = functionMenuData[cacheKey] || [];
+    const allFunctionItems = allMenuItems[selectedFunctionId] || [];
 
-  if (activeTab === "package") {
-    const packageItems = allFunctionItems.filter((item) => item.isPackageItem);
-    
-    const packageMenuItemIds = new Set();
-    packageItems.forEach((item) => {
-      if (item.menuItemId !== undefined && item.menuItemId !== null) {
-        packageMenuItemIds.add(item.menuItemId);
-        packageMenuItemIds.add(String(item.menuItemId));
-        packageMenuItemIds.add(Number(item.menuItemId));
+    if (activeTab === "package") {
+      const packageItems = allFunctionItems.filter(
+        (item) => item.isPackageItem
+      );
+
+      const packageMenuItemIds = new Set();
+      packageItems.forEach((item) => {
+        if (item.menuItemId !== undefined && item.menuItemId !== null) {
+          packageMenuItemIds.add(item.menuItemId);
+          packageMenuItemIds.add(String(item.menuItemId));
+          packageMenuItemIds.add(Number(item.menuItemId));
+        }
+      });
+
+      const filteredBaseItems = baseItems.filter((item) => {
+        const isPackageItem = item.isPackageItem || item.packageId;
+        const isDuplicate =
+          packageMenuItemIds.has(item.id) ||
+          packageMenuItemIds.has(String(item.id)) ||
+          packageMenuItemIds.has(Number(item.id));
+
+        return !isPackageItem && !isDuplicate;
+      });
+
+      const combinedItems = [...packageItems, ...filteredBaseItems];
+
+      if (selectedCategoryId !== 0) {
+        return combinedItems.filter(
+          (item) => item.parentId === selectedCategoryId
+        );
       }
-    });
 
-    const filteredBaseItems = baseItems.filter((item) => {
-      const isPackageItem = item.isPackageItem || item.packageId;
-      const isDuplicate =
-        packageMenuItemIds.has(item.id) ||
-        packageMenuItemIds.has(String(item.id)) ||
-        packageMenuItemIds.has(Number(item.id));
-
-      return !isPackageItem && !isDuplicate;
-    });
-
-    const combinedItems = [...packageItems, ...filteredBaseItems];
-
-    if (selectedCategoryId !== 0) {
-      return combinedItems.filter((item) => item.parentId === selectedCategoryId);
+      return combinedItems;
+    } else {
+      return baseItems.filter((item) => !item.isPackageItem);
     }
-
-    return combinedItems;
-  } else {
-    return baseItems.filter((item) => !item.isPackageItem);
-  }
-}, [
-  functionMenuData,
-  allMenuItems,
-  selectedFunctionId,
-  selectedCategoryId,
-  activeTab,
-]);
+  }, [
+    functionMenuData,
+    allMenuItems,
+    selectedFunctionId,
+    selectedCategoryId,
+    activeTab,
+  ]);
   const debugMenuItems = () => {
     const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
     const baseItems = functionMenuData[cacheKey] || [];
     const allFunctionItems = allMenuItems[selectedFunctionId] || [];
 
-    
     const packageOriginalIds = allFunctionItems
       .filter((i) => i.isPackageItem)
       .map((i) => i.menuItemId);
@@ -974,76 +979,81 @@ const EventPreparationPage = () => {
             <div className="col-span-9">
               <div className="border-b p-3 shrink-0 bg-white">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex flex-col">
-                   <div className="flex items-center justify-between gap-6 mb-2">
-  {/* Event No */}
-  <div className="flex items-center gap-2 cursor-pointer text-sm font-semibold">
-    <img
-      className="w-4 h-4"
-      src={toAbsoluteUrl("/media/menu/eventno.png")}
-      alt="event"
-    />
-    <span className="text-gray-900">Event No:</span>
-    <span className="text-primary ms-1">{orderDetails.id}</span>
-  </div>
-
-  {/* Person */}
-  <div className="flex items-center gap-2">
-    <img
-      className="w-4 h-4"
-      src={toAbsoluteUrl("/media/menu/person.png")}
-      alt="person"
-    />
-    <span className="text-sm font-semibold text-gray-900">Person:</span>
-     <input
-                        type="number"
-                        min={1}
-                        className="input input-sm w-20"
-                        value={pax}
-                        onChange={(e) => handlePaxChange(e.target.value)}
-                      />
-    <span className="text-primary ms-1">{orderDetails.personName}</span>
-  </div>
-   <div className="flex gap-1">
-                        <strong className="w-[15px] text-center text-sm font-medium text-gray-900">
-                          <span className="text-base text-primary">
-                            &#8377;
-                          </span>
-                        </strong>
-                        <span className="text-sm font-medium text-gray-900">
-                          Default Rate:
+                  <div className="w-full flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      {/* Event No */}
+                      <div className="flex items-center gap-2 cursor-pointer text-sm font-semibold">
+                        <img
+                          className="w-5 h-5"
+                          src={toAbsoluteUrl("/media/menu/eventno.png")}
+                          alt="event"
+                        />
+                        <span className="text-gray-900">Event No:</span>
+                        <span className="text-primary ms-1">
+                          {orderDetails.id}
                         </span>
                       </div>
 
-                      <input
-                        type="number"
-                        value={rate}
-                        onChange={(e) => handleRateChange(e.target.value)}
-                        className="input input-sm w-20"
-                      />
-</div>
-
-                    <span className="flex cursor-pointer text-sm font-semibold">
-                      <div className="flex gap-2">
+                      {/* Person */}
+                      <div className="flex items-center gap-2">
                         <img
-                          className="w-4 h-4  "
-                          src={toAbsoluteUrl("/media/menu/partyname.png")}
-                          alt="id"
+                          className="w-5 h-5"
+                          src={toAbsoluteUrl("/media/menu/person.png")}
+                          alt="person"
                         />
-                        <span className="text-gray-900">Customer:</span>
+                        <span className="text-sm font-semibold text-gray-900">
+                          Person:
+                        </span>
+                        <input
+                          type="number"
+                          min={1}
+                          className="input input-sm w-20"
+                          value={pax}
+                          onChange={(e) => handlePaxChange(e.target.value)}
+                        />
+                        <span className="text-primary ms-1">
+                          {orderDetails.personName}
+                        </span>
                       </div>
-                      <span className="font-semibold text-sm ms-1 text-primary">
-                        {orderDetails.customer}
-                      </span>
-                    </span>
+                      <div className="flex  items-center gap-2">
+                        <img
+                          className="w-7 h-7"
+                          src={toAbsoluteUrl("/media/menu/rate.png")}
+                          alt="rate"
+                        />
+                        <span className="text-sm font-medium text-gray-900">
+                          Default Rate:
+                        </span>
+                        <input
+                          type="number"
+                          value={rate}
+                          onChange={(e) => handleRateChange(e.target.value)}
+                          className="input input-sm w-20"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="   shrink-0  rounded-xl">
+                <hr className="border-t-2 border-gray-300 mb-3" />
+                <div className="   shrink-0  rounded-xl mb-3">
+                  <span className="flex cursor-pointer text-sm font-semibold mb-2">
+                    <div className="flex gap-2">
+                      <img
+                        className="w-5 h-5  "
+                        src={toAbsoluteUrl("/media/menu/partyname.png")}
+                        alt="id"
+                      />
+                      <span className="text-gray-900">Customer:</span>
+                    </div>
+                    <span className="font-semibold text-sm ms-1 text-primary">
+                      {orderDetails.customer}
+                    </span>
+                  </span>
                   <div className="flex  gap-6 mb-2">
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  "
+                          className="w-5 h-5  "
                           src={toAbsoluteUrl("/media/menu/eventname.png")}
                           alt="id"
                         />
@@ -1055,24 +1065,34 @@ const EventPreparationPage = () => {
                         {orderDetails.eventType}
                       </span>
                     </p>
-                    <p className="flex items-center gap-1 mb-1">
-                      
+                    <p className="flex items-center gap-1 mb-1"></p>
 
-                     
-                    </p>
-                    
-
-                    <p className="flex items-center gap-1 mb-1">
-                     
-
-                      
-                    </p>
+                    <p className="flex items-center gap-1 mb-1"></p>
                   </div>
-                  <div className="flex  gap-6">
+                  <p className="flex items-center gap-1 mb-2">
+                    <div className="flex gap-2">
+                      <img
+                        className="w-5 h-5  "
+                        src={toAbsoluteUrl("/media/menu/venue.png")}
+                        alt="id"
+                      />
+                      <span className="text-sm font-semibold text-gray-900">
+                        Venue:
+                      </span>
+                    </div>
+                    <span className="font-semibold text-sm  text-primary">
+                      {orderDetails.venue}
+                    </span>
+                  </p>
+                </div>
+
+                <hr className="border-t-2 border-gray-300 mb-3" />
+                <div className="flex items-center   gap-1">
+                  <div className=" flex justify-between  gap-8 ">
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4 "
+                          className="w-5 h-5 "
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
@@ -1087,7 +1107,7 @@ const EventPreparationPage = () => {
                     <p className="flex items-center gap-1 mb-1">
                       <div className="flex gap-2">
                         <img
-                          className="w-4 h-4  "
+                          className="w-5 h-5  "
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
@@ -1101,25 +1121,8 @@ const EventPreparationPage = () => {
                     </p>
                   </div>
                 </div>
-                <p className="flex items-center gap-1 mb-1 mt-1">
-                      <div className="flex gap-2">
-                        <img
-                          className="w-4 h-4  "
-                          src={toAbsoluteUrl("/media/menu/venue.png")}
-                          alt="id"
-                        />
-                        <span className="text-sm font-semibold text-gray-900">
-                          Venue:
-                        </span>
-                      </div>
-                      <span className="font-semibold text-sm  text-primary">
-                        {orderDetails.venue}
-                      </span>
-                    </p>
-                    
               </div>
-         
-                    
+
               <div className={`pt-3 px-3 shrink-0 ${classes.customStyle}`}>
                 <TabComponent
                   tabs={menuPreparationsTabs}
@@ -1160,12 +1163,12 @@ const EventPreparationPage = () => {
                   </button>
                 </div>
 
-             <button
-    onClick={openMenuReport}
-                className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
-  >
-    Report
-  </button>
+                <button
+                  onClick={openMenuReport}
+                  className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
+                >
+                  Report
+                </button>
               </div>
               <div className="px-3 ">
                 {activeTab === "package" &&
@@ -1437,11 +1440,11 @@ const EventPreparationPage = () => {
           notes={itemNotes}
           onSave={handleNoteSave}
         />
-         <MenuReport
-                  isModalOpen={isMenuReport}
-                  setIsModalOpen={setIsMenuReport}
-                  eventId={menuReportEventId}
-                />
+        <MenuReport
+          isModalOpen={isMenuReport}
+          setIsModalOpen={setIsMenuReport}
+          eventId={menuReportEventId}
+        />
       </Container>
     </Fragment>
   );

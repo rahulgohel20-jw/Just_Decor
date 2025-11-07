@@ -35,7 +35,7 @@ const AddInvoicePage = () => {
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
-  
+
   // New state for invoice footer data
   const [footerData, setFooterData] = useState({
     notes: "Thanks for your Business...",
@@ -50,9 +50,9 @@ const AddInvoicePage = () => {
     cgstAmnt: 0,
     sgstAmnt: 0,
     igstAmnt: 0,
-    grandTotal: 0
+    grandTotal: 0,
   });
-  
+
   const [rows, setRows] = useState([
     {
       key: 1,
@@ -108,23 +108,24 @@ const AddInvoicePage = () => {
       const response = await GetInvoiceByEventId(eventId);
 
       console.log("API Response:", response);
-      
+
       if (response.status === 200 && response.data.data) {
-        const invoiceDetailsArray = response?.data?.data?.["Event Invoice Details"];
-        
+        const invoiceDetailsArray =
+          response?.data?.data?.["Event Invoice Details"];
+
         if (invoiceDetailsArray && invoiceDetailsArray.length > 0) {
           const invoiceDetails = invoiceDetailsArray[0];
           console.log("Fetched Invoice Data:", invoiceDetails);
           setInvoiceData(invoiceDetails);
-          
+
           // Set due date if available
           if (invoiceDetails.duedate) {
             setDueDate(dayjs(invoiceDetails.duedate, "DD/MM/YYYY"));
           }
-          
+
           let mappedRows = [];
           console.log("Invoice Details for Rows:", invoiceDetails);
-          
+
           const formatDateForDisplay = (dateString) => {
             if (!dateString) return "";
             try {
@@ -134,51 +135,61 @@ const AddInvoicePage = () => {
               } else {
                 datePart = dateString;
               }
-              
+
               const [day, month, year] = datePart.split("/");
               const date = new Date(year, month - 1, day);
-              
+
               return date.toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
-                year: "numeric"
+                year: "numeric",
               });
             } catch (error) {
               console.error("Error formatting date:", dateString, error);
               return dateString;
             }
           };
-          
+
           if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
-            mappedRows = invoiceDetails.invoiceFunctionItems.map((item, index) => ({
-              key: `${index + 1}-${Math.random()}`,
-              name: item.functionName || item.name || "",
-              date: formatDateForDisplay(item.functionDate || item.date),
-              person: item.pax || item.person || 0,
-              extra: item.extraPax || item.extra || 0,
-              rate: item.ratePerPlate || item.rate || 0,
-              amount: item.amount || (Number(item.person || item.pax || 0) + Number(item.extra || item.extraPax || 0)) * Number(item.rate || item.ratePerPlate || 0),
-              isCustom: false,
-              isEventFunction: item.isEventFunction !== false, // Default true if from API
-            }));
+            mappedRows = invoiceDetails.invoiceFunctionItems.map(
+              (item, index) => ({
+                key: `${index + 1}-${Math.random()}`,
+                name: item.functionName || item.name || "",
+                date: formatDateForDisplay(item.functionDate || item.date),
+                person: item.pax || item.person || 0,
+                extra: item.extraPax || item.extra || 0,
+                rate: item.ratePerPlate || item.rate || 0,
+                amount:
+                  item.amount ||
+                  (Number(item.person || item.pax || 0) +
+                    Number(item.extra || item.extraPax || 0)) *
+                    Number(item.rate || item.ratePerPlate || 0),
+                isCustom: false,
+                isEventFunction: item.isEventFunction !== false,
+                id: item.id || 0, // ✅ ADD THIS LINE - Preserve the original id
+              })
+            );
           } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
-            mappedRows = invoiceDetails.event.eventFunctions.map((func, index) => ({
-              key: `${index + 1}-${Math.random()}`,
-              name: func.function?.nameEnglish || "N/A",
-              date: formatDateForDisplay(func.functionStartDateTime),
-              person: func.pax || 0,
-              extra: 0,
-              rate: func.rate || 0,
-              amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
-              isCustom: false,
-              isEventFunction: true,
-            }));
+            mappedRows = invoiceDetails.event.eventFunctions.map(
+              (func, index) => ({
+                key: `${index + 1}-${Math.random()}`,
+                name: func.function?.nameEnglish || "N/A",
+                date: formatDateForDisplay(func.functionStartDateTime),
+                person: func.pax || 0,
+                extra: 0,
+                rate: func.rate || 0,
+                amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
+                isCustom: false,
+                isEventFunction: true,
+                id: 0, // New rows from eventFunctions will have id: 0
+              })
+            );
           }
 
           console.log("Mapped Rows:", mappedRows, rows);
 
           setRows(mappedRows.length > 0 ? mappedRows : rows);
-          
+
           // Initialize temp values AFTER setting invoice data
           setTempValues({
             billingaddress: invoiceDetails.billingaddress || "",
@@ -202,9 +213,9 @@ const AddInvoicePage = () => {
             cgstAmnt: parseFloat(invoiceDetails.cgstAmnt) || 0,
             sgstAmnt: parseFloat(invoiceDetails.sgstAmnt) || 0,
             igstAmnt: parseFloat(invoiceDetails.igstAmnt) || 0,
-            grandTotal: parseFloat(invoiceDetails.grandTotal) || 0
+            grandTotal: parseFloat(invoiceDetails.grandTotal) || 0,
           });
-          
+
           message.success("Invoice data loaded successfully");
         } else {
           message.warning("No invoice data found");
@@ -306,7 +317,6 @@ const AddInvoicePage = () => {
     );
   }
 
-  // Add Invoice Handler
   const handleSaveInvoice = async () => {
     const userDataString = localStorage.getItem("userData");
     const userData = JSON.parse(userDataString);
@@ -342,9 +352,18 @@ const AddInvoicePage = () => {
           }
 
           const monthMap = {
-            Jan: "01", Feb: "02", Mar: "03", Apr: "04",
-            May: "05", Jun: "06", Jul: "07", Aug: "08",
-            Sep: "09", Oct: "10", Nov: "11", Dec: "12",
+            Jan: "01",
+            Feb: "02",
+            Mar: "03",
+            Apr: "04",
+            May: "05",
+            Jun: "06",
+            Jul: "07",
+            Aug: "08",
+            Sep: "09",
+            Oct: "10",
+            Nov: "11",
+            Dec: "12",
           };
 
           const parts = displayDate.split(" ");
@@ -373,11 +392,12 @@ const AddInvoicePage = () => {
       };
 
       // Calculate remaining amount (grandTotal - advance payments)
-      const totalAdvancePayment = invoiceData?.eventInvoiceFunctionPayments?.reduce(
-        (sum, payment) => sum + (Number(payment.advancePayment) || 0), 
-        0
-      ) || 0;
-      
+      const totalAdvancePayment =
+        invoiceData?.eventInvoiceFunctionPayments?.reduce(
+          (sum, payment) => sum + (Number(payment.advancePayment) || 0),
+          0
+        ) || 0;
+
       const remainingAmount = footerData.grandTotal - totalAdvancePayment;
 
       // Prepare payload with all data including footer data
@@ -389,19 +409,21 @@ const AddInvoicePage = () => {
         discount: footerData.discount,
         duedate: dueDate ? dueDate.format("DD/MM/YYYY hh:mm A") : null,
         eventId: eventId,
-        eventInvoiceFunctionPayments: invoiceData?.eventInvoiceFunctionPayments?.map(payment => ({
-          advancePayment: Number(payment.advancePayment) || 0,
-          advancePaymentDate: payment.advancePaymentDate || formatDateForAPI(new Date()),
-          advancePaymentNotes: payment.advancePaymentNotes || "",
-          id: payment.id || 0,
-        })) || [
-          {
-            advancePayment: 0,
-            advancePaymentDate: formatDateForAPI(new Date()),
-            advancePaymentNotes: "",
-            id: 0,
-          },
-        ],
+        eventInvoiceFunctionPayments:
+          invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
+            advancePayment: Number(payment.advancePayment) || 0,
+            advancePaymentDate:
+              payment.advancePaymentDate || formatDateForAPI(new Date()),
+            advancePaymentNotes: payment.advancePaymentNotes || "",
+            id: payment.id || 0,
+          })) || [
+            {
+              advancePayment: 0,
+              advancePaymentDate: formatDateForAPI(new Date()),
+              advancePaymentNotes: "",
+              id: 0,
+            },
+          ],
         grandTotal: footerData.grandTotal,
         gstnumber: tempValues.gstnumber || "",
         igst: String(footerData.igst),
@@ -411,7 +433,7 @@ const AddInvoicePage = () => {
           extraPax: Number(r.extra) || 0,
           functionDate: convertDisplayDateToAPI(r.date),
           functionName: r.name || "",
-          id: 0,
+          id: r.id || 0,
           isEventFunction: !r.isCustom,
           pax: Number(r.person) || 0,
           ratePerPlate: Number(r.rate) || 0,
@@ -464,7 +486,6 @@ const AddInvoicePage = () => {
           },
         });
       } else {
-        // ❌ ERROR ALERT
         Swal.fire({
           title: "Failed to save invoice",
           text: response?.data?.msg || "Please try again later.",
@@ -512,7 +533,8 @@ const AddInvoicePage = () => {
               <div className="flex flex-wrap items-center justify-between p-4 gap-3">
                 <div className="flex flex-col gap-2.5">
                   <p className="text-lg font-semibold text-gray-900">
-                    Event Name: {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
+                    Event Name:{" "}
+                    {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
                   </p>
                   <div className="flex items-center gap-7">
                     <div className="flex items-center gap-3">
@@ -577,7 +599,7 @@ const AddInvoicePage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Billing */}
             <div className="flex flex-col border rounded-xl mb-5">
               <div className="grid md:grid-cols-2 rounded">
@@ -614,7 +636,10 @@ const AddInvoicePage = () => {
                       <TextArea
                         value={tempValues.billingaddress}
                         onChange={(e) =>
-                          handleTempValueChange("billingaddress", e.target.value)
+                          handleTempValueChange(
+                            "billingaddress",
+                            e.target.value
+                          )
                         }
                         placeholder="Enter billing address"
                         rows={3}
@@ -784,7 +809,7 @@ const AddInvoicePage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* ItemTable */}
             <ItemTable
               rows={rows}
@@ -792,9 +817,9 @@ const AddInvoicePage = () => {
               onAddRow={handleAddRow}
               onDeleteRow={handleDeleteRow}
             />
-            
+
             {/* InvoiceFooter */}
-            <InvoiceFooter 
+            <InvoiceFooter
               invoiceData={invoiceData}
               rows={rows}
               footerData={footerData}

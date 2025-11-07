@@ -7,7 +7,7 @@ import { Alert } from "@/components";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { message } from "antd";
-import { LoginWithOtp } from "@/services/apiServices"; // ✅ API call
+import { LoginWithOtp } from "@/services/apiServices";
 
 const loginSchema = Yup.object().shape({
   phone: Yup.string()
@@ -42,8 +42,6 @@ const OtpLogin = () => {
         console.log("Sending OTP request for:", values.phone);
         const response = await LoginWithOtp(values.phone);
         console.log("LoginWithOtp response:", response);
-        
-        
 
         if (response?.data?.success) {
           localStorage.setItem("phone", values.phone); // store for verify step
