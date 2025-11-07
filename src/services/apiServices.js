@@ -795,3 +795,19 @@ export const DeletePlanById = (id) => {
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
+
+//get api for labour shift
+export const GetAllLabourShift = (Id) => {
+  return GET(`/shift/getallbyuserid?userId=${Id}`);
+};
+
+export const AddLabourShift = (data) => {
+  return POST(`/shift/add`, data);
+};
+
+export const deleteLabourShiftById = (id) => {
+  return DELETE(`/shift/deletebyid?id=${id}`);
+};
+export const EditLabourShiftAPI = (id, data) => {
+  return PUT(`/shift/update?id=${id}`, data);
+};

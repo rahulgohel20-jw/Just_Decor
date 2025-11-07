@@ -1,347 +1,321 @@
-import { useFormik } from "formik";
-import Swal from "sweetalert2";
-import * as Yup from "yup";
-import { useEffect, useState } from "react";
-import {
-  registerUser,
-  fetchCountries,
-  fetchStatesByCountry,
-  fetchCitiesByState,
-} from "@/services/apiServices";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import {  Mail, User, Phone, Lock } from "lucide-react";
 
-export default function Signup() {
-  const navigate = useNavigate();
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
 
-  const formik = useFormik({
-    initialValues: {
-      address: "",
-      cityId: "",
-      clientId: 0,
-      companyEmail: "",
-      contactNo: "",
-      countryCode: "+91",
-      countryId: "",
-      email: "",
-      firstName: "",
-      isAttendanceLeaveAccess: true,
-      isTaskAccess: true,
-      lastName: "",
-      officeNo: "",
-      stateId: "",
-    },
-    validationSchema: Yup.object({
-      firstName: Yup.string().required("First name required"),
-      lastName: Yup.string().required("Last name required"),
-      email: Yup.string().email("Invalid email").required("Email required"),
-      contactNo: Yup.string().required("Phone required"),
-      address: Yup.string().required("Address required"),
-      countryId: Yup.string().required("Select country"),
-      stateId: Yup.string().required("Select state"),
-      cityId: Yup.string().required("Select city"),
-    }),
-    onSubmit: async (values) => {
-      try {
-        const payload = {
-          ...values,
-          countryId: Number(values.countryId),
-          stateId: Number(values.stateId),
-          cityId: Number(values.cityId),
-          roleId: 2,
-          companyName: " ",
-          remarks: " ",
-          reportingManagerId: 0,
 
-          companyEmail:
-            values.email ||
-            `${values.firstName}.${values.lastName}@example.com`,
-          officeNo: values.contactNo || "N/A",
-        };
-
-        console.log("Submitting signup with payload:", payload);
-
-        const res = await registerUser(payload);
-        if (res?.status === 200) {
-          Swal.fire({
-            title: "Signup Successful!",
-            text: "Your account has been created successfully.",
-            icon: "success",
-            background: "#f5faff",
-            color: "#003f73",
-            confirmButtonText: "Okay",
-            confirmButtonColor: "#005BA8",
-            customClass: {
-              popup: "rounded-2xl shadow-xl",
-              title: "text-2xl font-bold",
-              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
-            },
-          });
-        }
-      } catch (err) {
-        console.error("Signup error:", err);
-        Swal.fire({
-          title: "Error!",
-          text: "Signup failed! Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
-    },
-  });
-
-  useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const res = await fetchCountries();
-        const countryList = res?.data?.data?.["Country Details"] || [];
-        setCountries(countryList);
-
-        // Optional: Set default country as "India"
-        const defaultCountry = countryList.find(
-          (c) => c.name.toLowerCase() === "india"
-        );
-        if (defaultCountry) {
-          formik.setFieldValue("countryId", defaultCountry.id);
-        }
-      } catch (error) {
-        console.error("Error loading countries:", error);
-        setCountries([]);
-      }
-    };
-    loadCountries();
-  }, []);
-
-  // ✅ Load states when country changes
-  useEffect(() => {
-    if (formik.values.countryId) {
-      const loadStates = async () => {
-        try {
-          const res = await fetchStatesByCountry(formik.values.countryId);
-          const stateList = res?.data?.data?.["state Details"] || [];
-          setStates(Array.isArray(stateList) ? stateList : []);
-        } catch (error) {
-          console.error("Error loading states:", error);
-          setStates([]);
-        }
-      };
-      loadStates();
-    }
-  }, [formik.values.countryId]);
-
-  // ✅ Load cities when state changes
-  useEffect(() => {
-    if (formik.values.stateId) {
-      const loadCities = async () => {
-        try {
-          const res = await fetchCitiesByState(formik.values.stateId);
-          const cityList = res?.data?.data?.["City Details"] || [];
-          setCities(Array.isArray(cityList) ? cityList : []);
-        } catch (error) {
-          console.error("Error loading cities:", error);
-          setCities([]);
-        }
-      };
-      loadCities();
-    }
-  }, [formik.values.stateId]);
+// Custom Floating Label Input Component
+function FloatingInput({
+  label,
+  type = "text",
+  name,
+  value,
+  onChange,
+  onBlur,
+  error,
+  disabled,
+  icon, // ki-filled icon name
+  iconImg, // fallback image icon
+  ...props
+}) {
+  const [isFocused, setIsFocused] = useState(false);
+  const hasValue = value && value.length > 0;
 
   return (
-    <div className="card max-w-[900px] w-full">
-      <form
-        onSubmit={formik.handleSubmit}
-        className="card-body flex flex-col gap-6 p-5 md:p-7 overflow-y-scroll max-h-[90vh] scrollbar-hide"
+    <div className="relative">
+      {/* Input Field */}
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onBlur={(e) => {
+          setIsFocused(false);
+          onBlur && onBlur(e);
+        }}
+        onFocus={() => setIsFocused(true)}
+        disabled={disabled}
+        className={`peer w-full ${
+          icon || iconImg ? "pl-10" : "pl-3"
+        } pr-3 py-3 border rounded-md text-sm outline-none transition-all ${
+          error ? "border-red-500" : "border-gray-300 focus:border-blue-500"
+        } ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+        {...props}
+      />
+
+      {/* Floating Label */}
+      <label
+        className={`absolute transition-all pointer-events-none bg-white px-1 ${
+          icon || iconImg ? "left-10" : "left-3"
+        } ${
+          isFocused || hasValue
+            ? "-top-2.5 text-xs text-blue-500"
+            : "top-3 text-sm text-gray-500"
+        } ${error ? "text-red-500" : ""}`}
       >
-        {/* Header */}
-        <div className="mb-2.5">
-          <h2 className="text-lg font-semibold text-gray-900 leading-none mb-2">
-            Signup
-          </h2>
-          <span className="text-sm text-gray-700">
-            Please fill in all required information to create your account.
-          </span>
-        </div>
+        {label}
+      </label>
 
-        {/* Personal Details */}
-        <div>
-          <h3 className="text-sm font-semibold mb-4 border-b pb-2">
-            Personal Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            {/* First Name */}
-            <div className="flex flex-col">
-              <label className="form-label">First Name</label>
-              <label className="input">
-                <input
-                  name="firstName"
-                  placeholder="First Name"
-                  className="border p-2 w-full rounded"
-                  value={formik.values.firstName}
-                  onChange={formik.handleChange}
-                />
-              </label>
-              {formik.errors.firstName && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.firstName}
-                </p>
-              )}
-            </div>
+      {/* ki-filled Icon */}
+      {icon && (
+        <span
+          className={`absolute left-3 top-3 mb-4 text-gray-500 transition-colors duration-200 
+          peer-focus:text-blue-500  ${error ? "text-red-500" : ""}`}
+        >
+          <i className={`ki-filled ${icon} `} />
+        </span>
+      )}
 
-            {/* Last Name */}
-            <div className="flex flex-col">
-              <label className="form-label">Last Name</label>
-              <label className="input">
-                <input
-                  name="lastName"
-                  placeholder="Last Name"
-                  className="border p-2 w-full rounded"
-                  value={formik.values.lastName}
-                  onChange={formik.handleChange}
-                />
-              </label>
-              {formik.errors.lastName && (
-                <p className="text-red-500 text-sm">{formik.errors.lastName}</p>
-              )}
-            </div>
+      {/* Fallback Image Icon */}
+      {!icon && iconImg && (
+        <span className="absolute left-3 top-3">
+          <img
+            src={iconImg}
+            alt="icon"
+            className="inline-block w-5 h-5 opacity-100"
+          />
+        </span>
+      )}
+    </div>
+  );
+}
 
-            {/* Email */}
-            <div className="flex flex-col">
-              <label className="form-label">Email</label>
-              <label className="input">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  className="border p-2 w-full rounded"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                />
-              </label>
-              {formik.errors.email && (
-                <p className="text-red-500 text-sm">{formik.errors.email}</p>
-              )}
-            </div>
 
-            {/* Phone */}
-            <div className="flex flex-col">
-              <label className="form-label">Phone</label>
-              <label className="input">
-                <input
-                  name="contactNo"
-                  placeholder="Phone Number"
-                  className="border p-2 w-full rounded"
-                  value={formik.values.contactNo}
-                  onChange={formik.handleChange}
-                />
-              </label>
-              {formik.errors.contactNo && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.contactNo}
-                </p>
-              )}
-            </div>
 
-            {/* Address */}
-            <div className="flex flex-col">
-              <label className="form-label">Address</label>
-              <label className="input">
-                <input
-                  name="address"
-                  placeholder="Address"
-                  className="border p-2 w-full rounded"
-                  value={formik.values.address}
-                  onChange={formik.handleChange}
-                />
-              </label>
-              {formik.errors.address && (
-                <p className="text-red-500 text-sm">{formik.errors.address}</p>
-              )}
-            </div>
 
-            {/* Country */}
-            <div className="flex flex-col">
-              <label className="form-label">Country</label>
-              <label className="input">
-                <select
-                  name="countryId"
-                  value={formik.values.countryId}
-                  onChange={formik.handleChange}
-                  className="border p-2 w-full rounded"
-                >
-                  <option value="">Select Country</option>
-                  {countries.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {formik.errors.countryId && (
-                <p className="text-red-500 text-sm">
-                  {formik.errors.countryId}
-                </p>
-              )}
-            </div>
+export default function Signup() {
+  // Static Data
+  
+const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 👈 Add this here
 
-            {/* State */}
-            <div className="flex flex-col">
-              <label className="form-label">State</label>
-              <label className="input">
-                <select
-                  name="stateId"
-                  value={formik.values.stateId}
-                  onChange={formik.handleChange}
-                  className="border p-2 w-full rounded"
-                  disabled={!states.length}
-                >
-                  <option value="">Select State</option>
-                  {states.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {formik.errors.stateId && (
-                <p className="text-red-500 text-sm">{formik.errors.stateId}</p>
-              )}
-            </div>
 
-            {/* City */}
-            <div className="flex flex-col">
-              <label className="form-label">City</label>
-              <label className="input">
-                <select
-                  name="cityId"
-                  value={formik.values.cityId}
-                  onChange={formik.handleChange}
-                  className="border p-2 w-full rounded"
-                  disabled={!cities.length}
-                >
-                  <option value="">Select City</option>
-                  {cities.map((ct) => (
-                    <option key={ct.id} value={ct.id}>
-                      {ct.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {formik.errors.cityId && (
-                <p className="text-red-500 text-sm">{formik.errors.cityId}</p>
-              )}
-            </div>
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    contactNo: "",
+    password: "",
+
+
+    countryId: "",
+    stateId: "",
+    cityId: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateField = (name, value) => {
+    let error = "";
+    switch (name) {
+      case "firstName":
+        if (!value) error = "First name required";
+        break;
+      case "lastName":
+        if (!value) error = "Last name required";
+        break;
+      case "email":
+        if (!value) error = "Email required";
+        else if (!/\S+@\S+\.\S+/.test(value)) error = "Invalid email";
+        break;
+      case "contactNo":
+        if (!value) error = "Phone required";
+        break;
+      case "password":
+        if (!value) error = "Password required";
+        else if (value.length < 6) error = "Min 6 characters";
+        break;
+      
+     
+      default:
+        break;
+    }
+    return error;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+
+    const newErrors = {};
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key]);
+      if (error) newErrors[key] = error;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+      return;
+    }
+
+    console.log("Form submitted:", formData);
+    alert("Signup Successful!");
+  };
+
+
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-[800px] w-full mx-auto bg-white shadow-md rounded-xl p-8">
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Signup</h2>
+            <p className="text-gray-600 text-sm">
+              Please fill in all required fields to create your account.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold mb-4 border-b pb-2">
+              Personal Details
+            </h3>
+
+
+        <div className="space-y-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <FloatingInput
+        label="First Name"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+        onBlur={handleBlur}
+ icon="ki-user"  
+        error={touched.firstName && errors.firstName}
+      />
+      {touched.firstName && errors.firstName && (
+        <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+      )}
+    </div>
+
+    <div>
+      <FloatingInput
+        label="Last Name"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
+        onBlur={handleBlur}
+ icon="ki-user" 
+        error={touched.lastName && errors.lastName}
+      />
+      {touched.lastName && errors.lastName && (
+        <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+      )}
+    </div>
+  </div>
+
+  <div>
+    <FloatingInput
+      type="email"
+      label="Email"
+      name="email"
+      value={formData.email}
+      onChange={handleChange}
+      onBlur={handleBlur}
+  icon="ki-message-text"    
+    error={touched.email && errors.email}
+    />
+    {touched.email && errors.email && (
+      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+    )}
+  </div>
+
+  <div>
+    <FloatingInput
+      label="Phone Number"
+      name="contactNo"
+      value={formData.contactNo}
+      onChange={handleChange}
+      onBlur={handleBlur}
+icon="ki-phone"      error={touched.contactNo && errors.contactNo}
+    />
+    {touched.contactNo && errors.contactNo && (
+      <p className="text-red-500 text-xs mt-1">{errors.contactNo}</p>
+    )}
+  </div>
+
+  <div className="relative">
+    <FloatingInput
+      type={showPassword ? "text" : "password"}
+      label="Password"
+      name="password"
+      value={formData.password}
+      onChange={handleChange}
+      onBlur={handleBlur}
+       icon="ki-lock" 
+      error={touched.password && errors.password}
+    />
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+    {touched.password && errors.password && (
+      <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+    )}
+  </div>
+
+  <div className="relative">
+    <FloatingInput
+      type={showConfirmPassword ? "text" : "password"}
+      label="Confirm Password"
+      name="confirmPassword"
+      value={formData.confirmPassword}
+      onChange={handleChange}
+      onBlur={handleBlur}
+        icon="ki-lock" 
+      error={touched.confirmPassword && errors.confirmPassword}
+    />
+    <button
+      type="button"
+      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+      className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+    >
+      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+    {touched.confirmPassword && errors.confirmPassword && (
+      <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+    )}
+  </div>
+</div>
+
+
+          </div>
+
+
+          {/* Submit Button */}
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-8 rounded-lg transition-colors"
+            >
+              Sign Up
+            </button>
           </div>
         </div>
-
-        {/* Submit */}
-        <div className="text-center">
-          <button type="submit" className="btn btn-primary">
-            Sign Up
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -28,34 +28,29 @@ export const columns = [
       <DataGridColumnHeader title="Total Paid" column={column} />
     ),
   },
+{
+  accessorKey: "Date",
+  header: ({ column }) => (
+    <DataGridColumnHeader title="Date" column={column} />
+  ),
+},
 
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <Tooltip title="View">
-            <Link to={""}>
-              <button
-                className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-                title="View"
-              >
-                <i className="ki-filled ki-eye text-purple-700"></i>
-              </button>
-            </Link>
-          </Tooltip>
-        </div>
-      );
-    },
-  },
+ 
 ];
 
 export const defaultData = [
   {
     Invoice: "0001",
-    CustomerName: "John ",
+    CustomerName: "John",
     plan: "E-lite",
-    Amount: "₹ 35000",
+    Amount: 5000,       // Add this if you want Total Paid
+    Date: "23/02/2025", // Ensure date format is correct
+  },
+  {
+    Invoice: "0002",
+    CustomerName: "Alice",
+    plan: "Premium",
+    Amount: 7500,
+    Date: "05/11/2025",
   },
 ];

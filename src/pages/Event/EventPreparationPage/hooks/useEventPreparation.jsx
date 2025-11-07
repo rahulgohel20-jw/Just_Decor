@@ -77,17 +77,16 @@ const useEventData = () => {
                   <p className="mb-1">
                     <i className="ki-filled ki-map-pin text-success me-1"></i>
                     <strong>
-                      {" "}
                       <i className="ki-filled ki-calendar text-success me-1"></i>
                       Venue:
                     </strong>{" "}
-                    {fn.function_venue || "N/A"}
+                    {fn.venue || "N/A"}
                   </p>
                 </div>
               }
             >
               <div className="cursor-pointer flex flex-col gap-1">
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1">
                   <i className="ki-filled ki-disk"></i>
                   <span>{fn.name}</span>
                 </div>

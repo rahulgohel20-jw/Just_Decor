@@ -1,8 +1,8 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { useEffect, useState } from "react";
-import { AddContactMasterType, EditContactType, Translateapi } from "@/services/apiServices";
+import { useEffect } from "react";
+import { AddLabourShift,EditLabourShiftAPI,Translateapi } from "@/services/apiServices";
 
 const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
   if (!isOpen) return null;
@@ -11,66 +11,70 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
-    hour: "",
-    minute: "",
-    period: "AM",
+    time: "", // 24-hour format "HH:mm"
     isActive: true,
   };
 
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Shift name is required"),
-    hour: Yup.number()
-      .typeError("Invalid hour")
-      .min(1, "Hour must be 1–12")
-      .max(12, "Hour must be 1–12")
-      .required("Required"),
-    minute: Yup.number()
-      .typeError("Invalid minute")
-      .min(0, "Minute must be 0–59")
-      .max(59, "Minute must be 0–59")
-      .required("Required"),
+    time: Yup.string()
+      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Time must be in HH:mm 24-hour format")
+      .required("Shift time is required"),
   });
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
-        alert("User data not found");
-        return;
-      }
+const handleEdit = (shift) => {
+  setSelectedcontactType(shift); // this will be received as shiftData in modal
+  setIsContactModalOpen(true);
+};
 
-      const timeString = `${values.hour}:${values.minute.toString().padStart(2, "0")} ${values.period}`;
-      const payload = {
-        nameEnglish: values.nameEnglish,
-        nameGujarati: values.nameGujarati,
-        nameHindi: values.nameHindi,
-        time: timeString,
-        userId: userData.id,
-      };
+const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData?.id) return alert("User data not found");
 
-      if (shiftData) {
-        await EditContactType(shiftData.id, payload);
-        Swal.fire("Updated!", "Labour Shift updated successfully.", "success");
-      } else {
-        await AddContactMasterType(payload);
-        Swal.fire("Saved!", "Labour Shift added successfully.", "success");
-      }
+const payload = {
+  nameEnglish: values.nameEnglish,
+  nameGujarati: values.nameGujarati,
+  nameHindi: values.nameHindi,
+  shifttime: values.time, // MUST be exactly `shifttime`
+  userId: JSON.parse(localStorage.getItem("userData"))?.id || 0
+};
 
+
+
+
+    let response;
+
+    if (shiftData) {
+
+      response = await EditLabourShiftAPI(shiftData.id, payload);
+    } else {
+      // Call add API
+      response = await AddLabourShift(payload);
+    }
+
+    // Show success only if backend success = true
+    if (response?.data?.success) {
+      Swal.fire("Success!", response.data.msg || "Operation successful", "success");
       refreshData();
       onClose();
       resetForm();
-    } catch (error) {
-      console.error("Error saving labour shift:", error);
-      Swal.fire("Error", "Something went wrong!", "error");
-    } finally {
-      setSubmitting(false);
+    } else {
+      Swal.fire("Error!", response?.data?.msg || "Something went wrong!", "error");
     }
-  };
+  } catch (error) {
+    console.error("Error saving labour shift:", error);
+    Swal.fire("Error!", "Something went wrong!", "error");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl w-full bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]-w-lg p-6 relative">
-        {/* Header */}
+      <div className="bg-white rounded-xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {shiftData ? "Edit Labour Shift" : "New Labour Shift"}
@@ -83,44 +87,38 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
           </button>
         </div>
 
-        {/* Form */}
         <Formik
-          initialValues={
-            shiftData
-              ? {
-                  nameEnglish: shiftData.nameEnglish || "",
-                  nameGujarati: shiftData.nameGujarati || "",
-                  nameHindi: shiftData.nameHindi || "",
-                  hour: shiftData.time?.split(":")[0] || "",
-                  minute: shiftData.time?.split(":")[1]?.slice(0, 2) || "",
-                  period: shiftData.time?.includes("PM") ? "PM" : "AM",
-                  isActive: shiftData.isActive ?? true,
-                }
-              : initialFormState
-          }
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-          enableReinitialize
-        >
+ initialValues={
+  shiftData
+    ? {
+        nameEnglish: shiftData.shift_name || "",
+        nameGujarati: shiftData.nameGujarati || "",
+        nameHindi: shiftData.nameHindi || "",
+        time: shiftData.shift_time || "",
+        isActive: shiftData.isActive ?? true,
+      }
+    : initialFormState}
+  validationSchema={validationSchema}
+  onSubmit={handleSubmit}
+  enableReinitialize
+
+>
+
           {({ values, setFieldValue, isSubmitting }) => {
-            const [debounceTimer, setDebounceTimer] = useState(null);
-
             useEffect(() => {
-              if (!values.nameEnglish?.trim()) return;
-              if (debounceTimer) clearTimeout(debounceTimer);
+  if (!values.nameEnglish?.trim()) return;
+  if (shiftData) return; 
+  const timer = setTimeout(() => {
+    Translateapi(values.nameEnglish)
+      .then((res) => {
+        setFieldValue("nameGujarati", res.data.gujarati || "");
+        setFieldValue("nameHindi", res.data.hindi || "");
+      })
+      .catch(() => console.warn("Translation failed"));
+  }, 500);
+  return () => clearTimeout(timer);
+}, [values.nameEnglish, shiftData]);
 
-              const timer = setTimeout(() => {
-                Translateapi(values.nameEnglish)
-                  .then((res) => {
-                    setFieldValue("nameGujarati", res.data.gujarati || "");
-                    setFieldValue("nameHindi", res.data.hindi || "");
-                  })
-                  .catch(() => console.warn("Translation failed"));
-              }, 500);
-
-              setDebounceTimer(timer);
-              return () => clearTimeout(timer);
-            }, [values.nameEnglish]);
 
             return (
               <Form>
@@ -130,48 +128,40 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
                   <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
                 </div>
 
-                {/* Time Section */}
-                <div className="flex items-center gap-2 mb-6">
-                  <label className="text-gray-700 w-16">Time:</label>
-                  <div className="flex items-center gap-1">
-                    <Field
-                      type="number"
-                      name="hour"
-                      placeholder="HH"
-                      className="border border-gray-300 rounded-md w-16 p-2 text-center"
-                    />
-                    <span>:</span>
-                    <Field
-                      type="number"
-                      name="minute"
-                      placeholder="MM"
-                      className="border border-gray-300 rounded-md w-16 p-2 text-center"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFieldValue("period", values.period === "AM" ? "PM" : "AM")
-                      }
-                      className={`rounded-full text-white text-sm px-3 py-1 ml-2 shadow-md ${
-                        values.period === "AM" ? "bg-blue-500" : "bg-indigo-600"
-                      }`}
-                    >
-                      {values.period}
-                    </button>
-                  </div>
+                <div className="mb-6">
+                  <label className="text-gray-700 mb-1 block">Time (HH:mm)*:</label>
+                 <Field name="time">
+  {({ field, form }) => (
+    <input
+      {...field}
+      type="text"
+      placeholder="HH:mm"
+      maxLength={5}
+      className="border border-gray-300 rounded-md p-2 w-32"
+      onChange={(e) => {
+        let value = e.target.value.replace(/[^0-9]/g, ""); 
+
+        if (value.length >= 3) {
+     
+          value = value.slice(0, 2) + ":" + value.slice(2, 4);
+        }
+
+        if (value.length > 5) value = value.slice(0, 5);
+
+        form.setFieldValue(field.name, value);
+      }}
+      value={field.value}
+    />
+  )}
+</Field>
+
                   <ErrorMessage
-                    name="hour"
+                    name="time"
                     component="div"
-                    className="text-red-500 text-sm ml-2"
-                  />
-                  <ErrorMessage
-                    name="minute"
-                    component="div"
-                    className="text-red-500 text-sm ml-2"
+                    className="text-red-500 text-sm mt-1"
                   />
                 </div>
 
-                {/* Buttons */}
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
@@ -181,12 +171,14 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
                     Cancel
                   </button>
                   <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
-                  >
-                    {shiftData ? "Update" : "Save"}
-                  </button>
+  type="submit"
+  disabled={isSubmitting}
+  className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+>
+  {shiftData ? "Update" : "Save"}
+</button>
+
+                    
                 </div>
               </Form>
             );

@@ -160,7 +160,7 @@ const SuperAdminMemberEdit = () => {
             </div>
           </section> */}
 
-          {/* ------------ Down Payment Details ------------ */}
+         
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Down Payment Details</span>
@@ -191,6 +191,7 @@ const SuperAdminMemberEdit = () => {
                     ]}
                     placeholder="Mode"
                   />
+
                   <Input
                     value={row.amount}
                     onChange={(e) =>
@@ -198,6 +199,9 @@ const SuperAdminMemberEdit = () => {
                     }
                     placeholder="Amount"
                   />
+
+
+               
                   <Input
                     value={row.no}
                     onChange={(e) =>
@@ -205,6 +209,8 @@ const SuperAdminMemberEdit = () => {
                     }
                     placeholder="No"
                   />
+
+ <Input type="file"  />
                   <DatePicker
                     placeholder="Payment Date"
                     className="w-full"

@@ -39,7 +39,9 @@ export const columns = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
-          <button className=" btn btn-primary">Rights</button>
+          <button className=" btn btn-primary" 
+           onClick={() => handleOpenPermission(row.original)}
+          >Rights</button>
         </div>
       );
     },
@@ -54,16 +56,16 @@ export const columns = [
             <Link to={""}>
               <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
+                onClick={() => handleActionClick(row.original)} 
                 title="View"
               >
                 <i className="ki-filled ki-user-edit text-purple-700"></i>
               </button>
-            </Link>
-          </Tooltip>
-        </div>
-      );
-    },
+      </div>
+    );
   },
+},
+
 ];
 
 export const defaultData = [
