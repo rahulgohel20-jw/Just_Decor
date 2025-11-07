@@ -26,12 +26,13 @@ const InvoiceDashboard = () => {
     try {
       const response = await GetAllInvoice(userId);
       console.log("Invoice API Response:", response);
-      
+
       // Map the invoice data to table format
       const invoiceData = response?.data?.data?.["Event Invoice Details"] || [];
-      
+
       const data = invoiceData.map((invoice, index) => ({
-        Invoice: invoice?.invoiceCode || `INV-${String(index + 1).padStart(4, "0")}`,
+        Invoice:
+          invoice?.invoiceCode || `INV-${String(index + 1).padStart(4, "0")}`,
         CustomerName: invoice?.event?.party?.nameEnglish || "-",
         PartyId: invoice?.event?.party?.id || "-",
         EventId: invoice?.event?.id || "-",
@@ -47,26 +48,28 @@ const InvoiceDashboard = () => {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}`,
-        BalanceDue: `₹ ${(invoice?.remainingAmount || 0).toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
+        BalanceDue: `₹ ${(invoice?.remainingAmount || 0).toLocaleString(
+          "en-IN",
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        )}`,
         Status: invoice?.remainingAmount === 0 ? "Paid" : "Pending",
       }));
 
       setTableData(data);
 
-      // Update totals from first invoice record (as per API structure)
       if (invoiceData.length > 0) {
         const firstInvoice = invoiceData[0];
         setTotals({
           receivable: firstInvoice?.overAllReceivableAmnt || 0,
           remaining: firstInvoice?.overAllRemainingAmnt || 0,
           total: firstInvoice?.overallTotalAmnt || 0,
-          dueToday: 0, // Calculate based on duedate
-          dueWithin30Days: 0, // Calculate based on duedate
-          overDue: 0, // Calculate based on duedate
-          avgPaymentDays: 7, // Default or calculate
+          dueToday: 0,
+          dueWithin30Days: 0,
+          overDue: 0,
+          avgPaymentDays: 7,
         });
       }
     } catch (error) {
@@ -88,7 +91,7 @@ const InvoiceDashboard = () => {
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
     {
-      title: "Due Today",
+      title: "Total Remaining",
       value: `₹ ${totals.dueToday.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -96,25 +99,12 @@ const InvoiceDashboard = () => {
       icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
     },
     {
-      title: "Due within 30 days",
+      title: "Total Amount",
       value: `₹ ${totals.dueWithin30Days.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}`,
       icon: <i className="ki-filled ki-time text-xl text-primary"></i>,
-    },
-    {
-      title: "Over Due Invoice",
-      value: `₹ ${totals.overDue.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
-      icon: <i className="ki-filled ki-information-3 text-xl text-primary"></i>,
-    },
-    {
-      title: "Average Payment Days",
-      value: `${totals.avgPaymentDays} Days`,
-      icon: <i className="ki-filled ki-timer text-xl text-primary"></i>,
     },
   ];
 
@@ -164,7 +154,7 @@ const InvoiceDashboard = () => {
         </div>
 
         {/* 💰 Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div
               key={index}

@@ -1,4 +1,5 @@
 import { FormattedMessage } from "react-intl";
+import { toAbsoluteUrl } from "@/utils";
 
 const getUserRole = () => {
   try {
@@ -30,11 +31,6 @@ const isSuperAdmin = userRoleId === 1;
 const isNormalUser = userRoleId === 2;
 const hasNoPlan = userPlan === null;
 
-// --------------------
-// 3️⃣ Utility to disable all menus
-// --------------------
-// 3️⃣ Utility to disable all menus (show "Locked" instead of "Coming Soon")
-// 🔒 Disable all menu items and mark them as locked
 const disableMenuItems = (menuItems) => {
   return menuItems.map((item) => ({
     ...item,
@@ -44,7 +40,6 @@ const disableMenuItems = (menuItems) => {
   }));
 };
 
-// Regular user menu items with FormattedMessage
 const allMenuItems = [
   {
     title: (
@@ -54,10 +49,9 @@ const allMenuItems = [
     path: "/",
   },
   {
-    title: (
-          <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />
-        ),
-    icon: "ki-filled ki-calendar-tick text-primary",
+    title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
+    icon: toAbsoluteUrl("/media/sidebaricons/event.png"),
+
     children: [
       {
         title: (
@@ -77,9 +71,7 @@ const allMenuItems = [
     ],
   },
   {
-    title: (
-          <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />
-        ),
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
@@ -253,20 +245,9 @@ const allMenuItems = [
     ],
   },
   {
-    title: (
-          <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />
-        ),
+    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
     icon: "ki-filled ki-airplane text-primary",
     children: [
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.ALL_DATA_REPORT"
-            defaultMessage="All Data Report"
-          />
-        ),
-        path: "",
-      },
       {
         title: (
           <FormattedMessage
@@ -288,9 +269,7 @@ const allMenuItems = [
     ],
   },
   {
-    title: (
-          <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />
-        ),
+    title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "ki-filled ki-airplane text-primary",
     children: [
       {
@@ -443,7 +422,6 @@ const superAdminMenuItems = [
   },
 ];
 
-// Export a function that dynamically determines the menu based on current user role
 export const getMenuSidebar = () => {
   const userRoleId = getUserRole();
   const isSuperAdmin = userRoleId === 1;
@@ -454,8 +432,6 @@ export const getMenuSidebar = () => {
       : allMenuItems;
 };
 
-// For backward compatibility - this will still work but won't be dynamic
-// It's better to use getMenuSidebar() function in your components
 export const MENU_SIDEBAR = getMenuSidebar();
 
 export const MENU_MEGA = [
