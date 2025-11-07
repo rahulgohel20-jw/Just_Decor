@@ -11,7 +11,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
-    time: "", // 24-hour format "HH:mm"
+    time: "", 
     isActive: true,
   };
 
@@ -23,7 +23,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
   });
 
 const handleEdit = (shift) => {
-  setSelectedcontactType(shift); // this will be received as shiftData in modal
+  setSelectedcontactType(shift); 
   setIsContactModalOpen(true);
 };
 
@@ -36,7 +36,7 @@ const payload = {
   nameEnglish: values.nameEnglish,
   nameGujarati: values.nameGujarati,
   nameHindi: values.nameHindi,
-  shifttime: values.time, // MUST be exactly `shifttime`
+  shifttime: values.time, 
   userId: JSON.parse(localStorage.getItem("userData"))?.id || 0
 };
 
@@ -49,11 +49,10 @@ const payload = {
 
       response = await EditLabourShiftAPI(shiftData.id, payload);
     } else {
-      // Call add API
+      
       response = await AddLabourShift(payload);
     }
 
-    // Show success only if backend success = true
     if (response?.data?.success) {
       Swal.fire("Success!", response.data.msg || "Operation successful", "success");
       refreshData();

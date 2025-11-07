@@ -803,27 +803,24 @@ export const UpdateExtraExpense = (id, payload) => {
   return PUT(`/extra-expense/update?id=${id}`, payload);
 };
 
-//plan api for superadimn 
 export const GetAllPlansForSuperAdmin = () => {
   return GET(`/plans/getall`);
 };
 
-// Add New Plan API
 export const AddNewPlan = (data) => {
   return POST(`/plans/add`, data);
 }
 
-//delete plan api
+
 export const DeletePlanById = (id) => {
   return DELETE(`/plans/deletebyid?id=${id}`);
 };
 
-//update plan api
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
 
-//get api for labour shift 
+
 export const GetAllLabourShift = (Id) => {
   return GET(`/shift/getallbyuserid?userId=${Id}`);
 };
@@ -837,4 +834,16 @@ export const deleteLabourShiftById = (id) => {
 }
 export const EditLabourShiftAPI = (id, data) => {
   return PUT(`/shift/update?id=${id}`, data);
+};
+
+export const GetShiftsByUser = (userId) => {
+  return GET(`/shift/getallbyuserid?userId=${userId}`);
+};
+
+export const AddUserPlan = (data) => {
+  return POST(`/userplanshistory/adduserplan`, data);
+};
+
+export const CreatePaymentOrder = (data) => {
+  return POST(`/userplanshistory/createPaymentOrder`, data);
 };
