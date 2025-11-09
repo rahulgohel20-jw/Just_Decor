@@ -15,7 +15,7 @@ const loginSchema = Yup.object().shape({
     .max(50, "Maximum 50 symbols")
     .required("Email is required"),
   password: Yup.string()
-    .min(3, "Minimum 3 symbols")
+    .min(6, "Minimum 6 symbols")
     .max(50, "Maximum 50 symbols")
     .required("Password is required"),
   remember: Yup.boolean(),
@@ -47,45 +47,32 @@ const Login = () => {
         await login(values.email, values.password);
 
         // 🔹 Save user plan info for sidebar control
-const userData = JSON.parse(localStorage.getItem("userData"));
-const userPlan = userData?.plan || null;
-localStorage.setItem("userPlan", userPlan ? JSON.stringify(userPlan) : null);
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        const userPlan = userData?.plan || null;
+        localStorage.setItem(
+          "userPlan",
+          userPlan ? JSON.stringify(userPlan) : null
+        );
 
-const firstTimeLogin = userData?.isFirstTime ?? false;
-        if (values.remember) {
-          localStorage.setItem("rememberedEmail", values.email);
+        const roleId = Number(userData?.userBasicDetails?.role?.id);
+
+        if (roleId === 1) {
+          // Super Admin → unrestricted
+          navigate("/super-dashboard", { replace: true });
+        } else if (roleId === 2) {
+          // Normal Admin → check plan
+          const userPlan = userData?.plan;
+          if (userPlan === null) {
+            // No plan → lock sidebar, redirect to /price
+            navigate("/price", { replace: true });
+          } else {
+            // Has plan → full access
+            navigate("/", { replace: true });
+          }
         } else {
-          localStorage.removeItem("rememberedEmail");
+          // Fallback
+          navigate("/", { replace: true });
         }
-
-    
-
-if (firstTimeLogin) {
-  navigate("/auth/reset-password/change", { replace: true });
-  return;
-}
-
-const roleId = Number(userData?.userBasicDetails?.role?.id);
-
-if (roleId === 1) {
-  // Super Admin → unrestricted
-  navigate("/super-dashboard", { replace: true });
-} else if (roleId === 2) {
-  // Normal Admin → check plan
-  const userPlan = userData?.plan;
-  if (userPlan === null) {
-    // No plan → lock sidebar, redirect to /price
-    navigate("/price", { replace: true });
-  } else {
-    // Has plan → full access
-    navigate("/", { replace: true });
-  }
-} else {
-  // Fallback
-  navigate("/", { replace: true });
-}
-
-
       } catch (error) {
         console.error("Login error:", error);
         let errorMessage = "The login details are incorrect";
@@ -118,7 +105,7 @@ if (roleId === 1) {
     }
   });
   return (
-    <div className="card max-w-[390px] w-full">
+    <div className="card max-w-[700px] ">
       <form
         className="card-body flex flex-col gap-2 p-5 md:p-7"
         onSubmit={formik.handleSubmit}
