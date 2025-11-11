@@ -8,6 +8,7 @@ import { getColumns, defaultData } from "./constant";
 import DatabaseSidebar from "../databasesidebar";
 import DatabaseAssign from "../databaseassign";
 import AddMasterDatabaseFile from "../addmasterdatabasefile";
+import { GetAllDb } from "@/services/apiServices";
 
 const Database = () => {
   const [loading, setLoading] = useState(false);
