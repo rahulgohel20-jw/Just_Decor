@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import {
   GetEventMasterById,
   GetAllContactCategory,
-  GetPartyMasterByCatTypeId,
+  GetPartyMasterByCatId,
   AddUpdateLabor,
   GetEventLaborDetails,
   GetExtraExpenseByEvent,
@@ -38,7 +38,9 @@ const useLabourManagement = () => {
       const event = res?.data?.data?.["Event Details"]?.[0];
       if (event) {
         setEventData(event);
-        setActiveTab(event.eventFunctions?.[0]?.function?.nameEnglish || "Dinner");
+        setActiveTab(
+          event.eventFunctions?.[0]?.function?.nameEnglish || "Dinner"
+        );
         setSelectedFunctionPax(event.eventFunctions?.[0]?.pax || 0);
       }
     };
@@ -63,7 +65,7 @@ const useLabourManagement = () => {
     const fetchContacts = async () => {
       const map = {};
       for (const cat of labourCategories) {
-        const res = await GetPartyMasterByCatTypeId(cat.id, userId);
+        const res = await GetPartyMasterByCatId(cat.id, userId);
         map[cat.id] = res?.data?.data?.["Party Details"] || [];
       }
       setAllContacts(map);
@@ -85,7 +87,8 @@ const useLabourManagement = () => {
         labordatetime: row.dateTime,
         laborshift: row.shift || "Morning",
         labortypeid:
-          labourCategories.find((c) => c.nameEnglish === row.labourType)?.id || 0,
+          labourCategories.find((c) => c.nameEnglish === row.labourType)?.id ||
+          0,
         price: parseFloat(row.price || 0),
         qty: parseFloat(row.quantity || 0),
         totalprice: parseFloat(row.total || 0),

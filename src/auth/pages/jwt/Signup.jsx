@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { registerUser } from "@/services/apiServices";
+import {
+  registerUser,
+  fetchStatesByCountry,
+  fetchCitiesByState,
+} from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useNavigate, Link } from "react-router-dom";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+import FloatingSelect from "../../../components/form-inputs/selectinput/FloatingSelect";
 
 function FloatingInput({
   label,
@@ -114,6 +119,8 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -123,8 +130,8 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
     countryId: null,
-    stateId: null,
-    cityId: null,
+    stateId: "",
+    cityId: "",
     address: "",
     clientId: 0,
     companyEmail: "",
@@ -181,6 +188,54 @@ export default function Signup() {
     return error;
   };
 
+  useEffect(() => {
+    const loadStates = async () => {
+      try {
+        const response = await fetchStatesByCountry(1);
+
+        const data = response?.data?.data?.["state Details"];
+        if (Array.isArray(data)) {
+          setStates(
+            data.map((s) => ({
+              value: s.id,
+              label: s.name,
+            }))
+          );
+        } else {
+          setStates([]);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching states:", error);
+      }
+    };
+    loadStates();
+  }, []);
+
+  useEffect(() => {
+    if (formData.stateId) {
+      const loadCities = async () => {
+        try {
+          const response = await fetchCitiesByState(formData.stateId);
+
+          const data = response?.data?.data?.["City Details"];
+          if (Array.isArray(data)) {
+            setCities(
+              data.map((c) => ({
+                value: c.id,
+                label: c.name,
+              }))
+            );
+          } else {
+            setCities([]);
+          }
+        } catch (error) {
+          console.error("❌ Error fetching cities:", error);
+        }
+      };
+      loadCities();
+    }
+  }, [formData.stateId]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -219,9 +274,26 @@ export default function Signup() {
     }
 
     const payload = {
-      ...formData,
-      officeNo: formData.contactNo,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      contactNo: formData.contactNo,
+      password: formData.password,
       companyEmail: formData.email,
+      companyName: formData.companyName,
+      confirmPassword: formData.confirmPassword,
+      countryId: formData.countryId,
+      stateId: formData.stateId,
+      cityId: formData.cityId,
+      address: formData.address,
+      roleId: formData.roleId,
+      officeNo: formData.contactNo,
+      remarks: formData.remarks,
+      reportingManagerId: formData.reportingManagerId,
+      countryCode: formData.countryCode,
+      isAttendanceLeaveAccess: formData.isAttendanceLeaveAccess,
+      isTaskAccess: formData.isTaskAccess,
+      clientId: formData.clientId,
     };
 
     try {
@@ -311,23 +383,38 @@ export default function Signup() {
                     </p>
                   )}
                 </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <FloatingInput
-                  type="email"
-                  label="Email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  icon="ki-message-text text-primary"
-                  error={touched.email && errors.email}
-                />
-                {touched.email && errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
+                {/* Email */}
+                <div>
+                  <FloatingInput
+                    type="email"
+                    label="Email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    icon="ki-message-text text-primary"
+                    error={touched.email && errors.email}
+                  />
+                  {touched.email && errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
+                </div>
+                <div>
+                  <FloatingInput
+                    label="Company Name"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    icon="ki-user text-primary"
+                    error={touched.lastName && errors.lastName}
+                  />
+                  {touched.lastName && errors.lastName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.lastName}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Phone */}
@@ -339,6 +426,36 @@ export default function Signup() {
                 onBlur={handleBlur}
                 error={errors.mobile}
               />
+
+              {/* State & City Selects */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* State */}
+                <FloatingSelect
+                  label="State"
+                  name="stateId"
+                  value={formData.stateId}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setFormData((prev) => ({ ...prev, cityId: "" }));
+                  }}
+                  onBlur={handleBlur}
+                  options={states}
+                  icon="ki-geo text-primary"
+                  error={touched.stateId && errors.stateId}
+                />
+
+                {/* City */}
+                <FloatingSelect
+                  label="City"
+                  name="cityId"
+                  value={formData.cityId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  options={cities}
+                  icon="ki-map text-primary"
+                  error={touched.cityId && errors.cityId}
+                />
+              </div>
 
               {/* Password */}
               <div className="relative">

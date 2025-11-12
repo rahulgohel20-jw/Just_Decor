@@ -247,6 +247,7 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await LoginUser({ email, password });
+
       if (response.data.success && response.data.data["User Details"]) {
         const userData = response.data.data["User Details"][0];
 
@@ -267,9 +268,18 @@ const AuthProvider = ({ children }) => {
           },
         };
 
+        // ✅ Save auth
         saveAuth(auth);
+
+        // ✅ Store user data and token
         localStorage.setItem("userData", JSON.stringify(userData));
         localStorage.setItem("userToken", userData.token);
+
+        // ✅ Store userId separately (for easy access later)
+        if (userData.id) {
+          localStorage.setItem("userId", userData.id.toString());
+        }
+
         setCurrentUser(userData);
 
         startInactivityTimer(); // Start inactivity tracking after login
@@ -280,7 +290,11 @@ const AuthProvider = ({ children }) => {
     } catch (error) {
       saveAuth(undefined);
       setCurrentUser(undefined);
-      throw new Error(error.response?.data?.msg || error.message || "Login failed. Please try again.");
+      throw new Error(
+        error.response?.data?.msg ||
+          error.message ||
+          "Login failed. Please try again."
+      );
     }
   };
 

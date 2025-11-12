@@ -1,10 +1,10 @@
 import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
-
+import axios from "./axiosInstance";
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
 export const GetMenuCategoryByUserIdmenuitem = (userId) => {
-  return GET(`/menucategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+  return GET(`/menucategory/getallbyuserid?userid=${userId}`);
 };
 
 // Create Role
@@ -50,25 +50,16 @@ export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(
     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
-// State APIs
-// export const fetchStatesByCountry = (countryId, stateName = "") =>
-//   GET(
-//     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
-//   );
+
 
 export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
-// export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
+
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
-//City APIs
-// export const fetchCitiesByState = (stateId, cityName = "") =>
-//   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
-// export const fetchCityById = (id) =>
-//   GET(`/citymaster/getbyid?id=${id}`);
-//   return DELETE(`/role_master/${roleId}/role_id`);
+
 
 //Login api
 export const LoginUser = (data) => {
@@ -86,9 +77,9 @@ export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
 //get customer by id by cat id
-export const GetPartyMasterByCatTypeId = (catTypeId, userId) => {
+export const GetPartyMasterByCatId = (catTypeId, userId) => {
   return GET(
-    `/partymaster/getallbycattypeid?catTypeId=${catTypeId}&userId=${userId}`
+    `/partymaster/getallbycontcatid?contCatId=${catTypeId}&userId=${userId}`
   );
 };
 
@@ -491,6 +482,7 @@ export const UpdateSubStatus = (Id, status = true) => {
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
 };
+
 // profile data
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
@@ -566,8 +558,6 @@ export const updatestatusmneuitem = (id, isActive = true) => {
 };
 
 // Change Password
-
-import axios from "./axiosInstance";
 
 export const ChangePassword = (data) => {
   return axios.post(`/auth/changepassword`, null, {
@@ -795,7 +785,6 @@ export const AddNewPlan = (data) => {
   return POST(`/plans/add`, data);
 };
 
-
 export const DeletePlanById = (id) => {
   return DELETE(`/plans/deletebyid?id=${id}`);
 };
@@ -803,7 +792,6 @@ export const DeletePlanById = (id) => {
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
-
 
 export const GetAllLabourShift = (Id) => {
   return GET(`/shift/getallbyuserid?userId=${Id}`);
@@ -831,6 +819,32 @@ export const AddUserPlan = (data) => {
 export const CreatePaymentOrder = (data) => {
   return POST(`/userplanshistory/createPaymentOrder`, data);
 };
+
+export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
+  return GET(`/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`);
+};
+
+export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
+  return GET(
+    `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
+  );
+};
+
+
+
+
+export const DatabaseReadExcle = (formData) => {
+  return POST("/excel-parsing/readExcel", formData);
+};
+
+export const GetAllDb = () => {
+  return GET(`/excel-parsing/getAll`);
+};
+
+export const GetUserlogs = (data) => {
+  return GET(`/user-logs/getUserLogs/${data}`);
+};
+
 
 
 // Super Admin Invoice

@@ -7,7 +7,7 @@ import { KeenIcon } from "@/components";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
-import { toAbsoluteUrl } from "@/utils";
+
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Wrong email format")
@@ -31,7 +31,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [status, setStatus] = useState(null);
   const { currentLayout } = useLayout();
+
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
@@ -44,33 +46,24 @@ const Login = () => {
           throw new Error("JWTProvider is required for this form.");
         }
 
-        await login(values.email, values.password);
+        const user = await login(values.email, values.password);
 
-        // 🔹 Save user plan info for sidebar control
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        const userPlan = userData?.plan || null;
-        localStorage.setItem(
-          "userPlan",
-          userPlan ? JSON.stringify(userPlan) : null
-        );
-
-        const roleId = Number(userData?.userBasicDetails?.role?.id);
+        const roleId = Number(user?.roleId);
+        const userPlan = user?.plan ?? null;
 
         if (roleId === 1) {
-          // Super Admin → unrestricted
           navigate("/super-dashboard", { replace: true });
         } else if (roleId === 2) {
-          // Normal Admin → check plan
-          const userPlan = userData?.plan;
-          if (userPlan === null) {
-            // No plan → lock sidebar, redirect to /price
+          const userPlan = user?.plan;
+          if (!userPlan || userPlan === "") {
             navigate("/price", { replace: true });
+            return; // stop further execution
+          } else if (user?.isApprove === false) {
+            navigate("/approval-pending", { replace: true });
           } else {
-            // Has plan → full access
             navigate("/", { replace: true });
           }
         } else {
-          // Fallback
           navigate("/", { replace: true });
         }
       } catch (error) {
@@ -93,6 +86,7 @@ const Login = () => {
       }
     },
   });
+
   const togglePassword = (event) => {
     event.preventDefault();
     setShowPassword(!showPassword);

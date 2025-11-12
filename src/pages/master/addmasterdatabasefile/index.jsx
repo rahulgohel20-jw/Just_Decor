@@ -1,13 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Upload, X, Trash2 } from "lucide-react";
+import { DatabaseReadExcle } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     databaseName: selectedRow?.database_name || "",
-    customer: selectedRow?.customer || "",
+    state: "",
     instructions: "",
   });
 
@@ -39,15 +41,13 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
 
   const handleFile = (file) => {
     const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/svg+xml",
-      "application/zip",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     if (!allowedTypes.includes(file.type)) {
-      alert("Only .jpg, .png, .svg and .zip files are allowed");
+      alert("Only .xls or .xlsx Excel files are allowed");
       return;
     }
 
@@ -60,8 +60,10 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       name: file.name,
       size: (file.size / 1024).toFixed(2) + " KB",
       type: file.type,
+      rawFile: file,
     });
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -71,11 +73,67 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
     setUploadedFile(null);
   };
 
-  const handleSave = () => {
-    console.log("Saving data:", formData, uploadedFile);
-    // Add your save logic here
-  };
+  const handleSave = async () => {
+    if (!uploadedFile) {
+      Swal.fire({
+        icon: "warning",
+        title: "No file uploaded",
+        text: "Please upload an Excel file before saving.",
+      });
+      return;
+    }
 
+    const jsonPayload = {
+      dbName: formData.databaseName,
+      state: formData.state,
+      instructions: formData.instructions,
+      userId: "1",
+    };
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("file", uploadedFile.rawFile);
+    formDataToSend.append(
+      "json",
+      new Blob([JSON.stringify(jsonPayload)], { type: "application/json" }),
+      "data.json"
+    );
+
+    try {
+      const res = await DatabaseReadExcle(formDataToSend);
+
+      if (res?.data?.success === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Database uploaded successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        }).then(() => {
+          setFormData({
+            databaseName: "",
+            state: "",
+            instructions: "",
+          });
+          setUploadedFile(null);
+
+          onClose();
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Upload Failed",
+          text: res?.data?.message || "Something went wrong while uploading.",
+        });
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong while uploading.",
+      });
+    }
+  };
   const handleCancel = () => {
     setFormData({
       databaseName: "",
@@ -135,10 +193,10 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                       </label>
                       <input
                         type="text"
-                        name="remarks"
+                        name="databaseName"
                         value={formData.databaseName}
                         onChange={handleInputChange}
-                        placeholder="Placeholder text"
+                        placeholder="Enter database name"
                         className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
@@ -149,10 +207,10 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                       </label>
                       <input
                         type="text"
-                        name="remarks"
-                        value={formData.databaseName}
+                        name="state"
+                        value={formData.state || ""}
                         onChange={handleInputChange}
-                        placeholder="Placeholder text"
+                        placeholder="Enter state"
                         className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
@@ -162,10 +220,11 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                       Instructions
                     </label>
                     <textarea
-                      name=""
-                      id=""
+                      name="instructions"
+                      value={formData.instructions}
+                      onChange={handleInputChange}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    ></textarea>
+                    />
                   </div>
 
                   <div>
@@ -202,7 +261,7 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                               type="file"
                               className="hidden"
                               onChange={handleFileInput}
-                              accept=".jpg,.jpeg,.png,.svg,.zip"
+                              accept=".xls,.xlsx"
                             />
                           </label>
                         </p>
