@@ -201,7 +201,7 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState();
   const inactivityTimerRef = useRef(null);
 
-  const INACTIVITY_LIMIT = 5 * 60 * 1000; // 10 minutes
+  const INACTIVITY_LIMIT = 10000 * 60 * 1000; // 10 minutes
 
   const saveAuth = (auth) => {
     setAuth(auth);
