@@ -182,46 +182,47 @@ const AddFunctionType = ({
           </div>
 
           {/* Time Pickers */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="flex flex-col">
-              <label className="form-label  text-gray-600">
-                <FormattedMessage id="USER.MASTER.START_TIME" defaultMessage="Start Time" />
-                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                  *
-                </span>
-              </label>
-              <TimePicker
-                className="input"
-                format="HH:mm"
-                value={formik.values.startTime}
-                onChange={(time) => formik.setFieldValue({ id: "USER.MASTER.START_TIME", value: time })}
-              />
-              {formik.touched.startTime && formik.errors.startTime && (
-                <span className="text-red-500 text-sm">
-                  {formik.errors.startTime}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col">
-              <label className="form-label  text-gray-600">
-                <FormattedMessage id="USER.MASTER.END_TIME" defaultMessage="End Time" />
-                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                  *
-                </span>
-              </label>
-              <TimePicker
-                className="input"
-                format="HH:mm"
-                value={formik.values.endTime}
-                onChange={(time) => formik.setFieldValue({ id: "USER.MASTER.END_TIME", value: time })}
-              />
-              {formik.touched.endTime && formik.errors.endTime && (
-                <span className="text-red-500 text-sm">
-                  {formik.errors.endTime}
-                </span>
-              )}
-            </div>
-          </div>
+          {/* Time Pickers */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <div className="flex flex-col">
+    <label className="form-label text-gray-600">
+      <FormattedMessage id="USER.MASTER.START_TIME" defaultMessage="Start Time" />
+      <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+        *
+      </span>
+    </label>
+    <TimePicker
+      className="input"
+      format="HH:mm"
+      value={formik.values.startTime}
+      onChange={(time) => formik.setFieldValue("startTime", time)} // ✅ Fixed
+    />
+    {formik.touched.startTime && formik.errors.startTime && (
+      <span className="text-red-500 text-sm">
+        {formik.errors.startTime}
+      </span>
+    )}
+  </div>
+  <div className="flex flex-col">
+    <label className="form-label text-gray-600">
+      <FormattedMessage id="USER.MASTER.END_TIME" defaultMessage="End Time" />
+      <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+        *
+      </span>
+    </label>
+    <TimePicker
+      className="input"
+      format="HH:mm"
+      value={formik.values.endTime}
+      onChange={(time) => formik.setFieldValue("endTime", time)} // ✅ Fixed
+    />
+    {formik.touched.endTime && formik.errors.endTime && (
+      <span className="text-red-500 text-sm">
+        {formik.errors.endTime}
+      </span>
+    )}
+  </div>
+</div>
 
           {/* Buttons */}
           <div className="flex w-full justify-end mt-6 gap-3">

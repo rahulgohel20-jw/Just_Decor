@@ -73,6 +73,7 @@ const getUserPlan = async () => {
 
 const userRoleId = getUserRole();
 const userPlan = getUserPlan();
+    const userData = JSON.parse(localStorage.getItem("userData"));
 
 const isSuperAdmin = userRoleId === 1;
 const isNormalUser = userRoleId === 2;

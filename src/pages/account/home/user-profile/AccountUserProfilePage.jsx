@@ -319,20 +319,22 @@ const AccountUserProfilePage = () => {
                   })}
                 </div>
 
-                {isEditing ? (
-                  <button
-                    className="rounded-md bg-primary text-white text-sm px-4 py-2"
-                    onClick={handleSave}
-                  >
-                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-                  </button>
-                ) : (
-                  <button
-                    className="rounded-md bg-[#EDF2F7] text-primary text-sm px-4 py-2"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <FormattedMessage id="COMMON.EDIT" defaultMessage="Edit" />
-                  </button>
+                {activeTab === "account" && (
+                  isEditing ? (
+                    <button
+                      className="rounded-md bg-primary text-white text-sm px-4 py-2"
+                      onClick={handleSave}
+                    >
+                      <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                    </button>
+                  ) : (
+                    <button
+                      className="rounded-md bg-[#EDF2F7] text-primary text-sm px-4 py-2"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <FormattedMessage id="COMMON.EDIT" defaultMessage="Edit" />
+                    </button>
+                  )
                 )}
               </div>
 
