@@ -4,7 +4,7 @@ export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
 export const GetMenuCategoryByUserIdmenuitem = (userId) => {
-  return GET(`/menucategory/getallbyuserid?userid=${userId}`); // 👈 'userid' (all lowercase)
+  return GET(`/menucategory/getallbyuserid?userid=${userId}`); 
 };
 
 // Create Role
@@ -50,25 +50,16 @@ export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(
     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
-// State APIs
-// export const fetchStatesByCountry = (countryId, stateName = "") =>
-//   GET(
-//     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
-//   );
+
 
 export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
-// export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
+
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
-//City APIs
-// export const fetchCitiesByState = (stateId, cityName = "") =>
-//   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
 
-// export const fetchCityById = (id) =>
-//   GET(`/citymaster/getbyid?id=${id}`);
-//   return DELETE(`/role_master/${roleId}/role_id`);
+
 
 //Login api
 export const LoginUser = (data) => {
@@ -484,6 +475,7 @@ export const UpdateSubStatus = (Id, status = true) => {
 export const registerUser = (data) => {
   return POST(`/auth/add`, data);
 };
+
 // profile data
 export const FetchAllUser = (id) => {
   return GET(`/user/getallbyuserid?userId=${id}`);
@@ -820,6 +812,19 @@ export const AddUserPlan = (data) => {
 export const CreatePaymentOrder = (data) => {
   return POST(`/userplanshistory/createPaymentOrder`, data);
 };
+
+export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
+  return GET(`/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`);
+};
+  
+export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
+  return GET(
+    `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
+  );
+};
+
+
+
 
 export const DatabaseReadExcle = (formData) => {
   return POST("/excel-parsing/readExcel", formData);
