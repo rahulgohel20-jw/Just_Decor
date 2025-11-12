@@ -52,16 +52,7 @@ const DishCostingPage = () => {
       ),
       value: "0.00",
     },
-    {
-      label: (
-        <FormattedMessage
-          id="COMMON.OUTSIDE_AGENCY_CHARGES"
-          defaultMessage="Total General Fix Charges
-"
-        />
-      ),
-      value: "240.00",
-    },
+
     {
       label: (
         <FormattedMessage

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FetchAllUser } from "@/services/apiServices";
 import clsx from "clsx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -20,16 +21,17 @@ const loginSchema = Yup.object().shape({
     .required("Password is required"),
   remember: Yup.boolean(),
 });
+
 const initialValues = {
   email: "",
   password: "",
   remember: false,
 };
+
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthContext();
   const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState(null);
   const { currentLayout } = useLayout();
@@ -37,30 +39,60 @@ const Login = () => {
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
+
     onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true);
       setStatus(null);
 
       try {
-        if (!login) {
-          throw new Error("JWTProvider is required for this form.");
+        const auth = await login(values.email, values.password);
+
+        const userId = auth?.user?.id;
+        if (!userId) throw new Error("User ID not found after login.");
+
+        const userResponse = await FetchAllUser(userId);
+
+        const userData = userResponse?.data?.data;
+
+        if (
+          !userData ||
+          !userData["User Details"] ||
+          !Array.isArray(userData["User Details"]) ||
+          userData["User Details"].length === 0
+        ) {
+          console.log("Full API response:", userResponse);
+          throw new Error("Failed to fetch user details.");
         }
 
-        const user = await login(values.email, values.password);
+        const userDetails = userData["User Details"][0];
 
-        const roleId = Number(user?.roleId);
-        const userPlan = user?.plan ?? null;
+        const roleId = Number(userDetails?.userBasicDetails?.role?.id);
+        const userPlan = userDetails?.userPlan?.plan ?? null;
+        const isApprove = userDetails?.isApprove;
+
+        console.log("Role ID:", roleId);
+        console.log("User Plan:", userPlan);
+        console.log("Approved:", isApprove);
 
         if (roleId === 1) {
+          // Admin
           navigate("/super-dashboard", { replace: true });
         } else if (roleId === 2) {
-          const userPlan = user?.plan;
-          if (!userPlan || userPlan === "") {
+          const hasValidPlan =
+            userPlan &&
+            userPlan !== "" &&
+            userPlan !== "null" &&
+            (typeof userPlan === "object"
+              ? Object.keys(userPlan).length > 0
+              : true);
+
+          if (!hasValidPlan) {
             navigate("/price", { replace: true });
-            return; // stop further execution
-          } else if (user?.isApprove === false) {
-            navigate("/approval-pending", { replace: true });
-          } else {
+          } else if (hasValidPlan && isApprove === false) {
+            navigate("/price", { replace: true });
+          }
+          // 🧩 Condition 3: Has plan and approved → go to dashboard/home
+          else {
             navigate("/", { replace: true });
           }
         } else {
@@ -91,6 +123,7 @@ const Login = () => {
     event.preventDefault();
     setShowPassword(!showPassword);
   };
+
   useState(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     if (rememberedEmail) {
@@ -98,6 +131,7 @@ const Login = () => {
       formik.setFieldValue("remember", true);
     }
   });
+
   return (
     <div className="card max-w-[700px] ">
       <form
@@ -114,7 +148,10 @@ const Login = () => {
             securely and easily.
           </span>
         </div>
+
         {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+
+        {/* Email */}
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>
           <div className="input">
@@ -134,6 +171,8 @@ const Login = () => {
             </span>
           )}
         </div>
+
+        {/* Password */}
         <div className="flex flex-col">
           <label className="form-label">Password</label>
           <div className="input">
@@ -150,15 +189,11 @@ const Login = () => {
             <button className="btn btn-icon" onClick={togglePassword}>
               <KeenIcon
                 icon="eye"
-                className={clsx("text-gray-500", {
-                  hidden: showPassword,
-                })}
+                className={clsx("text-gray-500", { hidden: showPassword })}
               />
               <KeenIcon
                 icon="eye-slash"
-                className={clsx("text-gray-500", {
-                  hidden: !showPassword,
-                })}
+                className={clsx("text-gray-500", { hidden: !showPassword })}
               />
             </button>
           </div>
@@ -168,6 +203,8 @@ const Login = () => {
             </span>
           )}
         </div>
+
+        {/* Links */}
         <div className="flex items-center justify-between gap-1">
           <Link
             to={
@@ -190,6 +227,7 @@ const Login = () => {
             Forgot Password?
           </Link>
         </div>
+
         <button
           type="submit"
           className="btn btn-primary flex justify-center grow mt-3"
@@ -197,6 +235,7 @@ const Login = () => {
         >
           {loading ? "Please wait..." : "Login to Your Account"}
         </button>
+
         <div className="flex items-center gap-2 my-2">
           <span className="border-t border-gray-200 w-full"></span>
           <span className="text-2xs text-gray-500 font-medium uppercase">
@@ -224,4 +263,5 @@ const Login = () => {
     </div>
   );
 };
+
 export { Login };

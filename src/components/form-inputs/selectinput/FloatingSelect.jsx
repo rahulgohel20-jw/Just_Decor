@@ -1,7 +1,6 @@
-import React from "react";
-import clsx from "clsx";
+import Select, { components } from "react-select";
 
-const FloatingSelect = ({
+export default function FloatingSelect({
   label,
   name,
   value,
@@ -9,50 +8,100 @@ const FloatingSelect = ({
   onBlur,
   options = [],
   icon,
+  iconColor = "text-gray-400",
   error,
-}) => {
-  return (
-    <div className="relative">
-      <select
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        className={clsx(
-          "peer w-full border border-gray-300 rounded-md bg-transparent appearance-none p-3 pt-5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ",
-          { "border-red-500": error }
+}) {
+  // Custom Control to include icon
+  const CustomControl = ({ children, ...props }) => {
+    return (
+      <components.Control {...props}>
+        {icon && (
+          <span
+            className={`absolute left-3 top-1/2 -translate-y-1/2 text-base pointer-events-none ${iconColor}`}
+          >
+            <i className={`ki-filled ${icon}`} />
+          </span>
         )}
-      >
-        <option value="" disabled hidden></option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        {children}
+      </components.Control>
+    );
+  };
 
-      {/* Floating label */}
-      <label
-        htmlFor={name}
-        className="absolute text-gray-500 text-sm duration-200 transform -translate-y-3 scale-75 top-1 left-3 z-10 origin-[0] bg-white px-1 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-3 peer-focus:scale-75 peer-focus:-translate-y-3"
-      >
-        {label}
-      </label>
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: error ? "#EF4444" : state.isFocused ? "#3B82F6" : "#E5E7EB",
+      boxShadow: "none",
+      borderRadius: "8px",
+      minHeight: "48px",
+      fontSize: "14px",
+      paddingLeft: icon ? "40px" : "12px", // leave space for icon
+      position: "relative", // important
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: "0 8px",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? "#EFF6FF" : "white",
+      color: state.isFocused ? "#2563EB" : "#111827",
+      fontSize: "14px",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#9CA3AF",
+      fontSize: "14px",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "#111827",
+      fontSize: "14px",
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: "#9CA3AF",
+      "&:hover": { color: "#2563EB" },
+    }),
+    indicatorSeparator: () => ({ display: "none" }),
+  };
 
-      {/* Optional icon */}
-      {icon && (
-        <i
-          className={clsx(
-            "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 peer-focus:text-blue-100",
-            icon
-          )}
-        />
+  return (
+    <div className="relative w-full">
+      {label && (
+        <label
+          className={`block  text-sm font-medium ${
+            error ? "text-red-500" : "text-gray-700"
+          }`}
+        >
+          {label}
+        </label>
       )}
+
+      <Select
+        name={name}
+        options={options}
+        value={options.find((opt) => opt.value === value) || null}
+        onChange={(selectedOption) =>
+          onChange({
+            target: { name, value: selectedOption ? selectedOption.value : "" },
+          })
+        }
+        onBlur={onBlur}
+        placeholder=""
+        isClearable
+        styles={customStyles}
+        components={{
+          Control: CustomControl,
+          IndicatorSeparator: () => null,
+        }}
+      />
 
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
-};
-
-export default FloatingSelect;
+}
