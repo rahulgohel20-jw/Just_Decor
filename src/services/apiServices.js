@@ -74,6 +74,13 @@ export const fetchCitiesByState = (stateId, cityName = "") =>
 export const LoginUser = (data) => {
   return POST("/auth/login", data);
 };
+
+export const LoginOutUser = (email, eventtype) => {
+  return GET(`/user-logs/logout-notification?email=${email}&eventType=${eventtype}`);
+};
+
+
+
 //GET All customer
 export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
@@ -823,4 +830,11 @@ export const AddUserPlan = (data) => {
 
 export const CreatePaymentOrder = (data) => {
   return POST(`/userplanshistory/createPaymentOrder`, data);
+};
+
+
+// Super Admin Invoice
+
+export const SuperAdminAddInvoice = (data) => {
+  return POST(`/invoice-operations/addInvoice`, data);
 };
