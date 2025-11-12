@@ -821,10 +821,14 @@ export const CreatePaymentOrder = (data) => {
   return POST(`/userplanshistory/createPaymentOrder`, data);
 };
 
-export const DatabaseReadExcle = (data) => {
-  return POST(`/excel-parsing/readExcel`, data);
+export const DatabaseReadExcle = (formData) => {
+  return POST("/excel-parsing/readExcel", formData);
 };
 
 export const GetAllDb = () => {
-  return POST(`/excel-parsing/getAll`);
+  return GET(`/excel-parsing/getAll`);
+};
+
+export const GetUserlogs = (data) => {
+  return GET(`/user-logs/getUserLogs/${data}`);
 };

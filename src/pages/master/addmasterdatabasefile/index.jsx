@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Upload, X, Trash2 } from "lucide-react";
 import { DatabaseReadExcle } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -59,7 +60,7 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       name: file.name,
       size: (file.size / 1024).toFixed(2) + " KB",
       type: file.type,
-      rawFile: file, // keep raw File object here
+      rawFile: file,
     });
   };
 
@@ -74,11 +75,14 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
 
   const handleSave = async () => {
     if (!uploadedFile) {
-      alert("Please upload an Excel file before saving.");
+      Swal.fire({
+        icon: "warning",
+        title: "No file uploaded",
+        text: "Please upload an Excel file before saving.",
+      });
       return;
     }
 
-    // Build JSON payload
     const jsonPayload = {
       dbName: formData.databaseName,
       state: formData.state,
@@ -86,26 +90,50 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       userId: "1",
     };
 
-    // Build FormData
     const formDataToSend = new FormData();
     formDataToSend.append("file", uploadedFile.rawFile);
-    formDataToSend.append("json", JSON.stringify(jsonPayload)); // <-- This is key!
+    formDataToSend.append(
+      "json",
+      new Blob([JSON.stringify(jsonPayload)], { type: "application/json" }),
+      "data.json"
+    );
 
     try {
       const res = await DatabaseReadExcle(formDataToSend);
 
-      if (res?.data?.success) {
-        alert("Database uploaded successfully!");
-        onClose();
+      if (res?.data?.success === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Database uploaded successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        }).then(() => {
+          setFormData({
+            databaseName: "",
+            state: "",
+            instructions: "",
+          });
+          setUploadedFile(null);
+
+          onClose();
+        });
       } else {
-        alert("Failed to upload database. Please try again.");
+        Swal.fire({
+          icon: "error",
+          title: "Upload Failed",
+          text: res?.data?.message || "Something went wrong while uploading.",
+        });
       }
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Something went wrong while uploading.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong while uploading.",
+      });
     }
   };
-
   const handleCancel = () => {
     setFormData({
       databaseName: "",
@@ -233,7 +261,7 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                               type="file"
                               className="hidden"
                               onChange={handleFileInput}
-                              accept=".jpg,.jpeg,.png,.svg,.zip"
+                              accept=".xls,.xlsx"
                             />
                           </label>
                         </p>

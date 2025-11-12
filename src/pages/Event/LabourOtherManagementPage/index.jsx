@@ -18,10 +18,11 @@ import {
   GetPartyMasterByCatId,
   AddUpdateLabor,
   GetEventLaborDetails,
-  // GetAllLabourShift,
+  GetAllLabourShift,
 } from "@/services/apiServices";
 
 dayjs.extend(customParseFormat);
+
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour", "Extra Expense"];
 const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
@@ -55,7 +56,6 @@ const createEmptyLabourRow = () => ({
 });
 
 const LabourOtherManagementPage = () => {
-  // State management
   const { eventId } = useParams();
   const storedUser = useMemo(
     () => JSON.parse(localStorage.getItem("user") || "{}"),
@@ -68,6 +68,7 @@ const LabourOtherManagementPage = () => {
   const [activeCategory, setActiveCategory] = useState("Labour");
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [shiftOptions, setShiftOptions] = useState([]);
 
   const [labourData, setLabourData] = useState([]);
   const [labourCategories, setLabourCategories] = useState([]);
@@ -81,6 +82,28 @@ const LabourOtherManagementPage = () => {
   const [notes, setNotes] = useState("");
 
   const userId = storedUser?.id || eventData?.user?.id || 0;
+
+  useEffect(() => {
+    const fetchShifts = async () => {
+      try {
+        const res = await GetAllLabourShift(userId || 0);
+        const apiShifts = res?.data?.data?.["Function Details"] || [];
+        const mapped =
+          Array.isArray(apiShifts) && apiShifts.length
+            ? apiShifts
+                .map((s) => (typeof s === "string" ? s : s.nameEnglish || ""))
+                .filter(Boolean)
+            : SHIFTS;
+
+        setShiftOptions(mapped);
+      } catch (err) {
+        console.error("Error fetching shifts:", err);
+        setShiftOptions(SHIFTS);
+      }
+    };
+
+    if (userId) fetchShifts();
+  }, [userId]);
 
   const activeFunction = useMemo(
     () =>
@@ -99,7 +122,6 @@ const LabourOtherManagementPage = () => {
     [labourData, searchTerm]
   );
 
-  // Use Extra Expense Hook
   const {
     extraExpenseData,
     selectedExpense,
@@ -474,7 +496,7 @@ const LabourOtherManagementPage = () => {
         </div>
 
         {/* Function Tabs */}
-        <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4">
+        <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4 p-2">
           <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden">
             {eventData?.eventFunctions?.map((fn, index) => (
               <button
@@ -511,19 +533,19 @@ const LabourOtherManagementPage = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={openMenuReport}
-                  className="btn btn-light btn-sm"
+                  className="btn btn-light btn-sm h-10"
                 >
                   <i className="ki-filled ki-document"></i>
                   Report
                 </button>
-                <button className="btn btn-light btn-sm">
+                <button className="btn btn-light btn-sm h-10">
                   <i className="ki-filled ki-document"></i>
                   Checklist
                 </button>
                 <input
                   type="text"
                   placeholder="Search labour type..."
-                  className="input input-sm"
+                  className="input  h-10"
                   style={{ width: "300px" }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -556,6 +578,7 @@ const LabourOtherManagementPage = () => {
             data={filteredLabourData}
             labourCategories={labourCategories}
             filteredContacts={filteredContacts}
+            shiftOptions={shiftOptions}
             eventData={eventData}
             onRowChange={handleRowChange}
             onLabourTypeChange={handleLabourTypeChange}
@@ -624,6 +647,7 @@ const LabourTable = ({
   labourCategories,
   filteredContacts,
   eventData,
+  shiftOptions,
   onRowChange,
   onLabourTypeChange,
   onDelete,
@@ -659,6 +683,7 @@ const LabourTable = ({
                 filteredContacts={filteredContacts}
                 eventData={eventData}
                 onRowChange={onRowChange}
+                shiftOptions={shiftOptions}
                 onLabourTypeChange={onLabourTypeChange}
                 onDelete={onDelete}
                 onViewDetails={onViewDetails}
@@ -684,6 +709,7 @@ const LabourRow = ({
   labourCategories,
   filteredContacts,
   eventData,
+  shiftOptions = [],
   onRowChange,
   onLabourTypeChange,
   onDelete,
@@ -731,7 +757,7 @@ const LabourRow = ({
         onChange={(e) => onRowChange(row.id, "shift", e.target.value)}
       >
         <option value="">Select Shift</option>
-        {SHIFTS.map((shift) => (
+        {shiftOptions.map((shift) => (
           <option key={shift} value={shift}>
             {shift}
           </option>

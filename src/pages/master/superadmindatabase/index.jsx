@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { message, Spin, Input } from "antd";
 import { Link } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { getColumns, defaultData } from "./constant";
+import { getColumns } from "./constant";
 import DatabaseSidebar from "../databasesidebar";
 import DatabaseAssign from "../databaseassign";
 import AddMasterDatabaseFile from "../addmasterdatabasefile";
@@ -16,6 +16,38 @@ const Database = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [customerDatabase, setCustomerDatabase] = useState(false);
   const [openFile, setOpenFile] = useState(false);
+  const [tabledata, setTabledata] = useState([]);
+
+  useEffect(() => {
+    FetchAllDb();
+  }, []);
+
+  const FetchAllDb = async () => {
+    try {
+      setLoading(true);
+      const res = await GetAllDb();
+
+      if (!res?.data?.data) {
+        message.error("No data found!");
+        setTabledata([]);
+        return;
+      }
+
+      const data = res.data.data.map((db, index) => ({
+        sr_no: index + 1,
+        database_name: db.dbName || "",
+        state: db.state || "",
+        version: db.version || "",
+      }));
+
+      setTabledata(data);
+    } catch (error) {
+      console.error("Error fetching databases:", error);
+      message.error("Failed to load databases");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenSidebar = (row) => {
     setSelectedRow(row);
@@ -73,7 +105,7 @@ const Database = () => {
       ) : (
         <TableComponent
           columns={columns}
-          data={defaultData}
+          data={tabledata}
           paginationSize={10}
         />
       )}
