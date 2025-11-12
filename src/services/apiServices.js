@@ -852,3 +852,10 @@ export const GetUserlogs = (data) => {
 export const SuperAdminAddInvoice = (data) => {
   return POST(`/invoice-operations/addInvoice`, data);
 };
+
+
+// Subscription API
+
+export const SubscriptionByUser = (id) => {
+  return GET(`userplanshistory/getplanhistorybyuser?userId=${id}`);
+};

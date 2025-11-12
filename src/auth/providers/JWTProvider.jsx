@@ -270,16 +270,25 @@ const AuthProvider = ({ children }) => {
 
         // ✅ Save auth
         saveAuth(auth);
+        console.log("email fetch",auth.user.email)
 
         // ✅ Store user data and token
         localStorage.setItem("userData", JSON.stringify(userData));
         localStorage.setItem("userToken", userData.token);
 
+        try {
+          await LoginOutUser(auth.user.email, "login");
+          message.success("login Successfully")
+        } catch (apiError) {
+          console.error("Failed to send login notification:", apiError);
+          // Continue with logout even if API call fails
+        }
+
         // ✅ Store userId separately (for easy access later)
         if (userData.id) {
           localStorage.setItem("userId", userData.id.toString());
         }
-
+        
         setCurrentUser(userData);
 
         startInactivityTimer(); // Start inactivity tracking after login
@@ -351,12 +360,39 @@ const AuthProvider = ({ children }) => {
   // 🔸 Inactivity Timer Logic
   // -------------------------------
   const resetInactivityTimer = () => {
-    clearTimeout(inactivityTimerRef.current);
-    inactivityTimerRef.current = setTimeout(() => {
-      console.warn("Auto logout due to inactivity");
+  clearTimeout(inactivityTimerRef.current);
+
+  inactivityTimerRef.current = setTimeout(async () => {
+    console.warn("Auto logout due to inactivity");
+
+    try {
+      // Get user email before logout
+      const storedUserData = localStorage.getItem("userData");
+      let userEmail = currentUser?.email;
+
+      if (!userEmail && storedUserData) {
+        const userData = JSON.parse(storedUserData);
+        userEmail = userData.email;
+      }
+
+      if (userEmail) {
+        try {
+          // 👇 Call the API before logging out
+          await LoginOutUser(userEmail, "auto-logout");
+        } catch (apiError) {
+          console.error("Failed to send auto-logout notification:", apiError);
+        }
+      }
+
+      // ✅ Proceed with regular logout cleanup
       logout();
-    }, INACTIVITY_LIMIT);
-  };
+    } catch (err) {
+      console.error("Error during auto logout:", err);
+      logout(); // Force logout anyway
+    }
+  }, INACTIVITY_LIMIT);
+};
+
 
   const startInactivityTimer = () => {
     resetInactivityTimer();

@@ -161,6 +161,8 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
+      password:"123",
+      confirmPassword:"123",
       contactNo: values.phone,
       companyName: values.companyName,
       companyEmail: values.companyEmail,

@@ -24,6 +24,8 @@ export default function SuperAdminUserLogs() {
         // The real data is nested: response.data.data
         const apiData = response?.data?.data || [];
 
+        console.log("User Logs",apiData)
+
         if (Array.isArray(apiData) && apiData.length > 0) {
           // Transform API response into your timeline structure
           const formattedLogs = apiData.map((item) => ({
