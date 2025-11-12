@@ -146,11 +146,16 @@ export const columns = (onEdit, handleApprove) => {
             <Tooltip title="User logs">
               <button
                 className="btn btn-sm btn-icon btn-clear"
-                onClick={() => navigate("/superadmin-logs")}
+                onClick={() =>
+                  navigate("/superadmin-logs", {
+                    state: { email: row.original.email },
+                  })
+                }
               >
                 <i className="ki-filled ki-user text-success"></i>
               </button>
             </Tooltip>
+
             <Tooltip title="Letter">
               <button className="btn btn-sm btn-icon btn-clear">
                 <i className="ki-filled ki-note-2"></i>

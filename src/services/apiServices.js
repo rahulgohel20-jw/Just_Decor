@@ -1,5 +1,5 @@
 import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
-
+import axios from "./axiosInstance";
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
@@ -70,9 +70,9 @@ export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
 //get customer by id by cat id
-export const GetPartyMasterByCatTypeId = (catTypeId, userId) => {
+export const GetPartyMasterByCatId = (catTypeId, userId) => {
   return GET(
-    `/partymaster/getallbycattypeid?catTypeId=${catTypeId}&userId=${userId}`
+    `/partymaster/getallbycontcatid?contCatId=${catTypeId}&userId=${userId}`
   );
 };
 
@@ -552,8 +552,6 @@ export const updatestatusmneuitem = (id, isActive = true) => {
 
 // Change Password
 
-import axios from "./axiosInstance";
-
 export const ChangePassword = (data) => {
   return axios.post(`/auth/changepassword`, null, {
     params: {
@@ -780,7 +778,6 @@ export const AddNewPlan = (data) => {
   return POST(`/plans/add`, data);
 };
 
-
 export const DeletePlanById = (id) => {
   return DELETE(`/plans/deletebyid?id=${id}`);
 };
@@ -788,7 +785,6 @@ export const DeletePlanById = (id) => {
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
-
 
 export const GetAllLabourShift = (Id) => {
   return GET(`/shift/getallbyuserid?userId=${Id}`);
@@ -828,3 +824,16 @@ export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
 };
 
 
+
+
+export const DatabaseReadExcle = (formData) => {
+  return POST("/excel-parsing/readExcel", formData);
+};
+
+export const GetAllDb = () => {
+  return GET(`/excel-parsing/getAll`);
+};
+
+export const GetUserlogs = (data) => {
+  return GET(`/user-logs/getUserLogs/${data}`);
+};
