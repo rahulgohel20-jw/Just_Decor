@@ -262,7 +262,9 @@ const AppRoutingSetup = () => {
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
           />
-          <Route path="/dish-costing" element={<DishCostingPage />} />
+<Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
+
+
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/quotation/:eventId" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />

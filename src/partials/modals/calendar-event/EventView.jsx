@@ -204,10 +204,16 @@ const EventViewModal = ({
 
 
 {
-  label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DISH_COSTING" defaultMessage="Dish Costing" />,
+  label: (
+    <FormattedMessage
+      id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DISH_COSTING"
+      defaultMessage="Dish Costing"
+    />
+  ),
   icon: "/media/eventviewicon/dishcost.png",
-  onClick: () => navigate(`/dish-costing`),
+  onClick: () => navigate(`/dish-costing/${safeEventId}`),
 },
+
               {
                 label: <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_REPORT" defaultMessage="Menu Report" />,
                 icon: "/media/eventviewicon/menureport.png",
