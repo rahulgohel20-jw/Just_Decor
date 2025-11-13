@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { TableComponent } from "@/components/table/TableComponent";
 import { GetRenewalCustomer } from "@/services/apiServices";
 
-const formatDate = (date) => {
-  // Convert JS Date to dd-MM-yyyy
+const formatDateAPI = (date) => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -15,76 +14,83 @@ const formatDate = (date) => {
   return `${day}-${month}-${year}`;
 };
 
+// Converts date → readable format
+const formatDateDisplay = (dateString) => {
+  if (!dateString) return "N/A";
+  const d = new Date(dateString);
+  return `${String(d.getDate()).padStart(2, "0")}/${String(
+    d.getMonth() + 1
+  ).padStart(2, "0")}/${d.getFullYear()}`;
+};
+
 const RenewalCustomer = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(""); // dropdown filter
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [customRange, setCustomRange] = useState({ start: "", end: "" });
 
   useEffect(() => {
-    fetchRenewalData(); // default load
+    fetchRenewalData();
   }, []);
 
   const calculateDateRange = (filterValue) => {
     const today = new Date();
-    let startDate, endDate;
+    let startDate = new Date(today);
+    let endDate = new Date(today);
 
     if (filterValue === "1") {
-      // Last 3 months
-      startDate = new Date(today.setMonth(today.getMonth() - 3));
-      endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 3);
     } else if (filterValue === "2") {
-      // Last 6 months
-      startDate = new Date(today.setMonth(today.getMonth() - 6));
-      endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 6);
     } else if (filterValue === "3" && customRange.start && customRange.end) {
-      // Custom Date (from date picker)
       startDate = new Date(customRange.start);
       endDate = new Date(customRange.end);
     } else {
-      // Default last 30 days
-      startDate = new Date(today.setDate(today.getDate() - 30));
-      endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    return {
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
-    };
+    return { startDate, endDate };
   };
 
   const fetchRenewalData = async (filterValue = "") => {
     setLoading(true);
     setError("");
-
     try {
       const { startDate, endDate } = calculateDateRange(filterValue);
-      const response = await GetRenewalCustomer(startDate, endDate, true);
 
-      if (response?.success) {
-        if (!response.data || response.data.length === 0) {
-          // Backend returned success but no data
-          setTableData([]);
-          setError("No data found for selected date range."); // show backend message
-        } else {
-          const mappedData = response.data.map((item, index) => ({
-            Invoice: item.invoiceNo || `INV-${index + 1}`,
-            CustomerName: item.customerName || "N/A",
-            plan: item.planName || "N/A",
-            Amount: item.totalPaid || 0,
-            Date: item.startDate || "",
-          }));
-          setTableData(mappedData);
-        }
+      const response = await GetRenewalCustomer(
+        formatDateAPI(startDate),
+        formatDateAPI(endDate),
+        true
+      );
+
+      const resData = response?.data;
+      console.log("📥 API Response:", resData);
+
+      if (
+        resData?.success &&
+        Array.isArray(resData.data) &&
+        resData.data.length > 0
+      ) {
+        const mappedData = resData.data.map((item, index) => ({
+          Invoice: `${index + 1}`,
+          CustomerName: item.customerName || "N/A",
+          plan: item.name || "N/A",
+          Amount: item.price ?? 0,
+          BillingCycle: item.billingCycle || "N/A",
+          StartDate: formatDateDisplay(item.startDate),
+          EndDate: formatDateDisplay(item.endDate),
+        }));
+        setTableData(mappedData);
       } else {
-        setError(response?.errorMessage || "Failed to load data");
         setTableData([]);
+        setError("No data found for selected date range.");
       }
     } catch (err) {
-      console.error("Error fetching renewal data:", err);
+      console.error("❌ Error fetching renewal data:", err);
       setError("Something went wrong while fetching data.");
       setTableData([]);
     } finally {
@@ -98,7 +104,6 @@ const RenewalCustomer = () => {
         row.CustomerName?.toLowerCase().includes(searchText.toLowerCase()) ||
         row.plan?.toLowerCase().includes(searchText.toLowerCase()) ||
         row.Invoice?.toLowerCase().includes(searchText.toLowerCase());
-
       return matchesSearch;
     });
   }, [tableData, searchText]);
@@ -134,8 +139,8 @@ const RenewalCustomer = () => {
               }}
             >
               <option value="">All Renewal (30 days)</option>
-              <option value="1">Last 3 Months</option>
-              <option value="2">Last 6 Months</option>
+              <option value="1">Next 3 Months</option>
+              <option value="2">Next 6 Months</option>
               <option value="3">Custom Date</option>
             </select>
           </div>
@@ -168,10 +173,16 @@ const RenewalCustomer = () => {
           )}
         </div>
 
+        {/* Loader / Message Display */}
         {loading && <p>Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+        {error && !loading && (
+          <p className="text-red-500 font-medium mb-2">{error}</p>
+        )}
 
-        <TableComponent columns={columns} data={filteredData} />
+        {/* Table */}
+        {!loading && tableData.length > 0 && (
+          <TableComponent columns={columns} data={filteredData} />
+        )}
       </Container>
     </Fragment>
   );

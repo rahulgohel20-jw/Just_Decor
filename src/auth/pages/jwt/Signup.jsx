@@ -96,12 +96,13 @@ function FloatingInputPhone({ label, name, value, onChange, onBlur, error }) {
           setIsFocused(false);
           if (onBlur) onBlur(e);
         }}
-        inputClass="!w-full !h-12 !pl-14 !border !border-gray-300 !rounded-lg !text-gray-900 !text-base focus:!border-blue-500 focus:!shadow-sm !bg-transparent placeholder:!text-gray-400 placeholder:!pl-2"
+        placeholder="" // remove placeholder
+        inputClass="!w-full !h-12 !pl-16 !border !border-gray-300 !rounded-lg !text-gray-900 !text-base focus:!border-blue-500 focus:!shadow-sm !bg-transparent"
         buttonClass="!border-gray-300 !bg-transparent"
         containerClass="!w-full"
       />
       <label
-        className={`absolute left-[100px] transition-all duration-200 pointer-events-none ${
+        className={`absolute left-16 transition-all duration-200 ps-8 pointer-events-none ${
           isFocused || value
             ? "-top-2 text-xs bg-white px-1 text-[#005BA8]"
             : "top-3 text-gray-400 text-sm"
@@ -109,6 +110,7 @@ function FloatingInputPhone({ label, name, value, onChange, onBlur, error }) {
       >
         {label}
       </label>
+
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
@@ -416,35 +418,35 @@ export default function Signup() {
                   )}
                 </div>
               </div>
+              <div>
+                {/* Phone */}
+                <FloatingInputPhone
+                  label="Phone Number"
+                  name="contactNo"
+                  value={formData.contactNo} // <-- use contactNo instead of mobile
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.contactNo} // <-- also correct error key
+                />
 
-              {/* Phone */}
-              <FloatingInputPhone
-                label="Phone Number"
-                name="contactNo"
-                value={formData.mobile}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.mobile}
-              />
-
+                {touched.lastName && errors.lastName && (
+                  <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                )}
+              </div>
               {/* State & City Selects */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* State */}
                 <FloatingSelect
                   label="State"
                   name="stateId"
                   value={formData.stateId}
-                  onChange={(e) => {
-                    handleChange(e);
-                    setFormData((prev) => ({ ...prev, cityId: "" }));
-                  }}
+                  onChange={handleChange}
                   onBlur={handleBlur}
                   options={states}
-                  icon="ki-geo text-primary"
+                  icon="ki-map"
+                  iconColor="text-primary"
                   error={touched.stateId && errors.stateId}
                 />
 
-                {/* City */}
                 <FloatingSelect
                   label="City"
                   name="cityId"
@@ -452,7 +454,8 @@ export default function Signup() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   options={cities}
-                  icon="ki-map text-primary"
+                  icon="ki-map"
+                  iconColor="text-primary"
                   error={touched.cityId && errors.cityId}
                 />
               </div>

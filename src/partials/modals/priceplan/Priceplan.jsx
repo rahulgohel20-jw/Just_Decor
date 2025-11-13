@@ -34,6 +34,7 @@ const Priceplan = () => {
   // user states
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [underVerification, setUnderVerification] = useState(false);
 
   const [activeCycle, setActiveCycle] = useState("Monthly");
   const [paymentData, setPaymentData] = useState({
@@ -51,7 +52,7 @@ const Priceplan = () => {
   useEffect(() => {
     if (!token) return;
     const decoded = parseJwt(token);
-    const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId; // keep as-is; fallback below
+    const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
     if (idFromToken) {
       setUserId(idFromToken);
     } else if (stored?.id) {
@@ -64,7 +65,7 @@ const Priceplan = () => {
     const fetchUserDetails = async () => {
       try {
         const res = await FetchAllUser(userId);
-        const fetched = res?.data?.data ?? res?.data ?? null;
+        const fetched = res?.data?.data?.["User Details"]?.[0] ?? null;
         if (fetched) {
           setUser(fetched);
         } else {
@@ -101,7 +102,6 @@ const Priceplan = () => {
     return [...others, ...popular];
   })();
 
-  // 4) Payment handler uses userId (must be loaded)
   const handlePayment = async (plan) => {
     console.log("Selected Plan:", plan);
     if (!userId) {
@@ -137,7 +137,7 @@ const Priceplan = () => {
         return;
       }
 
-      const razorpayKey = "rzp_live_bH334KNjFEnWqO"; // replace with actual key
+      const razorpayKey = "rzp_live_bH334KNjFEnWqO";
 
       const options = {
         key: razorpayKey,
@@ -159,21 +159,24 @@ const Priceplan = () => {
           };
 
           try {
-            const addPlanRes = await AddUserPlan(paymentPayload);
+            await AddUserPlan(paymentPayload);
+
             setPaymentData({
               amount: plan.price,
               transactionId: response.razorpay_payment_id,
             });
+            setUnderVerification(true);
             setModalOpen(true);
-            // Optionally refresh user data (to get updated plan)
-            try {
-              const refresh = await FetchAllUser(userId);
-              const refreshedUser =
-                refresh?.data?.data ?? refresh?.data ?? null;
-              if (refreshedUser) setUser(refreshedUser);
-            } catch (e) {
-              console.warn("Could not refresh user after payment:", e);
-            }
+
+            FetchAllUser(userId)
+              .then((refresh) => {
+                const refreshedUser =
+                  refresh?.data?.data ?? refresh?.data ?? null;
+                if (refreshedUser) setUser(refreshedUser);
+              })
+              .catch((err) =>
+                console.warn("Could not refresh user after payment:", err)
+              );
           } catch (err) {
             Swal.fire({
               icon: "error",
@@ -215,13 +218,24 @@ const Priceplan = () => {
     }
   };
 
-  // optional: check if user already has plan
   const userHasPlan = !!user?.plan;
 
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-10">
-        <h2 className="text-3xl md:text-4xl font-semibold text-[#170F49]">
+        {(underVerification || (user && !user.isApprove)) && (
+          <div className="relative bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-6 rounded-b-xl overflow-hidden">
+            <div className="flex items-start gap-3 relative ">
+              <p className="sm:text-base">
+                Your profile is under verification. Please wait until admin
+                approves it. Meanwhile, feel free to explore our other plans and
+                log out if you wish.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <h2 className="text-3xl mt-4 md:text-4xl font-semibold text-[#170F49]">
           Plans & Pricing
         </h2>
         <p className="text-[#6F6C8F] mt-3 max-w-xl mx-auto text-base leading-relaxed">
@@ -247,6 +261,13 @@ const Priceplan = () => {
           </div>
         </div>
       </div>
+
+      {console.log(
+        "paymentData.amount",
+        paymentData.amount,
+        "user?.isApprove",
+        user?.isApprove
+      )}
 
       {loading ? (
         <div className="flex justify-center py-10">
@@ -331,6 +352,7 @@ const Priceplan = () => {
             onClose={() => setModalOpen(false)}
             amount={paymentData.amount}
             transactionId={paymentData.transactionId}
+            approve={user?.isApprove}
           />
         </div>
       )}
