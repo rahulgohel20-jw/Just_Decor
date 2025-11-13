@@ -5,8 +5,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
-
 const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
   if (!isOpen) return null;
 
@@ -106,7 +104,14 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {rawdata ? <FormattedMessage id="USER.MASTER.EDIT_RAW_MATERIAL_TYPE" /> : <FormattedMessage id="USER.MASTER.NEW_RAW_MATERIAL_TYPE" />}
+            {rawdata ? (
+              <FormattedMessage id="USER.MASTER.EDIT_RAW_MATERIAL_TYPE" />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.NEW_RAW_MATERIAL_TYPE "
+                defaultMessage="Raw Material Type"
+              />
+            )}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -136,13 +141,19 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                 {/* English */}
                 <div>
                   <label className="block text-gray-600 mb-1">
-                    <FormattedMessage id="COMMON.NAME_ENGLISH" />
+                    <FormattedMessage
+                      id="COMMON.NAME_ENGLISH"
+                      defaultMessage=" Name English"
+                    />
                     <span className="text-red-500">*</span>
                   </label>
                   <Field
                     type="text"
                     name="nameEnglish"
-                    placeholder={intl.formatMessage({ id: "COMMON.NAME_ENGLISH" })}
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_ENGLISH",
+                      defaultMessage: "Name english",
+                    })}
                     className="border border-gray-300 rounded-lg p-2 w-full"
                   />
                   <ErrorMessage
@@ -155,13 +166,19 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                 {/* Gujarati */}
                 <div>
                   <label className="block text-gray-600 mb-1">
-                    <FormattedMessage id="COMMON.NAME_GUJARATI" />
+                    <FormattedMessage
+                      id="COMMON.NAME_GUJARATI"
+                      defaultMessage="Name Gujarati"
+                    />
                     <span className="text-red-500">*</span>
                   </label>
                   <Field
                     type="text"
                     name="nameGujarati"
-                    placeholder={intl.formatMessage({ id: "COMMON.NAME_GUJARATI" })}
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_GUJARATI",
+                      defaultMessage: "Name Gujarati",
+                    })}
                     className="border border-gray-300 rounded-lg p-2 w-full"
                   />
                   <ErrorMessage
@@ -174,13 +191,19 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                 {/* Hindi */}
                 <div>
                   <label className="block text-gray-600 mb-1">
-                    <FormattedMessage id="COMMON.NAME_HINDI" />
+                    <FormattedMessage
+                      id="COMMON.NAME_HINDI"
+                      defaultMessage="Name Hindi"
+                    />
                     <span className="text-red-500">*</span>
                   </label>
                   <Field
                     type="text"
                     name="nameHindi"
-                    placeholder={intl.formatMessage({ id: "COMMON.NAME_HINDI" })}
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_HINDI",
+                      defaultMessage: "Name Hindi",
+                    })}
                     className="border border-gray-300 rounded-lg p-2 w-full"
                   />
                   <ErrorMessage
@@ -193,13 +216,19 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                 {/* Priority */}
                 <div>
                   <label className="block text-gray-600 mb-1">
-                    <FormattedMessage id="COMMON.PRIORITY" />
+                    <FormattedMessage
+                      id="COMMON.PRIORITY"
+                      defaultMessage="Priority"
+                    />
                     <span className="text-red-500">*</span>
                   </label>
                   <Field
                     type="text"
                     name="priority"
-                    placeholder={intl.formatMessage({ id: "COMMON.PRIORITY" })}
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.PRIORITY",
+                      defaultMessage: "Priority",
+                    })}
                     className="border border-gray-300 rounded-lg p-2 w-full"
                   />
                   <ErrorMessage
@@ -223,7 +252,17 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                     disabled={isSubmitting}
                     className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
                   >
-                    {rawdata ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+                    {rawdata ? (
+                      <FormattedMessage
+                        id="COMMON.UPDATE"
+                        defaultMessage="Update"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="COMMON.SAVE"
+                        defaultMessage="Save"
+                      />
+                    )}
                   </button>
                 </div>
               </Form>

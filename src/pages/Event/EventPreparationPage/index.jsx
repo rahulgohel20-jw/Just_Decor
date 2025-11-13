@@ -1,8 +1,15 @@
-import { useState, useReducer, useEffect, Fragment, useMemo } from "react";
+import {
+  useState,
+  useReducer,
+  useEffect,
+  Fragment,
+  useMemo,
+  useCallback,
+} from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Eye, EyeOff, Mic } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import TabComponent from "@/components/tab/TabComponent";
 import useStyles from "./style";
 import { Tooltip } from "antd";
@@ -17,6 +24,7 @@ import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 
 import { Layers, Package } from "lucide-react";
 import {
@@ -30,6 +38,7 @@ import {
 import { toAbsoluteUrl } from "@/utils";
 
 const EventPreparationPage = () => {
+  const { eventId } = useParams;
   const navigate = useNavigate();
   const classes = useStyles();
 
@@ -55,6 +64,7 @@ const EventPreparationPage = () => {
     setAllMenuItems,
   } = useMenuData();
 
+  const [eventData, setEventData] = useState(null);
   const [selectedPackageName, setSelectedPackageName] = useState(null);
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
   const [packageItemIds, setPackageItemIds] = useState([]);
@@ -82,6 +92,7 @@ const EventPreparationPage = () => {
   const [isPackageMode, setIsPackageMode] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
 
   const [itemNotes, setItemNotes] = useState({
     itemsNotes: "",
@@ -741,6 +752,10 @@ const EventPreparationPage = () => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+  const openSelectMenureport = useCallback(() => {
+    setMenuReportEventId(eventId);
+    setIsSelectMenuReport(true);
+  });
 
   const cacheKey = `${selectedFunctionId}-${selectedCategoryId}`;
   const currentFunctionData = functionSelectionData[selectedFunctionId] || {
@@ -1164,7 +1179,7 @@ const EventPreparationPage = () => {
                 </div>
 
                 <button
-                  onClick={openMenuReport}
+                  onClick={openSelectMenureport}
                   className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
                 >
                   Report
@@ -1444,6 +1459,15 @@ const EventPreparationPage = () => {
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
+        />
+        <SelectMenureport
+          isSelectMenureport={isSelectMenureport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
+          onConfirm={() => {
+            setIsSelectMenuReport(false);
+            setIsMenuReport(true);
+            activeFunctionName = { activeFunctionName };
+          }}
         />
       </Container>
     </Fragment>

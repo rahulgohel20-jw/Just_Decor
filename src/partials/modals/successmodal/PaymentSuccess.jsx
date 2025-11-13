@@ -1,17 +1,25 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 
 export default function PaymentSuccess({
   open,
   onClose,
-  amount = 1299,
-  transactionId = "TXN123456789",
+
   approve = false,
 }) {
+  // Auto-close when approved after short delay
+  useEffect(() => {
+    if (approve && onClose) {
+      const timer = setTimeout(() => onClose(), 1000); // 1s delay
+      return () => clearTimeout(timer);
+    }
+  }, [approve, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          {/* Overlay (click disabled) */}
+          {/* Overlay */}
           <motion.div
             className="absolute inset-0 bg-slate-800/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
@@ -27,33 +35,16 @@ export default function PaymentSuccess({
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", duration: 0.5 }}
           >
-            {/* Content */}
             <div className="px-8 py-12 text-center">
+              {/* Top Message */}
+              {!approve && (
+                <p className="text-sm text-[#005BA8] font-medium mb-4">
+                  Please wait until admin verifies your submission
+                </p>
+              )}
+
               {/* Animated Success Icon */}
               <div className="relative mb-8 flex justify-center">
-                {[...Array(12)].map((_, i) => {
-                  const size = Math.random() * 20 + 10;
-                  const delay = Math.random() * 0.5;
-                  const x = (Math.random() - 0.5) * 200;
-                  const y = (Math.random() - 0.5) * 100;
-                  return (
-                    <motion.div
-                      key={i}
-                      className="absolute w-3 h-3 rounded-full border-2 border-gray-300"
-                      style={{
-                        width: size,
-                        height: size,
-                        left: `calc(50% + ${x}px)`,
-                        top: `calc(50% + ${y}px)`,
-                      }}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 0.4, scale: 1 }}
-                      transition={{ delay, duration: 0.6 }}
-                    />
-                  );
-                })}
-
-                {/* Envelope with checkmark */}
                 <motion.div
                   className="relative w-32 h-32"
                   initial={{ scale: 0 }}
@@ -74,59 +65,6 @@ export default function PaymentSuccess({
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
                       transition={{ delay: 0.4, duration: 0.5 }}
-                    />
-                    <motion.rect
-                      x="35"
-                      y="35"
-                      width="58"
-                      height="38"
-                      rx="2"
-                      fill="white"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 35, opacity: 1 }}
-                      transition={{ delay: 0.6, duration: 0.4 }}
-                    />
-                    <motion.line
-                      x1="42"
-                      y1="48"
-                      x2="86"
-                      y2="48"
-                      stroke="#E5E7EB"
-                      strokeWidth="2"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.8, duration: 0.3 }}
-                    />
-                    <motion.line
-                      x1="42"
-                      y1="56"
-                      x2="86"
-                      y2="56"
-                      stroke="#E5E7EB"
-                      strokeWidth="2"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.9, duration: 0.3 }}
-                    />
-                    <motion.line
-                      x1="42"
-                      y1="64"
-                      x2="75"
-                      y2="64"
-                      stroke="#E5E7EB"
-                      strokeWidth="2"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 1, duration: 0.3 }}
-                    />
-                    <motion.path
-                      d="M20 45 L64 20 L108 45"
-                      fill="none"
-                      stroke="#005BA8"
-                      strokeWidth="1"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.5, duration: 0.4 }}
                     />
                     <motion.path
                       d="M 75 25 L 85 35 L 105 15"
@@ -180,16 +118,14 @@ export default function PaymentSuccess({
                 </p>
               </motion.div>
 
-              {/* OK Button: only enabled if approve is true */}
               <motion.button
                 onClick={() => approve && onClose()}
                 disabled={!approve}
-                className={`font-semibold text-lg py-3 px-12 rounded-lg transition-colors
-    ${
-      approve
-        ? "bg-white text-[#005BA8] hover:bg-red-50"
-        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-    }`}
+                className={`font-semibold text-lg py-3 px-12 rounded-lg transition-colors ${
+                  approve
+                    ? "bg-white text-[#005BA8] hover:bg-red-50"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2 }}

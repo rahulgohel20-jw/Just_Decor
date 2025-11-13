@@ -1,8 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import { toAbsoluteUrl } from "@/utils";
-import { FetchAllUser } from "@/services/apiServices"; // or replace with your real API call
+import { FetchAllUser } from "@/services/apiServices";
 
-// ✅ Fetch user from API using ID stored in localStorage
 const fetchUserById = async (userId) => {
   try {
     const response = await FetchAllUser(userId); // <- Adjust this API as per your actual endpoint
@@ -18,7 +17,6 @@ const fetchUserById = async (userId) => {
   }
 };
 
-// ✅ Dynamically get role
 const getUserRole = async () => {
   try {
     const userId = localStorage.getItem("userId");
@@ -36,7 +34,6 @@ const getUserRole = async () => {
   }
 };
 
-// ✅ Dynamically get plan
 const getUserPlan = async () => {
   try {
     const userId = localStorage.getItem("userId");
@@ -476,19 +473,25 @@ const superAdminMenuItems = [
   },
 ];
 
+// Main function to get menu
 export const getMenuSidebar = async () => {
   const userRoleId = await getUserRole();
-  const userPlan = await getUserPlan();
+  const userData = JSON.parse(localStorage.getItem("userData"));
+
+  const userPlan = userData?.plan || null;
+  const isApproved = userData?.isApprove === true;
 
   const isSuperAdmin = userRoleId === 1;
   const isNormalUser = userRoleId === 2;
-  const hasNoPlan = userPlan === null;
+  const hasNoPlan = !userPlan;
 
-  return isSuperAdmin
-    ? superAdminMenuItems
-    : isNormalUser && hasNoPlan
-      ? disableMenuItems(allMenuItems)
-      : allMenuItems;
+  if (isSuperAdmin) return superAdminMenuItems;
+
+  if (isNormalUser && (hasNoPlan || !isApproved)) {
+    return disableMenuItems(allMenuItems);
+  }
+
+  return allMenuItems;
 };
 
 export const MENU_SIDEBAR = getMenuSidebar();

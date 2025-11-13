@@ -16,6 +16,7 @@ import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 
 import {
   GetEventMasterById,
@@ -311,6 +312,7 @@ const EventMenuAllocationPage = () => {
   const [itemPrices, setItemPrices] = useState({});
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
 
   const intl = useIntl();
 
@@ -846,6 +848,11 @@ const EventMenuAllocationPage = () => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+  function openSelectMenureport() {
+    console.log("🟢 Opening SelectMenureport for event:", eventId); // Debug log
+    setMenuReportEventId(eventId);
+    setIsSelectMenuReport(true);
+  }
 
   return (
     <Fragment>
@@ -1069,7 +1076,7 @@ const EventMenuAllocationPage = () => {
                 </div>
                 <div className="flex w-full items-center justify-start gap-5 md:justify-end">
                   <button
-                    onClick={openMenuReport}
+                    onClick={openSelectMenureport}
                     className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
                     title="Report"
                   >
@@ -1159,6 +1166,15 @@ const EventMenuAllocationPage = () => {
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
+        />
+        <SelectMenureport
+          isSelectMenureport={isSelectMenureport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
+          onConfirm={() => {
+            setIsSelectMenuReport(false);
+            setIsMenuReport(true);
+            activeFunctionName = { activeFunctionName };
+          }}
         />
       </Container>
     </Fragment>

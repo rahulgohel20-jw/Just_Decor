@@ -10,6 +10,7 @@ import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
 import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import ExtraExpenseTable from "./ExtraExpenseTable";
 import { useExtraExpense } from "./hooks/useExtraExpense";
 import {
@@ -61,9 +62,11 @@ const LabourOtherManagementPage = () => {
     () => JSON.parse(localStorage.getItem("user") || "{}"),
     []
   );
+  const [activeFunctionName, setActiveFunctionName] = useState("");
 
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [activeTab, setActiveTab] = useState("Dinner");
   const [activeCategory, setActiveCategory] = useState("Labour");
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
@@ -78,6 +81,8 @@ const LabourOtherManagementPage = () => {
   const [isLabourSidebarOpen, setIsLabourSidebarOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
+
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [notes, setNotes] = useState("");
 
@@ -431,6 +436,10 @@ const LabourOtherManagementPage = () => {
     setIsMenuReport(true);
   }, [eventId]);
 
+  const openSelectMenureport = useCallback(() => {
+    setMenuReportEventId(eventId);
+    setIsSelectMenuReport(true);
+  });
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -503,6 +512,7 @@ const LabourOtherManagementPage = () => {
                 key={fn.id}
                 onClick={() => {
                   setActiveTab(fn.function?.nameEnglish);
+                  setActiveFunctionName(fn.function?.nameEnglish);
                   setSelectedFunctionPax(fn.pax || 0);
                 }}
                 className={`px-8 py-3 text-sm font-medium transition-all duration-200 
@@ -532,7 +542,7 @@ const LabourOtherManagementPage = () => {
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={openMenuReport}
+                  onClick={openSelectMenureport}
                   className="btn btn-light btn-sm h-10"
                 >
                   <i className="ki-filled ki-document"></i>
@@ -584,8 +594,13 @@ const LabourOtherManagementPage = () => {
             onLabourTypeChange={handleLabourTypeChange}
             onDelete={deleteRow}
             onAddRow={addLabourRow}
-            onViewDetails={() => setIsLabourSidebarOpen(true)}
+            onViewDetails={(row) => {
+              setSelectedRow(row); // store the clicked row
+              setIsLabourSidebarOpen(true); // open the sidebar
+            }}
             onAddNotes={() => setIsNotesOpen(true)}
+            setSelectedRow={setSelectedRow}
+            onSave={handleSave}
           />
         )}
 
@@ -610,6 +625,10 @@ const LabourOtherManagementPage = () => {
         <LabourDetailSidebar
           isOpen={isLabourSidebarOpen}
           onClose={() => setIsLabourSidebarOpen(false)}
+          eventFunctionId={activeFunction?.id}
+          eventId={eventData?.id}
+          contactId={selectedRow?.contactId || null}
+          // <--- correct prop
         />
 
         {isExtraExpenseModalOpen && (
@@ -620,6 +639,15 @@ const LabourOtherManagementPage = () => {
             selectedMeal={selectedExpense}
           />
         )}
+        <SelectMenureport
+          isSelectMenureport={isSelectMenureport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
+          onConfirm={() => {
+            setIsSelectMenuReport(false);
+            setIsMenuReport(true);
+            activeFunctionName = { activeFunctionName };
+          }}
+        />
 
         <MenuReport
           isModalOpen={isMenuReport}
@@ -654,6 +682,8 @@ const LabourTable = ({
   onAddRow,
   onViewDetails,
   onAddNotes,
+  setSelectedRow,
+  onSave,
 }) => (
   <div className="card">
     <div className="card-body p-0">
@@ -682,21 +712,33 @@ const LabourTable = ({
                 labourCategories={labourCategories}
                 filteredContacts={filteredContacts}
                 eventData={eventData}
-                onRowChange={onRowChange}
                 shiftOptions={shiftOptions}
+                onRowChange={onRowChange}
                 onLabourTypeChange={onLabourTypeChange}
                 onDelete={onDelete}
-                onViewDetails={onViewDetails}
+                onViewDetails={onViewDetails} // pass row
                 onAddNotes={onAddNotes}
               />
             ))}
           </tbody>
         </table>
       </div>
-      <div className="p-4 border-t">
-        <button onClick={onAddRow} className="btn btn-primary btn-sm">
-          <i className="ki-filled ki-plus"></i>
+      <div className="p-4 border-t flex justify-between items-center">
+        {/* Left side: Add button */}
+        <button
+          onClick={onAddRow}
+          className="flex items-center gap-2 btn-primary  text-white-700 text-sm font-medium px-3 py-2 rounded-md transition"
+        >
+          <i className="ki-filled ki-plus text-white"></i>
           Add Another Labour Type
+        </button>
+
+        {/* Right side: Save button */}
+        <button
+          onClick={onSave}
+          className="btn-primary hover:bg-[#004A8C] text-white text-sm font-medium px-3 py-2 rounded-md transition"
+        >
+          Save
         </button>
       </div>
     </div>
@@ -829,7 +871,9 @@ const LabourRow = ({
       <div className="flex items-center justify-center ">
         <button
           className="btn btn-sm btn-icon btn-clear"
-          onClick={onViewDetails}
+          onClick={() => {
+            onViewDetails(row);
+          }}
         >
           <i className="ki-filled ki-eye text-success"></i>
         </button>
