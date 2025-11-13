@@ -22,7 +22,7 @@ import {
   GetEventMasterById,
   GetMenuAllocation,
   SelectedItemNameMenuAllocation,
-  // MenuAllocationSave,
+  MenuAllocationSave,
 } from "@/services/apiServices";
 import { useParams } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -57,7 +57,18 @@ const TopTabs = ({ value, onChange, functions }) => {
   );
 };
 
-const OrderSummary = ({ groups, onItemClick, loading }) => {
+const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
+  const grandTotal = Math.round(
+    groups.reduce((total, group) => {
+      const groupTotal = group.items.reduce((sum, item) => {
+        return sum + (item.totalPrice || 0);
+      }, 0);
+      return total + groupTotal;
+    }, 0)
+  );
+
+  const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
+
   return (
     <div className="flex flex-col gap-2">
       <button className="btn btn-sm btn-primary p-6 flex justify-center text-lg">
@@ -123,6 +134,8 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
                 </div>
               ))}
             </div>
+
+            {/* ✅ UPDATED Footer with Real Calculations */}
             <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA]">
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
@@ -131,7 +144,9 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
                     defaultMessage="Dish Costing :"
                   />
                 </span>
-                <span>1200</span>
+                <span className="font-semibold text-gray-900">
+                  ₹{dishCosting.toFixed(2)}
+                </span>
               </div>
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
@@ -140,7 +155,9 @@ const OrderSummary = ({ groups, onItemClick, loading }) => {
                     defaultMessage="Total :"
                   />
                 </span>
-                <span>₹25000</span>
+                <span className="font-semibold text-primary">
+                  ₹{grandTotal.toFixed(2)}
+                </span>
               </div>
             </div>
           </>
@@ -319,7 +336,6 @@ const EventMenuAllocationPage = () => {
       try {
         setLoading(true);
         const res = await GetEventMasterById(eventId);
-        console.log(res, "Event Details Response");
 
         if (res?.data?.data && res.data.data["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
@@ -381,7 +397,6 @@ const EventMenuAllocationPage = () => {
       ) {
         const menuDetails = menudata.data.data["Menu Allocation Details"][0];
 
-        // Transform menu allocation data for left-side table
         const transformedRows =
           menuDetails.menuAllocation?.map((item) => ({
             key: `${item.menuItemId}-${item.menuCategoryId}`,
@@ -400,12 +415,11 @@ const EventMenuAllocationPage = () => {
             menuItemId: item.menuItemId,
             eventFunctionMenuAllocations:
               item.eventFunctionMenuAllocations || [],
+            menuItemRawMaterials: item.menuItemRawMaterials || [],
           })) || [];
 
         setRows(transformedRows);
 
-        // Transform order summary data for right-side panel
-        // ✅ IMPORTANT: Store original prices from API
         const summaryGroups =
           menuDetails.selectedItemDetails?.map((category) => ({
             categoryId: category.menuCategoryId,
@@ -413,15 +427,13 @@ const EventMenuAllocationPage = () => {
             items:
               category.selectedMenuPreparationItems?.map((summaryItem) => ({
                 ...summaryItem,
-                originalTotalPrice: summaryItem.totalPrice, // ✅ Store original API price
-                totalPrice: summaryItem.totalPrice, // This will be updated dynamically
+                originalTotalPrice: summaryItem.totalPrice,
+                totalPrice: summaryItem.totalPrice,
               })) || [],
           })) || [];
 
         setOrderSummaryGroups(summaryGroups);
 
-        // ✅ Calculate initial prices after data is loaded
-        // Use setTimeout to ensure state is updated before calculation
         setTimeout(() => {
           summaryGroups.forEach((group) => {
             group.items.forEach((item) => {
@@ -451,7 +463,6 @@ const EventMenuAllocationPage = () => {
         x.key === updated.key ? updated : x
       );
 
-      // ✅ Trigger price recalculation with updated rows
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
 
       return updatedRows;
@@ -503,39 +514,22 @@ const EventMenuAllocationPage = () => {
       prevGroups.map((group) => ({
         ...group,
         items: group.items.map((item) => {
-          // Only update the specific item that changed
           if (item.menuItemId === menuItemId) {
-            // Find matching row from left-side table
             const matchingRow = currentRows.find(
               (row) => row.menuItemId === menuItemId
             );
 
             if (matchingRow) {
-              console.log(`\n[${item.menuItemName}] Starting Calculation:`, {
-                originalBasePrice: item.originalTotalPrice,
-                checkboxStates: {
-                  outside: matchingRow.outside,
-                  chefLabour: matchingRow.chefLabour,
-                  inside: matchingRow.inside,
-                },
-              });
-
-              // ✅✅✅ CRITICAL FIX: If "Inside" is checked, total price = 0
               if (matchingRow.inside) {
-                console.log(
-                  `[${item.menuItemName}] 🔵 INSIDE checked → Total Price = ₹0`
-                );
                 return {
                   ...item,
-                  totalPrice: 0, // ✅ INSIDE means everything is 0
+                  totalPrice: 0,
                 };
               }
 
-              // ✅ Use original price from API as base (only if NOT inside)
               const basePrice = item.originalTotalPrice || 0;
               let additionalCost = 0;
 
-              // ✅ Add Outside costs if checkbox is checked
               if (matchingRow.outside) {
                 const outsideTotal =
                   matchingRow.eventFunctionMenuAllocations
@@ -545,12 +539,8 @@ const EventMenuAllocationPage = () => {
                       0
                     ) || 0;
                 additionalCost += outsideTotal;
-                console.log(
-                  `[${item.menuItemName}] 🟢 Outside: ₹${outsideTotal}`
-                );
               }
 
-              // ✅ Add Chef Labour costs if checkbox is checked
               if (matchingRow.chefLabour) {
                 const chefLabourTotal =
                   matchingRow.eventFunctionMenuAllocations
@@ -560,19 +550,9 @@ const EventMenuAllocationPage = () => {
                       0
                     ) || 0;
                 additionalCost += chefLabourTotal;
-                console.log(
-                  `[${item.menuItemName}] 🟡 Chef Labour: ₹${chefLabourTotal}`
-                );
               }
 
               const finalPrice = basePrice + additionalCost;
-
-              console.log(`[${item.menuItemName}] ✅ Final Result:`, {
-                basePrice,
-                additionalCost,
-                finalPrice,
-                formula: `${basePrice} + ${additionalCost} = ${finalPrice}`,
-              });
 
               return {
                 ...item,
@@ -598,15 +578,12 @@ const EventMenuAllocationPage = () => {
           r.menuItemId === saveData.menuItemId &&
           r.menuCategoryId === saveData.menuCategoryId
         ) {
-          // ✅ Update allocations array with new outside data
           return {
             ...r,
             eventFunctionMenuAllocations: [
-              // Keep non-outside allocations
               ...(r.eventFunctionMenuAllocations || []).filter(
                 (a) => !a.isOutside
               ),
-              // Add new outside allocations
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isOutside: true,
@@ -617,13 +594,11 @@ const EventMenuAllocationPage = () => {
         return r;
       });
 
-      // ✅ Update prices immediately after state update
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
 
       return updatedRows;
     });
 
-    // Close the modal
     setOpen(false);
   };
 
@@ -639,15 +614,12 @@ const EventMenuAllocationPage = () => {
           r.menuItemId === saveData.menuItemId &&
           r.menuCategoryId === saveData.menuCategoryId
         ) {
-          // ✅ Update allocations array with new chef labour data
           return {
             ...r,
             eventFunctionMenuAllocations: [
-              // Keep non-chef allocations
               ...(r.eventFunctionMenuAllocations || []).filter(
                 (a) => !a.isChefLabour
               ),
-              // Add new chef labour allocations
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isChefLabour: true,
@@ -658,13 +630,11 @@ const EventMenuAllocationPage = () => {
         return r;
       });
 
-      // ✅ Update prices immediately after state update
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
 
       return updatedRows;
     });
 
-    // Close the modal
     setIsChefModal(false);
   };
 
@@ -673,6 +643,19 @@ const EventMenuAllocationPage = () => {
       ...prev,
       [`${saveData.menuItemId}-category`]: saveData,
     }));
+
+    // Also update the rows to store raw materials
+    setRows((prevRows) =>
+      prevRows.map((r) => {
+        if (r.menuItemId === saveData.menuItemId) {
+          return {
+            ...r,
+            menuItemRawMaterials: saveData.rawMaterials || [],
+          };
+        }
+        return r;
+      })
+    );
   };
 
   if (loading) {
@@ -685,43 +668,112 @@ const EventMenuAllocationPage = () => {
     );
   }
   const handleMainSave = async () => {
-    // Uncomment and implement when ready
-    // try {
-    //   let userData = JSON.parse(localStorage.getItem("userData"));
-    //   let Id = userData.id;
-    //   const payload = rows.map((r) => ({
-    //     chefLabour: r.chefLabour || false,
-    //     eventFunctionId: activeFunction?.id || 0,
-    //     eventId: Number(eventId) || 0,
-    //     id: r.id || 0,
-    //     inside: r.inside || false,
-    //     instructions: r.instructions || "",
-    //     menuAllocationOrders:
-    //       allocationData[`${r.menuItemId}-${r.menuCategoryId}-outside`]
-    //         ?.allocations || [],
-    //     menuCategoryId: r.menuCategoryId || 0,
-    //     menuItemId: r.menuItemId || 0,
-    //     menuItemRawMaterials:
-    //       allocationData[`${r.menuItemId}-category`]?.rawMaterials || [],
-    //     outside: r.outside || false,
-    //     personCount: r.personCount || 0,
-    //     place: r.place || "venue",
-    //     userId: Id,
-    //   }));
-    //   console.log("Final payload:", payload);
-    //   const res = await MenuAllocationSave(payload);
-    //   if (res?.data?.success) {
-    //     Swal.fire({
-    //       title: "Saved Successfully!",
-    //       text: "Menu Allocation details have been saved.",
-    //       icon: "success",
-    //       confirmButtonColor: "#3085d6",
-    //       confirmButtonText: "OK",
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error("Error saving menu allocation:", error);
-    // }
+    try {
+      let userData = JSON.parse(localStorage.getItem("userData"));
+      let Id = userData.id;
+
+      const payload = rows.map((r) => {
+        const outsideAllocations =
+          r.eventFunctionMenuAllocations
+            ?.filter((a) => a.isOutside)
+            .map((alloc) => ({
+              counterPrice: alloc.counterPrice || 0,
+              counterQuantity: alloc.counterQuantity || 0,
+              helperPrice: alloc.helperPrice || 0,
+              helperQuantity: alloc.helperQuantity || 0,
+              id: alloc.id || 0,
+              isOutside: true,
+              partyId: alloc.partyId || 0,
+              price: alloc.price || 0,
+              quantity: alloc.quantity || 0,
+              serviceType: alloc.serviceType || "",
+              totalPrice: alloc.totalPrice || 0,
+              unitId: alloc.unitId || 0,
+            })) || [];
+
+        const chefLabourAllocations =
+          r.eventFunctionMenuAllocations
+            ?.filter((a) => a.isChefLabour)
+            .map((alloc) => ({
+              counterPrice: alloc.counterPrice || 0,
+              counterQuantity: alloc.counterQuantity || 0,
+              helperPrice: alloc.helperPrice || 0,
+              helperQuantity: alloc.helperQuantity || 0,
+              id: alloc.id || 0,
+              isOutside: false,
+              partyId: alloc.partyId || 0,
+              price: alloc.price || 0,
+              quantity: alloc.quantity || 0,
+              serviceType: alloc.serviceType || "",
+              totalPrice: alloc.totalPrice || 0,
+              unitId: alloc.unitId || 0,
+            })) || [];
+
+        const menuAllocationOrders = [
+          ...outsideAllocations,
+          ...chefLabourAllocations,
+        ];
+
+        const rawMaterialsData = allocationData[`${r.menuItemId}-category`];
+        const rawMaterialsSource =
+          rawMaterialsData?.rawMaterials || r.menuItemRawMaterials || [];
+
+        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
+          dateTime: rm.dateTime || "",
+          eventFunctionId: activeFunction?.id || 0,
+          eventId: Number(eventId) || 0,
+          id: rm.id || 0,
+          menuItemId: r.menuItemId || 0,
+          partyId: rm.partyId || 0,
+          place: rm.place || "",
+          rate: rm.rate || 0,
+          rawMaterialId: rm.rawMaterialId || 0,
+          rawmaterial_rate: rm.rawmaterial_rate || 0,
+          rawmaterial_weight: rm.rawmaterial_weight || 0,
+          unitId: rm.unitId || 0,
+          weight: rm.weight || 0,
+        }));
+
+        return {
+          chefLabour: r.chefLabour || false,
+          eventFunctionId: activeFunction?.id || 0,
+          eventId: Number(eventId) || 0,
+          id: r.id || 0,
+          inside: r.inside || false,
+          instructions: r.instructions || "",
+          menuAllocationOrders,
+          menuCategoryId: r.menuCategoryId || 0,
+          menuItemId: r.menuItemId || 0,
+          menuItemRawMaterials,
+          outside: r.outside || false,
+          personCount: r.personCount || 0,
+          place: r.place || "venue",
+          userId: Id,
+        };
+      });
+
+      console.log("Final payload:", JSON.stringify(payload, null, 2));
+
+      const res = await MenuAllocationSave(payload);
+      if (res?.data?.success) {
+        Swal.fire({
+          title: "Saved Successfully!",
+          text: "Menu Allocation details have been saved.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving menu allocation:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to save menu allocation details.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const openMenuReport = (eventId) => {
@@ -729,7 +781,6 @@ const EventMenuAllocationPage = () => {
     setIsMenuReport(true);
   };
   function openSelectMenureport() {
-    console.log("🟢 Opening SelectMenureport for event:", eventId); // Debug log
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
   }
@@ -1005,6 +1056,7 @@ const EventMenuAllocationPage = () => {
               groups={orderSummaryGroups}
               loading={menuLoading}
               onItemClick={handleOrderSummaryItemClick}
+              pax={activeFunction?.pax || 0}
             />
           </div>
         </div>
@@ -1053,7 +1105,6 @@ const EventMenuAllocationPage = () => {
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
-            activeFunctionName = { activeFunctionName };
           }}
         />
       </Container>
