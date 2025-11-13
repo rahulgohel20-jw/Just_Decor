@@ -3,6 +3,8 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
+import { useParams } from "react-router-dom";
 
 import {
   GetAllRawMaterialAllocationCategory,
@@ -17,7 +19,6 @@ import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
 const RawMaterialAllocation = () => {
   const location = useLocation();
   const { eventId, eventTypeId } = location.state || {};
@@ -30,10 +31,12 @@ const RawMaterialAllocation = () => {
   const unitOptions = ["Kilogram", "Gram", "Litre", "NOS"];
   const [isRawSidebar, setIsRawSidebar] = useState();
   const [selectedRow, setSelectedRow] = useState(null);
-    const [menuReportEventId, setMenuReportEventId] = useState(null);
-      const [isMenuReport, setIsMenuReport] = useState(false);
+  const [menuReportEventId, setMenuReportEventId] = useState(null);
+  const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState(null);
 
-  const intl = useIntl(); 
+  const intl = useIntl();
 
   useEffect(() => {
     if (eventTypeId) {
@@ -93,44 +96,44 @@ const RawMaterialAllocation = () => {
   }, []);
 
   const fetchRawMaterialItems = async (categoryId) => {
-  setLoading(true);
-  try {
-    const response = await GetAllRawMaterialAllocationItems(
-      categoryId,
-      eventId
-    );
-    const items =
-      response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
-    console.log("Fetched items:", items);
+    setLoading(true);
+    try {
+      const response = await GetAllRawMaterialAllocationItems(
+        categoryId,
+        eventId
+      );
+      const items =
+        response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
+      console.log("Fetched items:", items);
 
-    if (Array.isArray(items)) {
-      const formatted = items.map((item, index) => ({
-        // ✅ FIX: Add proper IDs
-        id: item.id || index + 1,
-        rawMaterialId: item.rawMaterialId || item.id || 0,
-        material: item.rawMaterialNameEng || "N/A",
-        qty: item.qty || 0,
-        finalQty: item.finalQty || item.final_qty || item.qty || 0,
-        unit: item.unitName || item.unit || "Kilogram",
-        unitId: item.unitId || 1,
-        agency: item.supplierName || "-",
-        supplierId: item.supplierId || 0,
-        place: item.place || "NA",
-        date: item.date || "",
-        total: item.totalprice || 0,
-        eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
-      }));
-      setData(formatted);
-    } else {
+      if (Array.isArray(items)) {
+        const formatted = items.map((item, index) => ({
+          // ✅ FIX: Add proper IDs
+          id: item.id || index + 1,
+          rawMaterialId: item.rawMaterialId || item.id || 0,
+          material: item.rawMaterialNameEng || "N/A",
+          qty: item.qty || 0,
+          finalQty: item.finalQty || item.final_qty || item.qty || 0,
+          unit: item.unitName || item.unit || "Kilogram",
+          unitId: item.unitId || 1,
+          agency: item.supplierName || "-",
+          supplierId: item.supplierId || 0,
+          place: item.place || "NA",
+          date: item.date || "",
+          total: item.totalprice || 0,
+          eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
+        }));
+        setData(formatted);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching raw material items:", error);
       setData([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching raw material items:", error);
-    setData([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
@@ -139,107 +142,121 @@ const RawMaterialAllocation = () => {
   };
 
   const handleSave = async () => {
-  try {
-    if (!eventId) {
-      Swal.fire({
-        icon: "error",
-        title: "Missing Event ID",
-        text: "Event ID is required.",
-      });
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "No Data",
-        text: "There are no raw materials to save.",
-      });
-      return;
-    }
-
-    const payload = {
-      eventId: parseInt(eventId),
-      eventRawMaterial: data.map((item) => {
-        // Find supplier ID
-        const supplierId = agencies.find(
-          (a) => a.nameEnglish === item.agency || a.name === item.agency
-        )?.id || item.supplierId || 0;
-
-        // Map functions
-        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map((fn) => ({
-          eventFunctionId: fn.eventFunctionId || 0,
-          functionId: fn.functionId || 0,
-          functiondatetime: fn.functiondatetime || "",
-          itemName: fn.itemName || item.material || "",
-          place: fn.place || item.place || "",
-          price: parseFloat(fn.price) || 0,
-          qty: parseFloat(fn.qty) || 0,
-          supplierId: fn.supplierId || supplierId,
-          unitId: fn.unitId || item.unitId || 1,
-        }));
-
-        return {
-          eventRawMatFunctions: eventRawMatFunctions,
-          finalQty: parseFloat(item.finalQty) || 0,
-          place: item.place || "",
-          qty: parseFloat(item.qty) || 0,
-          rawMaterialId: item.rawMaterialId || 0,
-          supplierId: supplierId,
-          totalprice: parseFloat(item.total) || 0,
-          unitId: item.unitId || 1,
-        };
-      }),
-    };
-
-    console.log("=== SAVE PAYLOAD ===");
-    console.log(JSON.stringify(payload, null, 2));
-    console.log("===================");
-
-    const response = await RawMaterialallocation(payload);
-
-    console.log("=== API RESPONSE ===");
-    console.log(response);
-    console.log("===================");
-
-    if (response?.data?.success || response?.status === 200 || response?.status === 201) {
-      await Swal.fire({
-        icon: "success",
-        title: "Saved",
-        text: "Raw Material Allocation saved successfully!",
-      });
-      
-      // Refresh data
-      const currentTab = tabs.find(tab => tab.value === activeTab);
-      if (currentTab?.categoryId) {
-        await fetchRawMaterialItems(currentTab.categoryId);
+    try {
+      if (!eventId) {
+        Swal.fire({
+          icon: "error",
+          title: "Missing Event ID",
+          text: "Event ID is required.",
+        });
+        return;
       }
-    } else {
+
+      if (!data || data.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "No Data",
+          text: "There are no raw materials to save.",
+        });
+        return;
+      }
+
+      const payload = {
+        eventId: parseInt(eventId),
+        eventRawMaterial: data.map((item) => {
+          // Find supplier ID
+          const supplierId =
+            agencies.find(
+              (a) => a.nameEnglish === item.agency || a.name === item.agency
+            )?.id ||
+            item.supplierId ||
+            0;
+
+          // Map functions
+          const eventRawMatFunctions = (
+            item.eventRawMaterialFunctions || []
+          ).map((fn) => ({
+            eventFunctionId: fn.eventFunctionId || 0,
+            functionId: fn.functionId || 0,
+            functiondatetime: fn.functiondatetime || "",
+            itemName: fn.itemName || item.material || "",
+            place: fn.place || item.place || "",
+            price: parseFloat(fn.price) || 0,
+            qty: parseFloat(fn.qty) || 0,
+            supplierId: fn.supplierId || supplierId,
+            unitId: fn.unitId || item.unitId || 1,
+          }));
+
+          return {
+            eventRawMatFunctions: eventRawMatFunctions,
+            finalQty: parseFloat(item.finalQty) || 0,
+            place: item.place || "",
+            qty: parseFloat(item.qty) || 0,
+            rawMaterialId: item.rawMaterialId || 0,
+            supplierId: supplierId,
+            totalprice: parseFloat(item.total) || 0,
+            unitId: item.unitId || 1,
+          };
+        }),
+      };
+
+      console.log("=== SAVE PAYLOAD ===");
+      console.log(JSON.stringify(payload, null, 2));
+      console.log("===================");
+
+      const response = await RawMaterialallocation(payload);
+
+      console.log("=== API RESPONSE ===");
+      console.log(response);
+      console.log("===================");
+
+      if (
+        response?.data?.success ||
+        response?.status === 200 ||
+        response?.status === 201
+      ) {
+        await Swal.fire({
+          icon: "success",
+          title: "Saved",
+          text: "Raw Material Allocation saved successfully!",
+        });
+
+        // Refresh data
+        const currentTab = tabs.find((tab) => tab.value === activeTab);
+        if (currentTab?.categoryId) {
+          await fetchRawMaterialItems(currentTab.categoryId);
+        }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Save Failed",
+          text: response?.data?.message || "Something went wrong.",
+        });
+      }
+    } catch (error) {
+      console.error("=== ERROR SAVING ===");
+      console.error(error);
+      console.error("===================");
+
       Swal.fire({
         icon: "error",
-        title: "Save Failed",
-        text: response?.data?.message || "Something went wrong.",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "An error occurred while saving data.",
       });
     }
-  } catch (error) {
-    console.error("=== ERROR SAVING ===");
-    console.error(error);
-    console.error("===================");
-    
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error?.response?.data?.message || 
-            error?.message || 
-            "An error occurred while saving data.",
-    });
-  }
-};
- const openMenuReport = (eventId) => {
+  };
+  const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
-
+  function openSelectMenureport() {
+    console.log("🟢 Opening SelectMenureport for event:", eventId); // Debug log
+    setMenuReportEventId(eventId);
+    setIsSelectMenuReport(true);
+  }
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -287,15 +304,29 @@ const RawMaterialAllocation = () => {
         <table className="min-w-full text-sm text-gray-700">
           <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
             <tr>
-              <th className="px-4 py-3 text-left"><FormattedMessage id="SIDEBAR_MODAL.RAW_MATERIAL" defaultMessage="Raw Material" /></th>
               <th className="px-4 py-3 text-left">
-                <FormattedMessage id="SIDEBAR_MODAL.AGENCY" defaultMessage="Agency" />
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.RAW_MATERIAL"
+                  defaultMessage="Raw Material"
+                />
               </th>
               <th className="px-4 py-3 text-left">
-                <FormattedMessage id="SIDEBAR_MODAL.PLACE" defaultMessage="Place" />
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.AGENCY"
+                  defaultMessage="Agency"
+                />
               </th>
               <th className="px-4 py-3 text-left">
-                <FormattedMessage id="SIDEBAR_MODAL.DATE" defaultMessage="Date & Time" />
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.PLACE"
+                  defaultMessage="Place"
+                />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.DATE"
+                  defaultMessage="Date & Time"
+                />
               </th>
             </tr>
           </thead>
@@ -303,7 +334,10 @@ const RawMaterialAllocation = () => {
             {data.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center py-4 text-gray-500">
-                  <FormattedMessage id="COMMON.NO_DATA" defaultMessage="No materials found" />
+                  <FormattedMessage
+                    id="COMMON.NO_DATA"
+                    defaultMessage="No materials found"
+                  />
                 </td>
               </tr>
             ) : (
@@ -355,32 +389,34 @@ const RawMaterialAllocation = () => {
     setIsRawSidebar(true);
   };
   const handleSaveFromSidebar = (updatedRow) => {
-  console.log("Saving from sidebar:", updatedRow);
-  
-  const updatedData = data.map((item) => {
-    if (item.id === updatedRow.id || item.rawMaterialId === updatedRow.rawMaterialId) {
-      return {
-        ...item,
-        ...updatedRow,
-        // Ensure these fields are preserved
-        rawMaterialId: item.rawMaterialId,
-        id: item.id,
-      };
-    }
-    return item;
-  });
-  
-  setData(updatedData);
-  
-  
-  Swal.fire({
-    icon: "success",
-    title: "Updated",
-    text: "Row updated successfully. Don't forget to click the main Save button!",
-    timer: 2000,
-    showConfirmButton: false,
-  });
-};
+    console.log("Saving from sidebar:", updatedRow);
+
+    const updatedData = data.map((item) => {
+      if (
+        item.id === updatedRow.id ||
+        item.rawMaterialId === updatedRow.rawMaterialId
+      ) {
+        return {
+          ...item,
+          ...updatedRow,
+          // Ensure these fields are preserved
+          rawMaterialId: item.rawMaterialId,
+          id: item.id,
+        };
+      }
+      return item;
+    });
+
+    setData(updatedData);
+
+    Swal.fire({
+      icon: "success",
+      title: "Updated",
+      text: "Row updated successfully. Don't forget to click the main Save button!",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
   const totalPrice = data.reduce(
     (acc, item) => acc + Number(item.total || 0),
     0
@@ -390,7 +426,18 @@ const RawMaterialAllocation = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="SIDEBAR_MODAL.RAW_MATERIAL_ALLOCATION" defaultMessage="Raw Material Allocation" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.RAW_MATERIAL_ALLOCATION"
+                    defaultMessage="Raw Material Allocation"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         <div className="card bg-white mb-3">
@@ -399,7 +446,12 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs"><FormattedMessage id="COMMON.EVENT_ID" defaultMessage="Event ID:" /></span>
+                  <span className="text-xs">
+                    <FormattedMessage
+                      id="COMMON.EVENT_ID"
+                      defaultMessage="Event ID:"
+                    />
+                  </span>
                   <span className="text-sm font-medium text-gray-900">
                     Ev001
                   </span>
@@ -409,7 +461,12 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-user text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs"><FormattedMessage id="COMMON.PARTY_NAME" defaultMessage="Party Name:" /></span>
+                  <span className="text-xs">
+                    <FormattedMessage
+                      id="COMMON.PARTY_NAME"
+                      defaultMessage="Party Name:"
+                    />
+                  </span>
                   <span className="text-sm font-medium text-gray-900">
                     Vivek
                   </span>
@@ -419,7 +476,12 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-geolocation-home text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs"><FormattedMessage id="COMMON.EVENT_NAME" defaultMessage="Event Name:" /></span>
+                  <span className="text-xs">
+                    <FormattedMessage
+                      id="COMMON.EVENT_NAME"
+                      defaultMessage="Event Name:"
+                    />
+                  </span>
                   <span className="text-sm font-medium text-gray-900">
                     Wedding
                   </span>
@@ -429,7 +491,12 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs"><FormattedMessage id="RAW_MATERIAL_ALLOCATION.EVENT_VENUE" defaultMessage="Event Venue" /> </span>
+                  <span className="text-xs">
+                    <FormattedMessage
+                      id="RAW_MATERIAL_ALLOCATION.EVENT_VENUE"
+                      defaultMessage="Event Venue"
+                    />{" "}
+                  </span>
                   <span className="text-sm font-medium text-gray-900">
                     Ahmedabad
                   </span>
@@ -439,7 +506,12 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs"><FormattedMessage id="RAW_MATERIAL_ALLOCATION.EVENT_DATE_TIME" defaultMessage="Event Date & Time:" /></span>
+                  <span className="text-xs">
+                    <FormattedMessage
+                      id="RAW_MATERIAL_ALLOCATION.EVENT_DATE_TIME"
+                      defaultMessage="Event Date & Time:"
+                    />
+                  </span>
                   <span className="text-sm font-medium text-gray-900">
                     10/10/2025 10:00AM
                   </span>
@@ -448,11 +520,13 @@ const RawMaterialAllocation = () => {
             </div>
 
             <div className="flex flex-row items-end gap-2">
-              <button  onClick={openMenuReport} 
+              <button
+                onClick={openSelectMenureport}
                 className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
-                title="Report">
-                  Report
-                </button>
+                title="Report"
+              >
+                Report
+              </button>
               <button
                 className="bg-primary text-white text-sm px-5 py-2 rounded-md transition"
                 title="Save"
@@ -465,7 +539,12 @@ const RawMaterialAllocation = () => {
 
         <div className="flex flex-wrap mb-3 border-gray-200 gap-1 rounded-lg">
           {tabs.length === 0 ? (
-            <p className="text-gray-500 text-sm px-3"><FormattedMessage id="RAW_MATERIAL_ALLOCATION.NO_CATEGORY_FOUND" defaultMessage="No categories found" /></p>
+            <p className="text-gray-500 text-sm px-3">
+              <FormattedMessage
+                id="RAW_MATERIAL_ALLOCATION.NO_CATEGORY_FOUND"
+                defaultMessage="No categories found"
+              />
+            </p>
           ) : (
             tabs.map((tab) => (
               <button
@@ -492,7 +571,10 @@ const RawMaterialAllocation = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "COMMON.SEARCH", defaultMessage: "Search..." })}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.SEARCH",
+                  defaultMessage: "Search...",
+                })}
                 type="text"
               />
             </div>
@@ -501,7 +583,10 @@ const RawMaterialAllocation = () => {
             className="bg-primary text-white text-sm px-4 py-2 rounded-lg"
             onClick={handleModalOpen}
           >
-            <FormattedMessage id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE" defaultMessage="+ Agency, Place & Date Allocation" />
+            <FormattedMessage
+              id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE"
+              defaultMessage="+ Agency, Place & Date Allocation"
+            />
           </button>
         </div>
 
@@ -510,15 +595,33 @@ const RawMaterialAllocation = () => {
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
               <tr>
                 {[
-                  <FormattedMessage id="RAW_MATERIAL_ALLOCATION.ID" defaultMessage="ID" />,
-                  <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />,
+                  <FormattedMessage
+                    id="RAW_MATERIAL_ALLOCATION.ID"
+                    defaultMessage="ID"
+                  />,
+                  <FormattedMessage
+                    id="COMMON.RAW_MATERIAL"
+                    defaultMessage="Raw Material"
+                  />,
                   <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />,
-                  <FormattedMessage id="COMMON.FINAL_QTY" defaultMessage="Final Qty" />,
+                  <FormattedMessage
+                    id="COMMON.FINAL_QTY"
+                    defaultMessage="Final Qty"
+                  />,
                   <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
-                  <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />,
+                  <FormattedMessage
+                    id="COMMON.AGENCY"
+                    defaultMessage="Agency"
+                  />,
                   <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />,
-                  <FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" />,
-                  <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
+                  <FormattedMessage
+                    id="COMMON.TOTAL_PRICE"
+                    defaultMessage="Total Price"
+                  />,
+                  <FormattedMessage
+                    id="COMMON.ACTIONS"
+                    defaultMessage="Action"
+                  />,
                 ].map((head, i) => (
                   <th key={i} className="px-4 py-3 text-left whitespace-nowrap">
                     {head}
@@ -530,13 +633,19 @@ const RawMaterialAllocation = () => {
               {loading ? (
                 <tr>
                   <td colSpan="9" className="text-center py-4">
-                    <FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." />
+                    <FormattedMessage
+                      id="SIDEBAR_MODAL.LOADING"
+                      defaultMessage="Loading..."
+                    />
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="text-center py-4 text-gray-500">
-                    <FormattedMessage id="COMMON.NO_MATERIAL_FOUND" defaultMessage="No materials found" />
+                    <FormattedMessage
+                      id="COMMON.NO_MATERIAL_FOUND"
+                      defaultMessage="No materials found"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -594,7 +703,10 @@ const RawMaterialAllocation = () => {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 py-4 border-t border-gray-200 bg-gray-50">
             <div className="text-sm font-medium text-gray-800">
-              <FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" />{" "}
+              <FormattedMessage
+                id="COMMON.TOTAL_PRICE"
+                defaultMessage="Total Price"
+              />{" "}
               <span className="font-semibold text-blue-700">
                 {totalPrice.toFixed(2)}
               </span>
@@ -625,11 +737,21 @@ const RawMaterialAllocation = () => {
           selectedRow={selectedRow}
           onSave={handleSaveFromSidebar}
         />
-         <MenuReport
-                          isModalOpen={isMenuReport}
-                          setIsModalOpen={setIsMenuReport}
-                          eventId={menuReportEventId}
-                        />
+        <MenuReport
+          isModalOpen={isMenuReport}
+          setIsModalOpen={setIsMenuReport}
+          eventId={menuReportEventId}
+        />
+        <SelectMenureport
+          isSelectMenureport={isSelectMenureport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
+          onConfirm={(reportType) => {
+            console.log("✅ SelectMenureport confirmed with:", reportType); // 👈 Debug log
+            setIsSelectMenuReport(false);
+            setSelectedReportType(reportType);
+            setIsMenuReport(true);
+          }}
+        />
       </Container>
     </Fragment>
   );

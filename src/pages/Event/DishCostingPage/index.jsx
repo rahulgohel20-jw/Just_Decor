@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
@@ -10,6 +10,7 @@ import {
   GetEventMasterById,
   GetDishCostingByEventFunction,
 } from "@/services/apiServices";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 
 const DishCostingPage = () => {
   const classes = useStyles();
@@ -25,11 +26,21 @@ const DishCostingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
+  const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
 
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+
+  const openSelectMenureport = useCallback(() => {
+    setMenuReportEventId(eventId);
+    setIsSelectMenuReport(true);
+  });
+  const grandTotal =
+    (dishCostingData?.rawmaterialcharge || 0) +
+    (dishCostingData?.outsideagencycharge || 0) +
+    (dishCostingData?.extraexpensecharge || 0);
 
   const intl = useIntl();
 
@@ -298,7 +309,7 @@ const DishCostingPage = () => {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={openMenuReport}
+                  onClick={openSelectMenureport}
                   className="btn btn-light btn-sm"
                 >
                   <i className="ki-filled ki-document"></i>{" "}
@@ -394,7 +405,7 @@ const DishCostingPage = () => {
                   <FormattedMessage
                     id="COMMON.TOTAL_GENERAL_FIX_CHARGES"
                     defaultMessage="
- Total Extra Expense"
+                    Total Extra Expense"
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
@@ -430,7 +441,12 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-blue-500">
-                  ₹ 2,299,274.00
+                  ₹{" "}
+                  {(
+                    (dishCostingData?.rawmaterialcharge || 0) +
+                    (dishCostingData?.outsideagencycharge || 0) +
+                    (dishCostingData?.extraexpensecharge || 0)
+                  ).toLocaleString()}{" "}
                 </div>
               </div>
 
@@ -458,6 +474,15 @@ const DishCostingPage = () => {
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
+        />
+        <SelectMenureport
+          isSelectMenureport={isSelectMenureport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
+          onConfirm={() => {
+            setIsSelectMenuReport(false);
+            setIsMenuReport(true);
+            activeFunctionName = { activeFunctionName };
+          }}
         />
       </Container>
     </Fragment>
