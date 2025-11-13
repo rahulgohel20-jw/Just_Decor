@@ -307,8 +307,6 @@ const EventMenuAllocationPage = () => {
   const [menuLoading, setMenuLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [allocationData, setAllocationData] = useState({});
-  const [orderItemPrice, setOrderItemPrice] = useState();
-  const [itemPrices, setItemPrices] = useState({});
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
 
@@ -319,7 +317,7 @@ const EventMenuAllocationPage = () => {
       try {
         setLoading(true);
         const res = await GetEventMasterById(eventId);
-        console.log(res, "data");
+        console.log(res, "Event Details Response");
 
         if (res?.data?.data && res.data.data["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
@@ -341,60 +339,8 @@ const EventMenuAllocationPage = () => {
 
     if (eventId) {
       FetchEventDetails();
-      Fetchitems();
     }
   }, [eventId]);
-
-  useEffect(() => {
-    if (
-      orderSummaryGroups.length > 0 &&
-      orderSummaryGroups[0].items.length > 0
-    ) {
-      Fetchitems(orderSummaryGroups[0].items[0], orderSummaryGroups[0]);
-    }
-  }, [orderSummaryGroups]);
-
-  const Fetchitems = async (item, group) => {
-    try {
-      if (!item) {
-        console.warn("No item passed to Fetchitems");
-        return;
-      }
-
-      const eventFunctionId = activeFunction?.id;
-      const isFromNewTable = item.isFromNewTable || false;
-      const menuItemId = item.menuItemId || item.id;
-
-      const res = await SelectedItemNameMenuAllocation(
-        eventFunctionId,
-        isFromNewTable,
-        menuItemId
-      );
-      console.log(res, "data");
-
-      if (res?.data?.success) {
-        const rawMaterials =
-          res.data.data["MenuItem RawMaterial Details"] || [];
-        console.log(rawMaterials);
-
-        const baseRate = rawMaterials.reduce((sum, material) => {
-          return sum + (material.rate || 0);
-        }, 0);
-
-        setItemPrices((prev) => ({
-          ...prev,
-          [`${menuItemId}`]: {
-            baseRate: baseRate,
-            additionalPrice: prev[`${menuItemId}`]?.additionalPrice || 0,
-          },
-        }));
-      } else {
-        console.warn("No data returned from SelectedItemNameMenuAllocation");
-      }
-    } catch (error) {
-      console.error("Error fetching item data:", error);
-    }
-  };
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
@@ -425,8 +371,6 @@ const EventMenuAllocationPage = () => {
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
-      console.log(eventFunctionId, "data dtaa ");
-
       const menudata = await GetMenuAllocation(eventId, eventFunctionId);
 
       if (
@@ -434,8 +378,8 @@ const EventMenuAllocationPage = () => {
         menudata.data.data["Menu Allocation Details"]?.length > 0
       ) {
         const menuDetails = menudata.data.data["Menu Allocation Details"][0];
-        console.log(menuDetails, "menbu");
 
+        // Transform menu allocation data for left-side table
         const transformedRows =
           menuDetails.menuAllocation?.map((item) => ({
             key: `${item.menuItemId}-${item.menuCategoryId}`,
@@ -458,39 +402,31 @@ const EventMenuAllocationPage = () => {
 
         setRows(transformedRows);
 
-        console.log("Transformed Rows:", transformedRows);
-
-        // Calculate combined prices for Order Summary items
+        // Transform order summary data for right-side panel
+        // ✅ IMPORTANT: Store original prices from API
         const summaryGroups =
           menuDetails.selectedItemDetails?.map((category) => ({
             categoryId: category.menuCategoryId,
             categoryName: category.menuCategoryName,
             items:
-              category.selectedMenuPreparationItems?.map((summaryItem) => {
-                // Find matching row from menuAllocation
-                const matchingRow = transformedRows.find(
-                  (row) => row.menuItemId === summaryItem.menuItemId
-                );
-
-                // Calculate total from eventFunctionMenuAllocations
-                const allocationTotal =
-                  matchingRow?.eventFunctionMenuAllocations?.reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
-                  ) || 0;
-
-                // Combine both prices
-                const combinedTotalPrice =
-                  (summaryItem.totalPrice || 0) + allocationTotal;
-
-                return {
-                  ...summaryItem,
-                  totalPrice: combinedTotalPrice,
-                };
-              }) || [],
+              category.selectedMenuPreparationItems?.map((summaryItem) => ({
+                ...summaryItem,
+                originalTotalPrice: summaryItem.totalPrice, // ✅ Store original API price
+                totalPrice: summaryItem.totalPrice, // This will be updated dynamically
+              })) || [],
           })) || [];
 
         setOrderSummaryGroups(summaryGroups);
+
+        // ✅ Calculate initial prices after data is loaded
+        // Use setTimeout to ensure state is updated before calculation
+        setTimeout(() => {
+          summaryGroups.forEach((group) => {
+            group.items.forEach((item) => {
+              updateOrderSummaryPrices(item.menuItemId, transformedRows);
+            });
+          });
+        }, 0);
       } else {
         setRows([]);
         setOrderSummaryGroups([]);
@@ -503,107 +439,21 @@ const EventMenuAllocationPage = () => {
       setMenuLoading(false);
     }
   };
-
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
     fetchMenuAllocation(functionItem.id);
   };
-
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
         x.key === updated.key ? updated : x
       );
 
-      // Update order summary prices whenever any checkbox changes
-      updateOrderSummaryPricesWithRows(updated.menuItemId, updatedRows);
+      // ✅ Trigger price recalculation with updated rows
+      updateOrderSummaryPrices(updated.menuItemId, updatedRows);
 
       return updatedRows;
     });
-  };
-
-  const updateOrderSummaryPricesWithRows = (menuItemId, currentRows) => {
-    setOrderSummaryGroups((prevGroups) =>
-      prevGroups.map((group) => ({
-        ...group,
-        items: group.items.map((item) => {
-          if (item.menuItemId === menuItemId) {
-            // Find matching row from the provided currentRows
-            const matchingRow = currentRows.find(
-              (row) => row.menuItemId === menuItemId
-            );
-
-            if (matchingRow) {
-              // Get original price from item (base price from API)
-              const originalPrice =
-                item.originalTotalPrice || item.totalPrice || 0;
-
-              // Store original price if not stored yet
-              if (!item.originalTotalPrice) {
-                item.originalTotalPrice = item.totalPrice || 0;
-              }
-
-              let additionalCost = 0;
-
-              // Calculate based on what's checked
-              if (matchingRow.outside) {
-                // Add outside allocation costs
-                const outsideTotal =
-                  matchingRow.eventFunctionMenuAllocations
-                    ?.filter((a) => a.isOutside)
-                    .reduce(
-                      (sum, allocation) => sum + (allocation.totalPrice || 0),
-                      0
-                    ) || 0;
-
-                additionalCost += outsideTotal;
-                console.log("Outside checked - Adding:", outsideTotal);
-              }
-
-              if (matchingRow.chefLabour) {
-                // Add chef labour allocation costs
-                const chefLabourTotal =
-                  matchingRow.eventFunctionMenuAllocations
-                    ?.filter((a) => a.isChefLabour)
-                    .reduce(
-                      (sum, allocation) => sum + (allocation.totalPrice || 0),
-                      0
-                    ) || 0;
-
-                additionalCost += chefLabourTotal;
-                console.log("Chef Labour checked - Adding:", chefLabourTotal);
-              }
-
-              if (matchingRow.inside) {
-                // Inside adds 0 (or you can add custom logic here if needed)
-                additionalCost += 0;
-                console.log("Inside checked - Adding: 0");
-              }
-
-              const combinedTotal = originalPrice + additionalCost;
-
-              console.log("Final Price Calculation:", {
-                menuItemId,
-                originalPrice,
-                additionalCost,
-                combinedTotal,
-                checkboxes: {
-                  outside: matchingRow.outside,
-                  chefLabour: matchingRow.chefLabour,
-                  inside: matchingRow.inside,
-                },
-              });
-
-              return {
-                ...item,
-                totalPrice: combinedTotal,
-              };
-            }
-          }
-          return item;
-        }),
-      }))
-    );
   };
 
   const handleAdjustPerson = () => {
@@ -646,15 +496,93 @@ const EventMenuAllocationPage = () => {
     [rows, eventId, activeFunction]
   );
 
-  if (loading) {
-    return (
-      <Container>
-        <div className="flex items-center justify-center h-64">
-          <Spin size="large" />
-        </div>
-      </Container>
+  const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
+    setOrderSummaryGroups((prevGroups) =>
+      prevGroups.map((group) => ({
+        ...group,
+        items: group.items.map((item) => {
+          // Only update the specific item that changed
+          if (item.menuItemId === menuItemId) {
+            // Find matching row from left-side table
+            const matchingRow = currentRows.find(
+              (row) => row.menuItemId === menuItemId
+            );
+
+            if (matchingRow) {
+              console.log(`\n[${item.menuItemName}] Starting Calculation:`, {
+                originalBasePrice: item.originalTotalPrice,
+                checkboxStates: {
+                  outside: matchingRow.outside,
+                  chefLabour: matchingRow.chefLabour,
+                  inside: matchingRow.inside,
+                },
+              });
+
+              // ✅✅✅ CRITICAL FIX: If "Inside" is checked, total price = 0
+              if (matchingRow.inside) {
+                console.log(
+                  `[${item.menuItemName}] 🔵 INSIDE checked → Total Price = ₹0`
+                );
+                return {
+                  ...item,
+                  totalPrice: 0, // ✅ INSIDE means everything is 0
+                };
+              }
+
+              // ✅ Use original price from API as base (only if NOT inside)
+              const basePrice = item.originalTotalPrice || 0;
+              let additionalCost = 0;
+
+              // ✅ Add Outside costs if checkbox is checked
+              if (matchingRow.outside) {
+                const outsideTotal =
+                  matchingRow.eventFunctionMenuAllocations
+                    ?.filter((a) => a.isOutside)
+                    .reduce(
+                      (sum, allocation) => sum + (allocation.totalPrice || 0),
+                      0
+                    ) || 0;
+                additionalCost += outsideTotal;
+                console.log(
+                  `[${item.menuItemName}] 🟢 Outside: ₹${outsideTotal}`
+                );
+              }
+
+              // ✅ Add Chef Labour costs if checkbox is checked
+              if (matchingRow.chefLabour) {
+                const chefLabourTotal =
+                  matchingRow.eventFunctionMenuAllocations
+                    ?.filter((a) => a.isChefLabour)
+                    .reduce(
+                      (sum, allocation) => sum + (allocation.totalPrice || 0),
+                      0
+                    ) || 0;
+                additionalCost += chefLabourTotal;
+                console.log(
+                  `[${item.menuItemName}] 🟡 Chef Labour: ₹${chefLabourTotal}`
+                );
+              }
+
+              const finalPrice = basePrice + additionalCost;
+
+              console.log(`[${item.menuItemName}] ✅ Final Result:`, {
+                basePrice,
+                additionalCost,
+                finalPrice,
+                formula: `${basePrice} + ${additionalCost} = ${finalPrice}`,
+              });
+
+              return {
+                ...item,
+                totalPrice: finalPrice,
+              };
+            }
+          }
+          return item;
+        }),
+      }))
     );
-  }
+  };
 
   const handleOutsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -662,19 +590,21 @@ const EventMenuAllocationPage = () => {
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-outside`]: saveData,
     }));
 
-    // Update rows first
     setRows((prevRows) => {
       const updatedRows = prevRows.map((r) => {
         if (
           r.menuItemId === saveData.menuItemId &&
           r.menuCategoryId === saveData.menuCategoryId
         ) {
+          // ✅ Update allocations array with new outside data
           return {
             ...r,
             eventFunctionMenuAllocations: [
+              // Keep non-outside allocations
               ...(r.eventFunctionMenuAllocations || []).filter(
                 (a) => !a.isOutside
               ),
+              // Add new outside allocations
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isOutside: true,
@@ -685,11 +615,14 @@ const EventMenuAllocationPage = () => {
         return r;
       });
 
-      // Update order summary with the new rows
-      updateOrderSummaryPricesWithRows(saveData.menuItemId, updatedRows);
+      // ✅ Update prices immediately after state update
+      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
 
       return updatedRows;
     });
+
+    // Close the modal
+    setOpen(false);
   };
 
   const handleChefLabourSave = (saveData) => {
@@ -704,12 +637,15 @@ const EventMenuAllocationPage = () => {
           r.menuItemId === saveData.menuItemId &&
           r.menuCategoryId === saveData.menuCategoryId
         ) {
+          // ✅ Update allocations array with new chef labour data
           return {
             ...r,
             eventFunctionMenuAllocations: [
+              // Keep non-chef allocations
               ...(r.eventFunctionMenuAllocations || []).filter(
                 (a) => !a.isChefLabour
               ),
+              // Add new chef labour allocations
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isChefLabour: true,
@@ -720,11 +656,14 @@ const EventMenuAllocationPage = () => {
         return r;
       });
 
-      // Update order summary with the new rows
-      updateOrderSummaryPricesWithRows(saveData.menuItemId, updatedRows);
+      // ✅ Update prices immediately after state update
+      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
 
       return updatedRows;
     });
+
+    // Close the modal
+    setIsChefModal(false);
   };
 
   const handleCategorySave = (saveData) => {
@@ -734,62 +673,17 @@ const EventMenuAllocationPage = () => {
     }));
   };
 
-  const updateOrderSummaryPrices = (menuItemId) => {
-    setOrderSummaryGroups((prevGroups) =>
-      prevGroups.map((group) => ({
-        ...group,
-        items: group.items.map((item) => {
-          if (item.menuItemId === menuItemId) {
-            const matchingRow = rows.find(
-              (row) => row.menuItemId === menuItemId
-            );
-
-            if (matchingRow) {
-              const outsideTotal =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isOutside)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
-                  ) || 0;
-
-              console.log(outsideTotal);
-
-              const chefLabourTotal =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isChefLabour)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
-                  ) || 0;
-
-              const insideTotal = matchingRow.inside ? 0 : 0;
-
-              const originalPrice = item.totalPrice || 0;
-
-              const combinedTotal =
-                originalPrice + outsideTotal + chefLabourTotal + insideTotal;
-
-              console.log(
-                originalPrice,
-                outsideTotal,
-                chefLabourTotal,
-                insideTotal
-              );
-
-              return {
-                ...item,
-                totalPrice: combinedTotal,
-              };
-            }
-          }
-          return item;
-        }),
-      }))
+  if (loading) {
+    return (
+      <Container>
+        <div className="flex items-center justify-center h-64">
+          <Spin size="large" />
+        </div>
+      </Container>
     );
-  };
-
+  }
   const handleMainSave = async () => {
+    // Uncomment and implement when ready
     // try {
     //   let userData = JSON.parse(localStorage.getItem("userData"));
     //   let Id = userData.id;
@@ -813,7 +707,6 @@ const EventMenuAllocationPage = () => {
     //     userId: Id,
     //   }));
     //   console.log("Final payload:", payload);
-    //   // Call your save API
     //   const res = await MenuAllocationSave(payload);
     //   if (res?.data?.success) {
     //     Swal.fire({
@@ -823,22 +716,9 @@ const EventMenuAllocationPage = () => {
     //       confirmButtonColor: "#3085d6",
     //       confirmButtonText: "OK",
     //     });
-    //   } else {
-    //     Swal.fire({
-    //       title: "Save Failed",
-    //       text: res?.data?.message || "Unexpected response from server.",
-    //       icon: "error",
-    //       confirmButtonColor: "#d33",
-    //     });
     //   }
     // } catch (error) {
     //   console.error("Error saving menu allocation:", error);
-    //   Swal.fire({
-    //     title: "Error",
-    //     text: error?.message || "An unexpected error occurred.",
-    //     icon: "error",
-    //     confirmButtonColor: "#d33",
-    //   });
     // }
   };
 
