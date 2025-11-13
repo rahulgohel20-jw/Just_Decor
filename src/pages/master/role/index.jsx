@@ -146,12 +146,11 @@ const RoleMaster = () => {
 
         {/* Modal */}
         <AddRole
-          isOpen={isRoleModalOpen}
-          selectedRole={selectedRole}
-          paginationSize={10}
-          refreshData={fetchRoles}
-          onClose={setIsRoleModalOpen}
-        />
+  isModalOpen={isRoleModalOpen}  // ✅ Changed from isOpen
+  setIsModalOpen={setIsRoleModalOpen}  // ✅ Changed from onClose
+  editData={selectedRole}  // ✅ Changed from selectedRole
+  successFunction={fetchRoles}  // ✅ Changed from refreshData
+/>
 
         {/* Table */}
         <TableComponent

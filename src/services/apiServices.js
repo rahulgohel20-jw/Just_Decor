@@ -4,7 +4,7 @@ export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
 export const GetMenuCategoryByUserIdmenuitem = (userId) => {
-  return GET(`/menucategory/getallbyuserid?userid=${userId}`); 
+  return GET(`/menucategory/getallbyuserid?userid=${userId}`);
 };
 
 // Create Role
@@ -65,6 +65,13 @@ export const fetchCitiesByState = (stateId, cityName = "") =>
 export const LoginUser = (data) => {
   return POST("/auth/login", data);
 };
+
+export const LoginOutUser = (email, eventtype) => {
+  return GET(`/user-logs/logout-notification?email=${email}&eventType=${eventtype}`);
+};
+
+
+
 //GET All customer
 export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
@@ -816,7 +823,7 @@ export const CreatePaymentOrder = (data) => {
 export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
   return GET(`/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`);
 };
-  
+
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
   return GET(
     `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
@@ -836,4 +843,19 @@ export const GetAllDb = () => {
 
 export const GetUserlogs = (data) => {
   return GET(`/user-logs/getUserLogs/${data}`);
+};
+
+
+
+// Super Admin Invoice
+
+export const SuperAdminAddInvoice = (data) => {
+  return POST(`/invoice-operations/addInvoice`, data);
+};
+
+
+// Subscription API
+
+export const SubscriptionByUser = (id) => {
+  return GET(`userplanshistory/getplanhistorybyuser?userId=${id}`);
 };
