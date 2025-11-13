@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { message, Spin, Input } from "antd";
-import { Link } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -8,6 +7,7 @@ import { getColumns } from "./constant";
 import DatabaseSidebar from "../databasesidebar";
 import DatabaseAssign from "../databaseassign";
 import AddMasterDatabaseFile from "../addmasterdatabasefile";
+import ViewAssignDatabase from "../viewassigndatabase";
 import { GetAllDb } from "@/services/apiServices";
 
 const Database = () => {
@@ -17,6 +17,7 @@ const Database = () => {
   const [customerDatabase, setCustomerDatabase] = useState(false);
   const [openFile, setOpenFile] = useState(false);
   const [tabledata, setTabledata] = useState([]);
+  const [viewAssignOpen, setViewAssignOpen] = useState(false);
 
   useEffect(() => {
     FetchAllDb();
@@ -37,7 +38,7 @@ const Database = () => {
         sr_no: index + 1,
         database_name: db.dbName || "",
         state: db.state || "",
-        version: db.version || "",
+        version: db.version || "1.0",
       }));
 
       setTabledata(data);
@@ -77,14 +78,30 @@ const Database = () => {
     setOpenFile(false);
   };
 
-  const columns = getColumns(handleOpenSidebar, handleOpenCustomer);
+  const handleOpenViewAssign = () => {
+    setViewAssignOpen(true);
+  };
+
+  const handleCloseViewAssign = () => {
+    setViewAssignOpen(false);
+  };
+
+  const handleViewDatabase = (row) => {
+    setSelectedRow(row);
+    setViewAssignOpen(true);
+  };
+
+  const columns = getColumns(
+    handleOpenSidebar,
+    handleOpenCustomer,
+    handleViewDatabase
+  );
 
   return (
     <Container>
       <div className="gap-2 pb-2 mb-3">
         <Breadcrumbs items={[{ title: "Master Database" }]} />
       </div>
-
       <div className="flex items-center justify-between mb-4">
         <Input.Search
           placeholder="Search users..."
@@ -92,14 +109,22 @@ const Database = () => {
           style={{ width: 250 }}
         />
 
-        <button
-          className="btn btn-primary flex items-center gap-1"
-          onClick={handleOpenFile}
-        >
-          <i className="ki-filled ki-plus"></i> Add Database
-        </button>
-      </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="btn btn-outline-secondary"
+            onClick={handleOpenViewAssign}
+          >
+            View Assigned
+          </button>
 
+          <button
+            className="btn btn-primary flex items-center gap-1"
+            onClick={handleOpenFile}
+          >
+            <i className="ki-filled ki-plus"></i> Add Database
+          </button>
+        </div>
+      </div>
       {loading ? (
         <Spin tip="Loading..." />
       ) : (
@@ -109,10 +134,13 @@ const Database = () => {
           paginationSize={10}
         />
       )}
-
       <DatabaseSidebar open={sidebarOpen} onClose={handleCloseSidebar} />
       <DatabaseAssign open={customerDatabase} onClose={handleCloseCustomer} />
       <AddMasterDatabaseFile open={openFile} onClose={handleCloseFile} />
+      <ViewAssignDatabase
+        open={viewAssignOpen}
+        onClose={handleCloseViewAssign}
+      />
     </Container>
   );
 };
