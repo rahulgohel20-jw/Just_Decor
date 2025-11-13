@@ -438,7 +438,7 @@ const superAdminMenuItems = [
         defaultMessage="Invoice List"
       />
     ),
-    icon: "ki-filled ki-user text-primary",
+    icon: "ki-filled ki-minus-folder text-primary",
     path: "/admin-invoice",
   },
   {
@@ -448,17 +448,17 @@ const superAdminMenuItems = [
         defaultMessage="Custom Themes"
       />
     ),
-    icon: "element-11 text-primary",
+    icon: "ki-filled ki-color-swatch text-primary",
     path: "/super-reportcustomethemes",
   },
   {
     title: "Plans",
-    icon: "element-11 text-primary",
+    icon: "ki-filled ki-crown text-primary",
     path: "/plans",
   },
   {
     title: "Database",
-    icon: "element-11 text-primary",
+    icon: "ki-filled ki-abstract-26 text-primary",
     path: "/database",
   },
   {
@@ -468,7 +468,7 @@ const superAdminMenuItems = [
         defaultMessage="Renewal Customer"
       />
     ),
-    icon: "element-11 text-primary",
+    icon: "ki-filled ki-users text-primary",
     path: "/renewal-history",
   },
 ];
