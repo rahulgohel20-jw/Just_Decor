@@ -185,6 +185,8 @@ import SuperAdminMember from "../pages/superadminmember/SuperAdminMember";
 import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit";
 import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
+import VenuetypeMaster from "../pages/master/Venue-type";
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -262,8 +264,7 @@ const AppRoutingSetup = () => {
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
           />
-<Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
-
+          <Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
 
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/quotation/:eventId" element={<QuotationPage />} />
@@ -315,6 +316,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
+          <Route path="/master/venue-type" element={<VenuetypeMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
