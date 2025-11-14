@@ -22,7 +22,14 @@ const validationSchema = Yup.object().shape({
     .min(0, "Must be greater than or equal to 0"),
 });
 
-const AddExtraExpense = ({ isOpen, onClose, refreshData, selectedMeal, eventData: propEventData }) => {  const intl = useIntl();
+const AddExtraExpense = ({
+  isOpen,
+  onClose,
+  refreshData,
+  selectedMeal,
+  eventData: propEventData,
+}) => {
+  const intl = useIntl();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [eventData, setEventData] = useState(null);
 
@@ -34,9 +41,6 @@ const AddExtraExpense = ({ isOpen, onClose, refreshData, selectedMeal, eventData
     price: "",
     total: "",
   };
-
-  // ✅ Fetch event data when modal opens
-
 
   // ✅ Auto-translate when typing English name
   const triggerTranslate = (text) => {
@@ -65,8 +69,8 @@ const AddExtraExpense = ({ isOpen, onClose, refreshData, selectedMeal, eventData
         return;
       }
 
-const eventId = eventData?.eventId || eventData?.id || 0;
-const eventFunctionId = eventData?.eventFunctionId || 0;
+      const eventId = eventData?.eventId || eventData?.id || 0;
+      const eventFunctionId = eventData?.eventFunctionId || 0;
 
       const payload = {
         eventFunctionId,
@@ -82,78 +86,85 @@ const eventFunctionId = eventData?.eventFunctionId || 0;
 
       console.log("Sending payload:", payload);
 
-     try {
- if (selectedMeal) {
-const res = await UpdateExtraExpense(selectedMeal.id, payload);
+      try {
+        if (selectedMeal) {
+          const res = await UpdateExtraExpense(selectedMeal.id, payload);
 
-  if (res?.data.success === false) {
-    Swal.fire("Error", res.data.msg || "Something went wrong", "error");
-    return;
-  }
+          if (res?.data.success === false) {
+            Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+            return;
+          }
 
-  Swal.fire({
-    text: intl.formatMessage({
-      id: "USER.MASTER.MEAL_UPDATED_SUCCESS",
-      defaultMessage: "Expense updated successfully",
-    }),
-    icon: "success",
-  });
-} else {
-  const res = await AddExtraExpenseApi(payload);
-  if (res?.data.success === false) {
-    Swal.fire("Error", res.data.msg || "Something went wrong", "error");
-    return;
-  }
+          Swal.fire({
+            text: intl.formatMessage({
+              id: "USER.MASTER.MEAL_UPDATED_SUCCESS",
+              defaultMessage: "Expense updated successfully",
+            }),
+            icon: "success",
+          });
+        } else {
+          const res = await AddExtraExpenseApi(payload);
+          if (res?.data.success === false) {
+            Swal.fire("Error", res.data.msg || "Something went wrong", "error");
+            return;
+          }
 
-  Swal.fire({
-    text: intl.formatMessage({
-      id: "USER.MASTER.MEAL_ADDED_SUCCESS",
-      defaultMessage: "Expense added successfully",
-    }),
-    icon: "success",
-  });
-}
+          Swal.fire({
+            text: intl.formatMessage({
+              id: "USER.MASTER.MEAL_ADDED_SUCCESS",
+              defaultMessage: "Expense added successfully",
+            }),
+            icon: "success",
+          });
+        }
 
-  refreshData();
-  onClose(false);
-} catch (err) {
-  console.error("Error submitting expense:", err);
-  Swal.fire("Error", "Something went wrong", "error");
-}
+        // Call refreshData only if it's provided
+        if (typeof refreshData === "function") {
+          refreshData();
+        }
 
+        onClose(false);
+      } catch (err) {
+        console.error("Error submitting expense:", err);
+        Swal.fire("Error", "Something went wrong", "error");
+      }
     },
     enableReinitialize: true,
   });
 
-  
- useEffect(() => {
-  if (isOpen && !propEventData) {
-    const eventId = localStorage.getItem('currentEventId') || new URLSearchParams(window.location.search).get('eventId');
-    if (eventId) {
-      GetEventMasterById(eventId)
-        .then((res) => {
-          const eventDetails = res?.data?.data?.["Event Details"]?.[0];
-          if (eventDetails) {
-            const eventFunctionId = eventDetails?.eventFunctions?.[0]?.id || 0;
-            setEventData({
-              ...eventDetails,
-              eventId: eventDetails.id,
-              eventFunctionId,
-            });
-          }
-        })
-        .catch((err) => console.error('Error fetching event:', err));
+  useEffect(() => {
+    if (isOpen && !propEventData) {
+      const eventId =
+        localStorage.getItem("currentEventId") ||
+        new URLSearchParams(window.location.search).get("eventId");
+      if (eventId) {
+        GetEventMasterById(eventId)
+          .then((res) => {
+            const eventDetails = res?.data?.data?.["Event Details"]?.[0];
+            if (eventDetails) {
+              const eventFunctionId =
+                eventDetails?.eventFunctions?.[0]?.id || 0;
+              setEventData({
+                ...eventDetails,
+                eventId: eventDetails.id,
+                eventFunctionId,
+              });
+            }
+          })
+          .catch((err) => console.error("Error fetching event:", err));
+      }
+    } else if (propEventData) {
+      const eventFunctionId =
+        propEventData?.eventFunctions?.[0]?.id ||
+        propEventData?.eventFunctionId ||
+        0;
+      setEventData({
+        ...propEventData,
+        eventFunctionId,
+        eventId: propEventData?.id || 0,
+      });
     }
-  } else if (propEventData) {
-    const eventFunctionId = propEventData?.eventFunctions?.[0]?.id || propEventData?.eventFunctionId || 0;
-    setEventData({
-      ...propEventData,
-      eventFunctionId,
-      eventId: propEventData?.id || 0,
-    });
-  }
-}, [isOpen, propEventData]);
-
+  }, [isOpen, propEventData]);
 
   // ✅ Auto-translate name when typing
   useEffect(() => {
@@ -163,36 +174,29 @@ const res = await UpdateExtraExpense(selectedMeal.id, payload);
   }, [formik.values.nameEnglish]);
 
   // ✅ Pre-fill data when editing
-useEffect(() => {
-  if (selectedMeal) {
-    formik.setValues({
-      nameEnglish:
-        selectedMeal.nameEnglish ||
-        selectedMeal.name ||
-        selectedMeal.name_en ||
-        "",
-      nameGujarati:
-        selectedMeal.nameGujarati ||
-        selectedMeal.name_gu ||
-        "",
-      nameHindi:
-        selectedMeal.nameHindi ||
-        selectedMeal.name_hi ||
-        "",
-      quantity: selectedMeal.qty || selectedMeal.quantity || "",
-      price: selectedMeal.price || selectedMeal.rate || "",
-      total:
-        selectedMeal.totalprice ||
-        selectedMeal.total ||
-        (selectedMeal.qty || selectedMeal.quantity || 0) *
-          (selectedMeal.price || selectedMeal.rate || 0) ||
-        "",
-    });
-  } else {
-    formik.resetForm();
-  }
-}, [selectedMeal, isOpen]);
-
+  useEffect(() => {
+    if (selectedMeal) {
+      formik.setValues({
+        nameEnglish:
+          selectedMeal.nameEnglish ||
+          selectedMeal.name ||
+          selectedMeal.name_en ||
+          "",
+        nameGujarati: selectedMeal.nameGujarati || selectedMeal.name_gu || "",
+        nameHindi: selectedMeal.nameHindi || selectedMeal.name_hi || "",
+        quantity: selectedMeal.qty || selectedMeal.quantity || "",
+        price: selectedMeal.price || selectedMeal.rate || "",
+        total:
+          selectedMeal.totalprice ||
+          selectedMeal.total ||
+          (selectedMeal.qty || selectedMeal.quantity || 0) *
+            (selectedMeal.price || selectedMeal.rate || 0) ||
+          "",
+      });
+    } else {
+      formik.resetForm();
+    }
+  }, [selectedMeal, isOpen]);
 
   // ✅ Prevent rendering when modal is closed
   if (!isOpen) return null;
@@ -240,7 +244,9 @@ useEffect(() => {
               })}
               name="nameEnglish"
               value={formik.values.nameEnglish}
-              onChange={(e) => formik.setFieldValue("nameEnglish", e.target.value)}
+              onChange={(e) =>
+                formik.setFieldValue("nameEnglish", e.target.value)
+              }
               lng="en-US"
               required
               error={formik.touched.nameEnglish && formik.errors.nameEnglish}
@@ -280,7 +286,9 @@ useEffect(() => {
               })}
               name="nameHindi"
               value={formik.values.nameHindi}
-              onChange={(e) => formik.setFieldValue("nameHindi", e.target.value)}
+              onChange={(e) =>
+                formik.setFieldValue("nameHindi", e.target.value)
+              }
               lng="hi"
             />
           </div>

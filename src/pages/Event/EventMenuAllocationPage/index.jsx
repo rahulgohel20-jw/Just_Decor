@@ -1173,7 +1173,6 @@ const EventMenuAllocationPage = () => {
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
-            activeFunctionName = { activeFunctionName };
           }}
         />
       </Container>
