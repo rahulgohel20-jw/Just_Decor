@@ -58,6 +58,8 @@ export default function CategorySidebarModal({
 
   useEffect(() => {
     if (selectedRowData) {
+      console.log(selectedRowData);
+
       const details =
         selectedRowData?.["MenuItem RawMaterial Details"]?.map(
           (item, index) => ({
@@ -76,6 +78,7 @@ export default function CategorySidebarModal({
             menuItemId: item.menuItemId || 0,
             rate: item.rate || 0,
             rawmaterial_rate: item.rawmaterial_rate || 0,
+            rawmaterial_weight: item.rawmaterial_weight || 0,
           })
         ) || [];
 
@@ -131,7 +134,7 @@ export default function CategorySidebarModal({
             ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
           weight: Number(item.weight) || 0,
-          rawmaterial_weight: Number(item.weight) || 0,
+          rawmaterial_weight: Number(item.rawmaterial_weight) || 0,
           rate: item.rate || 0,
           rawmaterial_rate: item.rawmaterial_rate || 0,
           place: item.place || "",

@@ -376,6 +376,29 @@ const EventMenuAllocationPage = () => {
 
       if (res?.data?.success) {
         setSelectedRow(res.data.data);
+
+        if (res.data.data?.menuItemRawMaterials) {
+          setAllocationData((prev) => ({
+            ...prev,
+            [`${menuItemId}-category`]: {
+              menuItemId: menuItemId,
+              rawMaterials: res.data.data.menuItemRawMaterials,
+            },
+          }));
+
+          setRows((prevRows) =>
+            prevRows.map((r) => {
+              if (r.menuItemId === menuItemId) {
+                return {
+                  ...r,
+                  menuItemRawMaterials:
+                    res.data.data.menuItemRawMaterials || [],
+                };
+              }
+              return r;
+            })
+          );
+        }
       } else {
         console.warn("No data returned from SelectedItemNameMenuAllocation");
       }

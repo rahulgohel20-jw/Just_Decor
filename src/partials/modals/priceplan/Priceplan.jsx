@@ -137,7 +137,7 @@ const Priceplan = () => {
         return;
       }
 
-      const razorpayKey = "rzp_live_bH334KNjFEnWqO";
+      const razorpayKey = "rzp_live_RfdMpWMxxgESGK";
 
       const options = {
         key: razorpayKey,
