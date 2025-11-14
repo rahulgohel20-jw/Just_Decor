@@ -18,7 +18,10 @@ export const useExtraExpense = (eventFunctionId, eventId) => {
 
   // Fetch extra expenses
   const fetchExtraExpense = useCallback(async () => {
-    if (!eventFunctionId || !eventId) return;
+    if (!eventFunctionId || !eventId) {
+      setExtraExpenseData([]);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -37,20 +40,21 @@ export const useExtraExpense = (eventFunctionId, eventId) => {
       const formatted = expenseData.map((item, index) => ({
         id: item.id || index + 1,
         name: item.nameEnglish || "",
+        nameEnglish: item.nameEnglish || "",
+        nameGujarati: item.nameGujarati || "",
+        nameHindi: item.nameHindi || "",
         qty: item.qty || item.quantity || "",
         rate: item.price || 0,
+        price: item.price || 0,
         total: item.totalprice || item.total || 0,
+        totalprice: item.totalprice || item.total || 0,
         place: item.place || "",
       }));
 
       setExtraExpenseData(formatted);
     } catch (err) {
       console.error("Error fetching extra expense data:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch extra expenses",
-      });
+      setExtraExpenseData([]);
     } finally {
       setLoading(false);
     }
@@ -131,5 +135,6 @@ export const useExtraExpense = (eventFunctionId, eventId) => {
     editExpense,
     addExpense,
     closeModal,
+    refetchExpenses: fetchExtraExpense, // Added this for consistency
   };
 };

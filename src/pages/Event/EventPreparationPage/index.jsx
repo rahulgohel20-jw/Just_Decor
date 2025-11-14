@@ -1030,21 +1030,23 @@ const EventPreparationPage = () => {
                           {orderDetails.personName}
                         </span>
                       </div>
-                      <div className="flex  items-center gap-2">
-                        <img
-                          className="w-7 h-7"
-                          src={toAbsoluteUrl("/media/menu/rate.png")}
-                          alt="rate"
-                        />
-                        <span className="text-sm font-medium text-gray-900">
-                          Default Rate:
-                        </span>
-                        <input
-                          type="number"
-                          value={rate}
-                          onChange={(e) => handleRateChange(e.target.value)}
-                          className="input input-sm w-20"
-                        />
+                      <div className="flex  gap-6 mb-2">
+                        <p className="flex items-center gap-1 mt-2 mb-1">
+                          <div className="flex gap-2">
+                            <img
+                              className="w-5 h-5  "
+                              src={toAbsoluteUrl("/media/menu/eventname.png")}
+                              alt="id"
+                            />
+                            <span className="text-sm font-semibold text-gray-900">
+                              Event Name:
+                            </span>
+                          </div>
+                          <span className="font-semibold text-sm  text-primary">
+                            {orderDetails.eventType}
+                          </span>
+                        </p>
+                        <p className="flex items-center gap-1 mb-1"></p>
                       </div>
                     </div>
                   </div>
@@ -1064,26 +1066,7 @@ const EventPreparationPage = () => {
                       {orderDetails.customer}
                     </span>
                   </span>
-                  <div className="flex  gap-6 mb-2">
-                    <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-2">
-                        <img
-                          className="w-5 h-5  "
-                          src={toAbsoluteUrl("/media/menu/eventname.png")}
-                          alt="id"
-                        />
-                        <span className="text-sm font-semibold text-gray-900">
-                          Event Name:
-                        </span>
-                      </div>
-                      <span className="font-semibold text-sm  text-primary">
-                        {orderDetails.eventType}
-                      </span>
-                    </p>
-                    <p className="flex items-center gap-1 mb-1"></p>
 
-                    <p className="flex items-center gap-1 mb-1"></p>
-                  </div>
                   <p className="flex items-center gap-1 mb-2">
                     <div className="flex gap-2">
                       <img
@@ -1102,38 +1085,64 @@ const EventPreparationPage = () => {
                 </div>
 
                 <hr className="border-t-2 border-gray-300 mb-3" />
-                <div className="flex items-center   gap-1">
-                  <div className=" flex justify-between  gap-8 ">
-                    <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-full flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      {/* Event No */}
+                      <div className="flex items-center gap-2 cursor-pointer text-sm font-semibold">
                         <img
-                          className="w-5 h-5 "
+                          className="w-5 h-5"
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
-                        <span className="text-sm font-medium text-gray-900">
-                          Event Start Date:
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-900">
+                            Event Start Date:
+                          </span>
+                          <span className="font-semibold text-sm text-primary">
+                            {startDateandtime}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-semibold text-sm text-primary">
-                        {startDateandtime}
-                      </span>
-                    </p>
-                    <p className="flex items-center gap-1 mb-1">
-                      <div className="flex gap-2">
+
+                      {/* Person */}
+                      <div className="flex items-center gap-2">
                         <img
-                          className="w-5 h-5  "
+                          className="w-5 h-5"
                           src={toAbsoluteUrl("/media/menu/eventdate.png")}
                           alt="id"
                         />
-                        <span className="text-sm font-medium text-gray-900">
-                          Event End Date:
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-900">
+                            Event Start Date:
+                          </span>
+                          <span className="font-semibold text-sm text-primary">
+                            {startDateandtime}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-semibold text-sm text-primary">
-                        {endDateandtime}
-                      </span>
-                    </p>
+                      <div className="flex  gap-6 mb-2">
+                        <p className="flex items-center gap-1 mt-2 mb-1">
+                          <div className="flex gap-2">
+                            <img
+                              className="w-7 h-7"
+                              src={toAbsoluteUrl("/media/menu/rate.png")}
+                              alt="rate"
+                            />
+                            <span className="text-sm font-medium text-gray-900">
+                              Default Rate:
+                            </span>
+                            <input
+                              type="number"
+                              value={rate}
+                              onChange={(e) => handleRateChange(e.target.value)}
+                              className="input input-sm w-20"
+                            />
+                          </div>
+                        </p>
+                        <p className="flex items-center gap-1 mb-1"></p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
