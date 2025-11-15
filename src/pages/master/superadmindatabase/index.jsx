@@ -9,6 +9,7 @@ import DatabaseAssign from "../databaseassign";
 import AddMasterDatabaseFile from "../addmasterdatabasefile";
 import ViewAssignDatabase from "../viewassigndatabase";
 import { GetAllDb } from "@/services/apiServices";
+import Loader from "@/components/loader/Loader";
 
 const Database = () => {
   const [loading, setLoading] = useState(false);
@@ -134,7 +135,7 @@ const Database = () => {
         </div>
       </div>
       {loading ? (
-        <Spin tip="Loading..." />
+        <Loader size={60} />
       ) : (
         <TableComponent
           columns={columns}
@@ -142,13 +143,22 @@ const Database = () => {
           paginationSize={10}
         />
       )}
+
       <DatabaseSidebar open={sidebarOpen} onClose={handleCloseSidebar} />
       <DatabaseAssign
         open={customerDatabase}
         onClose={handleCloseCustomer}
         selectedRow={selectedRow}
       />
-      <AddMasterDatabaseFile open={openFile} onClose={handleCloseFile} />
+      <AddMasterDatabaseFile
+        open={openFile}
+        onClose={handleCloseFile}
+        selectedRow={selectedRow}
+        setLoading={setLoading}
+        fetchData={FetchAllDb}
+        loading={loading}
+      />
+
       <ViewAssignDatabase
         open={viewAssignOpen}
         onClose={handleCloseViewAssign}

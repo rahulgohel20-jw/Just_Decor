@@ -168,7 +168,7 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
                         setFormData((prev) => ({ ...prev, customer: value }))
                       }
                       options={customers.map((c) => ({
-                        value: c.id, // this should match API's expected user ID
+                        value: c.id,
                         label:
                           c.firstName && c.lastName
                             ? `${c.firstName} ${c.lastName}`
