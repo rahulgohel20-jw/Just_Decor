@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
     "x-no-compression": "true",
   },
 
-  timeout: 10000,
+  timeout: 500000,
 });
 
 // === Set token before request ===
