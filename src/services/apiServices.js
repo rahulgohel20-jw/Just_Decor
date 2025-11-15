@@ -314,8 +314,13 @@ export const GetAllPlans = () => {
 export const GeteventQuoataiondata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
 };
+
 export const GetAllRole = (id) => {
   return GET(`/rolemaster/getallbyuserid?userId=${id}`);
+};
+
+export const GetUsersByRoleId = (roleId = 2) => {
+  return GET(`/user/getallbyroleid?roleId=${roleId}`);
 };
 
 // Add Role
@@ -841,10 +846,19 @@ export const GetAllDb = () => {
   return GET(`/excel-parsing/getAll`);
 };
 
+export const GetDbAssignedDetails = (dbPlanningId) => {
+  return GET(`/excel-parsing/getById?db_planning_id=${dbPlanningId}`);
+};
+
+
 export const GetUserlogs = (data) => {
   return GET(`/user-logs/getUserLogs/${data}`);
 };
 
+export const AssignDb = (payload) => {
+  // payload = { databaseName, customerId, instructions }
+  return POST(`/excel-parsing/assignDb`, payload);
+};
 
 
 // Super Admin Invoice

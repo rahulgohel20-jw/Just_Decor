@@ -39,6 +39,7 @@ const Database = () => {
         database_name: db.dbName || "",
         state: db.state || "",
         version: db.version || "1.0",
+        db_planning_id: db.db_planning_id,
       }));
 
       setTabledata(data);
@@ -78,7 +79,8 @@ const Database = () => {
     setOpenFile(false);
   };
 
-  const handleOpenViewAssign = () => {
+  const handleOpenViewAssign = (row) => {
+    setSelectedRow(row);
     setViewAssignOpen(true);
   };
 
@@ -112,7 +114,13 @@ const Database = () => {
         <div className="flex items-center gap-2">
           <button
             className="btn btn-outline-secondary"
-            onClick={handleOpenViewAssign}
+            onClick={() => {
+              if (!selectedRow) {
+                message.warning("⚠ Please select a row first.");
+                return;
+              }
+              handleOpenViewAssign(selectedRow);
+            }}
           >
             View Assigned
           </button>
@@ -135,11 +143,16 @@ const Database = () => {
         />
       )}
       <DatabaseSidebar open={sidebarOpen} onClose={handleCloseSidebar} />
-      <DatabaseAssign open={customerDatabase} onClose={handleCloseCustomer} />
+      <DatabaseAssign
+        open={customerDatabase}
+        onClose={handleCloseCustomer}
+        selectedRow={selectedRow}
+      />
       <AddMasterDatabaseFile open={openFile} onClose={handleCloseFile} />
       <ViewAssignDatabase
         open={viewAssignOpen}
         onClose={handleCloseViewAssign}
+        selectedRow={selectedRow}
       />
     </Container>
   );
