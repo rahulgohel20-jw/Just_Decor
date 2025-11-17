@@ -87,7 +87,7 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       dbName: formData.databaseName,
       state: formData.state,
       instructions: formData.instructions,
-      userId: "2",
+      userId: "1",
     };
 
     const formDataToSend = new FormData();
