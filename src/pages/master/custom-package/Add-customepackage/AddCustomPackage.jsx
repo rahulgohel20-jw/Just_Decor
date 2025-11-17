@@ -2,26 +2,29 @@ import { Fragment, useState, useEffect, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useNavigate, useLocation } from "react-router-dom";
-import MenuItemGrid from "../../../Event/EventPreparationPage/components/MenuItemGrid";
+import MenuItemGrid from "../../../Event/EventPlanningPage/components/MenuItemGrid";
 import Selecteditemscustomepackage from "../../../Event/EventPreparationPage/components/Selecteditemcustomepackage";
 import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
-import { useCategories, useMenuItems } from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
+import {
+  useCategories,
+  useMenuItems,
+} from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
-import { 
-  Translateapi, 
-  AddCustomPackageapi, 
-  UpdateCustomPackageapi, 
-  GetCustomPackageapi 
+import {
+  Translateapi,
+  AddCustomPackageapi,
+  UpdateCustomPackageapi,
+  GetCustomPackageapi,
 } from "@/services/apiServices";
 
 const AddCustomPackage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const searchParams = new URLSearchParams(location.search);
   const packageId = searchParams.get("id");
   const isEditMode = !!packageId;
@@ -46,7 +49,12 @@ const AddCustomPackage = () => {
   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
 
   const { categories, fetchCategories } = useCategories();
-  const { menuItems, loading: menuLoading, fetchMenuItems, allMenuItems } = useMenuItems();
+  const {
+    menuItems,
+    loading: menuLoading,
+    fetchMenuItems,
+    allMenuItems,
+  } = useMenuItems();
 
   const [initialValues, setInitialValues] = useState({
     nameEnglish: "",
@@ -58,8 +66,6 @@ const AddCustomPackage = () => {
   const allCategory = { id: 0, name: "All" };
   const categoriesWithAll = [allCategory, ...categories];
 
-
-
   useEffect(() => {
     fetchCategories();
     fetchMenuItems(0);
@@ -70,11 +76,11 @@ const AddCustomPackage = () => {
       fetchPackageDetails(packageId);
     }
   }, [packageId, categories]);
-{categories
-  .filter(cat => selectedItems.some(sel => sel.categoryId === cat.id))
-  .map(cat => (
-    <Category key={cat.id} cat={cat} />
-))}
+  {
+    categories
+      .filter((cat) => selectedItems.some((sel) => sel.categoryId === cat.id))
+      .map((cat) => <Category key={cat.id} cat={cat} />);
+  }
 
   const fetchPackageDetails = async (id) => {
     try {
@@ -83,7 +89,9 @@ const AddCustomPackage = () => {
       const res = await GetCustomPackageapi(userData.id);
 
       const allPackages = res?.data?.data?.["Package Details"] || [];
-      const selectedPackage = allPackages.find((pkg) => pkg.id === parseInt(id));
+      const selectedPackage = allPackages.find(
+        (pkg) => pkg.id === parseInt(id)
+      );
       if (!selectedPackage) return;
 
       setInitialValues({
@@ -109,17 +117,18 @@ const AddCustomPackage = () => {
         if (categoryDetail.anyItem > 0) {
           extractedCategoryAnyItems[categoryId] = categoryDetail.anyItem;
         }
-        
-        extractedCategoryNotes[categoryId] = categoryDetail.menuInstruction || "";
+
+        extractedCategoryNotes[categoryId] =
+          categoryDetail.menuInstruction || "";
 
         (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
           const itemId = Number(item.menuItemId);
-          
+
           if (seenItemIds.has(itemId)) {
             console.warn(`Duplicate item detected: ${itemId}`);
             return;
           }
-          
+
           seenItemIds.add(itemId);
           extractedItemIds.push(itemId);
 
@@ -140,7 +149,6 @@ const AddCustomPackage = () => {
       setItemNotes(extractedItemNotes);
       setCategoryNotes(extractedCategoryNotes);
       setCategoryAnyItems(extractedCategoryAnyItems);
-
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Failed to load package details.", "error");
@@ -198,34 +206,34 @@ const AddCustomPackage = () => {
     await fetchMenuItems(categoryId);
   };
 
-const handleGlobalAnyItemsChange = (value) => {
-  const numValue = parseInt(value) || 0;
-  setGlobalAnyItems(numValue);
+  const handleGlobalAnyItemsChange = (value) => {
+    const numValue = parseInt(value) || 0;
+    setGlobalAnyItems(numValue);
 
-  if (selectedCategoryId === 0) {
-    // If "All" selected → apply to all selected categories
-    const updated = {};
-    const selectedCategoryIds = selectedMenuItems.map(item => item.parentId);
-    selectedCategoryIds.forEach(catId => {
-      updated[catId] = numValue;
-    });
-    setCategoryAnyItems(prev => ({ ...prev, ...updated }));
-  } else {
-    // Apply only to the currently selected category
-    setCategoryAnyItems(prev => ({
-      ...prev,
-      [selectedCategoryId]: numValue
-    }));
-  }
-};
-
-
+    if (selectedCategoryId === 0) {
+      // If "All" selected → apply to all selected categories
+      const updated = {};
+      const selectedCategoryIds = selectedMenuItems.map(
+        (item) => item.parentId
+      );
+      selectedCategoryIds.forEach((catId) => {
+        updated[catId] = numValue;
+      });
+      setCategoryAnyItems((prev) => ({ ...prev, ...updated }));
+    } else {
+      // Apply only to the currently selected category
+      setCategoryAnyItems((prev) => ({
+        ...prev,
+        [selectedCategoryId]: numValue,
+      }));
+    }
+  };
 
   const handleCategoryAnyItemsChange = (categoryId, value) => {
     const numValue = parseInt(value) || 0;
-    setCategoryAnyItems(prev => ({
+    setCategoryAnyItems((prev) => ({
       ...prev,
-      [categoryId]: numValue
+      [categoryId]: numValue,
     }));
   };
 
@@ -243,7 +251,13 @@ const handleGlobalAnyItemsChange = (value) => {
     }));
   };
 
-  const handleReorder = ({ sourceCategory, destCategory, sourceIndex, destIndex, itemId }) => {
+  const handleReorder = ({
+    sourceCategory,
+    destCategory,
+    sourceIndex,
+    destIndex,
+    itemId,
+  }) => {
     setSelectedItems((prev) => {
       const newItems = [...prev];
       const itemIndex = newItems.indexOf(Number(itemId));
@@ -263,45 +277,48 @@ const handleGlobalAnyItemsChange = (value) => {
 
   const allItemsPool = useMemo(() => {
     const combined = [...menuItems, ...allMenuItems, ...editModeItems];
-    
+
     const uniqueMap = new Map();
-    combined.forEach(item => {
+    combined.forEach((item) => {
       const id = Number(item.id);
       if (!uniqueMap.has(id)) {
         uniqueMap.set(id, item);
       }
     });
-    
+
     return Array.from(uniqueMap.values());
   }, [menuItems, allMenuItems, editModeItems]);
 
- const toggleChildSelection = (id) => {
-  id = Number(id);
+  const toggleChildSelection = (id) => {
+    id = Number(id);
 
-  const item = allItemsPool.find(i => Number(i.id) === id);
-  const parentId = item?.parentId;
+    const item = allItemsPool.find((i) => Number(i.id) === id);
+    const parentId = item?.parentId;
 
-  setSelectedItems((prev) => {
-    const exists = prev.includes(id);
-    if (exists) {
-      return prev.filter(pid => pid !== id);
-    } else {
-      // ✅ If category has no manual value yet, apply current global any items
-      setCategoryAnyItems((prevCatAny) => {
-        if (parentId && prevCatAny[parentId] === undefined && globalAnyItems > 0) {
-          return {
-            ...prevCatAny,
-            [parentId]: globalAnyItems,
-          };
-        }
-        return prevCatAny;
-      });
+    setSelectedItems((prev) => {
+      const exists = prev.includes(id);
+      if (exists) {
+        return prev.filter((pid) => pid !== id);
+      } else {
+        // ✅ If category has no manual value yet, apply current global any items
+        setCategoryAnyItems((prevCatAny) => {
+          if (
+            parentId &&
+            prevCatAny[parentId] === undefined &&
+            globalAnyItems > 0
+          ) {
+            return {
+              ...prevCatAny,
+              [parentId]: globalAnyItems,
+            };
+          }
+          return prevCatAny;
+        });
 
-      return [...prev, id];
-    }
-  });
-};
-
+        return [...prev, id];
+      }
+    });
+  };
 
   const filteredCategories = categoriesWithAll.filter(({ name }) =>
     name.toLowerCase().includes(search.toLowerCase())
@@ -320,66 +337,67 @@ const handleGlobalAnyItemsChange = (value) => {
     return selectedItems
       .map((id) => {
         const numId = Number(id);
-        const item = allItemsPool.find(i => Number(i.id) === numId);
+        const item = allItemsPool.find((i) => Number(i.id) === numId);
         return item;
       })
       .filter(Boolean);
   }, [selectedItems, allItemsPool]);
 
- const selectedItemsByCategory = useMemo(() => {
-  const grouped = {};
-  selectedMenuItems.forEach(item => {
-    const parentCategory = categories.find(cat => cat.id === item.parentId);
-    const category = parentCategory || { id: item.parentId, name: "Uncategorized" };
-    if (!grouped[category.name]) {
-      grouped[category.name] = [];
-    }
-    grouped[category.name].push(item);
-  });
-  return grouped;
-}, [selectedMenuItems, categories]);
+  const selectedItemsByCategory = useMemo(() => {
+    const grouped = {};
+    selectedMenuItems.forEach((item) => {
+      const parentCategory = categories.find((cat) => cat.id === item.parentId);
+      const category = parentCategory || {
+        id: item.parentId,
+        name: "Uncategorized",
+      };
+      if (!grouped[category.name]) {
+        grouped[category.name] = [];
+      }
+      grouped[category.name].push(item);
+    });
+    return grouped;
+  }, [selectedMenuItems, categories]);
 
+  const handleRemoveItem = (itemId) => {
+    const numId = Number(itemId);
 
-const handleRemoveItem = (itemId) => {
-  const numId = Number(itemId);
+    // Find the parent category of this item
+    const removedItem = allItemsPool.find((i) => Number(i.id) === numId);
+    const parentId = removedItem?.parentId;
 
-  // Find the parent category of this item
-  const removedItem = allItemsPool.find(i => Number(i.id) === numId);
-  const parentId = removedItem?.parentId;
+    setSelectedItems((prev) => {
+      const newSelected = prev.filter((id) => Number(id) !== numId);
 
-  setSelectedItems(prev => {
-    const newSelected = prev.filter(id => Number(id) !== numId);
+      // 🧼 If no items left in that category, clean up category state
+      const hasOtherItemsInCategory = newSelected.some((id) => {
+        const item = allItemsPool.find((i) => Number(i.id) === id);
+        return item?.parentId === parentId;
+      });
 
-    // 🧼 If no items left in that category, clean up category state
-    const hasOtherItemsInCategory = newSelected.some(id => {
-      const item = allItemsPool.find(i => Number(i.id) === id);
-      return item?.parentId === parentId;
+      if (!hasOtherItemsInCategory && parentId) {
+        setCategoryAnyItems((prev) => {
+          const updated = { ...prev };
+          delete updated[parentId];
+          return updated;
+        });
+
+        setCategoryNotes((prev) => {
+          const updated = { ...prev };
+          delete updated[parentId];
+          return updated;
+        });
+      }
+
+      return newSelected;
     });
 
-    if (!hasOtherItemsInCategory && parentId) {
-      setCategoryAnyItems(prev => {
-        const updated = { ...prev };
-        delete updated[parentId];
-        return updated;
-      });
-
-      setCategoryNotes(prev => {
-        const updated = { ...prev };
-        delete updated[parentId];
-        return updated;
-      });
-    }
-
-    return newSelected;
-  });
-
-  setItemNotes(prev => {
-    const newNotes = { ...prev };
-    delete newNotes[numId];
-    return newNotes;
-  });
-};
-
+    setItemNotes((prev) => {
+      const newNotes = { ...prev };
+      delete newNotes[numId];
+      return newNotes;
+    });
+  };
 
   const totalSelectedCount = selectedItems.length;
   const calculateTotalPrice = (packagePrice = 0) => Number(packagePrice || 0);
@@ -404,9 +422,9 @@ const handleRemoveItem = (itemId) => {
       }
 
       const validItems = selectedItems
-        .map(id => {
+        .map((id) => {
           const numId = Number(id);
-          const item = allItemsPool.find(itm => Number(itm.id) === numId);
+          const item = allItemsPool.find((itm) => Number(itm.id) === numId);
           return item;
         })
         .filter(Boolean);
@@ -417,9 +435,9 @@ const handleRemoveItem = (itemId) => {
       }
 
       const categoryMap = new Map();
-      validItems.forEach(item => {
+      validItems.forEach((item) => {
         const parentId = Number(item.parentId);
-        const category = categories.find(cat => cat.id === parentId);
+        const category = categories.find((cat) => cat.id === parentId);
 
         const catId = category?.id || parentId || 0;
         const catName = category?.name || item.categoryName || "Uncategorized";
@@ -433,7 +451,7 @@ const handleRemoveItem = (itemId) => {
       const customPackageDetails = Array.from(categoryMap.entries()).map(
         ([catId, { catName, items }], idx) => {
           const menuItems = items.map((item, itemIdx) => ({
-            id: isEditMode ? (item.dbRowId || 0) : 0,
+            id: isEditMode ? item.dbRowId || 0 : 0,
             menuItemId: Number(item.id),
             itemName: item.name || "Unnamed",
             itemInstruction: itemNotes[item.id] || "",
@@ -443,14 +461,16 @@ const handleRemoveItem = (itemId) => {
           }));
 
           // Use category-specific value if set, otherwise use global value
-          const anyItemCount = categoryAnyItems[catId] !== undefined
-            ? categoryAnyItems[catId]
-            : globalAnyItems || 0;
+          const anyItemCount =
+            categoryAnyItems[catId] !== undefined
+              ? categoryAnyItems[catId]
+              : globalAnyItems || 0;
 
           return {
             menuId: Number(catId),
             menuName: catName,
-            menuInstruction: categoryNotes[catId] || categoryNotes[catName] || "",
+            menuInstruction:
+              categoryNotes[catId] || categoryNotes[catName] || "",
             menuSortOrder: idx + 1,
             anyItem: anyItemCount,
             customPackageMenuItemDetails: menuItems,
@@ -486,7 +506,11 @@ const handleRemoveItem = (itemId) => {
       }
     } catch (err) {
       console.error(err);
-      Swal.fire("Error", err.response?.data?.message || "Something went wrong.", "error");
+      Swal.fire(
+        "Error",
+        err.response?.data?.message || "Something went wrong.",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -496,10 +520,14 @@ const handleRemoveItem = (itemId) => {
     <Fragment>
       <Container className="flex flex-col min-h-screen">
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs 
-            items={[{ 
-              title: isEditMode ? "Edit Custom Package" : "Add Custom Package" 
-            }]} 
+          <Breadcrumbs
+            items={[
+              {
+                title: isEditMode
+                  ? "Edit Custom Package"
+                  : "Add Custom Package",
+              },
+            ]}
           />
         </div>
 
@@ -542,10 +570,23 @@ const handleRemoveItem = (itemId) => {
                   <Form className="flex flex-col gap-4">
                     <div className="border rounded-lg p-4 bg-white">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <InputWithFormik label="Name (English)" name="nameEnglish" />
-                        <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
-                        <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
-                        <InputWithFormik label="Price" name="price" type="number" />
+                        <InputWithFormik
+                          label="Name (English)"
+                          name="nameEnglish"
+                        />
+                        <InputWithFormik
+                          label="Name (ગુજરાતી)"
+                          name="nameGujarati"
+                        />
+                        <InputWithFormik
+                          label="Name (हिन्दी)"
+                          name="nameHindi"
+                        />
+                        <InputWithFormik
+                          label="Price"
+                          name="price"
+                          type="number"
+                        />
                       </div>
                     </div>
 
@@ -555,68 +596,74 @@ const handleRemoveItem = (itemId) => {
                       </h3>
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
                         <div className="col-span-3">
-                       <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
-  
-  {/* Search bar */}
-  <div className="sticky top-0 z-10 bg-white border-b p-3">
-    <SearchInput
-      placeholder="Search categories"
-      value={search}
-      onChange={setSearch}
-    />
-  </div>
+                          <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
+                            {/* Search bar */}
+                            <div className="sticky top-0 z-10 bg-white border-b p-3">
+                              <SearchInput
+                                placeholder="Search categories"
+                                value={search}
+                                onChange={setSearch}
+                              />
+                            </div>
 
-  {/* Category list */}
-  <div className="flex-1 overflow-auto p-2">
-    {filteredCategories.map((cat) => {
-      const isSelected = selectedCategoryId === cat.id;
-      const anyItemsCount = categoryAnyItems[cat.id] ?? "";
+                            {/* Category list */}
+                            <div className="flex-1 overflow-auto p-2">
+                              {filteredCategories.map((cat) => {
+                                const isSelected =
+                                  selectedCategoryId === cat.id;
+                                const anyItemsCount =
+                                  categoryAnyItems[cat.id] ?? "";
 
-      return (
-        <div
-         key={cat.id}
-  className={`mb-2 border-2 rounded-md transition-all duration-300 ${
-    isSelected
-      ? "border-primary bg-primary/5 shadow-sm"
-      : "border-gray-200"
-  }`}
->
-          <button
-    type="button"
-    onClick={(e) => handleCategoryChange(cat.id, e)}
-    className="p-2 cursor-pointer flex justify-between items-center w-full text-left hover:bg-gray-50"
-  >
-    <span className="font-medium text-gray-800">{cat.name}</span>
-  </button>
+                                return (
+                                  <div
+                                    key={cat.id}
+                                    className={`mb-2 border-2 rounded-md transition-all duration-300 ${
+                                      isSelected
+                                        ? "border-primary bg-primary/5 shadow-sm"
+                                        : "border-gray-200"
+                                    }`}
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={(e) =>
+                                        handleCategoryChange(cat.id, e)
+                                      }
+                                      className="p-2 cursor-pointer flex justify-between items-center w-full text-left hover:bg-gray-50"
+                                    >
+                                      <span className="font-medium text-gray-800">
+                                        {cat.name}
+                                      </span>
+                                    </button>
 
-          <div
-            className={`transition-all duration-300 ${
-              isSelected ? "max-h-20 opacity-100 p-2" : "max-h-0 opacity-0 p-0"
-            } overflow-hidden bg-gray-50`}
-          >
-          
-          </div>
-        </div>
-      );
-    })}
-  </div>
+                                    <div
+                                      className={`transition-all duration-300 ${
+                                        isSelected
+                                          ? "max-h-20 opacity-100 p-2"
+                                          : "max-h-0 opacity-0 p-0"
+                                      } overflow-hidden bg-gray-50`}
+                                    ></div>
+                                  </div>
+                                );
+                              })}
+                            </div>
 
-  {/* ✅ Global Any Items Input at Bottom */}
-  <div className="sticky bottom-0 z-10 bg-blue-50 border-t-2 border-blue-200 p-3">
-    <label className="block text-sm font-semibold text-gray-700 mb-2">
-       Any Items 
-    </label>
-    <input
-      type="number"
-      min="0"
-      placeholder="Set Any item for Category"
-      className="border-2 border-blue-300 rounded-md px-2 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-      value={globalAnyItems || ""}
-      onChange={(e) => handleGlobalAnyItemsChange(e.target.value)}
-    />
-  </div>
-</div>
-
+                            {/* ✅ Global Any Items Input at Bottom */}
+                            <div className="sticky bottom-0 z-10 bg-blue-50 border-t-2 border-blue-200 p-3">
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Any Items
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="Set Any item for Category"
+                                className="border-2 border-blue-300 rounded-md px-2 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                value={globalAnyItems || ""}
+                                onChange={(e) =>
+                                  handleGlobalAnyItemsChange(e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
                         </div>
 
                         <div className="col-span-6">
@@ -649,7 +696,9 @@ const handleRemoveItem = (itemId) => {
 
                             <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
                               <Selecteditemscustomepackage
-                                selectedItemsByCategory={selectedItemsByCategory}
+                                selectedItemsByCategory={
+                                  selectedItemsByCategory
+                                }
                                 showDetails={showDetails}
                                 currentFunctionData={{
                                   selectedItems,
@@ -696,7 +745,11 @@ const handleRemoveItem = (itemId) => {
                       <button
                         type="submit"
                         className="btn btn-success"
-                        disabled={isSubmitting || menuLoading || totalSelectedCount === 0}
+                        disabled={
+                          isSubmitting ||
+                          menuLoading ||
+                          totalSelectedCount === 0
+                        }
                       >
                         {isEditMode ? "Update Package" : "Save Package"}
                       </button>
@@ -715,7 +768,10 @@ const handleRemoveItem = (itemId) => {
                     isOpen={showCategoryNoteModal}
                     onClose={() => setShowCategoryNoteModal(false)}
                     categoryId={currentCategoryForNotes}
-                    notes={{ categoryNotes: categoryNotes[currentCategoryForNotes] || "" }}
+                    notes={{
+                      categoryNotes:
+                        categoryNotes[currentCategoryForNotes] || "",
+                    }}
                     onSave={handleCategoryNoteSave}
                     categories={categoriesWithAll}
                   />
@@ -753,28 +809,6 @@ const InputWithFormik = ({ label, name, type = "text" }) => (
 
 export default AddCustomPackage;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import { Fragment, useState, useEffect, useMemo } from "react";
 // import { Container } from "@/components/container";
 // import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
@@ -788,17 +822,17 @@ export default AddCustomPackage;
 // import Swal from "sweetalert2";
 // import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 // import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
-// import { 
-//   Translateapi, 
-//   AddCustomPackageapi, 
-//   UpdateCustomPackageapi, 
-//   GetCustomPackageapi 
+// import {
+//   Translateapi,
+//   AddCustomPackageapi,
+//   UpdateCustomPackageapi,
+//   GetCustomPackageapi
 // } from "@/services/apiServices";
 
 // const AddCustomPackage = () => {
 //   const navigate = useNavigate();
 //   const location = useLocation();
-  
+
 //   const searchParams = new URLSearchParams(location.search);
 //   const packageId = searchParams.get("id");
 //   const isEditMode = !!packageId;
@@ -811,10 +845,9 @@ export default AddCustomPackage;
 //   const [selectedItems, setSelectedItems] = useState([]);
 //   const [showDetails, setShowDetails] = useState(false);
 
-  
 //   // Changed from single numberOfItems to per-category object
 //   const [categoryAnyItems, setCategoryAnyItems] = useState({}); // { categoryId: count }
-  
+
 //   const [loading, setLoading] = useState(false);
 //   const [editModeItems, setEditModeItems] = useState([]);
 
@@ -882,17 +915,17 @@ export default AddCustomPackage;
 //         if (categoryDetail.anyItem > 0) {
 //           extractedCategoryAnyItems[categoryId] = categoryDetail.anyItem;
 //         }
-        
+
 //         extractedCategoryNotes[categoryId] = categoryDetail.menuInstruction || "";
 
 //         (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
 //           const itemId = Number(item.menuItemId);
-          
+
 //           if (seenItemIds.has(itemId)) {
 //             console.warn(`⚠️ Duplicate item detected: ${itemId} - ${item.itemName}`);
 //             return;
 //           }
-          
+
 //           seenItemIds.add(itemId);
 //           extractedItemIds.push(itemId);
 
@@ -1022,7 +1055,7 @@ export default AddCustomPackage;
 //   const allItemsPool = useMemo(() => {
 //     console.log("🔨 Building item pool...");
 //     const combined = [...menuItems, ...allMenuItems, ...editModeItems];
-    
+
 //     const uniqueMap = new Map();
 //     combined.forEach(item => {
 //       const id = Number(item.id);
@@ -1030,7 +1063,7 @@ export default AddCustomPackage;
 //         uniqueMap.set(id, item);
 //       }
 //     });
-    
+
 //     const uniqueItems = Array.from(uniqueMap.values());
 //     console.log("✅ Total unique items in pool:", uniqueItems.length);
 //     return uniqueItems;
@@ -1042,7 +1075,7 @@ export default AddCustomPackage;
 //       const exists = prev.includes(id);
 //       console.log(exists ? `❌ Removing item ${id}` : `✅ Adding item ${id}`);
 //       if (exists) return prev.filter(pid => Number(pid) !== id);
-      
+
 //       const newItems = [...prev, id];
 //       const uniqueItems = [...new Set(newItems.map(Number))];
 //       console.log(`📊 Total unique selected: ${uniqueItems.length}`);
@@ -1075,7 +1108,7 @@ export default AddCustomPackage;
 //         return item;
 //       })
 //       .filter(Boolean);
-    
+
 //     console.log("✅ Found items:", items.length);
 //     return items;
 //   }, [selectedItems, allItemsPool]);
@@ -1086,11 +1119,11 @@ export default AddCustomPackage;
 //     const grouped = {};
 
 //     selectedMenuItems.forEach(item => {
-//       const category = categories.find(cat => cat.id === item.parentId) || { 
-//         id: 0, 
-//         name: "Uncategorized" 
+//       const category = categories.find(cat => cat.id === item.parentId) || {
+//         id: 0,
+//         name: "Uncategorized"
 //       };
-      
+
 //       if (!grouped[category.name]) grouped[category.name] = [];
 //       grouped[category.name].push(item);
 //     });
@@ -1102,9 +1135,9 @@ export default AddCustomPackage;
 //   const handleRemoveItem = (itemId) => {
 //     const numId = Number(itemId);
 //     console.log("🗑️ Removing item:", numId);
-    
+
 //     setSelectedItems((prev) => prev.filter((id) => Number(id) !== numId));
-    
+
 //     setItemNotes((prev) => {
 //       const newNotes = { ...prev };
 //       delete newNotes[numId];
@@ -1233,10 +1266,10 @@ export default AddCustomPackage;
 //     <Fragment>
 //       <Container className="flex flex-col min-h-screen">
 //         <div className="gap-2 pb-2 mb-3">
-//           <Breadcrumbs 
-//             items={[{ 
-//               title: isEditMode ? "Edit Custom Package" : "Add Custom Package" 
-//             }]} 
+//           <Breadcrumbs
+//             items={[{
+//               title: isEditMode ? "Edit Custom Package" : "Add Custom Package"
+//             }]}
 //           />
 //         </div>
 
@@ -1349,7 +1382,6 @@ export default AddCustomPackage;
 // })}
 
 // </div>
-
 
 //                           </div>
 //                         </div>
@@ -1487,26 +1519,3 @@ export default AddCustomPackage;
 // );
 
 // export default AddCustomPackage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

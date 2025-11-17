@@ -14,7 +14,6 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-
 const RawMaterial = () => {
   const classes = useStyle();
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
@@ -22,7 +21,6 @@ const RawMaterial = () => {
   const [tableData, setTableData] = useState(defaultData);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
-
 
   useEffect(() => {
     FetchRawMaterial();
@@ -116,7 +114,18 @@ const RawMaterial = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="COMMON.RAW_MATERIAL_MASTER" defaultMessage="Raw Material Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="COMMON.RAW_MATERIAL_MASTER"
+                    defaultMessage="Raw Material Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -127,7 +136,10 @@ const RawMaterial = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "COMMON.RAW_MATERIAL_SEARCH", defaultMessage: "Raw Material Search..." })}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.RAW_MATERIAL_SEARCH",
+                  defaultMessage: "Raw Material Search...",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -143,7 +155,11 @@ const RawMaterial = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i><FormattedMessage id="COMMON.ADD_RAW_MATERIAL" defaultMessage="Add Raw Material" />
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="COMMON.ADD_RAW_MATERIAL"
+                defaultMessage="Add Raw Material"
+              />
             </button>
           </div>
         </div>
@@ -158,7 +174,7 @@ const RawMaterial = () => {
         <TableComponent
           columns={columns(handleEdit, DeleteRawMaterial, statusRaw)}
           data={tableData && tableData.length ? tableData : defaultData}
-          paginationSize={10}
+          paginationSize={100}
         />
       </Container>
     </Fragment>

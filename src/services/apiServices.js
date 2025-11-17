@@ -339,6 +339,11 @@ export const GetAllFunctionsByUserId = (id) => {
   return GET(`/functionmaster/getallbyuserid?userId=${id}`);
 };
 
+export const DeleteEventFunctionById = (id) => {
+  return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
+};
+
+
 export const GetFunctionsByFunctionName = (functionName) => {
   return GET(
     `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
