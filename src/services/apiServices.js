@@ -51,15 +51,11 @@ export const fetchStatesByCountry = (countryId, stateName = "") =>
     `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
   );
 
-
 export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
-
 
 //City APIs
 export const fetchCitiesByState = (stateId, cityName = "") =>
   GET(`/citymaster/getbystateid?stateId=${stateId}&cityName=${cityName}`);
-
-
 
 //Login api
 export const LoginUser = (data) => {
@@ -67,10 +63,10 @@ export const LoginUser = (data) => {
 };
 
 export const LoginOutUser = (email, eventtype) => {
-  return GET(`/user-logs/logout-notification?email=${email}&eventType=${eventtype}`);
+  return GET(
+    `/user-logs/logout-notification?email=${email}&eventType=${eventtype}`
+  );
 };
-
-
 
 //GET All customer
 export const GetAllCustomer = (Id) => {
@@ -407,6 +403,13 @@ export const Getmenuprep = (
 ) => {
   return GET(
     `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+  );
+};
+
+// get menu items
+export const Getmenuitems = (pageno, size, UserId) => {
+  return GET(
+    `/menuitems/getallbyuserid?page=${pageno}&size=${size}&userId=${UserId}`
   );
 };
 
@@ -826,7 +829,9 @@ export const CreatePaymentOrder = (data) => {
 };
 
 export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
-  return GET(`/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`);
+  return GET(
+    `/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
+  );
 };
 
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
@@ -834,9 +839,6 @@ export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
     `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
   );
 };
-
-
-
 
 export const DatabaseReadExcle = (formData) => {
   return POST("/excel-parsing/readExcel", formData);
@@ -866,7 +868,6 @@ export const AssignDb = (payload) => {
 export const SuperAdminAddInvoice = (data) => {
   return POST(`/invoice-operations/addInvoice`, data);
 };
-
 
 // Subscription API
 
