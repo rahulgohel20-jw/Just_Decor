@@ -4,7 +4,14 @@ import { Upload, X, Trash2 } from "lucide-react";
 import { DatabaseReadExcle } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
+export default function AddMasterDatabaseFile({
+  open,
+  onClose,
+  selectedRow,
+  setLoading,
+  loading,
+  s,
+}) {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
@@ -83,6 +90,8 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
       return;
     }
 
+    setLoading(true);
+
     const jsonPayload = {
       dbName: formData.databaseName,
       state: formData.state,
@@ -101,23 +110,29 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
     try {
       const res = await DatabaseReadExcle(formDataToSend);
 
-      if (res?.data?.success === true) {
-        Swal.fire({
+      if (res?.data?.success) {
+        await Swal.fire({
           icon: "success",
           title: "Success!",
           text: "Database uploaded successfully!",
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false,
-        }).then(() => {
-          setFormData({
-            databaseName: "",
-            state: "",
-            instructions: "",
-          });
-          setUploadedFile(null);
-
-          onClose();
         });
+
+        // 🔥 Refresh table from parent
+        if (typeof fetchData === "function") {
+          await fetchData();
+        }
+
+        // Clear UI
+        setUploadedFile(null);
+        setFormData({
+          databaseName: "",
+          state: "",
+          instructions: "",
+        });
+
+        onClose();
       } else {
         Swal.fire({
           icon: "error",
@@ -126,14 +141,18 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
         });
       }
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error(err);
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Something went wrong while uploading.",
       });
+    } finally {
+      // 👇 Keep loader ON until fetch completes
+      setTimeout(() => setLoading(false), 500);
     }
   };
+
   const handleCancel = () => {
     setFormData({
       databaseName: "",
@@ -333,22 +352,41 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  disabled={loading}
+                  className={`px-6 py-2.5 rounded-lg text-white font-medium transition-colors text-sm flex items-center gap-2 ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-                    />
-                  </svg>
-                  Save
+                  {loading ? (
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+                      <path d="M4 12a8 8 0 018-8" />
+                    </svg>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                        />
+                      </svg>
+                      Save
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>

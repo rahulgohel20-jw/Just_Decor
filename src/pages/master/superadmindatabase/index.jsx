@@ -9,6 +9,7 @@ import DatabaseAssign from "../databaseassign";
 import AddMasterDatabaseFile from "../addmasterdatabasefile";
 import ViewAssignDatabase from "../viewassigndatabase";
 import { GetAllDb } from "@/services/apiServices";
+import Loader from "@/components/loader/Loader";
 
 const Database = () => {
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ const Database = () => {
         database_name: db.dbName || "",
         state: db.state || "",
         version: db.version || "1.0",
+        db_planning_id: db.db_planning_id,
       }));
 
       setTabledata(data);
@@ -78,7 +80,8 @@ const Database = () => {
     setOpenFile(false);
   };
 
-  const handleOpenViewAssign = () => {
+  const handleOpenViewAssign = (row) => {
+    setSelectedRow(row);
     setViewAssignOpen(true);
   };
 
@@ -112,7 +115,13 @@ const Database = () => {
         <div className="flex items-center gap-2">
           <button
             className="btn btn-outline-secondary"
-            onClick={handleOpenViewAssign}
+            onClick={() => {
+              if (!selectedRow) {
+                message.warning("⚠ Please select a row first.");
+                return;
+              }
+              handleOpenViewAssign(selectedRow);
+            }}
           >
             View Assigned
           </button>
@@ -126,7 +135,7 @@ const Database = () => {
         </div>
       </div>
       {loading ? (
-        <Spin tip="Loading..." />
+        <Loader size={60} />
       ) : (
         <TableComponent
           columns={columns}
@@ -134,12 +143,26 @@ const Database = () => {
           paginationSize={10}
         />
       )}
+
       <DatabaseSidebar open={sidebarOpen} onClose={handleCloseSidebar} />
-      <DatabaseAssign open={customerDatabase} onClose={handleCloseCustomer} />
-      <AddMasterDatabaseFile open={openFile} onClose={handleCloseFile} />
+      <DatabaseAssign
+        open={customerDatabase}
+        onClose={handleCloseCustomer}
+        selectedRow={selectedRow}
+      />
+      <AddMasterDatabaseFile
+        open={openFile}
+        onClose={handleCloseFile}
+        selectedRow={selectedRow}
+        setLoading={setLoading}
+        fetchData={FetchAllDb}
+        loading={loading}
+      />
+
       <ViewAssignDatabase
         open={viewAssignOpen}
         onClose={handleCloseViewAssign}
+        selectedRow={selectedRow}
       />
     </Container>
   );
