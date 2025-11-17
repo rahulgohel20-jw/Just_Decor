@@ -187,6 +187,7 @@ import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit
 import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
 import VenuetypeMaster from "../pages/master/Venue-type";
+import AddPackagesecond from "../pages/master/custom-package/Add-customepackage/AddPackagesecond";
 
 const AppRoutingSetup = () => {
   return (
@@ -357,6 +358,10 @@ const AppRoutingSetup = () => {
           <Route
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
+          />
+          <Route
+            path="/master/custom-package/addpackagesecond"
+            element={<AddPackagesecond />}
           />
           <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
           {/* Tasks routes */}
