@@ -11,11 +11,8 @@ import {
 } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
 const { TextArea } = Input;
 const { Option } = Select;
-
-
 
 const LOCAL_STORAGE_KEY = "userProfileForm";
 
@@ -41,9 +38,7 @@ const getPlanAndRoleFromLocalStorage = () => {
 };
 
 const ProfileForm = ({ isEditing, onSaveSuccess }) => {
-
   const intl = useIntl();
-
   const [form] = Form.useForm();
   const userMasterId = getUserIdFromLocalStorage();
 
@@ -57,6 +52,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     state: false,
     city: false,
   });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const loadCountries = useCallback(async () => {
     setLoading((p) => ({ ...p, country: true }));
@@ -99,54 +95,63 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     }
   }, []);
 
-  useEffect(() => {
-    const load = async () => {
+  // Fetch user data function (extracted for reusability)
+  const fetchUserData = useCallback(async () => {
+    try {
+      const res = await getUserById(userMasterId);
+      const user = res?.data?.data?.["User Details"]?.[0];
+      if (user) {
+        const values = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.contactNo,
+          companyName: user.userBasicDetails?.companyName,
+          companyEmail: user.userBasicDetails?.companyEmail,
+          address: user.userBasicDetails?.address,
+          officePhone: user.userBasicDetails?.officeNo,
+          country: {
+            value: user.userBasicDetails?.country?.id,
+            label: user.userBasicDetails?.country?.name,
+            code: user.userBasicDetails?.country?.code,
+          },
+          state: {
+            value: user.userBasicDetails?.state?.id,
+            label: user.userBasicDetails?.state?.name,
+          },
+          city: {
+            value: user.userBasicDetails?.city?.id,
+            label: user.userBasicDetails?.city?.name,
+          },
+          bio: user.userBasicDetails?.bio,
+        };
+
+        setInitialValues(values);
+        form.setFieldsValue(values);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
+
+        if (values.country?.value) await loadStates(values.country.value);
+        if (values.state?.value) await loadCities(values.state.value);
+        
+        return values;
+      }
+    } catch {
+      // fallback only if API fails
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         setInitialValues(parsed);
         form.setFieldsValue(parsed);
-      }
-      try {
-        const res = await getUserById(userMasterId);
-        const user = res?.data?.data?.["User Details"]?.[0];
-        if (user) {
-          const values = {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            phone: user.contactNo,
-            companyName: user.userBasicDetails?.companyName,
-            companyEmail: user.userBasicDetails?.companyEmail,
-            address: user.userBasicDetails?.address,
-            officePhone: user.userBasicDetails?.officeNo,
-            country: {
-              value: user.userBasicDetails?.country?.id,
-              label: user.userBasicDetails?.country?.name,
-              code: user.userBasicDetails?.country?.code,
-            },
-            state: {
-              value: user.userBasicDetails?.state?.id,
-              label: user.userBasicDetails?.state?.name,
-            },
-            city: {
-              value: user.userBasicDetails?.city?.id,
-              label: user.userBasicDetails?.city?.name,
-            },
-            bio: user.userBasicDetails?.bio,
-          };
-          setInitialValues(values);
-          form.setFieldsValue(values);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
-          if (values.country?.value) await loadStates(values.country.value);
-          if (values.state?.value) await loadCities(values.state.value);
-        }
-      } catch {
+        return parsed;
+      } else {
         message.error("Failed to fetch user details");
       }
-    };
-    load();
+    }
   }, [userMasterId, form, loadStates, loadCities]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData, refreshKey]); // Add refreshKey as dependency
 
   const handleValuesChange = (_, allValues) => {
     if (!initialValues) return;
@@ -157,18 +162,24 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
   const onFinish = async (values) => {
     const { planId, roleId } = getPlanAndRoleFromLocalStorage();
     if (!planId || !roleId) return message.error("Missing Plan or Role ID.");
+    
+    // Validate required location fields
+    if (!values.country?.value) {
+      return message.error("Please select a country");
+    }
+    
     const payload = {
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
-      password:"123",
-      confirmPassword:"123",
+      password: "123",
+      confirmPassword: "123",
       contactNo: values.phone,
       companyName: values.companyName,
       companyEmail: values.companyEmail,
       address: values.address,
       officeNo: values.officePhone,
-      countryId: values.country?.value || 101,
+      countryId: values.country.value,
       countryCode: values.country?.code?.startsWith("+")
         ? values.country.code
         : `+${values.country?.code || "91"}`,
@@ -182,12 +193,37 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
       clientId: 0,
       reportingManagerId: 0,
     };
+    
     try {
       await updateusermaster(userMasterId, payload);
       message.success("Profile updated successfully");
-      setInitialValues(values);
+      
+      // Refresh data from API after successful update
+      await fetchUserData();
+      
       setIsChanged(false);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
+      
+      // Update localStorage in userData as well (for consistency)
+      try {
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (userData) {
+          userData.firstName = values.firstName;
+          userData.lastName = values.lastName;
+          userData.email = values.email;
+          userData.contactNo = values.phone;
+          if (userData.userBasicDetails) {
+            userData.userBasicDetails.companyName = values.companyName;
+            userData.userBasicDetails.companyEmail = values.companyEmail;
+            userData.userBasicDetails.address = values.address;
+            userData.userBasicDetails.officeNo = values.officePhone;
+            userData.userBasicDetails.bio = values.bio;
+          }
+          localStorage.setItem("userData", JSON.stringify(userData));
+        }
+      } catch (e) {
+        console.error("Failed to update userData in localStorage:", e);
+      }
+      
       if (onSaveSuccess) {
         onSaveSuccess();
       }
@@ -208,9 +244,15 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     data,
     loadingKey,
     onFocus,
-    onSelect
+    onSelect,
+    required = false
   ) => (
-    <Form.Item label={label} name={name} className="mb-8 ">
+    <Form.Item 
+      label={label} 
+      name={name} 
+      className="mb-8"
+      rules={required ? [{ required: true, message: `Please select ${label}` }] : []}
+    >
       <Select
         showSearch
         labelInValue

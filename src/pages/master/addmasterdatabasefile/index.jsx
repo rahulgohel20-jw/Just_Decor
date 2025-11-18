@@ -100,6 +100,7 @@ export default function AddMasterDatabaseFile({ open, onClose, selectedRow }) {
 
     try {
       const res = await DatabaseReadExcle(formDataToSend);
+      console.log("response",res);
 
       if (res?.data?.success === true) {
         Swal.fire({

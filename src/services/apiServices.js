@@ -859,3 +859,15 @@ export const SuperAdminAddInvoice = (data) => {
 export const SubscriptionByUser = (id) => {
   return GET(`userplanshistory/getplanhistorybyuser?userId=${id}`);
 };
+
+
+//Update Member
+
+export const UpdateMemberById = (id, data) => {
+  return PUT(`/user/updatemember?id=${id}`, data);
+};
+
+
+export const GetALLMemberDetailsByID = (id) => {
+  return GET(`/user/getmemberbyid?id=${id}`);
+};

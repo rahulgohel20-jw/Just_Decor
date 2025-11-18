@@ -1,14 +1,15 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import ProfileForm from "@/components/profile/ProfileForm";
 import Password from "@/components/profile/Password";
 import Log from "@/components/profile/log";
 import clsx from "clsx";
-import Priceplan from "@/partials/modals/priceplan/Priceplan";
 import { toAbsoluteUrl } from "@/utils";
 import { FormattedMessage } from "react-intl";
-import { Form } from "antd";
+import { getUserById } from "@/services/apiServices";
+import { message } from "antd";
+import { useNavigate } from "react-router";
 
 const TABS = [
   {
@@ -25,6 +26,15 @@ const TABS = [
   },
 ];
 
+const getUserIdFromLocalStorage = () => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    return userData?.id || null;
+  } catch {
+    return null;
+  }
+};
+
 const AccountUserProfilePage = () => {
   const [activeTab, setActiveTab] = useState("account");
   const [priceModal, setPriceModal] = useState(false);
@@ -33,7 +43,67 @@ const AccountUserProfilePage = () => {
     firstName: "",
     lastName: "",
     companyAddress: "",
+    companyName: "",
+    planName: "",
+    accountId: "",
+    language: "English",
+    gstNo: "",
+    image: "",
   });
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const userMasterId = getUserIdFromLocalStorage();
+
+  const navigate = useNavigate();
+
+  // Fetch user data from API
+  const fetchUserProfile = async () => {
+    if (!userMasterId) return;
+
+    try {
+      const res = await getUserById(userMasterId);
+      const user = res?.data?.data?.["User Details"]?.[0];
+      
+      if (user) {
+        setProfileData({
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          companyAddress: user.userBasicDetails?.address || "",
+          companyName: user.userBasicDetails?.companyName || "",
+          planName: user.plan?.name || "Lite",
+          accountId: user.userCode || "ID-45453423",
+          language: "English",
+           // This might come from API in future
+          image: profileData.image, // Keep the uploaded image
+        });
+
+        // Update localStorage userData with fresh data
+        try {
+          const userData = JSON.parse(localStorage.getItem("userData")) || {};
+          const updatedUserData = {
+            ...userData,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            contactNo: user.contactNo,
+            userBasicDetails: user.userBasicDetails,
+            plan: user.plan,
+          };
+          localStorage.setItem("userData", JSON.stringify(updatedUserData));
+        } catch (e) {
+          console.error("Failed to update localStorage:", e);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      message.error("Failed to load profile data");
+    }
+  };
+
+  // Fetch profile data on mount and when refreshKey changes
+  useEffect(() => {
+    fetchUserProfile();
+  }, [userMasterId, refreshKey]);
 
   const handleSave = () => {
     const submitButton = document.getElementById("profile-form-submit");
@@ -44,6 +114,8 @@ const AccountUserProfilePage = () => {
 
   const handleSaveSuccess = () => {
     setIsEditing(false);
+    // Refresh profile data after successful save
+    setRefreshKey(prev => prev + 1);
   };
 
   const content = {
@@ -140,9 +212,8 @@ const AccountUserProfilePage = () => {
                 </div>
 
                 <h3 className="mt-4 text-xl font-semibold text-[#1E293B] mb-2">
-                  {JSON.parse(localStorage.getItem("userData"))?.firstName ??
-                    "—"}{" "}
-                  {JSON.parse(localStorage.getItem("userData"))?.lastName ?? ""}
+                  {profileData.firstName || "—"}{" "}
+                  {profileData.lastName || ""}
                 </h3>
                 <p className="text-sm text-[#B5B5C3]">
                   <FormattedMessage
@@ -217,10 +288,7 @@ const AccountUserProfilePage = () => {
                   <div className="flex items-center justify-between">
                     <div className="w-[200px]">
                       <span className="text-sm bg-primary text-white p-2 rounded-2xl">
-                        <FormattedMessage
-                          id="PROFILE.LITE_VERSION"
-                          defaultMessage="Lite Version"
-                        />
+                        {profileData.planName} Plan
                       </span>
                     </div>
                     <div className="flex flex-col w-[200px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
@@ -239,7 +307,7 @@ const AccountUserProfilePage = () => {
                       <button
                         className="rounded-full bg-primary text-white text-xs px-3 py-1"
                         onClick={() => {
-                          setPriceModal(true);
+                          navigate("/price")
                         }}
                       >
                         <FormattedMessage
@@ -259,7 +327,9 @@ const AccountUserProfilePage = () => {
                         defaultMessage="Account ID"
                       />
                     </div>
-                    <div className="text-sm text-[#B5B5C3]">ID-45453423</div>
+                    <div className="text-sm text-[#B5B5C3]">
+                      {profileData.accountId}
+                    </div>
                   </div>
                   <div>
                     <div className="text-base  text-black">
@@ -269,7 +339,7 @@ const AccountUserProfilePage = () => {
                       />
                     </div>
                     <div className="text-sm text-[#B5B5C3]">
-                      101 Collin Street, Gujarat 3000 VIC Ahmedabad
+                      {profileData.companyAddress || "—"}
                     </div>
                   </div>
                   <div>
@@ -279,17 +349,11 @@ const AccountUserProfilePage = () => {
                         defaultMessage="Language"
                       />
                     </div>
-                    <div className="text-sm text-[#B5B5C3]">English</div>
-                  </div>
-                  <div>
-                    <div className="text-base  text-black">
-                      <FormattedMessage
-                        id="PROFILE.GST_NO"
-                        defaultMessage="GST No"
-                      />
+                    <div className="text-sm text-[#B5B5C3]">
+                      {profileData.language}
                     </div>
-                    <div className="text-sm text-[#B5B5C3]">TX-8674</div>
                   </div>
+                 
                 </div>
               </div>
             </div>
@@ -343,6 +407,8 @@ const AccountUserProfilePage = () => {
           </section>
         </div>
       </Container>
+      
+      
     </Fragment>
   );
 };
