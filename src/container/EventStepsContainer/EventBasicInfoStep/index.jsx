@@ -78,7 +78,10 @@ const EventBasicInfoStep = ({
           {/* Inquiry Date */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_INQUIRY_DATE" defaultMessage="Inquiry Date" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_INQUIRY_DATE"
+                defaultMessage="Inquiry Date"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -108,7 +111,10 @@ const EventBasicInfoStep = ({
           {/* Status */}
           <div className="flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_STATUS_LABEL" defaultMessage="Status" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_STATUS_LABEL"
+                defaultMessage="Status"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -128,7 +134,10 @@ const EventBasicInfoStep = ({
           {/* Event Type */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_EVENT_TYPE_LABEL" defaultMessage="Event Type" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_EVENT_TYPE_LABEL"
+                defaultMessage="Event Type"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -159,7 +168,10 @@ const EventBasicInfoStep = ({
           {/* Start Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_START_EVENT_DATE_LABEL" defaultMessage="Start Event Date" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_START_EVENT_DATE_LABEL"
+                defaultMessage="Start Event Date"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -195,9 +207,12 @@ const EventBasicInfoStep = ({
           </div>
 
           {/* End Event Date */}
-          <div className="flex flex-col">
+          <div className="flex flex-col ">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_END_EVENT_DATE_LABEL" defaultMessage="End Event Date" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_END_EVENT_DATE_LABEL"
+                defaultMessage="End Event Date"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -213,7 +228,9 @@ const EventBasicInfoStep = ({
               value={
                 formData.eventEndDateTime
                   ? dayjs(formData.eventEndDateTime, "DD/MM/YYYY hh:mm A")
-                  : null
+                  : formData.eventStartDateTime
+                    ? dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
+                    : null
               }
               onChange={(date) =>
                 handleFormDataChange(
@@ -222,11 +239,15 @@ const EventBasicInfoStep = ({
                 )
               }
               disabledDate={(current) => {
-                return current && current < dayjs().startOf("day");
+                // End date cannot be before start date
+                return current && formData.eventStartDateTime
+                  ? current <
+                      dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
+                  : current && current < dayjs().startOf("day");
               }}
             />
             {errors.eventEndDateTime && (
-              <span className="text-red-600 font-normal text-sm mt-0.50">
+              <span className="text-red-600 font-normal text-sm mt-0.5">
                 {errors.eventEndDateTime}
               </span>
             )}
@@ -235,7 +256,10 @@ const EventBasicInfoStep = ({
           {/* Venue */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_VENUE" defaultMessage="Venue" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_VENUE"
+                defaultMessage="Venue"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -257,7 +281,10 @@ const EventBasicInfoStep = ({
           {/* Manager */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_MANAGER_LABEL" defaultMessage="Manager" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_MANAGER_LABEL"
+                defaultMessage="Manager"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>

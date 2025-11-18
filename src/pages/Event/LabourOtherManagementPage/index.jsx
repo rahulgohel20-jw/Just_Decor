@@ -54,6 +54,9 @@ const createEmptyLabourRow = () => ({
   quantity: "",
   total: "",
   place: "",
+  notesEnglish: "",
+  notesGujarati: "",
+  notesHindi: "",
 });
 
 const LabourOtherManagementPage = () => {
@@ -67,7 +70,7 @@ const LabourOtherManagementPage = () => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [activeTab, setActiveTab] = useState("Dinner");
+  const [activeTab, setActiveTab] = useState(null); // Changed to null initially
   const [activeCategory, setActiveCategory] = useState("Labour");
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,7 +87,7 @@ const LabourOtherManagementPage = () => {
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
 
   const [menuReportEventId, setMenuReportEventId] = useState(null);
-  const [notes, setNotes] = useState("");
+  const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
 
   const userId = storedUser?.id || eventData?.user?.id || 0;
 
@@ -111,10 +114,7 @@ const LabourOtherManagementPage = () => {
   }, [userId]);
 
   const activeFunction = useMemo(
-    () =>
-      eventData?.eventFunctions?.find(
-        (fn) => fn.function?.nameEnglish === activeTab
-      ),
+    () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
     [eventData, activeTab]
   );
 
@@ -135,7 +135,19 @@ const LabourOtherManagementPage = () => {
     editExpense,
     addExpense,
     closeModal,
+    refetchExpenses,
   } = useExtraExpense(activeFunction?.id, eventData?.id);
+
+  // Force refetch when activeFunction changes
+  useEffect(() => {
+    if (
+      activeFunction?.id &&
+      eventData?.id &&
+      typeof refetchExpenses === "function"
+    ) {
+      refetchExpenses();
+    }
+  }, [activeFunction?.id, eventData?.id]);
 
   useEffect(() => {
     const fetchContactCategories = async () => {
@@ -192,7 +204,11 @@ const LabourOtherManagementPage = () => {
           setEventData(event);
 
           if (event?.eventFunctions?.length > 0) {
-            setActiveTab(event.eventFunctions[0].function?.nameEnglish);
+            // Set activeTab to the first function's ID, not name
+            setActiveTab(event.eventFunctions[0].id);
+            setActiveFunctionName(
+              event.eventFunctions[0].function?.nameEnglish
+            );
             setSelectedFunctionPax(event.eventFunctions[0].pax || 0);
           }
         }
@@ -225,7 +241,7 @@ const LabourOtherManagementPage = () => {
               .flat()
               .find((c) => c.id === item.contactid)
               ?.nameEnglish?.trim() || "",
-          contactId: item.contactid, // Store the original contact ID
+          contactId: item.contactid,
           shift: item.laborshift || "",
           dateTime: parseDate(
             item.labordatetime,
@@ -235,6 +251,9 @@ const LabourOtherManagementPage = () => {
           quantity: item.qty || "",
           total: item.totalprice || "",
           place: item.place || "",
+          notesEnglish: item.notesEnglish || "",
+          notesGujarati: item.notesGujarati || "",
+          notesHindi: item.notesHindi || "",
         }));
 
         setLabourData(formattedRows);
@@ -279,7 +298,9 @@ const LabourOtherManagementPage = () => {
 
       setLabourData((prev) =>
         prev.map((r) =>
-          r.id === rowId ? { ...r, labourType: value, contact: "" } : r
+          r.id === rowId
+            ? { ...r, labourType: value, contact: "", contactId: null }
+            : r
         )
       );
 
@@ -289,6 +310,29 @@ const LabourOtherManagementPage = () => {
       }));
     },
     [labourCategories, allContacts]
+  );
+
+  const handleContactChange = useCallback(
+    (rowId, contactName) => {
+      const row = labourData.find((r) => r.id === rowId);
+      const contactList = filteredContacts[rowId] || [];
+      const selectedContact = contactList.find(
+        (c) => c.nameEnglish === contactName
+      );
+
+      setLabourData((prev) =>
+        prev.map((r) =>
+          r.id === rowId
+            ? {
+                ...r,
+                contact: contactName,
+                contactId: selectedContact?.id || null,
+              }
+            : r
+        )
+      );
+    },
+    [labourData, filteredContacts]
   );
 
   const addLabourRow = useCallback(() => {
@@ -316,19 +360,8 @@ const LabourOtherManagementPage = () => {
           (c) => c.nameEnglish === row.labourType
         );
 
-        // Use stored contactId if it exists (fetched data), otherwise find from contact name
-        let contactId = row.contactId; // Use the stored ID first
-
-        if (!contactId) {
-          // If no stored ID, find it from the contact name (for new rows)
-          const contact = (filteredContacts[row.id] || []).find(
-            (c) => c.nameEnglish === row.contact
-          );
-          contactId = contact?.id;
-        }
-
         return {
-          contactid: contactId,
+          contactid: row.contactId || 0,
           labordatetime: dayjs(
             row.dateTime,
             ["DD/MM/YYYY hh:mm A", "YYYY-MM-DD", "MMM D, YYYY"],
@@ -346,9 +379,14 @@ const LabourOtherManagementPage = () => {
           price: parseFloat(row.price || 0),
           qty: parseFloat(row.quantity || 0),
           totalprice: parseFloat(row.total || 0),
+          notesEnglish: row.notesEnglish || "",
+          notesGujarati: row.notesGujarati || "",
+          notesHindi: row.notesHindi || "",
         };
       }),
     };
+
+    console.log("Save Payload:", JSON.stringify(payload, null, 2));
 
     try {
       Swal.fire({
@@ -388,7 +426,7 @@ const LabourOtherManagementPage = () => {
                 .flat()
                 .find((c) => c.id === item.contactid)
                 ?.nameEnglish?.trim() || "",
-            contactId: item.contactid, // Store the original contact ID
+            contactId: item.contactid,
             shift: item.laborshift || "",
             dateTime: parseDate(
               item.labordatetime,
@@ -398,6 +436,9 @@ const LabourOtherManagementPage = () => {
             quantity: item.qty || "",
             total: item.totalprice || "",
             place: item.place || "",
+            notesEnglish: item.notesEnglish || "",
+            notesGujarati: item.notesGujarati || "",
+            notesHindi: item.notesHindi || "",
           }));
 
           setLabourData(formattedRows);
@@ -417,19 +458,29 @@ const LabourOtherManagementPage = () => {
         text: error?.response?.data?.message || "Something went wrong",
       });
     }
-  }, [
-    eventData,
-    activeFunction,
-    labourData,
-    labourCategories,
-    filteredContacts,
-    allContacts,
-  ]);
+  }, [eventData, activeFunction, labourData, labourCategories, allContacts]);
 
-  const handleSaveNotes = useCallback((newNotes) => {
-    setNotes(newNotes);
-    setIsNotesOpen(false);
-  }, []);
+  const handleSaveNotes = useCallback(
+    (notesData) => {
+      if (currentNoteRowId !== null) {
+        setLabourData((prev) =>
+          prev.map((row) =>
+            row.id === currentNoteRowId
+              ? {
+                  ...row,
+                  notesEnglish: notesData.notesEnglish || "",
+                  notesGujarati: notesData.notesGujarati || "",
+                  notesHindi: notesData.notesHindi || "",
+                }
+              : row
+          )
+        );
+      }
+      setIsNotesOpen(false);
+      setCurrentNoteRowId(null);
+    },
+    [currentNoteRowId]
+  );
 
   const openMenuReport = useCallback(() => {
     setMenuReportEventId(eventId);
@@ -439,7 +490,8 @@ const LabourOtherManagementPage = () => {
   const openSelectMenureport = useCallback(() => {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
-  });
+  }, [eventId]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -511,12 +563,12 @@ const LabourOtherManagementPage = () => {
               <button
                 key={fn.id}
                 onClick={() => {
-                  setActiveTab(fn.function?.nameEnglish);
+                  setActiveTab(fn.id);
                   setActiveFunctionName(fn.function?.nameEnglish);
                   setSelectedFunctionPax(fn.pax || 0);
                 }}
                 className={`px-8 py-3 text-sm font-medium transition-all duration-200 
-                  ${activeTab === fn.function?.nameEnglish ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"}
+                  ${activeTab === fn.id ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"}
                   ${index !== 0 ? "border-l border-gray-300" : ""}
                 `}
               >
@@ -592,19 +644,23 @@ const LabourOtherManagementPage = () => {
             eventData={eventData}
             onRowChange={handleRowChange}
             onLabourTypeChange={handleLabourTypeChange}
+            onContactChange={handleContactChange}
             onDelete={deleteRow}
             onAddRow={addLabourRow}
             onViewDetails={(row) => {
-              setSelectedRow(row); // store the clicked row
-              setIsLabourSidebarOpen(true); // open the sidebar
+              setSelectedRow(row);
+              setIsLabourSidebarOpen(true);
             }}
-            onAddNotes={() => setIsNotesOpen(true)}
+            onAddNotes={(row) => {
+              setCurrentNoteRowId(row.id);
+              setIsNotesOpen(true);
+            }}
             setSelectedRow={setSelectedRow}
             onSave={handleSave}
           />
         )}
 
-        {/* Extra Expense Table - Using separated component */}
+        {/* Extra Expense Table */}
         {activeCategory === "Extra Expense" && (
           <ExtraExpenseTable
             data={extraExpenseData}
@@ -617,8 +673,25 @@ const LabourOtherManagementPage = () => {
         {/* Modals */}
         <AddNotes
           isOpen={isNotesOpen}
-          onClose={() => setIsNotesOpen(false)}
-          initialNotes={notes}
+          onClose={() => {
+            setIsNotesOpen(false);
+            setCurrentNoteRowId(null);
+          }}
+          initialNotes={
+            currentNoteRowId !== null
+              ? {
+                  notesEnglish:
+                    labourData.find((row) => row.id === currentNoteRowId)
+                      ?.notesEnglish || "",
+                  notesGujarati:
+                    labourData.find((row) => row.id === currentNoteRowId)
+                      ?.notesGujarati || "",
+                  notesHindi:
+                    labourData.find((row) => row.id === currentNoteRowId)
+                      ?.notesHindi || "",
+                }
+              : { notesEnglish: "", notesGujarati: "", notesHindi: "" }
+          }
           onSave={handleSaveNotes}
         />
 
@@ -628,24 +701,28 @@ const LabourOtherManagementPage = () => {
           eventFunctionId={activeFunction?.id}
           eventId={eventData?.id}
           contactId={selectedRow?.contactId || null}
-          // <--- correct prop
         />
 
         {isExtraExpenseModalOpen && (
           <AddExtraExpense
             isOpen={isExtraExpenseModalOpen}
             onClose={closeModal}
-            eventData={eventData}
+            eventData={{
+              ...eventData,
+              eventFunctionId: activeFunction?.id,
+              eventId: eventData?.id,
+            }}
             selectedMeal={selectedExpense}
+            refreshData={refetchExpenses}
           />
         )}
+
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
-            activeFunctionName = { activeFunctionName };
           }}
         />
 
@@ -659,7 +736,7 @@ const LabourOtherManagementPage = () => {
   );
 };
 
-// Sub-components (Labour table components remain in main file)
+// Sub-components
 const EventInfoItem = ({ icon, label, value }) => (
   <div className="flex items-center gap-3">
     <i className={`ki-filled ${icon} text-success`}></i>
@@ -678,11 +755,11 @@ const LabourTable = ({
   shiftOptions,
   onRowChange,
   onLabourTypeChange,
+  onContactChange,
   onDelete,
   onAddRow,
   onViewDetails,
   onAddNotes,
-  setSelectedRow,
   onSave,
 }) => (
   <div className="card">
@@ -691,16 +768,16 @@ const LabourTable = ({
         <table className="table table-auto w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="text-center  w-[50px]">#</th>
-              <th className=" w-[3%]">Labour Type</th>
-              <th className=" w-[3%]">Contact</th>
-              <th className=" w-[20%]">Labour Shift</th>
-              <th className=" w-[25%]">Date Time</th>
-              <th className=" w-[15%]">Price</th>
-              <th className=" w-[15%]">Qty</th>
-              <th className=" w-[10%]">Total Price</th>
-              <th className=" w-[25%]">Place</th>
-              <th className="text-center  w-[5%]">Actions</th>
+              <th className="text-center w-[50px]">#</th>
+              <th className="w-[3%]">Labour Type</th>
+              <th className="w-[3%]">Contact</th>
+              <th className="w-[20%]">Labour Shift</th>
+              <th className="w-[25%]">Date Time</th>
+              <th className="w-[15%]">Price</th>
+              <th className="w-[15%]">Qty</th>
+              <th className="w-[10%]">Total Price</th>
+              <th className="w-[25%]">Place</th>
+              <th className="text-center w-[5%]">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -715,8 +792,9 @@ const LabourTable = ({
                 shiftOptions={shiftOptions}
                 onRowChange={onRowChange}
                 onLabourTypeChange={onLabourTypeChange}
+                onContactChange={onContactChange}
                 onDelete={onDelete}
-                onViewDetails={onViewDetails} // pass row
+                onViewDetails={onViewDetails}
                 onAddNotes={onAddNotes}
               />
             ))}
@@ -724,16 +802,14 @@ const LabourTable = ({
         </table>
       </div>
       <div className="p-4 border-t flex justify-between items-center">
-        {/* Left side: Add button */}
         <button
           onClick={onAddRow}
-          className="flex items-center gap-2 btn-primary  text-white-700 text-sm font-medium px-3 py-2 rounded-md transition"
+          className="flex items-center gap-2 btn-primary text-white-700 text-sm font-medium px-3 py-2 rounded-md transition"
         >
           <i className="ki-filled ki-plus text-white"></i>
           Add Another Labour Type
         </button>
 
-        {/* Right side: Save button */}
         <button
           onClick={onSave}
           className="btn-primary hover:bg-[#004A8C] text-white text-sm font-medium px-3 py-2 rounded-md transition"
@@ -754,6 +830,7 @@ const LabourRow = ({
   shiftOptions = [],
   onRowChange,
   onLabourTypeChange,
+  onContactChange,
   onDelete,
   onViewDetails,
   onAddNotes,
@@ -782,7 +859,7 @@ const LabourRow = ({
         showSearch
         placeholder="Select Contact"
         value={row.contact || undefined}
-        onChange={(value) => onRowChange(row.id, "contact", value)}
+        onChange={(value) => onContactChange(row.id, value)}
         style={{ width: "100%" }}
       >
         {(filteredContacts[row.id] || []).map((c) => (
@@ -868,16 +945,17 @@ const LabourRow = ({
       </select>
     </td>
     <td className="!px-[3px]">
-      <div className="flex items-center justify-center ">
+      <div className="flex items-center justify-center">
         <button
           className="btn btn-sm btn-icon btn-clear"
-          onClick={() => {
-            onViewDetails(row);
-          }}
+          onClick={() => onViewDetails(row)}
         >
           <i className="ki-filled ki-eye text-success"></i>
         </button>
-        <button className="btn btn-sm btn-icon btn-clear" onClick={onAddNotes}>
+        <button
+          className="btn btn-sm btn-icon btn-clear"
+          onClick={() => onAddNotes(row)}
+        >
           <i className="ki-filled ki-notepad text-primary"></i>
         </button>
         <button className="btn btn-sm btn-icon btn-clear">

@@ -127,6 +127,7 @@ import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
 import EventPreparationPage from "@/pages/Event/EventPreparationPage";
+import EventPlanningPage from "../pages/Event/EventPlanningPage";
 import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
 import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
 import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
@@ -185,6 +186,9 @@ import SuperAdminMember from "../pages/superadminmember/SuperAdminMember";
 import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit";
 import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
+import VenuetypeMaster from "../pages/master/Venue-type";
+import AddPackagesecond from "../pages/master/custom-package/Add-customepackage/AddPackagesecond";
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -229,15 +233,20 @@ const AppRoutingSetup = () => {
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
           />
-          <Route path="/menu-preparation" element={<EventPreparationPage />} />
+          <Route path="/menu-preparation" element={<EventPlanningPage />} />
+          <Route path="/menu-preparations" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
           <Route
-            path="/menu-preparation/:eventId"
+            path="/menu-preparations/:eventId"
             element={<EventPreparationPage mode="menu" />}
+          />
+          <Route
+            path="/menu-preparation/:eventId"
+            element={<EventPlanningPage mode="menu" />}
           />
           <Route
             path="/menu-allocation/:eventId"
@@ -262,8 +271,7 @@ const AppRoutingSetup = () => {
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
           />
-<Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
-
+          <Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
 
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/quotation/:eventId" element={<QuotationPage />} />
@@ -315,6 +323,7 @@ const AppRoutingSetup = () => {
             element={<ContactCategoryMaster />}
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
+          <Route path="/master/venue-type" element={<VenuetypeMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
@@ -349,6 +358,10 @@ const AppRoutingSetup = () => {
           <Route
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
+          />
+          <Route
+            path="/master/custom-package/addpackagesecond"
+            element={<AddPackagesecond />}
           />
           <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
           {/* Tasks routes */}

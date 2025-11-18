@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { GetUsersByRoleId, AssignDb } from "@/services/apiServices";
+import { Select, Input, message } from "antd";
 
 export default function DatabaseAssign({ open, onClose, selectedRow }) {
   const [formData, setFormData] = useState({
@@ -9,25 +11,94 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
     instructions: "",
   });
 
+  const [customers, setCustomers] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      console.log("🔔 Modal opened");
+      console.log("Selected row:", selectedRow);
+
+      if (selectedRow) {
+        setFormData({
+          databaseName: selectedRow.database_name || "",
+          customer: selectedRow.customer || "",
+          instructions: selectedRow.instructions || "",
+        });
+      }
+
+      fetchCustomers();
+    }
+  }, [open, selectedRow]);
+
+  const fetchCustomers = async () => {
+    try {
+      console.log("🔍 Fetching users with roleId = 2...");
+      const res = await GetUsersByRoleId(2);
+      console.log("📥 Full API Response:", res);
+
+      const users = Array.isArray(res.data.data["User Details"])
+        ? res.data.data["User Details"]
+        : [];
+
+      console.log("✔️ Extracted Users:", users);
+      setCustomers(users);
+    } catch (err) {
+      console.error("❌ Error fetching role-based users:", err);
+      setCustomers([]);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`📝 Input changed: ${name} = ${value}`);
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    console.log("Saving data:", formData, uploadedFile);
-    // Add your save logic here
+  const handleSave = async () => {
+    if (!formData.customer) {
+      message.error("Please select a customer");
+      return;
+    }
+
+    if (!selectedRow?.db_planning_id) {
+      message.error("Database ID is missing");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const payload = {
+        dbPlanningId: selectedRow.db_planning_id.toString(), // as string
+        userId: formData.customer.toString(), // customer/user ID
+      };
+
+      console.log("💾 Sending payload:", payload);
+
+      const res = await AssignDb(payload);
+
+      if (res?.data?.success) {
+        message.success("Database assigned successfully!");
+        onClose();
+      } else {
+        message.error(res?.data?.msg || "Failed to assign database");
+      }
+    } catch (err) {
+      console.error("❌ Error assigning database:", err);
+      message.error(err?.response?.data?.msg || "Error assigning database");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
+    console.log("❌ Cancel clicked, resetting form...");
     setFormData({
       databaseName: "",
-      version: "",
-      state: "",
-      remarks: "",
+      customer: "",
       instructions: "",
     });
-    setUploadedFile(null);
     onClose();
   };
 
@@ -35,7 +106,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[100]">
-          {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
             initial={{ opacity: 0 }}
@@ -44,7 +114,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
             onClick={onClose}
           />
 
-          {/* Drawer */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <motion.div
               role="dialog"
@@ -69,67 +138,61 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
                 </button>
               </div>
 
-              {/* Scrollable Content */}
-              <div className="p-4 md:p-6">
-                <div className="space-y-4 md:space-y-5">
-                  {/* Database Name and Version Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Selected Database
-                      </label>
-                      <input
-                        type="text"
-                        name="remarks"
-                        value={formData.databaseName}
-                        onChange={handleInputChange}
-                        placeholder="Placeholder text"
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Customer Name
-                      </label>
-                      <select
-                        name="state"
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white appearance-none cursor-pointer"
-                        style={{
-                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                          backgroundRepeat: "no-repeat",
-                          backgroundPosition: "right 0.75rem center",
-                          backgroundSize: "12px",
-                          paddingRight: "2.5rem",
-                        }}
-                      >
-                        <option value="">Placeholder text</option>
-                        <option value="tarun">Tarun</option>
-                        <option value="rahul">Rahul</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Instructions */}
+              {/* Content */}
+              <div className="p-4 md:p-6 space-y-4 md:space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Selected Database */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Instructions
+                      Selected Database
                     </label>
-                    <input
-                      type="text"
-                      name="instructions"
-                      value={formData.instructions}
-                      onChange={handleInputChange}
-                      placeholder="Placeholder text"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    <Input
+                      name="databaseName"
+                      value={formData.databaseName}
+                      placeholder="Database name"
+                      disabled
+                      className="bg-gray-100 text-black cursor-not-allowed"
+                    />
+                  </div>
+
+                  {/* Customer Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Customer Name
+                    </label>
+                    <Select
+                      showSearch
+                      placeholder="Search Customer"
+                      value={formData.customer || undefined}
+                      onChange={(value) =>
+                        setFormData((prev) => ({ ...prev, customer: value }))
+                      }
+                      options={customers.map((c) => ({
+                        value: c.id,
+                        label:
+                          c.firstName && c.lastName
+                            ? `${c.firstName} ${c.lastName}`
+                            : c.firstName || c.lastName || c.email,
+                      }))}
                     />
                   </div>
                 </div>
+
+                {/* Instructions */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Instructions
+                  </label>
+                  <Input
+                    name="instructions"
+                    value={formData.instructions}
+                    onChange={handleInputChange}
+                    placeholder="Instructions for customer"
+                  />
+                </div>
               </div>
 
-              {/* Footer with Buttons */}
+              {/* Footer */}
               <div className="border-t border-gray-200 p-4 md:p-6 flex gap-3 justify-center bg-white">
                 <button
                   onClick={handleCancel}
@@ -139,22 +202,10 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
                 </button>
                 <button
                   onClick={handleSave}
+                  disabled={saving}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2 text-sm"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-                    />
-                  </svg>
-                  Save
+                  {saving ? "Saving..." : "Save"}
                 </button>
               </div>
             </motion.div>
