@@ -1,185 +1,206 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Getmenuitems } from "@/services/apiServices";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Search, Plus, Mic, Check, Loader2 } from "lucide-react";
+import { Getmenuitemsusingcatid } from "@/services/apiServices";
 
-const MenuItemGridPackage = ({
-  category = "All",
-  pageSize = 100,
-  searchTerm = "",
-  selectedIdsSet = new Set(),
-  onToggleSelect = () => {},
-  selectedFunctionId = null,
-}) => {
+function MenuItemGridPackage({
+  onAddItem,
+  selectedItemIds = new Set(),
+  selectedCategory,
+}) {
   const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [pageNo, setPageNo] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState(null);
-
-  const userId = localStorage.getItem("userId");
-
+  const USER_ID = localStorage.getItem("userId");
+  const PAGE_SIZE = 100;
   const observerRef = useRef();
-  const sentinelRef = useRef();
+  const gridContainerRef = useRef(null);
+
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     setMenuItems([]);
-    setPageNo(1);
+    setPage(1);
     setHasMore(true);
-  }, [category, searchTerm, userId]);
+    setSearchQuery("");
+    isFetchingRef.current = false;
+  }, [selectedCategory]);
 
-  const fetchPage = useCallback(
-    async (page) => {
-      try {
+  const fetchMenuItems = useCallback(
+    async (category, pageNum) => {
+      if (pageNum === 1) {
+        isFetchingRef.current = false;
         setLoading(true);
-        setError(null);
+      } else {
+        if (isFetchingRef.current || !hasMore) return;
+        isFetchingRef.current = true;
+        setLoading(true);
+      }
 
-        let response;
+      try {
+        const categoryIdToPass = category === "all" ? 0 : category;
 
-        try {
-          response = await Getmenuitems(
-            page,
-            pageSize,
-            userId,
-            category === "All" ? undefined : category,
-            searchTerm || undefined
-          );
-        } catch {
-          response = await Getmenuitems(page, pageSize, userId);
-        }
-
-        const items =
-          response?.data?.data?.items || response?.data?.items || [];
-
-        const filtered =
-          category !== "All"
-            ? items.filter(
-                (i) =>
-                  (
-                    i.menuCategory?.nameEnglish ||
-                    i.menuCategory?.name ||
-                    ""
-                  ).toLowerCase() === category.toLowerCase()
-              )
-            : items;
-
-        setMenuItems((prev) =>
-          page === 1 ? filtered : [...prev, ...filtered]
+        const response = await Getmenuitemsusingcatid(
+          pageNum,
+          PAGE_SIZE,
+          USER_ID,
+          categoryIdToPass
         );
 
-        setHasMore(filtered.length === pageSize);
-      } catch (err) {
-        setError("Failed to load items");
+        const newItems = response.data?.data?.items || [];
+        const totalCount = response.data?.data?.totalItems || 0;
+
+        setMenuItems((prevItems) => {
+          return pageNum === 1 ? newItems : [...prevItems, ...newItems];
+        });
+
+        const isEndOfData =
+          pageNum * PAGE_SIZE >= totalCount || newItems.length < PAGE_SIZE;
+
+        if (isEndOfData) {
+          setHasMore(false);
+        } else {
+          setPage((prevPage) => prevPage + 1);
+          setHasMore(true);
+        }
+      } catch (error) {
+        console.error("Failed to fetch menu items:", error);
+        setHasMore(false);
       } finally {
         setLoading(false);
+        isFetchingRef.current = false;
       }
     },
-    [pageSize, userId, category, searchTerm]
+    [hasMore, USER_ID]
   );
 
   useEffect(() => {
-    if (!userId) return;
-    fetchPage(pageNo);
-  }, [pageNo, userId, category, searchTerm]);
+    fetchMenuItems(selectedCategory, 1);
+  }, [selectedCategory, fetchMenuItems]);
 
+  // 2. Intersection Observer for Infinite Scroll
   useEffect(() => {
-    if (!sentinelRef.current) return;
-    if (observerRef.current) observerRef.current.disconnect();
+    const target = observerRef.current;
+    if (!target) return;
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && !loading && hasMore) {
-          setPageNo((prev) => prev + 1);
-        }
-      },
-      {
-        root: null,
-        rootMargin: "200px",
-        threshold: 0.1,
+    const options = {
+      root: gridContainerRef.current,
+      rootMargin: "200px",
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      // Check if the sentinel is intersecting, we expect more data, and we are NOT actively loading
+      if (entries[0].isIntersecting && hasMore && !isFetchingRef.current) {
+        fetchMenuItems(selectedCategory, page);
       }
-    );
+    }, options);
 
-    observerRef.current.observe(sentinelRef.current);
+    observer.observe(target);
 
-    return () => observerRef.current.disconnect();
-  }, [loading, hasMore]);
+    return () => {
+      observer.unobserve(target);
+    };
+  }, [hasMore, selectedCategory, fetchMenuItems, page]);
 
-  const onItemClick = (item) => {
-    const catName =
-      item.menuCategory?.nameEnglish ||
-      item.menuCategory?.name ||
-      item.menuCategoryName ||
-      "Uncategorized";
+  const filteredItems = menuItems.filter((item) =>
+    (item.nameEnglish || item.name || "")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
-    onToggleSelect(item, catName);
+  const handleItemClick = (item) => {
+    onAddItem(item);
   };
 
-  if (loading && pageNo === 1)
-    return (
-      <div className="flex justify-center items-center h-40">
-        <div className="animate-spin h-12 w-12 rounded-full border-b-2 border-blue-600"></div>
-      </div>
-    );
-
   return (
-    <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-        {menuItems.map((item) => {
-          const id = item.id;
-          const displayName = item.nameEnglish || item.menuItemName || "";
+    <div className="flex-1 bg-gray-50 flex flex-col h-full">
+      <div className="p-4 bg-white border border-gray-200">
+        <div className="relative max-w-2xl">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search items"
+            className="w-full pl-10 pr-24 py-2 border border-gray-300 rounded-lg focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
+            <button className="bg-primary text-white rounded-full p-2">
+              <Plus className="w-4 h-4" />
+            </button>
+            <button className="bg-primary text-white rounded-full p-2">
+              <Mic className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
 
-          const numericId = Number(id);
-          const isSelected =
-            selectedIdsSet.has(numericId) ||
-            selectedIdsSet.has(String(numericId));
+      <div ref={gridContainerRef} className="flex-1 overflow-y-auto p-2">
+        {filteredItems.length === 0 && !loading && (
+          <div className="flex items-center justify-center h-64 text-gray-500">
+            {searchQuery
+              ? `No items found matching "${searchQuery}"`
+              : "No items available"}
+          </div>
+        )}
 
-          return (
+        <div className="grid grid-cols-4 gap-4">
+          {filteredItems.map((item) => (
             <div
-              key={id}
-              onClick={() => onItemClick(item)}
-              className={`flex flex-col items-start border rounded-lg cursor-pointer relative
-                ${
-                  isSelected
-                    ? "border-green-500 bg-green-100/30"
-                    : "hover:bg-blue-100/40 hover:border-blue-300"
-                }`}
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={`bg-white rounded-lg p-3 cursor-pointer hover:shadow-md transition-all relative ${
+                selectedItemIds.has(item.id)
+                  ? "border-2 border-success"
+                  : "border border-gray-200"
+              }`}
             >
-              <div className="w-full h-20 bg-gray-100 flex items-center justify-center">
-                {item.imagePath ? (
+              {selectedItemIds.has(item.id) && (
+                <div className="absolute top-1 right-1 bg-success rounded-full p-1">
+                  <Check className="w-4 h-4 text-white" />
+                </div>
+              )}
+              <div className="aspect-square bg-gray-100 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                {item.image ? (
                   <img
-                    src={item.imagePath}
+                    src={item.image}
+                    alt={item.nameEnglish || item.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="text-gray-400 text-xs">No Image</div>
                 )}
               </div>
+              <p className="text-sm font-medium text-gray-800 text-center leading-tight">
+                {item.nameEnglish || item.name}
+              </p>
+            </div>
+          ))}
 
-              <div className="w-full text-center text-xs font-medium p-2">
-                {displayName}
-              </div>
-
-              {isSelected && (
-                <span className="absolute top-2 right-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  ✓
-                </span>
+          {hasMore && (
+            <div ref={observerRef} className="col-span-4 py-4">
+              {loading && (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <span className="ml-2 text-gray-600">
+                    Loading more items...
+                  </span>
+                </div>
               )}
             </div>
-          );
-        })}
-      </div>
+          )}
 
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
-      <div ref={sentinelRef} className="h-8 flex items-center justify-center">
-        {loading && (
-          <div className="animate-spin h-6 w-6 rounded-full border-b-2 border-blue-600"></div>
-        )}
-        {!hasMore && !loading && (
-          <p className="text-gray-400 text-xs">No more items</p>
-        )}
+          {!hasMore && menuItems.length > 0 && (
+            <div className="col-span-4 py-4 text-center text-gray-500 text-sm">
+              You've reached the end of the menu items.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default MenuItemGridPackage;

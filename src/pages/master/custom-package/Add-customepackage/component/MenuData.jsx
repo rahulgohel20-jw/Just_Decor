@@ -1,0 +1,38 @@
+const MenuData = {
+  categories: [
+    { id: "all", name: "All" },
+    { id: "welcome", name: "WELCOME DRINKS" },
+    { id: "starters", name: "STARTERS" },
+    { id: "salad", name: "SALAD" },
+    { id: "barbeque", name: "BAR BE QUE" },
+    { id: "sweet", name: "SWEET STATION" },
+    { id: "icecream", name: "ICE CREAM - DESSERTS" },
+    { id: "water", name: "MINERAL WATER" },
+    { id: "south", name: "SOUTH INDIAN" },
+    { id: "farshan", name: "FARSHAN" },
+  ],
+  items: [
+    { id: 1, name: "AALOO KA ZHOL", category: "PUNJABI", image: "" },
+    { id: 2, name: "AALOO MUTTER PUNJABI", category: "PUNJABI", image: "" },
+    { id: 3, name: "AALOO PARATHA", category: "PUNJABI", image: "" },
+    { id: 4, name: "AALU PAROTHA", category: "PUNJABI", image: "" },
+    { id: 5, name: "AATHELA MARCHA READY", category: "GUJARATI", image: "" },
+    { id: 6, name: "ACHARI AALU.", category: "PUNJABI", image: "" },
+    { id: 7, name: "ADAD NI DAL", category: "GUJARATI", image: "" },
+    {
+      id: 8,
+      name: "AKHROT ANJEER HALWA (HOT)",
+      category: "PUNJABI",
+      image: "",
+    },
+    { id: 9, name: "AKHROT BADAM HALVO LIVE", category: "PUNJABI", image: "" },
+    { id: 10, name: "ALMOND PAYASAM", category: "SOUTH INDIAN", image: "" },
+    { id: 11, name: "ALOO BHINDI DRY", category: "PUNJABI", image: "" },
+    { id: 12, name: "ALOO PAPDI CHAT", category: "FARSHAN", image: "" },
+    { id: 13, name: "ALOO SAKARIA CHAAT", category: "FARSHAN", image: "" },
+    { id: 14, name: "ALOO TIKKI", category: "FARSHAN", image: "" },
+    { id: 15, name: "ALU MUTER SAMOSA", category: "FARSHAN", image: "" },
+    { id: 16, name: "AMERICAN CRUZ", category: "WELCOME DRINKS", image: "" },
+  ],
+};
+export default MenuData;
