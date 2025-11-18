@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { message, Spin, Input } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -9,6 +9,7 @@ import { getAllByRoleId, updateStatusApprove } from "@/services/apiServices";
 import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 
 const AllUser = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -74,11 +75,11 @@ const AllUser = () => {
       setFilteredData(
         tableData.filter(
           (u) =>
-            u.first_name?.toLowerCase().includes(lower) ||
-            u.last_name?.toLowerCase().includes(lower) ||
+            u.fullName?.toLowerCase().includes(lower) ||
             u.email?.toLowerCase().includes(lower) ||
             u.companyName?.toLowerCase().includes(lower) ||
-            u.plan?.toLowerCase().includes(lower)
+            u.plan?.toLowerCase().includes(lower) ||
+            u.userCode?.toLowerCase().includes(lower)
         )
       );
     }
@@ -88,6 +89,7 @@ const AllUser = () => {
     setEditingUserId(user);
     setIsModalOpen(true);
   };
+  
   const handleApprove = async (userId) => {
     try {
       setLoading(true);
@@ -128,10 +130,12 @@ const AllUser = () => {
       </div>
 
       {loading ? (
-        <Spin tip="Loading..." />
+        <div className="flex justify-center items-center h-96">
+          <Spin size="large" tip="Loading..." />
+        </div>
       ) : (
         <TableComponent
-          columns={columns(handleEdit, handleApprove)}
+          columns={columns(handleEdit, handleApprove, navigate)}
           data={filteredData}
           paginationSize={10}
         />
@@ -141,7 +145,7 @@ const AllUser = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         refreshData={handleFetchByRoleId}
-        userId={editingUserId} // pass id here
+        userId={editingUserId}
       />
     </Container>
   );

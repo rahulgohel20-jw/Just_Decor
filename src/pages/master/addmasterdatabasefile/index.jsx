@@ -109,6 +109,7 @@ export default function AddMasterDatabaseFile({
 
     try {
       const res = await DatabaseReadExcle(formDataToSend);
+      console.log("response",res);
 
       if (res?.data?.success) {
         await Swal.fire({
