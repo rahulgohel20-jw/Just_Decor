@@ -36,6 +36,7 @@ const EventPlanningPage = () => {
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [selectedByFunction, setSelectedByFunction] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const userDataRaw = localStorage.getItem("userData");
   const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
@@ -368,6 +369,10 @@ const EventPlanningPage = () => {
       setIsSaving(false);
     }
   };
+  const handleCategoryChange = (categoryName, categoryId) => {
+    setSelectedCategory(categoryName);
+    setSelectedCategoryId(categoryId);
+  };
 
   const handleCancel = () => {
     navigate(-1);
@@ -607,7 +612,7 @@ const EventPlanningPage = () => {
                 >
                   <CategoryList
                     selectedCategory={selectedCategory}
-                    onCategoryChange={(cat) => setSelectedCategory(cat)}
+                    onCategoryChange={handleCategoryChange}
                   />
                 </div>
               </div>
@@ -643,6 +648,7 @@ const EventPlanningPage = () => {
                 >
                   <MenuItemGrid
                     category={selectedCategory}
+                    categoryId={selectedCategoryId}
                     pageSize={100}
                     searchTerm={searchTerm}
                     selectedIdsSet={getSelectedIdsForFunction(selectedFunction)}
