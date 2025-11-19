@@ -400,13 +400,14 @@ export const GetAllCategoryformenu = (id) => {
 //Get menu preparation items
 export const Getmenuprep = (
   eventFunId,
+  itemname,
   menuCatId,
   pageNo,
   TotalRecord,
   UserId
 ) => {
   return GET(
-    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&itemName=${itemname}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
   );
 };
 
@@ -714,6 +715,10 @@ export const Translateapi = (data) => {
 
 export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
+};
+
+export const GetCustomPackageapibyID = (id) => {
+  return GET(`/custompackage/getbyid?id=${id}`);
 };
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
