@@ -1,1521 +1,663 @@
-import { Fragment, useState, useEffect, useMemo } from "react";
-import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { useNavigate, useLocation } from "react-router-dom";
-import MenuItemGrid from "../../../Event/EventPlanningPage/components/MenuItemGrid";
-import Selecteditemscustomepackage from "../../../Event/EventPreparationPage/components/Selecteditemcustomepackage";
-import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
+import { useState, useMemo, useEffect } from "react";
+import CategoryListpackage from "./component/CategoryListpackage";
+import MenuItemGridPackage from "./component/MenuItemGridPackage";
+import SelectedItemPackage from "./component/SelectedItemPackage";
+import AddMenuCategory from "../../../../partials/modals/add-menu-category/AddMenuCategory";
 import {
-  useCategories,
-  useMenuItems,
-} from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import Swal from "sweetalert2";
-import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
-import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
-import {
-  Translateapi,
   AddCustomPackageapi,
-  UpdateCustomPackageapi,
-  GetCustomPackageapi,
+  GetCustomPackageById,
+  UpdateCustomPackage,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
+import {
+  GetAllCategoryformenu,
+  Getmenuitemsusingcatid,
+} from "@/services/apiServices";
+import AddMenuItem from "../../../../partials/modals/add-menu-item/AddMenuItem";
+import MenuNotes from "../../../../partials/modals/menu-notes/MenuNotes";
+import { useParams, useSearchParams } from "react-router-dom";
 
-const AddCustomPackage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+function AddCustomPackage() {
+  const [searchParams] = useSearchParams();
+  const packageId = searchParams.get("id"); // Get package ID from URL query params
 
-  const searchParams = new URLSearchParams(location.search);
-  const packageId = searchParams.get("id");
-  const isEditMode = !!packageId;
-
-  const [search, setSearch] = useState("");
-  const [itemNotes, setItemNotes] = useState({});
-  const [categoryNotes, setCategoryNotes] = useState({});
-  const [childSearch, setChildSearch] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [showDetails, setShowDetails] = useState(false);
-  const [globalAnyItems, setGlobalAnyItems] = useState(0);
-  const [categoryAnyItems, setCategoryAnyItems] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [categoryItemCounts, setCategoryItemCounts] = useState({});
+  const [categoryOrder, setCategoryOrder] = useState([]);
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [isLoadingPackage, setIsLoadingPackage] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [editModeItems, setEditModeItems] = useState([]);
+  const [notesModal, setNotesModal] = useState({
+    isOpen: false,
+    itemIndex: null,
+    notes: { itemsNotes: "", itemSlogan: "" },
+  });
 
-  const [showItemNoteModal, setShowItemNoteModal] = useState(false);
-  const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
-
-  const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
-  const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
-
-  const { categories, fetchCategories } = useCategories();
-  const {
-    menuItems,
-    loading: menuLoading,
-    fetchMenuItems,
-    allMenuItems,
-  } = useMenuItems();
-
-  const [initialValues, setInitialValues] = useState({
+  const [formData, setFormData] = useState({
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
     price: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const allCategory = { id: 0, name: "All" };
-  const categoriesWithAll = [allCategory, ...categories];
+  // ✅ Load Package Data if editing
+  useEffect(() => {
+    if (packageId) {
+      loadPackageData(packageId);
+    }
+  }, [packageId]);
 
+  // ✅ Load Categories on First Render
   useEffect(() => {
     fetchCategories();
-    fetchMenuItems(0);
   }, []);
 
-  useEffect(() => {
-    if (packageId && categories.length > 0) {
-      fetchPackageDetails(packageId);
+  const handleSaveNotes = (newNotes) => {
+    // If this is category-level notes
+    if (String(notesModal.itemIndex).startsWith("cat-")) {
+      const categoryId = notesModal.itemIndex.replace("cat-", "");
+
+      setCategoryItemCounts((prev) => ({
+        ...prev,
+        [categoryId]: {
+          ...prev[categoryId],
+          menuInstruction: newNotes.itemsNotes || "",
+        },
+      }));
     }
-  }, [packageId, categories]);
-  {
-    categories
-      .filter((cat) => selectedItems.some((sel) => sel.categoryId === cat.id))
-      .map((cat) => <Category key={cat.id} cat={cat} />);
+    // Otherwise, this is item-level notes
+    else {
+      setSelectedItems((prev) =>
+        prev.map((item, idx) =>
+          idx === notesModal.itemIndex
+            ? {
+                ...item,
+                itemsNotes: newNotes.itemsNotes || "",
+                itemSlogan: newNotes.itemSlogan || "",
+              }
+            : item
+        )
+      );
+    }
+
+    // Close modal after saving
+    setNotesModal({
+      isOpen: false,
+      itemIndex: null,
+      notes: { itemsNotes: "", itemSlogan: "" },
+    });
+  };
+
+  const handleOpenCategoryNotes = (categoryId) => {
+    setNotesModal({
+      isOpen: true,
+      itemIndex: `cat-${categoryId}`,
+      notes: {
+        itemsNotes: categoryItemCounts[categoryId]?.menuInstruction || "",
+        itemSlogan: "",
+      },
+    });
+  };
+
+  // ✅ NEW: Load existing package data
+  const loadPackageData = async (id) => {
+    setIsLoadingPackage(true);
+    try {
+      const response = await GetCustomPackageById(id);
+
+      if (
+        response?.data?.success &&
+        response.data.data["Package Details"]?.[0]
+      ) {
+        const packageData = response.data.data["Package Details"][0];
+
+        // Set form data
+        setFormData({
+          nameEnglish: packageData.nameEnglish || "",
+          nameGujarati: packageData.nameGujarati || "",
+          nameHindi: packageData.nameHindi || "",
+          price: packageData.price?.toString() || "",
+        });
+
+        // Wait for categories to load first
+        await fetchCategories();
+
+        // Process package details to reconstruct selected items
+        const itemsToSelect = [];
+        const counts = {};
+
+        // Sort by menuSortOrder to maintain order
+        const sortedDetails = [...packageData.customPackageDetails].sort(
+          (a, b) => a.menuSortOrder - b.menuSortOrder
+        );
+        setCategoryOrder(sortedDetails.map((d) => String(d.menuId)));
+
+        for (const detail of sortedDetails) {
+          const categoryId = String(detail.menuId);
+
+          // Set anyItem count for this category
+          if (detail.anyItem) {
+            counts[categoryId] = detail.anyItem;
+          }
+
+          // Sort items by itemSortOrder
+          const sortedItems = [...detail.customPackageMenuItemDetails].sort(
+            (a, b) => a.itemSortOrder - b.itemSortOrder
+          );
+
+          // Fetch full item details for each menu item
+          for (const item of sortedItems) {
+            try {
+              // Fetch the full item data using the menuItemId
+              const itemResponse = await Getmenuitemsusingcatid(
+                1,
+                100,
+                localStorage.getItem("userId") || 1,
+                detail.menuId
+              );
+
+              const fullItem = itemResponse.data?.data?.items?.find(
+                (i) => i.id === item.menuItemId
+              );
+
+              if (fullItem) {
+                itemsToSelect.push({
+                  ...fullItem,
+                  rate: item.itemPrice || 0,
+                  category: categoryId,
+                  itemsNotes: item.itemInstruction || "",
+                  itemSlogan: "", // Not stored in API, default empty
+                });
+              } else {
+                // Fallback: create item from API data if full item not found
+                itemsToSelect.push({
+                  id: item.menuItemId,
+                  nameEnglish: item.itemName,
+                  rate: item.itemPrice || 0,
+                  category: categoryId,
+                  itemsNotes: item.itemInstruction || "",
+                  itemSlogan: "",
+                  menuCategory: {
+                    id: detail.menuId,
+                    nameEnglish: detail.menuName,
+                  },
+                });
+              }
+            } catch (err) {
+              console.error(`Error fetching item ${item.menuItemId}:`, err);
+              // Fallback item
+              itemsToSelect.push({
+                id: item.menuItemId,
+                nameEnglish: item.itemName,
+                rate: item.itemPrice || 0,
+                category: categoryId,
+                itemsNotes: item.itemInstruction || "",
+                itemSlogan: "",
+                menuCategory: {
+                  id: detail.menuId,
+                  nameEnglish: detail.menuName,
+                },
+              });
+            }
+          }
+        }
+
+        setSelectedItems(itemsToSelect);
+        setCategoryItemCounts(counts);
+      }
+    } catch (error) {
+      console.error("Error loading package:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load package data",
+      });
+    } finally {
+      setIsLoadingPackage(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const userId = localStorage.getItem("userId") || 1;
+      const res = await GetAllCategoryformenu(userId);
+
+      if (res?.data) {
+        const fetchedCategories = res.data.data["Menu Category Details"] || [];
+        setCategories(fetchedCategories);
+
+        const counts = {};
+        counts["all"] = categoryItemCounts["all"] ?? 0;
+
+        fetchedCategories.forEach((cat) => {
+          const key = String(cat.id);
+          counts[key] = categoryItemCounts[key] ?? 0;
+        });
+
+        setCategoryItemCounts(counts);
+      }
+    } catch (err) {
+      console.error("Error loading categories:", err);
+    }
+  };
+
+  const refreshMenuItems = () => {
+    console.log("Refreshing menu items...");
+  };
+
+  const handleOpenNotes = (index) => {
+    const item = selectedItems[index];
+
+    setNotesModal({
+      isOpen: true,
+      itemIndex: index,
+      notes: {
+        itemsNotes: item?.itemsNotes || "",
+        itemSlogan: item?.itemSlogan || "",
+      },
+    });
+  };
+
+  if (String(notesModal.itemIndex).startsWith("cat-")) {
+    const categoryId = notesModal.itemIndex.replace("cat-", "");
+
+    setCategoryItemCounts((prev) => ({
+      ...prev,
+      [categoryId]: {
+        ...prev[categoryId],
+        menuInstruction: newNotes.itemsNotes,
+      },
+    }));
+  } else {
+    // Item notes logic stays same
   }
 
-  const fetchPackageDetails = async (id) => {
-    try {
-      setLoading(true);
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const res = await GetCustomPackageapi(userData.id);
+  const handleToggleItem = (item) => {
+    const existingIndex = selectedItems.findIndex(
+      (selectedItem) => selectedItem.id === item.id
+    );
 
-      const allPackages = res?.data?.data?.["Package Details"] || [];
-      const selectedPackage = allPackages.find(
-        (pkg) => pkg.id === parseInt(id)
-      );
-      if (!selectedPackage) return;
-
-      setInitialValues({
-        nameEnglish: selectedPackage.nameEnglish || "",
-        nameGujarati: selectedPackage.nameGujarati || "",
-        nameHindi: selectedPackage.nameHindi || "",
-        price: selectedPackage.price || "",
-      });
-
-      const extractedItemIds = [];
-      const extractedItemNotes = {};
-      const extractedCategoryNotes = {};
-      const extractedCategoryAnyItems = {};
-      const itemsForPool = [];
-      const seenItemIds = new Set();
-
-      const allDetails = selectedPackage.customPackageDetails || [];
-
-      allDetails.forEach((categoryDetail) => {
-        const categoryId = categoryDetail.menuId;
-        const categoryName = categoryDetail.menuName;
-
-        if (categoryDetail.anyItem > 0) {
-          extractedCategoryAnyItems[categoryId] = categoryDetail.anyItem;
-        }
-
-        extractedCategoryNotes[categoryId] =
-          categoryDetail.menuInstruction || "";
-
-        (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
-          const itemId = Number(item.menuItemId);
-
-          if (seenItemIds.has(itemId)) {
-            console.warn(`Duplicate item detected: ${itemId}`);
-            return;
-          }
-
-          seenItemIds.add(itemId);
-          extractedItemIds.push(itemId);
-
-          itemsForPool.push({
-            id: itemId,
-            name: item.itemName,
-            parentId: categoryId,
-            price: item.itemPrice,
-            dbRowId: item.id,
-          });
-
-          extractedItemNotes[itemId] = item.itemInstruction || "";
-        });
-      });
-
-      setEditModeItems(itemsForPool);
-      setSelectedItems(extractedItemIds);
-      setItemNotes(extractedItemNotes);
-      setCategoryNotes(extractedCategoryNotes);
-      setCategoryAnyItems(extractedCategoryAnyItems);
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Failed to load package details.", "error");
-    } finally {
-      setLoading(false);
+    if (existingIndex !== -1) {
+      setSelectedItems(selectedItems.filter((_, idx) => idx !== existingIndex));
+      return;
     }
+
+    const categoryId = item.menuCategory?.id;
+
+    setSelectedItems([
+      ...selectedItems,
+      {
+        ...item,
+        rate: 0,
+        category: String(categoryId),
+        itemsNotes: "",
+        itemSlogan: "",
+      },
+    ]);
   };
 
-  const handleItemNoteClick = (itemId) => {
-    setCurrentItemForNotes(itemId);
-    setItemNotes((prev) => ({
+  const handleRemoveItem = (index) => {
+    setSelectedItems(selectedItems.filter((_, idx) => idx !== index));
+  };
+
+  const handleUpdateRate = (index, rate) => {
+    const updated = [...selectedItems];
+    updated[index] = { ...updated[index], rate };
+    setSelectedItems(updated);
+  };
+
+  const handleCategoryItemCountChange = (categoryId, count) => {
+    setCategoryItemCounts((prev) => ({
       ...prev,
-      [itemId]: prev[itemId] || "",
+      [String(categoryId)]: Number(count),
     }));
-    setShowItemNoteModal(true);
   };
 
-  const handleCategoryNoteClick = (categoryId) => {
-    setCurrentCategoryForNotes(categoryId);
-    setCategoryNotes((prev) => ({
+  const handleReorder = (reorderedItems) => {
+    console.log("Parent received reorder:", reorderedItems);
+    setSelectedItems([...reorderedItems]);
+  };
+
+  const handleReorderCategories = (fromIndex, toIndex) => {
+    setCategoryOrder((prevOrder) => {
+      const updated = [...prevOrder];
+      const moved = updated.splice(fromIndex, 1)[0];
+      updated.splice(toIndex, 0, moved);
+      return updated;
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [categoryId]: prev[categoryId] || "",
+      [name]: value,
     }));
-    setShowCategoryNoteModal(true);
-  };
 
-  const handleItemNoteSave = (savedNotes) => {
-    if (currentItemForNotes !== null) {
-      setItemNotes((prev) => ({
+    if (errors[name]) {
+      setErrors((prev) => ({
         ...prev,
-        [currentItemForNotes]: savedNotes.itemsNotes || "",
-      }));
-    }
-    setShowItemNoteModal(false);
-    setCurrentItemForNotes(null);
-  };
-
-  const handleCategoryNoteSave = (savedNotes) => {
-    if (currentCategoryForNotes !== null) {
-      setCategoryNotes((prev) => ({
-        ...prev,
-        [currentCategoryForNotes]: savedNotes.categoryNotes || "",
-      }));
-      setShowCategoryNoteModal(false);
-      setCurrentCategoryForNotes(null);
-    }
-  };
-
-  const handleCategoryChange = async (categoryId, e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setSelectedCategoryId(categoryId);
-    await fetchMenuItems(categoryId);
-  };
-
-  const handleGlobalAnyItemsChange = (value) => {
-    const numValue = parseInt(value) || 0;
-    setGlobalAnyItems(numValue);
-
-    if (selectedCategoryId === 0) {
-      // If "All" selected → apply to all selected categories
-      const updated = {};
-      const selectedCategoryIds = selectedMenuItems.map(
-        (item) => item.parentId
-      );
-      selectedCategoryIds.forEach((catId) => {
-        updated[catId] = numValue;
-      });
-      setCategoryAnyItems((prev) => ({ ...prev, ...updated }));
-    } else {
-      // Apply only to the currently selected category
-      setCategoryAnyItems((prev) => ({
-        ...prev,
-        [selectedCategoryId]: numValue,
+        [name]: "",
       }));
     }
   };
 
-  const handleCategoryAnyItemsChange = (categoryId, value) => {
-    const numValue = parseInt(value) || 0;
-    setCategoryAnyItems((prev) => ({
-      ...prev,
-      [categoryId]: numValue,
-    }));
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.nameEnglish.trim()) {
+      newErrors.nameEnglish = "English name is required";
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      newErrors.price = "Valid price is required";
+    }
+
+    if (selectedItems.length === 0) {
+      newErrors.items = "Please select at least one item";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleUpdateItemNote = (itemId, note) => {
-    setItemNotes((prev) => ({
-      ...prev,
-      [itemId]: note,
-    }));
-  };
+  const buildPackagePayload = () => {
+    const userId = Number(localStorage.getItem("userId"));
 
-  const handleUpdateCategoryNote = (categoryId, note) => {
-    setCategoryNotes((prev) => ({
-      ...prev,
-      [categoryId]: note,
-    }));
-  };
-
-  const handleReorder = ({
-    sourceCategory,
-    destCategory,
-    sourceIndex,
-    destIndex,
-    itemId,
-  }) => {
-    setSelectedItems((prev) => {
-      const newItems = [...prev];
-      const itemIndex = newItems.indexOf(Number(itemId));
-
-      if (itemIndex === -1) return prev;
-
-      const [movedItem] = newItems.splice(itemIndex, 1);
-      let newIndex = destIndex;
-      if (sourceCategory === destCategory && sourceIndex < destIndex) {
-        newIndex--;
-      }
-
-      newItems.splice(newIndex, 0, movedItem);
-      return newItems;
-    });
-  };
-
-  const allItemsPool = useMemo(() => {
-    const combined = [...menuItems, ...allMenuItems, ...editModeItems];
-
-    const uniqueMap = new Map();
-    combined.forEach((item) => {
-      const id = Number(item.id);
-      if (!uniqueMap.has(id)) {
-        uniqueMap.set(id, item);
-      }
-    });
-
-    return Array.from(uniqueMap.values());
-  }, [menuItems, allMenuItems, editModeItems]);
-
-  const toggleChildSelection = (id) => {
-    id = Number(id);
-
-    const item = allItemsPool.find((i) => Number(i.id) === id);
-    const parentId = item?.parentId;
-
-    setSelectedItems((prev) => {
-      const exists = prev.includes(id);
-      if (exists) {
-        return prev.filter((pid) => pid !== id);
-      } else {
-        // ✅ If category has no manual value yet, apply current global any items
-        setCategoryAnyItems((prevCatAny) => {
-          if (
-            parentId &&
-            prevCatAny[parentId] === undefined &&
-            globalAnyItems > 0
-          ) {
-            return {
-              ...prevCatAny,
-              [parentId]: globalAnyItems,
-            };
-          }
-          return prevCatAny;
-        });
-
-        return [...prev, id];
-      }
-    });
-  };
-
-  const filteredCategories = categoriesWithAll.filter(({ name }) =>
-    name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const menuItemsWithSelectionState = menuItems.map((item) => ({
-    ...item,
-    isSelected: selectedItems.includes(Number(item.id)),
-  }));
-
-  const filteredChildren = menuItemsWithSelectionState.filter((child) =>
-    child.name.toLowerCase().includes(childSearch.toLowerCase())
-  );
-
-  const selectedMenuItems = useMemo(() => {
-    return selectedItems
-      .map((id) => {
-        const numId = Number(id);
-        const item = allItemsPool.find((i) => Number(i.id) === numId);
-        return item;
-      })
-      .filter(Boolean);
-  }, [selectedItems, allItemsPool]);
-
-  const selectedItemsByCategory = useMemo(() => {
+    // Group items based on their ORDER in selectedItems
     const grouped = {};
-    selectedMenuItems.forEach((item) => {
-      const parentCategory = categories.find((cat) => cat.id === item.parentId);
-      const category = parentCategory || {
-        id: item.parentId,
-        name: "Uncategorized",
+    selectedItems.forEach((item) => {
+      const cat = String(item.category);
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    });
+
+    // Use the order of categories as they appear in selectedItems
+    const categoryOrder = [
+      ...new Set(selectedItems.map((i) => String(i.category))),
+    ];
+
+    // Build API payload
+    const customPackageDetails = categoryOrder.map((catId, index) => {
+      const items = grouped[catId] || [];
+
+      return {
+        anyItem: Number(categoryItemCounts[catId] || 0),
+        menuId: Number(catId),
+        menuName: categoryMap[catId] || "Category",
+        menuInstruction: "",
+        menuSortOrder: index + 1,
+
+        customPackageMenuItemDetails: items.map((it, i) => ({
+          id: it.id || 0,
+          itemInstruction: it.itemsNotes || "",
+          itemName: it.itemName || it.nameEnglish,
+          itemPrice: Number(it.rate || 0),
+          itemSortOrder: i + 1,
+          menuItemId: Number(it.id),
+          userId,
+        })),
       };
-      if (!grouped[category.name]) {
-        grouped[category.name] = [];
-      }
-      grouped[category.name].push(item);
-    });
-    return grouped;
-  }, [selectedMenuItems, categories]);
-
-  const handleRemoveItem = (itemId) => {
-    const numId = Number(itemId);
-
-    // Find the parent category of this item
-    const removedItem = allItemsPool.find((i) => Number(i.id) === numId);
-    const parentId = removedItem?.parentId;
-
-    setSelectedItems((prev) => {
-      const newSelected = prev.filter((id) => Number(id) !== numId);
-
-      // 🧼 If no items left in that category, clean up category state
-      const hasOtherItemsInCategory = newSelected.some((id) => {
-        const item = allItemsPool.find((i) => Number(i.id) === id);
-        return item?.parentId === parentId;
-      });
-
-      if (!hasOtherItemsInCategory && parentId) {
-        setCategoryAnyItems((prev) => {
-          const updated = { ...prev };
-          delete updated[parentId];
-          return updated;
-        });
-
-        setCategoryNotes((prev) => {
-          const updated = { ...prev };
-          delete updated[parentId];
-          return updated;
-        });
-      }
-
-      return newSelected;
     });
 
-    setItemNotes((prev) => {
-      const newNotes = { ...prev };
-      delete newNotes[numId];
-      return newNotes;
-    });
+    return {
+      nameEnglish: formData.nameEnglish,
+      nameGujarati: formData.nameGujarati,
+      nameHindi: formData.nameHindi,
+      price: Number(formData.price),
+      sequence: 1,
+      userId,
+      customPackageDetails,
+    };
   };
 
-  const totalSelectedCount = selectedItems.length;
-  const calculateTotalPrice = (packagePrice = 0) => Number(packagePrice || 0);
-
-  const validationSchema = Yup.object().shape({
-    nameEnglish: Yup.string().required("Name is required"),
-    price: Yup.number()
-      .required("Price is required")
-      .positive("Must be positive"),
-  });
-
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    try {
-      setSubmitting(true);
-      const storedData = JSON.parse(localStorage.getItem("userData"));
-      const userId = storedData?.id || 0;
-      const packageIdNumber = Number(packageId);
-
-      if (selectedItems.length === 0) {
-        Swal.fire("Error", "No items selected.", "error");
-        return;
-      }
-
-      const validItems = selectedItems
-        .map((id) => {
-          const numId = Number(id);
-          const item = allItemsPool.find((itm) => Number(itm.id) === numId);
-          return item;
-        })
-        .filter(Boolean);
-
-      if (validItems.length === 0) {
-        Swal.fire("Error", "No valid items found.", "error");
-        return;
-      }
-
-      const categoryMap = new Map();
-      validItems.forEach((item) => {
-        const parentId = Number(item.parentId);
-        const category = categories.find((cat) => cat.id === parentId);
-
-        const catId = category?.id || parentId || 0;
-        const catName = category?.name || item.categoryName || "Uncategorized";
-
-        if (!categoryMap.has(catId)) {
-          categoryMap.set(catId, { catName, items: [] });
-        }
-        categoryMap.get(catId).items.push(item);
+  const handleSave = async () => {
+    if (!validateForm()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please fix all errors before saving",
       });
+      return;
+    }
 
-      const customPackageDetails = Array.from(categoryMap.entries()).map(
-        ([catId, { catName, items }], idx) => {
-          const menuItems = items.map((item, itemIdx) => ({
-            id: isEditMode ? item.dbRowId || 0 : 0,
-            menuItemId: Number(item.id),
-            itemName: item.name || "Unnamed",
-            itemInstruction: itemNotes[item.id] || "",
-            itemPrice: Number(item.price || 0),
-            itemSortOrder: itemIdx + 1,
-            userId,
-          }));
+    const payload = buildPackagePayload();
 
-          // Use category-specific value if set, otherwise use global value
-          const anyItemCount =
-            categoryAnyItems[catId] !== undefined
-              ? categoryAnyItems[catId]
-              : globalAnyItems || 0;
+    try {
+      let response;
 
-          return {
-            menuId: Number(catId),
-            menuName: catName,
-            menuInstruction:
-              categoryNotes[catId] || categoryNotes[catName] || "",
-            menuSortOrder: idx + 1,
-            anyItem: anyItemCount,
-            customPackageMenuItemDetails: menuItems,
-          };
-        }
-      );
-
-      const payload = {
-        id: isEditMode ? packageIdNumber : 0,
-        nameEnglish: values.nameEnglish,
-        nameGujarati: values.nameGujarati || "",
-        nameHindi: values.nameHindi || "",
-        price: Number(values.price),
-        sequence: 1,
-        userId,
-        customPackageDetails,
-      };
-
-      if (isEditMode) {
-        const res = await UpdateCustomPackageapi(packageIdNumber, payload);
-        Swal.fire("Success", "Custom Package updated successfully.", "success");
-        navigate(-1);
+      if (packageId) {
+        // UPDATE existing package
+        response = await UpdateCustomPackage(packageId, payload);
       } else {
-        const res = await AddCustomPackageapi(payload);
-        Swal.fire("Success", "Custom Package created successfully.", "success");
-        resetForm();
-        setSelectedItems([]);
-        setItemNotes({});
-        setCategoryNotes({});
-        setGlobalAnyItems(0);
-        setCategoryAnyItems({});
-        setEditModeItems([]);
+        // CREATE new package
+        response = await AddCustomPackageapi(payload);
+      }
+
+      if (response?.data?.success === true) {
+        Swal.fire({
+          icon: "success",
+          title: packageId ? "Package Updated!" : "Package Saved!",
+          text: response.data.msg,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        // Optionally redirect back or clear form
+        // window.history.back();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response?.data?.msg || "Failed to save package",
+        });
       }
     } catch (err) {
-      console.error(err);
-      Swal.fire(
-        "Error",
-        err.response?.data?.message || "Something went wrong.",
-        "error"
-      );
-    } finally {
-      setSubmitting(false);
+      console.error("SAVE ERROR:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while saving the package",
+      });
     }
   };
+
+  const handleCancel = () => {
+    if (confirm("Are you sure you want to cancel? All changes will be lost.")) {
+      setSelectedItems([]);
+      setFormData({
+        nameEnglish: "",
+        nameGujarati: "",
+        nameHindi: "",
+        price: "",
+      });
+      setErrors({});
+      setCategoryItemCounts({});
+
+      // Optionally navigate back
+      // window.history.back();
+    }
+  };
+
+  const selectedItemIds = useMemo(() => {
+    return new Set(selectedItems.map((item) => item.id));
+  }, [selectedItems]);
+
+  const categoryMap = useMemo(() => {
+    const map = {};
+    map["all"] = "All";
+    categories.forEach((cat) => {
+      map[cat.id] = cat.nameEnglish;
+    });
+    return map;
+  }, [categories]);
+
+  // Show loading spinner while loading package
+  if (isLoadingPackage) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading package data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Fragment>
-      <Container className="flex flex-col min-h-screen">
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: isEditMode
-                  ? "Edit Custom Package"
-                  : "Add Custom Package",
-              },
-            ]}
+    <div>
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <h2 className="text-xl font-semibold mb-4">
+          {packageId ? "Edit Custom Package" : "Add Custom Package"}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name (English) *
+            </label>
+            <input
+              name="nameEnglish"
+              value={formData.nameEnglish}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                errors.nameEnglish ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.nameEnglish && (
+              <p className="text-red-500 text-sm mt-1">{errors.nameEnglish}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name (ગુજરાતી)
+            </label>
+            <input
+              name="nameGujarati"
+              value={formData.nameGujarati}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name (हिंदी)
+            </label>
+            <input
+              name="nameHindi"
+              value={formData.nameHindi}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Price *
+            </label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-lg ${
+                errors.price ? "border-red-500" : "border-gray-300"
+              }`}
+              min="0"
+            />
+            {errors.price && (
+              <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+            )}
+          </div>
+        </div>
+
+        {errors.items && (
+          <p className="text-red-500 text-sm mt-2">{errors.items}</p>
+        )}
+      </div>
+
+      <div className="h-screen flex flex-col p-4">
+        <div className="flex-1 flex overflow-hidden">
+          <CategoryListpackage
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            categories={categories}
+            setCategories={setCategories}
+            categoryItemCounts={categoryItemCounts}
+            onCategoryItemCountChange={handleCategoryItemCountChange}
+            onReorderCategories={handleReorderCategories}
+            onAddCategory={() => setIsAddCategoryModalOpen(true)}
+          />
+
+          <MenuItemGridPackage
+            selectedCategory={selectedCategory}
+            onToggleItem={handleToggleItem}
+            selectedItemIds={selectedItemIds}
+            Getmenuitemsusingcatid={Getmenuitemsusingcatid}
+            onAddMenuItem={() => setIsAddItemModalOpen(true)}
+          />
+
+          <SelectedItemPackage
+            selectedItems={selectedItems}
+            onRemoveItem={handleRemoveItem}
+            onUpdateRate={handleUpdateRate}
+            categoryMap={categoryMap}
+            categoryItemCounts={categoryItemCounts}
+            onReorder={handleReorder}
+            onOpenNotes={handleOpenNotes}
+            categoryOrder={categoryOrder} // ADD THIS
+            onReorderCategories={handleReorderCategories} // ADD THIS
+            onOpenCategoryNotes={handleOpenCategoryNotes} // FOR CATEGORY NOTES
           />
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading package details...</p>
-            </div>
-          </div>
-        ) : (
-          <Formik
-            initialValues={initialValues}
-            enableReinitialize
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
+        <div className="bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+          <button
+            onClick={handleCancel}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            {({ isSubmitting, values, setFieldValue }) => {
-              const [debounceTimer, setDebounceTimer] = useState(null);
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            {packageId ? "Update Package" : "Save Package"}
+          </button>
+        </div>
+      </div>
 
-              useEffect(() => {
-                if (!values.nameEnglish?.trim() || isEditMode) return;
-                if (debounceTimer) clearTimeout(debounceTimer);
+      <AddMenuCategory
+        isModalOpen={isAddCategoryModalOpen}
+        setIsModalOpen={setIsAddCategoryModalOpen}
+        refreshData={fetchCategories}
+        editData={null}
+      />
 
-                const timer = setTimeout(() => {
-                  Translateapi(values.nameEnglish)
-                    .then((res) => {
-                      setFieldValue("nameGujarati", res.data.gujarati || "");
-                      setFieldValue("nameHindi", res.data.hindi || "");
-                    })
-                    .catch(() => {});
-                }, 500);
+      <AddMenuItem
+        isModalOpen={isAddItemModalOpen}
+        setIsModalOpen={setIsAddItemModalOpen}
+        refreshData={refreshMenuItems}
+        selectedMenuItem={null}
+      />
 
-                setDebounceTimer(timer);
-                return () => clearTimeout(timer);
-              }, [values.nameEnglish]);
-
-              return (
-                <>
-                  <Form className="flex flex-col gap-4">
-                    <div className="border rounded-lg p-4 bg-white">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <InputWithFormik
-                          label="Name (English)"
-                          name="nameEnglish"
-                        />
-                        <InputWithFormik
-                          label="Name (ગુજરાતી)"
-                          name="nameGujarati"
-                        />
-                        <InputWithFormik
-                          label="Name (हिन्दी)"
-                          name="nameHindi"
-                        />
-                        <InputWithFormik
-                          label="Price"
-                          name="price"
-                          type="number"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="border rounded-lg p-4 mb-4 bg-white">
-                      <h3 className="text-lg font-semibold mb-3">
-                        Custom Package Items
-                      </h3>
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
-                        <div className="col-span-3">
-                          <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
-                            {/* Search bar */}
-                            <div className="sticky top-0 z-10 bg-white border-b p-3">
-                              <SearchInput
-                                placeholder="Search categories"
-                                value={search}
-                                onChange={setSearch}
-                              />
-                            </div>
-
-                            {/* Category list */}
-                            <div className="flex-1 overflow-auto p-2">
-                              {filteredCategories.map((cat) => {
-                                const isSelected =
-                                  selectedCategoryId === cat.id;
-                                const anyItemsCount =
-                                  categoryAnyItems[cat.id] ?? "";
-
-                                return (
-                                  <div
-                                    key={cat.id}
-                                    className={`mb-2 border-2 rounded-md transition-all duration-300 ${
-                                      isSelected
-                                        ? "border-primary bg-primary/5 shadow-sm"
-                                        : "border-gray-200"
-                                    }`}
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={(e) =>
-                                        handleCategoryChange(cat.id, e)
-                                      }
-                                      className="p-2 cursor-pointer flex justify-between items-center w-full text-left hover:bg-gray-50"
-                                    >
-                                      <span className="font-medium text-gray-800">
-                                        {cat.name}
-                                      </span>
-                                    </button>
-
-                                    <div
-                                      className={`transition-all duration-300 ${
-                                        isSelected
-                                          ? "max-h-20 opacity-100 p-2"
-                                          : "max-h-0 opacity-0 p-0"
-                                      } overflow-hidden bg-gray-50`}
-                                    ></div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            {/* ✅ Global Any Items Input at Bottom */}
-                            <div className="sticky bottom-0 z-10 bg-blue-50 border-t-2 border-blue-200 p-3">
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Any Items
-                              </label>
-                              <input
-                                type="number"
-                                min="0"
-                                placeholder="Set Any item for Category"
-                                className="border-2 border-blue-300 rounded-md px-2 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                value={globalAnyItems || ""}
-                                onChange={(e) =>
-                                  handleGlobalAnyItemsChange(e.target.value)
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="col-span-6">
-                          <div className="h-full flex flex-col">
-                            <div className="border-b p-3 bg-light">
-                              <SearchInput
-                                placeholder="Search items"
-                                value={childSearch}
-                                onChange={setChildSearch}
-                              />
-                            </div>
-                            <div className="flex-1 p-3 max-h-[520px] overflow-auto">
-                              <MenuItemGrid
-                                items={filteredChildren}
-                                searchTerm={childSearch}
-                                onToggleSelection={toggleChildSelection}
-                                loading={menuLoading}
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="col-span-3">
-                          <div className="h-full lg:border-s bg-muted/25 flex flex-col">
-                            <div className="border-b p-3 bg-muted/15">
-                              <span className="text-md font-medium text-gray-900">
-                                Selected Items
-                              </span>
-                            </div>
-
-                            <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
-                              <Selecteditemscustomepackage
-                                selectedItemsByCategory={
-                                  selectedItemsByCategory
-                                }
-                                showDetails={showDetails}
-                                currentFunctionData={{
-                                  selectedItems,
-                                  itemNotes,
-                                  itemRates: {},
-                                  itemSlogans: {},
-                                  categoryNotes,
-                                  categorySlogans: {},
-                                }}
-                                categories={categories}
-                                categoryAnyItems={categoryAnyItems}
-                                onRemoveItem={handleRemoveItem}
-                                onReorder={handleReorder}
-                                onUpdateItemNote={handleUpdateItemNote}
-                                onNoteClick={handleItemNoteClick}
-                                onCategoryNoteClick={handleCategoryNoteClick}
-                                onUpdateCategoryNote={handleUpdateCategoryNote}
-                                onItemCategoryChange={() => {}}
-                                onCategoryOrderChange={() => {}}
-                              />
-                            </div>
-
-                            <div className="p-3 border-t flex items-center justify-between">
-                              <span className="text-xs text-gray-700">
-                                Total Items: {totalSelectedCount}
-                              </span>
-                              <span className="text-xs text-gray-700">
-                                ₹ {calculateTotalPrice(values.price).toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        className="btn btn-light"
-                        onClick={() => navigate(-1)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="btn btn-success"
-                        disabled={
-                          isSubmitting ||
-                          menuLoading ||
-                          totalSelectedCount === 0
-                        }
-                      >
-                        {isEditMode ? "Update Package" : "Save Package"}
-                      </button>
-                    </div>
-                  </Form>
-
-                  <MenuNotes
-                    isOpen={showItemNoteModal}
-                    onClose={() => setShowItemNoteModal(false)}
-                    itemId={currentItemForNotes}
-                    notes={{ itemsNotes: itemNotes[currentItemForNotes] || "" }}
-                    onSave={handleItemNoteSave}
-                  />
-
-                  <CategoryNotes
-                    isOpen={showCategoryNoteModal}
-                    onClose={() => setShowCategoryNoteModal(false)}
-                    categoryId={currentCategoryForNotes}
-                    notes={{
-                      categoryNotes:
-                        categoryNotes[currentCategoryForNotes] || "",
-                    }}
-                    onSave={handleCategoryNoteSave}
-                    categories={categoriesWithAll}
-                  />
-                </>
-              );
-            }}
-          </Formik>
-        )}
-      </Container>
-    </Fragment>
+      {notesModal.isOpen && (
+        <MenuNotes
+          isOpen={notesModal.isOpen}
+          notes={notesModal.notes}
+          onClose={() =>
+            setNotesModal({ isOpen: false, itemIndex: null, notes: null })
+          }
+          onSave={handleSaveNotes}
+        />
+      )}
+    </div>
   );
-};
-
-const InputWithFormik = ({ label, name, type = "text" }) => (
-  <div className="flex flex-col">
-    <label className="block text-gray-600 mb-1">
-      {label}
-      {label.includes("English") || label.includes("Price") ? (
-        <span className="text-red-500">*</span>
-      ) : null}
-    </label>
-    <Field
-      type={type}
-      name={name}
-      placeholder={label}
-      className="border border-gray-300 rounded-lg p-2 w-full"
-    />
-    <ErrorMessage
-      name={name}
-      component="div"
-      className="text-red-500 text-sm mt-1"
-    />
-  </div>
-);
+}
 
 export default AddCustomPackage;
-
-// import { Fragment, useState, useEffect, useMemo } from "react";
-// import { Container } from "@/components/container";
-// import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-// import { useNavigate, useLocation } from "react-router-dom";
-// import MenuItemGrid from "../../../Event/EventPreparationPage/components/MenuItemGrid";
-// import SelectedItemsList from "../../../Event/EventPreparationPage/components/SelectedItemsList";
-// import SearchInput from "../../../Event/EventPreparationPage/components/SearchInput";
-// import { useCategories, useMenuItems } from "../../../master/custom-package/Add-customepackage/hook/usePackageData";
-// import { Formik, Form, Field, ErrorMessage } from "formik";
-// import * as Yup from "yup";
-// import Swal from "sweetalert2";
-// import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
-// import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
-// import {
-//   Translateapi,
-//   AddCustomPackageapi,
-//   UpdateCustomPackageapi,
-//   GetCustomPackageapi
-// } from "@/services/apiServices";
-
-// const AddCustomPackage = () => {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const searchParams = new URLSearchParams(location.search);
-//   const packageId = searchParams.get("id");
-//   const isEditMode = !!packageId;
-
-//   const [search, setSearch] = useState("");
-//   const [itemNotes, setItemNotes] = useState({});
-//   const [categoryNotes, setCategoryNotes] = useState({});
-//   const [childSearch, setChildSearch] = useState("");
-//   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-//   const [selectedItems, setSelectedItems] = useState([]);
-//   const [showDetails, setShowDetails] = useState(false);
-
-//   // Changed from single numberOfItems to per-category object
-//   const [categoryAnyItems, setCategoryAnyItems] = useState({}); // { categoryId: count }
-
-//   const [loading, setLoading] = useState(false);
-//   const [editModeItems, setEditModeItems] = useState([]);
-
-//   const [showItemNoteModal, setShowItemNoteModal] = useState(false);
-//   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
-
-//   const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
-//   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
-
-//   const { categories, fetchCategories } = useCategories();
-//   const { menuItems, loading: menuLoading, fetchMenuItems, allMenuItems } = useMenuItems();
-
-//   const [initialValues, setInitialValues] = useState({
-//     nameEnglish: "",
-//     nameGujarati: "",
-//     nameHindi: "",
-//     price: "",
-//   });
-
-//   const allCategory = { id: 0, name: "All" };
-//   const categoriesWithAll = [allCategory, ...categories];
-
-//   useEffect(() => {
-//     fetchCategories();
-//     fetchMenuItems(0);
-//   }, []);
-
-//   useEffect(() => {
-//     if (packageId && categories.length > 0) {
-//       fetchPackageDetails(packageId);
-//     }
-//   }, [packageId, categories]);
-
-//   const fetchPackageDetails = async (id) => {
-//     try {
-//       setLoading(true);
-//       const userData = JSON.parse(localStorage.getItem("userData"));
-//       const res = await GetCustomPackageapi(userData.id);
-
-//       const allPackages = res?.data?.data?.["Package Details"] || [];
-//       const selectedPackage = allPackages.find((pkg) => pkg.id === parseInt(id));
-//       if (!selectedPackage) return;
-
-//       setInitialValues({
-//         nameEnglish: selectedPackage.nameEnglish || "",
-//         nameGujarati: selectedPackage.nameGujarati || "",
-//         nameHindi: selectedPackage.nameHindi || "",
-//         price: selectedPackage.price || "",
-//       });
-
-//       const extractedItemIds = [];
-//       const extractedItemNotes = {};
-//       const extractedCategoryNotes = {};
-//       const extractedCategoryAnyItems = {}; // NEW: Store per-category any items
-//       const itemsForPool = [];
-//       const seenItemIds = new Set();
-
-//       const allDetails = selectedPackage.customPackageDetails || [];
-
-//       allDetails.forEach((categoryDetail) => {
-//         const categoryId = categoryDetail.menuId;
-//         const categoryName = categoryDetail.menuName;
-
-//         // Store per-category any items
-//         if (categoryDetail.anyItem > 0) {
-//           extractedCategoryAnyItems[categoryId] = categoryDetail.anyItem;
-//         }
-
-//         extractedCategoryNotes[categoryId] = categoryDetail.menuInstruction || "";
-
-//         (categoryDetail.customPackageMenuItemDetails || []).forEach((item) => {
-//           const itemId = Number(item.menuItemId);
-
-//           if (seenItemIds.has(itemId)) {
-//             console.warn(`⚠️ Duplicate item detected: ${itemId} - ${item.itemName}`);
-//             return;
-//           }
-
-//           seenItemIds.add(itemId);
-//           extractedItemIds.push(itemId);
-
-//           itemsForPool.push({
-//             id: itemId,
-//             name: item.itemName,
-//             parentId: categoryId,
-//             price: item.itemPrice,
-//             dbRowId: item.id,
-//           });
-
-//           extractedItemNotes[itemId] = item.itemInstruction || "";
-//         });
-//       });
-
-//       console.log("📦 Loaded package - unique items:", extractedItemIds.length);
-//       console.log("🔢 Category Any Items:", extractedCategoryAnyItems);
-
-//       setEditModeItems(itemsForPool);
-//       setSelectedItems(extractedItemIds);
-//       setItemNotes(extractedItemNotes);
-//       setCategoryNotes(extractedCategoryNotes);
-//       setCategoryAnyItems(extractedCategoryAnyItems); // NEW: Set per-category any items
-
-//     } catch (err) {
-//       console.error(err);
-//       Swal.fire("Error", "Failed to load package details.", "error");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleItemNoteClick = (itemId) => {
-//     setCurrentItemForNotes(itemId);
-//     setItemNotes((prev) => ({
-//       ...prev,
-//       [itemId]: prev[itemId] || "",
-//     }));
-//     setShowItemNoteModal(true);
-//   };
-
-//   const handleCategoryNoteClick = (categoryName) => {
-//     setCurrentCategoryForNotes(categoryName);
-//     setCategoryNotes((prev) => ({
-//       ...prev,
-//       [categoryName]: prev[categoryName] || "",
-//     }));
-//     setShowCategoryNoteModal(true);
-//   };
-
-//   const handleItemNoteSave = (savedNotes) => {
-//     if (currentItemForNotes !== null) {
-//       setItemNotes((prev) => ({
-//         ...prev,
-//         [currentItemForNotes]: savedNotes.itemsNotes || "",
-//       }));
-//     }
-//     setShowItemNoteModal(false);
-//     setCurrentItemForNotes(null);
-//   };
-
-//   const handleCategoryNoteSave = (savedNotes) => {
-//     if (currentCategoryForNotes !== null) {
-//       setCategoryNotes((prev) => ({
-//         ...prev,
-//         [currentCategoryForNotes]: savedNotes.categoryNotes || "",
-//       }));
-//       setShowCategoryNoteModal(false);
-//       setCurrentCategoryForNotes(null);
-//     }
-//   };
-
-//   const handleCategoryChange = async (categoryId, e) => {
-//     if (e) {
-//       e.preventDefault();
-//       e.stopPropagation();
-//     }
-//     setSelectedCategoryId(categoryId);
-//     await fetchMenuItems(categoryId);
-//   };
-
-//   // NEW: Handle per-category any items change
-//   const handleCategoryAnyItemsChange = (categoryId, value) => {
-//     const numValue = parseInt(value) || 0;
-//     setCategoryAnyItems(prev => {
-//       if (numValue <= 0) {
-//         const newState = { ...prev };
-//         delete newState[categoryId];
-//         return newState;
-//       }
-//       return { ...prev, [categoryId]: numValue };
-//     });
-//   };
-
-//   const handleUpdateItemNote = (itemId, note) => {
-//     setItemNotes((prev) => ({
-//       ...prev,
-//       [itemId]: note,
-//     }));
-//   };
-
-//   const handleUpdateCategoryNote = (categoryName, note) => {
-//     setCategoryNotes((prev) => ({
-//       ...prev,
-//       [categoryName]: note,
-//     }));
-//   };
-
-//   const handleReorder = ({ sourceCategory, destCategory, sourceIndex, destIndex, itemId }) => {
-//     setSelectedItems((prev) => {
-//       const newItems = [...prev];
-//       const itemIndex = newItems.indexOf(Number(itemId));
-
-//       if (itemIndex === -1) return prev;
-
-//       const [movedItem] = newItems.splice(itemIndex, 1);
-//       let newIndex = destIndex;
-//       if (sourceCategory === destCategory && sourceIndex < destIndex) {
-//         newIndex--;
-//       }
-
-//       newItems.splice(newIndex, 0, movedItem);
-//       return newItems;
-//     });
-//   };
-
-//   const allItemsPool = useMemo(() => {
-//     console.log("🔨 Building item pool...");
-//     const combined = [...menuItems, ...allMenuItems, ...editModeItems];
-
-//     const uniqueMap = new Map();
-//     combined.forEach(item => {
-//       const id = Number(item.id);
-//       if (!uniqueMap.has(id)) {
-//         uniqueMap.set(id, item);
-//       }
-//     });
-
-//     const uniqueItems = Array.from(uniqueMap.values());
-//     console.log("✅ Total unique items in pool:", uniqueItems.length);
-//     return uniqueItems;
-//   }, [menuItems, allMenuItems, editModeItems]);
-
-//   const toggleChildSelection = (id) => {
-//     id = Number(id);
-//     setSelectedItems(prev => {
-//       const exists = prev.includes(id);
-//       console.log(exists ? `❌ Removing item ${id}` : `✅ Adding item ${id}`);
-//       if (exists) return prev.filter(pid => Number(pid) !== id);
-
-//       const newItems = [...prev, id];
-//       const uniqueItems = [...new Set(newItems.map(Number))];
-//       console.log(`📊 Total unique selected: ${uniqueItems.length}`);
-//       return uniqueItems;
-//     });
-//   };
-
-//   const filteredCategories = categoriesWithAll.filter(({ name }) =>
-//     name.toLowerCase().includes(search.toLowerCase())
-//   );
-
-//   const menuItemsWithSelectionState = menuItems.map((item) => ({
-//     ...item,
-//     isSelected: selectedItems.includes(Number(item.id)),
-//   }));
-
-//   const filteredChildren = menuItemsWithSelectionState.filter((child) =>
-//     child.name.toLowerCase().includes(childSearch.toLowerCase())
-//   );
-
-//   const selectedMenuItems = useMemo(() => {
-//     console.log("🔍 Getting selected items from pool...");
-//     const items = selectedItems
-//       .map((id) => {
-//         const numId = Number(id);
-//         const item = allItemsPool.find(i => Number(i.id) === numId);
-//         if (!item) {
-//           console.warn(`⚠️ Item ${id} not found in pool`);
-//         }
-//         return item;
-//       })
-//       .filter(Boolean);
-
-//     console.log("✅ Found items:", items.length);
-//     return items;
-//   }, [selectedItems, allItemsPool]);
-
-//   // MODIFIED: Group items by category with per-category any items
-//   const selectedItemsByCategory = useMemo(() => {
-//     console.log("📊 Grouping items by category...");
-//     const grouped = {};
-
-//     selectedMenuItems.forEach(item => {
-//       const category = categories.find(cat => cat.id === item.parentId) || {
-//         id: 0,
-//         name: "Uncategorized"
-//       };
-
-//       if (!grouped[category.name]) grouped[category.name] = [];
-//       grouped[category.name].push(item);
-//     });
-
-//     console.log("✅ Grouped categories:", Object.keys(grouped));
-//     return grouped;
-//   }, [selectedMenuItems, categories]);
-
-//   const handleRemoveItem = (itemId) => {
-//     const numId = Number(itemId);
-//     console.log("🗑️ Removing item:", numId);
-
-//     setSelectedItems((prev) => prev.filter((id) => Number(id) !== numId));
-
-//     setItemNotes((prev) => {
-//       const newNotes = { ...prev };
-//       delete newNotes[numId];
-//       return newNotes;
-//     });
-//   };
-
-//   const totalSelectedCount = selectedItems.length;
-//   const calculateTotalPrice = (packagePrice = 0) => Number(packagePrice || 0);
-
-//   const validationSchema = Yup.object().shape({
-//     nameEnglish: Yup.string().required("Name is required"),
-//     price: Yup.number()
-//       .required("Price is required")
-//       .positive("Must be positive"),
-//   });
-
-//   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-//     try {
-//       setSubmitting(true);
-//       const storedData = JSON.parse(localStorage.getItem("userData"));
-//       const userId = storedData?.id || 0;
-//       const packageIdNumber = Number(packageId);
-
-//       if (selectedItems.length === 0) {
-//         Swal.fire("Error", "No items selected.", "error");
-//         return;
-//       }
-
-//       const validItems = selectedItems
-//         .map(id => {
-//           const numId = Number(id);
-//           const item = allItemsPool.find(itm => Number(itm.id) === numId);
-//           if (!item) {
-//             console.warn(`⚠️ Item not found in pool: ${numId}`);
-//           }
-//           return item;
-//         })
-//         .filter(Boolean);
-
-//       if (validItems.length === 0) {
-//         Swal.fire("Error", "No valid items found.", "error");
-//         return;
-//       }
-
-//       console.log("📤 Preparing payload with items:", validItems);
-
-//       const categoryMap = new Map();
-//       validItems.forEach(item => {
-//         const parentId = Number(item.parentId);
-//         const category = categories.find(cat => cat.id === parentId);
-
-//         const catId = category?.id || parentId || 0;
-//         const catName = category?.name || item.categoryName || "Uncategorized";
-
-//         if (!categoryMap.has(catId)) {
-//           categoryMap.set(catId, { catName, items: [] });
-//         }
-//         categoryMap.get(catId).items.push(item);
-//       });
-
-//       console.log("📊 Grouped by category:", Object.fromEntries(categoryMap));
-
-//       // MODIFIED: Build customPackageDetails with per-category any items
-//       const customPackageDetails = Array.from(categoryMap.entries()).map(
-//         ([catId, { catName, items }], idx) => {
-//           const menuItems = items.map((item, itemIdx) => ({
-//             id: isEditMode ? (item.dbRowId || 0) : 0,
-//             menuItemId: Number(item.id),
-//             itemName: item.name || "Unnamed",
-//             itemInstruction: itemNotes[item.id] || "",
-//             itemPrice: Number(item.price || 0),
-//             itemSortOrder: itemIdx + 1,
-//             userId,
-//           }));
-
-//           return {
-//             menuId: Number(catId),
-//             menuName: catName,
-//             menuInstruction: categoryNotes[catId] || categoryNotes[catName] || "",
-//             menuSortOrder: idx + 1,
-//             anyItem: categoryAnyItems[catId] || 0, // NEW: Per-category any items
-//             customPackageMenuItemDetails: menuItems,
-//           };
-//         }
-//       );
-
-//       const payload = {
-//         id: isEditMode ? packageIdNumber : 0,
-//         nameEnglish: values.nameEnglish,
-//         nameGujarati: values.nameGujarati || "",
-//         nameHindi: values.nameHindi || "",
-//         price: Number(values.price),
-//         sequence: 1,
-//         userId,
-//         customPackageDetails,
-//       };
-
-//       console.log("📤 Final Payload:", JSON.stringify(payload, null, 2));
-
-//       if (isEditMode) {
-//         const res = await UpdateCustomPackageapi(packageIdNumber, payload);
-//         console.log("✅ Update API response:", res.data);
-//         Swal.fire("Success", "Custom Package updated successfully.", "success");
-//         navigate(-1);
-//       } else {
-//         const res = await AddCustomPackageapi(payload);
-//         console.log("✅ Add API response:", res.data);
-//         Swal.fire("Success", "Custom Package created successfully.", "success");
-//         resetForm();
-//         setSelectedItems([]);
-//         setItemNotes({});
-//         setCategoryNotes({});
-//         setCategoryAnyItems({}); // NEW: Reset per-category any items
-//         setEditModeItems([]);
-//       }
-//     } catch (err) {
-//       console.error("❌ Error saving package:", err.response?.data || err.message);
-//       Swal.fire("Error", err.response?.data?.message || "Something went wrong.", "error");
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   return (
-//     <Fragment>
-//       <Container className="flex flex-col min-h-screen">
-//         <div className="gap-2 pb-2 mb-3">
-//           <Breadcrumbs
-//             items={[{
-//               title: isEditMode ? "Edit Custom Package" : "Add Custom Package"
-//             }]}
-//           />
-//         </div>
-
-//         {loading ? (
-//           <div className="flex justify-center items-center h-64">
-//             <div className="text-center">
-//               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-//               <p className="text-gray-600">Loading package details...</p>
-//             </div>
-//           </div>
-//         ) : (
-//           <Formik
-//             initialValues={initialValues}
-//             enableReinitialize
-//             validationSchema={validationSchema}
-//             onSubmit={handleSubmit}
-//           >
-//             {({ isSubmitting, values, setFieldValue }) => {
-//               const [debounceTimer, setDebounceTimer] = useState(null);
-
-//               useEffect(() => {
-//                 if (!values.nameEnglish?.trim() || isEditMode) return;
-//                 if (debounceTimer) clearTimeout(debounceTimer);
-
-//                 const timer = setTimeout(() => {
-//                   Translateapi(values.nameEnglish)
-//                     .then((res) => {
-//                       setFieldValue("nameGujarati", res.data.gujarati || "");
-//                       setFieldValue("nameHindi", res.data.hindi || "");
-//                     })
-//                     .catch(() => {});
-//                 }, 500);
-
-//                 setDebounceTimer(timer);
-//                 return () => clearTimeout(timer);
-//               }, [values.nameEnglish]);
-
-//               return (
-//                 <>
-//                   <Form className="flex flex-col gap-4">
-//                     <div className="border rounded-lg p-4 bg-white">
-//                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                         <InputWithFormik label="Name (English)" name="nameEnglish" />
-//                         <InputWithFormik label="Name (ગુજરાતી)" name="nameGujarati" />
-//                         <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
-//                         <InputWithFormik label="Price" name="price" type="number" />
-//                       </div>
-//                     </div>
-
-//                     <div className="border rounded-lg p-4 mb-4 bg-white">
-//                       <h3 className="text-lg font-semibold mb-3">
-//                         Custom Package Items
-//                       </h3>
-//                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
-//                         <div className="col-span-3">
-//                           <div className="flex flex-col h-[600px] border rounded-lg bg-white relative">
-//                             <div className="sticky top-0 z-10 bg-white border-b p-3">
-//                               <SearchInput
-//                                 placeholder="Search categories"
-//                                 value={search}
-//                                 onChange={setSearch}
-//                               />
-//                             </div>
-
-//                            <div className="flex-1 overflow-auto p-2">
-//   {filteredCategories.map((cat) => {
-//   const isSelected = selectedCategoryId === cat.id;
-//   const anyItemsCount = categoryAnyItems[cat.id] || "";
-
-//   return (
-//     <div
-//       key={cat.id}
-//       className={`mb-2 border rounded-md transition-all duration-300 overflow-hidden ${
-//         isSelected
-//           ? "border-primary bg-primary/5 shadow-sm"
-//           : "border-gray-200"
-//       }`}
-//     >
-//       {/* Category Button */}
-//       <button
-//         type="button"
-//         onClick={(e) => handleCategoryChange(cat.id, e)}
-//         className="p-2 cursor-pointer flex justify-between items-center w-full text-left"
-//       >
-//         <span className="font-medium text-gray-800">{cat.name}</span>
-//       </button>
-
-//       {/* Input shows ONLY when selected */}
-//       <div
-//         className={`transition-all duration-300 ${
-//           isSelected ? "max-h-20 opacity-100 p-2" : "max-h-0 opacity-0 p-0"
-//         } overflow-hidden`}
-//       >
-//         {isSelected && (
-//           <input
-//             type="number"
-//             min="0"
-//             placeholder={`Number of items for ${cat.name}`}
-//             className="w-full border rounded-md px-2 py-1 text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none"
-//             value={anyItemsCount}
-//             onChange={(e) =>
-//               handleCategoryAnyItemsChange(cat.id, e.target.value)
-//             }
-//             onClick={(e) => e.stopPropagation()}
-//           />
-//         )}
-//       </div>
-//     </div>
-//   );
-// })}
-
-// </div>
-
-//                           </div>
-//                         </div>
-
-//                         <div className="col-span-6">
-//                           <div className="h-full flex flex-col">
-//                             <div className="border-b p-3 bg-light">
-//                               <SearchInput
-//                                 placeholder="Search items"
-//                                 value={childSearch}
-//                                 onChange={setChildSearch}
-//                               />
-//                             </div>
-//                             <div className="flex-1 p-3 max-h-[520px] overflow-auto">
-//                               <MenuItemGrid
-//                                 items={filteredChildren}
-//                                 searchTerm={childSearch}
-//                                 onToggleSelection={toggleChildSelection}
-//                                 loading={menuLoading}
-//                               />
-//                             </div>
-//                           </div>
-//                         </div>
-
-//                         <div className="col-span-3">
-//                           <div className="h-full lg:border-s bg-muted/25 flex flex-col">
-//                             <div className="border-b p-3 bg-muted/15">
-//                               <div className="flex items-center justify-between mb-2">
-//                                 <span className="text-md font-medium text-gray-900">
-//                                   Selected Items
-//                                 </span>
-//                               </div>
-//                             </div>
-
-//                             <div className="flex-1 p-3 max-h-[516px] overflow-auto bg-white">
-//                               <SelectedItemsList
-//                                 selectedItemsByCategory={selectedItemsByCategory}
-//                                 showDetails={showDetails}
-//                                 currentFunctionData={{
-//                                   selectedItems,
-//                                   itemNotes,
-//                                   itemRates: {},
-//                                   itemSlogans: {},
-//                                   categoryNotes,
-//                                   categorySlogans: {},
-//                                 }}
-//                                 categories={categories}
-//                                 categoryAnyItems={categoryAnyItems} // NEW: Pass per-category any items
-//                                 onRemoveItem={handleRemoveItem}
-//                                 onReorder={handleReorder}
-//                                 onUpdateItemNote={handleUpdateItemNote}
-//                                 onNoteClick={handleItemNoteClick}
-//                                 onCategoryNoteClick={handleCategoryNoteClick}
-//                                 onUpdateCategoryNote={handleUpdateCategoryNote}
-//                               />
-//                             </div>
-
-//                             <div className="p-3 border-t flex items-center justify-between">
-//                               <span className="text-xs text-gray-700">
-//                                 Total Items: {totalSelectedCount}
-//                               </span>
-//                               <span className="text-xs text-gray-700">
-//                                 ₹ {calculateTotalPrice(values.price).toFixed(2)}
-//                               </span>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       </div>
-//                     </div>
-
-//                     <div className="flex items-center justify-end gap-2">
-//                       <button
-//                         type="button"
-//                         className="btn btn-light"
-//                         onClick={() => navigate(-1)}
-//                       >
-//                         Cancel
-//                       </button>
-//                       <button
-//                         type="submit"
-//                         className="btn btn-success"
-//                         disabled={isSubmitting || menuLoading || totalSelectedCount === 0}
-//                       >
-//                         {isEditMode ? "Update Package" : "Save Package"}
-//                       </button>
-//                     </div>
-//                   </Form>
-
-//                   <MenuNotes
-//                     isOpen={showItemNoteModal}
-//                     onClose={() => setShowItemNoteModal(false)}
-//                     itemId={currentItemForNotes}
-//                     notes={{ itemsNotes: itemNotes[currentItemForNotes] || "" }}
-//                     onSave={handleItemNoteSave}
-//                   />
-
-//                   <CategoryNotes
-//                     isOpen={showCategoryNoteModal}
-//                     onClose={() => setShowCategoryNoteModal(false)}
-//                     categoryId={currentCategoryForNotes}
-//                     notes={{ categoryNotes: categoryNotes[currentCategoryForNotes] || "" }}
-//                     onSave={handleCategoryNoteSave}
-//                     categories={categoriesWithAll}
-//                   />
-//                 </>
-//               );
-//             }}
-//           </Formik>
-//         )}
-//       </Container>
-//     </Fragment>
-//   );
-// };
-
-// const InputWithFormik = ({ label, name, type = "text" }) => (
-//   <div className="flex flex-col">
-//     <label className="block text-gray-600 mb-1">
-//       {label}
-//       {label.includes("English") || label.includes("Price") ? (
-//         <span className="text-red-500">*</span>
-//       ) : null}
-//     </label>
-//     <Field
-//       type={type}
-//       name={name}
-//       placeholder={label}
-//       className="border border-gray-300 rounded-lg p-2 w-full"
-//     />
-//     <ErrorMessage
-//       name={name}
-//       component="div"
-//       className="text-red-500 text-sm mt-1"
-//     />
-//   </div>
-// );
-
-// export default AddCustomPackage;

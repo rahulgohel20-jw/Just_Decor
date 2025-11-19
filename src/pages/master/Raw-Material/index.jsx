@@ -32,7 +32,10 @@ const RawMaterial = () => {
   const FetchRawMaterial = () => {
     GetAllRawMaterial(Id)
       .then((res) => {
-        console.log("Raw Material Data:", res.data);
+        console.log(
+          "Raw Material Data:",
+          res.data.data["Raw Material Details"]
+        );
 
         const formatted = res.data.data["Raw Material Details"].map(
           (raw, index) => ({
@@ -42,8 +45,8 @@ const RawMaterial = () => {
             raw_material_name: raw.nameEnglish || "-",
             raw_material_category: raw.rawMaterialCat.nameEnglish,
             isActive: raw.isActive,
-            unit: raw.unit.nameEnglish,
-            unitId: raw.unit.id,
+            unit: raw?.unit?.nameEnglish || "-",
+            unitId: raw.unit?.id,
             priority: raw.sequence,
             rate: raw.supplierRate,
             suppliers: raw.rawMaterialSuppliers,

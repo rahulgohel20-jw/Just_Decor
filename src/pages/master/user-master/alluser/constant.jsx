@@ -1,26 +1,22 @@
 import { Tooltip } from "antd";
-import { useNavigate } from "react-router-dom";
-import { createElement } from "react";
 
-export const columns = (onEdit, handleApprove) => {
-  const ClickableUserCode = ({ value }) => {
-    const navigate = useNavigate();
-    return (
-      <button
-        onClick={() => navigate("/Superadmin-member")}
-        className="text-blue-600 hover:underline font-medium"
-      >
-        {value}
-      </button>
-    );
-  };
-
+export const columns = (onEdit, handleApprove, navigate) => {
   return [
     {
       accessorKey: "userCode",
       header: "User Code",
-      cell: ({ getValue }) =>
-        createElement(ClickableUserCode, { value: getValue() }),
+      cell: ({ getValue, row }) => {
+        const value = getValue();
+        const userId = row.original.id;
+        return (
+          <button
+            onClick={() => navigate(`/Superadmin-member/${userId}`)}
+            className="text-blue-600 hover:underline font-medium"
+          >
+            {value}
+          </button>
+        );
+      },
       meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
     },
     {
@@ -132,13 +128,18 @@ export const columns = (onEdit, handleApprove) => {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        const navigate = useNavigate();
+        const userId = row.original.id;
+        const email = row.original.email;
+        
         return (
           <div className="flex items-center justify-center gap-1">
             <Tooltip title="Edit User">
               <button
                 className="btn btn-sm btn-icon btn-clear"
-                onClick={() => navigate("/Superadmin-member-edit")}
+                onClick={() => {
+                  console.log('Navigating to edit page with ID:', userId);
+                  navigate(`/Superadmin-member-edit/${userId}`);
+                }}
               >
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>
@@ -146,11 +147,12 @@ export const columns = (onEdit, handleApprove) => {
             <Tooltip title="User logs">
               <button
                 className="btn btn-sm btn-icon btn-clear"
-                onClick={() =>
+                onClick={() => {
+                  console.log('Navigating to logs with email:', email);
                   navigate("/superadmin-logs", {
-                    state: { email: row.original.email },
-                  })
-                }
+                    state: { email: email },
+                  });
+                }}
               >
                 <i className="ki-filled ki-user text-success"></i>
               </button>

@@ -5,7 +5,7 @@ const CategoryList = ({
   selectedCategory = "All",
   onCategoryChange = () => {},
 }) => {
-  const [categories, setCategories] = useState(["All"]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const id = localStorage.getItem("userId");
   const userId = id;
@@ -16,21 +16,30 @@ const CategoryList = ({
         setLoading(true);
         const response = await GetAllCategoryformenu(userId);
         if (response?.data) {
-          const categoryNames = (
-            response.data.data["Menu Category Details"] || []
-          ).map((cat) => cat.nameEnglish || cat.name);
-          setCategories(["All", ...categoryNames]);
+          const categoryData =
+            response.data.data["Menu Category Details"] || [];
+          const categoryList = [
+            { id: 0, name: "All" },
+            ...categoryData.map((cat) => ({
+              id: cat.id,
+              name: cat.nameEnglish || cat.name,
+            })),
+          ];
+          setCategories(categoryList);
+
           if (
             selectedCategory &&
             selectedCategory !== "All" &&
-            !categoryNames.includes(selectedCategory)
+            !categoryData.find(
+              (c) => (c.nameEnglish || c.name) === selectedCategory
+            )
           ) {
-            onCategoryChange("All");
+            onCategoryChange("All", 0);
           }
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
-        setCategories(["All"]); // fallback
+        setCategories([{ id: 0, name: "All" }]); // fallback
       } finally {
         setLoading(false);
       }
@@ -52,11 +61,15 @@ const CategoryList = ({
       <div className="flex flex-col gap-2">
         {categories.map((cat) => (
           <div
-            key={cat}
-            onClick={() => onCategoryChange(cat)}
-            className={`cursor-pointer px-3 py-2 ${selectedCategory === cat ? "bg-blue-100 text-blue-600 font-semibold" : "text-gray-700"}`}
+            key={cat.id}
+            onClick={() => onCategoryChange(cat.name, cat.id)}
+            className={`cursor-pointer px-3 py-2 rounded transition-colors ${
+              selectedCategory === cat.name
+                ? "bg-blue-100 text-blue-600 font-semibold"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
           >
-            {cat}
+            {cat.name}
           </div>
         ))}
       </div>

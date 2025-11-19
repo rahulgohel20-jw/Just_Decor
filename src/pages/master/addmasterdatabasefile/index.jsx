@@ -96,7 +96,7 @@ export default function AddMasterDatabaseFile({
       dbName: formData.databaseName,
       state: formData.state,
       instructions: formData.instructions,
-      userId: "2",
+      userId: "1",
     };
 
     const formDataToSend = new FormData();
@@ -109,6 +109,7 @@ export default function AddMasterDatabaseFile({
 
     try {
       const res = await DatabaseReadExcle(formDataToSend);
+      console.log("response",res);
 
       if (res?.data?.success) {
         await Swal.fire({

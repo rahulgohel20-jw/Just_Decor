@@ -36,6 +36,7 @@ const EventPlanningPage = () => {
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [selectedByFunction, setSelectedByFunction] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const userDataRaw = localStorage.getItem("userData");
   const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
@@ -99,6 +100,7 @@ const EventPlanningPage = () => {
             catId: Number(cat.menuCategoryId || 0),
           };
         });
+        console.log(mappedItems);
 
         if (mappedItems.length > 0) {
           categories[catName] = mappedItems;
@@ -188,6 +190,8 @@ const EventPlanningPage = () => {
         };
 
         const categories = { ...bucket.categories };
+        console.log(categories);
+
         const list = categories[categoryName]
           ? [...categories[categoryName]]
           : [];
@@ -222,6 +226,9 @@ const EventPlanningPage = () => {
           imagePath: menuItem.imagePath || "",
           rate: appliedRate,
           menuCategoryName: categoryName,
+          catId: Number(
+            menuItem.menuCategory?.id || menuItem.menuCategoryId || 0
+          ),
         });
 
         categories[categoryName] = list;
@@ -279,14 +286,17 @@ const EventPlanningPage = () => {
 
   const buildRequestPayload = () => {
     const bucket = selectedByFunction[selectedFunction];
+    console.log(bucket);
+
     if (!bucket) return null;
 
     const categoriesPayload = bucket.categoriesOrder.map(
       (catName, catIndex) => {
         const items = bucket.categories[catName] || [];
+        console.log(items, "data");
 
         return {
-          menuCategoryId: items[0]?.catId || 0, // 🟢 dynamic
+          menuCategoryId: items[0]?.catId || 0,
           menuCategoryName: catName,
           menuNotes: "",
           menuSlogan: "",
@@ -319,7 +329,7 @@ const EventPlanningPage = () => {
       packageName: "",
       packagePrice: 0,
 
-      selectedMenuPreparationItems: categoriesPayload,
+      selectedMenuPreparation: categoriesPayload,
     };
   };
 
@@ -368,6 +378,10 @@ const EventPlanningPage = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+  const handleCategoryChange = (categoryName, categoryId) => {
+    setSelectedCategory(categoryName);
+    setSelectedCategoryId(categoryId);
   };
 
   const handleCancel = () => {
@@ -608,7 +622,7 @@ const EventPlanningPage = () => {
                 >
                   <CategoryList
                     selectedCategory={selectedCategory}
-                    onCategoryChange={(cat) => setSelectedCategory(cat)}
+                    onCategoryChange={handleCategoryChange}
                   />
                 </div>
               </div>
@@ -644,6 +658,7 @@ const EventPlanningPage = () => {
                 >
                   <MenuItemGrid
                     category={selectedCategory}
+                    categoryId={selectedCategoryId}
                     pageSize={100}
                     searchTerm={searchTerm}
                     selectedIdsSet={getSelectedIdsForFunction(selectedFunction)}
