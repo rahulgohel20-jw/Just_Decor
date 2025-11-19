@@ -1,11 +1,14 @@
-import { Tooltip } from "antd";
+import { Popconfirm, Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
 
-export const columns = (onEdit, onDelete) => [
+export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "sr_no",
-    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No" />,
-    meta: { headerClassName: "w-[5%]", cellClassName: "text-center" },
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No#" />,
+    meta: {
+      headerClassName: "w-[4%]",
+      cellClassName: "w-[4%]",
+    },
   },
   {
     accessorKey: "venue_type",
@@ -15,35 +18,66 @@ export const columns = (onEdit, onDelete) => [
         defaultMessage="Venue Type"
       />
     ),
-    meta: { headerClassName: "w-full" },
+    meta: {
+      headerClassName: "w-[20%]",
+      cellClassName: "w-[20%]",
+    },
   },
+
+  // ✅ Status Column (Same design as your example)
+  {
+    accessorKey: "isActive",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-1">
+          <Popconfirm
+            title="Are you sure you want to change status?"
+            onConfirm={() =>
+              onStatus(row.original.venueid, row.original.isActive)
+            }
+            okText="Yes"
+            cancelText="No"
+          >
+            <label className="switch switch-lg">
+              <input
+                type="checkbox"
+                checked={row.original.isActive}
+                onChange={() => {}}
+                readOnly
+              />
+            </label>
+          </Popconfirm>
+        </div>
+      );
+    },
+    meta: {
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
+    },
+  },
+
+  // Actions Column
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
-      const venue = row.original;
-
       return (
-        <div className="flex items-center gap-2">
-          <Tooltip
-            title={<FormattedMessage id="COMMON.EDIT" defaultMessage="Edit" />}
-          >
+        <div className="flex items-center gap-1">
+          <Tooltip title="Edit">
             <button
-              className="btn btn-sm btn-icon btn-light btn-hover-primary"
-              onClick={() => onEdit(venue)}
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onEdit(row.original)}
+              title="Edit Venue Type"
             >
-              <i className="ki-filled ki-notepad-edit"></i>
+              <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
-          <Tooltip
-            title={
-              <FormattedMessage id="COMMON.DELETE" defaultMessage="Delete" />
-            }
-          >
+          <Tooltip title="Delete">
             <button
-              className="btn btn-sm btn-icon btn-light btn-hover-danger"
-              onClick={() => onDelete(row.original)} // ← FIXED: venueid, not eventid
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onDelete(row.original)}
             >
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
@@ -52,11 +86,13 @@ export const columns = (onEdit, onDelete) => [
       );
     },
     meta: {
-      headerClassName: "w-[120px] text-center",
-      cellClassName: "text-center",
+      headerClassName: "w-[12%]",
+      cellClassName: "w-[12%]",
     },
   },
 ];
 
-// Optional: Keep default data for loading skeleton only
-export const defaultData = [{ sr_no: 1, venue_type: "Loading...", venueid: 0 }];
+// Skeleton Row (Optional)
+export const defaultData = [
+  { sr_no: 1, venue_type: "Loading...", venueid: 0, isActive: false },
+];

@@ -92,7 +92,7 @@ const DishCostingPage = () => {
 
           const partyName = event?.party?.nameEnglish || "-";
           const eventType = event?.eventType?.nameEnglish || "-";
-          const venue = event?.venue || "-";
+          const venue = event?.venue.nameEnglish || "-";
           const eventDateTime = event?.eventStartDateTime || "-";
           const totalFunctions = event?.eventFunctions?.length || 0;
           const totalPax = event?.eventFunctions?.reduce(

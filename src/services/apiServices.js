@@ -898,3 +898,7 @@ export const UpdateVenueTypeApi = (venueId, data) => {
   return PUT(`/venuemaster/update?id=${venueId}`, data);
 };
 
+
+export const UpdateVenueStatusApi = (id, status) => {
+  return PUT(`/venuemaster/updatestatus?id=${id}&isActive=${status}`);
+};

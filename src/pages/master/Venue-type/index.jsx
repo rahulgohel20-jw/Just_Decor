@@ -4,7 +4,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import AddVenueType from "../../../partials/modals/add-venue-type/AddVenueType";
-import { GetVenueType, DeleteVenueTypeApi } from "@/services/apiServices";
+
+import {
+  GetVenueType,
+  DeleteVenueTypeApi,
+  UpdateVenueStatusApi,
+} from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import Swal from "sweetalert2";
 
@@ -31,12 +36,16 @@ const VenueTypeMaster = () => {
     try {
       const res = await GetVenueType(userId);
       if (res.data?.data?.["Venue Details"]) {
-        const formatted = res.data.data["Venue Details"].map((item, index) => ({
-          sr_no: index + 1,
-          venue_type: item.nameEnglish || "-",
-          venueid: item.id,
-          isActive: item.isActive,
-        }));
+        const formatted = res?.data?.data["Venue Details"].map(
+          (item, index) => ({
+            sr_no: index + 1,
+            venue_type: item.nameEnglish || "-",
+            venueid: item.id,
+            isDelete: item.isDelete ?? false,
+            isActive: item.isActive ?? false,
+          })
+        );
+
         setTableData(formatted);
       } else {
         setTableData([]);
@@ -60,8 +69,23 @@ const VenueTypeMaster = () => {
     setSelectedVenue(null);
     setIsModalOpen(true);
   };
+  const handleStatusChange = async (id, currentStatus) => {
+    const newStatus = !currentStatus;
 
-  // ✅ Delete handler
+    try {
+      const res = await UpdateVenueStatusApi(id, newStatus);
+
+      if (res.data?.success) {
+        Swal.fire("Success", "Status updated successfully", "success");
+        fetchVenueTypes();
+      } else {
+        Swal.fire("Error", res?.data?.message || "Failed to update", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Something went wrong", "error");
+    }
+  };
+
   const handleDelete = (venue) => {
     Swal.fire({
       title: "Are you sure?",
@@ -142,12 +166,12 @@ const VenueTypeMaster = () => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           refreshData={fetchVenueTypes}
-          selectedEvent={selectedVenue} // <-- selectedVenue passed for edit
+          selectedEvent={selectedVenue}
         />
 
         {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, handleDelete)} // pass delete handler
+          columns={columns(handleEdit, handleDelete, handleStatusChange)}
           data={tableData || []}
           paginationSize={10}
         />

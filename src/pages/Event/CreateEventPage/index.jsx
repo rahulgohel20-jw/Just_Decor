@@ -94,7 +94,7 @@ const CreateEventPage = () => {
               (match) => match.toUpperCase()
             ),
             status: statusId,
-            venueId: event.venue || "",
+            venueId: event.venue.id || "",
             eventTypeId: event.eventType?.id || "",
             managerId: event.manager?.id || "",
             partyId: event.party?.id || "",
