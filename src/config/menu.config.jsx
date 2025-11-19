@@ -73,7 +73,7 @@ const getUserPlan = async () => {
 
 const userRoleId = getUserRole();
 const userPlan = getUserPlan();
-    const userData = JSON.parse(localStorage.getItem("userData"));
+const userData = JSON.parse(localStorage.getItem("userData"));
 
 const isSuperAdmin = userRoleId === 1;
 const isNormalUser = userRoleId === 2;
@@ -172,6 +172,15 @@ const allMenuItems = [
           />
         ),
         path: "/master/event-type",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.EVENT_TYPE"
+            defaultMessage="Venue Type"
+          />
+        ),
+        path: "/master/venue-type",
       },
       {
         title: "Unit ",

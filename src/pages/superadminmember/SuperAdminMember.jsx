@@ -123,14 +123,15 @@ const MemberProfile = () => {
 
                 {/* Profile Indicator */}
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700">
-                  {memberData.memberType === 'normal' ? 'Standard' : 'Premium'} Profile
+                  {memberData.memberType}
                 </span>
               </div>
 
               {/* Plan Badge */}
-              <button className="text-lg text-blue-600 bg-blue-100 px-4 py-1 rounded-full">
-                {memberData.userPlan?.plan?.name || 'No Plan'}
-              </button>
+              <span className="text-md font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                  {memberData.userPlan?.plan?.name || 'No Plan'}
+                </span>
+              
             </div>
 
             {/* Member Details */}

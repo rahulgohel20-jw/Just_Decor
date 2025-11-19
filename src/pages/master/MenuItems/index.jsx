@@ -14,10 +14,13 @@ import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Form } from "antd";
 
-
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10000);
+  const [totalItems, setTotalItems] = useState(0);
+
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
@@ -27,33 +30,41 @@ const MenuItems = () => {
 
   useEffect(() => {
     FetchMenuItems();
-  }, [searchQuery]);
+  }, []); // fetch on mount
 
-  // ✅ Fetch menu items
-  const FetchMenuItems = () => {
-    GetAllMenuItems({ userId: Id, menuItemName: searchQuery }) // <-- fixed key
+  useEffect(() => {
+    FetchMenuItems();
+  }, [searchQuery]); // fetch when searchQuery changes
+
+  const FetchMenuItems = (page = currentPage) => {
+    GetAllMenuItems({
+      userId: Id,
+      menuItemName: searchQuery,
+      page: page,
+      size: pageSize,
+    })
       .then((res) => {
-        if (
-          res?.data?.data &&
-          Array.isArray(res.data.data["Menu Item Details"])
-        ) {
-          const formatted = res.data.data["Menu Item Details"]
-            .sort((a, b) => b.id - a.id)
-            .map((item, index) => ({
-              sr_no: index + 1,
-              id: item.id,
-              name: item.nameEnglish || "-",
-              category: item.menuCategory?.nameEnglish || "-",
-              subCategory: item.menuSubCategory?.nameEnglish || "-",
-              kitchenArea: item.kitchenArea?.nameEnglish || "-",
-              slogan: item.slogan || "-",
-              price: item.price || "-",
-              priority: item.sequence || "-",
-              image: item.imagePath || "",
-              status: item.isActive,
-              rawdata: item.menuItemRawMaterials || [],
-              menuAllocation: item.menuItemAllocationConfigs || [],
-            }));
+        console.log("Menu Items API Response:", res);
+
+        if (res?.data?.data?.items && Array.isArray(res.data.data.items)) {
+          setTotalItems(res.data.data.totalItems); // save total items for pagination
+
+          const formatted = res.data.data.items.map((item, index) => ({
+            sr_no: (page - 1) * pageSize + index + 1, // dynamic serial number
+            id: item.id,
+            name: item.nameEnglish || "-",
+            category: item.menuCategory?.nameEnglish || "-",
+            subCategory: item.menuSubCategory?.nameEnglish || "-",
+            kitchenArea: item.kitchenArea?.nameEnglish || "-",
+            slogan: item.slogan || "-",
+            price: item.price || "-",
+            priority: item.sequence || "-",
+            image: item.imagePath || "",
+            status: item.isActive,
+            rawdata: item.menuItemRawMaterials || [],
+            menuAllocation: item.menuItemAllocationConfigs || [],
+          }));
+
           setTableData(formatted);
         } else {
           setTableData([]);
@@ -124,7 +135,18 @@ const MenuItems = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="MASTER.MENU_ITEMS" defaultMessage="Menu Items Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="MASTER.MENU_ITEMS"
+                    defaultMessage="Menu Items Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* filters */}
@@ -134,7 +156,10 @@ const MenuItems = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "MASTER.SEARCH_MENU_ITEMS", defaultMessage: "Search Menu Items" })}
+                placeholder={intl.formatMessage({
+                  id: "MASTER.SEARCH_MENU_ITEMS",
+                  defaultMessage: "Search Menu Items",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -148,9 +173,16 @@ const MenuItems = () => {
                 setSelectedMenuItem(null);
                 setIsItemModalOpen(true);
               }}
-              title={intl.formatMessage({ id: "MASTER.ADD_MENU_ITEM", defaultMessage: "Add Item" })}
+              title={intl.formatMessage({
+                id: "MASTER.ADD_MENU_ITEM",
+                defaultMessage: "Add Item",
+              })}
             >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="MASTER.ADD_MENU_ITEM" defaultMessage="Add Menu Item" />
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="MASTER.ADD_MENU_ITEM"
+                defaultMessage="Add Menu Item"
+              />
             </button>
           </div>
         </div>

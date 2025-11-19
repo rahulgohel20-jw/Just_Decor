@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Input, DatePicker, Tooltip } from "antd";
+import { Input, DatePicker, Tooltip, message } from "antd";
 import dayjs from "dayjs";
 import { Plus } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
@@ -69,6 +69,7 @@ const FunctionsDetails = ({
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [options, setOptions] = useState([]);
   const [selectedFunctionIndex, setSelectedFunctionIndex] = useState(null);
+  const [functionErrors, setFunctionErrors] = useState({});
 
   const createEmptyRow = () => ({
     eventFuncId: 0,
@@ -89,6 +90,24 @@ const FunctionsDetails = ({
       errors[`eventFunction[${index}].${field}`] ||
       errors[`eventFunction.${index}.${field}`]
     );
+  };
+
+  const getAvailableFunctionOptions = (currentIndex) => {
+    // Get start date for this row
+    const currentStartDate =
+      formData.eventFunction[currentIndex]?.functionStartDateTime;
+
+    if (!currentStartDate) return options;
+
+    // Collect functionIds already selected for the same date in other rows
+    const usedFunctionIds = formData.eventFunction
+      .filter((f, i) => i !== currentIndex)
+      .filter((f) => f.functionStartDateTime === currentStartDate)
+      .map((f) => f.functionId)
+      .filter(Boolean);
+
+    // Return options that are not used
+    return options.filter((opt) => !usedFunctionIds.includes(opt.value));
   };
 
   // fetch function types from API
@@ -122,7 +141,7 @@ const FunctionsDetails = ({
       return prev; // keep API data intact
     });
     console.log("eventFunction rows:", formData.eventFunction);
-  }, [formData.eventFunction]);
+  }, []);
 
   const handleAddClick = () => {
     setShowFunctionModal(true);
@@ -151,10 +170,12 @@ const FunctionsDetails = ({
 
   // remove row
   const handleRemoveFunction = (index) => {
-    const updated = formData.eventFunction.filter((_, i) => i !== index);
-    setFormData({
-      ...formData,
-      eventFunction: updated.length > 0 ? updated : [createEmptyRow()],
+    setFormData((prev) => {
+      const updated = prev.eventFunction.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        eventFunction: updated.length > 0 ? updated : [createEmptyRow()],
+      };
     });
   };
 
@@ -165,19 +186,28 @@ const FunctionsDetails = ({
     setFormData({ ...formData, eventFunction: updatedArray });
   };
 
-  // when user selects function type from dropdown
   const handleFunctionSelect = (index, functionId) => {
     const selected = options.find((opt) => opt.value === functionId);
     const updatedArray = [...formData.eventFunction];
+    if (!selected) return;
 
-    if (selected) {
+    const currentRow = updatedArray[index];
+
+    // Check if this function was ever selected before (any row)
+    const isFunctionAlreadyUsed = updatedArray
+      .filter((_, i) => i !== index) // exclude current row
+      .some((f) => f.functionId === functionId);
+
+    // Only auto-fill if the current row has empty dates AND function has never been used
+    if (
+      !currentRow.functionStartDateTime &&
+      !currentRow.functionEndDateTime &&
+      !isFunctionAlreadyUsed
+    ) {
       const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY");
       const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY");
-
       const startTime = dayjs(selected.functionstartTime, "HH:mm");
       const endTime = dayjs(selected.functionendTime, "HH:mm");
-
-      updatedArray[index].functionId = functionId;
 
       updatedArray[index].functionStartDateTime = eventStartDate
         .hour(startTime.hour())
@@ -190,6 +220,8 @@ const FunctionsDetails = ({
         .format("DD/MM/YYYY hh:mm A");
     }
 
+    // Set the selected functionId
+    updatedArray[index].functionId = functionId;
     setFormData({ ...formData, eventFunction: updatedArray });
   };
 
@@ -239,7 +271,10 @@ const FunctionsDetails = ({
               <th className="text-sm font-semibold text-gray-900 p-3">
                 <div className="flex items-center gap-2">
                   <span className="flex items-center">
-                    <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE" defaultMessage="Function Type" />
+                    <FormattedMessage
+                      id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE"
+                      defaultMessage="Function Type"
+                    />
                     <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                       *
                     </span>
@@ -255,25 +290,43 @@ const FunctionsDetails = ({
                 </div>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE" defaultMessage="Start Date" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
+                  defaultMessage="Start Date"
+                />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE" defaultMessage="End Date" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE"
+                  defaultMessage="End Date"
+                />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON" defaultMessage="Person" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON"
+                  defaultMessage="Person"
+                />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-24">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE" defaultMessage="Rate" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE"
+                  defaultMessage="Rate"
+                />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE" defaultMessage="Function Venue" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
+                  defaultMessage="Function Venue"
+                />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS" defaultMessage="Actions" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS"
+                  defaultMessage="Actions"
+                />
               </th>
             </tr>
           </thead>
@@ -293,10 +346,12 @@ const FunctionsDetails = ({
                     {/* Function Type */}
                     <td className="p-3 border-b border-gray-200">
                       <FunctionTypeDropdown
-                        value={func.functionId}
+                        value={func.functionId || undefined} // undefined if nothing selected
                         onChange={(value) => handleFunctionSelect(index, value)}
-                        options={options}
+                        options={getAvailableFunctionOptions(index)}
+                        placeholder="Select Function"
                       />
+
                       {getFunctionFieldError(index, "functionId") && (
                         <span className="text-red-500 text-xs mt-1">
                           {getFunctionFieldError(index, "functionId")}
@@ -324,6 +379,15 @@ const FunctionsDetails = ({
                                 "DD/MM/YYYY hh:mm A"
                               )
                             : null
+                        }
+                        onChange={(date) =>
+                          handleInputChange(
+                            index,
+                            "functionStartDateTime",
+                            date
+                              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+                              : null
+                          )
                         }
                         options={options}
                       />
@@ -360,6 +424,17 @@ const FunctionsDetails = ({
                           )
                         }
                       />
+                      {getFunctionFieldError(
+                        index,
+                        "functionStartDateTime"
+                      ) && (
+                        <div className="text-red-500 text-xs mt-1">
+                          {getFunctionFieldError(
+                            index,
+                            "functionStartDateTime"
+                          )}
+                        </div>
+                      )}
                       {getFunctionFieldError(index, "functionEndDateTime") && (
                         <div className="text-red-500 text-xs mt-1">
                           {getFunctionFieldError(index, "functionEndDateTime")}

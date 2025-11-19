@@ -52,7 +52,9 @@ const DishCostingPage = () => {
           defaultMessage="Total Raw Material Charges"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.rawmaterialcharge
+        ? Number(dishCostingData.rawmaterialcharge).toLocaleString()
+        : "0.00",
     },
     {
       label: (
@@ -61,9 +63,10 @@ const DishCostingPage = () => {
           defaultMessage="Total Agency Charges"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.outsideagencycharge
+        ? Number(dishCostingData.outsideagencycharge).toLocaleString()
+        : "0.00",
     },
-
     {
       label: (
         <FormattedMessage
@@ -71,7 +74,9 @@ const DishCostingPage = () => {
           defaultMessage="Total Extra Expense"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.extraexpensecharge
+        ? Number(dishCostingData.extraexpensecharge).toLocaleString()
+        : "0.00",
     },
   ];
 
@@ -125,7 +130,9 @@ const DishCostingPage = () => {
           selectedFunctionId
         );
         console.log("Dish Costing API Response:", res.data);
-        setDishCostingData(res.data);
+
+        // Extract the 'data' object from the API response
+        setDishCostingData(res.data.data);
       } catch (err) {
         console.error("Error fetching dish costing:", err);
       }
@@ -373,8 +380,9 @@ const DishCostingPage = () => {
                 </div>
                 <div className="text-3xl font-bold text-gray-900 border-blue-600 rounded-md px-3 py-1 inline-block">
                   ₹{" "}
-                  {dishCostingData?.rawmaterialcharge?.toLocaleString() ||
-                    "0.00"}
+                  {Number(
+                    dishCostingData?.rawmaterialcharge || 0
+                  ).toLocaleString()}
                 </div>
               </div>
 
@@ -391,8 +399,9 @@ const DishCostingPage = () => {
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
                   ₹{" "}
-                  {dishCostingData?.outsideagencycharge?.toLocaleString() ||
-                    "0.00"}
+                  {Number(
+                    dishCostingData?.outsideagencycharge || 0
+                  ).toLocaleString()}
                 </div>
               </div>
 
@@ -410,8 +419,9 @@ const DishCostingPage = () => {
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
                   ₹{" "}
-                  {dishCostingData?.extraexpensecharge?.toLocaleString() ||
-                    "0.00"}
+                  {Number(
+                    dishCostingData?.extraexpensecharge || 0
+                  ).toLocaleString()}
                 </div>
               </div>
 
@@ -443,24 +453,27 @@ const DishCostingPage = () => {
                 <div className="text-3xl font-bold text-blue-500">
                   ₹{" "}
                   {(
-                    (dishCostingData?.rawmaterialcharge || 0) +
-                    (dishCostingData?.outsideagencycharge || 0) +
-                    (dishCostingData?.extraexpensecharge || 0)
-                  ).toLocaleString()}{" "}
+                    Number(dishCostingData?.rawmaterialcharge || 0) +
+                    Number(dishCostingData?.outsideagencycharge || 0) +
+                    Number(dishCostingData?.extraexpensecharge || 0)
+                  ).toLocaleString()}
                 </div>
               </div>
 
               {/* Dish Costing */}
-              <div className="bg-green-100 border-s-[6px] rounded-lg p-5 border-2 border-green-500 relative">
-                <div className="text-base font-semibold text-green-600 mb-2">
-                  <FormattedMessage
-                    id="COMMON.DISH_COSTING"
-                    defaultMessage="Dish Costing"
-                  />
-                </div>
-                <div className="text-3xl font-bold text-green-500  border-green-600 rounded-md px-3 py-1 inline-block">
-                  ₹ 11,496.00
-                </div>
+              <div className="text-3xl font-bold text-green-500 border-green-600 rounded-md px-3 py-1 inline-block">
+                ₹{" "}
+                {selectedFunctionPax
+                  ? (
+                      (Number(dishCostingData?.rawmaterialcharge || 0) +
+                        Number(dishCostingData?.outsideagencycharge || 0) +
+                        Number(dishCostingData?.extraexpensecharge || 0)) /
+                      selectedFunctionPax
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : "0.00"}
               </div>
             </div>
           </div>

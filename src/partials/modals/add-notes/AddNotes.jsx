@@ -9,7 +9,7 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   );
   const [debounceTimer, setDebounceTimer] = useState(null);
 
-  const intl= useIntl();
+  const intl = useIntl();
 
   useEffect(() => {
     setNotes(
@@ -53,11 +53,11 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-  <FormattedMessage
-    id="COMMON.ADD_NOTES"
-    defaultMessage="Add Notes"
-  />
-</h2>
+            <FormattedMessage
+              id="COMMON.ADD_NOTES"
+              defaultMessage="Add Notes"
+            />
+          </h2>
 
           <button onClick={onClose} className="text-2xl text-gray-600">
             &times;
@@ -67,21 +67,35 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name fields */}
           <InputWithIcon
-  label={<FormattedMessage id="COMMON.NOTES_ENGLISH" defaultMessage="Notes (English)" />}
-  value={notes.notesEnglish}
-  onChange={(e) => handleChange("notesEnglish", e.target.value)}
-/>
-<InputWithIcon
-  label={<FormattedMessage id="COMMON.NOTES_GUJARATI" defaultMessage="Notes (ગુજરાતી)" />}
-  value={notes.notesGujarati}
-  onChange={(e) => handleChange("notesGujarati", e.target.value)}
-/>
-<InputWithIcon
-  label={<FormattedMessage id="COMMON.NOTES_HINDI" defaultMessage="Notes (हिंदी)" />}
-  value={notes.notesHindi}
-  onChange={(e) => handleChange("notesHindi", e.target.value)}
-/>
-
+            label={
+              <FormattedMessage
+                id="COMMON.NOTES_ENGLISH"
+                defaultMessage="Notes (English)"
+              />
+            }
+            value={notes.notesEnglish}
+            onChange={(e) => handleChange("notesEnglish", e.target.value)}
+          />
+          <InputWithIcon
+            label={
+              <FormattedMessage
+                id="COMMON.NOTES_GUJARATI"
+                defaultMessage="Notes (ગુજરાતી)"
+              />
+            }
+            value={notes.notesGujarati}
+            onChange={(e) => handleChange("notesGujarati", e.target.value)}
+          />
+          <InputWithIcon
+            label={
+              <FormattedMessage
+                id="COMMON.NOTES_HINDI"
+                defaultMessage="Notes (हिंदी)"
+              />
+            }
+            value={notes.notesHindi}
+            onChange={(e) => handleChange("notesHindi", e.target.value)}
+          />
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">
           <button

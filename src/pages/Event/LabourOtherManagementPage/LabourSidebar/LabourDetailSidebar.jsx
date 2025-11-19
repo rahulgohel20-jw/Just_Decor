@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input, DatePicker, Spin, message } from "antd";
 import dayjs from "dayjs";
 import { FormattedMessage } from "react-intl";
-import { GetEventLabourBySupplier } from "@/services/apiServices";
+import {
+  GetEventLabourBySupplier,
+  GetAllContactCategory,
+} from "@/services/apiServices";
 
 const LabourDetailSidebar = ({
   isOpen,
@@ -13,7 +16,8 @@ const LabourDetailSidebar = ({
   contactId,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [labourData, setLabourData] = useState([]); // array of labour entries for selected contact
+  const [labourData, setLabourData] = useState([]);
+  const [labourTypes, setLabourTypes] = useState([]);
 
   const formatDate = (str) => {
     if (!str) return "";
@@ -21,6 +25,32 @@ const LabourDetailSidebar = ({
     return parsed.isValid() ? parsed.format("YYYY-MM-DD") : "";
   };
 
+  // ✅ Fetch all labour types (categories)
+  const fetchLabourTypes = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      const res = await GetAllContactCategory(userId);
+      const rawData = res?.data?.data;
+
+      // Correctly extract the array inside "Contact Category Details"
+      const list = Array.isArray(rawData?.["Contact Category Details"])
+        ? rawData["Contact Category Details"]
+        : [];
+
+      console.log("✅ Final labourTypes list:", list);
+
+      setLabourTypes(list);
+    } catch (err) {
+      console.error("❌ Error fetching labour types:", err);
+      setLabourTypes([]); // fallback to empty array
+    }
+  };
+
+  // ✅ Helper: get labour type name
+
+  // ✅ Fetch event labour data
   const fetchLabourData = async () => {
     if (!eventFunctionId || !eventId || !contactId) {
       message.warning("Missing required parameters");
@@ -41,6 +71,7 @@ const LabourDetailSidebar = ({
       );
 
       setLabourData(filteredLabour);
+
       if (filteredLabour.length === 0)
         message.info("No labour data found for this contact");
     } catch (err) {
@@ -51,15 +82,26 @@ const LabourDetailSidebar = ({
     }
   };
 
+  // ✅ Fetch data when sidebar opens
   useEffect(() => {
-    if (isOpen) fetchLabourData();
+    if (isOpen) {
+      fetchLabourTypes();
+      fetchLabourData();
+    }
   }, [isOpen, eventFunctionId, eventId, contactId]);
 
+  // ✅ Totals
   const calculateTotalQty = () =>
     labourData.reduce((sum, l) => sum + (l.qty || 0), 0);
 
   const calculateTotalPrice = () =>
     labourData.reduce((sum, l) => sum + (l.price || 0) * (l.qty || 0), 0);
+
+  const getLabourTypeName = (id) => {
+    if (!Array.isArray(labourTypes)) return id;
+    const found = labourTypes.find((t) => String(t.id) === String(id));
+    return found?.nameEnglish || id;
+  };
 
   return (
     <AnimatePresence>
@@ -128,9 +170,9 @@ const LabourDetailSidebar = ({
                     </div>
 
                     {/* Data Rows */}
-                    {labourData.map((labourRow, idx) => {
-                      const formattedDate = labourRow.labordatetime
-                        ? dayjs(formatDate(labourRow.labordatetime))
+                    {labourData.map((row, idx) => {
+                      const formattedDate = row.labordatetime
+                        ? dayjs(formatDate(row.labordatetime))
                         : null;
 
                       return (
@@ -138,9 +180,12 @@ const LabourDetailSidebar = ({
                           key={idx}
                           className="grid grid-cols-6 gap-2 items-center mb-3 p-2 border rounded hover:bg-gray-50 transition"
                         >
-                          <Input value={labourRow.labortypename} readOnly />
-                          <Input value={labourRow.contactname} readOnly />
-                          <Input value={labourRow.laborshift} readOnly />
+                          <Input
+                            value={getLabourTypeName(row.labortypeid)}
+                            readOnly
+                          />
+                          <Input value={row.contactname ?? ""} readOnly />
+                          <Input value={row.laborshift ?? ""} readOnly />
                           <DatePicker
                             value={formattedDate}
                             format="MMM D, YYYY"
@@ -148,12 +193,12 @@ const LabourDetailSidebar = ({
                             className="w-full"
                           />
                           <Input
-                            value={labourRow.qty}
+                            value={row.qty ?? 0}
                             readOnly
                             className="text-center"
                           />
                           <Input
-                            value={labourRow.price}
+                            value={row.price ?? 0}
                             readOnly
                             className="text-right"
                           />
