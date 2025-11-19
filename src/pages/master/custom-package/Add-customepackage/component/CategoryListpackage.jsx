@@ -1,44 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { Search, Plus, Loader2 } from "lucide-react";
-import { GetAllCategoryformenu } from "@/services/apiServices";
+import { useState, useMemo } from "react";
+import { Search, Loader2, GripVertical } from "lucide-react";
 
 function CategoryListpackage({
   selectedCategory,
   onSelectCategory,
+  categories,
   setCategories,
+  categoryItemCounts,
+  onCategoryItemCountChange,
+  onReorderCategories,
 }) {
-  const [numberOfItems, setNumberOfItems] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [localCategories, setLocalCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // Display list including "All"
+  const displayCategories = useMemo(() => {
+    return [{ id: "all", nameEnglish: "All" }, ...categories];
+  }, [categories]);
 
-  const fetchCategories = async () => {
-    try {
-      const id = localStorage.getItem("userId");
-      setLoading(true);
-      setError(null);
-      const response = await GetAllCategoryformenu(id);
-      const fetchedCategories =
-        response.data.data["Menu Category Details"] || [];
+  const filteredCategories = useMemo(() => {
+    return displayCategories.filter((cat) =>
+      cat.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [displayCategories, searchQuery]);
 
-      const allCategories = [
-        { id: "all", nameEnglish: "All" },
-        ...fetchedCategories,
-      ];
+  const handleDragStart = (e, index) => {
+    if (filteredCategories[index].id === "all") return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
 
-      setLocalCategories(allCategories);
-      setCategories(allCategories);
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
 
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to load categories");
-      setLoading(false);
-      console.error("Error fetching categories:", err);
-    }
+    if (filteredCategories[index].id === "all") return;
+
+    const newCategories = [...categories];
+
+    const draggedItem = newCategories[draggedIndex - 1];
+    newCategories.splice(draggedIndex - 1, 1);
+    newCategories.splice(index - 1, 0, draggedItem);
+
+    setDraggedIndex(index);
+    onReorderCategories(newCategories);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
   };
 
   return (
@@ -49,66 +58,57 @@ function CategoryListpackage({
           <input
             type="text"
             placeholder="Search categories"
-            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none"
+            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white rounded-full p-1">
-            <Plus className="w-6 h-6" />
-          </button>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            <span className="ml-2 text-gray-600">Loading categories...</span>
-          </div>
-        ) : error ? (
-          <div className="p-4 text-center">
-            <p className="text-red-600 mb-2">{error}</p>
+        {filteredCategories.map((cat, index) => (
+          <div
+            key={cat.id}
+            draggable={cat.id !== "all"}
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragEnd={handleDragEnd}
+            className={draggedIndex === index ? "opacity-50" : ""}
+          >
             <button
-              onClick={fetchCategories}
-              className="text-blue-600 hover:underline text-sm"
-            >
-              Try again
-            </button>
-          </div>
-        ) : localCategories.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            No categories found
-          </div>
-        ) : (
-          localCategories.map((cat) => (
-            <div key={cat.id}>
-              <button
-                onClick={() => onSelectCategory(cat.id)}
-                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
+              onClick={() => onSelectCategory(cat.id)}
+              className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2
+                ${
                   selectedCategory === cat.id
-                    ? "bg-blue-50 text-primary font-medium"
+                    ? "bg-blue-50 text-blue-600 font-medium"
                     : "text-gray-700"
                 }`}
-              >
-                {cat.nameEnglish}
-              </button>
-
-              {selectedCategory === cat.id && (
-                <div className="px-4 pb-3 bg-blue-50">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Number Of Items
-                  </label>
-                  <input
-                    type="number"
-                    value={numberOfItems}
-                    onChange={(e) => setNumberOfItems(e.target.value)}
-                    placeholder="Enter number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min="0"
-                  />
-                </div>
+            >
+              {cat.id !== "all" && (
+                <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
               )}
-            </div>
-          ))
-        )}
+              <span className="flex-1">{cat.nameEnglish}</span>
+            </button>
+
+            {selectedCategory === cat.id && (
+              <div className="px-4 pb-3 bg-blue-50">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Number Of Items
+                </label>
+                <input
+                  type="number"
+                  value={categoryItemCounts[cat.id] || ""}
+                  onChange={(e) =>
+                    onCategoryItemCountChange(cat.id, Number(e.target.value))
+                  }
+                  placeholder="Enter number"
+                  className="w-full px-3 py-2 border rounded-lg"
+                  min="0"
+                />
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
