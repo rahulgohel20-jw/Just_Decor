@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Getmenuprep } from "@/services/apiServices";
-
+import { toAbsoluteUrl } from "@/utils";
 const MenuItemGrid = ({
   category = "All",
   categoryId = 0,
@@ -9,14 +9,20 @@ const MenuItemGrid = ({
   selectedIdsSet = new Set(),
   onToggleSelect = () => {},
   selectedFunctionId = null,
+  packageCategories = [], // 🔥 added
 }) => {
   const [allMenuItems, setAllMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [displayCount, setDisplayCount] = useState(pageSize);
 
   const userId = localStorage.getItem("userId");
+  const sentinelRef = useRef();
+  const observerRef = useRef();
 
-  // Fetch menu items using Getmenuprep API
+  // -----------------------------------------------------
+  // 🔵 FETCH ITEMS (category based)
+  // -----------------------------------------------------
   const fetchMenuItems = useCallback(async () => {
     if (!selectedFunctionId || !userId) return;
 
@@ -24,16 +30,23 @@ const MenuItemGrid = ({
       setLoading(true);
       setError(null);
 
-      // Use the categoryId prop directly (0 for "All", specific ID for categories)
       const response = await Getmenuprep(
         selectedFunctionId,
+        "",
         categoryId,
         1,
-        1000, // Fetch large batch since we're doing client-side pagination
+        1000,
         userId
       );
 
-      const items = response?.data?.data?.menuPreparationItems || [];
+      let items = response?.data?.data?.menuPreparationItems || [];
+
+      // ⭐ Convert API isPackage → internal isPackageItem
+      items = items.map((it) => ({
+        ...it,
+        isPackageItem: !!it.isPackage,
+      }));
+
       setAllMenuItems(items);
     } catch (err) {
       console.error("Failed to load menu items:", err);
@@ -44,60 +57,111 @@ const MenuItemGrid = ({
     }
   }, [selectedFunctionId, userId, categoryId]);
 
-  // Fetch items when dependencies change
-  useEffect(() => {
-    fetchMenuItems();
-  }, [fetchMenuItems]);
+  // -----------------------------------------------------
+  // 🔍 SEARCH ITEMS
+  // -----------------------------------------------------
+  const searchMenuItems = useCallback(
+    async (searchQuery) => {
+      if (!selectedFunctionId || !userId) return;
 
-  // Filter items only by search term (category filtering is done by API)
-  const filteredItems = useMemo(() => {
-    let items = [...allMenuItems];
+      try {
+        setLoading(true);
+        setError(null);
 
-    // Filter by search term only
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      items = items.filter((item) => {
-        const name = (
-          item.nameEnglish ||
-          item.menuItemName ||
-          ""
-        ).toLowerCase();
-        return name.includes(searchLower);
-      });
-    }
+        const response = await Getmenuprep(
+          selectedFunctionId,
+          searchQuery.trim(),
+          0,
+          1,
+          1000,
+          userId
+        );
 
-    return items;
-  }, [allMenuItems, searchTerm]);
+        let items = response?.data?.data?.menuPreparationItems || [];
 
-  // Paginate filtered items on client side
-  const [displayCount, setDisplayCount] = useState(pageSize);
-  const displayedItems = useMemo(
-    () => filteredItems.slice(0, displayCount),
-    [filteredItems, displayCount]
+        // ⭐ convert API flag
+        items = items.map((it) => ({
+          ...it,
+          isPackageItem: !!it.isPackage,
+        }));
+
+        setAllMenuItems(items);
+      } catch (err) {
+        console.error("Failed to search menu items:", err);
+        setError("Failed to search items");
+        setAllMenuItems([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedFunctionId, userId]
   );
 
-  const hasMore = displayCount < filteredItems.length;
+  // -----------------------------------------------------
+  // APPLY CATEGORY / SEARCH
+  // -----------------------------------------------------
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      const timer = setTimeout(() => searchMenuItems(searchTerm), 400);
+      return () => clearTimeout(timer);
+    }
 
-  // Intersection observer for infinite scroll
-  const sentinelRef = useRef();
-  const observerRef = useRef();
+    fetchMenuItems();
+  }, [searchTerm, categoryId, fetchMenuItems, searchMenuItems]);
 
   useEffect(() => {
+    setDisplayCount(pageSize);
+  }, [allMenuItems, pageSize]);
+
+  // -----------------------------------------------------
+  // ⭐ SORTING LOGIC (package items first + package categories first)
+  // -----------------------------------------------------
+  const sortedItems = useMemo(() => {
+    return [...allMenuItems].sort((a, b) => {
+      // 🔥 1) Package items first
+      const aPkg = a.isPackageItem ? 0 : 1;
+      const bPkg = b.isPackageItem ? 0 : 1;
+      if (aPkg !== bPkg) return aPkg - bPkg;
+
+      // 🔥 2) If both are package items OR both are normal,
+      // move package categories to top
+      const aCat = a.menuCategoryName || "";
+      const bCat = b.menuCategoryName || "";
+
+      const aIdx = packageCategories.indexOf(aCat);
+      const bIdx = packageCategories.indexOf(bCat);
+
+      if (aIdx !== bIdx) {
+        return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+      }
+
+      return 0;
+    });
+  }, [allMenuItems, packageCategories]);
+
+  const displayedItems = useMemo(
+    () => sortedItems.slice(0, displayCount),
+    [sortedItems, displayCount]
+  );
+
+  const hasMore = displayCount < allMenuItems.length;
+
+  // -----------------------------------------------------
+  // ♾️ INFINITE SCROLL
+  // -----------------------------------------------------
+  useEffect(() => {
     if (!sentinelRef.current) return;
+
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && !loading && hasMore) {
+        const f = entries[0];
+        if (f.isIntersecting && !loading && hasMore) {
           setDisplayCount((prev) => prev + pageSize);
         }
       },
-      {
-        root: null,
-        rootMargin: "200px",
-        threshold: 0.1,
-      }
+      { rootMargin: "200px" }
     );
 
     observerRef.current.observe(sentinelRef.current);
@@ -105,21 +169,27 @@ const MenuItemGrid = ({
     return () => observerRef.current?.disconnect();
   }, [loading, hasMore, pageSize]);
 
-  // Reset display count when filters change
-  useEffect(() => {
-    setDisplayCount(pageSize);
-  }, [category, searchTerm, pageSize]);
+  // -----------------------------------------------------
+  // CLICK ITEM
+  // -----------------------------------------------------
+  const onItemClick = useCallback(
+    (item) => {
+      const catName =
+        category !== "All"
+          ? category
+          : item.menuCategory?.nameEnglish ||
+            item.menuCategory?.name ||
+            item.menuCategoryName ||
+            "Uncategorized";
 
-  const onItemClick = (item) => {
-    const catName =
-      item.menuCategory?.nameEnglish ||
-      item.menuCategory?.name ||
-      item.menuCategoryName ||
-      "Uncategorized";
+      onToggleSelect(item, catName);
+    },
+    [onToggleSelect, category]
+  );
 
-    onToggleSelect(item, catName);
-  };
-
+  // -----------------------------------------------------
+  // UI STATES
+  // -----------------------------------------------------
   if (loading && allMenuItems.length === 0) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -140,22 +210,23 @@ const MenuItemGrid = ({
     return (
       <div className="flex justify-center items-center h-40">
         <p className="text-gray-500 text-sm">
-          {searchTerm
-            ? "No items found matching your search"
-            : "No items available"}
+          {searchTerm ? "No items found" : "No items available"}
         </p>
       </div>
     );
   }
 
+  // -----------------------------------------------------
+  // 🟩 RENDER GRID
+  // -----------------------------------------------------
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {displayedItems.map((item) => {
           const id = item.menuItemId || item.id;
-          const displayName = item.nameEnglish || item.menuItemName || "";
-
+          const name = item.nameEnglish || item.menuItemName || "";
           const numericId = Number(id);
+
           const isSelected =
             selectedIdsSet.has(numericId) ||
             selectedIdsSet.has(String(numericId));
@@ -164,27 +235,43 @@ const MenuItemGrid = ({
             <div
               key={id}
               onClick={() => onItemClick(item)}
-              className={`flex flex-col items-start border rounded-lg cursor-pointer relative transition-colors
+              className={`relative flex flex-col items-start border rounded-lg cursor-pointer transition-colors
                 ${
                   isSelected
                     ? "border-green-500 bg-green-100/30"
                     : "hover:bg-blue-100/40 hover:border-blue-300"
                 }`}
             >
+              {/* 🔥 DIAGONAL PKG RIBBON */}
+              {item.isPackageItem && (
+                <div className="absolute top-0 left-0">
+                  <div
+                    className="bg-purple-600 text-white text-[10px] font-semibold px-6 py-[2px]
+                    transform -rotate-45 translate-x-[-20px] translate-y-[6px] shadow-md"
+                  >
+                    PKG
+                  </div>
+                </div>
+              )}
+
               <div className="w-full h-20 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
                 {item.imagePath ? (
                   <img
-                    src={item.imagePath}
-                    alt={displayName}
+                    src={toAbsoluteUrl("/media/menu/noImage.jpg")}
+                    alt={name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="text-gray-400 text-xs">No Image</div>
+                  <img
+                    className="w-4 h-4"
+                    src={toAbsoluteUrl("/media/menu/noImage.jpg")}
+                    alt="image"
+                  />
                 )}
               </div>
 
               <div className="w-full text-center text-xs font-medium p-2 line-clamp-2">
-                {displayName}
+                {name}
               </div>
 
               {isSelected && (

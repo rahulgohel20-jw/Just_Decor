@@ -400,13 +400,14 @@ export const GetAllCategoryformenu = (id) => {
 //Get menu preparation items
 export const Getmenuprep = (
   eventFunId,
+  itemname,
   menuCatId,
   pageNo,
   TotalRecord,
   UserId
 ) => {
   return GET(
-    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&itemName=${itemname}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
   );
 };
 
@@ -724,7 +725,9 @@ export const UpdateCustomPackage = (id, data) => {
   return PUT(`/custompackage/update?id=${id}`, data);
 };
 
-
+export const GetCustomPackageapibyID = (id) => {
+  return GET(`/custompackage/getbyid?id=${id}`);
+};
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
 };
@@ -903,14 +906,12 @@ export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
 };
 
-
 export const GetVenueType = (id) => {
   return GET(`/venuemaster/getallbyuser?userId=${id}`);
 };
 export const AddVenueTypeApi = (data) => {
   return POST(`/venuemaster/add`, data);
 };
-
 
 export const DeleteVenueTypeApi = (venueId) => {
   return DELETE(`/venuemaster/deletebyid?id=${venueId}`);
@@ -920,7 +921,6 @@ export const DeleteVenueTypeApi = (venueId) => {
 export const UpdateVenueTypeApi = (venueId, data) => {
   return PUT(`/venuemaster/update?id=${venueId}`, data);
 };
-
 
 export const UpdateVenueStatusApi = (id, status) => {
   return PUT(`/venuemaster/updatestatus?id=${id}&isActive=${status}`);

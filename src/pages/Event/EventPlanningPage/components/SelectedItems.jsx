@@ -2,19 +2,13 @@ import React, { useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toAbsoluteUrl } from "@/utils";
 
-/**
- Props:
- - functionId
- - data: { categoriesOrder: [], categories: { [categoryName]: [items...] } }
- - onRemove(functionId, categoryName, itemId)
- - onDragEndNewState(newState) -> expects { categoriesOrder, categories }
-*/
-
 const SelectedItems = ({
   functionId,
   data = { categoriesOrder: [], categories: {} },
   onRemove = () => {},
   onDragEndNewState = () => {},
+  showRates = false,
+  onRateChange = () => {},
 }) => {
   const { categoriesOrder = [], categories = {} } = data;
 
@@ -25,7 +19,6 @@ const SelectedItems = ({
     const { destination, source, type, draggableId } = result;
     if (!destination) return;
 
-    // Reorder categories
     if (type === "CATEGORY") {
       const newCategoriesOrder = Array.from(categoriesOrder);
       const [moved] = newCategoriesOrder.splice(source.index, 1);
@@ -34,7 +27,6 @@ const SelectedItems = ({
       return;
     }
 
-    // Item-level reordering or moving across categories
     const srcCat = source.droppableId.replace(/^cat-/, "");
     const destCat = destination.droppableId.replace(/^cat-/, "");
 
@@ -48,7 +40,6 @@ const SelectedItems = ({
 
     const [movedItem] = srcList.splice(itemIndex, 1);
 
-    // Same category - just reorder
     if (srcCat === destCat) {
       srcList.splice(destination.index, 0, movedItem);
       const newCategories = { ...categories, [srcCat]: srcList };
@@ -56,11 +47,7 @@ const SelectedItems = ({
       return;
     }
 
-    // Moving across categories - update the item's category reference
-    const updatedItem = {
-      ...movedItem,
-      menuCategoryName: destCat,
-    };
+    const updatedItem = { ...movedItem, menuCategoryName: destCat };
     destList.splice(destination.index, 0, updatedItem);
 
     const newCategories = {
@@ -69,7 +56,6 @@ const SelectedItems = ({
       [destCat]: destList,
     };
 
-    // Clean up empty categories
     Object.keys(newCategories).forEach((k) => {
       if (!newCategories[k] || newCategories[k].length === 0)
         delete newCategories[k];
@@ -85,13 +71,20 @@ const SelectedItems = ({
     });
   };
 
-  // Calculate total items and total rate
   const { totalItems, totalRate } = useMemo(() => {
     let itemCount = 0;
     let rateSum = 0;
 
     categoriesOrder.forEach((catName) => {
-      const items = categories[catName] || [];
+      let items = categories[catName] || [];
+
+      // Move package items to top
+      items = [...items].sort((a, b) => {
+        const A = a.isPackageItem ? 0 : 1;
+        const B = b.isPackageItem ? 0 : 1;
+        return A - B;
+      });
+
       itemCount += items.length;
       items.forEach((item) => {
         rateSum += Number(item.rate) || 0;
@@ -125,6 +118,7 @@ const SelectedItems = ({
             >
               {categoriesOrder.map((catName, catIdx) => {
                 const items = categories[catName] || [];
+
                 return (
                   <Draggable
                     key={catName}
@@ -137,6 +131,7 @@ const SelectedItems = ({
                         {...provCat.draggableProps}
                         className="bg-white border rounded-xl shadow-sm p-3"
                       >
+                        {/* CATEGORY HEADER */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span
@@ -160,6 +155,7 @@ const SelectedItems = ({
                           </div>
                         </div>
 
+                        {/* ITEMS LIST */}
                         <Droppable
                           droppableId={getCategoryDroppableId(catName)}
                           type="ITEM"
@@ -183,12 +179,33 @@ const SelectedItems = ({
                                       ref={provItem.innerRef}
                                       {...provItem.draggableProps}
                                       {...provItem.dragHandleProps}
-                                      className={`flex items-center justify-between bg-[#EEF3F7] p-2 rounded-lg cursor-grab active:cursor-grabbing transition-shadow ${
+                                      className={`relative flex items-center justify-between bg-[#EEF3F7] p-2 rounded-lg cursor-grab active:cursor-grabbing transition-shadow ${
                                         snapshot.isDragging
                                           ? "shadow-lg ring-2 ring-blue-400"
                                           : ""
                                       }`}
                                     >
+                                      {/* DIAGONAL PACKAGE RIBBON */}
+                                      {item.isPackageItem && (
+                                        <div className="absolute top-0 left-0">
+                                          <div
+                                            className="w-5 h-5 
+        border-t-[28px] border-t-primary 
+        border-r-[28px] border-r-transparent 
+        relative"
+                                          >
+                                            <span
+                                              className="absolute -top-[30px] left-[-1px] 
+        text-[9px] text-white font-semibold 
+        rotate-[-45deg]"
+                                            >
+                                              PKG
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* LEFT SECTION */}
                                       <div className="flex items-center gap-2">
                                         <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500 overflow-hidden">
                                           {item.imagePath ? (
@@ -201,34 +218,44 @@ const SelectedItems = ({
                                             "img"
                                           )}
                                         </div>
+
                                         <div className="flex flex-col">
                                           <div className="text-md text-black">
                                             {item.nameEnglish}
                                           </div>
-                                          <div className="mt-1">
-                                            <label className="flex items-center gap-2">
-                                              <span className="text-[15px] text-gray-500">
-                                                Rate:
-                                              </span>
-                                              <input
-                                                type="number"
-                                                min={0}
-                                                value={item.rate}
-                                                onChange={() => {}}
-                                                onClick={(e) =>
-                                                  e.stopPropagation()
-                                                }
-                                                onMouseDown={(e) =>
-                                                  e.stopPropagation()
-                                                }
-                                                className="h-6 w-16 rounded border border-gray-200 bg-gray-50 px-2 text-xs"
-                                              />
-                                            </label>
-                                          </div>
+
+                                          {/* RATE EDITABLE */}
+                                          {showRates && (
+                                            <div className="mt-1">
+                                              <label className="flex items-center gap-2">
+                                                <span className="text-[15px] text-gray-500">
+                                                  Rate:
+                                                </span>
+                                                <input
+                                                  type="number"
+                                                  min={0}
+                                                  value={item.rate}
+                                                  onChange={(e) =>
+                                                    onRateChange(
+                                                      functionId,
+                                                      catName,
+                                                      item.id,
+                                                      Number(e.target.value)
+                                                    )
+                                                  }
+                                                  onClick={(e) =>
+                                                    e.stopPropagation()
+                                                  }
+                                                  className="h-6 w-16 rounded border border-gray-200 bg-gray-50 px-2 text-xs"
+                                                />
+                                              </label>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
 
-                                      <div className="flex items-center gap-3 text-gray-500">
+                                      {/* RIGHT ACTIONS */}
+                                      <div className="flex items-center gap-0 text-gray-500">
                                         <button
                                           type="button"
                                           className="rounded hover:bg-gray-100 text-red-500 p-1"
@@ -241,20 +268,15 @@ const SelectedItems = ({
                                               item.id
                                             );
                                           }}
-                                          onMouseDown={(e) =>
-                                            e.stopPropagation()
-                                          }
                                         >
                                           <i className="ki-filled ki-trash text-[20px]" />
                                         </button>
-                                        <span className="text-[#64748B] text-[22px]">
-                                          ⋮⋮
-                                        </span>
                                       </div>
                                     </div>
                                   )}
                                 </Draggable>
                               ))}
+
                               {provItems.placeholder}
                             </div>
                           )}
@@ -264,25 +286,34 @@ const SelectedItems = ({
                   </Draggable>
                 );
               })}
+
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
     );
-  }, [categoriesOrder, categories, functionId, onRemove]);
+  }, [
+    categoriesOrder,
+    categories,
+    functionId,
+    onRemove,
+    showRates,
+    onRateChange,
+  ]);
 
   return (
     <div className="w-full flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto no-scrollbar">{rendered}</div>
 
-      {/* Sticky Footer */}
+      {/* FOOTER */}
       <div className="border-t bg-white p-3 mt-auto">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-700 font-medium">
             Total Items:{" "}
             <span className="font-semibold text-gray-900">{totalItems}</span>
           </span>
+
           <span className="text-gray-700 font-medium">
             Total:{" "}
             <span className="font-semibold text-gray-900">
