@@ -497,7 +497,7 @@ const EventPlanningPage = () => {
                         Venue:
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.venue}
+                        {eventData?.venue.nameEnglish}
                       </span>
                     </div>
                   </div>

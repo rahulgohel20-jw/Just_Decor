@@ -715,6 +715,16 @@ export const Translateapi = (data) => {
 export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
 };
+
+export const GetCustomPackageById = (id) => {
+  return GET(`/custompackage/getbyid?id=${id}`);
+};
+
+export const UpdateCustomPackage = (id, data) => {
+  return PUT(`/custompackage/update?id=${id}`, data);
+};
+
+
 export const AddCustomPackageapi = (data) => {
   return POST(`/custompackage/add`, data);
 };

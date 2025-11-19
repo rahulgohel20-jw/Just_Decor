@@ -40,7 +40,7 @@ const CreateEventPage = () => {
       inquiryDate: dayjs().format("DD/MM/YYYY"),
       eventStartDateTime: "",
       eventEndDateTime: "",
-      venue: "",
+      venueId: "",
       eventTypeId: "",
       managerId: "",
       partyId: "",
@@ -94,7 +94,7 @@ const CreateEventPage = () => {
               (match) => match.toUpperCase()
             ),
             status: statusId,
-            venue: event.venue || "",
+            venueId: event.venue || "",
             eventTypeId: event.eventType?.id || "",
             managerId: event.manager?.id || "",
             partyId: event.party?.id || "",
