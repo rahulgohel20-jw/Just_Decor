@@ -26,7 +26,7 @@ export const eventValidationSchema = yup.object().shape({
         return endDate.isAfter(startDate);
       }
     ),
-  venue: yup.string().required("Venue is required"),
+  venueId: yup.string().required("Venue is required"),
   eventTypeId: yup.string().required("Event Type is required"),
   managerId: yup.string().required("Manager Name is required"),
 
@@ -68,7 +68,10 @@ export const stepValidationSchemas = {
           return endDate.isAfter(startDate);
         }
       ),
-    venue: yup.string().required("Venue is required"),
+venueId: yup.number()
+  .typeError("Venue is required")
+  .required("Venue is required")
+  .nullable(),
     eventTypeId: yup.string().required("Event Type is required"),
     managerId: yup.string().required("Manager Name is required"),
   }),

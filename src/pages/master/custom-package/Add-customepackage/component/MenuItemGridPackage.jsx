@@ -5,13 +5,14 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Search, Check, Loader2 } from "lucide-react";
+import { Search, Check, Loader2, Plus } from "lucide-react";
 
 function MenuItemGridPackage({
   onToggleItem,
   selectedItemIds = new Set(),
   selectedCategory,
   Getmenuitemsusingcatid,
+  onAddMenuItem,
 }) {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -120,16 +121,27 @@ function MenuItemGridPackage({
 
   return (
     <div className="flex-1 bg-gray-50 flex flex-col h-full">
-      <div className="p-4 bg-white border border-gray-200">
-        <div className="relative max-w-2xl">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search items"
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search categories"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <button
+            type="button"
+            onClick={onAddMenuItem}
+            title="Add Category"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center rounded-full w-8 h-8 flex-shrink-0"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
         </div>
       </div>
 

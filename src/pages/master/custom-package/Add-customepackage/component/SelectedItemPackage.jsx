@@ -1,34 +1,86 @@
-import { Eye, EyeOff, Trash2, GripVertical, Plus, Minus } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Trash2,
+  GripVertical,
+  FileText,
+  Notebook,
+  NotebookTabs,
+} from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export default function SelectedItemPackage({
   selectedItems,
   onRemoveItem,
   onUpdateRate,
   categoryMap = {},
-  onReorderItems,
-  onReorderCategories, // <-- NEW PROP
+  onReorder, // Single callback for all reordering
   categoryItemCounts,
-}) {
-  const [draggedItem, setDraggedItem] = useState(null);
-  const [draggedCategory, setDraggedCategory] = useState(null); // NEW
-  const [showRates, setShowRates] = useState(false);
+  onUpdateNotes,
+  onOpenNotes,
 
+  // NEW: Callback to update notes
+}) {
+  const [showRates, setShowRates] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [categoryOrder, setCategoryOrder] = useState([]);
+  const [notesModal, setNotesModal] = useState({
+    isOpen: false,
+    itemIndex: null,
+    notes: null,
+  });
+
+  // Debug: Check if DragDropContext is available
+  useEffect(() => {
+    console.log("🔍 SelectedItemPackage mounted");
+    console.log("🔍 DragDropContext available:", !!DragDropContext);
+    console.log("🔍 Selected items count:", selectedItems.length);
+    console.log("🔍 onReorder callback:", typeof onReorder);
+  }, []);
 
   // GROUP ITEMS BY CATEGORY
-  const groupedItems = useMemo(
-    () =>
-      selectedItems.reduce((acc, item, index) => {
-        const catId = item.category;
-        if (!acc[catId]) acc[catId] = [];
-        acc[catId].push({ ...item, originalIndex: index });
-        return acc;
-      }, {}),
-    [selectedItems]
-  );
+  const groupedItems = useMemo(() => {
+    const grouped = selectedItems.reduce((acc, item, index) => {
+      const catId = item.category;
+      if (!acc[catId]) acc[catId] = [];
+      // Use the current index, not a stored originalIndex
+      acc[catId].push({ ...item, currentIndex: index });
+      return acc;
+    }, {});
 
-  const categoryOrder = Object.keys(groupedItems);
+    return grouped;
+  }, [selectedItems]);
+
+  // Initialize and maintain category order
+  useEffect(() => {
+    const currentCategories = Object.keys(groupedItems);
+
+    // If categoryOrder is empty, initialize it
+    if (categoryOrder.length === 0 && currentCategories.length > 0) {
+      console.log("🔧 Initializing category order:", currentCategories);
+      setCategoryOrder(currentCategories);
+      return;
+    }
+
+    // Add any new categories that appear
+    const newCategories = currentCategories.filter(
+      (cat) => !categoryOrder.includes(cat)
+    );
+    if (newCategories.length > 0) {
+      console.log("🆕 Adding new categories:", newCategories);
+      setCategoryOrder((prev) => [...prev, ...newCategories]);
+    }
+
+    // Remove categories that no longer have items
+    const validCategories = categoryOrder.filter((cat) =>
+      currentCategories.includes(cat)
+    );
+    if (validCategories.length !== categoryOrder.length) {
+      console.log("🗑️ Removing empty categories");
+      setCategoryOrder(validCategories);
+    }
+  }, [groupedItems]);
 
   // EXPAND ALL BY DEFAULT
   useEffect(() => {
@@ -48,25 +100,110 @@ export default function SelectedItemPackage({
     }));
   };
 
-  // CATEGORY DRAG START
-  const handleCategoryDragStart = (catId) => {
-    setDraggedCategory(catId);
-  };
+  // Handle drag end for both categories and items
+  const handleDragEnd = (result) => {
+    console.log("🔥 Drag End Called:", result);
 
-  // CATEGORY DRAG OVER
-  const handleCategoryDragOver = (e, targetCatId) => {
-    e.preventDefault();
-    if (!draggedCategory || draggedCategory === targetCatId) return;
+    const { destination, source, type } = result;
 
-    const fromIndex = categoryOrder.indexOf(draggedCategory);
-    const toIndex = categoryOrder.indexOf(targetCatId);
+    if (!destination) {
+      console.log("❌ No destination - drag cancelled");
+      return;
+    }
 
-    onReorderCategories(fromIndex, toIndex);
-  };
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      console.log("❌ Same position - no change");
+      return;
+    }
 
-  // CATEGORY DROP
-  const handleCategoryDrop = () => {
-    setDraggedCategory(null);
+    // CATEGORY REORDERING
+    if (type === "CATEGORY") {
+      console.log(
+        "📦 Reordering CATEGORY from",
+        source.index,
+        "to",
+        destination.index
+      );
+
+      // Create new array with reordered categories
+      const newCategoryOrder = Array.from(categoryOrder);
+      const [movedCategory] = newCategoryOrder.splice(source.index, 1);
+      newCategoryOrder.splice(destination.index, 0, movedCategory);
+
+      console.log("Old category order:", categoryOrder);
+      console.log("New category order:", newCategoryOrder);
+
+      // Update local state immediately
+      setCategoryOrder(newCategoryOrder);
+
+      // Reconstruct the full items array in new category order
+      const reorderedItems = [];
+      newCategoryOrder.forEach((catId) => {
+        const categoryItems = groupedItems[catId] || [];
+        categoryItems.forEach((item) => {
+          // Create a clean copy without currentIndex
+          const { currentIndex, ...cleanItem } = item;
+          reorderedItems.push(cleanItem);
+        });
+      });
+
+      console.log(
+        "✅ Sending reordered items to parent:",
+        reorderedItems.length,
+        "items"
+      );
+
+      // Return complete reordered array to parent
+      onReorder(reorderedItems);
+      return;
+    }
+
+    // ITEM REORDERING
+    // ITEM REORDERING
+    if (type === "ITEM") {
+      const sourceCatId = source.droppableId.replace("cat-", "");
+      const destCatId = destination.droppableId.replace("cat-", "");
+
+      const newGroupedItems = {};
+      Object.keys(groupedItems).forEach((catId) => {
+        newGroupedItems[catId] = [...groupedItems[catId]];
+      });
+
+      // Remove dragged item
+      const [draggedItem] = newGroupedItems[sourceCatId].splice(
+        source.index,
+        1
+      );
+
+      // Add to destination
+      if (sourceCatId === destCatId) {
+        newGroupedItems[sourceCatId].splice(destination.index, 0, draggedItem);
+      } else {
+        const updatedItem = { ...draggedItem, category: destCatId };
+        newGroupedItems[destCatId].splice(destination.index, 0, updatedItem);
+      }
+
+      // 🔥 Fix: Remove empty categories and rebuild order
+      const newCategoryOrderFinal = Object.keys(newGroupedItems).filter(
+        (id) => newGroupedItems[id].length > 0
+      );
+
+      setCategoryOrder(newCategoryOrderFinal);
+
+      // Build final reordered list
+      const reorderedItems = [];
+      newCategoryOrderFinal.forEach((catId) => {
+        (newGroupedItems[catId] || []).forEach((item) => {
+          const { currentIndex, ...cleanItem } = item;
+          reorderedItems.push(cleanItem);
+        });
+      });
+
+      onReorder(reorderedItems);
+    }
   };
 
   return (
@@ -77,12 +214,12 @@ export default function SelectedItemPackage({
 
         {showRates ? (
           <Eye
-            className="w-5 h-5 cursor-pointer text-primary"
+            className="w-5 h-5 cursor-pointer text-blue-600"
             onClick={() => setShowRates(false)}
           />
         ) : (
           <EyeOff
-            className="w-5 h-5 cursor-pointer text-primary"
+            className="w-5 h-5 cursor-pointer text-gray-400"
             onClick={() => setShowRates(true)}
           />
         )}
@@ -96,125 +233,195 @@ export default function SelectedItemPackage({
           </div>
         )}
 
-        {categoryOrder.map((catId) => {
-          const items = groupedItems[catId];
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="categories" type="CATEGORY">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-4"
+              >
+                {categoryOrder.map((catId, catIndex) => {
+                  const items = groupedItems[catId] || [];
+                  const catName =
+                    categoryMap[catId] ||
+                    items[0]?.menuCategory?.nameEnglish ||
+                    "UNCATEGORIZED";
 
-          return (
-            <div
-              key={catId}
-              draggable
-              onDragStart={() => handleCategoryDragStart(catId)}
-              onDragOver={(e) => handleCategoryDragOver(e, catId)}
-              onDrop={handleCategoryDrop}
-              className="bg-white mb-4 rounded-xl border shadow-sm"
-            >
-              {/* CATEGORY HEADER */}
-              <div className="px-4 py-3 flex items-center justify-between bg-gray-50 border-b">
-                <div className="flex items-center gap-3">
-                  <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+                  const count = categoryItemCounts.hasOwnProperty(catId)
+                    ? categoryItemCounts[catId]
+                    : categoryItemCounts["all"] || null;
 
-                  <span className="font-semibold text-gray-700 text-sm uppercase">
-                    {(() => {
-                      const catName =
-                        items[0]?.menuCategory?.nameEnglish ||
-                        categoryMap[catId] ||
-                        "UNCATEGORIZED";
+                  return (
+                    <Draggable
+                      key={`cat-${catId}`}
+                      draggableId={`category-${catId}`}
+                      index={catIndex}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`bg-white rounded-xl border shadow-sm transition-all ${
+                            snapshot.isDragging
+                              ? "shadow-lg ring-2 ring-blue-400 opacity-90"
+                              : ""
+                          }`}
+                        >
+                          {/* CATEGORY HEADER */}
+                          <div
+                            {...provided.dragHandleProps}
+                            className="px-4 py-3 flex items-center justify-between bg-gray-50 border-b cursor-move hover:bg-gray-100"
+                          >
+                            <div className="flex items-center gap-3">
+                              <GripVertical className="w-4 h-4 text-gray-400" />
+                              <span className="font-semibold text-gray-700 text-sm uppercase">
+                                {catName}
+                                {count ? ` (Any ${count})` : ""}
+                              </span>
+                            </div>
 
-                      const count = categoryItemCounts.hasOwnProperty(catId)
-                        ? categoryItemCounts[catId]
-                        : categoryItemCounts["all"] || null;
+                            {/* Expand / Collapse */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCategory(catId);
+                              }}
+                              className="p-1 hover:bg-gray-200 rounded"
+                            >
+                              {expandedCategories[catId] ? (
+                                <span className="text-blue-600 text-lg font-bold">
+                                  −
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 text-lg font-bold">
+                                  +
+                                </span>
+                              )}
+                            </button>
+                          </div>
 
-                      return `${catName}${count ? ` (Any ${count})` : ""}`;
-                    })()}
-                  </span>
-                </div>
+                          {/* ITEMS */}
+                          {expandedCategories[catId] && (
+                            <Droppable droppableId={`cat-${catId}`} type="ITEM">
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.droppableProps}
+                                  className={`min-h-[60px] transition-colors ${
+                                    snapshot.isDraggingOver
+                                      ? "bg-blue-50 border-2 border-dashed border-blue-300"
+                                      : ""
+                                  }`}
+                                >
+                                  {items.map((item, itemIndex) => (
+                                    <Draggable
+                                      key={`item-${item.id}-${item.currentIndex}`}
+                                      draggableId={`item-${item.id}-${item.currentIndex}`}
+                                      index={itemIndex}
+                                    >
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          className={`px-4 py-3 flex items-center gap-3 border-b last:border-b-0 cursor-move hover:bg-gray-50 transition-all ${
+                                            snapshot.isDragging
+                                              ? "bg-white shadow-lg ring-2 ring-blue-400 rounded"
+                                              : ""
+                                          }`}
+                                        >
+                                          <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
 
-                {/* Expand / Collapse */}
-                {expandedCategories[catId] ? (
-                  <Minus
-                    className="w-5 h-5 cursor-pointer text-blue-600"
-                    onClick={() => toggleCategory(catId)}
-                  />
-                ) : (
-                  <Plus
-                    className="w-5 h-5 cursor-pointer text-gray-400"
-                    onClick={() => toggleCategory(catId)}
-                  />
-                )}
-              </div>
+                                          <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden border">
+                                            {item.image ? (
+                                              <img
+                                                src={item.image}
+                                                alt={
+                                                  item.nameEnglish || item.name
+                                                }
+                                                className="w-full h-full object-cover"
+                                              />
+                                            ) : (
+                                              <div className="w-full h-full bg-gray-200" />
+                                            )}
+                                          </div>
 
-              {/* ITEMS */}
-              {expandedCategories[catId] &&
-                items.map((item) => (
-                  <div
-                    key={item.originalIndex}
-                    draggable
-                    onDragStart={(e) => {
-                      setDraggedItem(item);
-                      e.dataTransfer.effectAllowed = "move";
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      if (
-                        draggedItem &&
-                        draggedItem.originalIndex !== item.originalIndex
-                      ) {
-                        onReorderItems(
-                          draggedItem.originalIndex,
-                          item.originalIndex
-                        );
-                      }
-                    }}
-                    onDrop={() => setDraggedItem(null)}
-                    className="px-4 py-3 flex items-center gap-3 border-b last:border-b-0 cursor-move hover:bg-gray-50"
-                  >
-                    <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                          <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-800">
+                                              {item.nameEnglish || item.name}
+                                            </p>
 
-                    <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden border">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200" />
-                      )}
-                    </div>
+                                            {showRates && (
+                                              <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-xs text-gray-500">
+                                                  Rate:
+                                                </span>
+                                                <input
+                                                  type="number"
+                                                  value={item.rate || 0}
+                                                  onChange={(e) =>
+                                                    onUpdateRate(
+                                                      item.currentIndex,
+                                                      parseInt(
+                                                        e.target.value
+                                                      ) || 0
+                                                    )
+                                                  }
+                                                  onClick={(e) =>
+                                                    e.stopPropagation()
+                                                  }
+                                                  onMouseDown={(e) =>
+                                                    e.stopPropagation()
+                                                  }
+                                                  className="w-14 px-2 py-1 text-xs border rounded"
+                                                />
+                                              </div>
+                                            )}
+                                          </div>
+                                          <button
+                                            onClick={() =>
+                                              onOpenNotes(item.currentIndex)
+                                            }
+                                            onMouseDown={(e) =>
+                                              e.stopPropagation()
+                                            }
+                                            className="text-purple-500 hover:text-purple-700 p-1"
+                                          >
+                                            <FileText className="w-4 h-4" />
+                                          </button>
 
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">
-                        {item.nameEnglish || item.name}
-                      </p>
-
-                      {showRates && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">Rate:</span>
-                          <input
-                            type="number"
-                            value={item.rate || 0}
-                            onChange={(e) =>
-                              onUpdateRate(
-                                item.originalIndex,
-                                parseInt(e.target.value) || 0
-                              )
-                            }
-                            className="w-14 px-2 py-1 text-xs border rounded"
-                          />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              onRemoveItem(item.currentIndex);
+                                            }}
+                                            onMouseDown={(e) =>
+                                              e.stopPropagation()
+                                            }
+                                            className="text-red-500 hover:text-red-700 p-1"
+                                          >
+                                            <Trash2 className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          )}
                         </div>
                       )}
-                    </div>
-
-                    <button
-                      onClick={() => onRemoveItem(item.originalIndex)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-            </div>
-          );
-        })}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
 
       {/* FOOTER */}

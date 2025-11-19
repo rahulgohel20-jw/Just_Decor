@@ -114,7 +114,7 @@ export default function SelectMenureport({
             <InfoItem
               icon="ki-geolocation"
               label="Venue"
-              value={eventData?.venue || "-"}
+              value={eventData?.venue?.nameEnglish || "-"}
             />
           </div>
         </div>

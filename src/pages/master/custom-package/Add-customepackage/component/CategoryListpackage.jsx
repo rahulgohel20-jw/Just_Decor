@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, Loader2, GripVertical } from "lucide-react";
+import { Search, Loader2, GripVertical, Plus } from "lucide-react";
 
 function CategoryListpackage({
   selectedCategory,
@@ -9,6 +9,7 @@ function CategoryListpackage({
   categoryItemCounts,
   onCategoryItemCountChange,
   onReorderCategories,
+  onAddCategory, // Add this prop to handle the button click
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -53,15 +54,26 @@ function CategoryListpackage({
   return (
     <div className="w-72 bg-white border border-gray-200 flex flex-col h-full">
       <div className="p-4 border-b border-gray-200">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search categories"
-            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search categories"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <button
+            type="button"
+            onClick={onAddCategory}
+            title="Add Category"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center rounded-full w-8 h-8 flex-shrink-0"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
         </div>
       </div>
 

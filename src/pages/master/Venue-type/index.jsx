@@ -1,113 +1,118 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import AddVenueType from "../../../partials/modals/add-venue-type/AddVenueType";
-import {
-  GetEventType,
-  DeleteEventType,
-  SearchEventType,
-} from "@/services/apiServices";
-import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
-import { useIntl } from "react-intl";
 
-const VenuetypeMaster = () => {
-  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [tableData, setTableData] = useState();
+import {
+  GetVenueType,
+  DeleteVenueTypeApi,
+  UpdateVenueStatusApi,
+} from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
+import Swal from "sweetalert2";
+
+const VenueTypeMaster = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState(null);
+  const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
-  useEffect(() => {
-    FetchEventType();
+
+  const userId = useMemo(() => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      return userData?.id ? parseInt(userData.id, 10) : null;
+    } catch (e) {
+      console.error("Error parsing userData", e);
+      return null;
+    }
   }, []);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (!searchQuery.trim()) {
-        FetchEventType();
-        return;
-      }
+  const fetchVenueTypes = async () => {
+    if (!userId) return;
 
-      SearchEventType(searchQuery, Id)
-        .then(({ data: { data } }) => {
-          if (data && data["EventTypes Details"]) {
-            const formatted = data["EventTypes Details"].map((cust, index) => ({
-              sr_no: index + 1,
-              event_type: cust.nameEnglish || "-",
-              eventid: cust.id,
-            }));
-            setTableData(formatted);
-          } else {
-            setTableData([]);
-          }
-        })
-        .catch((error) => {
-          console.error("Error searching customer:", error);
-        });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchEventType = () => {
-    GetEventType(Id)
-      .then((res) => {
-        const formatted = res.data.data["EventTypes Details"].map(
-          (cust, index) => ({
+    try {
+      const res = await GetVenueType(userId);
+      if (res.data?.data?.["Venue Details"]) {
+        const formatted = res?.data?.data["Venue Details"].map(
+          (item, index) => ({
             sr_no: index + 1,
-            event_type: cust.nameEnglish || "-",
-            eventid: cust.id,
+            venue_type: item.nameEnglish || "-",
+            venueid: item.id,
+            isDelete: item.isDelete ?? false,
+            isActive: item.isActive ?? false,
           })
         );
 
         setTableData(formatted);
-      })
-      .catch((error) => {
-        console.error("Error deleting customer:", error);
-      });
+      } else {
+        setTableData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching venue types:", error);
+      setTableData([]);
+    }
   };
 
-  const DeleteEventtype = (eventid) => {
+  useEffect(() => {
+    if (userId) fetchVenueTypes();
+  }, [userId]);
+
+  const handleEdit = (venue) => {
+    setSelectedVenue(venue);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedVenue(null);
+    setIsModalOpen(true);
+  };
+  const handleStatusChange = async (id, currentStatus) => {
+    const newStatus = !currentStatus;
+
+    try {
+      const res = await UpdateVenueStatusApi(id, newStatus);
+
+      if (res.data?.success) {
+        Swal.fire("Success", "Status updated successfully", "success");
+        fetchVenueTypes();
+      } else {
+        Swal.fire("Error", res?.data?.message || "Failed to update", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Something went wrong", "error");
+    }
+  };
+
+  const handleDelete = (venue) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: `Delete venue "${venue.venue_type}"?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        DeleteEventType(eventid)
-          .then((response) => {
-            if (response && (response.success || response.status === 200)) {
-              FetchEventType();
-              Swal.fire({
-                title: "Removed!",
-                text: "Event has been removed successfully.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-              });
-            } else {
-              throw new Error(response?.message || "API call failed");
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting Event type:", error);
-          });
+        try {
+          const res = await DeleteVenueTypeApi(venue.venueid);
+          if (res.data?.success) {
+            Swal.fire("Deleted!", "Venue type has been deleted.", "success");
+            fetchVenueTypes();
+          } else {
+            Swal.fire("Failed", res.data.msg || "Could not delete", "error");
+          }
+        } catch (err) {
+          console.error("Delete error:", err);
+          Swal.fire("Error", "Something went wrong while deleting.", "error");
+        }
       }
     });
   };
-  const handleEdit = (event) => {
-    setSelectedEvent(event);
-    setIsEventTypeModalOpen(true);
-  };
+
   return (
     <Fragment>
       <Container>
@@ -118,7 +123,7 @@ const VenuetypeMaster = () => {
               {
                 title: (
                   <FormattedMessage
-                    id="USER.MASTER.EVENT_TYPE_MASTER"
+                    id="USER.MASTER.VENUE_TYPE_MASTER"
                     defaultMessage="Venue Type Master"
                   />
                 ),
@@ -126,50 +131,53 @@ const VenuetypeMaster = () => {
             ]}
           />
         </div>
-        {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className={`flex flex-wrap items-center gap-2`}>
-            <div className="filItems relative">
-              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+
+        {/* Filters & Add Button */}
+        <div className="filters flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <i className="ki-filled ki-magnifier text-primary absolute left-3 top-1/2 -translate-y-1/2"></i>
               <input
-                className="input pl-8"
+                className="input pl-10 pr-4"
                 placeholder={intl.formatMessage({
-                  id: "USER.MASTER.SEARCH_EVENT_TYPE",
-                  defaultMessage: "Search Event Type",
+                  id: "USER.MASTER.SEARCH_VENUE_TYPE",
+                  defaultMessage: "Search Venue Type",
                 })}
-                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={() => setIsEventTypeModalOpen(true)}
-              title="Add Contact Category"
-            >
-              <i className="ki-filled ki-plus"></i>{" "}
-              <FormattedMessage
-                id="USER.MASTER.ADD_EVENT_TYPE"
-                defaultMessage="Add Event Type"
-              />
-            </button>
-          </div>
+
+          <button
+            className="btn btn-primary flex items-center gap-2"
+            onClick={handleAdd}
+          >
+            <i className="ki-filled ki-plus"></i>
+            <FormattedMessage
+              id="USER.MASTER.ADD_VENUE_TYPE"
+              defaultMessage="Add Venue Type"
+            />
+          </button>
         </div>
+
+        {/* Modal */}
         <AddVenueType
-          isModalOpen={isEventTypeModalOpen}
-          setIsModalOpen={setIsEventTypeModalOpen}
-          refreshData={FetchEventType}
-          selectedEvent={selectedEvent}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          refreshData={fetchVenueTypes}
+          selectedEvent={selectedVenue}
         />
+
+        {/* Table */}
         <TableComponent
-          columns={columns(handleEdit, DeleteEventtype)}
-          data={tableData}
+          columns={columns(handleEdit, handleDelete, handleStatusChange)}
+          data={tableData || []}
           paginationSize={10}
         />
       </Container>
     </Fragment>
   );
 };
-export default VenuetypeMaster;
+
+export default VenueTypeMaster;

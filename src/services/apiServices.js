@@ -717,6 +717,14 @@ export const GetCustomPackageapi = (id) => {
   return GET(`/custompackage/getallbyuserid?userid=${id}`);
 };
 
+export const GetCustomPackageById = (id) => {
+  return GET(`/custompackage/getbyid?id=${id}`);
+};
+
+export const UpdateCustomPackage = (id, data) => {
+  return PUT(`/custompackage/update?id=${id}`, data);
+};
+
 export const GetCustomPackageapibyID = (id) => {
   return GET(`/custompackage/getbyid?id=${id}`);
 };
@@ -896,4 +904,24 @@ export const UpdateMemberById = (id, data) => {
 
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
+};
+
+export const GetVenueType = (id) => {
+  return GET(`/venuemaster/getallbyuser?userId=${id}`);
+};
+export const AddVenueTypeApi = (data) => {
+  return POST(`/venuemaster/add`, data);
+};
+
+export const DeleteVenueTypeApi = (venueId) => {
+  return DELETE(`/venuemaster/deletebyid?id=${venueId}`);
+};
+
+// services/apiServices.js
+export const UpdateVenueTypeApi = (venueId, data) => {
+  return PUT(`/venuemaster/update?id=${venueId}`, data);
+};
+
+export const UpdateVenueStatusApi = (id, status) => {
+  return PUT(`/venuemaster/updatestatus?id=${id}&isActive=${status}`);
 };

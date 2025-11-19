@@ -67,6 +67,7 @@ const EventPlanningPage = () => {
         const response = await GetEventMasterById(eventId);
         const eventDetails =
           response?.data?.data?.["Event Details"]?.[0] || null;
+        console.log(eventDetails, "data");
 
         setEventData(eventDetails);
 
@@ -713,7 +714,7 @@ const EventPlanningPage = () => {
                         Venue:
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.venue.nameEnglish}
+                        {eventData?.venue.nameEnglish?.nameEnglish || ""}
                       </span>
                     </div>
                   </div>

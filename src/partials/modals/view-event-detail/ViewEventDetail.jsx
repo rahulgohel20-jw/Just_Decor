@@ -70,7 +70,7 @@ const ViewEventDetail = ({ isModalOpen, setIsModalOpen, eventId }) => {
                 label="End Event Date"
                 value={eventData?.eventEndDateTime}
               />
-              <Field label="Venue" value={eventData?.venue} />
+              <Field label="Venue" value={eventData?.venue?.nameEnglish} />
               <Field label="Address" value={eventData?.address} />
               <Field
                 label="Status"
