@@ -369,6 +369,8 @@ const EventMenuAllocationPage = () => {
       const isFromNewTable = item.isFromNewTable || false;
       const menuItemId = item.menuItemId || item.id;
 
+      console.log("🔍 Fetching raw materials for menuItemId:", menuItemId);
+
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         isFromNewTable,
@@ -379,19 +381,25 @@ const EventMenuAllocationPage = () => {
 
       if (res?.data?.success) {
         const apiData = res.data.data;
+        console.log("🔍 Selected Row Data:", apiData);
 
+        // ✅ FIX: The API returns "MenuItem RawMaterial Details" (with spaces), not "menuItemRawMaterials"
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
           [];
 
+        console.log("🔍 Raw Materials from API:", rawMaterials);
+
         setSelectedRow({
           ...apiData,
-          menuItemRawMaterials: rawMaterials,
+          menuItemRawMaterials: rawMaterials, // Normalize the key
         });
 
         if (rawMaterials && rawMaterials.length > 0) {
+          // Store in allocationData
           const allocationKey = `${menuItemId}-category`;
+          console.log("🔍 Storing in allocationData with key:", allocationKey);
 
           setAllocationData((prev) => {
             const updated = {
@@ -401,6 +409,7 @@ const EventMenuAllocationPage = () => {
                 rawMaterials: rawMaterials,
               },
             };
+            console.log("🔍 Updated allocationData:", updated);
             return updated;
           });
 
@@ -408,6 +417,8 @@ const EventMenuAllocationPage = () => {
           setRows((prevRows) => {
             const updatedRows = prevRows.map((r) => {
               if (r.menuItemId === menuItemId) {
+                console.log("🔍 Updating row with menuItemId:", menuItemId);
+                console.log("🔍 Adding raw materials:", rawMaterials);
                 return {
                   ...r,
                   menuItemRawMaterials: rawMaterials,
@@ -415,6 +426,7 @@ const EventMenuAllocationPage = () => {
               }
               return r;
             });
+            console.log("🔍 Updated rows:", updatedRows);
             return updatedRows;
           });
         } else {
@@ -478,15 +490,22 @@ const EventMenuAllocationPage = () => {
 
         setOrderSummaryGroups(summaryGroups);
 
+        // ✅ Create a map of menuItemId to isFromNewTable from summary items
         const allSummaryItems = summaryGroups.flatMap((group) => group.items);
         const itemFlagMap = new Map();
         allSummaryItems.forEach((item) => {
           itemFlagMap.set(item.menuItemId, item.isFromNewTable || false);
         });
 
+        // ✅ Fetch raw materials with correct isFromNewTable flag for each item
         const updatedRowsPromises = transformedRows.map(async (row) => {
           try {
+            // Get the correct isFromNewTable flag for this specific menu item
             const isFromNewTable = itemFlagMap.get(row.menuItemId) || false;
+
+            console.log(
+              `🔍 Fetching raw materials for menuItemId: ${row.menuItemId}, isFromNewTable: ${isFromNewTable}`
+            );
 
             const res = await SelectedItemNameMenuAllocation(
               eventFunctionId,
@@ -502,6 +521,10 @@ const EventMenuAllocationPage = () => {
                 apiData["MenuItem RawMaterial Details"] ||
                 apiData.menuItemRawMaterials ||
                 [];
+
+              console.log(
+                `✅ Fetched ${rawMaterials.length} raw materials for menuItemId: ${row.menuItemId}`
+              );
 
               return {
                 ...row,
@@ -519,6 +542,7 @@ const EventMenuAllocationPage = () => {
 
         // Wait for all raw material fetches to complete
         const updatedRows = await Promise.all(updatedRowsPromises);
+        console.log("🔍 All raw materials fetched, updating rows...");
 
         setRows(updatedRows);
 
@@ -808,13 +832,21 @@ const EventMenuAllocationPage = () => {
           allocationData[`${r.menuItemId}-category`]?.rawMaterials || [];
         const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
+        // Use allocation data if available, otherwise use row data
         const rawMaterialsSource =
           rawMaterialsFromAllocation.length > 0
             ? rawMaterialsFromAllocation
             : rawMaterialsFromRow;
 
+        console.log(
+          "🔍🔍🔍 Raw materials source before mapping:",
+          rawMaterialsSource
+        );
+
         // ✅ Map to API format
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
+          console.log("🔍 Mapping individual raw material:", rm);
+
           const mapped = {
             dateTime: rm.dateTime || "",
             eventFunctionId: rm.eventFunctionId || activeFunction?.id || 0,
@@ -831,8 +863,11 @@ const EventMenuAllocationPage = () => {
             weight: rm.weight || 0,
           };
 
+          console.log("🔍 Mapped result:", mapped);
           return mapped;
         });
+
+        console.log("🔍🔍🔍 Final menuItemRawMaterials:", menuItemRawMaterials);
 
         return {
           chefLabour: r.chefLabour || false,
@@ -963,7 +998,7 @@ const EventMenuAllocationPage = () => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {eventData?.venue?.nameEnglish || ""}
+                  {eventData?.venue?.nameEnglish || "-"}
                 </span>
               </div>
             </div>

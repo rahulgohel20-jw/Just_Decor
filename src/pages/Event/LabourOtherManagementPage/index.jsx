@@ -537,7 +537,7 @@ const LabourOtherManagementPage = () => {
                 <EventInfoItem
                   icon="ki-calendar-tick"
                   label="Event Venue"
-                  value={eventData?.venue}
+                  value={eventData?.venue?.nameEnglish}
                 />
                 <EventInfoItem
                   icon="ki-calendar-tick"

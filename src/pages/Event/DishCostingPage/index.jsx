@@ -52,7 +52,9 @@ const DishCostingPage = () => {
           defaultMessage="Total Raw Material Charges"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.rawmaterialcharge
+        ? Number(dishCostingData.rawmaterialcharge).toLocaleString()
+        : "0.00",
     },
     {
       label: (
@@ -61,7 +63,9 @@ const DishCostingPage = () => {
           defaultMessage="Total Agency Charges"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.outsideagencycharge
+        ? Number(dishCostingData.outsideagencycharge).toLocaleString()
+        : "0.00",
     },
 
     {
@@ -71,7 +75,9 @@ const DishCostingPage = () => {
           defaultMessage="Total Extra Expense"
         />
       ),
-      value: "0.00",
+      value: dishCostingData?.extraexpensecharge
+        ? Number(dishCostingData.extraexpensecharge).toLocaleString()
+        : "0.00",
     },
   ];
 
@@ -92,7 +98,7 @@ const DishCostingPage = () => {
 
           const partyName = event?.party?.nameEnglish || "-";
           const eventType = event?.eventType?.nameEnglish || "-";
-          const venue = event?.venue.nameEnglish || "-";
+          const venue = event?.venue || "-";
           const eventDateTime = event?.eventStartDateTime || "-";
           const totalFunctions = event?.eventFunctions?.length || 0;
           const totalPax = event?.eventFunctions?.reduce(
@@ -212,7 +218,7 @@ const DishCostingPage = () => {
                       />
                     </span>
                     <span className="text-sm font-medium text-gray-900">
-                      {eventData?.venue || "-"}
+                      {eventData?.venue?.nameEnglish || "-"}
                     </span>
                   </div>
                 </div>
@@ -464,7 +470,18 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-green-500  border-green-600 rounded-md px-3 py-1 inline-block">
-                  ₹ 11,496.00
+                  ₹{" "}
+                  {selectedFunctionPax
+                    ? (
+                        (Number(dishCostingData?.rawmaterialcharge || 0) +
+                          Number(dishCostingData?.outsideagencycharge || 0) +
+                          Number(dishCostingData?.extraexpensecharge || 0)) /
+                        selectedFunctionPax
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}
                 </div>
               </div>
             </div>
