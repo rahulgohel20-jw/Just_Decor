@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
+import Swal from "sweetalert2";
 import {
   Input,
   Checkbox,
@@ -374,36 +375,56 @@ const EventMenuAllocationPage = () => {
         menuItemId
       );
 
+      console.log("🔍 API Response:", res?.data);
+
       if (res?.data?.success) {
-        setSelectedRow(res.data.data);
+        const apiData = res.data.data;
 
-        if (res.data.data?.menuItemRawMaterials) {
-          setAllocationData((prev) => ({
-            ...prev,
-            [`${menuItemId}-category`]: {
-              menuItemId: menuItemId,
-              rawMaterials: res.data.data.menuItemRawMaterials,
-            },
-          }));
+        const rawMaterials =
+          apiData["MenuItem RawMaterial Details"] ||
+          apiData.menuItemRawMaterials ||
+          [];
 
-          setRows((prevRows) =>
-            prevRows.map((r) => {
+        setSelectedRow({
+          ...apiData,
+          menuItemRawMaterials: rawMaterials,
+        });
+
+        if (rawMaterials && rawMaterials.length > 0) {
+          const allocationKey = `${menuItemId}-category`;
+
+          setAllocationData((prev) => {
+            const updated = {
+              ...prev,
+              [allocationKey]: {
+                menuItemId: menuItemId,
+                rawMaterials: rawMaterials,
+              },
+            };
+            return updated;
+          });
+
+          // Update rows
+          setRows((prevRows) => {
+            const updatedRows = prevRows.map((r) => {
               if (r.menuItemId === menuItemId) {
                 return {
                   ...r,
-                  menuItemRawMaterials:
-                    res.data.data.menuItemRawMaterials || [],
+                  menuItemRawMaterials: rawMaterials,
                 };
               }
               return r;
-            })
-          );
+            });
+            return updatedRows;
+          });
+        } else {
+          console.warn("⚠️ No raw materials found in API response");
         }
       } else {
-        console.warn("No data returned from SelectedItemNameMenuAllocation");
+        console.warn("⚠️ API call unsuccessful or no data returned");
       }
     } catch (error) {
-      console.error("Error fetching SelectedItemNameMenuAllocation:", error);
+      console.error("❌ Error fetching SelectedItemNameMenuAllocation:", error);
     } finally {
       setMenuLoading(false);
     }
@@ -438,7 +459,7 @@ const EventMenuAllocationPage = () => {
             menuItemId: item.menuItemId,
             eventFunctionMenuAllocations:
               item.eventFunctionMenuAllocations || [],
-            menuItemRawMaterials: item.menuItemRawMaterials || [],
+            menuItemRawMaterials: [],
           })) || [];
 
         setRows(transformedRows);
@@ -457,10 +478,54 @@ const EventMenuAllocationPage = () => {
 
         setOrderSummaryGroups(summaryGroups);
 
+        const allSummaryItems = summaryGroups.flatMap((group) => group.items);
+        const itemFlagMap = new Map();
+        allSummaryItems.forEach((item) => {
+          itemFlagMap.set(item.menuItemId, item.isFromNewTable || false);
+        });
+
+        const updatedRowsPromises = transformedRows.map(async (row) => {
+          try {
+            const isFromNewTable = itemFlagMap.get(row.menuItemId) || false;
+
+            const res = await SelectedItemNameMenuAllocation(
+              eventFunctionId,
+              isFromNewTable,
+              row.menuItemId
+            );
+
+            if (res?.data?.success) {
+              const apiData = res.data.data;
+
+              // Extract raw materials with correct key
+              const rawMaterials =
+                apiData["MenuItem RawMaterial Details"] ||
+                apiData.menuItemRawMaterials ||
+                [];
+
+              return {
+                ...row,
+                menuItemRawMaterials: rawMaterials,
+              };
+            }
+          } catch (error) {
+            console.error(
+              `❌ Error fetching raw materials for item ${row.menuItemId}:`,
+              error
+            );
+          }
+          return row;
+        });
+
+        // Wait for all raw material fetches to complete
+        const updatedRows = await Promise.all(updatedRowsPromises);
+
+        setRows(updatedRows);
+
         setTimeout(() => {
           summaryGroups.forEach((group) => {
             group.items.forEach((item) => {
-              updateOrderSummaryPrices(item.menuItemId, transformedRows);
+              updateOrderSummaryPrices(item.menuItemId, updatedRows);
             });
           });
         }, 0);
@@ -476,6 +541,7 @@ const EventMenuAllocationPage = () => {
       setMenuLoading(false);
     }
   };
+
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
     fetchMenuAllocation(functionItem.id);
@@ -737,25 +803,36 @@ const EventMenuAllocationPage = () => {
           ...chefLabourAllocations,
         ];
 
-        const rawMaterialsData = allocationData[`${r.menuItemId}-category`];
-        const rawMaterialsSource =
-          rawMaterialsData?.rawMaterials || r.menuItemRawMaterials || [];
+        // Get raw materials from both sources
+        const rawMaterialsFromAllocation =
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials || [];
+        const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
-          dateTime: rm.dateTime || "",
-          eventFunctionId: activeFunction?.id || 0,
-          eventId: Number(eventId) || 0,
-          id: rm.id || 0,
-          menuItemId: r.menuItemId || 0,
-          partyId: rm.partyId || 0,
-          place: rm.place || "",
-          rate: rm.rate || 0,
-          rawMaterialId: rm.rawMaterialId || 0,
-          rawmaterial_rate: rm.rawmaterial_rate || 0,
-          rawmaterial_weight: rm.rawmaterial_weight || 0,
-          unitId: rm.unitId || 0,
-          weight: rm.weight || 0,
-        }));
+        const rawMaterialsSource =
+          rawMaterialsFromAllocation.length > 0
+            ? rawMaterialsFromAllocation
+            : rawMaterialsFromRow;
+
+        // ✅ Map to API format
+        const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
+          const mapped = {
+            dateTime: rm.dateTime || "",
+            eventFunctionId: rm.eventFunctionId || activeFunction?.id || 0,
+            eventId: rm.eventId || Number(eventId) || 0,
+            id: rm.id !== undefined ? rm.id : 0,
+            menuItemId: rm.menuItemId || r.menuItemId || 0,
+            partyId: rm.partyId !== undefined ? rm.partyId : 0,
+            place: rm.place || "",
+            rate: rm.rate || 0,
+            rawMaterialId: rm.rawMaterialId || 0,
+            rawmaterial_rate: rm.rawmaterial_rate || 0,
+            rawmaterial_weight: rm.rawmaterial_weight || 0,
+            unitId: rm.unitId || 0,
+            weight: rm.weight || 0,
+          };
+
+          return mapped;
+        });
 
         return {
           chefLabour: r.chefLabour || false,
@@ -786,6 +863,9 @@ const EventMenuAllocationPage = () => {
           confirmButtonColor: "#3085d6",
           confirmButtonText: "OK",
         });
+
+        // ✅ Optional: Refresh data after save
+        await fetchMenuAllocation(activeFunction?.id);
       }
     } catch (error) {
       console.error("Error saving menu allocation:", error);
@@ -798,7 +878,6 @@ const EventMenuAllocationPage = () => {
       });
     }
   };
-
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);

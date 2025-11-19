@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
-  EditEventType,
-  Addeventtype,
+  UpdateVenueTypeApi,
+  AddVenueTypeApi,
   Translateapi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
@@ -53,8 +53,11 @@ const AddVenueType = ({
 
   useEffect(() => {
     if (selectedEvent) {
+      console.log("Editing Item:", selectedEvent);
+
       setFormData({
-        nameEnglish: selectedEvent.event_type || "",
+        nameEnglish:
+          selectedEvent.venue_type || selectedEvent.nameEnglish || "",
         nameGujarati: selectedEvent.nameGujarati || "",
         nameHindi: selectedEvent.nameHindi || "",
       });
@@ -73,50 +76,72 @@ const AddVenueType = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async () => {
-    try {
-      await validationSchema.validate(formData, { abortEarly: false });
-      setErrors({});
+    if (!formData.nameEnglish?.trim()) {
+      Swal.fire("Required", "Please enter venue name in English", "warning");
+      return;
+    }
 
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
-        Swal.fire("Error", "User data not found", "error");
+    let userData;
+    try {
+      userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    } catch (e) {
+      console.error("Failed to parse userData:", e);
+      Swal.fire("Error", "Invalid user session", "error");
+      return;
+    }
+
+    if (!userData?.id) {
+      Swal.fire("Error", "User not logged in", "error");
+      return;
+    }
+
+    const payload = {
+      nameEnglish: formData.nameEnglish.trim(),
+      nameGujarati: formData.nameGujarati?.trim() || "",
+      nameHindi: formData.nameHindi?.trim() || "",
+      userId: parseInt(userData.id, 10),
+    };
+
+    console.log("Final Payload Sent to API:", payload);
+
+    try {
+      let res;
+      if (selectedEvent?.venueid) {
+        // Edit existing venue
+        res = await UpdateVenueTypeApi(selectedEvent.venueid, payload);
+        console.log("Selected Event in Edit Mode:", selectedEvent);
+      } else {
+        // Add new venue
+        res = await AddVenueTypeApi(payload);
+      }
+
+      console.log("API Response:", res);
+
+      if (res?.data?.success === false && res.data.msg?.includes("exists")) {
+        Swal.fire(
+          "Already Exists",
+          `Venue with the name '${formData.nameEnglish}' already exists.`,
+          "warning"
+        );
         return;
       }
 
-      const payload = { ...formData, userId: userData.id };
-
-      if (selectedEvent) {
-        const res = await EditEventType(selectedEvent.eventid, payload);
-        if (res?.data.success === false) {
-          Swal.fire("Error", res.data.msg || "Something went wrong", "error");
-          return;
-        }
-        Swal.fire("Success", "Event updated successfully!", "success");
-      } else {
-        const res = await Addeventtype(payload);
-        if (res?.data.success === false) {
-          Swal.fire("Error", res.data.msg || "Something went wrong", "error");
-          return;
-        }
-        Swal.fire("Success", "Event added successfully!", "success");
+      if (res?.data?.success === false) {
+        Swal.fire("Failed", res.data.msg || "Could not save", "error");
+        return;
       }
 
+      Swal.fire("Success!", "Venue type saved successfully", "success");
+      setFormData(initialFormState);
       refreshData();
       setIsModalOpen(false);
     } catch (err) {
-      if (err.inner) {
-        // Collect Yup validation errors
-        const formErrors = {};
-        err.inner.forEach((validationError) => {
-          formErrors[validationError.path] = validationError.message;
-        });
-        setErrors(formErrors);
-      }
+      console.error("API Error:", err);
+      Swal.fire("Error", err.response?.data?.msg || "Database error", "error");
     }
   };
 

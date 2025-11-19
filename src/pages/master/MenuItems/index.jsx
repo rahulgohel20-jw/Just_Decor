@@ -36,7 +36,7 @@ const MenuItems = () => {
     FetchMenuItems();
   }, [searchQuery]); // fetch when searchQuery changes
 
-  const FetchMenuItems = (page = currentPage) => {
+  const FetchMenuItems = (page = 1) => {
     GetAllMenuItems({
       userId: Id,
       menuItemName: searchQuery,

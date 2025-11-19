@@ -233,19 +233,19 @@ const AppRoutingSetup = () => {
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
           />
-          <Route path="/menu-preparation" element={<EventPlanningPage />} />
-          <Route path="/menu-preparations" element={<EventPreparationPage />} />
+          <Route path="/menu-preparations" element={<EventPlanningPage />} />
+          <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
           <Route
-            path="/menu-preparations/:eventId"
+            path="/menu-preparation/:eventId"
             element={<EventPreparationPage mode="menu" />}
           />
           <Route
-            path="/menu-preparation/:eventId"
+            path="/menu-preparations/:eventId"
             element={<EventPlanningPage mode="menu" />}
           />
           <Route
