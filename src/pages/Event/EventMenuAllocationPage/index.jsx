@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
+import Swal from "sweetalert2";
 import {
   Input,
   Checkbox,
@@ -368,42 +369,74 @@ const EventMenuAllocationPage = () => {
       const isFromNewTable = item.isFromNewTable || false;
       const menuItemId = item.menuItemId || item.id;
 
+      console.log("🔍 Fetching raw materials for menuItemId:", menuItemId);
+
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         isFromNewTable,
         menuItemId
       );
 
+      console.log("🔍 API Response:", res?.data);
+
       if (res?.data?.success) {
-        setSelectedRow(res.data.data);
+        const apiData = res.data.data;
+        console.log("🔍 Selected Row Data:", apiData);
 
-        if (res.data.data?.menuItemRawMaterials) {
-          setAllocationData((prev) => ({
-            ...prev,
-            [`${menuItemId}-category`]: {
-              menuItemId: menuItemId,
-              rawMaterials: res.data.data.menuItemRawMaterials,
-            },
-          }));
+        // ✅ FIX: The API returns "MenuItem RawMaterial Details" (with spaces), not "menuItemRawMaterials"
+        const rawMaterials =
+          apiData["MenuItem RawMaterial Details"] ||
+          apiData.menuItemRawMaterials ||
+          [];
 
-          setRows((prevRows) =>
-            prevRows.map((r) => {
+        console.log("🔍 Raw Materials from API:", rawMaterials);
+
+        setSelectedRow({
+          ...apiData,
+          menuItemRawMaterials: rawMaterials, // Normalize the key
+        });
+
+        if (rawMaterials && rawMaterials.length > 0) {
+          // Store in allocationData
+          const allocationKey = `${menuItemId}-category`;
+          console.log("🔍 Storing in allocationData with key:", allocationKey);
+
+          setAllocationData((prev) => {
+            const updated = {
+              ...prev,
+              [allocationKey]: {
+                menuItemId: menuItemId,
+                rawMaterials: rawMaterials,
+              },
+            };
+            console.log("🔍 Updated allocationData:", updated);
+            return updated;
+          });
+
+          // Update rows
+          setRows((prevRows) => {
+            const updatedRows = prevRows.map((r) => {
               if (r.menuItemId === menuItemId) {
+                console.log("🔍 Updating row with menuItemId:", menuItemId);
+                console.log("🔍 Adding raw materials:", rawMaterials);
                 return {
                   ...r,
-                  menuItemRawMaterials:
-                    res.data.data.menuItemRawMaterials || [],
+                  menuItemRawMaterials: rawMaterials,
                 };
               }
               return r;
-            })
-          );
+            });
+            console.log("🔍 Updated rows:", updatedRows);
+            return updatedRows;
+          });
+        } else {
+          console.warn("⚠️ No raw materials found in API response");
         }
       } else {
-        console.warn("No data returned from SelectedItemNameMenuAllocation");
+        console.warn("⚠️ API call unsuccessful or no data returned");
       }
     } catch (error) {
-      console.error("Error fetching SelectedItemNameMenuAllocation:", error);
+      console.error("❌ Error fetching SelectedItemNameMenuAllocation:", error);
     } finally {
       setMenuLoading(false);
     }
@@ -438,7 +471,7 @@ const EventMenuAllocationPage = () => {
             menuItemId: item.menuItemId,
             eventFunctionMenuAllocations:
               item.eventFunctionMenuAllocations || [],
-            menuItemRawMaterials: item.menuItemRawMaterials || [],
+            menuItemRawMaterials: [],
           })) || [];
 
         setRows(transformedRows);
@@ -457,10 +490,66 @@ const EventMenuAllocationPage = () => {
 
         setOrderSummaryGroups(summaryGroups);
 
+        // ✅ Create a map of menuItemId to isFromNewTable from summary items
+        const allSummaryItems = summaryGroups.flatMap((group) => group.items);
+        const itemFlagMap = new Map();
+        allSummaryItems.forEach((item) => {
+          itemFlagMap.set(item.menuItemId, item.isFromNewTable || false);
+        });
+
+        // ✅ Fetch raw materials with correct isFromNewTable flag for each item
+        const updatedRowsPromises = transformedRows.map(async (row) => {
+          try {
+            // Get the correct isFromNewTable flag for this specific menu item
+            const isFromNewTable = itemFlagMap.get(row.menuItemId) || false;
+
+            console.log(
+              `🔍 Fetching raw materials for menuItemId: ${row.menuItemId}, isFromNewTable: ${isFromNewTable}`
+            );
+
+            const res = await SelectedItemNameMenuAllocation(
+              eventFunctionId,
+              isFromNewTable,
+              row.menuItemId
+            );
+
+            if (res?.data?.success) {
+              const apiData = res.data.data;
+
+              // Extract raw materials with correct key
+              const rawMaterials =
+                apiData["MenuItem RawMaterial Details"] ||
+                apiData.menuItemRawMaterials ||
+                [];
+
+              console.log(
+                `✅ Fetched ${rawMaterials.length} raw materials for menuItemId: ${row.menuItemId}`
+              );
+
+              return {
+                ...row,
+                menuItemRawMaterials: rawMaterials,
+              };
+            }
+          } catch (error) {
+            console.error(
+              `❌ Error fetching raw materials for item ${row.menuItemId}:`,
+              error
+            );
+          }
+          return row;
+        });
+
+        // Wait for all raw material fetches to complete
+        const updatedRows = await Promise.all(updatedRowsPromises);
+        console.log("🔍 All raw materials fetched, updating rows...");
+
+        setRows(updatedRows);
+
         setTimeout(() => {
           summaryGroups.forEach((group) => {
             group.items.forEach((item) => {
-              updateOrderSummaryPrices(item.menuItemId, transformedRows);
+              updateOrderSummaryPrices(item.menuItemId, updatedRows);
             });
           });
         }, 0);
@@ -476,6 +565,7 @@ const EventMenuAllocationPage = () => {
       setMenuLoading(false);
     }
   };
+
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
     fetchMenuAllocation(functionItem.id);
@@ -737,25 +827,47 @@ const EventMenuAllocationPage = () => {
           ...chefLabourAllocations,
         ];
 
-        const rawMaterialsData = allocationData[`${r.menuItemId}-category`];
-        const rawMaterialsSource =
-          rawMaterialsData?.rawMaterials || r.menuItemRawMaterials || [];
+        // Get raw materials from both sources
+        const rawMaterialsFromAllocation =
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials || [];
+        const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
-          dateTime: rm.dateTime || "",
-          eventFunctionId: activeFunction?.id || 0,
-          eventId: Number(eventId) || 0,
-          id: rm.id || 0,
-          menuItemId: r.menuItemId || 0,
-          partyId: rm.partyId || 0,
-          place: rm.place || "",
-          rate: rm.rate || 0,
-          rawMaterialId: rm.rawMaterialId || 0,
-          rawmaterial_rate: rm.rawmaterial_rate || 0,
-          rawmaterial_weight: rm.rawmaterial_weight || 0,
-          unitId: rm.unitId || 0,
-          weight: rm.weight || 0,
-        }));
+        // Use allocation data if available, otherwise use row data
+        const rawMaterialsSource =
+          rawMaterialsFromAllocation.length > 0
+            ? rawMaterialsFromAllocation
+            : rawMaterialsFromRow;
+
+        console.log(
+          "🔍🔍🔍 Raw materials source before mapping:",
+          rawMaterialsSource
+        );
+
+        // ✅ Map to API format
+        const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
+          console.log("🔍 Mapping individual raw material:", rm);
+
+          const mapped = {
+            dateTime: rm.dateTime || "",
+            eventFunctionId: rm.eventFunctionId || activeFunction?.id || 0,
+            eventId: rm.eventId || Number(eventId) || 0,
+            id: rm.id !== undefined ? rm.id : 0,
+            menuItemId: rm.menuItemId || r.menuItemId || 0,
+            partyId: rm.partyId !== undefined ? rm.partyId : 0,
+            place: rm.place || "",
+            rate: rm.rate || 0,
+            rawMaterialId: rm.rawMaterialId || 0,
+            rawmaterial_rate: rm.rawmaterial_rate || 0,
+            rawmaterial_weight: rm.rawmaterial_weight || 0,
+            unitId: rm.unitId || 0,
+            weight: rm.weight || 0,
+          };
+
+          console.log("🔍 Mapped result:", mapped);
+          return mapped;
+        });
+
+        console.log("🔍🔍🔍 Final menuItemRawMaterials:", menuItemRawMaterials);
 
         return {
           chefLabour: r.chefLabour || false,
@@ -786,6 +898,9 @@ const EventMenuAllocationPage = () => {
           confirmButtonColor: "#3085d6",
           confirmButtonText: "OK",
         });
+
+        // ✅ Optional: Refresh data after save
+        await fetchMenuAllocation(activeFunction?.id);
       }
     } catch (error) {
       console.error("Error saving menu allocation:", error);
@@ -798,7 +913,6 @@ const EventMenuAllocationPage = () => {
       });
     }
   };
-
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
