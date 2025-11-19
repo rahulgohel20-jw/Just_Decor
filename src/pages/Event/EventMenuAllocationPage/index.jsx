@@ -884,7 +884,7 @@ const EventMenuAllocationPage = () => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {eventData?.venue || "-"}
+                  {eventData?.venue?.nameEnglish || "-"}
                 </span>
               </div>
             </div>
