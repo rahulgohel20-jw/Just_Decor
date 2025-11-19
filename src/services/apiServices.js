@@ -343,7 +343,6 @@ export const DeleteEventFunctionById = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
 };
 
-
 export const GetFunctionsByFunctionName = (functionName) => {
   return GET(
     `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
@@ -415,6 +414,12 @@ export const Getmenuprep = (
 export const Getmenuitems = (pageno, size, UserId) => {
   return GET(
     `/menuitems/getallbyuserid?page=${pageno}&size=${size}&userId=${UserId}`
+  );
+};
+
+export const Getmenuitemsusingcatid = (pageno, size, UserId, catid) => {
+  return GET(
+    `/menuitems/getallbyuserid?menuCatId=${catid}&page=${pageno}&size=${size}&userId=${UserId}`
   );
 };
 
@@ -857,7 +862,6 @@ export const GetDbAssignedDetails = (dbPlanningId) => {
   return GET(`/excel-parsing/getById?db_planning_id=${dbPlanningId}`);
 };
 
-
 export const GetUserlogs = (data) => {
   return GET(`/user-logs/getUserLogs/${data}`);
 };
@@ -866,7 +870,6 @@ export const AssignDb = (payload) => {
   // payload = { databaseName, customerId, instructions }
   return POST(`/excel-parsing/assignDb`, payload);
 };
-
 
 // Super Admin Invoice
 
@@ -880,13 +883,11 @@ export const SubscriptionByUser = (id) => {
   return GET(`userplanshistory/getplanhistorybyuser?userId=${id}`);
 };
 
-
 //Update Member
 
 export const UpdateMemberById = (id, data) => {
   return PUT(`/user/updatemember?id=${id}`, data);
 };
-
 
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
