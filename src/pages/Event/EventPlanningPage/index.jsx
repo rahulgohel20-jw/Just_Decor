@@ -6,13 +6,14 @@ import SelectedItems from "./components/SelectedItems";
 import FunctionCard from "./components/FunctionCard";
 import CategoryList from "./components/CategoryList";
 import SearchInput from "./components/SearchInput";
-import { Mic, Eye } from "lucide-react";
+import { Mic, Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 import { Tooltip } from "antd";
 import {
   GetEventMasterById,
   Getmenuprep,
   AddMenuprep,
+  GetCustomPackageapibyID,
 } from "@/services/apiServices";
 import { useParams, useNavigate } from "react-router-dom";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
@@ -22,6 +23,8 @@ import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPack
 const EventPlanningPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+
+  // basic UI / data state
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,12 +37,29 @@ const EventPlanningPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
+  const [packageAppliedForFunction, setPackageAppliedForFunction] = useState(
+    {}
+  );
+
+  // selections saved per function
   const [selectedByFunction, setSelectedByFunction] = useState({});
+  // package categories and package items saved per function
+  const [packageCategoriesByFunction, setPackageCategoriesByFunction] =
+    useState({});
+  const [packageItemsByFunction, setPackageItemsByFunction] = useState({});
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [categorySearchTerm, setCategorySearchTerm] = useState("");
+  const [itemSearchTerm, setItemSearchTerm] = useState("");
+  const [showRates, setShowRates] = useState(false);
+
   const userDataRaw = localStorage.getItem("userData");
   const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
+
+  /* ---------------------
+     Load initial event + select first function
+     --------------------- */
   useEffect(() => {
     const fetchEventData = async () => {
       try {
@@ -47,6 +67,7 @@ const EventPlanningPage = () => {
         const response = await GetEventMasterById(eventId);
         const eventDetails =
           response?.data?.data?.["Event Details"]?.[0] || null;
+        console.log(eventDetails, "data");
 
         setEventData(eventDetails);
 
@@ -65,15 +86,23 @@ const EventPlanningPage = () => {
     fetchEventData();
   }, [eventId]);
 
+  /* ---------------------
+     Load saved menu prep for selected function (from API)
+     --------------------- */
   const loadSavedMenuPrep = useCallback(async () => {
     if (!selectedFunction) return;
-
-    const userId = localStorage.getItem("userId");
-
+    const userIdLocal = localStorage.getItem("userId");
+    const itemName = "";
     try {
-      const resp = await Getmenuprep(selectedFunction, 0, 1, 200, userId);
+      const resp = await Getmenuprep(
+        selectedFunction,
+        itemName,
+        0,
+        1,
+        200,
+        userIdLocal
+      );
       const data = resp?.data?.data;
-
       if (!data) return;
 
       const selectedCats = data.selectedMenuPreparationItems || [];
@@ -97,9 +126,13 @@ const EventPlanningPage = () => {
             rate: Number(it.itemPrice),
             menuCategoryName: catName,
             catId: Number(cat.menuCategoryId || 0),
+            // saved items from API won't contain package metadata
+            isPackageItem: data?.menuPreparation?.isPackage || false,
+            packageId: data?.menuPreparation?.packageId || 0,
+            packageName: data?.menuPreparation?.packageName || "",
+            packagePrice: data?.menuPreparation?.packagePrice || 0,
           };
         });
-        console.log(mappedItems);
 
         if (mappedItems.length > 0) {
           categories[catName] = mappedItems;
@@ -118,6 +151,7 @@ const EventPlanningPage = () => {
         _menuPrepId: menuPrepId,
       }));
 
+      // do not assume packageCategories here; leave packageCategoriesByFunction unchanged
       if (order.length > 0) setHasExistingData(true);
     } catch (err) {
       console.log("Menu Prep fetch failed", err);
@@ -126,8 +160,11 @@ const EventPlanningPage = () => {
 
   useEffect(() => {
     loadSavedMenuPrep();
-  }, [selectedFunction]);
+  }, [selectedFunction, loadSavedMenuPrep]);
 
+  /* ---------------------
+     If default rate changed, apply to selected function items
+     --------------------- */
   useEffect(() => {
     if (!selectedFunction) return;
     if (defaultRate === "" || defaultRate === null) return;
@@ -154,6 +191,9 @@ const EventPlanningPage = () => {
     });
   }, [defaultRate, selectedFunction]);
 
+  /* ---------------------
+     Helpers: get selected ids for highlighting in the grid
+     --------------------- */
   const getSelectedIdsForFunction = useCallback(
     (functionId) => {
       const bucket = selectedByFunction[functionId];
@@ -168,6 +208,9 @@ const EventPlanningPage = () => {
     [selectedByFunction]
   );
 
+  /* ---------------------
+     Toggle select / add item to selectedByFunction for current function
+     --------------------- */
   const onToggleSelectItem = useCallback(
     (menuItem, overrideCategoryName) => {
       const functionId = selectedFunction;
@@ -189,7 +232,6 @@ const EventPlanningPage = () => {
         };
 
         const categories = { ...bucket.categories };
-        console.log(categories);
 
         const list = categories[categoryName]
           ? [...categories[categoryName]]
@@ -248,6 +290,9 @@ const EventPlanningPage = () => {
     [selectedFunction, defaultRate]
   );
 
+  /* ---------------------
+     Remove selected item
+     --------------------- */
   const onRemoveSelectedItem = useCallback(
     (functionId, categoryName, itemId) => {
       setSelectedByFunction((prev) => {
@@ -276,6 +321,9 @@ const EventPlanningPage = () => {
     []
   );
 
+  /* ---------------------
+     Drag end (reorder)
+     --------------------- */
   const onDragEndSelected = useCallback((functionId, newState) => {
     setSelectedByFunction((prev) => ({
       ...prev,
@@ -283,16 +331,164 @@ const EventPlanningPage = () => {
     }));
   }, []);
 
+  /* ---------------------
+     Rate change handler (from SelectedItems)
+     --------------------- */
+  const onRateChange = useCallback(
+    (functionId, categoryName, itemId, newRate) => {
+      setSelectedByFunction((prev) => {
+        const bucket = prev[functionId];
+        if (!bucket) return prev;
+
+        const categories = { ...bucket.categories };
+        const items = categories[categoryName] || [];
+
+        const updatedItems = items.map((item) =>
+          Number(item.id) === Number(itemId) ? { ...item, rate: newRate } : item
+        );
+
+        return {
+          ...prev,
+          [functionId]: {
+            ...bucket,
+            categories: {
+              ...categories,
+              [categoryName]: updatedItems,
+            },
+          },
+        };
+      });
+    },
+    []
+  );
+
+  /* ---------------------
+     Apply package to currently selected function
+     - stores categories & items per function
+     --------------------- */
+  const handlePackageSelect = async (packageId) => {
+    if (!selectedFunction) {
+      Swal.fire({
+        icon: "warning",
+        title: "Select function first",
+        text: "Please select a function (e.g., Breakfast) before applying a package.",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const resp = await GetCustomPackageapibyID(packageId);
+      const pkg = resp?.data?.data?.["Package Details"]?.[0];
+
+      if (!pkg) {
+        Swal.fire({
+          icon: "error",
+          title: "Package not found",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Map package menus to the selectedByFunction structure
+      const categories = {};
+      const order = [];
+      const packageItemsFlat = []; // flat list for grid usage (optional)
+
+      (pkg.customPackageDetails || []).forEach((menu) => {
+        const catName = menu.menuName || `Menu ${menu.menuId || ""}`;
+        const catId = Number(menu.menuId || 0);
+
+        const items = (menu.customPackageMenuItemDetails || []).map((it) => {
+          const mapped = {
+            id: Number(it.menuItemId || it.id || 0),
+            nameEnglish: it.itemName || "",
+            imagePath: "", // API doesn't include images in package payload
+            rate: Number(it.itemPrice || 0),
+            menuCategoryName: catName,
+            catId,
+            isPackageItem: true,
+            packageId: pkg.id,
+            packageName: pkg.nameEnglish,
+          };
+          packageItemsFlat.push(mapped);
+          return mapped;
+        });
+
+        if (items.length > 0) {
+          categories[catName] = items;
+          order.push(catName);
+        }
+      });
+      setPackageAppliedForFunction((prev) => ({
+        ...prev,
+        [selectedFunction]: true,
+      }));
+
+      // Save package categories and items per function
+      setPackageCategoriesByFunction((prev) => ({
+        ...prev,
+        [selectedFunction]: order,
+      }));
+
+      setPackageItemsByFunction((prev) => ({
+        ...prev,
+        [selectedFunction]: packageItemsFlat,
+      }));
+
+      // Apply to selectedByFunction for this function (replace selection)
+      setSelectedByFunction((prev) => ({
+        ...prev,
+        [selectedFunction]: {
+          categoriesOrder: order,
+          categories,
+        },
+        // keep existing _menuPrepId if any
+        _menuPrepId: prev?._menuPrepId || 0,
+      }));
+
+      if (order.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No items in package",
+        });
+        setShowCustomPackageModal(false);
+        setLoading(false);
+        return;
+      }
+
+      setHasExistingData(true);
+      setShowCustomPackageModal(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Package applied",
+        text: `${pkg.nameEnglish || "Package"} applied to selected function.`,
+        timer: 1400,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Apply package failed", err);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to apply package",
+        text: "Something went wrong while loading package.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ---------------------
+     Build payload to save to API
+     --------------------- */
   const buildRequestPayload = () => {
     const bucket = selectedByFunction[selectedFunction];
-    console.log(bucket);
-
     if (!bucket) return null;
 
     const categoriesPayload = bucket.categoriesOrder.map(
       (catName, catIndex) => {
         const items = bucket.categories[catName] || [];
-        console.log(items, "data");
 
         return {
           menuCategoryId: items[0]?.catId || 0,
@@ -301,7 +497,6 @@ const EventPlanningPage = () => {
           menuSlogan: "",
           menuSortOrder: catIndex,
           startTime: "",
-
           selectedMenuPreparationItems: items.map((item, itemIndex) => ({
             id: 0,
             itemNotes: "",
@@ -315,6 +510,13 @@ const EventPlanningPage = () => {
       }
     );
 
+    // ⭐ package info for selected function
+    const isPackageApplied =
+      packageAppliedForFunction[selectedFunction] || false;
+    const selectedPkgItems = packageItemsByFunction[selectedFunction] || [];
+    const selectedPkgObj =
+      selectedPkgItems.length > 0 ? selectedPkgItems[0] : null;
+
     return {
       id: selectedByFunction._menuPrepId || 0,
       eventFunctionId: selectedFunction,
@@ -323,15 +525,19 @@ const EventPlanningPage = () => {
       price: Number(defaultRate),
       sortorder: 0,
 
-      isPackage: false,
-      packageId: 0,
-      packageName: "",
-      packagePrice: 0,
+      // ⭐ FINAL PAYLOAD UPDATE
+      isPackage: isPackageApplied,
+      packageId: isPackageApplied ? selectedPkgObj?.packageId || 0 : 0,
+      packageName: isPackageApplied ? selectedPkgObj?.packageName || "" : "",
+      packagePrice: isPackageApplied ? selectedPkgObj?.rate || 0 : 0,
 
       selectedMenuPreparation: categoriesPayload,
     };
   };
 
+  /* ---------------------
+     Save/Update handler
+     --------------------- */
   const handleSaveOrUpdate = async () => {
     try {
       setIsSaving(true);
@@ -339,18 +545,13 @@ const EventPlanningPage = () => {
       const payload = buildRequestPayload();
       if (!payload) {
         alert("Nothing to save");
+        setIsSaving(false);
         return;
       }
 
-      console.log("Saving Menu Prep Payload:", payload);
-
-      const userId = localStorage.getItem("userId");
-
       const resp = await AddMenuprep(payload);
-
       const newId = resp?.data?.data?.id || payload.id;
 
-      // update stored id so next save becomes update
       setSelectedByFunction((prev) => ({
         ...prev,
         _menuPrepId: newId,
@@ -378,6 +579,10 @@ const EventPlanningPage = () => {
       setIsSaving(false);
     }
   };
+
+  /* ---------------------
+     Category change handler
+     --------------------- */
   const handleCategoryChange = (categoryName, categoryId) => {
     setSelectedCategory(categoryName);
     setSelectedCategoryId(categoryId);
@@ -387,6 +592,16 @@ const EventPlanningPage = () => {
     navigate(-1);
   };
 
+  /* ---------------------
+     Derived props for children (current function)
+     --------------------- */
+  const currentPackageCategories =
+    packageCategoriesByFunction[selectedFunction] || [];
+  const currentPackageItems = packageItemsByFunction[selectedFunction] || [];
+
+  /* ---------------------
+     Loading / error UI
+     --------------------- */
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -409,15 +624,17 @@ const EventPlanningPage = () => {
     );
   }
 
+  /* ---------------------
+     Render
+     --------------------- */
   return (
     <Fragment>
       <div className="flex flex-col min-h-screen w-full">
-        <div className="flex-1 overflow-auto px-4 py-2 ">
+        <div className="flex-1 overflow-auto px-4 py-2">
           <div className="gap-2 pb-2 mb-3">
             <Breadcrumbs items={[{ title: "Menu Planning" }]} />
           </div>
 
-          {/* Event header card */}
           <div className="border rounded mb-4 w-full">
             <div className="card w-full">
               <div className="w-full border-b p-3 bg-white">
@@ -497,7 +714,7 @@ const EventPlanningPage = () => {
                         Venue:
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.venue.nameEnglish}
+                        {eventData?.venue.nameEnglish?.nameEnglish || ""}
                       </span>
                     </div>
                   </div>
@@ -560,7 +777,7 @@ const EventPlanningPage = () => {
             </div>
           </div>
 
-          {/* Function cards and actions */}
+          {/* functions + package controls */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-4">
             <div className="lg:col-span-2">
               <div className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-2 text-gray-500 bg-gray-200">
@@ -578,18 +795,40 @@ const EventPlanningPage = () => {
                 ))}
               </div>
             </div>
+
             <div className="flex flex-wrap items-center justify-between gap-2 p-2 border rounded bg-gray-200">
               <div className="flex gap-2">
-                <button className="btn bg-primary text-white text-sm px-3 py-1">
+                {/* CUSTOM BUTTON */}
+                <button
+                  className={`btn text-sm px-3 py-1 ${
+                    packageAppliedForFunction[selectedFunction]
+                      ? "bg-white text-primary border border-primary"
+                      : "bg-primary text-white"
+                  }`}
+                  onClick={() => {
+                    // user switches back to FULL CUSTOM mode
+                    setPackageAppliedForFunction((prev) => ({
+                      ...prev,
+                      [selectedFunction]: false,
+                    }));
+                  }}
+                >
                   Custom
                 </button>
+
+                {/* CUSTOM PACKAGE BUTTON */}
                 <button
-                  className="btn bg-white text-primary text-sm px-3 py-1"
+                  className={`btn text-sm px-3 py-1 ${
+                    packageAppliedForFunction[selectedFunction]
+                      ? "bg-primary text-white"
+                      : "bg-white text-primary border border-primary"
+                  }`}
                   onClick={() => setShowCustomPackageModal(true)}
                 >
                   Custom package
                 </button>
               </div>
+
               <button
                 className="btn bg-success text-white text-sm px-3 py-1"
                 onClick={() => {
@@ -602,26 +841,34 @@ const EventPlanningPage = () => {
             </div>
           </div>
 
-          {/* Main grid: categories + items + selected items */}
+          {/* main columns */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
             <div className="lg:col-span-2 border rounded overflow-y-auto no-scrollbar flex">
-              <div className="min-h-[600px] w-[30%] border-r ">
+              <div className="min-h-[600px] w-[30%] border-r">
                 <div className="border-b p-3">
                   <SearchInput
                     placeholder="Search categories"
-                    value={searchTerm}
-                    onChange={(v) => setSearchTerm(v)}
+                    value={categorySearchTerm}
+                    onChange={(v) => setCategorySearchTerm(v)}
                     onAdd={() => {}}
                     addTooltip="Add menu category"
                   />
                 </div>
+
                 <div
                   className="p-3 overflow-auto no-scrollbar"
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
                   <CategoryList
-                    selectedCategory={selectedCategory}
+                    selectedCategoryId={selectedCategoryId}
                     onCategoryChange={handleCategoryChange}
+                    searchTerm={categorySearchTerm}
+                    // PASS only current function package categories
+                    packageCategories={currentPackageCategories}
+                    savedCategoriesOrder={
+                      selectedByFunction[selectedFunction]?.categoriesOrder ||
+                      []
+                    }
                   />
                 </div>
               </div>
@@ -633,12 +880,13 @@ const EventPlanningPage = () => {
                       <div className="flex-1">
                         <SearchInput
                           placeholder="Search items"
-                          value={searchTerm}
-                          onChange={(v) => setSearchTerm(v)}
+                          value={itemSearchTerm}
+                          onChange={(v) => setItemSearchTerm(v)}
                           onAdd={() => {}}
                           addTooltip="Add menu item"
                         />
                       </div>
+
                       <Tooltip title="Start speech to text">
                         <button
                           type="button"
@@ -659,26 +907,38 @@ const EventPlanningPage = () => {
                     category={selectedCategory}
                     categoryId={selectedCategoryId}
                     pageSize={100}
-                    searchTerm={searchTerm}
+                    searchTerm={itemSearchTerm}
                     selectedIdsSet={getSelectedIdsForFunction(selectedFunction)}
                     onToggleSelect={onToggleSelectItem}
                     selectedFunctionId={selectedFunction}
+                    // PASS package items for current function so grid can show PKG badge / ordering
+                    packageItems={currentPackageItems}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="border rounded flex flex-col bg-gray-100">
+            {/* Selected items panel */}
+            <div
+              className="border rounded flex flex-col bg-gray-100 overflow-auto no-scrollbar"
+              style={{ maxHeight: "calc(100vh - 80px)" }}
+            >
               <div className="flex items-center justify-between border-b p-3 h-[69px]">
                 <p className="font-semibold text-gray-700">Selected Items</p>
                 <button
                   type="button"
-                  className="p-1 rounded hover:bg-gray-100"
-                  aria-label="Toggle visibility"
+                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  aria-label="Toggle rate visibility"
+                  onClick={() => setShowRates(!showRates)}
                 >
-                  <Eye className="text-primary" />
+                  {showRates ? (
+                    <Eye className="text-primary" size={20} />
+                  ) : (
+                    <EyeOff className="text-primary" size={20} />
+                  )}
                 </button>
               </div>
+
               <SelectedItems
                 functionId={selectedFunction}
                 data={
@@ -693,13 +953,15 @@ const EventPlanningPage = () => {
                 onDragEndNewState={(state) =>
                   onDragEndSelected(selectedFunction, state)
                 }
+                showRates={showRates}
+                onRateChange={onRateChange}
               />
             </div>
           </div>
         </div>
 
         {/* Sticky Footer */}
-        <div className="  bg-white ">
+        <div className="bg-white">
           <div className="flex items-center justify-between px-2 py-3">
             <button
               type="button"
@@ -714,7 +976,7 @@ const EventPlanningPage = () => {
               type="button"
               onClick={handleSaveOrUpdate}
               disabled={isSaving}
-              className="btn bg-success text-white px-8 py-2 rounded-lg  disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (
                 <>
@@ -722,14 +984,40 @@ const EventPlanningPage = () => {
                   <span>Saving...</span>
                 </>
               ) : (
-                <>
-                  <span>{hasExistingData ? "Update Menu" : "Save Menu"}</span>
-                </>
+                <span>{hasExistingData ? "Update Menu" : "Save Menu"}</span>
               )}
             </button>
           </div>
         </div>
       </div>
+
+      <SelectMenureport
+        isSelectMenureport={isSelectMenuReport}
+        setIsSelectMenuReport={setIsSelectMenuReport}
+        onConfirm={() => {
+          setIsSelectMenuReport(false);
+          setIsMenuReport(true);
+        }}
+      />
+
+      <MenuReport
+        isModalOpen={isMenuReport}
+        setIsModalOpen={setIsMenuReport}
+        eventId={menuReportEventId}
+      />
+
+      <CustomPackageModal
+        isOpen={showCustomPackageModal}
+        onClose={() => setShowCustomPackageModal(false)}
+        userId={userId}
+        onSelectPackage={(payload) => {
+          if (payload && typeof payload === "object" && payload.packageInfo) {
+            handlePackageSelect(payload.packageInfo.id);
+          } else {
+            handlePackageSelect(payload);
+          }
+        }}
+      />
       <SelectMenureport
         isSelectMenureport={isSelectMenuReport}
         setIsSelectMenuReport={setIsSelectMenuReport}
@@ -742,11 +1030,6 @@ const EventPlanningPage = () => {
         isModalOpen={isMenuReport}
         setIsModalOpen={setIsMenuReport}
         eventId={menuReportEventId}
-      />
-      <CustomPackageModal
-        isOpen={showCustomPackageModal}
-        onClose={() => setShowCustomPackageModal(false)}
-        userId={userId}
       />
     </Fragment>
   );

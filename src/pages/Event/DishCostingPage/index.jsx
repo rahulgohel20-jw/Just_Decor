@@ -67,6 +67,7 @@ const DishCostingPage = () => {
         ? Number(dishCostingData.outsideagencycharge).toLocaleString()
         : "0.00",
     },
+
     {
       label: (
         <FormattedMessage
@@ -217,7 +218,7 @@ const DishCostingPage = () => {
                       />
                     </span>
                     <span className="text-sm font-medium text-gray-900">
-                      {eventData?.venue || "-"}
+                      {eventData?.venue?.nameEnglish || "-"}
                     </span>
                   </div>
                 </div>
@@ -461,19 +462,27 @@ const DishCostingPage = () => {
               </div>
 
               {/* Dish Costing */}
-              <div className="text-3xl font-bold text-green-500 border-green-600 rounded-md px-3 py-1 inline-block">
-                ₹{" "}
-                {selectedFunctionPax
-                  ? (
-                      (Number(dishCostingData?.rawmaterialcharge || 0) +
-                        Number(dishCostingData?.outsideagencycharge || 0) +
-                        Number(dishCostingData?.extraexpensecharge || 0)) /
-                      selectedFunctionPax
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : "0.00"}
+              <div className="bg-green-100 border-s-[6px] rounded-lg p-5 border-2 border-green-500 relative">
+                <div className="text-base font-semibold text-green-600 mb-2">
+                  <FormattedMessage
+                    id="COMMON.DISH_COSTING"
+                    defaultMessage="Dish Costing"
+                  />
+                </div>
+                <div className="text-3xl font-bold text-green-500  border-green-600 rounded-md px-3 py-1 inline-block">
+                  ₹{" "}
+                  {selectedFunctionPax
+                    ? (
+                        (Number(dishCostingData?.rawmaterialcharge || 0) +
+                          Number(dishCostingData?.outsideagencycharge || 0) +
+                          Number(dishCostingData?.extraexpensecharge || 0)) /
+                        selectedFunctionPax
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}
+                </div>
               </div>
             </div>
           </div>

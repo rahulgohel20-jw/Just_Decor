@@ -3,12 +3,18 @@ import { DatePicker, Form } from "antd";
 import dayjs from "dayjs";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
 import ManagerDropdown from "@/components/dropdowns/ManagerDropdown";
+import VenueDropdown from "../../../components/dropdowns/VenueDropdown";
+import AddVenueType from "../../../partials/modals/add-venue-type/AddVenueType";
 import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
 import useStyles from "./style";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import AddEventType from "@/partials/modals/add-event-type/AddEventType";
-import { GetEventType, Fetchmanager } from "@/services/apiServices";
+import {
+  GetEventType,
+  Fetchmanager,
+  GetVenueType,
+} from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import { useLanguage } from "@/i18n";
 
@@ -24,10 +30,16 @@ const EventBasicInfoStep = ({
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [venueList, setVenueList] = useState([]);
+  const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState(null);
+
   let userData = JSON.parse(localStorage.getItem("userData"));
+
   let Id = userData.id;
 
   useEffect(() => {
+    fetchVenueTypes();
     Fetcheventtype();
     FetchManager();
   }, []);
@@ -58,6 +70,22 @@ const EventBasicInfoStep = ({
       }));
       setManager(manager);
     });
+  };
+
+  const fetchVenueTypes = () => {
+    GetVenueType(Id)
+      .then((res) => {
+        const venueArray = res?.data?.data?.["Venue Details"] || [];
+
+        const venues = venueArray.map((item, index) => ({
+          sr_no: index + 1,
+          value: item.id,
+          label: item.nameEnglish || "-",
+        }));
+
+        setVenueList(venues);
+      })
+      .catch(console.error);
   };
 
   // Helper function to handle form data changes
@@ -260,21 +288,29 @@ const EventBasicInfoStep = ({
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_VENUE"
                 defaultMessage="Venue"
               />
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
+              <span className="mandatory text-red-500">*</span>
             </label>
-            <SpeechToText
-              type="text"
-              name="venue"
-              placeholder="Venue"
-              value={formData.venue}
-              onChange={onInputChange}
-            />
-            {errors.venue && (
-              <span className="text-red-600 font-normal text-sm mt-0.50">
-                {errors.venue}
-              </span>
+
+            <div className="sg__inner flex items-center gap-1">
+              <VenueDropdown
+                value={formData.venueId}
+                onChange={onInputChange}
+                options={venueList}
+                name="venueId"
+              />
+
+              <button
+                type="button"
+                onClick={() => setIsVenueModalOpen(true)}
+                title="Add Venue"
+                className="btn btn-primary rounded-full p-0 w-8 h-8 flex items-center justify-center"
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
+
+            {errors.venueId && (
+              <span className="text-red-600 text-sm">{errors.venueId}</span>
             )}
           </div>
 
@@ -324,6 +360,12 @@ const EventBasicInfoStep = ({
           setIsModalOpen={setIsEventTypeModalOpen}
           refreshData={Fetcheventtype}
           selectedEvent={selectedEvent}
+        />
+        <AddVenueType
+          isModalOpen={isVenueModalOpen}
+          setIsModalOpen={setIsVenueModalOpen}
+          refreshData={fetchVenueTypes}
+          selectedEvent={selectedVenue}
         />
       </div>
     </Form>

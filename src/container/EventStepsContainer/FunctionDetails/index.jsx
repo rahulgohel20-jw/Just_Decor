@@ -193,12 +193,10 @@ const FunctionsDetails = ({
 
     const currentRow = updatedArray[index];
 
-    // Check if this function was ever selected before (any row)
     const isFunctionAlreadyUsed = updatedArray
-      .filter((_, i) => i !== index) // exclude current row
+      .filter((_, i) => i !== index)
       .some((f) => f.functionId === functionId);
 
-    // Only auto-fill if the current row has empty dates AND function has never been used
     if (
       !currentRow.functionStartDateTime &&
       !currentRow.functionEndDateTime &&

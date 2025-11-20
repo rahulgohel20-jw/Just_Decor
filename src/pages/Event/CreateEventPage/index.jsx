@@ -41,6 +41,7 @@ const CreateEventPage = () => {
       eventStartDateTime: "",
       eventEndDateTime: "",
       venueId: "",
+      venueId: "",
       eventTypeId: "",
       managerId: "",
       partyId: "",
@@ -94,7 +95,7 @@ const CreateEventPage = () => {
               (match) => match.toUpperCase()
             ),
             status: statusId,
-            venueId: event.venue || "",
+            venueId: event.venue.id || "",
             eventTypeId: event.eventType?.id || "",
             managerId: event.manager?.id || "",
             partyId: event.party?.id || "",
@@ -241,6 +242,10 @@ const CreateEventPage = () => {
 
     const payload = {
       ...formData,
+      venueId:
+        formData.venueId === "" || formData.venueId === null
+          ? null
+          : Number(formData.venueId),
       status: Number(formData.status),
       eventFunction: (formData.eventFunction || []).map((f) => ({
         ...f,
@@ -254,6 +259,8 @@ const CreateEventPage = () => {
 
       if (mode === "edit" && eventId) {
         response = await UpdateEventMaster(eventId, payload);
+        console.log("Payload:", payload);
+
         if (
           response?.data?.msg?.toLowerCase().includes("Successfully") ||
           response?.status === 200
@@ -368,7 +375,12 @@ const CreateEventPage = () => {
   const steps = useMemo(
     () => [
       {
-        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EVENT_INFO_STEP_TITLE" defaultMessage="Event Information" />),
+        title: (
+          <FormattedMessage
+            id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EVENT_INFO_STEP_TITLE"
+            defaultMessage="Event Information"
+          />
+        ),
         content: (
           <EventBasicInfoStep
             formData={formData}
@@ -380,7 +392,12 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-calendar"></i>,
       },
       {
-        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CLIENT_DETAILS_STEP_TITLE" defaultMessage="Client Details" />),
+        title: (
+          <FormattedMessage
+            id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CLIENT_DETAILS_STEP_TITLE"
+            defaultMessage="Client Details"
+          />
+        ),
         content: (
           <ClientDetailsStep
             formData={formData}
@@ -393,7 +410,12 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-security-user" />,
       },
       {
-        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_FUNCTIONS_STEP_TITLE" defaultMessage="Functions" />),
+        title: (
+          <FormattedMessage
+            id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_FUNCTIONS_STEP_TITLE"
+            defaultMessage="Functions"
+          />
+        ),
         content: (
           <FunctionsDetails
             formData={formData}
@@ -407,7 +429,12 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-setting-4" />,
       },
       {
-        title: (<FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_OTHER_DETAILS_STEP_TITLE" defaultMessage="Other Details" />),
+        title: (
+          <FormattedMessage
+            id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_OTHER_DETAILS_STEP_TITLE"
+            defaultMessage="Other Details"
+          />
+        ),
         content: (
           <OtherInfoStep
             formData={formData}
@@ -423,7 +450,22 @@ const CreateEventPage = () => {
   );
 
   const breadcrumbItems = useMemo(
-    () => [{ title: mode === "edit" ? <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON" defaultMessage="Edit Event" /> : <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON" defaultMessage="Create Event" /> }],
+    () => [
+      {
+        title:
+          mode === "edit" ? (
+            <FormattedMessage
+              id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
+              defaultMessage="Edit Event"
+            />
+          ) : (
+            <FormattedMessage
+              id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
+              defaultMessage="Create Event"
+            />
+          ),
+      },
+    ],
     [mode]
   );
 
