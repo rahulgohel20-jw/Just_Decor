@@ -925,3 +925,12 @@ export const UpdateVenueTypeApi = (venueId, data) => {
 export const UpdateVenueStatusApi = (id, status) => {
   return PUT(`/venuemaster/updatestatus?id=${id}&isActive=${status}`);
 };
+
+
+export const TranslateGujarati = (data) => {
+  return POST(`/transliterate/to-gujarati`, data);
+};
+
+export const TranslateHindi = (data) => {
+  return POST(`/transliterate/to-hindi`, data);
+};

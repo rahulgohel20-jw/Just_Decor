@@ -41,6 +41,7 @@ const CreateEventPage = () => {
       eventStartDateTime: "",
       eventEndDateTime: "",
       venueId: "",
+
       eventTypeId: "",
       managerId: "",
       partyId: "",
