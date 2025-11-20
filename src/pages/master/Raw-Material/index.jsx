@@ -21,6 +21,7 @@ const RawMaterial = () => {
   const [tableData, setTableData] = useState(defaultData);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
+  const [rawOriginalData, setRawOriginalData] = useState([]);
 
   useEffect(() => {
     FetchRawMaterial();
@@ -32,35 +33,43 @@ const RawMaterial = () => {
   const FetchRawMaterial = () => {
     GetAllRawMaterial(Id)
       .then((res) => {
-        console.log(
-          "Raw Material Data:",
-          res.data.data["Raw Material Details"]
-        );
-
-        const formatted = res.data.data["Raw Material Details"].map(
-          (raw, index) => ({
-            sr_no: index + 1,
-            raw_material_id: raw.id,
-            raw_material_cat_id: raw.rawMaterialCat.id,
-            raw_material_name: raw.nameEnglish || "-",
-            raw_material_category: raw.rawMaterialCat.nameEnglish,
-            isActive: raw.isActive,
-            unit: raw?.unit?.nameEnglish || "-",
-            unitId: raw.unit?.id,
-            priority: raw.sequence,
-            rate: raw.supplierRate,
-            suppliers: raw.rawMaterialSuppliers,
-            weightPer100Pax: raw.weightPer100Pax,
-            isGeneralFix: raw.isGeneralFix,
-          })
-        );
-
-        setTableData(formatted);
+        const list = res.data.data["Raw Material Details"] || [];
+        setRawOriginalData(list);
       })
       .catch((error) => {
-        console.error("Error deleting customer:", error);
+        console.error("Error fetching raw materials:", error);
       });
   };
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = rawOriginalData.map((raw, index) => ({
+      sr_no: index + 1,
+      raw_material_id: raw.id,
+      raw_material_cat_id: raw.rawMaterialCat?.id,
+      raw_material_name: raw[field] || "-",
+      raw_material_category: raw.rawMaterialCat?.[field] || "-",
+      isActive: raw.isActive,
+      unit: raw.unit?.[field] || "-",
+      unitId: raw.unit?.id,
+      priority: raw.sequence,
+      rate: raw.supplierRate,
+      suppliers: raw.rawMaterialSuppliers,
+      weightPer100Pax: raw.weightPer100Pax,
+      isGeneralFix: raw.isGeneralFix,
+    }));
+
+    setTableData(mapped);
+  }, [rawOriginalData, localStorage.getItem("lang")]);
 
   const DeleteRawMaterial = (raw_material_id) => {
     Swal.fire({
@@ -122,7 +131,7 @@ const RawMaterial = () => {
               {
                 title: (
                   <FormattedMessage
-                    id="COMMON.RAW_MATERIAL_MASTER"
+                    id="USER.MASTER.RAW_MATERIAL_MASTER"
                     defaultMessage="Raw Material Master"
                   />
                 ),

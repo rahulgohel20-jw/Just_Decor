@@ -20,7 +20,7 @@ const RawMaterialMaster = () => {
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
-
+  const [rawOriginalData, setRawOriginalData] = useState([]);
 
   useEffect(() => {
     FetchRawMaterialCategory();
@@ -42,24 +42,38 @@ const RawMaterialMaster = () => {
   const FetchRawMaterialCategory = () => {
     GetRawMaterialcategory(Id)
       .then((res) => {
-        const formatted = res.data.data["Raw Material Category Details"].map(
-          (cust, index) => ({
-            sr_no: index + 1,
-            name: cust.nameEnglish || "-",
-            rawtype: cust.rawMaterialCatType.nameEnglish || "-",
-            priority: cust.sequence || "-",
-            rawCatid: cust.id,
-            status: cust.isActive,
-            isDirect: cust.isDirect,
-          })
-        );
+        const list = res.data.data["Raw Material Category Details"] || [];
 
-        setTableData(formatted);
+        setRawOriginalData(list);
       })
       .catch((error) => {
-        console.error("Error deleting customer:", error);
+        console.error("Error fetching raw material category:", error);
       });
   };
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const selectedField = languageMap[language] || "nameEnglish";
+
+    const mapped = rawOriginalData.map((cust, index) => ({
+      sr_no: index + 1,
+      name: cust[selectedField] || "-",
+      rawtype: cust.rawMaterialCatType[selectedField] || "-",
+      priority: cust.sequence || "-",
+      rawCatid: cust.id,
+      status: cust.isActive,
+      isDirect: cust.isDirect,
+    }));
+
+    setTableData(mapped);
+  }, [rawOriginalData, localStorage.getItem("lang")]);
 
   const statusmenuitem = async (rawCatid, currentStatus) => {
     try {
@@ -116,7 +130,18 @@ const RawMaterialMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.RAW_MATERIAL_CATEGORY" defaultMessage="Raw Material Category Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.RAW_MATERIAL_CATEGORY"
+                    defaultMessage="Raw Material Category Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -125,7 +150,10 @@ const RawMaterialMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "USER.MASTER.RAW_MATERIAL_CATEGORY", defaultMessage: "Raw Material Category" })}
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.RAW_MATERIAL_CATEGORY",
+                  defaultMessage: "Raw Material Category",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -141,7 +169,11 @@ const RawMaterialMaster = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> {intl.formatMessage({ id: "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY", defaultMessage: "Add Raw Material Category" })}
+              <i className="ki-filled ki-plus"></i>{" "}
+              {intl.formatMessage({
+                id: "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY",
+                defaultMessage: "Add Raw Material Category",
+              })}
             </button>
           </div>
         </div>

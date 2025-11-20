@@ -13,13 +13,13 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-
 const MenuKitchenArea = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
+  const [originalData, setOriginalData] = useState([]);
 
   useEffect(() => {
     FetchCategoryData();
@@ -31,7 +31,6 @@ const MenuKitchenArea = () => {
   const FetchCategoryData = async () => {
     try {
       const res = await GetAllKitchenAreaById(Id);
-      console.log("API Raw Response:", res);
 
       let list = Array.isArray(res?.data?.data?.["KitchenAreas Details"])
         ? res.data.data["KitchenAreas Details"]
@@ -43,26 +42,38 @@ const MenuKitchenArea = () => {
         );
       }
 
-      const formatted = list.map((item, index) => ({
-        id: item.id,
-        sr_no: index + 1,
-        category: item.nameEnglish || "-",
-        hindi: item.nameHindi || "-",
-        gujarati: item.nameGujarati || "-",
-        createdAt: item.createdAt,
-        userName: `${item.user?.firstName || ""} ${item.user?.lastName || ""}`,
-        plan: item.user?.plan?.name || "-",
-        role: item.user?.userBasicDetails?.role?.name || "-",
-        isActive: item.isActive ?? item.status ?? false,
-        raw: item,
-      }));
-      setTableData(formatted);
-      console.log("Kitchen area data fetched successfully:", formatted);
+      setOriginalData(list);
     } catch (error) {
       console.error("Error fetching kitchen area:", error);
-      setTableData([]);
+      setOriginalData([]);
     }
   };
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = originalData.map((item, index) => ({
+      id: item.id,
+      sr_no: index + 1,
+      category: item[field] || "-",
+      createdAt: item.createdAt,
+      userName: `${item.user?.firstName || ""} ${item.user?.lastName || ""}`,
+      plan: item.user?.plan?.name || "-",
+      role: item.user?.userBasicDetails?.role?.name || "-",
+      isActive: item.isActive ?? item.status ?? false,
+      raw: item,
+    }));
+
+    setTableData(mapped);
+  }, [originalData, localStorage.getItem("lang")]);
 
   const statusKitchen = async (id, currentStatus) => {
     try {
@@ -117,7 +128,18 @@ const MenuKitchenArea = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="COMMON.KITCHEN_AREA" defaultMessage="Kitchen Area" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="COMMON.KITCHEN_AREA"
+                    defaultMessage="Kitchen Area"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -126,7 +148,10 @@ const MenuKitchenArea = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "COMMON.SEARCH_KITCHEN_AREA", defaultMessage: "Search" })}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.SEARCH_KITCHEN_AREA",
+                  defaultMessage: "Search",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -142,7 +167,11 @@ const MenuKitchenArea = () => {
               }}
               title="Add Kitchen Area"
             >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_KITCHEN_AREA" defaultMessage="Add Kitchen Area" />
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="COMMON.ADD_KITCHEN_AREA"
+                defaultMessage="Add Kitchen Area"
+              />
             </button>
           </div>
         </div>
