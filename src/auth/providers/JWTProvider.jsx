@@ -136,7 +136,7 @@
 //       setCurrentUser(undefined);
 //     } catch (error) {
 //       console.error("Error during logout:", error);
-      
+
 //       // Force logout even if there's an error
 //       localStorage.removeItem("phone");
 //       localStorage.removeItem("userData");
@@ -169,16 +169,7 @@
 
 // export { AuthContext, AuthProvider };
 
-
-
-
-
-
-
-
-
 // Auto Logout
-
 
 /* eslint-disable no-unused-vars */
 import { createContext, useState, useEffect, useRef } from "react";
@@ -201,7 +192,7 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState();
   const inactivityTimerRef = useRef(null);
 
-  const INACTIVITY_LIMIT = 10000 * 60 * 1000; // 10 minutes
+  const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 hour
 
   const saveAuth = (auth) => {
     setAuth(auth);
@@ -270,15 +261,16 @@ const AuthProvider = ({ children }) => {
 
         // ✅ Save auth
         saveAuth(auth);
-        console.log("email fetch",auth.user.email)
+        console.log("email fetch", auth.user.email);
 
         // ✅ Store user data and token
         localStorage.setItem("userData", JSON.stringify(userData));
         localStorage.setItem("userToken", userData.token);
+        localStorage.setItem("lang", "en");
 
         try {
           await LoginOutUser(auth.user.email, "login");
-          message.success("login Successfully")
+          message.success("login Successfully");
         } catch (apiError) {
           console.error("Failed to send login notification:", apiError);
           // Continue with logout even if API call fails
@@ -288,7 +280,7 @@ const AuthProvider = ({ children }) => {
         if (userData.id) {
           localStorage.setItem("userId", userData.id.toString());
         }
-        
+
         setCurrentUser(userData);
 
         startInactivityTimer(); // Start inactivity tracking after login
@@ -325,7 +317,7 @@ const AuthProvider = ({ children }) => {
         try {
           await LoginOutUser(userEmail, "logout");
           console.log("Logout notification sent successfully");
-          message.success("Logout Successfully")
+          message.success("Logout Successfully");
         } catch (apiError) {
           console.error("Failed to send logout notification:", apiError);
           // Continue with logout even if API call fails
@@ -344,7 +336,7 @@ const AuthProvider = ({ children }) => {
       setCurrentUser(undefined);
     } catch (error) {
       console.error("Error during logout:", error);
-      
+
       // Force logout even if there's an error
       localStorage.removeItem("phone");
       localStorage.removeItem("userData");
@@ -360,44 +352,49 @@ const AuthProvider = ({ children }) => {
   // 🔸 Inactivity Timer Logic
   // -------------------------------
   const resetInactivityTimer = () => {
-  clearTimeout(inactivityTimerRef.current);
+    clearTimeout(inactivityTimerRef.current);
 
-  inactivityTimerRef.current = setTimeout(async () => {
-    console.warn("Auto logout due to inactivity");
+    inactivityTimerRef.current = setTimeout(async () => {
+      console.warn("Auto logout due to inactivity");
 
-    try {
-      // Get user email before logout
-      const storedUserData = localStorage.getItem("userData");
-      let userEmail = currentUser?.email;
+      try {
+        // Get user email before logout
+        const storedUserData = localStorage.getItem("userData");
+        let userEmail = currentUser?.email;
 
-      if (!userEmail && storedUserData) {
-        const userData = JSON.parse(storedUserData);
-        userEmail = userData.email;
-      }
-
-      if (userEmail) {
-        try {
-          // 👇 Call the API before logging out
-          await LoginOutUser(userEmail, "auto-logout");
-        } catch (apiError) {
-          console.error("Failed to send auto-logout notification:", apiError);
+        if (!userEmail && storedUserData) {
+          const userData = JSON.parse(storedUserData);
+          userEmail = userData.email;
         }
+
+        if (userEmail) {
+          try {
+            // 👇 Call the API before logging out
+            await LoginOutUser(userEmail, "auto-logout");
+          } catch (apiError) {
+            console.error("Failed to send auto-logout notification:", apiError);
+          }
+        }
+
+        // ✅ Proceed with regular logout cleanup
+        logout();
+      } catch (err) {
+        console.error("Error during auto logout:", err);
+        logout(); // Force logout anyway
       }
-
-      // ✅ Proceed with regular logout cleanup
-      logout();
-    } catch (err) {
-      console.error("Error during auto logout:", err);
-      logout(); // Force logout anyway
-    }
-  }, INACTIVITY_LIMIT);
-};
-
+    }, INACTIVITY_LIMIT);
+  };
 
   const startInactivityTimer = () => {
     resetInactivityTimer();
 
-    const activityEvents = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    const activityEvents = [
+      "mousemove",
+      "keydown",
+      "click",
+      "scroll",
+      "touchstart",
+    ];
 
     const handleUserActivity = () => {
       resetInactivityTimer();
