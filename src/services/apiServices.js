@@ -902,3 +902,12 @@ export const UpdateMemberById = (id, data) => {
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
 };
+
+
+export const TranslateGujarati = (data) => {
+  return POST(`/transliterate/to-gujarati`, data);
+};
+
+export const TranslateHindi = (data) => {
+  return POST(`/transliterate/to-hindi`, data);
+};
