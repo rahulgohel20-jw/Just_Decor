@@ -304,30 +304,30 @@ const allMenuItems = [
       },
     ],
   },
-  {
-    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
-    icon: "ki-duotone ki-document text-primary",
-    children: [
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.DATE_WISE_REPORTS"
-            defaultMessage="Date Wise Reports"
-          />
-        ),
-        path: "/report-datewise",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.REPORT_CONFIGURATION"
-            defaultMessage="Report Configuration"
-          />
-        ),
-        path: "/report-congiguration",
-      },
-    ],
-  },
+  // {
+  //   title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
+  //   icon: "ki-duotone ki-document text-primary",
+  //   children: [
+  //     {
+  //       title: (
+  //         <FormattedMessage
+  //           id="COMMON.DATE_WISE_REPORTS"
+  //           defaultMessage="Date Wise Reports"
+  //         />
+  //       ),
+  //       path: "/report-datewise",
+  //     },
+  //     {
+  //       title: (
+  //         <FormattedMessage
+  //           id="COMMON.REPORT_CONFIGURATION"
+  //           defaultMessage="Report Configuration"
+  //         />
+  //       ),
+  //       path: "/report-congiguration",
+  //     },
+  //   ],
+  // },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "ki-filled ki-graph-up text-primary",
@@ -346,16 +346,16 @@ const allMenuItems = [
       },
     ],
   },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Custom Themes"
-      />
-    ),
-    icon: "ki-duotone ki-dropbox text-primary",
-    path: "/reportcustomethemes",
-  },
+  // {
+  //   title: (
+  //     <FormattedMessage
+  //       id="COMMON.CUSTOM_THEMES"
+  //       defaultMessage="Custom Themes"
+  //     />
+  //   ),
+  //   icon: "ki-duotone ki-dropbox text-primary",
+  //   path: "/reportcustomethemes",
+  // },
   {
     title: "Settings",
     icon: "ki-filled ki-setting-2 text-primary",
@@ -379,15 +379,15 @@ const allMenuItems = [
         ),
         path: "/user-rights",
       },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.UTILITY_PAGE"
-            defaultMessage="Utility Page"
-          />
-        ),
-        path: "settings/utility",
-      },
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.UTILITY_PAGE"
+      //       defaultMessage="Utility Page"
+      //     />
+      //   ),
+      //   path: "settings/utility",
+      // },
       {
         title: (
           <FormattedMessage
@@ -406,15 +406,15 @@ const allMenuItems = [
         ),
         path: "settings/channel",
       },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.NOTIFICATIONS"
-            defaultMessage="Notifications"
-          />
-        ),
-        path: "settings/notifications",
-      },
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.NOTIFICATIONS"
+      //       defaultMessage="Notifications"
+      //     />
+      //   ),
+      //   path: "settings/notifications",
+      // },
     ],
   },
 ];
