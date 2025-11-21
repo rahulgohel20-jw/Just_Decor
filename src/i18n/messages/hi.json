@@ -718,5 +718,7 @@
 
   "BREADCRUMBS_CUSTOM_PACKAGE": "कस्टम पैकेज",
   "BREADCRUMBS_CREATE_NEW": "नया बनाएं",
-  "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स"
+  "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स",
+  "COMMON.VENUE_TYPE": "वेन्‍यू टाइप"
+
 }

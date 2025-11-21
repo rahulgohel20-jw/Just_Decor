@@ -14,21 +14,65 @@ import AddContactCategory from "@/partials/modals/add-contact-category/AddContac
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-
-
 const ContactCategoryMaster = () => {
   const classes = useStyle();
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedconatctCategory, setSelectedconatctCategory] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
   const intl = useIntl();
 
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData?.id;
+
+  // --------------------------
+  // 1️⃣ FETCH API DATA (original)
+  // --------------------------
+  const FetchConatctCategory = () => {
+    GetAllContactCategory(Id)
+      .then((res) => {
+        const list = res.data.data["Contact Category Details"] || [];
+        setOriginalData(list); // 🔥 Save original API data
+      })
+      .catch((error) => console.error("Error fetching:", error));
+  };
 
   useEffect(() => {
     FetchConatctCategory();
   }, []);
 
+  // --------------------------
+  // 2️⃣ MAP DATA BASED ON LANGUAGE
+  // --------------------------
+  useEffect(() => {
+    const lang = localStorage.getItem("lang") || "en";
+
+    const nameField = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    }[lang];
+
+    const mapped = originalData.map((cust, index) => ({
+      sr_no: index + 1,
+      contact_name: cust[nameField] || cust.nameEnglish || "-",
+      contactid: cust.id,
+      sequence: cust.sequence || "-",
+      contcatTypeId:
+        cust.contactType?.[
+          "name" +
+            (lang === "hi" ? "Hindi" : lang === "gu" ? "Gujarati" : "English")
+        ] || "-",
+    }));
+
+    setTableData(mapped);
+  }, [originalData, localStorage.getItem("lang")]);
+
+  // --------------------------
+  // 3️⃣ SEARCH FUNCTIONALITY
+  // --------------------------
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
@@ -38,11 +82,18 @@ const ContactCategoryMaster = () => {
 
       SearchContactCategory(searchQuery, Id)
         .then(({ data: { data } }) => {
+          const lang = localStorage.getItem("lang") || "en";
+          const nameField = {
+            en: "nameEnglish",
+            hi: "nameHindi",
+            gu: "nameGujarati",
+          }[lang];
+
           if (data && data["Contact Category Details"]) {
             const formatted = data["Contact Category Details"].map(
               (cust, index) => ({
                 sr_no: index + 1,
-                contact_name: cust.nameEnglish || "-",
+                contact_name: cust[nameField] || cust.nameEnglish || "-",
                 contactid: cust.id,
               })
             );
@@ -51,40 +102,19 @@ const ContactCategoryMaster = () => {
             setTableData([]);
           }
         })
-        .catch((error) => {
-          console.error("Error searching customer:", error);
-        });
+        .catch((error) => console.error("Error searching:", error));
     }, 500);
 
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchConatctCategory = () => {
-    GetAllContactCategory(Id)
-      .then((res) => {
-        const formatted = res.data.data["Contact Category Details"].map(
-          (cust, index) => ({
-            sr_no: index + 1,
-            contact_name: cust.nameEnglish || "-",
-            contactid: cust.id,
-            sequence: cust.sequence || "-",
-            contcatTypeId: cust.contactType.nameEnglish || "-",
-          })
-        );
-
-        setTableData(formatted);
-      })
-      .catch((error) => {
-        console.error("Error deleting customer:", error);
-      });
-  };
-
+  // --------------------------
+  // 4️⃣ DELETE ENTRY
+  // --------------------------
   const DeleteEventtype = (contactid) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "You won’t be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -99,7 +129,7 @@ const ContactCategoryMaster = () => {
               FetchConatctCategory();
               Swal.fire({
                 title: "Removed!",
-                text: "Contact category has been removed successfully.",
+                text: "Contact category deleted successfully.",
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false,
@@ -108,15 +138,16 @@ const ContactCategoryMaster = () => {
               throw new Error(response?.message || "API call failed");
             }
           })
-          .catch((error) => {
-            console.error("Error deleting Event type:", error);
-          });
+          .catch((error) => console.error("Delete error:", error));
       }
     });
   };
 
-  const handleEdit = (event) => {
-    setSelectedconatctCategory(event);
+  // --------------------------
+  // 5️⃣ EDIT HANDLER
+  // --------------------------
+  const handleEdit = (item) => {
+    setSelectedconatctCategory(item);
     setIsContactModalOpen(true);
   };
 
@@ -125,9 +156,21 @@ const ContactCategoryMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY_MASTER" defaultMessage="Contact Category Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.CONTACT_CATEGORY_MASTER"
+                    defaultMessage="Contact Category Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
-        {/* filters */}
+
+        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
             className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
@@ -146,22 +189,30 @@ const ContactCategoryMaster = () => {
               />
             </div>
           </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
               onClick={() => setIsContactModalOpen(true)}
-              title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_CONTACT_CATEGORY" defaultMessage="Add Contact Category" />
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
+                defaultMessage="Add Contact Category"
+              />
             </button>
           </div>
         </div>
+
+        {/* Modal */}
         <AddContactCategory
           isOpen={isconatctModalOpen}
           onClose={setIsContactModalOpen}
           refreshData={FetchConatctCategory}
           contactCategory={selectedconatctCategory}
         />
+
+        {/* Table */}
         <TableComponent
           columns={columns(handleEdit, DeleteEventtype)}
           data={tableData}
@@ -171,4 +222,5 @@ const ContactCategoryMaster = () => {
     </Fragment>
   );
 };
+
 export default ContactCategoryMaster;

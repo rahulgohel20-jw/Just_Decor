@@ -20,6 +20,26 @@ const VenueTypeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
+  // 🔥 Load language and set up listener for changes
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  // 🔥 Listen for language changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      setLang(newLang);
+    };
+
+    // Listen for custom language change events
+    window.addEventListener("languageChanged", handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("languageChanged", handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   const userId = useMemo(() => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -30,6 +50,20 @@ const VenueTypeMaster = () => {
     }
   }, []);
 
+  // 🔥 Helper to get venue type name based on language
+  const getVenueTypeByLang = (venue) => {
+    if (!venue) return "-";
+
+    switch (lang) {
+      case "hi":
+        return venue.nameHindi || venue.nameEnglish || "-";
+      case "gu":
+        return venue.nameGujarati || venue.nameEnglish || "-";
+      default:
+        return venue.nameEnglish || "-";
+    }
+  };
+
   const fetchVenueTypes = async () => {
     if (!userId) return;
 
@@ -39,10 +73,14 @@ const VenueTypeMaster = () => {
         const formatted = res?.data?.data["Venue Details"].map(
           (item, index) => ({
             sr_no: index + 1,
-            venue_type: item.nameEnglish || "-",
+            venue_type: getVenueTypeByLang(item), // 🔥 Language-based name
             venueid: item.id,
             isDelete: item.isDelete ?? false,
             isActive: item.isActive ?? false,
+            // Store all language versions for editing
+            nameEnglish: item.nameEnglish,
+            nameHindi: item.nameHindi,
+            nameGujarati: item.nameGujarati,
           })
         );
 
@@ -56,9 +94,10 @@ const VenueTypeMaster = () => {
     }
   };
 
+  // ✅ Initial load - fetch all (re-fetch when language changes)
   useEffect(() => {
     if (userId) fetchVenueTypes();
-  }, [userId]);
+  }, [userId, lang]); // 🔥 Re-fetch when language changes
 
   const handleEdit = (venue) => {
     setSelectedVenue(venue);
@@ -69,6 +108,7 @@ const VenueTypeMaster = () => {
     setSelectedVenue(null);
     setIsModalOpen(true);
   };
+
   const handleStatusChange = async (id, currentStatus) => {
     const newStatus = !currentStatus;
 
@@ -76,42 +116,129 @@ const VenueTypeMaster = () => {
       const res = await UpdateVenueStatusApi(id, newStatus);
 
       if (res.data?.success) {
-        Swal.fire("Success", "Status updated successfully", "success");
+        Swal.fire(
+          intl.formatMessage({
+            id: "USER.MASTER.SUCCESS",
+            defaultMessage: "Success",
+          }),
+          intl.formatMessage({
+            id: "USER.MASTER.STATUS_UPDATE_SUCCESS",
+            defaultMessage: "Status updated successfully",
+          }),
+          "success"
+        );
         fetchVenueTypes();
       } else {
-        Swal.fire("Error", res?.data?.message || "Failed to update", "error");
+        Swal.fire(
+          intl.formatMessage({
+            id: "USER.MASTER.ERROR",
+            defaultMessage: "Error",
+          }),
+          res?.data?.message ||
+            intl.formatMessage({
+              id: "USER.MASTER.UPDATE_FAILED",
+              defaultMessage: "Failed to update",
+            }),
+          "error"
+        );
       }
     } catch (err) {
-      Swal.fire("Error", "Something went wrong", "error");
+      Swal.fire(
+        intl.formatMessage({
+          id: "USER.MASTER.ERROR",
+          defaultMessage: "Error",
+        }),
+        intl.formatMessage({
+          id: "USER.MASTER.SOMETHING_WRONG",
+          defaultMessage: "Something went wrong",
+        }),
+        "error"
+      );
     }
   };
 
   const handleDelete = (venue) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: `Delete venue "${venue.venue_type}"?`,
+      title: intl.formatMessage({
+        id: "USER.MASTER.DELETE_CONFIRM_TITLE",
+        defaultMessage: "Are you sure?",
+      }),
+      text: intl.formatMessage(
+        {
+          id: "USER.MASTER.DELETE_VENUE_CONFIRM_TEXT",
+          defaultMessage: 'Delete venue "{venueName}"?',
+        },
+        { venueName: venue.venue_type }
+      ),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: intl.formatMessage({
+        id: "USER.MASTER.DELETE_CONFIRM_BUTTON",
+        defaultMessage: "Yes, delete it!",
+      }),
+      cancelButtonText: intl.formatMessage({
+        id: "USER.MASTER.CANCEL_BUTTON",
+        defaultMessage: "Cancel",
+      }),
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await DeleteVenueTypeApi(venue.venueid);
           if (res.data?.success) {
-            Swal.fire("Deleted!", "Venue type has been deleted.", "success");
+            Swal.fire(
+              intl.formatMessage({
+                id: "USER.MASTER.DELETE_SUCCESS_TITLE",
+                defaultMessage: "Deleted!",
+              }),
+              intl.formatMessage({
+                id: "USER.MASTER.VENUE_DELETE_SUCCESS",
+                defaultMessage: "Venue type has been deleted.",
+              }),
+              "success"
+            );
             fetchVenueTypes();
           } else {
-            Swal.fire("Failed", res.data.msg || "Could not delete", "error");
+            Swal.fire(
+              intl.formatMessage({
+                id: "USER.MASTER.FAILED",
+                defaultMessage: "Failed",
+              }),
+              res.data.msg ||
+                intl.formatMessage({
+                  id: "USER.MASTER.DELETE_FAILED",
+                  defaultMessage: "Could not delete",
+                }),
+              "error"
+            );
           }
         } catch (err) {
           console.error("Delete error:", err);
-          Swal.fire("Error", "Something went wrong while deleting.", "error");
+          Swal.fire(
+            intl.formatMessage({
+              id: "USER.MASTER.ERROR",
+              defaultMessage: "Error",
+            }),
+            intl.formatMessage({
+              id: "USER.MASTER.DELETE_ERROR",
+              defaultMessage: "Something went wrong while deleting.",
+            }),
+            "error"
+          );
         }
       }
     });
   };
+
+  // 🔥 Filter table data based on search query
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return tableData;
+
+    return tableData.filter((item) =>
+      item.venue_type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [tableData, searchQuery]);
 
   return (
     <Fragment>
@@ -172,7 +299,7 @@ const VenueTypeMaster = () => {
         {/* Table */}
         <TableComponent
           columns={columns(handleEdit, handleDelete, handleStatusChange)}
-          data={tableData || []}
+          data={filteredData || []}
           paginationSize={10}
         />
       </Container>

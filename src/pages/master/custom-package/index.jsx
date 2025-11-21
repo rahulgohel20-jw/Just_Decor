@@ -6,6 +6,8 @@ import { columns } from "../custom-package/constant";
 import useStyle from "./style";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
+import { useIntl } from "react-intl";
 import {
   GetCustomPackageapi,
   DeleteCustomPackageapi,
@@ -15,8 +17,45 @@ import {
 const CustomPackageMaster = () => {
   const classes = useStyle();
   const navigate = useNavigate();
+  const intl = useIntl();
   const [tableData, setTableData] = useState([]);
+  const [originalData, setOriginalData] = useState([]); // Store raw API data
   const [searchQuery, setSearchQuery] = useState("");
+
+  // --------------------------
+  // 🔥 Get translated field
+  // --------------------------
+  const getTranslatedName = (item) => {
+    switch (intl.locale) {
+      case "hi":
+        return item.nameHindi || item.nameEnglish || "-";
+      case "gu":
+        return item.nameGujarati || item.nameEnglish || "-";
+      default:
+        return item.nameEnglish || "-";
+    }
+  };
+
+  // Helper function to format package data
+  const formatPackageData = (packages) => {
+    return packages.map((pkg, index) => {
+      const totalItemsCount =
+        pkg.customPackageDetails?.reduce((sum, menu) => {
+          return sum + (menu.customPackageMenuItemDetails?.length || 0);
+        }, 0) || 0;
+
+      return {
+        sr_no: index + 1,
+        packageid: pkg.id,
+        package_name: getTranslatedName(pkg), // ← 🔥 Auto Translated
+        price: pkg.price,
+        total_items: totalItemsCount,
+        sequence: pkg.sequence,
+        isActive: pkg.isActive,
+        raw: pkg,
+      };
+    });
+  };
 
   const fetchPackages = async () => {
     try {
@@ -27,37 +66,16 @@ const CustomPackageMaster = () => {
       }
 
       const res = await GetCustomPackageapi(userData.id);
-
       const allPackages = res?.data?.data?.["Package Details"] || [];
 
-      console.log(
-        "📦 All package IDs from DB:",
-        allPackages.map((pkg) => pkg.id)
-      );
+      console.log("📦 Fetched packages:", allPackages);
 
-      if (allPackages.length > 0) {
-        const formatted = allPackages.map((pkg, index) => {
-          const totalItemsCount =
-            pkg.customPackageDetails?.reduce((sum, menu) => {
-              return sum + (menu.customPackageMenuItemDetails?.length || 0);
-            }, 0) || 0;
+      // Store raw API data
+      setOriginalData(allPackages);
 
-          return {
-            sr_no: index + 1,
-            packageid: pkg.id,
-            package_name: pkg.nameEnglish,
-            price: pkg.price,
-            total_items: totalItemsCount, // <- correct total items
-            sequence: pkg.sequence,
-            isActive: pkg.isActive,
-            raw: pkg,
-          };
-        });
-
-        setTableData(formatted);
-      } else {
-        setTableData([]);
-      }
+      // Format with current language
+      const formatted = formatPackageData(allPackages);
+      setTableData(formatted);
     } catch (err) {
       console.error("Failed to fetch packages:", err);
       Swal.fire("Error", "Failed to fetch package data.", "error");
@@ -68,54 +86,74 @@ const CustomPackageMaster = () => {
     fetchPackages();
   }, []);
 
+  // --------------------------
+  // 🔥 Re-translate when language changes
+  // --------------------------
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      fetchPackages();
-    } else {
-      setTableData((prev) =>
-        prev.filter((pkg) =>
-          pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
+    console.log("🌍 Language changed to:", intl.locale);
+    if (originalData.length > 0) {
+      const formatted = formatPackageData(originalData);
+      setTableData(formatted);
     }
-  }, [searchQuery]);
+  }, [intl.locale]);
+
+  // --------------------------
+  // Search with Debounce
+  // --------------------------
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (!searchQuery.trim()) {
+        // Re-format with current language when clearing search
+        const formatted = formatPackageData(originalData);
+        setTableData(formatted);
+        return;
+      }
+
+      const filtered = originalData.filter((pkg) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          (pkg.nameEnglish &&
+            pkg.nameEnglish.toLowerCase().includes(searchLower)) ||
+          (pkg.nameHindi &&
+            pkg.nameHindi.toLowerCase().includes(searchLower)) ||
+          (pkg.nameGujarati &&
+            pkg.nameGujarati.toLowerCase().includes(searchLower))
+        );
+      });
+
+      const formatted = formatPackageData(filtered);
+      setTableData(formatted);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, originalData, intl.locale]);
 
   const deletePackage = async (packageid) => {
-    // Debug: Check what we're trying to delete
     console.log("=== DELETE DEBUG ===");
     console.log("Package ID to delete:", packageid);
-    console.log("Type of packageid:", typeof packageid);
-    console.log("Current tableData:", tableData);
 
     Swal.fire({
       title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this package!",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          console.log("Calling API with ID:", packageid);
-
-          // Call the delete API
           const response = await DeleteCustomPackageapi(packageid);
 
-          console.log("Full delete response:", response);
-
-          if (response?.data?.success) {
-            // Remove from local state
-            const updated = tableData.filter(
-              (pkg) => pkg.packageid !== packageid
-            );
-            setTableData(updated);
-
+          if (
+            response?.data?.success ||
+            response?.success ||
+            response?.status === 200
+          ) {
             Swal.fire({
               title: "Deleted!",
-              text:
-                response?.data?.msg || "Custom package removed successfully.",
+              text: "Custom package removed successfully.",
               icon: "success",
               timer: 1500,
               showConfirmButton: false,
@@ -124,23 +162,18 @@ const CustomPackageMaster = () => {
             // Refresh the data
             await fetchPackages();
           } else {
-            // Show the actual error message from API
             Swal.fire({
               title: "Delete Failed",
-              text:
-                response?.data?.msg ||
-                "Failed to delete package. Please check if the package exists.",
+              text: response?.data?.msg || "Failed to delete package.",
               icon: "error",
             });
           }
         } catch (error) {
           console.error("Delete error:", error);
-          console.error("Error response:", error?.response);
           Swal.fire({
             title: "Error",
             text:
-              error?.response?.data?.msg ||
-              "An error occurred while deleting the package.",
+              error?.response?.data?.msg || "An error occurred while deleting.",
             icon: "error",
           });
         }
@@ -153,16 +186,19 @@ const CustomPackageMaster = () => {
     navigate(`/master/custom-package/addpackage?id=${id}`);
   };
 
-  // Move this outside fetchPackages
   const statusHandler = async (packageid, isActive) => {
     try {
       const response = await UpdateCustomPackageStatusapi(packageid, isActive);
-      console.log("Status update response:", response);
 
       if (response?.data?.success) {
-        // Refetch packages to get the latest data from backend
         await fetchPackages();
-        Swal.fire("Updated!", "Status updated successfully", "success");
+        Swal.fire({
+          title: "Updated!",
+          text: "Status updated successfully",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
         throw new Error(response?.data?.msg || "Failed to update status");
       }
@@ -170,7 +206,7 @@ const CustomPackageMaster = () => {
       console.error("Status update error:", error);
       Swal.fire("Error", error.message || "Failed to update status", "error");
 
-      // Optionally revert toggle on failure
+      // Revert toggle on failure
       setTableData((prev) =>
         prev.map((pkg) =>
           pkg.packageid === packageid ? { ...pkg, isActive: !isActive } : pkg
@@ -183,7 +219,18 @@ const CustomPackageMaster = () => {
     <Fragment>
       <Container>
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Custom Package Master" }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.CUSTOM_PACKAGE_MASTER"
+                    defaultMessage="Custom Package Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -194,7 +241,10 @@ const CustomPackageMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder="Search Package"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_PACKAGE",
+                  defaultMessage: "Search Package",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,7 +257,11 @@ const CustomPackageMaster = () => {
               onClick={() => navigate("/master/custom-package/addpackage")}
               title="Add Package"
             >
-              <i className="ki-filled ki-plus"></i> Add Package
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="USER.MASTER.ADD_PACKAGE"
+                defaultMessage="Add Package"
+              />
             </button>
           </div>
         </div>
