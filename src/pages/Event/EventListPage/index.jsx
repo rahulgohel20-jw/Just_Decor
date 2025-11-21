@@ -8,7 +8,12 @@ import { columns } from "./constant";
 import useStyle from "./style";
 import { Link } from "react-router-dom";
 import { underConstruction } from "@/underConstruction";
-import { GetEventMaster, DeleteEventMaster } from "@/services/apiServices";
+import {
+  GetEventMaster,
+  DeleteEventMaster,
+  TranslateHindi,
+  TranslateGujarati,
+} from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import ViewEventDetail from "../../../partials/modals/view-event-detail/ViewEventDetail";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
@@ -21,73 +26,150 @@ const EventListPage = () => {
   const intl = useIntl();
   const { isRTL } = useLanguage();
 
-  useEffect(() => {
-    FetchEvent();
-  }, []);
-
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [viewEventModal, setViewEventModal] = useState(false);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
-  let userData = JSON.parse(localStorage.getItem("userData"));
   const [allTableData, setAllTableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentLang, setCurrentLang] = useState("");
 
+  let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
 
-  const FetchEvent = () => {
-    GetEventMaster(Id)
-      .then((res) => {
-        const formatted = res.data.data["Event Details"]
+  // Get current language
+  const getCurrentLanguage = () => {
+    const i18nConfig = localStorage.getItem("i18nConfig");
+    if (i18nConfig) {
+      try {
+        const parsedConfig = JSON.parse(i18nConfig);
+        return parsedConfig.code || "en";
+      } catch (e) {
+        return "en";
+      }
+    }
+    return "en";
+  };
+
+  // Fetch events when component mounts
+  useEffect(() => {
+    const lang = getCurrentLanguage();
+    setCurrentLang(lang);
+    FetchEvent();
+  }, []);
+
+  // Re-fetch when language changes
+  useEffect(() => {
+    const checkLanguageChange = setInterval(() => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLang) {
+        console.log("Language changed from", currentLang, "to", newLang);
+        setCurrentLang(newLang);
+        FetchEvent();
+      }
+    }, 500); // Check every 500ms
+
+    return () => clearInterval(checkLanguageChange);
+  }, [currentLang]);
+
+  // Translation helper function
+  const translateText = async (text) => {
+    if (!text) return "";
+
+    const selectedLang = getCurrentLanguage();
+
+    if (selectedLang === "en") {
+      return text;
+    }
+
+    try {
+      switch (selectedLang) {
+        case "hi":
+          const resHindi = await TranslateHindi({ text });
+          return resHindi?.data?.text || resHindi?.data?.translatedText || text;
+
+        case "gu":
+          const resGujarati = await TranslateGujarati({ text });
+          return (
+            resGujarati?.data?.text || resGujarati?.data?.translatedText || text
+          );
+
+        default:
+          return text;
+      }
+    } catch (error) {
+      console.error("Translation error:", error);
+      return text;
+    }
+  };
+
+  const FetchEvent = async () => {
+    try {
+      const res = await GetEventMaster(Id);
+      const eventDetails = res.data.data["Event Details"];
+
+      // Translate all items in parallel
+      const formatted = await Promise.all(
+        eventDetails
           .slice()
           .reverse()
-          .map((cust, index) => ({
-            sr_no: index + 1,
-            eventid: cust.id,
-            event_id: cust.eventNo || "-",
-            event_date:
-              cust.eventStartDateTime.split(" ")[0] +
-              " To " +
-              cust.eventEndDateTime.split(" ")[0],
-            customer: cust.party.nameEnglish,
-            event_type: cust.eventType.nameEnglish,
-            proforma_invoice: (
-              <Tooltip className="cursor-pointer" title="Proforma Invoice">
-                <div
-                  className="flex justify-center items-center w-full"
-                  onClick={underConstruction}
-                >
-                  <FileText className="w-5 h-5 text-primary" />
-                </div>
-              </Tooltip>
-            ),
-            invoice: (
-              <Link to="/invoice-dashboard">
-                <Tooltip className="cursor-pointer" title="Invoice">
-                  <div className="flex justify-center items-center w-full">
-                    <Receipt className="w-5 h-5 text-success" />
-                  </div>
-                </Tooltip>
-              </Link>
-            ),
-            quotation: (
-              <Link to={`/quotation/${cust.id}`}>
-                <Tooltip className="cursor-pointer" title="Quotation">
-                  <div className="flex justify-center items-center w-full">
-                    <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-                  </div>
-                </Tooltip>
-              </Link>
-            ),
-          }));
+          .map(async (cust, index) => {
+            // Translate customer name and event type in parallel
+            const [translatedCustomer, translatedEventType] = await Promise.all(
+              [
+                translateText(cust.party.nameEnglish),
+                translateText(cust.eventType.nameEnglish),
+              ]
+            );
 
-        setAllTableData(formatted);
-        setTableData(formatted);
-      })
-      .catch((error) => {
-        console.error("Error fetching events:", error);
-      });
+            return {
+              sr_no: index + 1,
+              eventid: cust.id,
+              event_id: cust.eventNo || "-",
+              event_date:
+                cust.eventStartDateTime.split(" ")[0] +
+                " To " +
+                cust.eventEndDateTime.split(" ")[0],
+              customer: translatedCustomer, // Translated
+              event_type: translatedEventType, // Translated
+              proforma_invoice: (
+                <Tooltip className="cursor-pointer" title="Proforma Invoice">
+                  <div
+                    className="flex justify-center items-center w-full"
+                    onClick={underConstruction}
+                  >
+                    <FileText className="w-5 h-5 text-primary" />
+                  </div>
+                </Tooltip>
+              ),
+              invoice: (
+                <Link to="/invoice-dashboard">
+                  <Tooltip className="cursor-pointer" title="Invoice">
+                    <div className="flex justify-center items-center w-full">
+                      <Receipt className="w-5 h-5 text-success" />
+                    </div>
+                  </Tooltip>
+                </Link>
+              ),
+              quotation: (
+                <Link to={`/quotation/${cust.id}`}>
+                  <Tooltip className="cursor-pointer" title="Quotation">
+                    <div className="flex justify-center items-center w-full">
+                      <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+                    </div>
+                  </Tooltip>
+                </Link>
+              ),
+            };
+          })
+      );
+
+      setAllTableData(formatted);
+      setTableData(formatted);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
   };
 
   const handleSearch = (e) => {
@@ -155,15 +237,15 @@ const EventListPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs 
+          <Breadcrumbs
             items={[
               {
-                title: intl.formatMessage({ 
-                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT", 
-                  defaultMessage: "Events" 
-                })
-              }
-            ]} 
+                title: intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT",
+                  defaultMessage: "Events",
+                }),
+              },
+            ]}
           />
         </div>
         {/* filters */}
@@ -175,9 +257,9 @@ const EventListPage = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ 
-                  id: "COMMON.SEARCH", 
-                  defaultMessage: "Search..." 
+                placeholder={intl.formatMessage({
+                  id: "COMMON.SEARCH",
+                  defaultMessage: "Search...",
                 })}
                 type="text"
                 value={searchTerm}
@@ -188,11 +270,16 @@ const EventListPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
               <button className="btn btn-primary" title="Add Event">
-                <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON" defaultMessage="Add Event" />
+                <i className="ki-filled ki-plus"></i>{" "}
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
+                  defaultMessage="Add Event"
+                />
               </button>
             </Link>
           </div>
         </div>
+
         <ViewEventDetail
           isModalOpen={viewEventModal}
           setIsModalOpen={setViewEventModal}
@@ -212,4 +299,5 @@ const EventListPage = () => {
     </Fragment>
   );
 };
+
 export default EventListPage;

@@ -717,5 +717,16 @@
 
   "BREADCRUMBS_CUSTOM_PACKAGE": "કસ્ટમ પેકેજ",
   "BREADCRUMBS_CREATE_NEW": "નવું બનાવો",
-  "BREADCRUMBS_USER_RIGHTS": "યુઝર રાઇટ્સ"
+  "BREADCRUMBS_USER_RIGHTS": "યુઝર રાઇટ્સ",
+"COMMON.VENUE_TYPE": "વેન્યુ ટાઇપ"
+,
+
+ "USER.EVENT.CUSTOMER": "કસ્ટમર",
+"USER.EVENT.INVOICE": "ઈન્વૉઈસ",
+"USER.EVENT.QUOTATION": "કોટેશન",
+"USER.EVENT.EVENT_DATE": "ઈવેન્ટ ડેટ",
+"USER.EVENT.EVENT_NAME": "ઈવેન્ટ નામ",
+"USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ"
+
+
 }

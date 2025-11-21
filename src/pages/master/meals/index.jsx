@@ -18,16 +18,58 @@ const MealMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const intl = useIntl();
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const Id = userData.id;
 
+  // --------------------------
+  // 🔥 Get translated field
+  // --------------------------
+  const getTranslatedName = (item) => {
+    switch (intl.locale) {
+      case "hi":
+        return item.nameHindi || item.nameEnglish || "-";
+      case "gu":
+        return item.nameGujarati || item.nameEnglish || "-";
+      default:
+        return item.nameEnglish || "-";
+    }
+  };
 
+  // --------------------------
+  // Fetch All Meals
+  // --------------------------
+  const FetchMealType = () => {
+    GetMealType(Id)
+      .then((res) => {
+        const mealData = res.data?.data?.["MealType Details"] || [];
+
+        const formatted = mealData.map((item, index) => ({
+          sr_no: index + 1,
+          meal_type: getTranslatedName(item), // ← 🔥 Auto Translated
+          mealid: item.id,
+        }));
+
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error fetching meal types:", error);
+      });
+  };
+
+  // --------------------------
+  // Initial Load
+  // --------------------------
   useEffect(() => {
     FetchMealType();
   }, []);
 
+  // --------------------------
+  // Search with Debounce
+  // --------------------------
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
@@ -37,45 +79,27 @@ const MealMaster = () => {
 
       SearchMealtype(searchQuery, Id)
         .then(({ data: { data } }) => {
-          if (data && data["MealType Details"]) {
-            const formatted = data["MealType Details"].map((cust, index) => ({
-              sr_no: index + 1,
-              meal_type: cust.nameEnglish || "-",
-              mealid: cust.id,
-            }));
-            setTableData(formatted);
-          } else {
-            setTableData([]);
-          }
+          const mealData = data?.["MealType Details"] || [];
+
+          const formatted = mealData.map((item, index) => ({
+            sr_no: index + 1,
+            meal_type: getTranslatedName(item), // ← 🔥 Auto Translated
+            mealid: item.id,
+          }));
+
+          setTableData(formatted);
         })
         .catch((error) => {
-          console.error("Error searching customer:", error);
+          console.error("Error searching meal:", error);
         });
     }, 500);
 
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchMealType = () => {
-    GetMealType(Id)
-      .then((res) => {
-        const formatted = res.data.data["MealType Details"].map(
-          (cust, index) => ({
-            sr_no: index + 1,
-            meal_type: cust.nameEnglish || "-",
-            mealid: cust.id,
-          })
-        );
-
-        setTableData(formatted);
-      })
-      .catch((error) => {
-        console.error("Error deleting customer:", error);
-      });
-  };
-
+  // --------------------------
+  // Delete Meal
+  // --------------------------
   const DeleteMealtype = (mealid) => {
     Swal.fire({
       title: "Are you sure?",
@@ -104,7 +128,7 @@ const MealMaster = () => {
             }
           })
           .catch((error) => {
-            console.error("Error deleting customer:", error);
+            console.error("Error deleting meal:", error);
           });
       }
     });
@@ -120,9 +144,21 @@ const MealMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.MEAL_MASTER" defaultMessage="Meals Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.MEAL_MASTER"
+                    defaultMessage="Meals Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
-        {/* filters */}
+
+        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
             className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
@@ -131,13 +167,17 @@ const MealMaster = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "USER.MASTER.SEARCH_MEAL", defaultMessage: "Search Meal" })}
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_MEAL",
+                  defaultMessage: "Search Meal",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
@@ -145,18 +185,25 @@ const MealMaster = () => {
                 setSelectedMeal(null);
                 setIsMemberModalOpen(true);
               }}
-              title={<FormattedMessage id="USER.MASTER.ADD_MEAL" defaultMessage="Add Meal" />}
             >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_MEAL" defaultMessage="Add Meal" />
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="USER.MASTER.ADD_MEAL"
+                defaultMessage="Add Meal"
+              />
             </button>
           </div>
         </div>
+
+        {/* Add/Edit Modal */}
         <AddMeal
           isOpen={isMemberModalOpen}
           onClose={setIsMemberModalOpen}
           refreshData={FetchMealType}
           selectedMeal={selectedMeal}
         />
+
+        {/* Table */}
         <TableComponent
           columns={columns(handleEdit, DeleteMealtype)}
           data={tableData}
@@ -166,4 +213,5 @@ const MealMaster = () => {
     </Fragment>
   );
 };
+
 export default MealMaster;

@@ -18,25 +18,68 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-
 const FunctionsMaster = () => {
   const classes = useStyle();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [selectedFunction, setSelectedFunction] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ state for search
+  const [searchTerm, setSearchTerm] = useState("");
 
   const intl = useIntl();
+
+  // 🔥 Load language and set up listener for changes
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  // 🔥 Listen for language changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      setLang(newLang);
+    };
+
+    // Listen for custom language change events
+    window.addEventListener("languageChanged", handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("languageChanged", handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  // 🔥 Helper to get function name based on language
+  const getFunctionNameByLang = (item) => {
+    if (!item) return "-";
+
+    switch (lang) {
+      case "hi":
+        return item.nameHindi || item.nameEnglish || "-";
+      case "gu":
+        return item.nameGujarati || item.nameEnglish || "-";
+      default:
+        return item.nameEnglish || "-";
+    }
+  };
 
   const formatData = (apiData) =>
     apiData.map((item, index) => ({
       sr_no: index + 1,
       id: item.id,
-      function_name: item.nameEnglish,
+      function_name: getFunctionNameByLang(item), // 🔥 Language-based name
       start_time: item.startTime,
       end_time: item.endTime,
+      // Store all language versions for editing
+      nameEnglish: item.nameEnglish,
+      nameHindi: item.nameHindi,
+      nameGujarati: item.nameGujarati,
       proforma_invoice: (
-        <Tooltip className="cursor-pointer" title="Proforma Invoice">
+        <Tooltip
+          className="cursor-pointer"
+          title={intl.formatMessage({
+            id: "USER.MASTER.PROFORMA_INVOICE",
+            defaultMessage: "Proforma Invoice",
+          })}
+        >
           <div
             className="flex justify-center items-center w-full"
             onClick={underConstruction}
@@ -47,7 +90,13 @@ const FunctionsMaster = () => {
       ),
       invoice: (
         <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
+          <Tooltip
+            className="cursor-pointer"
+            title={intl.formatMessage({
+              id: "USER.MASTER.INVOICE",
+              defaultMessage: "Invoice",
+            })}
+          >
             <div className="flex justify-center items-center w-full">
               <Receipt className="w-5 h-5 text-success" />
             </div>
@@ -56,7 +105,13 @@ const FunctionsMaster = () => {
       ),
       quotation: (
         <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
+          <Tooltip
+            className="cursor-pointer"
+            title={intl.formatMessage({
+              id: "USER.MASTER.QUOTATION",
+              defaultMessage: "Quotation",
+            })}
+          >
             <div className="flex justify-center items-center w-full">
               <BadgeDollarSign className="w-5 h-5 text-blue-600" />
             </div>
@@ -76,32 +131,37 @@ const FunctionsMaster = () => {
         if (res?.data?.data?.["Function Details"]) {
           setTableData(formatData(res.data.data["Function Details"]));
         } else {
-          setTableData([]); // if no result
+          setTableData([]);
         }
       })
-      .catch((err) => console.error("Error fetching functions:", err));
+      .catch((err) => {
+        console.error("Error fetching functions:", err);
+        setTableData([]);
+      });
   };
 
-  // ✅ Initial load - fetch all
+  // ✅ Initial load - fetch all (re-fetch when language changes)
   useEffect(() => {
-    fetchFunctions();
-  }, []);
+    fetchFunctions(searchTerm);
+  }, [lang]); // 🔥 Re-fetch when language changes
 
   // ✅ Debounced search (auto search after typing stops)
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchFunctions(searchTerm);
-    }, 500); // waits 500ms after user stops typing
+    }, 500);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
+  }, [searchTerm]); // Don't include lang here to avoid duplicate calls
+
   const handleModalClose = () => {
     setIsMemberModalOpen(false);
-    setSelectedFunction(null); // Clear selected function
+    setSelectedFunction(null);
   };
+
   const handleSuccess = () => {
-    fetchFunctions(); // Refresh the table data
-    handleModalClose(); // Close modal and clear selection
+    fetchFunctions(searchTerm);
+    handleModalClose();
   };
 
   const handleEdit = (func) => {
@@ -111,23 +171,41 @@ const FunctionsMaster = () => {
 
   const handleDelete = (functionId) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: intl.formatMessage({
+        id: "USER.MASTER.DELETE_CONFIRM_TITLE",
+        defaultMessage: "Are you sure?",
+      }),
+      text: intl.formatMessage({
+        id: "USER.MASTER.DELETE_CONFIRM_TEXT",
+        defaultMessage: "You won't be able to revert this!",
+      }),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
+      confirmButtonText: intl.formatMessage({
+        id: "USER.MASTER.DELETE_CONFIRM_BUTTON",
+        defaultMessage: "Yes, delete it!",
+      }),
+      cancelButtonText: intl.formatMessage({
+        id: "USER.MASTER.CANCEL_BUTTON",
+        defaultMessage: "Cancel",
+      }),
     }).then((result) => {
       if (result.isConfirmed) {
         DeleteFunctionType(functionId)
           .then((response) => {
             if (response && (response.success || response.status === 200)) {
-              fetchFunctions();
+              fetchFunctions(searchTerm);
               Swal.fire({
-                title: "Removed!",
-                text: "Function has been removed successfully.",
+                title: intl.formatMessage({
+                  id: "USER.MASTER.DELETE_SUCCESS_TITLE",
+                  defaultMessage: "Removed!",
+                }),
+                text: intl.formatMessage({
+                  id: "USER.MASTER.FUNCTION_DELETE_SUCCESS",
+                  defaultMessage: "Function has been removed successfully.",
+                }),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false,
@@ -148,7 +226,18 @@ const FunctionsMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.FUNCTIONS" defaultMessage="Functions Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.FUNCTIONS"
+                    defaultMessage="Functions Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* filters */}
@@ -166,7 +255,7 @@ const FunctionsMaster = () => {
                 })}
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} // ✅ triggers auto search
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -178,9 +267,16 @@ const FunctionsMaster = () => {
                 setSelectedFunction(null);
                 setIsMemberModalOpen(true);
               }}
-              title="Add Function"
+              title={intl.formatMessage({
+                id: "USER.MASTER.ADD_FUNCTION",
+                defaultMessage: "Add Function",
+              })}
             >
-              <i className="ki-filled ki-plus"></i><FormattedMessage id="USER.MASTER.ADD_FUNCTION" defaultMessage="Add Function" />
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="USER.MASTER.ADD_FUNCTION"
+                defaultMessage="Add Function"
+              />
             </button>
           </div>
         </div>
