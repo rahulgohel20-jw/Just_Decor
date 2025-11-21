@@ -1,12 +1,12 @@
 import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
 import { useNavigate } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onDelete, viewEvent, openMenuReport) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="#" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -14,7 +14,12 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
   },
   {
     accessorKey: "event_id",
-    header: "Event Code",
+    header: (
+      <FormattedMessage
+        id="USER.EVENT.EVENT_CODE"
+        defaultMessage="Event Code"
+      />
+    ),
     meta: {
       headerClassName: "w-[9%]",
       cellClassName: "w-[9%]",
@@ -22,7 +27,12 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
   },
   {
     accessorKey: "event_type",
-    header: "Event Name",
+    header: (
+      <FormattedMessage
+        id="USER.EVENT.EVENT_NAME"
+        defaultMessage="Event Name"
+      />
+    ),
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",
@@ -30,7 +40,12 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
   },
   {
     accessorKey: "event_date",
-    header: "Event Date & Time",
+    header: (
+      <FormattedMessage
+        id="USER.EVENT.EVENT_DATE"
+        defaultMessage="Event Date & Time"
+      />
+    ),
     meta: {
       headerClassName: "w-[20%]",
       cellClassName: "w-[20%]",
@@ -39,7 +54,9 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
 
   {
     accessorKey: "customer",
-    header: "Customer",
+    header: (
+      <FormattedMessage id="USER.EVENT.CUSTOMER" defaultMessage="Customer" />
+    ),
     meta: {
       headerClassName: "w-[18%]",
       cellClassName: "w-[18%]",
@@ -47,7 +64,9 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
   },
   {
     accessorKey: "invoice",
-    header: "Invoice",
+    header: (
+      <FormattedMessage id="USER.EVENT.INVOICE" defaultMessage="Invoice" />
+    ),
     cell: ({ cell }) => cell.getValue(),
     meta: {
       headerClassName: "w-[6%] text-center",
@@ -56,7 +75,9 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
   },
   {
     accessorKey: "quotation",
-    header: "Quotation",
+    header: (
+      <FormattedMessage id="USER.EVENT.QUOTATION" defaultMessage="Quotation" />
+    ),
     cell: ({ cell }) => cell.getValue(),
     meta: {
       headerClassName: "w-[6%] text-center",
@@ -66,75 +87,110 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
 
   {
     accessorKey: "action",
-    header: "Action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       const navigate = useNavigate();
       return (
         <div className="flex items-center justify-center gap-1">
-          <Tooltip className="cursor-pointer" title="View Event">
+          <Tooltip
+            title={
+              <FormattedMessage id="COMMON.VIEW" defaultMessage="View Event" />
+            }
+          >
             <button
               className="btn btn-sm btn-icon btn-clear"
               onClick={() => viewEvent(row.original.eventid)}
-              title="View"
             >
               <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip>
-          <Tooltip className="cursor-pointer" title="Edit Event">
+
+          <Tooltip
+            title={
+              <FormattedMessage id="COMMON.EDIT" defaultMessage="Edit Event" />
+            }
+          >
             <Link to={`/edit-event/${row.original.eventid}`}>
-              <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+              <button className="btn btn-sm btn-icon btn-clear">
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>
             </Link>
           </Tooltip>
+
           <Popconfirm
-            title="Are you sure to copy this event?"
+            title={
+              <FormattedMessage
+                id="COMMON.COPY_CONFIRM"
+                defaultMessage="Copy this event?"
+              />
+            }
             onConfirm={() =>
               navigate(`/edit-event/${row.original.eventid}/copy`)
             }
-            onCancel={() => console.log("Cancelled")}
-            okText="Yes"
-            cancelText="No"
+            okText={<FormattedMessage id="COMMON.YES" defaultMessage="Yes" />}
+            cancelText={<FormattedMessage id="COMMON.NO" defaultMessage="No" />}
           >
-            <button className="btn btn-sm btn-icon btn-clear" title="Copy">
+            <button className="btn btn-sm btn-icon btn-clear">
               <i className="ki-filled ki-copy text-success"></i>
             </button>
           </Popconfirm>
-          <Tooltip title="Delete Event">
+
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="COMMON.DELETE"
+                defaultMessage="Delete Event"
+              />
+            }
+          >
             <button
               className="btn btn-sm btn-icon btn-clear"
-              title="Remove"
               onClick={() => onDelete(row.original.eventid)}
             >
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
 
-          <Tooltip title="Menu Preparation">
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.EVENT.MENU_PREP"
+                defaultMessage="Menu Preparation"
+              />
+            }
+          >
             <Link to={`/menu-preparation/${row.original.eventid}`}>
-              <button
-                className="btn btn-sm btn-icon btn-clear"
-                title="Menu Preparation"
-              >
+              <button className="btn btn-sm btn-icon btn-clear">
                 <i className="ki-filled ki-notepad text-warning"></i>
               </button>
             </Link>
           </Tooltip>
 
-          <Tooltip title="Menu Allocation">
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.EVENT.MENU_ALLOC"
+                defaultMessage="Menu Allocation"
+              />
+            }
+          >
             <Link to={`/menu-allocation/${row.original.eventid}`}>
-              <button
-                className="btn btn-sm btn-icon btn-clear"
-                title="Menu Allocation"
-              >
-                <i className="ki-filled ki-grid  text-info"></i>
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-grid text-info"></i>
               </button>
             </Link>
           </Tooltip>
-          <Tooltip title="Menu Report">
+
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.EVENT.MENU_REPORT"
+                defaultMessage="Menu Report"
+              />
+            }
+          >
             <button
               className="btn btn-sm btn-icon btn-clear"
-              title="Menu Report"
               onClick={() => openMenuReport(row.original.eventid)}
             >
               <i className="ki-filled ki-notepad text-gray-500"></i>

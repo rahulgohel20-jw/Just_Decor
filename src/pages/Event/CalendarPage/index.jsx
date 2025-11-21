@@ -23,8 +23,7 @@ const CalendarPage = () => {
 
   const { isRTL } = useLanguage();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   const getStatusColor = (statusCode) => {
     switch (statusCode) {
@@ -173,52 +172,52 @@ const CalendarPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs 
+          <Breadcrumbs
             items={[
               {
-                title: intl.formatMessage({ 
-                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT", 
-                  defaultMessage: "Events" 
-                })
-              }
-            ]} 
+                title: intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT",
+                  defaultMessage: "Events",
+                }),
+              },
+            ]}
           />
         </div>
 
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1">
-  <span className="filItems text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
-    {intl.formatMessage({ 
-      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY", 
-      defaultMessage: "Inquiry" 
-    })}
-  </span>
-  <span className="filItems text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
-    {intl.formatMessage({ 
-      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM", 
-      defaultMessage: "Confirm" 
-    })}
-  </span>
-  <span className="filItems text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
-    {intl.formatMessage({ 
-      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU", 
-      defaultMessage: "Confirm Without Menu" 
-    })}
-  </span>
-  <span className="filItems text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
-    {intl.formatMessage({ 
-      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED", 
-      defaultMessage: "Completed" 
-    })}
-  </span>
-  <span className="filItems text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
-    {intl.formatMessage({ 
-      id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL", 
-      defaultMessage: "Cancel" 
-    })}
-  </span>
-</div>
+            <span className="filItems text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
+              {intl.formatMessage({
+                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
+                defaultMessage: "Inquiry",
+              })}
+            </span>
+            <span className="filItems text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
+              {intl.formatMessage({
+                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM",
+                defaultMessage: "Confirm",
+              })}
+            </span>
+            <span className="filItems text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
+              {intl.formatMessage({
+                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
+                defaultMessage: "Confirm Without Menu",
+              })}
+            </span>
+            <span className="filItems text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
+              {intl.formatMessage({
+                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
+                defaultMessage: "Completed",
+              })}
+            </span>
+            <span className="filItems text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
+              {intl.formatMessage({
+                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
+                defaultMessage: "Cancel",
+              })}
+            </span>
+          </div>
           <button
             className="btn btn-primary"
             title="Add Event"
@@ -226,7 +225,11 @@ const CalendarPage = () => {
               navigate("/add-event");
             }}
           >
-            <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON" defaultMessage="Add Event" />
+            <i className="ki-filled ki-plus"></i>{" "}
+            <FormattedMessage
+              id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
+              defaultMessage="Add Event"
+            />
           </button>
         </div>
 

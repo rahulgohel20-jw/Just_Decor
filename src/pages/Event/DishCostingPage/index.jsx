@@ -27,6 +27,7 @@ const DishCostingPage = () => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
+  const [allFunctionWiseCosting, setAllFunctionWiseCosting] = useState([]);
 
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
@@ -141,6 +142,31 @@ const DishCostingPage = () => {
 
     fetchDishCosting();
   }, [eventId, selectedFunctionId]);
+  if (event?.eventFunctions?.length > 0) {
+    const fetchAllCosting = async () => {
+      const allData = [];
+
+      for (const func of event.eventFunctions) {
+        try {
+          const res = await GetDishCostingByEventFunction(eventId, func.id);
+          allData.push({
+            id: func.id,
+            name: func.function?.nameEnglish,
+            pax: func.pax,
+            raw: res.data.data.rawmaterialcharge || 0,
+            agency: res.data.data.outsideagencycharge || 0,
+            extra: res.data.data.extraexpensecharge || 0,
+          });
+        } catch (err) {
+          console.error(`Error fetching costing for ${func.id}`, err);
+        }
+      }
+
+      setAllFunctionWiseCosting(allData);
+    };
+
+    fetchAllCosting();
+  }
 
   return (
     <Fragment>
