@@ -718,5 +718,13 @@
 
   "BREADCRUMBS_CUSTOM_PACKAGE": "कस्टम पैकेज",
   "BREADCRUMBS_CREATE_NEW": "नया बनाएं",
-  "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स"
+  "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स",
+
+  "USER.EVENT.CUSTOMER": "कस्टमर",
+"USER.EVENT.INVOICE": "इनवॉइस",
+"USER.EVENT.QUOTATION": "कोटेशन",
+"USER.EVENT.EVENT_DATE": "इवेंट डेट",
+"USER.EVENT.EVENT_NAME": "इवेंट नेम",
+"USER.EVENT.EVENT_CODE": "इवेंट कोड"
+
 }
