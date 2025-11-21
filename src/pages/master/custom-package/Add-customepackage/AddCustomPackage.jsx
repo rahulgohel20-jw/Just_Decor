@@ -16,6 +16,8 @@ import {
 import AddMenuItem from "../../../../partials/modals/add-menu-item/AddMenuItem";
 import MenuNotes from "../../../../partials/modals/menu-notes/MenuNotes";
 import { useParams, useSearchParams } from "react-router-dom";
+import { Translateapi } from "../../../../services/apiServices";
+import { useRef } from "react";
 
 function AddCustomPackage() {
   const [searchParams] = useSearchParams();
@@ -29,6 +31,8 @@ function AddCustomPackage() {
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isLoadingPackage, setIsLoadingPackage] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  const debounceRef = useRef(null);
 
   const [notesModal, setNotesModal] = useState({
     isOpen: false,
@@ -43,6 +47,12 @@ function AddCustomPackage() {
     price: "",
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   // ✅ Load Package Data if editing
   useEffect(() => {
@@ -333,16 +343,43 @@ function AddCustomPackage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    // Translate only English field
+    if (name === "nameEnglish") {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+
+      // If empty, clear other fields
+      if (!value.trim()) {
+        setFormData((prev) => ({
+          ...prev,
+          nameGujarati: "",
+          nameHindi: "",
+        }));
+        return;
+      }
+
+      debounceRef.current = setTimeout(async () => {
+        try {
+          const res = await Translateapi(encodeURIComponent(value));
+
+          // Handle multiple API shapes
+          const data = res?.data?.data || res?.data || res;
+
+          setFormData((prev) => ({
+            ...prev,
+            nameGujarati: data?.gujarati || prev.nameGujarati,
+            nameHindi: data?.hindi || prev.nameHindi,
+          }));
+        } catch (error) {
+          console.error("Translate error:", error);
+        }
+      }, 500);
     }
   };
 

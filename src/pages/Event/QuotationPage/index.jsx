@@ -17,8 +17,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
-
 dayjs.extend(customParseFormat);
 
 const QuotationPage = () => {
@@ -94,7 +92,7 @@ const QuotationPage = () => {
             billingname: quotationInfo.billingname || "",
             gstnumber: quotationInfo.gstnumber || "",
             duedate: quotationInfo.duedate || null,
-            venueName: quotationInfo.event?.venue || "",
+            venueName: quotationInfo.event?.venue.nameEnglish || "",
             mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
               ? new Date(
@@ -593,11 +591,16 @@ const QuotationPage = () => {
       <div className="w-full overflow-x-hidden">
         <Container>
           <div className="gap-2 mb-3">
-            <Breadcrumbs items={[{ title: intl.formatMessage({
-  id: "COMMON.QUOTATION",
-  defaultMessage: "Quotation",
-})
- }]} />
+            <Breadcrumbs
+              items={[
+                {
+                  title: intl.formatMessage({
+                    id: "COMMON.QUOTATION",
+                    defaultMessage: "Quotation",
+                  }),
+                },
+              ]}
+            />
           </div>
 
           {/* Event Details */}
@@ -605,15 +608,22 @@ const QuotationPage = () => {
             <div className="flex items-center justify-between p-4 gap-3">
               <div className="flex flex-col gap-2.5">
                 <p className="text-lg font-semibold text-gray-900">
-                  <FormattedMessage id="COMMON.EVENT_NAME" defaultMessage="Event Name: " /> 
- {quotationData.eventName}
+                  <FormattedMessage
+                    id="COMMON.EVENT_NAME"
+                    defaultMessage="Event Name: "
+                  />
+                  {quotationData.eventName}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-user text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.PARTY_NAME" defaultMessage="Party Name:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.PARTY_NAME"
+                          defaultMessage="Party Name:"
+                        />
+                      </span>
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.partyName}
                       </span>
@@ -622,8 +632,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-geolocation-home text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.VENUE_NAME" defaultMessage="Venue Name:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.VENUE_NAME"
+                          defaultMessage="Venue Name:"
+                        />
+                      </span>
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.venueName}
                       </span>
@@ -632,8 +646,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.EVENT_DATE" defaultMessage="Event Date:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.EVENT_DATE"
+                          defaultMessage="Event Date:"
+                        />
+                      </span>
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.estimateDate}
                       </span>
@@ -642,8 +660,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-phone text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.MOBILE_NUMBER" defaultMessage="Mobile Number:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.MOBILE_NUMBER"
+                          defaultMessage="Mobile Number:"
+                        />
+                      </span>
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.mobileNumber}
                       </span>
@@ -652,8 +674,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.QUOTATION_DATE" defaultMessage="Quotation Date:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.QUOTATION_DATE"
+                          defaultMessage="Quotation Date:"
+                        />
+                      </span>
                       <span className="text-sm font-medium text-gray-900">
                         {quotationData.QuotationDate}
                       </span>
@@ -662,8 +688,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-user text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.BILLING_NAME" defaultMessage="Billing Name:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.BILLING_NAME"
+                          defaultMessage="Billing Name:"
+                        />
+                      </span>
                       <input
                         className="input text-sm font-medium text-gray-900"
                         type="text"
@@ -675,8 +705,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.GST_NUMBER" defaultMessage="GST Number:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.GST_NUMBER"
+                          defaultMessage="GST Number:"
+                        />
+                      </span>
                       <input
                         className="input text-sm font-medium text-gray-900"
                         type="text"
@@ -688,8 +722,12 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs"><FormattedMessage id="COMMON.DUE_DATE" defaultMessage="Due Date:" />
-</span>
+                      <span className="text-xs">
+                        <FormattedMessage
+                          id="COMMON.DUE_DATE"
+                          defaultMessage="Due Date:"
+                        />
+                      </span>
                       <DatePicker
                         format="DD/MM/YYYY"
                         className="input w-full"
@@ -708,12 +746,12 @@ const QuotationPage = () => {
 
               <div className="flex flex-row items-end gap-2">
                 <button className="btn btn-sm btn-primary" title="Print">
-                  <i className="ki-filled ki-printer"></i> <FormattedMessage id="COMMON.PRINT" defaultMessage="Print" />
-
+                  <i className="ki-filled ki-printer"></i>{" "}
+                  <FormattedMessage id="COMMON.PRINT" defaultMessage="Print" />
                 </button>
                 <button className="btn btn-sm btn-primary" title="Share">
-                  <i className="ki-filled ki-exit-right-corner"></i> <FormattedMessage id="COMMON.SHARE" defaultMessage="Share" />
-
+                  <i className="ki-filled ki-exit-right-corner"></i>{" "}
+                  <FormattedMessage id="COMMON.SHARE" defaultMessage="Share" />
                 </button>
               </div>
             </div>
@@ -728,20 +766,26 @@ const QuotationPage = () => {
                   <input
                     className="input pl-8 w-[300px]"
                     placeholder={intl.formatMessage({
-  id: "COMMON.SEARCH_FUNCTION",
-  defaultMessage: "Search function...",
-})}
-
+                      id: "COMMON.SEARCH_FUNCTION",
+                      defaultMessage: "Search function...",
+                    })}
                     type="text"
                   />
                   <button
                     className="btn btn-sm btn-primary"
-                    title={<FormattedMessage id="COMMON.ADD_FUNCTION" defaultMessage="Add Function" />
-}
+                    title={
+                      <FormattedMessage
+                        id="COMMON.ADD_FUNCTION"
+                        defaultMessage="Add Function"
+                      />
+                    }
                     onClick={handleAddFunction}
                   >
-                    <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_FUNCTION" defaultMessage="Add Function" />
-
+                    <i className="ki-filled ki-plus"></i>{" "}
+                    <FormattedMessage
+                      id="COMMON.ADD_FUNCTION"
+                      defaultMessage="Add Function"
+                    />
                   </button>
                 </div>
               </div>
@@ -750,30 +794,50 @@ const QuotationPage = () => {
                 <div className="responsive-table">
                   <div className="flex items-center justify-between bg-gray-100 font-bold border-y border-gray-200 py-3 px-2">
                     <div className="text-sm font-semibold text-gray-900 px-2 w-16 flex-shrink-0">
-  <FormattedMessage id="COMMON.NO" defaultMessage="No." />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
-  <FormattedMessage id="COMMON.FUNCTION" defaultMessage="Function" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
-  <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-  <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-  <FormattedMessage id="COMMON.EXTRA" defaultMessage="Extra" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-  <FormattedMessage id="COMMON.RATE" defaultMessage="Rate" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-  <FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" />
-</div>
-<div className="text-sm font-semibold text-gray-900 px-2 w-24 flex-shrink-0 text-center">
-  <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />
-</div>
-
+                      <FormattedMessage id="COMMON.NO" defaultMessage="No." />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.FUNCTION"
+                        defaultMessage="Function"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.DATE"
+                        defaultMessage="Date"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.PERSON"
+                        defaultMessage="Person"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.EXTRA"
+                        defaultMessage="Extra"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.RATE"
+                        defaultMessage="Rate"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
+                      <FormattedMessage
+                        id="COMMON.TOTAL_PRICE"
+                        defaultMessage="Total Price"
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900 px-2 w-24 flex-shrink-0 text-center">
+                      <FormattedMessage
+                        id="COMMON.ACTIONS"
+                        defaultMessage="Action"
+                      />
+                    </div>
                   </div>
 
                   {quotationData.functions.map((fn, index) => (
@@ -792,10 +856,9 @@ const QuotationPage = () => {
                             handleFunctionChange(index, "name", e.target.value)
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.FUNCTION",
-  defaultMessage: "Function",
-})}
-
+                            id: "COMMON.FUNCTION",
+                            defaultMessage: "Function",
+                          })}
                           type="text"
                           readOnly={fn.isFromQuotationItems}
                         />
@@ -809,10 +872,9 @@ const QuotationPage = () => {
                             handleFunctionChange(index, "date", date)
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.SELECT_DATE_TIME",
-  defaultMessage: "Select date & time",
-})}
-
+                            id: "COMMON.SELECT_DATE_TIME",
+                            defaultMessage: "Select date & time",
+                          })}
                           disabled={fn.isFromQuotationItems}
                           className={`input w-full ${classes.customDatePicker}`}
                         />
@@ -829,10 +891,9 @@ const QuotationPage = () => {
                             )
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.PAX",
-  defaultMessage: "Pax",
-})}
-
+                            id: "COMMON.PAX",
+                            defaultMessage: "Pax",
+                          })}
                           type="number"
                           min="0"
                           readOnly={fn.isFromQuotationItems}
@@ -846,10 +907,9 @@ const QuotationPage = () => {
                             handleFunctionChange(index, "extra", e.target.value)
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.EXTRA",
-  defaultMessage: "Extra",
-})}
-
+                            id: "COMMON.EXTRA",
+                            defaultMessage: "Extra",
+                          })}
                           type="number"
                         />
                       </div>
@@ -861,10 +921,9 @@ const QuotationPage = () => {
                             handleFunctionChange(index, "rate", e.target.value)
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.RATE",
-  defaultMessage: "Rate",
-})}
-
+                            id: "COMMON.RATE",
+                            defaultMessage: "Rate",
+                          })}
                           type="number"
                           min="0"
                           step="0"
@@ -882,10 +941,9 @@ const QuotationPage = () => {
                             )
                           }
                           placeholder={intl.formatMessage({
-  id: "COMMON.TOTAL_PRICE",
-  defaultMessage: "Total Price",
-})}
-
+                            id: "COMMON.TOTAL_PRICE",
+                            defaultMessage: "Total Price",
+                          })}
                           type="number"
                           min="0"
                           step="0"
@@ -930,8 +988,11 @@ const QuotationPage = () => {
                         title="Add Item"
                         onClick={handleAddFunction}
                       >
-                        <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_FUNCTION" defaultMessage="Add Function" />
-
+                        <i className="ki-filled ki-plus"></i>{" "}
+                        <FormattedMessage
+                          id="COMMON.ADD_FUNCTION"
+                          defaultMessage="Add Function"
+                        />
                       </button>
                     </div>
                   </div>
@@ -945,8 +1006,10 @@ const QuotationPage = () => {
             <div className="flex flex-col flex-1">
               <div className="rtl:[background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
                 <h3 className="text-lg font-semibold leading-none text-gray-900 p-4">
-                  <FormattedMessage id="COMMON.ESTIMATE_SUMMARY" defaultMessage="Estimate Summary" />
-
+                  <FormattedMessage
+                    id="COMMON.ESTIMATE_SUMMARY"
+                    defaultMessage="Estimate Summary"
+                  />
                 </h3>
               </div>
 
@@ -954,8 +1017,10 @@ const QuotationPage = () => {
                 {/* Subtotal Row */}
                 <div className="flex items-center justify-end border-t border-gray-200 py-3 gap-2">
                   <div className="text-xl font-bold text-primary px-2">
-                    <FormattedMessage id="COMMON.TOTAL" defaultMessage="Total" />
-
+                    <FormattedMessage
+                      id="COMMON.TOTAL"
+                      defaultMessage="Total"
+                    />
                   </div>
                   <div className="w-[220px] text-base font-semibold text-gray-900 px-2">
                     &#8377; {totals.subtotal}
@@ -1038,8 +1103,10 @@ const QuotationPage = () => {
 
                 <div className="flex items-center justify-end py-5  gap-2">
                   <div className="text-xl font-bold text-primary px-2 ">
-                    <FormattedMessage id="COMMON.GRAND_TOTAL" defaultMessage="Grand Total" />
-
+                    <FormattedMessage
+                      id="COMMON.GRAND_TOTAL"
+                      defaultMessage="Grand Total"
+                    />
                   </div>
                   <div className="w-[220px] text-lg font-bold text-primary px-2">
                     &#8377; {totals.grandTotal}
@@ -1050,8 +1117,10 @@ const QuotationPage = () => {
                 <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
                   <div className="flex items-center justify-between pb-2">
                     <div className="text-base font-semibold text-gray-900">
-                      <FormattedMessage id="COMMON.PAYMENT_DETAILS" defaultMessage="Payment Details" />
-
+                      <FormattedMessage
+                        id="COMMON.PAYMENT_DETAILS"
+                        defaultMessage="Payment Details"
+                      />
                     </div>
                     <button
                       type="button"
@@ -1059,8 +1128,11 @@ const QuotationPage = () => {
                       onClick={handleAddAdvancePayment}
                       title="Add Payment"
                     >
-                      <i className="ki-filled ki-plus"></i> <FormattedMessage id="COMMON.ADD_ADVANCE_PAYMENT" defaultMessage="Add Advance Payment" />
-
+                      <i className="ki-filled ki-plus"></i>{" "}
+                      <FormattedMessage
+                        id="COMMON.ADD_ADVANCE_PAYMENT"
+                        defaultMessage="Add Advance Payment"
+                      />
                     </button>
                   </div>
 
@@ -1076,8 +1148,10 @@ const QuotationPage = () => {
                       <div className="flex flex-col gap-2 w-full">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div className="text-base font-normal text-gray-700">
-                            <FormattedMessage id="COMMON.ADVANCE_PAYMENT" defaultMessage="Advance Payment" />
-{" "}
+                            <FormattedMessage
+                              id="COMMON.ADVANCE_PAYMENT"
+                              defaultMessage="Advance Payment"
+                            />{" "}
                             {quotationData.advancePayments.length > 1
                               ? `#${i + 1}`
                               : ""}
@@ -1128,11 +1202,10 @@ const QuotationPage = () => {
                                 onChange={(date) =>
                                   handleAdvancePaymentChange(i, "date", date)
                                 }
-                               placeholder={intl.formatMessage({
-  id: "COMMON.PAYMENT_DATE_TIME",
-  defaultMessage: "Payment date & time",
-})}
-
+                                placeholder={intl.formatMessage({
+                                  id: "COMMON.PAYMENT_DATE_TIME",
+                                  defaultMessage: "Payment date & time",
+                                })}
                               />
                             </div>
 
@@ -1149,10 +1222,9 @@ const QuotationPage = () => {
                                   )
                                 }
                                 placeholder={intl.formatMessage({
-  id: "COMMON.PAYMENT_DESCRIPTION",
-  defaultMessage: "Payment description",
-})}
-
+                                  id: "COMMON.PAYMENT_DESCRIPTION",
+                                  defaultMessage: "Payment description",
+                                })}
                                 type="text"
                               />
                             </div>
@@ -1171,8 +1243,11 @@ const QuotationPage = () => {
                                 className="btn btn-sm btn-danger"
                                 title="Remove"
                               >
-                                <i className="ki-filled ki-trash"></i> <FormattedMessage id="COMMON.REMOVE" defaultMessage="Remove" />
-
+                                <i className="ki-filled ki-trash"></i>{" "}
+                                <FormattedMessage
+                                  id="COMMON.REMOVE"
+                                  defaultMessage="Remove"
+                                />
                               </button>
                             </Popconfirm>
                           </div>
@@ -1184,8 +1259,10 @@ const QuotationPage = () => {
 
                 <div className="flex items-center justify-between py-5 px-2">
                   <div className="text-lg font-bold text-success px-2">
-                    <FormattedMessage id="COMMON.TOTAL_PAID" defaultMessage="Total Paid" />
-
+                    <FormattedMessage
+                      id="COMMON.TOTAL_PAID"
+                      defaultMessage="Total Paid"
+                    />
                   </div>
                   <div className="text-base font-bold text-success px-2">
                     &#8377; {totals.totalPaid}
@@ -1194,8 +1271,11 @@ const QuotationPage = () => {
 
                 <div className="flex items-center justify-between border-y border-orange-100 border-dashed bg-orange-50 py-7 px-2">
                   <div className="text-xl font-bold text-orange-700 px-2">
-                    <i className="ki-filled ki-notification-on"></i> <FormattedMessage id="COMMON.REMAINING_PAYMENT" defaultMessage="Remaining Payment" />
-
+                    <i className="ki-filled ki-notification-on"></i>{" "}
+                    <FormattedMessage
+                      id="COMMON.REMAINING_PAYMENT"
+                      defaultMessage="Remaining Payment"
+                    />
                   </div>
                   <div className="text-lg font-bold text-orange-700 px-2">
                     &#8377; {totals.remainingPayment}
@@ -1206,10 +1286,9 @@ const QuotationPage = () => {
                   <input
                     className="input w-full sm:w-[500px]"
                     placeholder={intl.formatMessage({
-  id: "COMMON.ADD_NOTES",
-  defaultMessage: "Add notes",
-})}
-
+                      id: "COMMON.ADD_NOTES",
+                      defaultMessage: "Add notes",
+                    })}
                     value={quotationData.notes}
                     onChange={handleNotesChange}
                     type="text"
@@ -1219,7 +1298,8 @@ const QuotationPage = () => {
                     title="Save"
                     onClick={handleSaveNotes}
                   >
-                    <i className="ki-filled ki-save-2"></i> <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                    <i className="ki-filled ki-save-2"></i>{" "}
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
                   </button>
                 </div>
               </div>
