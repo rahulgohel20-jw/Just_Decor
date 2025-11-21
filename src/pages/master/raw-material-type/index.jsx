@@ -13,7 +13,6 @@ import Swal from "sweetalert2";
 import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-import { Form } from "antd";
 
 const RawMaterialType = () => {
   const [isRawModalOpen, setIsRawModalOpen] = useState(false);
@@ -21,6 +20,7 @@ const RawMaterialType = () => {
   const [tableData, setTableData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
+  const [rawOriginalData, setRawOriginalData] = useState([]);
 
   useEffect(() => {
     FetchRawTypeCategory();
@@ -56,26 +56,40 @@ const RawMaterialType = () => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchRawTypeCategory = () => {
-    GetRawType(Id)
-      .then((res) => {
-        const formatted = res.data.data[
-          "Raw Material Category Type Details"
-        ].map((cust, index) => ({
-          sr_no: index + 1,
-          name: cust.nameEnglish || "-",
-          rawid: cust.id,
-          status: cust.isActive,
-        }));
+  let userId = localStorage.getItem("userId");
+  let language = localStorage.getItem("lang");
 
-        setTableData(formatted);
+  const FetchRawTypeCategory = () => {
+    GetRawType(userId)
+      .then((res) => {
+        const rawList =
+          res.data.data["Raw Material Category Type Details"] || [];
+
+        setRawOriginalData(rawList);
       })
-      .catch((error) => {
-        console.error("Error deleting customer:", error);
-      });
+      .catch((error) => console.error(error));
   };
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = rawOriginalData.map((cust, index) => ({
+      sr_no: index + 1,
+      name: cust[field] || "-",
+      rawid: cust.id,
+      status: cust.isActive,
+    }));
+
+    setTableData(mapped);
+  }, [rawOriginalData, language]);
 
   const DeleteRawMaterialType = (rawid) => {
     Swal.fire({
@@ -131,7 +145,18 @@ const RawMaterialType = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE" defaultMessage="Raw Material Type Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
+                    defaultMessage="Raw Material Type Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -140,7 +165,10 @@ const RawMaterialType = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH", defaultMessage: "Raw Material Type Search..." })}
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH",
+                  defaultMessage: "Raw Material Type Search...",
+                })}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -156,7 +184,13 @@ const RawMaterialType = () => {
               }}
               title="Add Contact Category"
             >
-              <i className="ki-filled ki-plus"></i> {<FormattedMessage id="USER.MASTER.ADD_RAW_MATERIAL_TYPE" defaultMessage="Add Raw Material Type" />}
+              <i className="ki-filled ki-plus"></i>{" "}
+              {
+                <FormattedMessage
+                  id="USER.MASTER.ADD_RAW_MATERIAL_TYPE"
+                  defaultMessage="Add Raw Material Type"
+                />
+              }
             </button>
           </div>
         </div>

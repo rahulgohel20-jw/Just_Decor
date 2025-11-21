@@ -15,16 +15,18 @@ import {
   AddMenuprep,
   GetCustomPackageapibyID,
 } from "@/services/apiServices";
+import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import { useParams, useNavigate } from "react-router-dom";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
+import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
+import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 
 const EventPlanningPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
-
-  // basic UI / data state
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,25 +43,29 @@ const EventPlanningPage = () => {
     {}
   );
 
-  // selections saved per function
   const [selectedByFunction, setSelectedByFunction] = useState({});
-  // package categories and package items saved per function
   const [packageCategoriesByFunction, setPackageCategoriesByFunction] =
     useState({});
   const [packageItemsByFunction, setPackageItemsByFunction] = useState({});
-
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [categorySearchTerm, setCategorySearchTerm] = useState("");
   const [itemSearchTerm, setItemSearchTerm] = useState("");
   const [showRates, setShowRates] = useState(false);
+  const [packageInfoByFunction, setPackageInfoByFunction] = useState({});
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
 
+  const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
+  const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
+
+  const [itemNotes, setItemNotes] = useState("");
+  const [categoryNotes, setCategoryNotes] = useState("");
   const userDataRaw = localStorage.getItem("userData");
   const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
 
-  /* ---------------------
-     Load initial event + select first function
-     --------------------- */
   useEffect(() => {
     const fetchEventData = async () => {
       try {
@@ -67,7 +73,6 @@ const EventPlanningPage = () => {
         const response = await GetEventMasterById(eventId);
         const eventDetails =
           response?.data?.data?.["Event Details"]?.[0] || null;
-        console.log(eventDetails, "data");
 
         setEventData(eventDetails);
 
@@ -85,14 +90,23 @@ const EventPlanningPage = () => {
 
     fetchEventData();
   }, [eventId]);
+  useEffect(() => {
+    if (!eventData || !selectedFunction) return;
 
-  /* ---------------------
-     Load saved menu prep for selected function (from API)
-     --------------------- */
+    const func = eventData.eventFunctions.find(
+      (f) => f.id === selectedFunction
+    );
+    if (func) {
+      setPersonCount(func.pax || "");
+      setDefaultRate(func.rate || "");
+    }
+  }, [selectedFunction, eventData]);
+
   const loadSavedMenuPrep = useCallback(async () => {
     if (!selectedFunction) return;
     const userIdLocal = localStorage.getItem("userId");
     const itemName = "";
+
     try {
       const resp = await Getmenuprep(
         selectedFunction,
@@ -102,6 +116,7 @@ const EventPlanningPage = () => {
         200,
         userIdLocal
       );
+
       const data = resp?.data?.data;
       if (!data) return;
 
@@ -126,7 +141,8 @@ const EventPlanningPage = () => {
             rate: Number(it.itemPrice),
             menuCategoryName: catName,
             catId: Number(cat.menuCategoryId || 0),
-            // saved items from API won't contain package metadata
+
+            // ⭐ Package metadata restored from API response
             isPackageItem: data?.menuPreparation?.isPackage || false,
             packageId: data?.menuPreparation?.packageId || 0,
             packageName: data?.menuPreparation?.packageName || "",
@@ -142,6 +158,9 @@ const EventPlanningPage = () => {
 
       const menuPrepId = data?.menuPreparation?.id || 0;
 
+      // -------------------------------
+      // ⭐ Save selected categories/items
+      // -------------------------------
       setSelectedByFunction((prev) => ({
         ...prev,
         [selectedFunction]: {
@@ -151,7 +170,61 @@ const EventPlanningPage = () => {
         _menuPrepId: menuPrepId,
       }));
 
-      // do not assume packageCategories here; leave packageCategoriesByFunction unchanged
+      // ---------------------------------
+      // ⭐ RESTORE PACKAGE STATE ON RELOAD
+      // ---------------------------------
+      const isPkg = data?.menuPreparation?.isPackage || false;
+
+      if (isPkg) {
+        const pkgId = data?.menuPreparation?.packageId || 0;
+        const pkgName = data?.menuPreparation?.packageName || "";
+        const pkgPrice = data?.menuPreparation?.packagePrice || 0;
+
+        setPackageInfoByFunction((prev) => ({
+          ...prev,
+          [selectedFunction]: {
+            packageId: pkgId,
+            packageName: pkgName,
+            packagePrice: pkgPrice,
+          },
+        }));
+
+        setPackageAppliedForFunction((prev) => ({
+          ...prev,
+          [selectedFunction]: true,
+        }));
+
+        // 1️⃣ mark function as package applied
+        setPackageAppliedForFunction((prev) => ({
+          ...prev,
+          [selectedFunction]: true,
+        }));
+
+        // 2️⃣ restore package categories
+        setPackageCategoriesByFunction((prev) => ({
+          ...prev,
+          [selectedFunction]: order, // the API categories order
+        }));
+
+        // 3️⃣ restore package items
+        const pkgItems = flatItems.map((f) => ({
+          id: Number(f.menuItemId),
+          nameEnglish: f.menuItemName,
+          imagePath: f.imagePath || "",
+          rate: Number(f.itemPrice),
+          menuCategoryName: f.menuCategoryName,
+          catId: Number(f.menuCategoryId || 0),
+          isPackageItem: true,
+          packageId: pkgId,
+          packageName: pkgName,
+        }));
+
+        setPackageItemsByFunction((prev) => ({
+          ...prev,
+          [selectedFunction]: pkgItems,
+        }));
+      }
+
       if (order.length > 0) setHasExistingData(true);
     } catch (err) {
       console.log("Menu Prep fetch failed", err);
@@ -162,9 +235,6 @@ const EventPlanningPage = () => {
     loadSavedMenuPrep();
   }, [selectedFunction, loadSavedMenuPrep]);
 
-  /* ---------------------
-     If default rate changed, apply to selected function items
-     --------------------- */
   useEffect(() => {
     if (!selectedFunction) return;
     if (defaultRate === "" || defaultRate === null) return;
@@ -191,9 +261,6 @@ const EventPlanningPage = () => {
     });
   }, [defaultRate, selectedFunction]);
 
-  /* ---------------------
-     Helpers: get selected ids for highlighting in the grid
-     --------------------- */
   const getSelectedIdsForFunction = useCallback(
     (functionId) => {
       const bucket = selectedByFunction[functionId];
@@ -208,9 +275,6 @@ const EventPlanningPage = () => {
     [selectedByFunction]
   );
 
-  /* ---------------------
-     Toggle select / add item to selectedByFunction for current function
-     --------------------- */
   const onToggleSelectItem = useCallback(
     (menuItem, overrideCategoryName) => {
       const functionId = selectedFunction;
@@ -290,9 +354,6 @@ const EventPlanningPage = () => {
     [selectedFunction, defaultRate]
   );
 
-  /* ---------------------
-     Remove selected item
-     --------------------- */
   const onRemoveSelectedItem = useCallback(
     (functionId, categoryName, itemId) => {
       setSelectedByFunction((prev) => {
@@ -321,9 +382,6 @@ const EventPlanningPage = () => {
     []
   );
 
-  /* ---------------------
-     Drag end (reorder)
-     --------------------- */
   const onDragEndSelected = useCallback((functionId, newState) => {
     setSelectedByFunction((prev) => ({
       ...prev,
@@ -331,9 +389,6 @@ const EventPlanningPage = () => {
     }));
   }, []);
 
-  /* ---------------------
-     Rate change handler (from SelectedItems)
-     --------------------- */
   const onRateChange = useCallback(
     (functionId, categoryName, itemId, newRate) => {
       setSelectedByFunction((prev) => {
@@ -362,10 +417,6 @@ const EventPlanningPage = () => {
     []
   );
 
-  /* ---------------------
-     Apply package to currently selected function
-     - stores categories & items per function
-     --------------------- */
   const handlePackageSelect = async (packageId) => {
     if (!selectedFunction) {
       Swal.fire({
@@ -436,14 +487,21 @@ const EventPlanningPage = () => {
         [selectedFunction]: packageItemsFlat,
       }));
 
-      // Apply to selectedByFunction for this function (replace selection)
+      setPackageInfoByFunction((prev) => ({
+        ...prev,
+        [selectedFunction]: {
+          packageId: pkg.id,
+          packageName: pkg.nameEnglish,
+          packagePrice: pkg.price || pkg.packagePrice || 0,
+        },
+      }));
+
       setSelectedByFunction((prev) => ({
         ...prev,
         [selectedFunction]: {
           categoriesOrder: order,
           categories,
         },
-        // keep existing _menuPrepId if any
         _menuPrepId: prev?._menuPrepId || 0,
       }));
 
@@ -479,9 +537,6 @@ const EventPlanningPage = () => {
     }
   };
 
-  /* ---------------------
-     Build payload to save to API
-     --------------------- */
   const buildRequestPayload = () => {
     const bucket = selectedByFunction[selectedFunction];
     if (!bucket) return null;
@@ -493,13 +548,13 @@ const EventPlanningPage = () => {
         return {
           menuCategoryId: items[0]?.catId || 0,
           menuCategoryName: catName,
-          menuNotes: "",
+          menuNotes: bucket.categoryNotes?.[catName] || "",
           menuSlogan: "",
           menuSortOrder: catIndex,
           startTime: "",
           selectedMenuPreparationItems: items.map((item, itemIndex) => ({
             id: 0,
-            itemNotes: "",
+            itemNotes: item.itemNotes || "",
             itemSlogan: "",
             itemSortOrder: itemIndex,
             itemPrice: Number(item.rate),
@@ -510,12 +565,34 @@ const EventPlanningPage = () => {
       }
     );
 
-    // ⭐ package info for selected function
     const isPackageApplied =
       packageAppliedForFunction[selectedFunction] || false;
     const selectedPkgItems = packageItemsByFunction[selectedFunction] || [];
-    const selectedPkgObj =
-      selectedPkgItems.length > 0 ? selectedPkgItems[0] : null;
+    const pkgInfoFromState =
+      typeof packageInfoByFunction !== "undefined" &&
+      packageInfoByFunction[selectedFunction]
+        ? packageInfoByFunction[selectedFunction]
+        : null;
+
+    const inferredPkgFromItems =
+      selectedPkgItems.length > 0
+        ? {
+            packageId: selectedPkgItems[0].packageId || 0,
+            packageName: selectedPkgItems[0].packageName || "",
+            packagePrice:
+              selectedPkgItems[0].packagePrice ??
+              selectedPkgItems[0].package_price ??
+              selectedPkgItems[0].rate ??
+              0,
+          }
+        : null;
+
+    const finalPkg = pkgInfoFromState ||
+      inferredPkgFromItems || {
+        packageId: 0,
+        packageName: "",
+        packagePrice: 0,
+      };
 
     return {
       id: selectedByFunction._menuPrepId || 0,
@@ -525,19 +602,15 @@ const EventPlanningPage = () => {
       price: Number(defaultRate),
       sortorder: 0,
 
-      // ⭐ FINAL PAYLOAD UPDATE
       isPackage: isPackageApplied,
-      packageId: isPackageApplied ? selectedPkgObj?.packageId || 0 : 0,
-      packageName: isPackageApplied ? selectedPkgObj?.packageName || "" : "",
-      packagePrice: isPackageApplied ? selectedPkgObj?.rate || 0 : 0,
+      packageId: isPackageApplied ? Number(finalPkg.packageId || 0) : 0,
+      packageName: isPackageApplied ? finalPkg.packageName || "" : "",
+      packagePrice: isPackageApplied ? Number(finalPkg.packagePrice || 0) : 0,
 
       selectedMenuPreparation: categoriesPayload,
     };
   };
 
-  /* ---------------------
-     Save/Update handler
-     --------------------- */
   const handleSaveOrUpdate = async () => {
     try {
       setIsSaving(true);
@@ -580,9 +653,6 @@ const EventPlanningPage = () => {
     }
   };
 
-  /* ---------------------
-     Category change handler
-     --------------------- */
   const handleCategoryChange = (categoryName, categoryId) => {
     setSelectedCategory(categoryName);
     setSelectedCategoryId(categoryId);
@@ -591,17 +661,81 @@ const EventPlanningPage = () => {
   const handleCancel = () => {
     navigate(-1);
   };
+  const openItemNotesModal = (itemId, notes = "") => {
+    setCurrentItemForNotes(itemId);
+    setItemNotes(notes);
+    setShowNoteModal(true);
+  };
+  const openCategoryNotesModal = (categoryName, notes = "") => {
+    setCurrentCategoryForNotes(categoryName);
+    setCategoryNotes(notes);
+    setShowCategoryNoteModal(true);
+  };
 
-  /* ---------------------
-     Derived props for children (current function)
-     --------------------- */
+  const handleNoteSave = (updatedNotes) => {
+    if (!selectedFunction || !currentItemForNotes) return;
+
+    setSelectedByFunction((prev) => {
+      const bucket = prev[selectedFunction];
+      if (!bucket) return prev;
+
+      const updatedCategories = {};
+
+      Object.keys(bucket.categories).forEach((cat) => {
+        updatedCategories[cat] = bucket.categories[cat].map((item) =>
+          Number(item.id) === Number(currentItemForNotes)
+            ? { ...item, itemNotes: updatedNotes } // store item notes
+            : item
+        );
+      });
+
+      return {
+        ...prev,
+        [selectedFunction]: {
+          ...bucket,
+          categories: updatedCategories,
+        },
+      };
+    });
+
+    setShowNoteModal(false);
+    setCurrentItemForNotes(null);
+  };
+
+  const handleCategoryNoteSave = ({ notes, slogan }) => {
+    if (!selectedFunction || !currentCategoryForNotes) return;
+
+    setSelectedByFunction((prev) => {
+      const bucket = prev[selectedFunction] || {};
+
+      return {
+        ...prev,
+        [selectedFunction]: {
+          ...bucket,
+          categoryNotes: {
+            ...(bucket.categoryNotes || {}),
+            [currentCategoryForNotes]: notes,
+          },
+          categorySlogans: {
+            ...(bucket.categorySlogans || {}),
+            [currentCategoryForNotes]: slogan,
+          },
+        },
+      };
+    });
+
+    setShowCategoryNoteModal(false);
+    setCurrentCategoryForNotes(null);
+  };
+
+  const initializeData = useCallback(async () => {
+    await loadSavedMenuPrep();
+  }, [loadSavedMenuPrep]);
+
   const currentPackageCategories =
     packageCategoriesByFunction[selectedFunction] || [];
   const currentPackageItems = packageItemsByFunction[selectedFunction] || [];
 
-  /* ---------------------
-     Loading / error UI
-     --------------------- */
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -624,9 +758,8 @@ const EventPlanningPage = () => {
     );
   }
 
-  /* ---------------------
-     Render
-     --------------------- */
+  const selectedPkgInfo = packageInfoByFunction[selectedFunction] || null;
+
   return (
     <Fragment>
       <div className="flex flex-col min-h-screen w-full">
@@ -714,7 +847,7 @@ const EventPlanningPage = () => {
                         Venue:
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.venue.nameEnglish?.nameEnglish || ""}
+                        {eventData?.venue.nameEnglish || ""}
                       </span>
                     </div>
                   </div>
@@ -778,7 +911,7 @@ const EventPlanningPage = () => {
           </div>
 
           {/* functions + package controls */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-1">
             <div className="lg:col-span-2">
               <div className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-2 text-gray-500 bg-gray-200">
                 {eventData?.eventFunctions?.map((func) => (
@@ -838,6 +971,17 @@ const EventPlanningPage = () => {
               >
                 Report
               </button>
+              {packageAppliedForFunction[selectedFunction] &&
+                selectedPkgInfo && (
+                  <div className="flex w-full  bg-blue-50 border border-blue-300 rounded-lg p-2 justify-between">
+                    <p className="text-sm font-semibold text-primary">
+                      Package Name: {selectedPkgInfo.packageName}
+                    </p>
+                    <p className="text-sm font-semibold text-primary">
+                      Package Price: ₹{selectedPkgInfo.packagePrice}
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -850,7 +994,7 @@ const EventPlanningPage = () => {
                     placeholder="Search categories"
                     value={categorySearchTerm}
                     onChange={(v) => setCategorySearchTerm(v)}
-                    onAdd={() => {}}
+                    onAdd={() => setIsCategoryModalOpen(true)}
                     addTooltip="Add menu category"
                   />
                 </div>
@@ -882,7 +1026,7 @@ const EventPlanningPage = () => {
                           placeholder="Search items"
                           value={itemSearchTerm}
                           onChange={(v) => setItemSearchTerm(v)}
-                          onAdd={() => {}}
+                          onAdd={() => setIsItemModalOpen(true)}
                           addTooltip="Add menu item"
                         />
                       </div>
@@ -955,6 +1099,8 @@ const EventPlanningPage = () => {
                 }
                 showRates={showRates}
                 onRateChange={onRateChange}
+                onOpenItemNotes={openItemNotesModal}
+                onOpenCategoryNotes={openCategoryNotesModal}
               />
             </div>
           </div>
@@ -1030,6 +1176,37 @@ const EventPlanningPage = () => {
         isModalOpen={isMenuReport}
         setIsModalOpen={setIsMenuReport}
         eventId={menuReportEventId}
+      />
+
+      <AddMenuItem
+        isModalOpen={isItemModalOpen}
+        setIsModalOpen={setIsItemModalOpen}
+        refreshData={initializeData}
+      />
+      <AddMenuCategory
+        isModalOpen={isCategoryModalOpen}
+        setIsModalOpen={setIsCategoryModalOpen}
+        refreshData={initializeData}
+      />
+      <MenuNotes
+        isOpen={showNoteModal}
+        onClose={() => {
+          setShowNoteModal(false);
+          setCurrentItemForNotes(null);
+        }}
+        itemId={currentItemForNotes}
+        notes={itemNotes}
+        onSave={handleNoteSave}
+      />
+      <CategoryNotes
+        isOpen={showCategoryNoteModal}
+        onClose={() => {
+          setShowCategoryNoteModal(false);
+          setCurrentCategoryForNotes(null);
+        }}
+        categoryId={currentCategoryForNotes}
+        notes={categoryNotes}
+        onSave={handleCategoryNoteSave}
       />
     </Fragment>
   );
