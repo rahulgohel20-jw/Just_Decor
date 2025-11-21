@@ -14,6 +14,8 @@ import {
   GetEventType,
   Fetchmanager,
   GetVenueType,
+  TranslateHindi,
+  TranslateGujarati,
 } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import { useLanguage } from "@/i18n";
@@ -33,7 +35,7 @@ const EventBasicInfoStep = ({
   const [venueList, setVenueList] = useState([]);
   const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
-
+  const [translatedTitle, setTranslatedTitle] = useState("");
   let userData = JSON.parse(localStorage.getItem("userData"));
 
   let Id = userData.id;
@@ -44,21 +46,23 @@ const EventBasicInfoStep = ({
     FetchManager();
   }, []);
 
-  const Fetcheventtype = () => {
-    GetEventType(Id)
-      .then((res) => {
-        const eventtype = res.data.data["EventTypes Details"].map(
-          (event, index) => ({
-            sr_no: index + 1,
-            value: event.id,
-            label: event.nameEnglish || "-",
-          })
-        );
-        setEventTypes(eventtype);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const Fetcheventtype = async () => {
+    try {
+      const res = await GetEventType(Id);
+      const items = res.data.data["EventTypes Details"] || [];
+
+      const translated = await Promise.all(
+        items.map(async (event, index) => ({
+          sr_no: index + 1,
+          value: event.id,
+          label: await translateText(event.nameEnglish || "-"),
+        }))
+      );
+
+      setEventTypes(translated);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const FetchManager = () => {
@@ -98,6 +102,37 @@ const EventBasicInfoStep = ({
   };
 
   const { isRTL } = useLanguage();
+  const getSelectedLanguage = () => {
+    try {
+      const config = JSON.parse(localStorage.getItem("i18nConfig"));
+      return config?.locale || "en";
+    } catch {
+      return "en";
+    }
+  };
+
+  const translateText = async (text) => {
+    const lang = getSelectedLanguage();
+    if (!text || lang === "en") return text;
+
+    try {
+      let res;
+      if (lang === "hi") {
+        res = await TranslateHindi({ text });
+      } else if (lang === "gu") {
+        res = await TranslateGujarati({ text });
+      }
+
+      return (
+        res?.data?.translatedText ||
+        res?.data?.text ||
+        res?.translatedText ||
+        text
+      );
+    } catch {
+      return text;
+    }
+  };
 
   return (
     <Form>

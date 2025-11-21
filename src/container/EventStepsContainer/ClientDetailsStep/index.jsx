@@ -8,7 +8,6 @@ import useStyles from "./style";
 import { FormattedMessage } from "react-intl";
 import { useLanguage } from "@/i18n";
 
-
 const ClientDetailsStep = ({
   formData,
   setFormData,
@@ -16,14 +15,47 @@ const ClientDetailsStep = ({
   errors,
 }) => {
   const classes = useStyles();
+  const languageContext = useLanguage(); // Get current language
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [customer, setCustomer] = useState([]);
+
+  // Debug: Check what the language context returns
+  console.log("Language Context:", languageContext);
+
   useEffect(() => {
     FetchCustomerName();
   }, []);
 
   let userData = JSON.parse(localStorage.getItem("userData"));
   let Id = userData.id;
+
+  // Helper function to get the correct language field
+  const getLocalizedField = (item, fieldName) => {
+    // Extract locale from languageContext (adjust based on your actual structure)
+    const currentLocale =
+      languageContext?.locale || languageContext?.language || "en";
+
+    console.log("Current Locale:", currentLocale);
+    console.log("Item:", item);
+
+    // Map locale codes to field suffixes
+    const languageMap = {
+      en: "English",
+      "en-US": "English",
+      "en-GB": "English",
+      hi: "Hindi",
+      "hi-IN": "Hindi",
+      gu: "Gujarati",
+      "gu-IN": "Gujarati",
+    };
+
+    const suffix = languageMap[currentLocale] || "English";
+    const fieldKey = `${fieldName}${suffix}`;
+
+    console.log(`Looking for field: ${fieldKey}, Value: ${item[fieldKey]}`);
+
+    return item[fieldKey] || item[`${fieldName}English`] || "";
+  };
 
   const handleCustomerChange = (selectedId) => {
     const selectedCustomer = customer.find(
@@ -57,19 +89,34 @@ const ClientDetailsStep = ({
       console.log(`Clearing error for ${name}`);
     }
   };
+
   const FetchCustomerName = () => {
     GetAllCustomer(Id)
       .then((res) => {
-        const customername = res.data.data["Party Details"].map(
-          (customer, index) => ({
+        const partyDetails = res.data.data["Party Details"];
+
+        const customername = partyDetails.map((customer, index) => {
+          // Get localized name based on current language
+          const localizedName = getLocalizedField(customer, "name");
+          const localizedAddress = getLocalizedField(customer, "address");
+
+          return {
             sr_no: index + 1,
             value: customer.id,
-            label: customer.nameEnglish + " - " + customer.mobileno,
+            label: `${localizedName} - ${customer.mobileno}`,
             mobile: customer.mobileno,
-            address: customer.addressEnglish,
-            customername: customer.nameEnglish,
-          })
-        );
+            address: localizedAddress,
+            customername: localizedName,
+            // Store all language versions for potential use
+            nameEnglish: customer.nameEnglish,
+            nameHindi: customer.nameHindi,
+            nameGujarati: customer.nameGujarati,
+            addressEnglish: customer.addressEnglish,
+            addressHindi: customer.addressHindi,
+            addressGujarati: customer.addressGujarati,
+          };
+        });
+
         setCustomer(customername);
       })
       .catch((error) => {
@@ -77,13 +124,23 @@ const ClientDetailsStep = ({
       });
   };
 
+  // Re-fetch customer data when language changes to update labels
+  useEffect(() => {
+    const currentLocale = languageContext?.locale || languageContext?.language;
+    console.log("Language changed to:", currentLocale);
+    FetchCustomerName();
+  }, [languageContext?.locale, languageContext?.language]);
+
   return (
     <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
       <div className=" gap-3 lg:gap-4">
         <div className="col-span-4 md:col-start-3 min-w-full space-y-3">
           <div className="select__grp flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NAME" defaultMessage="Client Name" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NAME"
+                defaultMessage="Client Name"
+              />
               <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                 *
               </span>
@@ -96,8 +153,18 @@ const ClientDetailsStep = ({
                   value={formData.prefix || "Mr."}
                   onChange={handleChange}
                 >
-                  <option value="Mr."><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MR" defaultMessage="Mr." /></option>
-                  <option value="Ms."><FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MS" defaultMessage="Ms." /></option>
+                  <option value="Mr.">
+                    <FormattedMessage
+                      id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MR"
+                      defaultMessage="Mr."
+                    />
+                  </option>
+                  <option value="Ms.">
+                    <FormattedMessage
+                      id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_PREFIX_MS"
+                      defaultMessage="Ms."
+                    />
+                  </option>
                 </select>
                 <div className="sg__inner flex items-center gap-1 relative w-full">
                   <i className="ki-filled ki-user ms-2.5"></i>
@@ -126,7 +193,10 @@ const ClientDetailsStep = ({
           <div className="flex gap-3">
             <div className="flex flex-col w-full">
               <label className="text-sm font-normal text-black mb-1 block">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_ADDRESS" defaultMessage="Address" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_ADDRESS"
+                  defaultMessage="Address"
+                />
               </label>
               <div className="input">
                 <i className="ki-filled ki-geolocation"></i>
@@ -142,7 +212,10 @@ const ClientDetailsStep = ({
             </div>
             <div className="flex flex-col w-full">
               <label className="text-sm font-normal text-black mb-1 block">
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_MOBILE" defaultMessage="Mobile Number" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_MOBILE"
+                  defaultMessage="Mobile Number"
+                />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -167,7 +240,10 @@ const ClientDetailsStep = ({
           </div>
           <div className="flex flex-col">
             <label className="text-sm font-normal text-black mb-1 block">
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_REFERENCE" defaultMessage="Reference" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_REFERENCE"
+                defaultMessage="Reference"
+              />
             </label>
             <div className="input">
               <i className="ki-filled ki-instagram"></i>
@@ -183,8 +259,10 @@ const ClientDetailsStep = ({
           </div>
           <div className="flex items-center gap-3">
             <label className="text-sm font-normal text-black block">
-              {/* <i className="ki-filled ki-flag me-1"></i> */}
-              <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_HIGH_PRIORITY" defaultMessage="High Priority" />
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_HIGH_PRIORITY"
+                defaultMessage="High Priority"
+              />
             </label>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-1 text-sm">
@@ -197,7 +275,10 @@ const ClientDetailsStep = ({
                     setFormData({ ...formData, isHighPriority: "Yes" })
                   }
                 />
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_YES" defaultMessage="Yes" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_YES"
+                  defaultMessage="Yes"
+                />
               </label>
               <label className="flex items-center gap-1 text-sm">
                 <input
@@ -209,7 +290,10 @@ const ClientDetailsStep = ({
                     setFormData({ ...formData, isHighPriority: "No" })
                   }
                 />
-                <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NO" defaultMessage="No" />
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_CLIENT_DETAILS_NO"
+                  defaultMessage="No"
+                />
               </label>
             </div>
           </div>

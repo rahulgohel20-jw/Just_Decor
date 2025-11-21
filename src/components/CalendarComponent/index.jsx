@@ -19,6 +19,31 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
+  const translateTextDynamic = async (
+    text,
+    selectedLang,
+    TranslateHindi,
+    TranslateGujarati
+  ) => {
+    if (!text) return "";
+    if (selectedLang === "en") return text;
+
+    try {
+      const res =
+        selectedLang === "hi"
+          ? await TranslateHindi({ text })
+          : await TranslateGujarati({ text });
+
+      return (
+        res?.data?.text ||
+        res?.data?.translatedText ||
+        res?.translatedText ||
+        text
+      );
+    } catch {
+      return text;
+    }
+  };
 
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
@@ -70,8 +95,9 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
           const mobile = event.extendedProps.mobile || "";
 
           // ✅ Tooltip content logic
-          const tooltipContent = company || email || contact
-            ? `
+          const tooltipContent =
+            company || email || contact
+              ? `
                 <div class="p-1">
                   <p class="mb-1"><strong>${event.title}</strong></p>
                   <p class="mb-1"><i class="me-1 ki-filled ki-briefcase text-success"></i>
@@ -82,7 +108,7 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
                     <span>${email || "N/A"}</span></p>
                 </div>
               `
-            : `
+              : `
                 <div class="p-1">
                   <p class="mb-1"><strong>${event.title}</strong></p>
                   <p class="mb-1"><i class="me-1 ki-filled ki-calendar-tick text-success"></i><span>${events}</span></p>

@@ -720,5 +720,13 @@
   "BREADCRUMBS_CREATE_NEW": "नया बनाएं",
   "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स",
   "COMMON.VENUE_TYPE": "वेन्‍यू टाइप"
+,
+
+  "USER.EVENT.CUSTOMER": "कस्टमर",
+"USER.EVENT.INVOICE": "इनवॉइस",
+"USER.EVENT.QUOTATION": "कोटेशन",
+"USER.EVENT.EVENT_DATE": "इवेंट डेट",
+"USER.EVENT.EVENT_NAME": "इवेंट नेम",
+"USER.EVENT.EVENT_CODE": "इवेंट कोड"
 
 }

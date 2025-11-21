@@ -1,8 +1,12 @@
 // src/components/common/Loader.jsx
 
-export default function Loader({ size = 40, color = "#4A90E2" }) {
+export default function Loader({
+  size = 40,
+  color = "#4A90E2",
+  text = "Loading...",
+}) {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex flex-col justify-center items-center gap-3">
       <svg
         width={size}
         height={size}
@@ -20,6 +24,10 @@ export default function Loader({ size = 40, color = "#4A90E2" }) {
           strokeDasharray="31.4 31.4"
         />
       </svg>
+
+      {text && (
+        <p className="text-gray-600 text-sm font-medium">Saving please wait</p>
+      )}
     </div>
   );
 }

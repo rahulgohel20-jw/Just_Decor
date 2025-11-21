@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Upload, X, Trash2 } from "lucide-react";
 import { DatabaseReadExcle } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import Loader from "@/components/loader/Loader";
 
 export default function AddMasterDatabaseFile({
   open,
@@ -109,7 +110,7 @@ export default function AddMasterDatabaseFile({
 
     try {
       const res = await DatabaseReadExcle(formDataToSend);
-      console.log("response",res);
+      console.log("response", res);
 
       if (res?.data?.success) {
         await Swal.fire({
@@ -390,6 +391,11 @@ export default function AddMasterDatabaseFile({
                   )}
                 </button>
               </div>
+              {loading && (
+                <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-[200]">
+                  <Loader size={60} please wait />
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

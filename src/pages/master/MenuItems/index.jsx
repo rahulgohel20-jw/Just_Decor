@@ -18,8 +18,9 @@ const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10000);
+  const [pageSize, setPageSize] = useState(1000);
   const [totalItems, setTotalItems] = useState(0);
+  const [originalData, setOriginalData] = useState([]);
 
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,38 +45,51 @@ const MenuItems = () => {
       size: pageSize,
     })
       .then((res) => {
-        console.log("Menu Items API Response:", res);
-
         if (res?.data?.data?.items && Array.isArray(res.data.data.items)) {
-          setTotalItems(res.data.data.totalItems); // save total items for pagination
-
-          const formatted = res.data.data.items.map((item, index) => ({
-            sr_no: (page - 1) * pageSize + index + 1, // dynamic serial number
-            id: item.id,
-            name: item.nameEnglish || "-",
-            category: item.menuCategory?.nameEnglish || "-",
-            subCategory: item.menuSubCategory?.nameEnglish || "-",
-            kitchenArea: item.kitchenArea?.nameEnglish || "-",
-            slogan: item.slogan || "-",
-            price: item.price || "-",
-            priority: item.sequence || "-",
-            image: item.imagePath || "",
-            status: item.isActive,
-            rawdata: item.menuItemRawMaterials || [],
-            menuAllocation: item.menuItemAllocationConfigs || [],
-          }));
-
-          setTableData(formatted);
+          setTotalItems(res.data.data.totalItems);
+          setOriginalData(res.data.data.items);
         } else {
-          setTableData([]);
+          setOriginalData([]);
         }
       })
       .catch((error) => {
         console.error("Error fetching menu items:", error);
+        setOriginalData([]);
       });
   };
 
-  // ✅ delete then refresh table
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = originalData.map((item, index) => ({
+      sr_no: index + 1,
+      id: item.id,
+
+      name: item[field] || "-",
+      category: item.menuCategory?.[field] || "-",
+      subCategory: item.menuSubCategory?.[field] || "-",
+      kitchenArea: item.kitchenArea?.[field] || "-",
+
+      slogan: item.slogan || "-",
+      price: item.price || "-",
+      priority: item.sequence || "-",
+      image: item.imagePath || "",
+      status: item.isActive,
+      rawdata: item.menuItemRawMaterials || [],
+      menuAllocation: item.menuItemAllocationConfigs || [],
+    }));
+
+    setTableData(mapped);
+  }, [originalData, localStorage.getItem("lang")]);
+
   const handleDelete = (id) => {
     if (!id || isNaN(id)) {
       console.error("❌ Invalid ID passed to delete:", id);

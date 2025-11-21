@@ -257,8 +257,18 @@ const MenuItemGrid = ({
               <div className="w-full h-20 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
                 {item.imagePath ? (
                   <img
-                    src={toAbsoluteUrl("/media/menu/noImage.jpg")}
-                    alt={name}
+                    src={
+                      item.imagePath &&
+                      typeof item.imagePath === "string" &&
+                      item.imagePath !== "null" &&
+                      item.imagePath !== "undefined" &&
+                      item.imagePath.trim() !== "" &&
+                      !item.imagePath.endsWith("null") &&
+                      /\.(jpg|jpeg|png|webp|gif)$/i.test(item.imagePath)
+                        ? item.imagePath
+                        : toAbsoluteUrl("/media/menu/noImage.jpg")
+                    }
+                    alt={item.nameEnglish}
                     className="w-full h-full object-cover"
                   />
                 ) : (

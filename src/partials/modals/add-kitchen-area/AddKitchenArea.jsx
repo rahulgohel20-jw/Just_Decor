@@ -3,8 +3,11 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-
-import { AddKitchenArea, UpdateKitchenArea } from "@/services/apiServices";
+import {
+  AddKitchenArea,
+  UpdateKitchenArea,
+  Translateapi,
+} from "@/services/apiServices";
 
 const AddKitchenAreaModal = ({
   isModalOpen,
@@ -23,12 +26,13 @@ const AddKitchenAreaModal = ({
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [typingTimeout, setTypingTimeout] = useState(null);
 
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name is required"),
   });
 
-  const intl = useIntl(); 
+  const intl = useIntl();
 
   useEffect(() => {
     if (selectedMenuCategory) {
@@ -44,9 +48,39 @@ const AddKitchenAreaModal = ({
     setTouched({});
   }, [selectedMenuCategory]);
 
+  const autoTranslate = (englishText) => {
+    if (!englishText) return;
+
+    Translateapi(englishText)
+      .then((res) => {
+        console.log(res);
+
+        setFormData((prev) => ({
+          ...prev,
+          nameHindi: res.data.hindi || " ",
+          nameGujarati: res.data.gujarati || " ",
+        }));
+      })
+      .catch((err) => console.error("Translate API error:", err));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // ------------------------------
+    // 🌟 ONLY TRANSLATE FOR ENGLISH FIELD
+    // ------------------------------
+    if (name === "nameEnglish") {
+      if (typingTimeout) clearTimeout(typingTimeout);
+
+      const newTimeout = setTimeout(() => {
+        autoTranslate(value);
+      }, 300); // debounce 300ms
+
+      setTypingTimeout(newTimeout);
+    }
   };
 
   const handleBlur = (e) => {
@@ -66,7 +100,6 @@ const AddKitchenAreaModal = ({
 
   const handleSubmit = async () => {
     try {
-      // ✅ Validate all fields before submit
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
 
@@ -90,7 +123,6 @@ const AddKitchenAreaModal = ({
       setIsModalOpen(false);
     } catch (err) {
       if (err.name === "ValidationError") {
-        // Collect field-level errors
         const newErrors = {};
         err.inner.forEach((e) => {
           newErrors[e.path] = e.message;
@@ -111,10 +143,19 @@ const AddKitchenAreaModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedMenuCategory ? <FormattedMessage id="MASTER.EDIT_KITCHEN_AREA" defaultMessage="Edit Kitchen Area" /> : <FormattedMessage id="MASTER.NEW_KITCHEN_AREA" defaultMessage="New Kitchen Area" />}
+            {selectedMenuCategory ? (
+              <FormattedMessage
+                id="MASTER.EDIT_KITCHEN_AREA"
+                defaultMessage="Edit Kitchen Area"
+              />
+            ) : (
+              <FormattedMessage
+                id="MASTER.NEW_KITCHEN_AREA"
+                defaultMessage="New Kitchen Area"
+              />
+            )}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -124,41 +165,57 @@ const AddKitchenAreaModal = ({
           </button>
         </div>
 
-        {/* Form */}
         <div className="grid grid-cols-2 gap-4">
           <InputWithIcon
-            label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
+            label={
+              <FormattedMessage
+                id="COMMON.NAME_ENGLISH"
+                defaultMessage="Name (English)"
+              />
+            }
             name="nameEnglish"
             value={formData.nameEnglish}
             onChange={handleChange}
             onBlur={handleBlur}
             error={touched.nameEnglish && errors.nameEnglish}
             required
-            placeholder={intl.formatMessage({ id: "COMMON.NAME_ENGLISH", defaultMessage: "Name (English)" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.NAME_ENGLISH",
+              defaultMessage: "Name (English)",
+            })}
           />
+
           <InputWithIcon
-            label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
+            label={
+              <FormattedMessage
+                id="COMMON.NAME_GUJARATI"
+                defaultMessage="Name (ગુજરાતી)"
+              />
+            }
             name="nameGujarati"
             value={formData.nameGujarati}
             onChange={handleChange}
             onBlur={handleBlur}
             error={touched.nameGujarati && errors.nameGujarati}
             required
-            placeholder={intl.formatMessage({ id: "COMMON.NAME_GUJARATI", defaultMessage: "Name (ગુજરાતી)" })}
           />
+
           <InputWithIcon
-            label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
+            label={
+              <FormattedMessage
+                id="COMMON.NAME_HINDI"
+                defaultMessage="Name (हिंदी)"
+              />
+            }
             name="nameHindi"
             value={formData.nameHindi}
             onChange={handleChange}
             onBlur={handleBlur}
             error={touched.nameHindi && errors.nameHindi}
             required
-            placeholder={intl.formatMessage({ id: "COMMON.NAME_HINDI", defaultMessage: "Name (हिंदी)" })}
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex w-full justify-end mt-6 gap-3">
           <button
             type="button"
@@ -167,12 +224,17 @@ const AddKitchenAreaModal = ({
           >
             <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
+
           <button
             type="button"
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {selectedMenuCategory ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+            {selectedMenuCategory ? (
+              <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+            ) : (
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+            )}
           </button>
         </div>
       </div>
@@ -193,21 +255,20 @@ const InputWithIcon = ({
     <label className="block text-gray-600 mb-1">
       {label}
       {required && (
-        <span className="mandatory ms-0.5 text-base text-red-500 font-mediumml-1">
-          *
-        </span>
+        <span className="mandatory ms-0.5 text-base text-red-500">*</span>
       )}
     </label>
+
     <input
       type="text"
       name={name}
       value={value}
       onChange={onChange}
       onBlur={onBlur}
-      className={`border rounded-lg p-2 w-full border-gray-300 `}
-      placeholder={label}
+      className="border rounded-lg p-2 w-full border-gray-300"
       required={required}
     />
+
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );
