@@ -211,7 +211,7 @@ const RawMaterialAllocation = () => {
       console.log("===================");
 
       if (
-        response?.data?.success ||
+        response?.data?.success === true ||
         response?.status === 200 ||
         response?.status === 201
       ) {

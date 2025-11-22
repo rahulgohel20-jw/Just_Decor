@@ -48,7 +48,10 @@ const MenuSubCategory = () => {
       if (result.isConfirmed) {
         DeleteSubCategoryId(id)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchSubCategoryData();
               Swal.fire({
                 title: "Removed!",

@@ -263,7 +263,7 @@ const CreateEventPage = () => {
 
         if (
           response?.data?.msg?.toLowerCase().includes("Successfully") ||
-          response?.status === 200
+          response?.data?.status === true
         ) {
           Swal.fire({
             title: "Event Updated Successfully!",
@@ -296,14 +296,41 @@ const CreateEventPage = () => {
 
           navigate("/calendar");
         } else {
-          response.data?.msg && errorMsgPopup(response.data.msg);
+          Swal.fire({
+            title: "Event Update Error!",
+            text: response?.data?.msg,
+            icon: "error",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: `
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
+            },
+            hideClass: {
+              popup: `
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `,
+            },
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
           console.error("Backend returned an error:", response);
         }
       } else {
         response = await CreateEventMaster(payload);
         if (
           response?.data?.msg?.toLowerCase().includes("Successfully") ||
-          response?.status === 200
+          response?.data?.status === 200
         ) {
           Swal.fire({
             title: "Event Created Successfully!",

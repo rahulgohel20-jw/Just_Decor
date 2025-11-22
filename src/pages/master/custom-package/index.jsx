@@ -147,7 +147,7 @@ const CustomPackageMaster = () => {
           const response = await DeleteCustomPackageapi(packageid);
 
           if (
-            response?.data?.success ||
+            response?.data?.success === true ||
             response?.success ||
             response?.status === 200
           ) {
@@ -190,7 +190,7 @@ const CustomPackageMaster = () => {
     try {
       const response = await UpdateCustomPackageStatusapi(packageid, isActive);
 
-      if (response?.data?.success) {
+      if (response?.data?.success === true) {
         await fetchPackages();
         Swal.fire({
           title: "Updated!",

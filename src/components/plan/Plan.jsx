@@ -18,8 +18,8 @@ const Plan = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editPlanData, setEditPlanData] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null); 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ✅ Fetch all plans
   const fetchPlans = async () => {
@@ -79,8 +79,12 @@ const Plan = () => {
       const res = await DeletePlanById(id);
 
       const data = res?.data || res;
-      if (data?.success) {
-        Swal.fire("Deleted!", data?.msg || "Plan deleted successfully!", "success");
+      if (data?.success === true) {
+        Swal.fire(
+          "Deleted!",
+          data?.msg || "Plan deleted successfully!",
+          "success"
+        );
         fetchPlans();
       } else {
         Swal.fire("Error!", data?.msg || "Failed to delete plan", "error");
@@ -105,7 +109,6 @@ const Plan = () => {
     setIsSidebarOpen(true);
   };
 
- 
   const handleCloseSidebar = () => {
     setSelectedPlan(null);
     setIsSidebarOpen(false);
@@ -143,7 +146,11 @@ const Plan = () => {
           <Spin size="large" />
         </div>
       ) : (
-        <TableComponent columns={columns} data={filteredPlans} paginationSize={10} />
+        <TableComponent
+          columns={columns}
+          data={filteredPlans}
+          paginationSize={10}
+        />
       )}
 
       <AddPlan
@@ -154,7 +161,11 @@ const Plan = () => {
         }}
         editPlan={editPlanData}
         onSuccess={() => {
-          message.success(editPlanData ? "Plan updated successfully!" : "Plan added successfully!");
+          message.success(
+            editPlanData
+              ? "Plan updated successfully!"
+              : "Plan added successfully!"
+          );
           setIsModalOpen(false);
           setEditPlanData(null);
           fetchPlans();

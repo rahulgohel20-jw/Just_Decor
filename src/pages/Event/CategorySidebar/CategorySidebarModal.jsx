@@ -34,9 +34,13 @@ export default function CategorySidebarModal({
   const [suppliers, setSuppliers] = useState([]);
   const [unit, setUnit] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedAgency, setSelectedAgency] = useState("");
+  const [selectedPlace, setSelectedPlace] = useState("");
   const intl = useIntl();
 
   const FetchAllSuplier = async () => {
+    setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem("userData"));
       const userId = user?.id || 0;
@@ -49,6 +53,8 @@ export default function CategorySidebarModal({
       setUnit(unitData);
     } catch (err) {
       console.error("Error fetching suppliers:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,6 +109,84 @@ export default function CategorySidebarModal({
     );
   };
 
+  // Bulk Allocate Agency to all rows
+  const handleAllocateAgency = () => {
+    if (!selectedAgency) {
+      Swal.fire({
+        icon: "warning",
+        title: intl.formatMessage({
+          id: "COMMON.WARNING",
+          defaultMessage: "Warning",
+        }),
+        text: intl.formatMessage({
+          id: "SIDEBAR_MODAL.SELECT_AGENCY_FIRST",
+          defaultMessage: "Please select an agency first",
+        }),
+      });
+      return;
+    }
+
+    setRawMaterials((prev) =>
+      prev.map((r) => ({ ...r, agency: selectedAgency }))
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: intl.formatMessage({
+        id: "COMMON.SUCCESS",
+        defaultMessage: "Success",
+      }),
+      text: intl.formatMessage({
+        id: "SIDEBAR_MODAL.AGENCY_ALLOCATED",
+        defaultMessage: "Agency allocated to all items successfully",
+      }),
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    // Reset selected agency after allocation
+    setSelectedAgency("");
+  };
+
+  // Bulk Allocate Place to all rows
+  const handleAllocatePlace = () => {
+    if (!selectedPlace) {
+      Swal.fire({
+        icon: "warning",
+        title: intl.formatMessage({
+          id: "COMMON.WARNING",
+          defaultMessage: "Warning",
+        }),
+        text: intl.formatMessage({
+          id: "SIDEBAR_MODAL.SELECT_PLACE_FIRST",
+          defaultMessage: "Please select a place first",
+        }),
+      });
+      return;
+    }
+
+    setRawMaterials((prev) =>
+      prev.map((r) => ({ ...r, place: selectedPlace }))
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: intl.formatMessage({
+        id: "COMMON.SUCCESS",
+        defaultMessage: "Success",
+      }),
+      text: intl.formatMessage({
+        id: "SIDEBAR_MODAL.PLACE_ALLOCATED",
+        defaultMessage: "Place allocated to all items successfully",
+      }),
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    // Reset selected place after allocation
+    setSelectedPlace("");
+  };
+
   const handleSubmit = async () => {
     try {
       if (
@@ -133,13 +217,14 @@ export default function CategorySidebarModal({
           dateTime: item.dateTime
             ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
-          weight: Number(item.weight) || 0,
+          weight: Number(item.weight) || 1,
           rawmaterial_weight: Number(item.rawmaterial_weight) || 0,
           rate: item.rate || 0,
           rawmaterial_rate: item.rawmaterial_rate || 0,
           place: item.place || "",
         };
       });
+      console.log("payload", payload);
 
       const hasInvalidData = payload.some(
         (item) =>
@@ -160,7 +245,7 @@ export default function CategorySidebarModal({
 
       const res = await SelectedRawMenuallocation(payload);
 
-      if (res?.data?.success) {
+      if (res?.data?.success === true) {
         Swal.fire({
           icon: "success",
           title: "Saved!",
@@ -217,7 +302,14 @@ export default function CategorySidebarModal({
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-end flex-shrink-0">
+              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-[18px] font-semibold text-gray-800">
+                    {rawMaterials.length > 0
+                      ? rawMaterials[0].menuItemName || "—"
+                      : "—"}
+                  </div>
+                </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
@@ -229,12 +321,97 @@ export default function CategorySidebarModal({
 
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="p-5 flex-shrink-0">
-                  {/* Header Section - Show only menu item name */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-[18px] font-semibold text-gray-800">
-                      {rawMaterials.length > 0
-                        ? rawMaterials[0].menuItemName || "—"
-                        : "—"}
+                  {/* Header Section - Show menu item name */}
+
+                  {/* Bulk Allocate Section - Centered */}
+                  <div className="flex items-start justify-start gap-4 mt-4">
+                    {/* Bulk Allocate Agency */}
+                    <div className="flex items-end gap-2">
+                      <select
+                        className="select pe-7.5"
+                        value={selectedAgency}
+                        onChange={(e) => setSelectedAgency(e.target.value)}
+                      >
+                        <option value="">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.SELECT_AGENCY"
+                            defaultMessage="Select Agency"
+                          />
+                        </option>
+                        {loading && (
+                          <option>
+                            <FormattedMessage
+                              id="SIDEBAR_MODAL.LOADING"
+                              defaultMessage="Loading..."
+                            />
+                          </option>
+                        )}
+                        {!loading && suppliers.length > 0
+                          ? suppliers.map((agency) => (
+                              <option
+                                key={agency.id}
+                                value={agency.nameEnglish}
+                              >
+                                {agency.nameEnglish}
+                              </option>
+                            ))
+                          : !loading && (
+                              <option>
+                                <FormattedMessage
+                                  id="COMMON.NO_AGENCY_FOUND"
+                                  defaultMessage="No agencies found"
+                                />
+                              </option>
+                            )}
+                      </select>
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleAllocateAgency}
+                        disabled={!selectedAgency}
+                      >
+                        <FormattedMessage
+                          id="COMMON.ALLOCATE"
+                          defaultMessage="Allocate"
+                        />
+                      </button>
+                    </div>
+
+                    {/* Bulk Allocate Place */}
+                    <div className="flex items-end gap-2">
+                      <select
+                        className="select pe-7.5"
+                        value={selectedPlace}
+                        onChange={(e) => setSelectedPlace(e.target.value)}
+                      >
+                        <option value="">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.SELECT_PLACE"
+                            defaultMessage="Select Place"
+                          />
+                        </option>
+                        <option value="At Venue">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.AT_VENUE"
+                            defaultMessage="At Venue"
+                          />
+                        </option>
+                        <option value="GoDown">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.GO_DOWN"
+                            defaultMessage="GoDown"
+                          />
+                        </option>
+                      </select>
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleAllocatePlace}
+                        disabled={!selectedPlace}
+                      >
+                        <FormattedMessage
+                          id="COMMON.ALLOCATE"
+                          defaultMessage="Allocate"
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -174,7 +174,10 @@ const UnitMaster = () => {
         try {
           const response = await DeleteUnit(unitId);
 
-          if (response && (response.success || response.status === 200)) {
+          if (
+            response &&
+            (response.success || response.data.success === true)
+          ) {
             Fetchunit();
             Swal.fire({
               title: intl.formatMessage({
@@ -224,7 +227,7 @@ const UnitMaster = () => {
   const statusUnit = (unitId, status) => {
     updateunit(unitId, status)
       .then((res) => {
-        if (res.data?.msg || res.status === 200) {
+        if (res.data?.msg || res.data.status === true) {
           Swal.fire({
             title: intl.formatMessage({
               id: "USER.MASTER.SUCCESS",

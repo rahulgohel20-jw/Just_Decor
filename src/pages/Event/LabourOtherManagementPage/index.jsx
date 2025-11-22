@@ -398,7 +398,7 @@ const LabourOtherManagementPage = () => {
 
       const res = await AddUpdateLabor(payload);
 
-      if (res?.data?.status || res?.data?.success) {
+      if (res?.data?.status === true || res?.data?.success === true) {
         Swal.fire({
           icon: "success",
           title: "Success",

@@ -127,7 +127,10 @@ const EventTypeMaster = () => {
       if (result.isConfirmed) {
         DeleteEventType(eventid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchEventType();
               Swal.fire({
                 title: intl.formatMessage({

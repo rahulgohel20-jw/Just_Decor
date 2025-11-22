@@ -3,9 +3,7 @@ import { KeenIcon } from "@/components/keenicons";
 import { toAbsoluteUrl } from "@/utils";
 import { Menu, MenuItem, MenuToggle } from "@/components";
 import { DropdownUser } from "@/partials/dropdowns/user";
-import {
-  DropdownNotifications,
-} from "@/partials/dropdowns/notifications";
+import { DropdownNotifications } from "@/partials/dropdowns/notifications";
 import { useNavigate } from "react-router-dom";
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
@@ -51,7 +49,6 @@ const HeaderTopbar = () => {
 
   return (
     <div className="flex items-center justify-between w-full">
-     
       <div className="flex items-center gap-2">
         <span className="font-semibold text-black text-lg truncate max-w-[200px]">
           {companyName || "Company"}
@@ -71,13 +68,13 @@ const HeaderTopbar = () => {
         <div className="fixed left-0 right-0 bottom-10 flex justify-center md:static">
           <div className="flex items-center gap-2 lg:gap-3 shadow-lg md:shadow-none py-3 md:py-0 px-7 md:px-0 rounded-full md:rounded-0 bg-white md:bg-transparent border md:border-0">
             {/* Search */}
-            <button
+            {/* <button
               onClick={handleOpen}
               className="btn btn-icon btn-icon-lg size-9 rounded-full hover:bg-primary-clarity hover:text-primary text-gray-500"
             >
               <KeenIcon icon="magnifier" />
             </button>
-            <ModalSearch open={searchModalOpen} onOpenChange={handleClose} />
+            <ModalSearch open={searchModalOpen} onOpenChange={handleClose} /> */}
 
             {/* WhatsApp */}
             <Menu>

@@ -111,7 +111,10 @@ const ContactTypeMaster = () => {
       if (result.isConfirmed) {
         DeleteContactTypeMaster(contacttypeid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchContactType();
               Swal.fire({
                 title: "Removed!",

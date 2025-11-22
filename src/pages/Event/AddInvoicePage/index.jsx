@@ -151,33 +151,34 @@ const AddInvoicePage = () => {
           };
 
           if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
-  mappedRows = invoiceDetails.invoiceFunctionItems.map(
-    (item, index) => {
-      // ✅ A row is custom if it was manually added (check if it has an ID but isEventFunction is explicitly false)
-      // OR if the functionName doesn't match any event function names
-      const isManuallyAdded = item.isEventFunction === false || 
-      item.id > 0 && !item.isEventFunction;
-      
-      return {
-        key: `${index + 1}-${Math.random()}`,
-        name: item.functionName || item.name || "",
-        date: formatDateForDisplay(item.functionDate || item.date),
-        person: item.pax || item.person || 0,
-        extra: item.extraPax || item.extra || 0,
-        rate: item.ratePerPlate || item.rate || 0,
-        amount:
-          item.amount ||
-          (Number(item.person || item.pax || 0) +
-            Number(item.extra || item.extraPax || 0)) *
-            Number(item.rate || item.ratePerPlate || 0),
-        isCustom: isManuallyAdded, // ✅ TRUE for manually added rows
-        isEventFunction: item.isEventFunction === true,
-        id: item.id || 0,
-        isNewRow: false,
-      };
-    }
-  );
-} else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
+            mappedRows = invoiceDetails.invoiceFunctionItems.map(
+              (item, index) => {
+                // ✅ A row is custom if it was manually added (check if it has an ID but isEventFunction is explicitly false)
+                // OR if the functionName doesn't match any event function names
+                const isManuallyAdded =
+                  item.isEventFunction === false ||
+                  (item.id > 0 && !item.isEventFunction);
+
+                return {
+                  key: `${index + 1}-${Math.random()}`,
+                  name: item.functionName || item.name || "",
+                  date: formatDateForDisplay(item.functionDate || item.date),
+                  person: item.pax || item.person || 0,
+                  extra: item.extraPax || item.extra || 0,
+                  rate: item.ratePerPlate || item.rate || 0,
+                  amount:
+                    item.amount ||
+                    (Number(item.person || item.pax || 0) +
+                      Number(item.extra || item.extraPax || 0)) *
+                      Number(item.rate || item.ratePerPlate || 0),
+                  isCustom: isManuallyAdded, // ✅ TRUE for manually added rows
+                  isEventFunction: item.isEventFunction === true,
+                  id: item.id || 0,
+                  isNewRow: false,
+                };
+              }
+            );
+          } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
             mappedRows = invoiceDetails.event.eventFunctions.map(
               (func, index) => ({
                 key: `${index + 1}-${Math.random()}`,
@@ -248,24 +249,24 @@ const AddInvoicePage = () => {
   };
 
   const handleAddRow = () => {
-  const lastRow = rows[rows.length - 1];
-  setRows([
-    ...rows,
-    {
-      key: `${rows.length + 1}-${Math.random()}`,
-      name: "",
-      date: "",
-      person: lastRow ? lastRow.person : 0,
-      extra: 0,
-      rate: 0,
-      amount: 0,
-      isCustom: true,
-      isEventFunction: false,
-      id: 0,
-      isNewRow: true, // ✅ ADD THIS
-    },
-  ]);
-};
+    const lastRow = rows[rows.length - 1];
+    setRows([
+      ...rows,
+      {
+        key: `${rows.length + 1}-${Math.random()}`,
+        name: "",
+        date: "",
+        person: lastRow ? lastRow.person : 0,
+        extra: 0,
+        rate: 0,
+        amount: 0,
+        isCustom: true,
+        isEventFunction: false,
+        id: 0,
+        isNewRow: true, // ✅ ADD THIS
+      },
+    ]);
+  };
 
   // Callback to update footer data from InvoiceFooter component
   const handleFooterDataChange = (newFooterData) => {
@@ -464,52 +465,50 @@ const AddInvoicePage = () => {
       const response = await UpdateInvoice(invoiceData?.id, payload);
       console.log("API Response:", response);
 
-     if (response?.data?.success) {
-  // ✅ SUCCESS ALERT
-  Swal.fire({
-    title: response?.data?.msg || "Invoice saved successfully!",
-    text: "",
-    icon: "success",
-    background: "#f5faff",
-    color: "#003f73",
-    confirmButtonText: "Okay",
-    confirmButtonColor: "#005BA8",
-    showClass: {
-      popup: `
+      if (response?.data?.success === true) {
+        // ✅ SUCCESS ALERT
+        Swal.fire({
+          title: response?.data?.msg || "Invoice saved successfully!",
+          text: "",
+          icon: "success",
+          background: "#f5faff",
+          color: "#003f73",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#005BA8",
+          showClass: {
+            popup: `
         animate__animated
         animate__fadeInDown
         animate__faster
       `,
-    },
-    hideClass: {
-      popup: `
+          },
+          hideClass: {
+            popup: `
         animate__animated
         animate__fadeOutUp
         animate__faster
       `,
-    },
-    customClass: {
-      popup: "rounded-2xl shadow-xl",
-      title: "text-2xl font-bold",
-      confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
-    },
-  }).then(() => {
-    // After success, update rows to remove isNewRow flag and make them editable
-    setRows(prevRows => 
-      prevRows.map(row => ({
-        ...row,
-        isNewRow: false, // Remove the new row flag
-        isCustom: true,  // Keep as custom (editable)
-        // If response contains updated data with IDs, update them
-        
-      }))
-    );
-    
-    // Optionally refetch the invoice data to get the latest from backend
-    fetchInvoiceData();
-  });
-}
- else {
+          },
+          customClass: {
+            popup: "rounded-2xl shadow-xl",
+            title: "text-2xl font-bold",
+            confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+          },
+        }).then(() => {
+          // After success, update rows to remove isNewRow flag and make them editable
+          setRows((prevRows) =>
+            prevRows.map((row) => ({
+              ...row,
+              isNewRow: false, // Remove the new row flag
+              isCustom: true, // Keep as custom (editable)
+              // If response contains updated data with IDs, update them
+            }))
+          );
+
+          // Optionally refetch the invoice data to get the latest from backend
+          fetchInvoiceData();
+        });
+      } else {
         Swal.fire({
           title: "Failed to save invoice",
           text: response?.data?.msg || "Please try again later.",
@@ -836,11 +835,11 @@ const AddInvoicePage = () => {
 
             {/* ItemTable */}
             <ItemTable
-  rows={rows}
-  onInputChange={handleInputChange}
-  onAddRow={handleAddRow}
-  onDeleteRow={handleDeleteRow}
-/>
+              rows={rows}
+              onInputChange={handleInputChange}
+              onAddRow={handleAddRow}
+              onDeleteRow={handleDeleteRow}
+            />
 
             {/* InvoiceFooter */}
             <InvoiceFooter

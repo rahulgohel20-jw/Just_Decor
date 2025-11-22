@@ -15,7 +15,7 @@ import {
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import  { FormattedMessage } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
 const validationSchema = Yup.object().shape({
@@ -45,8 +45,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [unitList, setUnitList] = useState([]);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
-
-
 
   const intl = useIntl();
   let userdata = JSON.parse(localStorage.getItem("userData"));
@@ -98,7 +96,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           response = await Addrawmaterial(requestData);
         }
 
-        if (response && (response.success || response.status === 200)) {
+        if (response && (response.success || response.data.success === true)) {
           Swal.fire({
             title: "Success!",
             text: `Raw material ${rawmaterial ? "updated" : "saved"} successfully.`,
@@ -224,7 +222,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
         try {
           const response = await DeleteSuplier(item.deleteId);
 
-          if (response && (response.success || response.status === 200)) {
+          if (
+            response &&
+            (response.success || response.data.success === true)
+          ) {
             setTableData((prevData) =>
               prevData.filter((dataItem) => dataItem.deleteId !== item.deleteId)
             );
@@ -352,14 +353,30 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
         open={isOpen}
         width={1000}
         onClose={() => onClose(false)}
-        title={rawmaterial ? <FormattedMessage id="USER.RAWMATERIAL.EDIT_TITLE" defaultMessage="Edit Raw Material" /> : <FormattedMessage id="USER.RAWMATERIAL.NEW_TITLE" defaultMessage="New Raw Material" />}
+        title={
+          rawmaterial ? (
+            <FormattedMessage
+              id="USER.RAWMATERIAL.EDIT_TITLE"
+              defaultMessage="Edit Raw Material"
+            />
+          ) : (
+            <FormattedMessage
+              id="USER.RAWMATERIAL.NEW_TITLE"
+              defaultMessage="New Raw Material"
+            />
+          )
+        }
         footer={[
           <div className="flex justify-between " key="footer-buttons">
             <button className="btn btn-light" onClick={() => onClose(false)}>
               <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button className="btn btn-primary" onClick={formik.handleSubmit}>
-              {rawmaterial ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+              {rawmaterial ? (
+                <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+              ) : (
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+              )}
             </button>
           </div>,
         ]}
@@ -372,7 +389,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             {/* English Name */}
             <div className="flex flex-col">
               <label className="form-label">
-                <FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />
+                <FormattedMessage
+                  id="COMMON.NAME_ENGLISH"
+                  defaultMessage="Name (English)"
+                />
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -393,7 +413,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
 
             {/* Gujarati Name */}
             <div className="flex flex-col">
-              <label className="form-label"><FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" /></label>
+              <label className="form-label">
+                <FormattedMessage
+                  id="COMMON.NAME_GUJARATI"
+                  defaultMessage="Name (ગુજરાતી)"
+                />
+              </label>
               <input
                 type="text"
                 name="nameGujarati"
@@ -406,7 +431,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
 
             {/* Hindi Name */}
             <div className="flex flex-col">
-              <label className="form-label"><FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" /></label>
+              <label className="form-label">
+                <FormattedMessage
+                  id="COMMON.NAME_HINDI"
+                  defaultMessage="Name (हिंदी)"
+                />
+              </label>
               <input
                 type="text"
                 name="nameHindi"
@@ -421,7 +451,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           {/* Raw Category */}
           <div className="flex flex-col">
             <label className="form-label">
-              <FormattedMessage id="USER.RAWMATERIAL.CATEGORY" defaultMessage="Raw Material Category" />
+              <FormattedMessage
+                id="USER.RAWMATERIAL.CATEGORY"
+                defaultMessage="Raw Material Category"
+              />
               <span className="text-red-500">*</span>
             </label>
             <select
@@ -431,7 +464,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             >
-              <option value=""><FormattedMessage id="USER.RAWMATERIAL.SELECT_CATEGORY" defaultMessage="Select Raw Material Category" /></option>
+              <option value="">
+                <FormattedMessage
+                  id="USER.RAWMATERIAL.SELECT_CATEGORY"
+                  defaultMessage="Select Raw Material Category"
+                />
+              </option>
               {rawCategory.map((category) => (
                 <option key={category.value} value={category.value}>
                   {category.label}
@@ -458,7 +496,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             >
-              <option value=""><FormattedMessage id="COMMON.SELECT_UNIT" defaultMessage="Select Unit" /></option>
+              <option value="">
+                <FormattedMessage
+                  id="COMMON.SELECT_UNIT"
+                  defaultMessage="Select Unit"
+                />
+              </option>
               {unitList.map((unit) => (
                 <option key={unit.value} value={unit.value}>
                   {unit.label}
@@ -475,7 +518,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           {/* Supplier Rate & Priority */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label"><FormattedMessage id="COMMON.SUPPLIER_RATE" defaultMessage="Supplier Rate" /></label>
+              <label className="form-label">
+                <FormattedMessage
+                  id="COMMON.SUPPLIER_RATE"
+                  defaultMessage="Supplier Rate"
+                />
+              </label>
               <input
                 type="tel"
                 name="supplierRate"
@@ -492,7 +540,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               )}
             </div>
             <div className="flex flex-col">
-              <label className="form-label"><FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" /></label>
+              <label className="form-label">
+                <FormattedMessage
+                  id="COMMON.PRIORITY"
+                  defaultMessage="Priority"
+                />
+              </label>
               <input
                 type="tel"
                 name="priority"
@@ -512,7 +565,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
 
           {/* General Fix */}
           <div className="flex items-center gap-2 mt-2">
-            <label className="form-label"><FormattedMessage id="USER.RAWMATERIAL.GENERAL_FIX" defaultMessage="General Fix Raw Material" /></label>
+            <label className="form-label">
+              <FormattedMessage
+                id="USER.RAWMATERIAL.GENERAL_FIX"
+                defaultMessage="General Fix Raw Material"
+              />
+            </label>
             <label className="switch switch-lg">
               <input
                 type="checkbox"
@@ -528,7 +586,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             <div className="flex flex-col gap-y-4 mt-4">
               <div className="grid grid-cols-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label"><FormattedMessage id="USER.RAWMATERIAL.WEIGHT" defaultMessage="Weight Per 100 Person" /></label>
+                  <label className="form-label">
+                    <FormattedMessage
+                      id="USER.RAWMATERIAL.WEIGHT"
+                      defaultMessage="Weight Per 100 Person"
+                    />
+                  </label>
                   <input
                     type="tel"
                     name="weight"
@@ -558,7 +621,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
                   <input
                     className="input pl-8"
-                    placeholder={intl.formatMessage({ id: "USER.SUPPLIER.SEARCH_SUPPLIER", defaultMessage: "Search Supplier..." })}
+                    placeholder={intl.formatMessage({
+                      id: "USER.SUPPLIER.SEARCH_SUPPLIER",
+                      defaultMessage: "Search Supplier...",
+                    })}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -575,7 +641,11 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   }}
                   title="Add Supplier"
                 >
-                  <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.SUPPLIER.ADD_SUPPLIER" defaultMessage="Add Supplier" />
+                  <i className="ki-filled ki-plus"></i>{" "}
+                  <FormattedMessage
+                    id="USER.SUPPLIER.ADD_SUPPLIER"
+                    defaultMessage="Add Supplier"
+                  />
                 </button>
               </div>
             </div>

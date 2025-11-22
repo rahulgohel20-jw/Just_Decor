@@ -890,7 +890,7 @@ const EventMenuAllocationPage = () => {
       console.log("Final payload:", JSON.stringify(payload, null, 2));
 
       const res = await MenuAllocationSave(payload);
-      if (res?.data?.success) {
+      if (res?.data?.success === true) {
         Swal.fire({
           title: "Saved Successfully!",
           text: "Menu Allocation details have been saved.",

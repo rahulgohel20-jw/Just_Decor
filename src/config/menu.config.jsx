@@ -357,7 +357,7 @@ const allMenuItems = [
   //   path: "/reportcustomethemes",
   // },
   {
-    title: "Settings",
+    title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary",
     disabled: false,
     children: [
@@ -373,7 +373,7 @@ const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.USER_RIGHTS"
+            id="BREADCRUMBS_USER_RIGHTS"
             defaultMessage="User Rights"
           />
         ),
