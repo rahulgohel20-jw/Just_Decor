@@ -6,9 +6,12 @@ import {
   AddUserPlan,
   CreatePaymentOrder,
   FetchAllUser,
+  GetPlansByBillingCycle,
 } from "@/services/apiServices";
+import { useAutoTranslation } from "../../../utils/useAutoTranslation";
 import PaymentSuccess from "../successmodal/paymentsuccess";
 import Swal from "sweetalert2";
+import { useLanguage } from "@/i18n";
 
 const parseJwt = (token) => {
   try {
@@ -30,13 +33,20 @@ const parseJwt = (token) => {
 const Priceplan = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { translate } = useAutoTranslation();
+  const [translatedPlans, setTranslatedPlans] = useState([]);
+  const [language, setLanguage] = useState("en");
 
   // user states
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [underVerification, setUnderVerification] = useState(false);
+  const [labels, setLabels] = useState({
+    quarterly: "Quarterly",
+    annually: "Annually",
+  });
 
-  const [activeCycle, setActiveCycle] = useState("Monthly");
+  const [activeCycle, setActiveCycle] = useState("Quarterly");
   const [paymentData, setPaymentData] = useState({
     amount: 0,
     transactionId: "",
@@ -48,6 +58,16 @@ const Priceplan = () => {
       ? JSON.parse(localStorage.getItem("userData") || "null")
       : null;
   const token = stored?.token;
+
+  useEffect(() => {
+    const loadLabels = async () => {
+      setLabels({
+        quarterly: await translate("Quarterly"),
+        annually: await translate("Annually"),
+      });
+    };
+    loadLabels();
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -79,26 +99,60 @@ const Priceplan = () => {
   }, [userId]);
 
   useEffect(() => {
-    setLoading(true);
-    GetAllPlans()
-      .then((res) => {
-        const result = res.data?.data?.["Plan Details"] || [];
-        setPlans(result);
-      })
-      .catch((err) => {
-        console.error("Error fetching plans:", err);
-        setPlans([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (!activeCycle) return;
+    fetchPlans();
+  }, [activeCycle, language]);
+
+  const fetchPlans = async () => {
+    try {
+      setLoading(true);
+      const res = await GetPlansByBillingCycle(activeCycle);
+      const result = res?.data?.data?.["Plan Details"] || [];
+
+      const langPlans = await Promise.all(
+        result.map(async (p) => ({
+          ...p,
+
+          originalName: p.name, // keep English
+          name: await translate(p.name),
+
+          originalDescription: p.description,
+          description: await translate(p.description),
+
+          originalBillingCycle: p.billingCycle,
+          billingCycle: await translate(p.billingCycle),
+
+          features: await Promise.all(
+            p.features?.map(async (f) => ({
+              ...f,
+              originalFeatureText: f.featureText,
+              featureText: await translate(f.featureText),
+            }))
+          ),
+        }))
+      );
+
+      setTranslatedPlans(langPlans);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+      setTranslatedPlans([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const orderedPlans = (() => {
-    const popular = plans.filter((p) => p.isPopular);
-    const others = plans.filter((p) => !p.isPopular);
-    if (popular.length === 0) return plans;
+    if (!translatedPlans.length) return [];
+
+    const popular = translatedPlans.filter((p) => p.isPopular);
+    const others = translatedPlans.filter((p) => !p.isPopular);
+
+    if (popular.length === 0) return translatedPlans;
+
     if (others.length === 2) {
       return [others[0], popular[0], others[1]];
     }
+
     return [...others, ...popular];
   })();
 
@@ -245,17 +299,20 @@ const Priceplan = () => {
 
         <div className="flex justify-center mt-8">
           <div className="flex bg-[#F4F4FF] rounded-full p-1">
-            {["Monthly", "Quarterly", "Annually"].map((cycle) => (
+            {[
+              { key: "Quarterly", label: labels.quarterly },
+              { key: "Annually", label: labels.annually },
+            ].map((cycle) => (
               <button
-                key={cycle}
-                onClick={() => setActiveCycle(cycle)}
+                key={cycle.key}
+                onClick={() => setActiveCycle(cycle.key)}
                 className={`px-6 py-2 text-sm rounded-full font-medium transition-all ${
-                  activeCycle === cycle
+                  activeCycle === cycle.key
                     ? "bg-[#005BA8] text-white"
                     : "text-[#6F6C8F] hover:bg-blue-50"
                 }`}
               >
-                {cycle}
+                {cycle.label}
               </button>
             ))}
           </div>
@@ -274,76 +331,169 @@ const Priceplan = () => {
           <Spin size="large" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 items-stretch justify-center">
+        <div
+          className={`grid gap-8 md:gap-6 items-stretch ${
+            orderedPlans.filter((plan) => plan.id !== 5).length === 1
+              ? "grid-cols-1 max-w-lg mx-auto"
+              : orderedPlans.filter((plan) => plan.id !== 5).length === 2
+                ? "grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto"
+                : "grid-cols-1 md:grid-cols-3"
+          }`}
+        >
           {orderedPlans
             .filter((plan) => plan.id !== 5)
             .map((plan) => {
               const isPopular = plan.isPopular;
               const disabledBecauseSamePlan = user?.plan?.id === plan.id;
+              const isSinglePlan =
+                orderedPlans.filter((p) => p.id !== 5).length === 1;
+              const isHighlighted = isPopular || isSinglePlan;
 
               return (
-                <div
-                  key={plan.id}
-                  className={`relative flex flex-col rounded-3xl border border-[#E6E6F0] shadow-sm hover:shadow-lg transition-all bg-white p-8 md:p-10 ${
-                    isPopular
-                      ? "border-[#005BA8] bg-[#F9FAFF] scale-[1.03] shadow-[0_12px_40px_rgba(0,91,168,0.15)] z-10"
-                      : "z-0"
-                  }`}
-                >
-                  {isPopular && (
-                    <div className="absolute top-3 right-3 bg-[#005BA8] text-white text-xs px-3 py-1 rounded-full">
-                      Most popular
-                    </div>
+                <div key={plan.id} className="relative group">
+                  {/* Glow effect behind card */}
+                  {isHighlighted && (
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
                   )}
 
-                  <div className="flex mb-6">
-                    <img
-                      src={toAbsoluteUrl(
-                        `/media/price/${plan.name.toLowerCase()}.png`
-                      )}
-                      alt={plan.name}
-                      className={`${isPopular ? "h-12 w-12" : "h-10 w-10"} object-contain`}
-                    />
-                  </div>
-
-                  <h3 className="text-xl font-semibold text-[#170F49] mb-2">
-                    {plan.name}
-                  </h3>
-                  <p className="text-sm text-[#6F6C8F] mb-6 leading-relaxed">
-                    {plan.description}
-                  </p>
-
-                  <div className="text-[#170F49] mb-6">
-                    <p className="text-3xl font-bold">
-                      ₹{plan.price.toLocaleString()}
-                      <span className="text-sm font-normal text-[#A0A3BD] ml-1">
-                        /{plan.billingCycle.toLowerCase()}
-                      </span>
-                    </p>
-                  </div>
-
-                  <ul className="text-[#6F6C8F] text-sm space-y-3 mb-8 max-w-[250px]">
-                    {plan.features?.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[#4A3AFF] text-[#4A3AFF] text-xs">
-                          ✓
-                        </span>
-                        <span>{f.featureText}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    onClick={() => handlePayment(plan)}
-                    disabled={!userId || disabledBecauseSamePlan}
-                    className={`w-full px-8 py-2.5 rounded-lg font-semibold transition-all duration-300 ${
-                      isPopular
-                        ? "bg-[#005BA8] text-white hover:bg-[#004a8a]"
-                        : "border border-[#D9DBE9] text-[#170F49] hover:bg-blue-50"
-                    } ${!userId || disabledBecauseSamePlan ? "opacity-60 cursor-not-allowed" : ""}`}
+                  <div
+                    className={`relative flex flex-col h-full rounded-3xl border-2 transition-all duration-300 bg-white p-8 md:p-10 ${
+                      isHighlighted
+                        ? "border-[#005BA8] shadow-[0_20px_60px_rgba(0,91,168,0.15)] group-hover:shadow-[0_25px_70px_rgba(0,91,168,0.2)]"
+                        : "border-[#E6E6F0] shadow-sm hover:shadow-xl hover:border-[#005BA8]/30"
+                    }`}
                   >
-                    {disabledBecauseSamePlan ? "Current Plan" : "Choose plan"}
-                  </button>
+                    {/* Badge - Only show for isPopular plans */}
+                    {isPopular && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <div className="bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          Most Popular
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Plan Icon */}
+                    <div
+                      className={`flex justify-center mb-6 ${isHighlighted ? "mt-2" : ""}`}
+                    >
+                      <div
+                        className={`rounded-2xl p-4 ${
+                          isHighlighted
+                            ? "bg-gradient-to-br from-[#005BA8]/10 to-[#4A3AFF]/10"
+                            : "bg-[#F4F4FF]"
+                        }`}
+                      >
+                        <img
+                          src={toAbsoluteUrl(
+                            `/media/price/${plan.name.toLowerCase()}.png
+`
+                          )}
+                          alt={plan.name}
+                          className={`${isHighlighted ? "h-14 w-14" : "h-12 w-12"} object-contain`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Plan Name & Description */}
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-[#170F49] mb-2">
+                        {plan.name}
+                      </h3>
+                      <p className="text-sm text-[#6F6C8F] leading-relaxed">
+                        {plan.description}
+                      </p>
+                    </div>
+
+                    {/* Price */}
+                    <div className="text-center mb-8">
+                      <div className="flex items-baseline justify-center">
+                        <span className="text-lg font-medium text-[#6F6C8F]">
+                          ₹
+                        </span>
+                        <span className="text-5xl font-bold text-[#170F49] mx-1">
+                          {plan.price.toLocaleString()}
+                        </span>
+                      </div>
+                      <span className="text-sm text-[#A0A3BD]">
+                        /{plan.billingCycle}
+                      </span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#E6E6F0] to-transparent mb-8" />
+
+                    {/* Features */}
+                    <ul className="text-[#6F6C8F] text-sm space-y-4 mb-8 flex-grow">
+                      {plan.features?.map((f, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span
+                            className={`flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0 mt-0.5 ${
+                              isHighlighted
+                                ? "bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white"
+                                : "border-2 border-[#4A3AFF] text-[#4A3AFF]"
+                            }`}
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </span>
+                          <span className="text-[#4A4A68]">
+                            {f.featureText}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={() => handlePayment(plan)}
+                      disabled={!userId || disabledBecauseSamePlan}
+                      className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all duration-300 ${
+                        isHighlighted
+                          ? "bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white shadow-lg shadow-[#005BA8]/25 hover:shadow-xl hover:shadow-[#005BA8]/30 hover:scale-[1.02]"
+                          : "border-2 border-[#D9DBE9] text-[#170F49] hover:border-[#005BA8] hover:bg-[#F9FAFF]"
+                      } ${!userId || disabledBecauseSamePlan ? "opacity-60 cursor-not-allowed hover:scale-100" : ""}`}
+                    >
+                      {disabledBecauseSamePlan ? "Current Plan" : "Choose Plan"}
+                    </button>
+
+                    {/* Trust text */}
+                    {isHighlighted && (
+                      <p className="text-center text-xs text-[#A0A3BD] mt-4 flex items-center justify-center gap-1">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                          />
+                        </svg>
+                        Secure payment • Cancel anytime
+                      </p>
+                    )}
+                  </div>
                 </div>
               );
             })}
