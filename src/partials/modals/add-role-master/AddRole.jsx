@@ -1,60 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Checkbox } from "@mui/material";
-import { createRole } from "@/services/apiServices";
-import { updateRole } from "@/services/apiServices";
+import AddRoleModal from "../add-role-modal/AddRoleModal";
+import { AddRights, GetAllRole } from "@/services/apiServices";
+import axios from "axios";
+import Swal from "sweetalert2";
 
-const permissions = [
-  "Dashboard",
-  "Pipeline",
-  "Contacts",
-  "Company",
-  "Follow-up",
-  "Products",
-  "Team",
-  "Settings",
-];
+const AddRole = ({ isModalOpen, setIsModalOpen }) => {
+  const [formData, setFormData] = useState({});
+  const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
+  const [pages, setPages] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [rights, setRights] = useState({});
+  const resetForm = () => {
+    setFormData({});
+    setRights({});
+    setActiveTab("pages");
+  };
 
-const AddRole = ({
-  isModalOpen,
-  setIsModalOpen,
-  editData,
-  successFunction,
-}) => {
-  const [formData, setFormData] = useState(editData || {});
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+    axios.get(`${API_BASE}/user-rights/getPages`).then((res) => {
+      console.log("Pages response:", res.data);
+      setPages(res.data?.data["UserRightsPages"] || []);
+    });
+
+    const userid = localStorage.getItem("userId");
+
+    GetAllRole(userid)
+      .then((res) => {
+        console.log("Roles:", res.data);
+        const list = res.data?.data["Role Details"] || [];
+        setRoles(list);
+      })
+      .catch((err) => {
+        console.error("Error fetching roles:", err);
+      });
+  }, [isModalOpen]);
+
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+  const handleCheckboxChange = (pageId, action, checked) => {
+    setRights((prev) => ({
+      ...prev,
+      [pageId]: {
+        ...prev[pageId],
+        [action]: checked,
+        pageid: pageId,
+      },
+    }));
+  };
 
   const handleAddRole = () => {
-    let data = {
-      role_name: formData.role_name,
-      created_at: "2025-07-01T01:25:39.250Z",
-      updated_at: "2025-07-01T12:49:12.877Z",
+    const role = roles.find((r) => r.name === formData.role_name);
+
+    const payload = {
+      roleId: role?.id || 0,
+      rightsList: Object.values(rights),
     };
-    if (formData.role_id) {
-      updateRole(formData.role_id, data)
-        .then((response) => {
-          successFunction();
-        })
-        .catch((error) => {
-          console.error("Error fetching roles:", error);
-        })
-        .finally(() => {});
-    } else {
-      createRole(data)
-        .then((response) => {
-          successFunction();
-        })
-        .catch((error) => {
-          console.error("Error fetching roles:", error);
-        })
-        .finally(() => {});
-    }
+
+    console.log("FINAL PAYLOAD:", payload);
+
+    AddRights(payload)
+      .then((res) => {
+        if (res.success == true) {
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "User rights added successfully!",
+            confirmButtonColor: "#3085d6",
+          });
+          resetForm();
+          handleModalClose();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: err?.response?.data?.message || "Something went wrong!",
+            confirmButtonColor: "#d33",
+          });
+          resetForm();
+        }
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err?.response?.data?.message || "Something went wrong!",
+          confirmButtonColor: "#d33",
+        });
+      });
   };
+
   const [activeTab, setActiveTab] = useState("pages");
-  //   const [selectedFeature, setSelectedFeature] = useState("basic");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +112,7 @@ const AddRole = ({
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Role"
+        title="Add Rights"
         width={650}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -93,33 +137,37 @@ const AddRole = ({
       >
         <div className="flex flex-col gap-y-2 max-h-[500px] overflow-auto scrollable-y">
           <div className="flex flex-col">
-            <label className="form-label">Define Role</label>
-            <div className="input">
+            <label className="form-label"> Role</label>
+
+            <div className="relative input flex items-center">
               <i className="ki-filled ki-user"></i>
-              <input
-                type="text"
-                className="h-full"
-                placeholder="Define Role"
+
+              <select
+                className="h-full w-full bg-transparent outline-none pr-10"
                 name="role_name"
                 value={formData.role_name || ""}
                 onChange={handleInputChange}
-              />
+              >
+                <option value="">Select Role</option>
+
+                {roles.map((role) => (
+                  <option key={role.id} value={role.name}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setOpenAddRoleModal(true)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center"
+              >
+                <i className="ki-filled ki-plus text-xs"></i>
+              </button>
             </div>
           </div>
-          <div className="flex flex-col">
-            <label className="form-label">Lead Access</label>
-            <select
-              className="select pe-7.5"
-              name="lead_access"
-              value={formData.lead_access || "all"}
-              onChange={handleInputChange}
-            >
-              <option value="all">All Leads</option>
-              <option value="assigned">Assigned Leads</option>
-              <option value="created">Leads</option>
-            </select>
-          </div>
-          <div className="flex flex-col border mt-2">
+
+          <div className="flex flex-col border mt-2 rounded-lg overflow-hidden">
             <div className="flex border-b pt-3 mb-3 bg-gray-200">
               <button
                 onClick={() => setActiveTab("pages")}
@@ -132,47 +180,39 @@ const AddRole = ({
                 <i className="ki-filled ki-notepad-bookmark me-2"></i>
                 Pages
               </button>
-              <button
-                onClick={() => setActiveTab("features")}
-                className={`px-4 py-2 text-sm font-medium ${
-                  activeTab === "features"
-                    ? "border-b-2 border-primary text-primary font-bold"
-                    : "text-gray-700 border-b-2 border-gray-200"
-                }`}
-              >
-                <i className="ki-filled ki-text-circle me-2"></i>
-                Features
-              </button>
             </div>
+
             {activeTab === "pages" && (
-              <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
-                <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-full table-auto">
                   <thead>
-                    <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">
-                        Pages
-                      </th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                        View
-                      </th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                        Edit
-                      </th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                        Delete
-                      </th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                        Add
-                      </th>
+                    <tr className="bg-gray-100 text-left">
+                      <th className="p-3">Page Name</th>
+                      <th className="p-3 text-center">View</th>
+                      <th className="p-3 text-center">Edit</th>
+                      <th className="p-3 text-center">Delete</th>
+                      <th className="p-3 text-center">Add</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {permissions.map((page) => (
-                      <tr key={page} className="border-t">
-                        <td className="p-2">{page}</td>
+                    {pages.map((page) => (
+                      <tr key={page.pageId} className="border-t">
+                        <td className="p-3">{page.pagename}</td>
+
                         {["view", "edit", "delete", "add"].map((action) => (
-                          <td key={action} className="p-2 text-center">
-                            <Checkbox />
+                          <td key={action} className="p-4 text-center">
+                            <Checkbox
+                              size="medium"
+                              checked={rights[page.pageId]?.[action] || false}
+                              onChange={(e) =>
+                                handleCheckboxChange(
+                                  page.pageId,
+                                  action,
+                                  e.target.checked
+                                )
+                              }
+                            />
                           </td>
                         ))}
                       </tr>
@@ -181,42 +221,12 @@ const AddRole = ({
                 </table>
               </div>
             )}
-            {/* Features Table */}
-            {activeTab === "features" && (
-              <div className="max-h-90 relative w-full scrollable-x-auto rounded-md">
-                <table className="w-full align-middle text-left rtl:text-right caption-bottom text-sm">
-                  <thead>
-                    <tr className="border-b border-t bg-muted/30 data-[state=selected]:bg-muted [&_>:last-child]:border-e-0">
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0">
-                        Features
-                      </th>
-                      <th className="p-2 border-e h-12 text-left rtl:text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pe-0 text-center">
-                        Enable / Disable
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      "Send Whatsapp",
-                      "Bulk Upload",
-                      "Pipeline Template",
-                      "Send Quotation To Client",
-                      "All Quotation Page Access",
-                      "Quotation Setting Page Access",
-                    ].map((feature) => (
-                      <tr key={feature} className="border-t">
-                        <td className="p-2">{feature}</td>
-                        <td className="p-2 text-center">
-                          <Checkbox />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
         </div>
+        <AddRoleModal
+          isModalOpen={openAddRoleModal}
+          setIsModalOpen={setOpenAddRoleModal}
+        />
       </CustomModal>
     )
   );

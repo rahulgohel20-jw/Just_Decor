@@ -85,7 +85,7 @@ import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
-import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
+import { SalesTeamList, MemberList } from "@/pages/team";
 import {
   NotificationsSettingsPage,
   GeneralSettingsPage,
@@ -213,7 +213,6 @@ const AppRoutingSetup = () => {
           <Route path="/product" element={<ProductListPage />}></Route>
           <Route path="/product/detail" element={<ProductListDetail />}></Route>
           <Route path="/team/seals-team" element={<SalesTeamList />} />
-          <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
           <Route path="/database" element={<Database />} />
           {/* event management routes */}

@@ -43,6 +43,8 @@ const AddMember = ({
     cityId: "",
     address: "",
     companyName: "",
+    password: "",
+    confirmpassword: "",
   });
 
   // ✅ Close modal
@@ -114,6 +116,8 @@ const AddMember = ({
           cityId: "",
           address: "",
           companyName: "",
+          password: "",
+          confirmpassword: "",
         });
         setSelectedRole("");
         setTaskAccess(true);
@@ -191,6 +195,9 @@ const AddMember = ({
         companyName:
           formData.companyName || parsedData.userBasicDetails.companyName,
 
+        confirmPassword: formData.confirmpassword || null,
+        password: formData.password || null,
+
         // static values
         countryCode: "+91",
         cityId: Number(formData.cityId),
@@ -229,7 +236,7 @@ const AddMember = ({
         open={isModalOpen}
         onClose={handleModalClose}
         width={1000}
-        title={selectedMember ? "Edit Manager" : "New Manager"}
+        title={selectedMember ? "Edit Member" : "New Member"}
         footer={[
           <div className="flex justify-between" key="footer-buttons">
             <button className="btn btn-light" onClick={handleModalClose}>
@@ -403,7 +410,32 @@ const AddMember = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="flex flex-col">
+              <label className="form-label">Password</label>
+              <input
+                type="text"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="input"
+                placeholder="Password"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="form-label">Confirm Password</label>
+              <input
+                type="text"
+                name="confirmpassword"
+                value={formData.confirmpassword}
+                onChange={handleChange}
+                className="input"
+                placeholder="confirmpassword"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 mt-1 hidden">
             <label className="form-label">Task Access</label>
             <label className="switch switch-lg">
               <input
@@ -414,8 +446,8 @@ const AddMember = ({
             </label>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
-            <label className="form-label">Leave & Attendance Access</label>
+          <div className="flex items-center gap-2 mt-1 hidden">
+            <label className="form-label ">Leave & Attendance Access</label>
             <label className="switch switch-lg">
               <input
                 type="checkbox"

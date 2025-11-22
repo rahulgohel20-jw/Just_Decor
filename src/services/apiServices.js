@@ -7,16 +7,6 @@ export const GetMenuCategoryByUserIdmenuitem = (userId) => {
   return GET(`/menucategory/getallbyuserid?userid=${userId}`);
 };
 
-// Create Role
-export const createRole = (data) => {
-  return POST("/role_master/save-single-or-multiple", data);
-};
-
-// Get All Roles
-export const getAllRoles = () => {
-  return GET("/role_master");
-};
-
 export const GetQuotation = (id) => {
   return GET(`/quotation/getbyeventid?eventId=${id}`);
 };
@@ -27,16 +17,6 @@ export const UpdateQuotation = (id, data) => {
 
 export const DeleteQuotation = (id) => {
   return DELETE(`/quotation/deletebyquotationitemid?quotationItemId=${id}`);
-};
-
-// Update Role
-export const updateRole = (roleId, data) => {
-  return PUT(`/role_master/update-by-id/${roleId}`, data);
-};
-
-// Delete Role
-export const deleteRole = (roleId) => {
-  return DELETE(`/role_master/${roleId}`);
 };
 
 //Country APIs
@@ -321,8 +301,15 @@ export const GetUsersByRoleId = (roleId = 2) => {
 
 // Add Role
 
-export const AddRole = (data) => {
+export const Addrole = (data) => {
   return POST(`/rolemaster/add`, data);
+};
+export const GetPages = () => {
+  return GET(`/user-rights/getPages`);
+};
+
+export const AddRights = (data) => {
+  return POST(`/user-rights/addRights`, data);
 };
 
 // GetRolebyId
@@ -552,11 +539,15 @@ export const uploadFile = (data) => {
 };
 
 //getmenuitem
-export const GetAllMenuItems = ({ userId, itemName = "", page = 1, size = 10 }) => {
+export const GetAllMenuItems = ({
+  userId,
+  itemName = "",
+  page = 1,
+  size = 10,
+}) => {
   const query = `?userId=${userId}&itemName=${itemName}&page=${page}&size=${size}`;
   return GET(`/menuitems/getallbyuserid${query}`);
 };
-
 
 //addmenuitem
 export const AddMenuItems = (data) => {
@@ -826,12 +817,9 @@ export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
 
-
-
 export const GetPlansByBillingCycle = (cycle) => {
   return GET(`/plans/getallbybillingcycle?billingCycle=${cycle}`);
 };
-
 
 export const GetAllLabourShift = (Id) => {
   return GET(`/shift/getallbyuserid?userId=${Id}`);

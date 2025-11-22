@@ -477,20 +477,17 @@ const AddInvoicePage = () => {
           confirmButtonColor: "#005BA8",
           showClass: {
             popup: `
-        animate__animated
-        animate__fadeInDown
-        animate__faster
-      `,
+      animate__animated
+      animate__fadeInDown
+      animate__faster
+    `,
           },
           hideClass: {
             popup: `
-          },
-          hideClass: {
-            popup: `
-        animate__animated
-        animate__fadeOutUp
-        animate__faster
-      `,
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `,
           },
           customClass: {
             popup: "rounded-2xl shadow-xl",
@@ -498,17 +495,14 @@ const AddInvoicePage = () => {
             confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
           },
         }).then(() => {
-          // After success, update rows to remove isNewRow flag and make them editable
           setRows((prevRows) =>
             prevRows.map((row) => ({
               ...row,
-              isNewRow: false, // Remove the new row flag
-              isCustom: true, // Keep as custom (editable)
-              // If response contains updated data with IDs, update them
+              isNewRow: false,
+              isCustom: true,
             }))
           );
 
-          // Optionally refetch the invoice data to get the latest from backend
           fetchInvoiceData();
         });
       } else {
