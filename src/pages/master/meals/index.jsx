@@ -114,7 +114,10 @@ const MealMaster = () => {
       if (result.isConfirmed) {
         DeleteMealType(mealid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchMealType();
               Swal.fire({
                 title: "Removed!",

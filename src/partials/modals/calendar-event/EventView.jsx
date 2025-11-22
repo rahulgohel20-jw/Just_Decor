@@ -174,7 +174,10 @@ const EventViewModal = ({
         }
         DeleteEventMaster(eventId)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               setIsModalOpen(false);
               onEventsUpdated?.();
               Swal.fire({

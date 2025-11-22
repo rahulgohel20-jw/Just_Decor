@@ -687,7 +687,7 @@ const useSaveMenu = (
       try {
         const res = await AddMenuprep(payload);
 
-        if (res.data?.msg) {
+        if (res.data?.status === true) {
           Swal.fire({
             title: `${res.data?.msg}`,
             icon: "success",

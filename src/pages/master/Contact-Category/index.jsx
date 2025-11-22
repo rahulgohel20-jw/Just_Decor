@@ -125,7 +125,10 @@ const ContactCategoryMaster = () => {
       if (result.isConfirmed) {
         DeleteContactCategory(contactid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchConatctCategory();
               Swal.fire({
                 title: "Removed!",

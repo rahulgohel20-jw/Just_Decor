@@ -100,7 +100,10 @@ const RawMaterialMaster = () => {
       if (result.isConfirmed) {
         DeleteRawMaterialcategory(rawCatid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchRawMaterialCategory();
               Swal.fire({
                 title: "Removed!",

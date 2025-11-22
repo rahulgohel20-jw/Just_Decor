@@ -15,7 +15,10 @@ export const useSaveNormalMenu = (
   const saveNormalMenu = useCallback(
     async (selectedFunctionId, selectedCategoryId, pax = 0, rate = 0) => {
       const currentFunctionData = functionSelectionData[selectedFunctionId];
-      if (!currentFunctionData || currentFunctionData.selectedItems.length === 0) {
+      if (
+        !currentFunctionData ||
+        currentFunctionData.selectedItems.length === 0
+      ) {
         errorMsgPopup("Please select at least one item");
         return false;
       }
@@ -28,20 +31,25 @@ export const useSaveNormalMenu = (
         if (!item) return;
 
         const categoryChange = currentFunctionData.itemCategories?.[itemId];
-        const finalCategoryId = categoryChange ? categoryChange.newCategoryId : item.parentId;
+        const finalCategoryId = categoryChange
+          ? categoryChange.newCategoryId
+          : item.parentId;
         const finalCategoryName =
           categoryChange?.newCategoryName ||
           categories.find((c) => c.id === item.parentId)?.name ||
           "";
 
-        const itemPrice = currentFunctionData.itemRates?.[itemId] ?? rate ?? item.price ?? 0;
+        const itemPrice =
+          currentFunctionData.itemRates?.[itemId] ?? rate ?? item.price ?? 0;
 
         if (!itemsByCategory[finalCategoryId]) {
           itemsByCategory[finalCategoryId] = {
             menuCategoryId: finalCategoryId,
             menuCategoryName: finalCategoryName,
-            menuNotes: currentFunctionData.categoryNotes?.[finalCategoryId] || "",
-            menuSlogan: currentFunctionData.categorySlogans?.[finalCategoryId] || "",
+            menuNotes:
+              currentFunctionData.categoryNotes?.[finalCategoryId] || "",
+            menuSlogan:
+              currentFunctionData.categorySlogans?.[finalCategoryId] || "",
             menuSortOrder: 0,
             startTime: dateandtime,
             selectedMenuPreparationItems: [],
@@ -73,16 +81,18 @@ export const useSaveNormalMenu = (
               0),
           0
         ),
-        selectedMenuPreparationItems: Object.values(itemsByCategory).map((cat, idx) => ({
-          ...cat,
-          menuSortOrder: idx,
-        })),
+        selectedMenuPreparationItems: Object.values(itemsByCategory).map(
+          (cat, idx) => ({
+            ...cat,
+            menuSortOrder: idx,
+          })
+        ),
         sortorder: 0,
       };
 
       try {
         const res = await AddMenuprep(payload);
-        if (res.data?.msg) {
+        if (res.data?.status === true) {
           Swal.fire({
             title: res.data.msg,
             icon: "success",

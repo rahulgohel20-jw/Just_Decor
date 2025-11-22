@@ -80,6 +80,8 @@ const AddRawMaterial = ({
     isDirect: rawMaterialCategory?.isDirect || false,
   };
 
+  console.log("raw", initialValues);
+
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -102,7 +104,7 @@ const AddRawMaterial = ({
 
       if (
         response?.data?.msg?.toLowerCase().includes("successfully") ||
-        response?.status === 200
+        response?.data?.status === true
       ) {
         Swal.fire({
           title: response?.data?.msg || "Success",
@@ -138,9 +140,17 @@ const AddRawMaterial = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {rawMaterialCategory
-              ? <FormattedMessage id="USER.MASTER.EDIT_RAW_MATERIAL_CATEGORY" defaultMessage="Edit Raw Material Category" />
-              : <FormattedMessage id="USER.MASTER.NEW_RAW_MATERIAL_CATEGORY" defaultMessage="New Raw Material Category" />}
+            {rawMaterialCategory ? (
+              <FormattedMessage
+                id="USER.MASTER.EDIT_RAW_MATERIAL_CATEGORY"
+                defaultMessage="Edit Raw Material Category"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.NEW_RAW_MATERIAL_CATEGORY"
+                defaultMessage="New Raw Material Category"
+              />
+            )}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -169,9 +179,33 @@ const AddRawMaterial = ({
               <Form className="space-y-6">
                 {/* ✅ Name fields in 1 row (3 columns) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InputWithIcon label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />} name="nameEnglish" />
-                  <InputWithIcon label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />} name="nameHindi" />
-                  <InputWithIcon label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />} name="nameGujarati" />
+                  <InputWithIcon
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_ENGLISH"
+                        defaultMessage="Name (English)"
+                      />
+                    }
+                    name="nameEnglish"
+                  />
+                  <InputWithIcon
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_HINDI"
+                        defaultMessage="Name (हिंदी)"
+                      />
+                    }
+                    name="nameHindi"
+                  />
+                  <InputWithIcon
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_GUJARATI"
+                        defaultMessage="Name (ગુજરાતી)"
+                      />
+                    }
+                    name="nameGujarati"
+                  />
                 </div>
 
                 {/* ✅ Rest in 2-column grid */}
@@ -179,7 +213,11 @@ const AddRawMaterial = ({
                   {/* Type */}
                   <div>
                     <label className="block text-gray-600 font-medium mb-1">
-                      <FormattedMessage id="USER.MASTER.RAW_MATERIAL_TYPE" defaultMessage="Type" /> <span className="text-red-500">*</span>
+                      <FormattedMessage
+                        id="USER.MASTER.RAW_MATERIAL_TYPE"
+                        defaultMessage="Type"
+                      />{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <RawMaterialDropdown
                       value={values.rawMaterialCatTypeId}
@@ -199,7 +237,12 @@ const AddRawMaterial = ({
 
                   {/* Sequence */}
                   <InputWithIcon
-                    label={<FormattedMessage id="USER.MASTER.SEQUENCE" defaultMessage="Sequence" />}
+                    label={
+                      <FormattedMessage
+                        id="USER.MASTER.SEQUENCE"
+                        defaultMessage="Sequence"
+                      />
+                    }
                     name="sequence"
                     type="number"
                   />
@@ -212,7 +255,10 @@ const AddRawMaterial = ({
                         setFieldValue("isDirect", e.target.checked)
                       }
                     >
-                      <FormattedMessage id="USER.MASTER.IS_DIRECT" defaultMessage="Direct Order" />
+                      <FormattedMessage
+                        id="USER.MASTER.IS_DIRECT"
+                        defaultMessage="Direct Order"
+                      />
                     </Checkbox>
                   </div>
                 </div>
@@ -224,14 +270,27 @@ const AddRawMaterial = ({
                     onClick={() => onClose(false)}
                     className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
                   >
-                    <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
+                    <FormattedMessage
+                      id="COMMON.CANCEL"
+                      defaultMessage="Cancel"
+                    />
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
                   >
-                    {rawMaterialCategory ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+                    {rawMaterialCategory ? (
+                      <FormattedMessage
+                        id="COMMON.UPDATE"
+                        defaultMessage="Update"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="COMMON.SAVE"
+                        defaultMessage="Save"
+                      />
+                    )}
                   </button>
                 </div>
               </Form>

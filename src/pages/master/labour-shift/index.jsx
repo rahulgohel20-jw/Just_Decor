@@ -153,7 +153,7 @@ const Labourshiftmaster = () => {
               response &&
               (response.success ||
                 response.status === 200 ||
-                response?.data?.success)
+                response?.data?.success === true)
             ) {
               FetchLabourShift();
               Swal.fire({

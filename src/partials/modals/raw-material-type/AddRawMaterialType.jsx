@@ -58,7 +58,7 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
 
       if (
         response?.data?.msg?.toLowerCase().includes("successfully") ||
-        response?.status === 200
+        response?.data?.status === true
       ) {
         Swal.fire({
           title: response?.data?.msg || (rawdata ? "Updated!" : "Saved!"),

@@ -63,7 +63,7 @@ const AccountUserProfilePage = () => {
     try {
       const res = await getUserById(userMasterId);
       const user = res?.data?.data?.["User Details"]?.[0];
-      
+
       if (user) {
         setProfileData({
           firstName: user.firstName || "",
@@ -73,7 +73,8 @@ const AccountUserProfilePage = () => {
           planName: user.plan?.name || "Lite",
           accountId: user.userCode || "ID-45453423",
           language: "English",
-           // This might come from API in future
+          roleName: user.userBasicDetails?.role?.name || "",
+          // This might come from API in future
           image: profileData.image, // Keep the uploaded image
         });
 
@@ -115,7 +116,7 @@ const AccountUserProfilePage = () => {
   const handleSaveSuccess = () => {
     setIsEditing(false);
     // Refresh profile data after successful save
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const content = {
@@ -212,66 +213,11 @@ const AccountUserProfilePage = () => {
                 </div>
 
                 <h3 className="mt-4 text-xl font-semibold text-[#1E293B] mb-2">
-                  {profileData.firstName || "—"}{" "}
-                  {profileData.lastName || ""}
+                  {profileData.companyName || "—"}
                 </h3>
                 <p className="text-sm text-[#B5B5C3]">
-                  <FormattedMessage
-                    id="PROFILE.USER_ROLE"
-                    defaultMessage="Owner"
-                  />
+                  {profileData.roleName || "—"}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mt-6 mb-6">
-                <div className="rounded-xl border border-[#EEF2F6] bg-white p-4 text-center">
-                  <div className=" flex gap-2 text-base font-semibold mb-2">
-                    6,900{" "}
-                    <img
-                      className="w-4 h-4 rounded-full object-cover ring-4 ring-white shadow"
-                      src={toAbsoluteUrl("/media/images/Arrow.png")}
-                      alt="profile"
-                    />
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    <FormattedMessage
-                      id="PROFILE.USER_EARNINGS"
-                      defaultMessage="Earnings"
-                    />
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[#EEF2F6] bg-white p-4 text-center">
-                  <div className=" flex gap-2  text-base font-semibold mb-2">
-                    130
-                    <img
-                      className="w-4 h-4 rounded-full object-cover ring-4 ring-white shadow"
-                      src={toAbsoluteUrl("/media/images/Arrow.png")}
-                      alt="profile"
-                    />
-                  </div>
-                  <div className="  text-xs text-gray-500">
-                    <FormattedMessage
-                      id="PROFILE.USER_EVENTS"
-                      defaultMessage="Events"
-                    />
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[#EEF2F6] bg-white p-4 text-center">
-                  <div className=" flex gap-2 text-base font-semibold mb-2">
-                    530
-                    <img
-                      className="w-4 h-4 rounded-full object-cover ring-4 ring-white shadow"
-                      src={toAbsoluteUrl("/media/images/Arrow.png")}
-                      alt="profile"
-                    />
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    <FormattedMessage
-                      id="PROFILE.USER_HOURS"
-                      defaultMessage="Hours"
-                    />
-                  </div>
-                </div>
               </div>
 
               <hr className="border-2 border-dotted" />
@@ -307,7 +253,7 @@ const AccountUserProfilePage = () => {
                       <button
                         className="rounded-full bg-primary text-white text-xs px-3 py-1"
                         onClick={() => {
-                          navigate("/price")
+                          navigate("/price");
                         }}
                       >
                         <FormattedMessage
@@ -353,7 +299,6 @@ const AccountUserProfilePage = () => {
                       {profileData.language}
                     </div>
                   </div>
-                 
                 </div>
               </div>
             </div>
@@ -383,23 +328,28 @@ const AccountUserProfilePage = () => {
                   })}
                 </div>
 
-                {activeTab === "account" && (
-                  isEditing ? (
+                {activeTab === "account" &&
+                  (isEditing ? (
                     <button
                       className="rounded-md bg-primary text-white text-sm px-4 py-2"
                       onClick={handleSave}
                     >
-                      <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                      <FormattedMessage
+                        id="COMMON.SAVE"
+                        defaultMessage="Save"
+                      />
                     </button>
                   ) : (
                     <button
                       className="rounded-md bg-[#EDF2F7] text-primary text-sm px-4 py-2"
                       onClick={() => setIsEditing(true)}
                     >
-                      <FormattedMessage id="COMMON.EDIT" defaultMessage="Edit" />
+                      <FormattedMessage
+                        id="COMMON.EDIT"
+                        defaultMessage="Edit"
+                      />
                     </button>
-                  )
-                )}
+                  ))}
               </div>
 
               <div className="p-8">{content}</div>
@@ -407,8 +357,6 @@ const AccountUserProfilePage = () => {
           </section>
         </div>
       </Container>
-      
-      
     </Fragment>
   );
 };

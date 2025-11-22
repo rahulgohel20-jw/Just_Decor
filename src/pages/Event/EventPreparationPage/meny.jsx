@@ -580,7 +580,7 @@ const EventPreparationPage = () => {
 
     AddMenuprep(payload)
       .then((res) => {
-        if (res.data?.msg) {
+        if (res.data?.status === true) {
           Swal.fire({
             title: `${res.data?.msg}`,
             text: "",
@@ -755,7 +755,7 @@ const EventPreparationPage = () => {
 
       const res = await Deleteiteminmenu(itemId, menuCatId, menuPrepId);
 
-      if (res.data?.msg) {
+      if (res.data?.status === true) {
         Swal.fire({
           title: `${res.data?.msg}`,
           text: "",

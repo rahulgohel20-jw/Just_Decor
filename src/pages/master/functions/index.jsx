@@ -195,7 +195,10 @@ const FunctionsMaster = () => {
       if (result.isConfirmed) {
         DeleteFunctionType(functionId)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               fetchFunctions(searchTerm);
               Swal.fire({
                 title: intl.formatMessage({
