@@ -18,7 +18,7 @@ const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [originalData, setOriginalData] = useState([]);
 
@@ -30,32 +30,29 @@ const MenuItems = () => {
   let Id = userData?.id;
 
   useEffect(() => {
-    FetchMenuItems();
-  }, []); // fetch on mount
+    FetchMenuItems(currentPage);
+  }, []);
+  // fetch on mount
 
   useEffect(() => {
-    FetchMenuItems();
-  }, [searchQuery]); // fetch when searchQuery changes
+    setCurrentPage(1);
+    FetchMenuItems(1);
+  }, [searchQuery]);
 
-  const FetchMenuItems = (page = 1) => {
+  const FetchMenuItems = (page = currentPage, size = pageSize) => {
+    console.log("📩 Sending:", { page, size });
+
     GetAllMenuItems({
       userId: Id,
-      menuItemName: searchQuery,
-      page: page,
-      size: pageSize,
+      itemName: searchQuery,
+      page,
+      size,
     })
       .then((res) => {
-        if (res?.data?.data?.items && Array.isArray(res.data.data.items)) {
-          setTotalItems(res.data.data.totalItems);
-          setOriginalData(res.data.data.items);
-        } else {
-          setOriginalData([]);
-        }
+        setOriginalData(res?.data?.data?.items || []);
+        setTotalItems(res?.data?.data?.totalItems || 0);
       })
-      .catch((error) => {
-        console.error("Error fetching menu items:", error);
-        setOriginalData([]);
-      });
+      .catch(() => setOriginalData([]));
   };
 
   useEffect(() => {
@@ -129,6 +126,11 @@ const MenuItems = () => {
           });
       }
     });
+  };
+  const handlePagination = (page, size = pageSize) => {
+    setCurrentPage(page);
+    setPageSize(size);
+    FetchMenuItems(page, size);
   };
 
   const handleEdit = (menuItem) => {
@@ -222,6 +224,12 @@ const MenuItems = () => {
           columns={columns(handleEdit, handleDelete, statusmenuitem)}
           data={tableData}
           paginationSize={10}
+          pagination={{
+            current: currentPage,
+            total: totalItems,
+            pageSize,
+            onChange: (page) => handlePagination(page),
+          }}
         />
       </Container>
     </Fragment>

@@ -365,7 +365,7 @@ const EventMenuAllocationPage = () => {
     try {
       setIsCategoryModal(true);
       setMenuLoading(true);
-      const eventFunctionId = activeFunction?.id;
+      const eventFunctionId = activeFunction?.id || 1;
       const isFromNewTable = item.isFromNewTable || false;
       const menuItemId = item.menuItemId || item.id;
 

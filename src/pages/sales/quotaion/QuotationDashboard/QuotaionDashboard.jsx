@@ -18,42 +18,20 @@ const QuotationDashboard = () => {
     total: 0,
   });
   const user = JSON.parse(localStorage.getItem("userData"));
+  const [originalData, setOriginalData] = useState([]);
+
   const userId = user?.id || 0;
   const intl = useIntl();
   const fetchQuotations = async () => {
     const response = await GetAllQuotation(userId);
-    const data =
-      response?.data?.data["Event Functions Quotation Details"]?.map(
-        (quotation, index) => ({
-          Invoice: index + 1,
-          EventId: quotation?.event?.id || "-",
-          CustomerName: quotation?.event?.party?.nameEnglish || "-",
-          PartyId: quotation?.event?.party?.id || "-",
-          Eventname: quotation?.event?.eventType?.nameEnglish || "-",
-          eventDate: quotation?.event?.eventStartDateTime
-            ? new Date(quotation.event.eventStartDateTime).toLocaleDateString(
-                "en-GB",
-                { day: "2-digit", month: "short", year: "numeric" }
-              )
-            : "-",
-          QuotationDate: quotation?.createdAt || "-",
-          Amount: quotation?.totalAmount || "-",
-          BalanceDue: quotation?.remainingAmount || "-",
-        })
-      ) || [];
+    const list =
+      response?.data?.data["Event Functions Quotation Details"] || [];
 
-    setTableData(data);
+    setOriginalData(list); // store RAW data
 
-    const totalReciveAmt =
-      response?.data?.data?.["Event Functions Quotation Details"][0]
-        .overAllReceivableAmnt || 0;
-    const totalRemainingAmt =
-      response?.data?.data?.["Event Functions Quotation Details"][0]
-        .overAllRemainingAmnt || 0;
-    const totalAmt =
-      response?.data?.data?.["Event Functions Quotation Details"][0]
-        .overallTotalAmnt || 0;
-    console.log(totalReciveAmt);
+    const totalReciveAmt = list[0]?.overAllReceivableAmnt || 0;
+    const totalRemainingAmt = list[0]?.overAllRemainingAmnt || 0;
+    const totalAmt = list[0]?.overallTotalAmnt || 0;
 
     setTotals({
       receivable: totalReciveAmt,
@@ -65,19 +43,71 @@ const QuotationDashboard = () => {
   useEffect(() => {
     fetchQuotations();
   }, []);
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = originalData.map((quotation, index) => ({
+      Invoice: index + 1,
+
+      EventId: quotation?.event?.id || "-",
+      PartyId: quotation?.event?.party?.id || "-",
+
+      // 🔥 Multilingual Fields 🔥
+      CustomerName: quotation?.event?.party?.[field] || "-",
+      Eventname: quotation?.event?.eventType?.[field] || "-",
+
+      eventDate: quotation?.event?.eventStartDateTime
+        ? new Date(quotation.event.eventStartDateTime).toLocaleDateString(
+            "en-GB",
+            { day: "2-digit", month: "short", year: "numeric" }
+          )
+        : "-",
+
+      QuotationDate: quotation?.createdAt || "-",
+      Amount: quotation?.totalAmount || "-",
+      BalanceDue: quotation?.remainingAmount || "-",
+    }));
+
+    setTableData(mapped);
+  }, [originalData, localStorage.getItem("lang")]);
+
   const steps = [
     {
-      title: <FormattedMessage id="SALES.TOTAL_OUTSTANDING_RECEIVABLE" defaultMessage="Total Outstanding Receivable" />,
+      title: (
+        <FormattedMessage
+          id="SALES.TOTAL_OUTSTANDING_RECEIVABLE"
+          defaultMessage="Total Outstanding Receivable"
+        />
+      ),
       value: `₹ ${totals.receivable}`,
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
     {
-      title: <FormattedMessage id="SALES.TOTAL_REMAINING" defaultMessage="Total Remaining" />,
+      title: (
+        <FormattedMessage
+          id="SALES.TOTAL_REMAINING"
+          defaultMessage="Total Remaining"
+        />
+      ),
       value: `₹ ${totals.remaining}`,
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
     {
-      title: <FormattedMessage id="SALES.TOTAL_AMOUNT" defaultMessage="Total Amount" />,
+      title: (
+        <FormattedMessage
+          id="SALES.TOTAL_AMOUNT"
+          defaultMessage="Total Amount"
+        />
+      ),
       value: `₹ ${totals.total}`,
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
@@ -98,7 +128,18 @@ const QuotationDashboard = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="SALES.QUOTATION_OVERVIEW" defaultMessage="Quotation Overview" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="SALES.QUOTATION_OVERVIEW"
+                    defaultMessage="Quotation Overview"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* filters */}
@@ -108,30 +149,46 @@ const QuotationDashboard = () => {
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({ id: "SALES.SEARCH_QUOTATION", defaultMessage: "Search Quotation" })}
+                placeholder={intl.formatMessage({
+                  id: "SALES.SEARCH_QUOTATION",
+                  defaultMessage: "Search Quotation",
+                })}
                 type="text"
               />
             </div>
             <div className="filItems relative">
               <select defaultValue="All Invoice" className="select pe-7.5">
                 <option value="0" selected>
-                  <FormattedMessage id="SALES.ALL_QUOTATION" defaultMessage="All Quotations" />
+                  <FormattedMessage
+                    id="SALES.ALL_QUOTATION"
+                    defaultMessage="All Quotations"
+                  />
                 </option>
                 <option value="1">
-                  <FormattedMessage id="SALES.LAST_3_MONTHS" defaultMessage="Last 3 Months" />
+                  <FormattedMessage
+                    id="SALES.LAST_3_MONTHS"
+                    defaultMessage="Last 3 Months"
+                  />
                 </option>
                 <option value="2">
-                  <FormattedMessage id="SALES.LAST_6_MONTHS" defaultMessage="Last 6 Months" />
+                  <FormattedMessage
+                    id="SALES.LAST_6_MONTHS"
+                    defaultMessage="Last 6 Months"
+                  />
                 </option>
                 <option value="3">
-                  <FormattedMessage id="SALES.CUSTOM_DATE" defaultMessage="Custom Date" />
+                  <FormattedMessage
+                    id="SALES.CUSTOM_DATE"
+                    defaultMessage="Custom Date"
+                  />
                 </option>
               </select>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button className="btn btn-primary" title="Download">
-              <Download style={{ width: "18", height: "18" }} /> <FormattedMessage id="SALES.DOWNLOAD" defaultMessage="Download" />
+              <Download style={{ width: "18", height: "18" }} />{" "}
+              <FormattedMessage id="SALES.DOWNLOAD" defaultMessage="Download" />
             </button>
           </div>
         </div>

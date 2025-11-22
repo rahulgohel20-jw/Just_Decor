@@ -484,6 +484,9 @@ const AddInvoicePage = () => {
           },
           hideClass: {
             popup: `
+          },
+          hideClass: {
+            popup: `
         animate__animated
         animate__fadeOutUp
         animate__faster
@@ -574,7 +577,7 @@ const AddInvoicePage = () => {
                       <div className="flex flex-col">
                         <span className="text-xs">Venue name:</span>
                         <span className="text-sm font-medium text-gray-900">
-                          {invoiceData?.event?.venue || "N/A"}
+                          {invoiceData?.event?.venue.nameEnglish || "N/A"}
                         </span>
                       </div>
                     </div>

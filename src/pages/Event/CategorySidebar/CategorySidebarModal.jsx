@@ -217,8 +217,8 @@ export default function CategorySidebarModal({
           dateTime: item.dateTime
             ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
-          weight: Number(item.weight) || 1,
-          rawmaterial_weight: Number(item.rawmaterial_weight) || 0,
+          weight: Number(item.weight) || 0,
+          rawmaterial_weight: Number(item.rawmaterial_weight) || 1,
           rate: item.rate || 0,
           rawmaterial_rate: item.rawmaterial_rate || 0,
           place: item.place || "",
