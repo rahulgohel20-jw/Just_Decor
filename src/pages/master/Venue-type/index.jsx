@@ -115,7 +115,7 @@ const VenueTypeMaster = () => {
     try {
       const res = await UpdateVenueStatusApi(id, newStatus);
 
-      if (res.data?.success) {
+      if (res.data?.success == true) {
         Swal.fire(
           intl.formatMessage({
             id: "USER.MASTER.SUCCESS",
@@ -186,7 +186,7 @@ const VenueTypeMaster = () => {
       if (result.isConfirmed) {
         try {
           const res = await DeleteVenueTypeApi(venue.venueid);
-          if (res.data?.success) {
+          if (res.data?.success === true) {
             Swal.fire(
               intl.formatMessage({
                 id: "USER.MASTER.DELETE_SUCCESS_TITLE",

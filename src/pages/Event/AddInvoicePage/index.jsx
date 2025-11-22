@@ -465,7 +465,7 @@ const AddInvoicePage = () => {
       const response = await UpdateInvoice(invoiceData?.id, payload);
       console.log("API Response:", response);
 
-      if (response?.data?.success) {
+      if (response?.data?.success === true) {
         // ✅ SUCCESS ALERT
         Swal.fire({
           title: response?.data?.msg || "Invoice saved successfully!",
@@ -481,6 +481,9 @@ const AddInvoicePage = () => {
         animate__fadeInDown
         animate__faster
       `,
+          },
+          hideClass: {
+            popup: `
           },
           hideClass: {
             popup: `

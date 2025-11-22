@@ -105,8 +105,10 @@ const useSavePackageMenu = (
         }
 
         // Validate it's not a string "pkg-" ID
-        if (typeof apiItemId === 'string' && apiItemId.startsWith('pkg-')) {
-          console.error(`❌ Invalid ID detected: ${apiItemId} for item: ${item.name}`);
+        if (typeof apiItemId === "string" && apiItemId.startsWith("pkg-")) {
+          console.error(
+            `❌ Invalid ID detected: ${apiItemId} for item: ${item.name}`
+          );
           apiItemId = item.menuItemId || item.id;
         }
 
@@ -115,7 +117,9 @@ const useSavePackageMenu = (
 
         // Skip if invalid
         if (isNaN(apiItemId)) {
-          console.error(`❌ Could not convert to number: ${item.id} for item: ${item.name}`);
+          console.error(
+            `❌ Could not convert to number: ${item.id} for item: ${item.name}`
+          );
           return;
         }
 
@@ -165,12 +169,16 @@ const useSavePackageMenu = (
       };
 
       // ✅ Log payload for debugging
-      console.log("📦 Final Package Payload:", JSON.stringify(payload, null, 2));
+      console.log(
+        "📦 Final Package Payload:",
+        JSON.stringify(payload, null, 2)
+      );
 
       // ✅ Validate no invalid IDs before sending
-      const hasInvalidIds = selectedMenuPreparationItems.some(cat => 
-        cat.selectedMenuPreparationItems.some(item => 
-          typeof item.menuItemId !== 'number' || isNaN(item.menuItemId)
+      const hasInvalidIds = selectedMenuPreparationItems.some((cat) =>
+        cat.selectedMenuPreparationItems.some(
+          (item) =>
+            typeof item.menuItemId !== "number" || isNaN(item.menuItemId)
         )
       );
 
@@ -183,7 +191,7 @@ const useSavePackageMenu = (
       try {
         const res = await AddMenuprep(payload);
 
-        if (res.data?.msg) {
+        if (res.data?.status === true) {
           Swal.fire({
             title: `${res.data?.msg}`,
             icon: "success",

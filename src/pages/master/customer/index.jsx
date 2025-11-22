@@ -164,7 +164,10 @@ const CustomerMaster = () => {
       if (result.isConfirmed) {
         DeleteCustomerApi(customerId)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchCustomer();
               Swal.fire({
                 title: "Removed!",

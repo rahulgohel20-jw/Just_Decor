@@ -189,11 +189,11 @@ const Login = () => {
             <button className="btn btn-icon" onClick={togglePassword}>
               <KeenIcon
                 icon="eye"
-                className={clsx("text-gray-500", { hidden: showPassword })}
+                className={clsx("text-gray-500", { hidden: !showPassword })}
               />
               <KeenIcon
                 icon="eye-slash"
-                className={clsx("text-gray-500", { hidden: !showPassword })}
+                className={clsx("text-gray-500", { hidden: showPassword })}
               />
             </button>
           </div>

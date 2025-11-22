@@ -85,7 +85,10 @@ const RawMaterial = () => {
       if (result.isConfirmed) {
         Deleterawmaterial(raw_material_id)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchRawMaterial();
               Swal.fire({
                 title: "Removed!",

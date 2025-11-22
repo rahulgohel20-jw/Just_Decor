@@ -81,6 +81,8 @@ const AddRawMaterial = ({
     isDirect: rawMaterialCategory?.isDirect || false,
   };
 
+  console.log("raw", initialValues);
+
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -103,7 +105,7 @@ const AddRawMaterial = ({
 
       if (
         response?.data?.msg?.toLowerCase().includes("successfully") ||
-        response?.status === 200
+        response?.data?.status === true
       ) {
         Swal.fire({
           title: response?.data?.msg || "Success",

@@ -13,7 +13,6 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-
 const AddMenuCategory = ({
   isModalOpen,
   setIsModalOpen,
@@ -81,7 +80,7 @@ const AddMenuCategory = ({
 
         editCategory(editData.id, payload)
           .then((res) => {
-            if (res.data?.msg) {
+            if (res.data?.status === true) {
               Swal.fire("Success", res.data.msg, "success");
             }
             uploadImage({
@@ -180,7 +179,11 @@ const AddMenuCategory = ({
           className="btn-success text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
           onClick={handleSubmit}
         >
-          {editData ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+          {editData ? (
+            <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+          ) : (
+            <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+          )}
         </button>,
       ]}
     >
@@ -190,8 +193,14 @@ const AddMenuCategory = ({
           formData={formData}
           setFormData={setFormData}
           name="name"
-          label={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
-          placeholder={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
+          label={intl.formatMessage({
+            id: "COMMON.NAME",
+            defaultMessage: "Name",
+          })}
+          placeholder={intl.formatMessage({
+            id: "COMMON.NAME",
+            defaultMessage: "Name",
+          })}
           error={errors.nameEnglish}
         />
 
@@ -208,7 +217,10 @@ const AddMenuCategory = ({
             value={formData.price}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({ id: "COMMON.PRICE", defaultMessage: "Price" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.PRICE",
+              defaultMessage: "Price",
+            })}
           />
           {errors.price && (
             <span className="text-red-500 text-sm">{errors.price}</span>
@@ -227,7 +239,10 @@ const AddMenuCategory = ({
             value={formData.sequence}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({ id: "COMMON.PRIORITY", defaultMessage: "Priority" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.PRIORITY",
+              defaultMessage: "Priority",
+            })}
           />
           {errors.sequence && (
             <span className="text-red-500 text-sm">{errors.sequence}</span>
@@ -249,7 +264,10 @@ const AddMenuCategory = ({
               }));
             }}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({ id: "COMMON.IMAGE", defaultMessage: "Image" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.IMAGE",
+              defaultMessage: "Image",
+            })}
           />
         </div>
         <div className="relative">
@@ -262,7 +280,10 @@ const AddMenuCategory = ({
             value={formData.menuSlogan}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({ id: "COMMON.SLOGAN", defaultMessage: "Slogan" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.SLOGAN",
+              defaultMessage: "Slogan",
+            })}
           />
         </div>
       </div>

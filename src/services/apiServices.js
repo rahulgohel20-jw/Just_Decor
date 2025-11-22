@@ -552,9 +552,11 @@ export const uploadFile = (data) => {
 };
 
 //getmenuitem
-export const GetAllMenuItems = (data) => {
-  return GET(`/menuitems/getallbyuserid`, data);
+export const GetAllMenuItems = ({ userId, itemName = "", page = 1, size = 10 }) => {
+  const query = `?userId=${userId}&itemName=${itemName}&page=${page}&size=${size}`;
+  return GET(`/menuitems/getallbyuserid${query}`);
 };
+
 
 //addmenuitem
 export const AddMenuItems = (data) => {
@@ -823,6 +825,13 @@ export const DeletePlanById = (id) => {
 export const UpdatePlanById = (id, data) => {
   return PUT(`/plans/update?id=${id}`, data);
 };
+
+
+
+export const GetPlansByBillingCycle = (cycle) => {
+  return GET(`/plans/getallbybillingcycle?billingCycle=${cycle}`);
+};
+
 
 export const GetAllLabourShift = (Id) => {
   return GET(`/shift/getallbyuserid?userId=${Id}`);

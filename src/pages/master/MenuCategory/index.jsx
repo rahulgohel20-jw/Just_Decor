@@ -73,7 +73,10 @@ const MenuCategory = () => {
       if (result.isConfirmed) {
         DeleteCategoryId(id)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchCategoryData();
               Swal.fire({
                 title: "Removed!",

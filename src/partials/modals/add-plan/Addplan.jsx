@@ -1,53 +1,50 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2 } from "lucide-react";
-import Swal from "sweetalert2"; 
+import Swal from "sweetalert2";
 import { message } from "antd";
-import { AddNewPlan,UpdatePlanById } from "@/services/apiServices";
+import { AddNewPlan, UpdatePlanById } from "@/services/apiServices";
 
-export default function AddPlan({ open, onCancel, onSuccess , editPlan  }) {
+export default function AddPlan({ open, onCancel, onSuccess, editPlan }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    billingCycle: "",
+    description: "",
+    isPopular: false,
+    features: [""],
+  });
 
-
- const [formData, setFormData] = useState({
-  name: "",
-  price: "",
-  billingCycle: "",
-  description: "",
-  isPopular: false,
-  features: [""],
-});
-
-useEffect(() => {
-  if (editPlan) {
-    setFormData({
-      name: editPlan.name || editPlan.plan_name || "",
-      price: editPlan.price || "",
-      billingCycle: editPlan.billingCycle || "",
-      description: editPlan.description || "",
-      isPopular:
-        editPlan.isPopular === true ||
-        editPlan.isPopular === "Yes" ||
-        editPlan.isPopular === "yes",
-      features:
-        editPlan.features && editPlan.features.length > 0
-          ? editPlan.features.map((f) =>
-              typeof f === "object" ? f.featureText || "" : f
-            )
-          : [""],
-    });
-  } else {
-    // reset when adding new plan
-    setFormData({
-      name: "",
-      price: "",
-      billingCycle: "",
-      description: "",
-      isPopular: false,
-      features: [""],
-    });
-  }
-}, [editPlan, open]);
-
+  useEffect(() => {
+    if (editPlan) {
+      setFormData({
+        name: editPlan.name || editPlan.plan_name || "",
+        price: editPlan.price || "",
+        billingCycle: editPlan.billingCycle || "",
+        description: editPlan.description || "",
+        isPopular:
+          editPlan.isPopular === true ||
+          editPlan.isPopular === "Yes" ||
+          editPlan.isPopular === "yes",
+        features:
+          editPlan.features && editPlan.features.length > 0
+            ? editPlan.features.map((f) =>
+                typeof f === "object" ? f.featureText || "" : f
+              )
+            : [""],
+      });
+    } else {
+      // reset when adding new plan
+      setFormData({
+        name: "",
+        price: "",
+        billingCycle: "",
+        description: "",
+        isPopular: false,
+        features: [""],
+      });
+    }
+  }, [editPlan, open]);
 
   const [loading, setLoading] = useState(false);
 
@@ -94,16 +91,16 @@ useEffect(() => {
 
     setLoading(true);
     try {
-let res;
-if (editPlan) {
-  res = await UpdatePlanById(editPlan.id, payload);
-} else {
-  res = await AddNewPlan(payload);
-}
+      let res;
+      if (editPlan) {
+        res = await UpdatePlanById(editPlan.id, payload);
+      } else {
+        res = await AddNewPlan(payload);
+      }
 
       const data = res?.data;
 
-      if (data?.success) {
+      if (data?.success === true) {
         // ✅ SweetAlert2 Success
         await Swal.fire({
           title: "Success!",
@@ -113,7 +110,7 @@ if (editPlan) {
         });
 
         onSuccess?.(); // refresh plan list
-       onCancel?.();
+        onCancel?.();
 
         // Reset form
         setFormData({
@@ -171,9 +168,10 @@ if (editPlan) {
             >
               {/* Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-200">
-<h2 className="text-xl font-semibold text-gray-800">
-  {editPlan ? "Edit Plan" : "Add New Plan"}
-</h2>                <button
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {editPlan ? "Edit Plan" : "Add New Plan"}
+                </h2>{" "}
+                <button
                   onClick={onCancel}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   aria-label="Close"
@@ -221,15 +219,14 @@ if (editPlan) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Billing Cycle <span className="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="  text"
-                        name="billingCycle"
-                        value={formData.billingCycle}
-                        onChange={handleInputChange}
-                        placeholder="Enter billing cycle"
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    <input
+                      type="  text"
+                      name="billingCycle"
+                      value={formData.billingCycle}
+                      onChange={handleInputChange}
+                      placeholder="Enter billing cycle"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
-                   
                   </div>
 
                   <div>
@@ -237,21 +234,22 @@ if (editPlan) {
                       Description
                     </label>
                     <input
-    type="text"
-    name="description"
-    value={formData.description}
-    onChange={handleInputChange}
-    placeholder="Enter plan description"
-    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-  />
-
+                      type="text"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Enter plan description"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
                   </div>
                 </div>
 
                 {/* Features Section */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">Features</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Features
+                    </label>
                     <button
                       type="button"
                       onClick={addFeatureField}
@@ -267,7 +265,9 @@ if (editPlan) {
                         <input
                           type="text"
                           value={feature}
-                          onChange={(e) => handleFeatureChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleFeatureChange(index, e.target.value)
+                          }
                           placeholder={`Feature ${index + 1}`}
                           className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         />

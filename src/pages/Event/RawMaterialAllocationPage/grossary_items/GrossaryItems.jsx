@@ -53,50 +53,50 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   }, [categoryId, eventId]);
 
   const fetchRawMaterialItems = async (categoryId, eventId) => {
-  setLoading(true);
-  setTableData([]);
-  setExpandedRows({});
-  try {
-    const response = await GetAllRawMaterialAllocationItems(
-      categoryId,
-      eventId
-    );
-    console.log(
-      "Raw Material API Response:",
-      response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
-    );
+    setLoading(true);
+    setTableData([]);
+    setExpandedRows({});
+    try {
+      const response = await GetAllRawMaterialAllocationItems(
+        categoryId,
+        eventId
+      );
+      console.log(
+        "Raw Material API Response:",
+        response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
+      );
 
-    if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
-      const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
-      if (Array.isArray(rawData)) {
-        // ✅ FIX: Ensure rawMaterialId is properly mapped
-        const mappedData = rawData.map(item => ({
-          ...item,
-          rawMaterialId: item.rawMaterialId || item.id || 0,
-          id: item.id,
-          supplierName: item.supplierName || "",
-          place: item.place || "",
-          finalQty: item.finalQty || item.final_qty || item.qty || 0,
-          qty: item.qty || 0,
-          totalprice: item.totalprice || 0,
-          unitId: item.unitId || 1,
-          eventRawMaterialFunctions: item.eventRawMaterialFunctions || []
-        }));
-        setTableData(mappedData);
+      if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
+        const rawData = response.data.data["Event_RAW_MATERIAL_ALLOCATION"];
+        if (Array.isArray(rawData)) {
+          // ✅ FIX: Ensure rawMaterialId is properly mapped
+          const mappedData = rawData.map((item) => ({
+            ...item,
+            rawMaterialId: item.rawMaterialId || item.id || 0,
+            id: item.id,
+            supplierName: item.supplierName || "",
+            place: item.place || "",
+            finalQty: item.finalQty || item.final_qty || item.qty || 0,
+            qty: item.qty || 0,
+            totalprice: item.totalprice || 0,
+            unitId: item.unitId || 1,
+            eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
+          }));
+          setTableData(mappedData);
+        } else {
+          console.error("API response is not an array:", rawData);
+          setTableData([]);
+        }
       } else {
-        console.error("API response is not an array:", rawData);
         setTableData([]);
       }
-    } else {
+    } catch (error) {
+      console.error("Error fetching raw material items:", error);
       setTableData([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching raw material items:", error);
-    setTableData([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const toggleExpand = (id) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -121,133 +121,137 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
 
   // Helper function to get supplier ID by name
   const getSupplierIdByName = (supplierName) => {
-  if (!supplierName || typeof supplierName !== 'string') return 0;
-  
-  const trimmedName = supplierName.trim();
-  if (!trimmedName) return 0;
-  
-  const agency = agencies.find(
-    (a) => {
-      const agencyName = (a.nameEnglish || a.name || '').trim();
+    if (!supplierName || typeof supplierName !== "string") return 0;
+
+    const trimmedName = supplierName.trim();
+    if (!trimmedName) return 0;
+
+    const agency = agencies.find((a) => {
+      const agencyName = (a.nameEnglish || a.name || "").trim();
       return agencyName === trimmedName;
-    }
-  );
-  
-  return agency?.id || 0;
-};
+    });
+
+    return agency?.id || 0;
+  };
   // Save function
   // Replace your handleSave function with this corrected version:
 
- const handleSave = async () => {
-  try {
-    setSaving(true);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
 
-    // Validate that we have data to save
-    if (!tableData || tableData.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "No Data",
-        text: "There are no raw materials to save.",
+      // Validate that we have data to save
+      if (!tableData || tableData.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "No Data",
+          text: "There are no raw materials to save.",
+        });
+        return;
+      }
+
+      // Validate eventId
+      if (!eventId) {
+        Swal.fire({
+          icon: "error",
+          title: "Missing Event ID",
+          text: "Event ID is required to save raw material allocation.",
+        });
+        return;
+      }
+
+      // Transform tableData to match the API structure
+      const eventRawMaterial = tableData.map((item) => {
+        // Transform eventRawMaterialFunctions to eventRawMatFunctions
+        const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map(
+          (func) => {
+            const supplierId = getSupplierIdByName(func.supplierName || "");
+
+            return {
+              eventFunctionId: func.eventFunctionId || 0,
+              functionId: func.functionId || 0,
+              functiondatetime: func.functiondatetime || "",
+              itemName: func.itemName || "",
+              place: func.place || "",
+              price: parseFloat(func.price) || 0,
+              qty: parseFloat(func.qty) || 0,
+              supplierId: supplierId,
+              unitId: func.unitId || 1,
+            };
+          }
+        );
+
+        const supplierId = getSupplierIdByName(item.supplierName || "");
+
+        return {
+          eventRawMatFunctions: eventRawMatFunctions,
+          finalQty: parseFloat(item.finalQty) || 0,
+          place: item.place || "",
+          qty: parseFloat(item.qty) || 0,
+          rawMaterialId: item.rawMaterialId || item.id || 0,
+          supplierId: supplierId,
+          totalprice: parseFloat(item.totalprice) || 0,
+          unitId: item.unitId || 1,
+        };
       });
-      return;
-    }
 
-    // Validate eventId
-    if (!eventId) {
-      Swal.fire({
-        icon: "error",
-        title: "Missing Event ID",
-        text: "Event ID is required to save raw material allocation.",
-      });
-      return;
-    }
-
-    // Transform tableData to match the API structure
-    const eventRawMaterial = tableData.map((item) => {
-      // Transform eventRawMaterialFunctions to eventRawMatFunctions
-      const eventRawMatFunctions = (item.eventRawMaterialFunctions || []).map(
-        (func) => {
-          const supplierId = getSupplierIdByName(func.supplierName || "");
-          
-          return {
-            eventFunctionId: func.eventFunctionId || 0,
-            functionId: func.functionId || 0,
-            functiondatetime: func.functiondatetime || "",
-            itemName: func.itemName || "",
-            place: func.place || "",
-            price: parseFloat(func.price) || 0,
-            qty: parseFloat(func.qty) || 0,
-            supplierId: supplierId,
-            unitId: func.unitId || 1,
-          };
-        }
-      );
-
-      const supplierId = getSupplierIdByName(item.supplierName || "");
-
-      return {
-        eventRawMatFunctions: eventRawMatFunctions,
-        finalQty: parseFloat(item.finalQty) || 0,
-        place: item.place || "",
-        qty: parseFloat(item.qty) || 0,
-        rawMaterialId: item.rawMaterialId || item.id || 0,
-        supplierId: supplierId,
-        totalprice: parseFloat(item.totalprice) || 0,
-        unitId: item.unitId || 1,
+      const payload = {
+        eventId: parseInt(eventId),
+        eventRawMaterial: eventRawMaterial,
       };
-    });
 
-    const payload = {
-      eventId: parseInt(eventId),
-      eventRawMaterial: eventRawMaterial,
-    };
+      console.log("=== PAYLOAD TO SEND ===");
+      console.log(JSON.stringify(payload, null, 2));
+      console.log("======================");
 
-    console.log("=== PAYLOAD TO SEND ===");
-    console.log(JSON.stringify(payload, null, 2));
-    console.log("======================");
+      // Call the API
+      const response = await RawMaterialallocation(payload);
 
-    // Call the API
-    const response = await RawMaterialallocation(payload);
+      console.log("=== API RESPONSE ===");
+      console.log(response);
+      console.log("===================");
 
-    console.log("=== API RESPONSE ===");
-    console.log(response);
-    console.log("===================");
+      // Check for successful response
+      if (
+        response?.data?.success === true ||
+        response?.status === 200 ||
+        response?.status === 201
+      ) {
+        await Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Raw material allocation saved successfully!",
+        });
 
-    // Check for successful response
-    if (response?.data?.success || response?.status === 200 || response?.status === 201) {
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Raw material allocation saved successfully!",
-      });
-      
-      // Refresh the data after successful save
-      await fetchRawMaterialItems(categoryId, eventId);
-    } else {
+        // Refresh the data after successful save
+        await fetchRawMaterialItems(categoryId, eventId);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text:
+            response?.data?.message || "Failed to save raw material allocation",
+        });
+      }
+    } catch (error) {
+      console.error("=== ERROR SAVING ===");
+      console.error("Error object:", error);
+      console.error("Error response:", error?.response);
+      console.error("Error message:", error?.message);
+      console.error("==================");
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: response?.data?.message || "Failed to save raw material allocation",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "An error occurred while saving. Please try again.",
       });
+    } finally {
+      setSaving(false);
     }
-  } catch (error) {
-    console.error("=== ERROR SAVING ===");
-    console.error("Error object:", error);
-    console.error("Error response:", error?.response);
-    console.error("Error message:", error?.message);
-    console.error("==================");
-    
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error?.response?.data?.message || 
-            error?.message || 
-            "An error occurred while saving. Please try again.",
-    });
-  } finally {
-    setSaving(false);
-  }
-};
+  };
   const handleAllocateAgency = (agencyName) => {
     const updatedData = tableData.map((item) => ({
       ...item,
@@ -344,7 +348,10 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     if (!eventRawMaterialFunctions || eventRawMaterialFunctions.length === 0) {
       return (
         <div className="text-center py-4 text-gray-500">
-          <FormattedMessage id="GROSSARY.NO_FUNCTION_ASSIGNED" defaultMessage="No functions assigned to this raw material" />
+          <FormattedMessage
+            id="GROSSARY.NO_FUNCTION_ASSIGNED"
+            defaultMessage="No functions assigned to this raw material"
+          />
         </div>
       );
     }
@@ -352,16 +359,39 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     return (
       <>
         <div className="grid grid-cols-[150px_200px_200px_80px_120px_120px_160px_100px] items-center bg-gray-200 font-bold border-b border-gray-300 py-2 mb-3">
-          <div><FormattedMessage id="COMMON.FUNCTION_NAME" defaultMessage="Function Name" />
-</div>
-          <div><FormattedMessage id="COMMON.MENU_ITEM_NAME" defaultMessage="Menu Item Name" />
-</div>
-          <div><FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" /></div>
-          <div><FormattedMessage id="COMMON.QTY" defaultMessage="Qty" /></div>
-          <div><FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" /></div>
-          <div><FormattedMessage id="COMMON.PLACE" defaultMessage="Place" /></div>
-          <div><FormattedMessage id="COMMON.DATE_TIME" defaultMessage="Date & Time" /></div>
-          <div><FormattedMessage id="COMMON.PRICE" defaultMessage="Price" /></div>
+          <div>
+            <FormattedMessage
+              id="COMMON.FUNCTION_NAME"
+              defaultMessage="Function Name"
+            />
+          </div>
+          <div>
+            <FormattedMessage
+              id="COMMON.MENU_ITEM_NAME"
+              defaultMessage="Menu Item Name"
+            />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+          </div>
+          <div>
+            <FormattedMessage
+              id="COMMON.DATE_TIME"
+              defaultMessage="Date & Time"
+            />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
+          </div>
         </div>
 
         {eventRawMaterialFunctions.map((func, index) => (
@@ -388,8 +418,20 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                   )
                 }
               >
-                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
-                {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>}
+                <option value="">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.SELECT_AGENCY"
+                    defaultMessage="Select Agency"
+                  />
+                </option>
+                {loading && (
+                  <option>
+                    <FormattedMessage
+                      id="SIDEBAR_MODAL.LOADING"
+                      defaultMessage="Loading..."
+                    />
+                  </option>
+                )}
                 {!loading && agencies.length > 0
                   ? agencies.map((agency) => (
                       <option
@@ -399,7 +441,14 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                         {agency.nameEnglish || agency.name}
                       </option>
                     ))
-                  : !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="No agencies found" /></option>}
+                  : !loading && (
+                      <option>
+                        <FormattedMessage
+                          id="COMMON.NO_AGENCY_FOUND"
+                          defaultMessage="No agencies found"
+                        />
+                      </option>
+                    )}
               </select>
             </div>
             <div className="mr-2 mb-2">
@@ -410,7 +459,10 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                 onChange={(e) =>
                   handleFunctionChange(main_index, index, "qty", e.target.value)
                 }
-                placeholder={intl.formatMessage({ id: "COMMON.QTY", defaultMessage: "Qty" })}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.QTY",
+                  defaultMessage: "Qty",
+                })}
               />
             </div>
             <div className="mr-2 mb-2">
@@ -426,8 +478,15 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                   )
                 }
               >
-                <option value="Kilogram"><FormattedMessage id="COMMON.KILO" defaultMessage="Kilogram" /></option>
-                <option value="Gram"><FormattedMessage id="COMMON.GRAM" defaultMessage="Gram" /></option>
+                <option value="Kilogram">
+                  <FormattedMessage
+                    id="COMMON.KILO"
+                    defaultMessage="Kilogram"
+                  />
+                </option>
+                <option value="Gram">
+                  <FormattedMessage id="COMMON.GRAM" defaultMessage="Gram" />
+                </option>
               </select>
             </div>
             <div className="mr-2 mb-2">
@@ -443,9 +502,24 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                   )
                 }
               >
-                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select Place" /></option>
-                <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
-                <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
+                <option value="">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.SELECT_PLACE"
+                    defaultMessage="Select Place"
+                  />
+                </option>
+                <option value="At Venue">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.AT_VENUE"
+                    defaultMessage="At Venue"
+                  />
+                </option>
+                <option value="Godown">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.GO_DOWN"
+                    defaultMessage="At Godown"
+                  />
+                </option>
               </select>
             </div>
             <div className="mr-2 mb-2">
@@ -476,7 +550,10 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                     e.target.value
                   )
                 }
-                placeholder={intl.formatMessage({ id: "COMMON.PRICE", defaultMessage: "Price" })}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.PRICE",
+                  defaultMessage: "Price",
+                })}
               />
             </div>
           </div>
@@ -491,18 +568,23 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         <div className="grid grid-cols-[100px_200px_200px_150px_200px] items-center bg-gray-200 font-bold border-b border-gray-300 py-2 mb-3">
           <div className="ml-2">#</div>
           <div>
-  <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />
-</div>
-<div>
-  <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
-</div>
-<div>
-  <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
-</div>
-<div>
-  <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />
-</div>
-
+            <FormattedMessage
+              id="COMMON.RAW_MATERIAL"
+              defaultMessage="Raw Material"
+            />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
+          </div>
+          <div>
+            <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+          </div>
+          <div>
+            <FormattedMessage
+              id="COMMON.DATE_AND_TIME"
+              defaultMessage="Date & Time"
+            />
+          </div>
         </div>
 
         {tableData.map((item, index) => (
@@ -518,8 +600,20 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                 value={item.supplierName || ""}
                 onChange={(e) => handleRowAgencyChange(index, e.target.value)}
               >
-                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
-                {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>}
+                <option value="">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.SELECT_AGENCY"
+                    defaultMessage="Select Agency"
+                  />
+                </option>
+                {loading && (
+                  <option>
+                    <FormattedMessage
+                      id="SIDEBAR_MODAL.LOADING"
+                      defaultMessage="Loading..."
+                    />
+                  </option>
+                )}
                 {!loading && agencies.length > 0
                   ? agencies.map((agency) => (
                       <option
@@ -529,7 +623,14 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                         {agency.nameEnglish || agency.name}
                       </option>
                     ))
-                  : !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="No agencies found" /></option>}
+                  : !loading && (
+                      <option>
+                        <FormattedMessage
+                          id="COMMON.NO_AGENCY_FOUND"
+                          defaultMessage="No agencies found"
+                        />
+                      </option>
+                    )}
               </select>
             </div>
             <div className="mr-2 mb-2">
@@ -538,9 +639,24 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                 value={item.place || ""}
                 onChange={(e) => handleRowPlaceChange(index, e.target.value)}
               >
-                <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select Place" /></option>
-                <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
-                <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
+                <option value="">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.SELECT_PLACE"
+                    defaultMessage="Select Place"
+                  />
+                </option>
+                <option value="At Venue">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.AT_VENUE"
+                    defaultMessage="At Venue"
+                  />
+                </option>
+                <option value="Godown">
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.GO_DOWN"
+                    defaultMessage="At Godown"
+                  />
+                </option>
               </select>
             </div>
             <div className="mr-2 mb-2">
@@ -564,9 +680,18 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
           <button
             className="btn btn-primary"
             onClick={handleModalOpen}
-            title={<FormattedMessage id="GROSSARY.AGENCY_PLACE_DATE" defaultMessage="Agency, Place & Date"/>}
+            title={
+              <FormattedMessage
+                id="GROSSARY.AGENCY_PLACE_DATE"
+                defaultMessage="Agency, Place & Date"
+              />
+            }
           >
-            <i className="ki-filled ki-plus"></i> <FormattedMessage id="GROSSARY.AGENCY_PLACE_DATE" defaultMessage="Agency, Place & Date"/>
+            <i className="ki-filled ki-plus"></i>{" "}
+            <FormattedMessage
+              id="GROSSARY.AGENCY_PLACE_DATE"
+              defaultMessage="Agency, Place & Date"
+            />
           </button>
         </div>
       </div>
@@ -579,27 +704,61 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         >
           <div className="px-2 w-13"></div>
           <div className="px-2 w-10">#</div>
-          <div className="px-2 w-40"><FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" /></div>
-          <div className="px-2 w-28"><FormattedMessage id="COMMON.QTY" defaultMessage="Qty" /></div>
-          <div className="px-2 w-28"><FormattedMessage id="COMMON.FINNAL_QTY" defaultMessage="Final Qty" /></div>
-          <div className="px-2 w-28"><FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" /></div>
-          <div className="px-2 w-40"><FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" /></div>
-          <div className="px-2 w-40"><FormattedMessage id="COMMON.PLACE" defaultMessage="Place" /></div>
-          <div className="px-2 w-35"><FormattedMessage id="COMMON.PRICE_UNIT" defaultMessage="Price/Unit" /></div>
-          <div className="px-2 w-35"><FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" /></div>
+          <div className="px-2 w-40">
+            <FormattedMessage
+              id="COMMON.RAW_MATERIAL"
+              defaultMessage="Raw Material"
+            />
+          </div>
+          <div className="px-2 w-28">
+            <FormattedMessage id="COMMON.QTY" defaultMessage="Qty" />
+          </div>
+          <div className="px-2 w-28">
+            <FormattedMessage
+              id="COMMON.FINNAL_QTY"
+              defaultMessage="Final Qty"
+            />
+          </div>
+          <div className="px-2 w-28">
+            <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />
+          </div>
+          <div className="px-2 w-40">
+            <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
+          </div>
+          <div className="px-2 w-40">
+            <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+          </div>
+          <div className="px-2 w-35">
+            <FormattedMessage
+              id="COMMON.PRICE_UNIT"
+              defaultMessage="Price/Unit"
+            />
+          </div>
+          <div className="px-2 w-35">
+            <FormattedMessage
+              id="COMMON.TOTAL_PRICE"
+              defaultMessage="Total Price"
+            />
+          </div>
         </div>
-
-        
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-4"><FormattedMessage id="GROSSARY.LOADING_RAW_MATERIAL" defaultMessage="Loading raw materials..." /></div>
+          <div className="text-center py-4">
+            <FormattedMessage
+              id="GROSSARY.LOADING_RAW_MATERIAL"
+              defaultMessage="Loading raw materials..."
+            />
+          </div>
         )}
 
         {/* Empty State */}
         {!loading && tableData.length === 0 && (
           <div className="text-center py-4 text-gray-500">
-            <FormattedMessage id="GROSSARY.NO_RAW_MATERIAL_FOUND_CATEGORY" defaultMessage="No raw materials found for this category" />
+            <FormattedMessage
+              id="GROSSARY.NO_RAW_MATERIAL_FOUND_CATEGORY"
+              defaultMessage="No raw materials found for this category"
+            />
           </div>
         )}
 
@@ -641,8 +800,18 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                 </div>
                 <div className="px-2 w-40">
                   <select className="select pe-7.5" defaultValue={row.unitId}>
-                    <option><FormattedMessage id="COMMON.KILO" defaultMessage="Kilogram" /></option>
-                    <option><FormattedMessage id="COMMON.GRAM" defaultMessage="Gram" /></option>
+                    <option>
+                      <FormattedMessage
+                        id="COMMON.KILO"
+                        defaultMessage="Kilogram"
+                      />
+                    </option>
+                    <option>
+                      <FormattedMessage
+                        id="COMMON.GRAM"
+                        defaultMessage="Gram"
+                      />
+                    </option>
                   </select>
                 </div>
                 <div className="px-2 w-40">
@@ -661,7 +830,10 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
                     onChange={(e) =>
                       handleTotalPriceChange(index, e.target.value)
                     }
-                    placeholder={intl.formatMessage({ id: "COMMON.PRICE_UNIT", defaultMessage: "Price/Unit" })}
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.PRICE_UNIT",
+                      defaultMessage: "Price/Unit",
+                    })}
                   />
                 </div>
                 <div className="px-2 w-35 font-semibold">
@@ -680,14 +852,24 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
       {/* Total Price and save button*/}
       {!loading && tableData.length > 0 && (
         <div className="flex items-center justify-center gap-5 bg-gray-200 border-b border-gray-300 py-2">
-          <div className="font-bold"><FormattedMessage id="GROSSARY.TOTAL_PRICE" defaultMessage="Total Price:" /> ₹{calculateTotalPrice()}</div>
+          <div className="font-bold">
+            <FormattedMessage
+              id="GROSSARY.TOTAL_PRICE"
+              defaultMessage="Total Price:"
+            />{" "}
+            ₹{calculateTotalPrice()}
+          </div>
           <button
             className="btn btn-primary save-btn"
             onClick={handleSave}
             disabled={saving}
             title={<FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
           >
-            {saving ? <FormattedMessage id="COMMON.SAVING" defaultMessage="Saving.." /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+            {saving ? (
+              <FormattedMessage id="COMMON.SAVING" defaultMessage="Saving.." />
+            ) : (
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+            )}
           </button>
         </div>
       )}

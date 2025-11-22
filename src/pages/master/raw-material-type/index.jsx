@@ -105,7 +105,10 @@ const RawMaterialType = () => {
       if (result.isConfirmed) {
         DeleteRawType(rawid)
           .then((response) => {
-            if (response && (response.success || response.status === 200)) {
+            if (
+              response &&
+              (response.success || response.data.success === true)
+            ) {
               FetchRawTypeCategory();
               Swal.fire({
                 title: "Removed!",
