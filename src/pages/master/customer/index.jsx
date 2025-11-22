@@ -12,11 +12,7 @@ import {
 } from "@/services/apiServices";
 import ViewCustomer from "../../../partials/modals/view-customer/ViewCustomer";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
-import { useIntl } from "react-intl";
-
-
-
+import { FormattedMessage, useIntl } from "react-intl";
 
 const CustomerMaster = () => {
   const classes = useStyle();
@@ -24,14 +20,91 @@ const CustomerMaster = () => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
 
   const intl = useIntl();
 
+  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = userData.id;
+
+  // 🔥 Load language
+  const lang = localStorage.getItem("lang") || "en";
+
+  // 🔥 Helper to convert Name/Address based on language
+  const getNameByLang = (cust) => {
+    switch (lang) {
+      case "hi":
+        return cust.nameHindi || cust.nameEnglish || "-";
+      case "gu":
+        return cust.nameGujarati || cust.nameEnglish || "-";
+      default:
+        return cust.nameEnglish || "-";
+    }
+  };
+
+  const getAddressByLang = (cust) => {
+    switch (lang) {
+      case "hi":
+        return cust.addressHindi || cust.addressEnglish || "-";
+      case "gu":
+        return cust.addressGujarati || cust.addressEnglish || "-";
+      default:
+        return cust.addressEnglish || "-";
+    }
+  };
+
+  const getContactTypeByLang = (cust) => {
+    if (!cust.contact) return "-";
+
+    switch (lang) {
+      case "hi":
+        return cust.contact.nameHindi || cust.contact.nameEnglish || "-";
+      case "gu":
+        return cust.contact.nameGujarati || cust.contact.nameEnglish || "-";
+      default:
+        return cust.contact.nameEnglish || "-";
+    }
+  };
+
+  // ------------------ FETCH CUSTOMER ------------------
   useEffect(() => {
     FetchCustomer();
-  }, []);
+  }, [lang]); // 🔥 update when language changes
 
+  const FetchCustomer = () => {
+    GetAllCustomer(Id)
+      .then(({ data: { data } }) => {
+        const formatted = data["Party Details"].map((cust, index) => ({
+          sr_no: index + 1,
+          customerid: cust.id,
+          customer: getNameByLang(cust),
+          address: getAddressByLang(cust),
+          contact_type: getContactTypeByLang(cust),
+          email: cust.email || "-",
+          mobile: cust.mobileno || "-",
+          gst: cust.gst || "-",
+          birthdate: cust.birthDate || "-",
+          document: cust.document || "-",
+          altMobileno: cust.altMobileno || "",
+          contactCategoryId: cust.contact?.id,
+          image: cust.documentImage || "",
+          // all raw data for modal use
+          nameEnglish: cust.nameEnglish,
+          nameHindi: cust.nameHindi,
+          nameGujarati: cust.nameGujarati,
+          addressEnglish: cust.addressEnglish,
+          addressHindi: cust.addressHindi,
+          addressGujarati: cust.addressGujarati,
+        }));
+
+        setTableData(formatted);
+      })
+      .catch((error) => {
+        console.error("Error fetching customers:", error);
+      });
+  };
+
+  // ------------------ SEARCH CUSTOMER ------------------
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
@@ -45,66 +118,38 @@ const CustomerMaster = () => {
             const formatted = data["Party Details"].map((cust, index) => ({
               sr_no: index + 1,
               customerid: cust.id,
-              customer: cust.nameEnglish || "-",
-              address: cust.addressEnglish || "-",
-              contact_type: cust.contact.nameEnglish || "-",
+              customer: getNameByLang(cust),
+              address: getAddressByLang(cust),
+              contact_type: getContactTypeByLang(cust),
               email: cust.email || "-",
               mobile: cust.mobileno || "-",
               gst: cust.gst || "-",
               birthdate: cust.birthDate || "-",
               document: cust.document || "-",
-              nameGujarati: cust.nameGujarati || "",
-              nameHindi: cust.nameHindi || "",
-              addressGujarati: cust.addressGujarati || "",
-              addressHindi: cust.addressHindi || "",
               altMobileno: cust.altMobileno || "",
               contactCategoryId: cust.contact?.id,
               image: cust.documentImage || "",
+              // raw data
+              nameEnglish: cust.nameEnglish,
+              nameHindi: cust.nameHindi,
+              nameGujarati: cust.nameGujarati,
+              addressEnglish: cust.addressEnglish,
+              addressHindi: cust.addressHindi,
+              addressGujarati: cust.addressGujarati,
             }));
+
             setTableData(formatted);
           } else {
             setTableData([]);
           }
         })
-        .catch((error) => {
-          console.error("Error searching customer:", error);
-        });
+        .catch((error) => console.error("Error searching customer:", error));
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [searchQuery]);
+  }, [searchQuery, lang]); // 🔥 search also updates after language change
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
-  const FetchCustomer = () => {
-    GetAllCustomer(Id)
-      .then(({ data: { data } }) => {
-        const formatted = data["Party Details"].map((cust, index) => ({
-          sr_no: index + 1,
-          customerid: cust.id,
-          customer: cust.nameEnglish || "-",
-          address: cust.addressEnglish || "-",
-          contact_type: cust.contact.nameEnglish || "-",
-          email: cust.email || "-",
-          mobile: cust.mobileno || "-",
-          gst: cust.gst || "-",
-          birthdate: cust.birthDate || "-",
-          document: cust.document || "-",
-          nameGujarati: cust.nameGujarati || "",
-          nameHindi: cust.nameHindi || "",
-          addressGujarati: cust.addressGujarati || "",
-          addressHindi: cust.addressHindi || "",
-          altMobileno: cust.altMobileno || "",
-          contactCategoryId: cust.contact?.id,
-        }));
-
-        setTableData(formatted);
-      })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-      });
-  };
-
+  // ------------------ DELETE CUSTOMER ------------------
   const DeleteCustomer = (customerId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -128,16 +173,13 @@ const CustomerMaster = () => {
                 timer: 1500,
                 showConfirmButton: false,
               });
-            } else {
-              throw new Error(response?.message || "API call failed");
             }
           })
-          .catch((error) => {
-            console.error("Error deleting customer:", error);
-          });
+          .catch((error) => console.error("Error deleting customer:", error));
       }
     });
   };
+
   const handleEditCustomer = (customer) => {
     setSelectedCustomer(customer);
     setIsMemberModalOpen(true);
@@ -156,50 +198,64 @@ const CustomerMaster = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.CUSTOMER_MASTER" defaultMessage="Customer Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.CUSTOMER_MASTER"
+                    defaultMessage="Customer Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
-        {/* filters */}
+
+        {/* Search + Add */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
             className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
           >
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-               <input
-      className="input pl-8"
-      placeholder={intl.formatMessage({
-        id: "USER.MASTER.SEARCH_CUSTOMER",
-        defaultMessage: "Search Customer...",
-      })}
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-    />
+
+              <input
+                className="input pl-8"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.SEARCH_CUSTOMER",
+                  defaultMessage: "Search Customer...",
+                })}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={handleAddCustomer}
-              title="Add Customer"
-            >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_CUSTOMER" defaultMessage="Add Customer" />
-            </button>
-          </div>
+
+          <button className="btn btn-primary" onClick={handleAddCustomer}>
+            <i className="ki-filled ki-plus"></i>{" "}
+            <FormattedMessage
+              id="USER.MASTER.ADD_CUSTOMER"
+              defaultMessage="Add Customer"
+            />
+          </button>
         </div>
+
         <AddCustomer
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
           selectedCustomer={selectedCustomer}
           refreshData={FetchCustomer}
         />
+
         <ViewCustomer
           isModalOpen={isViewMemberModalOpen}
           setIsModalOpen={setIsViewMemberModalOpen}
           selectedCustomer={selectedCustomer}
         />
+
         <TableComponent
           columns={columns(
             handleEditCustomer,
@@ -213,4 +269,5 @@ const CustomerMaster = () => {
     </Fragment>
   );
 };
+
 export default CustomerMaster;

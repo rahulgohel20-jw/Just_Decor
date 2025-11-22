@@ -18,6 +18,7 @@ const InvoiceDashboard = () => {
     overDue: 0,
     avgPaymentDays: 7,
   });
+  const [originalData, setOriginalData] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("userData"));
   const userId = user?.id || 0;
@@ -25,49 +26,16 @@ const InvoiceDashboard = () => {
   const fetchInvoices = async () => {
     try {
       const response = await GetAllInvoice(userId);
-      console.log("Invoice API Response:", response);
 
-      // Map the invoice data to table format
-      const invoiceData = response?.data?.data?.["Event Invoice Details"] || [];
+      const list = response?.data?.data?.["Event Invoice Details"] || [];
 
-      const data = invoiceData.map((invoice, index) => ({
-        Invoice:
-          invoice?.invoiceCode || `INV-${String(index + 1).padStart(4, "0")}`,
-        CustomerName: invoice?.event?.party?.nameEnglish || "-",
-        PartyId: invoice?.event?.party?.id || "-",
-        EventId: invoice?.event?.id || "-",
-        Eventname: invoice?.event?.eventType?.nameEnglish || "-",
-        eventDate: invoice?.event?.eventStartDateTime
-          ? new Date(invoice.event.eventStartDateTime).toLocaleDateString(
-              "en-GB",
-              { day: "2-digit", month: "short", year: "numeric" }
-            )
-          : "-",
-        invoiceDate: invoice?.createdAt || "-",
-        Amount: `₹ ${(invoice?.grandTotal || 0).toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
-        BalanceDue: `₹ ${(invoice?.remainingAmount || 0).toLocaleString(
-          "en-IN",
-          {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }
-        )}`,
-        Status: invoice?.remainingAmount === 0 ? "Paid" : "Pending",
-      }));
+      setOriginalData(list);
 
-      setTableData(data);
-
-      if (invoiceData.length > 0) {
-        const firstInvoice = invoiceData[0];
+      if (list.length > 0) {
         setTotals({
-          receivable: firstInvoice?.overAllReceivableAmnt || 0,
-          remaining: firstInvoice?.overAllRemainingAmnt || 0,
-          total: firstInvoice?.overallTotalAmnt || 0,
-          dueToday: 0,
-          dueWithin30Days: 0,
+          receivable: list[0]?.overAllReceivableAmnt || 0,
+          dueToday: list[0]?.overAllRemainingAmnt || 0,
+          dueWithin30Days: list[0]?.overallTotalAmnt || 0,
           overDue: 0,
           avgPaymentDays: 7,
         });
@@ -80,6 +48,52 @@ const InvoiceDashboard = () => {
   useEffect(() => {
     fetchInvoices();
   }, []);
+
+  useEffect(() => {
+    const language = localStorage.getItem("lang");
+
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[language] || "nameEnglish";
+
+    const mapped = originalData.map((invoice, index) => ({
+      Invoice:
+        invoice?.invoiceCode || `INV-${String(index + 1).padStart(4, "0")}`,
+
+      CustomerName: invoice?.event?.party?.[field] || "-",
+      Eventname: invoice?.event?.eventType?.[field] || "-",
+
+      PartyId: invoice?.event?.party?.id || "-",
+      EventId: invoice?.event?.id || "-",
+
+      eventDate: invoice?.event?.eventStartDateTime
+        ? new Date(invoice.event.eventStartDateTime).toLocaleDateString(
+            "en-GB",
+            { day: "2-digit", month: "short", year: "numeric" }
+          )
+        : "-",
+
+      invoiceDate: invoice?.createdAt || "-",
+
+      Amount: `₹ ${(invoice?.grandTotal || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+
+      BalanceDue: `₹ ${(invoice?.remainingAmount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+
+      Status: invoice?.remainingAmount === 0 ? "Paid" : "Pending",
+    }));
+
+    setTableData(mapped);
+  }, [originalData, localStorage.getItem("lang")]);
 
   const steps = [
     {

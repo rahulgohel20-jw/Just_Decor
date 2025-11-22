@@ -176,14 +176,14 @@ const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.EVENT_TYPE"
+            id="COMMON.VENUE_TYPE"
             defaultMessage="Venue Type"
           />
         ),
         path: "/master/venue-type",
       },
       {
-        title: "Unit ",
+        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
         path: "/master/unit",
       },
       {

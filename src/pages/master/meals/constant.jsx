@@ -12,7 +12,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "meal_type",
-    header: <FormattedMessage id="USER.MASTER.MEAL_NAME" defaultMessage="Meal Name" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.MEAL_NAME" defaultMessage="Meal Name" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

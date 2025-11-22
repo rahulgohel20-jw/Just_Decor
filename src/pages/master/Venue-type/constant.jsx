@@ -13,10 +13,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "venue_type",
     header: (
-      <FormattedMessage
-        id="USER.MASTER.VENUE_TYPE"
-        defaultMessage="Venue Type"
-      />
+      <FormattedMessage id="COMMON.VENUE_TYPE" defaultMessage="Venue Type" />
     ),
     meta: {
       headerClassName: "w-[20%]",
