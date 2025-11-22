@@ -10,7 +10,7 @@ export default function InvoiceList({ onSelectInvoice }) {
   const fetchInvoices = async () => {
     try {
       const response = await GeteventInvoicedata(PartyId);
-      console.log("invoicelist",response);
+      console.log("invoicelist", response);
       const invoiceList =
         response?.data?.data?.["Event Details"]?.map((event) => ({
           eventId: event?.id || "-",
@@ -18,7 +18,7 @@ export default function InvoiceList({ onSelectInvoice }) {
           date: event?.eventStartDateTime || "-",
           name: event?.party?.nameEnglish || "-",
           Event: event?.eventType?.nameEnglish || "-",
-          Venue: event?.venue || "-",
+          Venue: event?.venue?.nameEnglish || "-",
         })) || [];
 
       setInvoices(invoiceList);
@@ -47,16 +47,28 @@ export default function InvoiceList({ onSelectInvoice }) {
       <div className="filItems w-1/2 mb-6">
         <select defaultValue="All Invoice" className="select pe-7.5">
           <option value="0">
-            <FormattedMessage id="SALES.ALL_INVOICE" defaultMessage="All Invoices" />
+            <FormattedMessage
+              id="SALES.ALL_INVOICE"
+              defaultMessage="All Invoices"
+            />
           </option>
           <option value="1">
-            <FormattedMessage id="SALES.LAST_3_MONTHS" defaultMessage="Last 3 Months" />
+            <FormattedMessage
+              id="SALES.LAST_3_MONTHS"
+              defaultMessage="Last 3 Months"
+            />
           </option>
           <option value="2">
-            <FormattedMessage id="SALES.LAST_6_MONTHS" defaultMessage="Last 6 Months" />
+            <FormattedMessage
+              id="SALES.LAST_6_MONTHS"
+              defaultMessage="Last 6 Months"
+            />
           </option>
           <option value="3">
-            <FormattedMessage id="SALES.CUSTOM_DATE" defaultMessage="Custom Date" />
+            <FormattedMessage
+              id="SALES.CUSTOM_DATE"
+              defaultMessage="Custom Date"
+            />
           </option>
         </select>
       </div>

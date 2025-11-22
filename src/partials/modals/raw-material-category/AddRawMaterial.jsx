@@ -66,6 +66,7 @@ const AddRawMaterial = ({
             value: item.id,
           }))
         );
+        console.log(options);
       })
       .catch((error) => console.error("Error fetching raw type:", error));
   }, []);
@@ -76,7 +77,7 @@ const AddRawMaterial = ({
     nameGujarati: rawMaterialCategory?.nameGujarati || "",
     nameHindi: rawMaterialCategory?.nameHindi || "",
     sequence: rawMaterialCategory?.priority || "",
-    rawMaterialCatTypeId: rawMaterialCategory?.rawCatid || "",
+    rawMaterialCatTypeId: rawMaterialCategory?.rawtypeid || "",
     isDirect: rawMaterialCategory?.isDirect || false,
   };
 

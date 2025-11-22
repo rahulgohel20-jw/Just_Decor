@@ -232,17 +232,17 @@
   "USER.MASTER.EDIT_RAW_MATERIAL_TYPE": "એડિટ રો મટેરિયલ ટાઇપ",
   "USER.MASTER.NEW_RAW_MATERIAL_TYPE": "ન્યૂ રો મટેરિયલ ટાઇપ",
   "COMMON.PRIORITY": "પ્રાયોરિટી",
-  "USER.MASTER.RAW_MATERIAL_CATEGORY": "રો મટેરિયલ કેટેગરી માસ્ટર",
+  "USER.MASTER.RAW_MATERIAL_CATEGORY": "રો મટેરિયલ કેટેગરી",
   "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY": "એડ રો મટેરિયલ કેટેગરી",
   "USER.MASTER.RAW_MATERIAL_CATEGORY_SEARCH": "સર્ચ રો મટેરિયલ કેટેગરી...",
-  "USER.MASTER.RAW_MATERIAL_TYPE_TITLE": "રો મટેરિયલ ટાઇપ માસ્ટર",
+  "USER.MASTER.RAW_MATERIAL_TYPE_TITLE": "રો મટેરિયલ ટાઇપ",
   "USER.MASTER.ADD_RAW_MATERIAL_TYPE": "એડ રો મટેરિયલ ટાઇપ",
   "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH": "સર્ચ રો મટેરિયલ ટાઇપ...",
   "COMMON.TYPE": "ટાઇપ",
   "COMMON.RAW_MATERIAL_NAME": "રો મટેરિયલ નેમ",
   "COMMON.RAW_MATERIAL_CATEGORY": "રો મટેરિયલ કેટેગરી",
   "COMMON.UNIT": "યુનિટ",
-  "COMMON.RAW_MATERIAL_MASTER": "રો મટેરિયલ માસ્ટર",
+  "COMMON.RAW_MATERIAL_MASTER": "રો મટેરિયલ",
   "COMMON.ADD_RAW_MATERIAL": "એડ રો મટેરિયલ",
   "COMMON.RAW_MATERIAL_SEARCH": "સર્ચ રો મટેરિયલ...",
   "USER.RAWMATERIAL.EDIT_TITLE": "એડિટ રો મટેરિયલ",
@@ -718,15 +718,11 @@
   "BREADCRUMBS_CUSTOM_PACKAGE": "કસ્ટમ પેકેજ",
   "BREADCRUMBS_CREATE_NEW": "નવું બનાવો",
   "BREADCRUMBS_USER_RIGHTS": "યુઝર રાઇટ્સ",
-"COMMON.VENUE_TYPE": "વેન્યુ ટાઇપ"
-,
-
- "USER.EVENT.CUSTOMER": "કસ્ટમર",
-"USER.EVENT.INVOICE": "ઈન્વૉઈસ",
-"USER.EVENT.QUOTATION": "કોટેશન",
-"USER.EVENT.EVENT_DATE": "ઈવેન્ટ ડેટ",
-"USER.EVENT.EVENT_NAME": "ઈવેન્ટ નામ",
-"USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ"
-
-
+  "COMMON.VENUE_TYPE": "વેન્યુ ટાઇપ",
+  "USER.EVENT.CUSTOMER": "કસ્ટમર",
+  "USER.EVENT.INVOICE": "ઈન્વૉઈસ",
+  "USER.EVENT.QUOTATION": "કોટેશન",
+  "USER.EVENT.EVENT_DATE": "ઈવેન્ટ ડેટ",
+  "USER.EVENT.EVENT_NAME": "ઈવેન્ટ નામ",
+  "USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ"
 }

@@ -17,6 +17,7 @@ import {
   RawMaterialName,
   GetUnitData,
   ContactNameItem,
+  deleteRawmatrialcatidInmenuitem,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
@@ -86,13 +87,13 @@ const AddMenuItem = ({
   const [contactNames, setContactNames] = useState([]);
   const [chefContactNames, setChefContactNames] = useState([]);
   const [allocationConfig, setAllocationConfig] = useState({
-    locationType: "venue",
+    locationType: "",
     quantityPer100Person: "",
     unitId: "",
     pricePerUnit: "",
     contactCategoryId: "",
     contactNameId: "",
-    allocationType: "Counter Wise",
+    allocationType: "",
     counterNo: "",
     pricePerLabour: "",
     helperCount: "",
@@ -104,13 +105,13 @@ const AddMenuItem = ({
     if (!isModalOpen) {
       formik.resetForm();
       setAllocationConfig({
-        locationType: "venue",
+        locationType: "",
         quantityPer100Person: "",
         unitId: "",
         pricePerUnit: "",
         contactCategoryId: "",
         contactNameId: "",
-        allocationType: "Counter Wise",
+        allocationType: "",
         counterNo: "",
         pricePerLabour: "",
         helperCount: "",
@@ -328,25 +329,42 @@ const AddMenuItem = ({
       weight: safeNumber(row.weight),
     }));
 
+    const isAllocationEmpty =
+      !selectedAgency &&
+      !allocationConfig.locationType &&
+      !allocationConfig.quantityPer100Person &&
+      !allocationConfig.unitId &&
+      !allocationConfig.pricePerUnit &&
+      !allocationConfig.contactCategoryId &&
+      !allocationConfig.contactNameId &&
+      !allocationConfig.allocationType &&
+      !allocationConfig.counterNo &&
+      !allocationConfig.pricePerLabour &&
+      !allocationConfig.helperCount &&
+      !allocationConfig.pricePerHelper;
     const existingAllocationId = selectedMenuItem?.menuAllocation?.[0]?.id || 0;
-    const menuItemAllocationConfigRequest = [
-      {
-        allocation_type: allocationConfig.allocationType || "",
-        basePrice: safeNumber(formik.values.price),
-        contactCategoryId: safeNumber(allocationConfig.contactCategoryId),
-        counterNo: allocationConfig.counterNo,
-        godownLocation: allocationConfig.locationType,
-        id: existingAllocationId,
-        notes: "",
-        partyId: safeNumber(allocationConfig.contactNameId),
-        pricePerHelper: allocationConfig.pricePerHelper,
-        pricePerLabour: allocationConfig.pricePerLabour,
-        quantityPer100Person: safeNumber(allocationConfig.quantityPer100Person),
-        selectChefLabourAgency: selectedAgency === "chef" ? true : false,
-        selectOutsideAgency: selectedAgency === "outside" ? true : false,
-        unitId: safeNumber(allocationConfig.unitId),
-      },
-    ];
+    const menuItemAllocationConfigRequest = isAllocationEmpty
+      ? [] // <<<<<< send empty array
+      : [
+          {
+            allocation_type: allocationConfig.allocationType || "",
+            basePrice: safeNumber(formik.values.price),
+            contactCategoryId: safeNumber(allocationConfig.contactCategoryId),
+            counterNo: allocationConfig.counterNo,
+            godownLocation: allocationConfig.locationType,
+            id: existingAllocationId,
+            notes: "",
+            partyId: safeNumber(allocationConfig.contactNameId),
+            pricePerHelper: allocationConfig.pricePerHelper,
+            pricePerLabour: allocationConfig.pricePerLabour,
+            quantityPer100Person: safeNumber(
+              allocationConfig.quantityPer100Person
+            ),
+            selectChefLabourAgency: selectedAgency === "chef" ? true : false,
+            selectOutsideAgency: selectedAgency === "outside" ? true : false,
+            unitId: safeNumber(allocationConfig.unitId),
+          },
+        ];
 
     const payload = {
       nameEnglish: formik.values.nameEnglish,
@@ -413,7 +431,7 @@ const AddMenuItem = ({
     setIsItemModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -422,10 +440,15 @@ const AddMenuItem = ({
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setTableData((prev) => prev.filter((row) => row.id !== id));
-        Swal.fire("Deleted!", "Raw Material has been deleted.", "success");
+        const result = await deleteRawmatrialcatidInmenuitem(id);
+        if (result.data.success === true) {
+          setTableData((prev) => prev.filter((row) => row.id !== id));
+          Swal.fire("Deleted!", "Raw Material has been deleted.", "success");
+        } else {
+          Swal.fire("Error!", "Failed to delete Raw Material.", "error");
+        }
       }
     });
   };
@@ -936,14 +959,6 @@ const AddMenuItem = ({
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      if (tableData.length === 0) {
-                        Swal.fire(
-                          "Error",
-                          "Please add at least one raw material before proceeding.",
-                          "warning"
-                        );
-                        return;
-                      }
                       setCompletedTabs((prev) => [
                         ...new Set([...prev, "tab_3"]),
                       ]);

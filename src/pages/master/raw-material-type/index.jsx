@@ -154,7 +154,7 @@ const RawMaterialType = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
-                    defaultMessage="Raw Material Type Master"
+                    defaultMessage="Raw Material Type "
                   />
                 ),
               },
