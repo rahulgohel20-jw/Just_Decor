@@ -132,7 +132,7 @@ const RawMaterial = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_MASTER"
-                    defaultMessage="Raw Material Master"
+                    defaultMessage="Raw Material "
                   />
                 ),
               },

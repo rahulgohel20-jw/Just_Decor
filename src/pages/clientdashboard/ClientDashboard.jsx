@@ -1,5 +1,6 @@
 "use client";
 import { Fragment } from "react";
+import { useState } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Container } from "@/components/container";
 import Chart from "react-apexcharts";
@@ -10,9 +11,10 @@ import { invoicecolumns, defaultinvoiceData } from "./invoiceconstant";
 import { itemcolumns, defaultitemData } from "./itemconstant";
 import { Phone, MessageCircle, HelpCircle } from "lucide-react";
 import { toAbsoluteUrl } from "@/utils/Assets";
-
-
+import VideoTutorial from "@/components/videoTutorial/VideoTutorial";
 const ClientDashboard = () => {
+  const [openTutorial, setOpenTutorial] = useState(false);
+
   const expenseChart = {
     series: [10376, 10376, 10376, 10376, 10376, 10376],
     options: {
@@ -92,12 +94,14 @@ const ClientDashboard = () => {
           {/* Total Events Card */}
           <div className="flex items-center justify-between bg-[#FFF5E6] p-6 rounded-2xl shadow-sm">
             <div>
-              <p className="text-sm text-gray-600 font-medium mb-1">Total Events</p>
+              <p className="text-sm text-gray-600 font-medium mb-1">
+                Total Events
+              </p>
               <h2 className="text-3xl font-bold text-gray-900">10,000</h2>
             </div>
             <div className="w-16 h-16 flex items-center justify-center bg-[#FF947A] rounded-full shadow-md">
-              <img 
-                src={toAbsoluteUrl(`/media/brand-logos/total_events.svg`)} 
+              <img
+                src={toAbsoluteUrl(`/media/brand-logos/total_events.svg`)}
                 alt="Total Events"
                 className="w-8 h-8"
               />
@@ -107,12 +111,14 @@ const ClientDashboard = () => {
           {/* Generate Invoices Card */}
           <div className="flex items-center justify-between bg-[#E6FFF1] p-6 rounded-2xl shadow-sm">
             <div>
-              <p className="text-sm text-gray-600 font-medium mb-1">Generate Invoices</p>
+              <p className="text-sm text-gray-600 font-medium mb-1">
+                Generate Invoices
+              </p>
               <h2 className="text-3xl font-bold text-gray-900">15000</h2>
             </div>
             <div className="w-16 h-16 flex items-center justify-center bg-[#4ADE80] rounded-full shadow-md">
-              <img 
-                src={toAbsoluteUrl(`/media/brand-logos/generate_invoice.svg`)} 
+              <img
+                src={toAbsoluteUrl(`/media/brand-logos/generate_invoice.svg`)}
                 alt="Total Events"
                 className="w-8 h-8"
               />
@@ -128,8 +134,10 @@ const ClientDashboard = () => {
               <h2 className="text-3xl font-bold text-gray-900">40000</h2>
             </div>
             <div className="w-16 h-16 flex items-center justify-center bg-[#A78BFA] rounded-full shadow-md">
-              <img 
-                src={toAbsoluteUrl(`/media/brand-logos/total_receivable_amt.svg`)} 
+              <img
+                src={toAbsoluteUrl(
+                  `/media/brand-logos/total_receivable_amt.svg`
+                )}
                 alt="Total Events"
                 className="w-8 h-8"
               />
@@ -302,8 +310,8 @@ const ClientDashboard = () => {
             <div className="border border-[#D9E6FF] rounded-lg p-4 mb-4">
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 flex items-center justify-center  rounded-full flex-shrink-0">
-                  <img 
-                    src={toAbsoluteUrl(`/media/brand-logos/support.png`)} 
+                  <img
+                    src={toAbsoluteUrl(`/media/brand-logos/support.png`)}
                     alt="Support"
                     className="w-7 h-7 object-contain"
                   />
@@ -311,15 +319,15 @@ const ClientDashboard = () => {
                 <div>
                   <p className="font-semibold text-gray-800">Manan Gandhi</p>
                   <p className="text-sm text-gray-600">
-                    Manan Gandhi is Point of Contact (POC). Feel free to
-                    connect between 10 AM to 7 PM.
+                    Manan Gandhi is Point of Contact (POC). Feel free to connect
+                    between 10 AM to 7 PM.
                   </p>
                 </div>
               </div>
 
               <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-sm font-medium hover:bg-[#d6f4e3] transition">
-                <img 
-                  src={toAbsoluteUrl(`/media/brand-logos/whatsapp.png`)} 
+                <img
+                  src={toAbsoluteUrl(`/media/brand-logos/whatsapp.png`)}
                   alt="WhatsApp"
                   className="w-5 h-5 object-contain"
                 />
@@ -331,8 +339,8 @@ const ClientDashboard = () => {
             <div className="border border-[#D9E6FF] rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0">
-                  <img 
-                    src={toAbsoluteUrl(`/media/brand-logos/query.png`)} 
+                  <img
+                    src={toAbsoluteUrl(`/media/brand-logos/query.png`)}
                     alt="Query"
                     className="w-7 h-7 object-contain"
                   />
@@ -357,6 +365,29 @@ const ClientDashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* JCX Tutorial Floating Button */}
+        <div className="fixed right-0 bottom-6  transform-translate-y-1/2 z-[200]">
+          <button
+            onClick={() => setOpenTutorial((prev) => !prev)}
+            className="bg-[#005AA7] text-white rounded-l-xl shadow-xl 
+               w-12 h-40 flex flex-col items-center  gap-5"
+          >
+            <img
+              src={toAbsoluteUrl(`/media/images/cap.png`)}
+              alt="tutorial"
+              className="w-6 h-6 mt-3"
+            />
+
+            <span className="text-lg font-medium rotate-90 whitespace-nowrap mt-6">
+              JCX Tutorial
+            </span>
+          </button>
+        </div>
+        <VideoTutorial
+          open={openTutorial}
+          onClose={() => setOpenTutorial(false)}
+        />
       </Container>
     </Fragment>
   );

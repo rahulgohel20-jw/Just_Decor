@@ -234,17 +234,17 @@
   "USER.MASTER.EDIT_RAW_MATERIAL_TYPE": "रॉ मटेरियल टाइप एडिट करें",
   "USER.MASTER.NEW_RAW_MATERIAL_TYPE": "नया रॉ मटेरियल टाइप",
   "COMMON.PRIORITY": "प्रायोरिटी",
-  "USER.MASTER.RAW_MATERIAL_CATEGORY": "रॉ मटेरियल कैटेगरी मास्टर",
+  "USER.MASTER.RAW_MATERIAL_CATEGORY": "रॉ मटेरियल कैटेगरी ",
   "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY": "रॉ मटेरियल कैटेगरी ऐड करें",
   "USER.MASTER.RAW_MATERIAL_CATEGORY_SEARCH": "रॉ मटेरियल कैटेगरी खोजें...",
-  "USER.MASTER.RAW_MATERIAL_TYPE_TITLE": "रॉ मटेरियल टाइप मास्टर",
+  "USER.MASTER.RAW_MATERIAL_TYPE_TITLE": "रॉ मटेरियल टाइप",
   "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH": "रॉ मटेरियल टाइप खोजें...",
   "USER.MASTER.ADD_RAW_MATERIAL_TYPE": "रॉ मटेरियल टाइप ऐड करें",
   "COMMON.TYPE": "टाइप",
   "COMMON.RAW_MATERIAL_NAME": "रॉ मटेरियल का नाम",
   "COMMON.RAW_MATERIAL_CATEGORY": "रॉ मटेरियल कैटेगरी",
   "COMMON.UNIT": "यूनिट",
-  "USER.MASTER.RAW_MATERIAL_MASTER": "रॉ मटेरियल मास्टर",
+  "USER.MASTER.RAW_MATERIAL_MASTER": "रॉ मटेरियल",
   "USER.MASTER.SEARCH_RAW_MATERIAL": "रॉ मटेरियल खोजें...",
   "COMMON.ADD_RAW_MATERIAL": "रॉ मटेरियल ऐड करें",
   "USER.RAWMATERIAL.EDIT_TITLE": "रॉ मटेरियल को एडिट करें",
@@ -719,14 +719,11 @@
   "BREADCRUMBS_CUSTOM_PACKAGE": "कस्टम पैकेज",
   "BREADCRUMBS_CREATE_NEW": "नया बनाएं",
   "BREADCRUMBS_USER_RIGHTS": "यूजर राइट्स",
-  "COMMON.VENUE_TYPE": "वेन्‍यू टाइप"
-,
-
+  "COMMON.VENUE_TYPE": "वेन्‍यू टाइप",
   "USER.EVENT.CUSTOMER": "कस्टमर",
-"USER.EVENT.INVOICE": "इनवॉइस",
-"USER.EVENT.QUOTATION": "कोटेशन",
-"USER.EVENT.EVENT_DATE": "इवेंट डेट",
-"USER.EVENT.EVENT_NAME": "इवेंट नेम",
-"USER.EVENT.EVENT_CODE": "इवेंट कोड"
-
+  "USER.EVENT.INVOICE": "इनवॉइस",
+  "USER.EVENT.QUOTATION": "कोटेशन",
+  "USER.EVENT.EVENT_DATE": "इवेंट डेट",
+  "USER.EVENT.EVENT_NAME": "इवेंट नेम",
+  "USER.EVENT.EVENT_CODE": "इवेंट कोड"
 }

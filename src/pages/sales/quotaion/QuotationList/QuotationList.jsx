@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Dropdown, Form, Menu, Upload } from "antd";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import {
@@ -11,13 +11,52 @@ import {
 import QuotationList from "../../../../components/QuotationTable/QuotationList";
 import QuotationDetail from "../../../../components/QuotationTable/QuotationDetail";
 import { FormattedMessage } from "react-intl";
+import { GetQuotation } from "@/services/apiServices";
+import { useParams } from "react-router-dom";
+
 export default function QuotationViewPage() {
+  const { eventId } = useParams();
+
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [quotationId, setQuotationId] = useState(null);
+
+  useEffect(() => {
+    if (eventId) {
+      FetchQuotation(eventId);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    if (selectedEventId) {
+      FetchQuotation(selectedEventId);
+    }
+  }, [selectedEventId]);
+
+  const FetchQuotation = async (eventId) => {
+    try {
+      const response = await GetQuotation(eventId);
+      console.log("Quotation response:", response);
+      setQuotationId(response);
+    } catch (error) {
+      console.error("Error fetching quotation:", error);
+    }
+  };
 
   return (
     <>
       <div className="gap-2 mb-3 pl-8">
-        <Breadcrumbs items={[{ title: <FormattedMessage id="QUOTATION.TITLE" defaultMessage="Quotation" /> }]} />
+        <Breadcrumbs
+          items={[
+            {
+              title: (
+                <FormattedMessage
+                  id="QUOTATION.TITLE"
+                  defaultMessage="Quotation"
+                />
+              ),
+            },
+          ]}
+        />
       </div>
       <div className="p-4 flex">
         <QuotationList onEventSelect={setSelectedEventId} />
@@ -32,7 +71,10 @@ export default function QuotationViewPage() {
               icon={<EditOutlined className="text-success" />}
               className="rounded-lg border font-bold  text-success w-[130px]"
             >
-              <FormattedMessage id="SALES.CLONE_INVOICE" defaultMessage="Clone Invoice" />
+              <FormattedMessage
+                id="SALES.CLONE_INVOICE"
+                defaultMessage="Clone Invoice"
+              />
             </Button>
 
             <Button
@@ -60,7 +102,10 @@ export default function QuotationViewPage() {
               icon={<DollarCircleOutlined className="text-[#00534B]" />}
               className="rounded-lg border font-bold  text-[#00534B]  w-[170px]"
             >
-              <FormattedMessage id="SALES.RECORD_PAYMENT" defaultMessage="Record Payment" />
+              <FormattedMessage
+                id="SALES.RECORD_PAYMENT"
+                defaultMessage="Record Payment"
+              />
             </Button>
           </div>
 

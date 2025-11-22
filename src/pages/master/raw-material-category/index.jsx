@@ -61,6 +61,7 @@ const RawMaterialMaster = () => {
     };
 
     const selectedField = languageMap[language] || "nameEnglish";
+    console.log(rawOriginalData);
 
     const mapped = rawOriginalData.map((cust, index) => ({
       sr_no: index + 1,
@@ -68,6 +69,7 @@ const RawMaterialMaster = () => {
       rawtype: cust.rawMaterialCatType[selectedField] || "-",
       priority: cust.sequence || "-",
       rawCatid: cust.id,
+      rawtypeid: cust.rawMaterialCatType.id || null,
       status: cust.isActive,
       isDirect: cust.isDirect,
     }));
@@ -121,6 +123,8 @@ const RawMaterialMaster = () => {
   };
 
   const handleEdit = (event) => {
+    console.log(event);
+
     setSelectedRawMaterialCategory(event);
     setIsContactModalOpen(true);
   };
@@ -136,7 +140,7 @@ const RawMaterialMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_CATEGORY"
-                    defaultMessage="Raw Material Category Master"
+                    defaultMessage="Raw Material Category"
                   />
                 ),
               },
