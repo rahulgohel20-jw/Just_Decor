@@ -44,6 +44,32 @@ const DishCostingPage = () => {
     (dishCostingData?.extraexpensecharge || 0);
 
   const intl = useIntl();
+  const isTotal = viewType === "Total Wise";
+
+  const totalPax = isTotal
+    ? allFunctionWiseCosting.reduce((sum, f) => sum + (f.pax || 0), 0)
+    : selectedFunctionPax;
+
+  const totalRaw = isTotal
+    ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.raw || 0), 0)
+    : Number(dishCostingData?.rawmaterialcharge || 0);
+
+  const totalAgency = isTotal
+    ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.agency || 0), 0)
+    : Number(dishCostingData?.outsideagencycharge || 0);
+
+  const totalExtra = isTotal
+    ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.extra || 0), 0)
+    : Number(dishCostingData?.extraexpensecharge || 0);
+
+  const grandTotalComputed = totalRaw + totalAgency + totalExtra;
+
+  const perPersonCost = totalPax
+    ? (grandTotalComputed / totalPax).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    : "0.00";
 
   const chargesData = [
     {
@@ -53,9 +79,7 @@ const DishCostingPage = () => {
           defaultMessage="Total Raw Material Charges"
         />
       ),
-      value: dishCostingData?.rawmaterialcharge
-        ? Number(dishCostingData.rawmaterialcharge).toLocaleString()
-        : "0.00",
+      value: totalRaw.toLocaleString(),
     },
     {
       label: (
@@ -64,11 +88,8 @@ const DishCostingPage = () => {
           defaultMessage="Total Agency Charges"
         />
       ),
-      value: dishCostingData?.outsideagencycharge
-        ? Number(dishCostingData.outsideagencycharge).toLocaleString()
-        : "0.00",
+      value: totalAgency.toLocaleString(),
     },
-
     {
       label: (
         <FormattedMessage
@@ -76,15 +97,19 @@ const DishCostingPage = () => {
           defaultMessage="Total Extra Expense"
         />
       ),
-      value: dishCostingData?.extraexpensecharge
-        ? Number(dishCostingData.extraexpensecharge).toLocaleString()
-        : "0.00",
+      value: totalExtra.toLocaleString(),
     },
   ];
 
   const handleRawMaterialClick = () => {
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    if (allFunctionWiseCosting?.length > 0 && !selectedFunctionId) {
+      setSelectedFunctionId(allFunctionWiseCosting[0].eventFunctionId);
+      setSelectedFunctionPax(allFunctionWiseCosting[0].pax);
+    }
+  }, [allFunctionWiseCosting]);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -142,6 +167,7 @@ const DishCostingPage = () => {
 
     fetchDishCosting();
   }, [eventId, selectedFunctionId]);
+
   if (event?.eventFunctions?.length > 0) {
     const fetchAllCosting = async () => {
       const allData = [];
@@ -167,6 +193,7 @@ const DishCostingPage = () => {
 
     fetchAllCosting();
   }
+  // COMPUTED VALUES
 
   return (
     <Fragment>
@@ -406,10 +433,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900 border-blue-600 rounded-md px-3 py-1 inline-block">
-                  ₹{" "}
-                  {Number(
-                    dishCostingData?.rawmaterialcharge || 0
-                  ).toLocaleString()}
+                  ₹ {totalRaw.toLocaleString()}
                 </div>
               </div>
 
@@ -425,10 +449,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
-                  ₹{" "}
-                  {Number(
-                    dishCostingData?.outsideagencycharge || 0
-                  ).toLocaleString()}
+                  ₹ ₹ {totalRaw.toLocaleString()}
                 </div>
               </div>
 
@@ -445,10 +466,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
-                  ₹{" "}
-                  {Number(
-                    dishCostingData?.extraexpensecharge || 0
-                  ).toLocaleString()}
+                  ₹ {totalRaw.toLocaleString()}
                 </div>
               </div>
 
@@ -496,18 +514,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-green-500  border-green-600 rounded-md px-3 py-1 inline-block">
-                  ₹{" "}
-                  {selectedFunctionPax
-                    ? (
-                        (Number(dishCostingData?.rawmaterialcharge || 0) +
-                          Number(dishCostingData?.outsideagencycharge || 0) +
-                          Number(dishCostingData?.extraexpensecharge || 0)) /
-                        selectedFunctionPax
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : "0.00"}
+                  ₹₹ {perPersonCost}
                 </div>
               </div>
             </div>
