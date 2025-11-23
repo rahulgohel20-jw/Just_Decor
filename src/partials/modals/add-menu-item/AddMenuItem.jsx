@@ -6,6 +6,9 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import ItemRawmaterial from "../item-raw-material/ItemRawMaterial";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
+import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
+import AddKitchenAreaModal from "@/partials/modals/add-kitchen-area/AddKitchenArea";
 import {
   AddMenuItems,
   GetMenuCategoryByUserIdmenuitem,
@@ -86,6 +89,9 @@ const AddMenuItem = ({
   const [units, setUnits] = useState([]);
   const [contactNames, setContactNames] = useState([]);
   const [chefContactNames, setChefContactNames] = useState([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
+  const [isKitchenAreaModalOpen, setIsKitchenAreaModalOpen] = useState(false);
   const [allocationConfig, setAllocationConfig] = useState({
     locationType: "",
     quantityPer100Person: "",
@@ -451,6 +457,24 @@ const AddMenuItem = ({
     });
   };
 
+  const fetchDropdownData = () => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData?.id) return;
+
+    Promise.all([
+      GetMenuCategoryByUserIdmenuitem(userData.id),
+      GetAllSubCategorymenuitem(userData.id),
+      GetAllKitchenAreaById(userData.id),
+    ])
+      .then(([catRes, subRes, kitchenRes]) => {
+        setCategories(catRes?.data?.data?.["Menu Category Details"] || []);
+        setSubCategories(
+          subRes?.data?.data?.["Menu Sub Category Details"] || []
+        );
+        setKitchenAreas(kitchenRes?.data?.data?.["KitchenAreas Details"] || []);
+      })
+      .catch((err) => console.error("Error loading dropdown data:", err));
+  };
   const handleContactCategoryChange = (categoryName) => {
     if (!categoryName) {
       setContactNames([]);
@@ -567,42 +591,135 @@ const AddMenuItem = ({
               />
             </div>
             <div className="grid grid-cols-3 gap-x-4">
-              <DropdownField
-                label="Menu Item Category"
-                name="menuItemCategory"
-                value={formik.values.menuItemCategory}
-                onChange={handleChange}
-                onBlur={formik.handleBlur}
-                options={categories.filter((c) => c.isActive)}
-                optionLabel="nameEnglish"
-                error={
-                  formik.touched.menuItemCategory &&
-                  formik.errors.menuItemCategory
-                }
-              />
-              <DropdownField
-                label="Menu Item Sub Category"
-                name="menuSubItemCategory"
-                value={formik.values.menuSubItemCategory}
-                onChange={handleChange}
-                onBlur={formik.handleBlur}
-                options={subCategories.filter((s) => s.isActive)}
-                optionLabel="nameEnglish"
-                error={
-                  formik.touched.menuSubItemCategory &&
-                  formik.errors.menuSubItemCategory
-                }
-              />
-              <DropdownField
-                label="Kitchen Area"
-                name="kitchenArea"
-                value={formik.values.kitchenArea}
-                onChange={handleChange}
-                onBlur={formik.handleBlur}
-                options={kitchenAreas.filter((a) => a.isActive)}
-                optionLabel="nameEnglish"
-                error={formik.touched.kitchenArea && formik.errors.kitchenArea}
-              />
+              {/* Menu Item Category */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600">
+                    Menu Item Category
+                    <span className="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="w-6 h-6 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                  >
+                    +
+                  </button>
+                </div>
+                <select
+                  name="menuItemCategory"
+                  value={formik.values.menuItemCategory}
+                  onChange={handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`border rounded-lg p-2 w-full ${
+                    formik.touched.menuItemCategory &&
+                    formik.errors.menuItemCategory
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">-- Select Category --</option>
+                  {categories
+                    .filter((c) => c.isActive)
+                    .map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.nameEnglish}
+                      </option>
+                    ))}
+                </select>
+                {formik.touched.menuItemCategory &&
+                  formik.errors.menuItemCategory && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.menuItemCategory}
+                    </p>
+                  )}
+              </div>
+
+              {/* Menu Item Sub Category */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600">
+                    Menu Item Sub Category
+                    <span className="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="w-6 h-6 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
+                    onClick={() => setIsSubCategoryModalOpen(true)}
+                  >
+                    +
+                  </button>
+                </div>
+                <select
+                  name="menuSubItemCategory"
+                  value={formik.values.menuSubItemCategory}
+                  onChange={handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`border rounded-lg p-2 w-full ${
+                    formik.touched.menuSubItemCategory &&
+                    formik.errors.menuSubItemCategory
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">-- Select Sub Category --</option>
+                  {subCategories
+                    .filter((s) => s.isActive)
+                    .map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.nameEnglish}
+                      </option>
+                    ))}
+                </select>
+                {formik.touched.menuSubItemCategory &&
+                  formik.errors.menuSubItemCategory && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.menuSubItemCategory}
+                    </p>
+                  )}
+              </div>
+
+              {/* Kitchen Area */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600">
+                    Kitchen Area
+                    <span className="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="w-6 h-6 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
+                    onClick={() => setIsKitchenAreaModalOpen(true)}
+                  >
+                    +
+                  </button>
+                </div>
+                <select
+                  name="kitchenArea"
+                  value={formik.values.kitchenArea}
+                  onChange={handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`border rounded-lg p-2 w-full ${
+                    formik.touched.kitchenArea && formik.errors.kitchenArea
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">-- Select Kitchen Area --</option>
+                  {kitchenAreas
+                    .filter((a) => a.isActive)
+                    .map((area) => (
+                      <option key={area.id} value={area.id}>
+                        {area.nameEnglish}
+                      </option>
+                    ))}
+                </select>
+                {formik.touched.kitchenArea && formik.errors.kitchenArea && (
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.kitchenArea}
+                  </p>
+                )}
+              </div>
             </div>
             <div>
               <label className="form-label">Image</label>
@@ -1027,6 +1144,24 @@ const AddMenuItem = ({
           }
           setEditingRow(null);
         }}
+      />
+      <AddMenuCategory
+        isModalOpen={isCategoryModalOpen}
+        setIsModalOpen={setIsCategoryModalOpen}
+        refreshData={fetchDropdownData}
+      />
+      <AddMenuSubCategory
+        isModalOpen={isSubCategoryModalOpen}
+        setIsModalOpen={setIsSubCategoryModalOpen}
+        refreshData={fetchDropdownData}
+      />
+
+      {/* Kitchen Area Modal - FIX: Use isKitchenAreaModalOpen */}
+      {/* Kitchen Area Modal */}
+      <AddKitchenAreaModal
+        isModalOpen={isKitchenAreaModalOpen}
+        setIsModalOpen={setIsKitchenAreaModalOpen}
+        refreshData={fetchDropdownData}
       />
     </>
   );

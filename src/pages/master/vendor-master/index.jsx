@@ -1,9 +1,9 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react"; // removed useStyle
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
-import useStyle from "./style";
+
 import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import {
   GetAllCustomer,
@@ -13,9 +13,9 @@ import {
 import ViewCustomer from "../../../partials/modals/view-customer/ViewCustomer";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
+import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 
-const CustomerMaster = () => {
-  const classes = useStyle();
+const VendorMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
@@ -23,13 +23,13 @@ const CustomerMaster = () => {
   const [tableData, setTableData] = useState([]);
 
   const intl = useIntl();
-
-  let Id = localStorage.getItem("userId");
-
-  // 🔥 Load language
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData.id;
   const lang = localStorage.getItem("lang") || "en";
 
-  // 🔥 Helper to convert Name/Address based on language
+  // Exclude contact type ID 2 (Customer)
+  const excludedContactTypeIds = [2];
+
   const getNameByLang = (cust) => {
     switch (lang) {
       case "hi":
@@ -54,7 +54,6 @@ const CustomerMaster = () => {
 
   const getContactTypeByLang = (cust) => {
     if (!cust.contact) return "-";
-
     switch (lang) {
       case "hi":
         return cust.contact.nameHindi || cust.contact.nameEnglish || "-";
@@ -65,45 +64,48 @@ const CustomerMaster = () => {
     }
   };
 
+  const formatCustomerData = (customers) =>
+    customers
+      .filter((cust) => {
+        const contactTypeId = cust.contact?.contactType?.id;
+        return contactTypeId !== 2; // Exclude Customer
+      })
+      .map((cust, index) => ({
+        sr_no: index + 1,
+        customerid: cust.id,
+        customer: getNameByLang(cust),
+        address: getAddressByLang(cust),
+        contact_type: getContactTypeByLang(cust),
+        email: cust.email || "-",
+        mobile: cust.mobileno || "-",
+        gst: cust.gst || "-",
+        birthdate: cust.birthDate || "-",
+        document: cust.document || "-",
+        altMobileno: cust.altMobileno || "",
+        image: cust.documentImage || "",
+        contactCategoryId: cust.contactCategory?.id,
+        nameEnglish: cust.nameEnglish,
+        nameHindi: cust.nameHindi,
+        nameGujarati: cust.nameGujarati,
+        addressEnglish: cust.addressEnglish,
+        addressHindi: cust.addressHindi,
+        addressGujarati: cust.addressGujarati,
+      }));
+
+  // ------------------ FETCH CUSTOMER ------------------
   useEffect(() => {
     FetchCustomer();
   }, [lang]);
 
   const FetchCustomer = () => {
-    GetAllCustomer(Id)
+    GetAllCustomer(userId)
       .then(({ data: { data } }) => {
-        const formatted = data["Party Details"]
-          .filter((cust) => {
-            const contactTypeId = cust.contact?.contactType?.id;
-            return contactTypeId === 2;
-          })
-          .map((cust, index) => ({
-            sr_no: index + 1,
-            customerid: cust.id,
-            customer: getNameByLang(cust),
-            address: getAddressByLang(cust),
-            contact_type: getContactTypeByLang(cust),
-            email: cust.email || "-",
-            mobile: cust.mobileno || "-",
-            gst: cust.gst || "-",
-            birthdate: cust.birthDate || "-",
-            document: cust.document || "-",
-            altMobileno: cust.altMobileno || "",
-            contactCategoryId: cust.contact?.id,
-            image: cust.documentImage || "",
-            nameEnglish: cust.nameEnglish,
-            nameHindi: cust.nameHindi,
-            nameGujarati: cust.nameGujarati,
-            addressEnglish: cust.addressEnglish,
-            addressHindi: cust.addressHindi,
-            addressGujarati: cust.addressGujarati,
-          }));
-
-        setTableData(formatted);
+        if (data && data["Party Details"]) {
+          const formatted = formatCustomerData(data["Party Details"]);
+          setTableData(formatted);
+        }
       })
-      .catch((error) => {
-        console.error("Error fetching customers:", error);
-      });
+      .catch((error) => console.error("Error fetching customers:", error));
   };
 
   // ------------------ SEARCH CUSTOMER ------------------
@@ -114,32 +116,10 @@ const CustomerMaster = () => {
         return;
       }
 
-      SearchCustomerApi(searchQuery, Id)
+      SearchCustomerApi(searchQuery, userId)
         .then(({ data: { data } }) => {
           if (data && data["Party Details"]) {
-            const formatted = data["Party Details"].map((cust, index) => ({
-              sr_no: index + 1,
-              customerid: cust.id,
-              customer: getNameByLang(cust),
-              address: getAddressByLang(cust),
-              contact_type: getContactTypeByLang(cust),
-              email: cust.email || "-",
-              mobile: cust.mobileno || "-",
-              gst: cust.gst || "-",
-              birthdate: cust.birthDate || "-",
-              document: cust.document || "-",
-              altMobileno: cust.altMobileno || "",
-              contactCategoryId: cust.contact?.id,
-              image: cust.documentImage || "",
-              // raw data
-              nameEnglish: cust.nameEnglish,
-              nameHindi: cust.nameHindi,
-              nameGujarati: cust.nameGujarati,
-              addressEnglish: cust.addressEnglish,
-              addressHindi: cust.addressHindi,
-              addressGujarati: cust.addressGujarati,
-            }));
-
+            const formatted = formatCustomerData(data["Party Details"]);
             setTableData(formatted);
           } else {
             setTableData([]);
@@ -149,7 +129,7 @@ const CustomerMaster = () => {
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [searchQuery, lang]); // 🔥 search also updates after language change
+  }, [searchQuery, lang]);
 
   // ------------------ DELETE CUSTOMER ------------------
   const DeleteCustomer = (customerId) => {
@@ -209,8 +189,8 @@ const CustomerMaster = () => {
               {
                 title: (
                   <FormattedMessage
-                    id="USER.MASTER.CUSTOMER_MASTER"
-                    defaultMessage="Customer Master"
+                    id="COMMON.VENDOR_MASTER"
+                    defaultMessage="Vendor Master"
                   />
                 ),
               },
@@ -220,9 +200,7 @@ const CustomerMaster = () => {
 
         {/* Search + Add */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
+          <div className={`flex flex-wrap items-center gap-2 `}>
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
 
@@ -243,12 +221,12 @@ const CustomerMaster = () => {
             <i className="ki-filled ki-plus"></i>{" "}
             <FormattedMessage
               id="USER.MASTER.ADD_CUSTOMER"
-              defaultMessage="Add Customer"
+              defaultMessage="Add Vendor"
             />
           </button>
         </div>
 
-        <AddCustomer
+        <AddVendor
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
           selectedCustomer={selectedCustomer}
@@ -275,4 +253,4 @@ const CustomerMaster = () => {
   );
 };
 
-export default CustomerMaster;
+export default VendorMaster;

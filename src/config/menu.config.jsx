@@ -89,6 +89,16 @@ const allMenuItems = [
       {
         title: (
           <FormattedMessage
+            id="COMMON.VENDOR_MASTER"
+            defaultMessage="Vendor Master"
+          />
+        ),
+        path: "/master/vendor-master",
+      },
+
+      {
+        title: (
+          <FormattedMessage
             id="COMMON.FUNCTION_TYPE"
             defaultMessage="Function Type"
           />
