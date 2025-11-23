@@ -26,8 +26,7 @@ const ClientDetailsStep = ({
     FetchCustomerName();
   }, []);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   // Helper function to get the correct language field
   const getLocalizedField = (item, fieldName) => {

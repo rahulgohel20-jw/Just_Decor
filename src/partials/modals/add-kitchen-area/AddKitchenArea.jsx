@@ -103,13 +103,13 @@ const AddKitchenAreaModal = ({
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
 
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = JSON.parse(localStorage.getItem("userId"));
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...formData, userId: userData.id };
+      const payload = { ...formData, userId: Id };
 
       if (selectedMenuCategory) {
         await UpdateKitchenArea(selectedMenuCategory.id, payload);

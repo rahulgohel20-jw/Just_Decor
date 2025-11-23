@@ -46,6 +46,7 @@ const AddMember = ({
     password: "",
     confirmpassword: "",
   });
+  const Id = localStorage.getItem("userId");
 
   // ✅ Close modal
   const handleModalClose = () => {
@@ -61,9 +62,6 @@ const AddMember = ({
   // ✅ Fetch roles when modal opens
   useEffect(() => {
     if (isModalOpen) {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const Id = userData?.id;
-
       GetAllRole(Id)
         .then((res) => {
           setRoles(res.data.data["Role Details"]);
@@ -176,13 +174,14 @@ const AddMember = ({
   // ✅ Save Member
   const handleSave = async () => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        console.error("No userData in localStorage");
+      const res = await getUserById(Id);
+      const user_Data = res?.data?.data["User Details"][0];
+      if (!user_Data) {
+        console.error("No data in localStorage");
         return;
       }
 
-      const parsedData = JSON.parse(userData);
+      const parsedData = user_Data;
 
       const payload = {
         firstName: formData.firstName,

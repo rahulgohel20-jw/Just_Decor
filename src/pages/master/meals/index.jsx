@@ -22,8 +22,7 @@ const MealMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const intl = useIntl();
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const Id = userData.id;
+  const Id = localStorage.getItem("userId");
 
   // --------------------------
   // 🔥 Get translated field

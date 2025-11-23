@@ -63,8 +63,8 @@ const AddExtraExpense = ({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
@@ -81,7 +81,7 @@ const AddExtraExpense = ({
         price: Number(values.price),
         qty: Number(values.quantity),
         totalprice: Number(values.quantity) * Number(values.price),
-        userId: userData.id,
+        userId: Id,
       };
 
       console.log("Sending payload:", payload);

@@ -24,8 +24,7 @@ const MenuCategory = () => {
 
   const intl = useIntl();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   const FetchCategoryData = () => {
     GetAllCategory({ userid: Id, menuCategoryName: searchQuery })

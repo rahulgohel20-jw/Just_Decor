@@ -112,8 +112,8 @@ const FunctionsDetails = ({
 
   // fetch function types from API
   const FetchFunction = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    GetAllFunctionsByUserId(userData.id)
+    const Id = localStorage.getItem("userId");
+    GetAllFunctionsByUserId(Id)
       .then((res) => {
         const data = res?.data?.data?.["Function Details"] || [];
         setOptions(

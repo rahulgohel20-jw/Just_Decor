@@ -37,8 +37,8 @@ const RawMaterialMaster = () => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
+
   const FetchRawMaterialCategory = () => {
     GetRawMaterialcategory(Id)
       .then((res) => {

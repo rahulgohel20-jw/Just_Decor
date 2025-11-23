@@ -82,13 +82,13 @@ const AddEventType = ({
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
 
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...formData, userId: userData.id };
+      const payload = { ...formData, userId: Id };
 
       if (selectedEvent) {
         const res = await EditEventType(selectedEvent.eventid, payload);
@@ -126,7 +126,17 @@ const AddEventType = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {selectedEvent ? <FormattedMessage id="USER.MASTER.EDIT_EVENT_TYPE" defaultMessage="Edit Event" /> : <FormattedMessage id="USER.MASTER.ADD_EVENT_TYPE" defaultMessage="New Event" />}
+            {selectedEvent ? (
+              <FormattedMessage
+                id="USER.MASTER.EDIT_EVENT_TYPE"
+                defaultMessage="Edit Event"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.ADD_EVENT_TYPE"
+                defaultMessage="New Event"
+              />
+            )}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}
@@ -141,7 +151,12 @@ const AddEventType = ({
           {/* English */}
           <div>
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.NAME_ENGLISH"
+                  defaultMessage="Name (English)"
+                />
+              }
               name="nameEnglish"
               value={formData.nameEnglish}
               onChange={handleChange}
@@ -155,7 +170,12 @@ const AddEventType = ({
 
           {/* Gujarati */}
           <InputToTextLang
-            label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
+            label={
+              <FormattedMessage
+                id="COMMON.NAME_GUJARATI"
+                defaultMessage="Name (ગુજરાતી)"
+              />
+            }
             name="nameGujarati"
             value={formData.nameGujarati}
             onChange={handleChange}
@@ -164,7 +184,12 @@ const AddEventType = ({
 
           {/* Hindi */}
           <InputToTextLang
-            label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
+            label={
+              <FormattedMessage
+                id="COMMON.NAME_HINDI"
+                defaultMessage="Name (हिंदी)"
+              />
+            }
             name="nameHindi"
             value={formData.nameHindi}
             onChange={handleChange}
@@ -186,7 +211,11 @@ const AddEventType = ({
             className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
             onClick={handleSubmit}
           >
-            {selectedEvent ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+            {selectedEvent ? (
+              <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+            ) : (
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+            )}
           </button>
         </div>
       </div>

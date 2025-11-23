@@ -43,7 +43,7 @@ export default function SidebarModal({
   const [contactNames, setContactNames] = useState([]);
   const [unit, setUnit] = useState([]);
   const intl = useIntl();
-
+  const userId = localStorage.getItem("userId");
   useEffect(() => {
     if (!open || !row) return;
     const allocations = row.eventFunctionMenuAllocations || [];
@@ -86,9 +86,6 @@ export default function SidebarModal({
   useEffect(() => {
     const FetchContactName = async () => {
       try {
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        const userId = userData.id;
-
         if (!userId) {
           console.error("User ID not found");
           return;
@@ -112,9 +109,6 @@ export default function SidebarModal({
     };
     const FetchUnits = async () => {
       try {
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        const userId = userData.id;
-
         if (!userId) {
           console.error("User ID not found");
           return;
@@ -233,7 +227,10 @@ export default function SidebarModal({
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex flex-col">
                   <div className="text-[18px] font-semibold text-gray-800">
-                    <FormattedMessage id="SIDEBAR_MODAL.AGENCY_ORDER" defaultMessage="Agency Order" />
+                    <FormattedMessage
+                      id="SIDEBAR_MODAL.AGENCY_ORDER"
+                      defaultMessage="Agency Order"
+                    />
                   </div>
                   <div className="text-[13px] text-gray-600 mt-1">
                     {row?.categoryName} - {row?.itemName}
@@ -260,7 +257,10 @@ export default function SidebarModal({
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col gap-1">
                       <div className="text-[12px] text-gray-600">
-                        <FormattedMessage id="SIDEBAR_MODAL.DATE_TIME" defaultMessage="Date & Time" />
+                        <FormattedMessage
+                          id="SIDEBAR_MODAL.DATE_TIME"
+                          defaultMessage="Date & Time"
+                        />
                       </div>
                       <div className="flex gap-3">
                         <input
@@ -274,7 +274,10 @@ export default function SidebarModal({
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
-                      <FormattedMessage id="SIDEBAR_MODAL.OUTSIDE" defaultMessage="Outside" />
+                      <FormattedMessage
+                        id="SIDEBAR_MODAL.OUTSIDE"
+                        defaultMessage="Outside"
+                      />
                     </button>
                   </div>
                 </div>
@@ -291,13 +294,45 @@ export default function SidebarModal({
                 {/* TABLE */}
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
-                    <div><FormattedMessage id="COMMON.NO" defaultMessage="No." /></div>
-                    <div className="ml-3"><FormattedMessage id="COMMON.CONTACT_NAME" defaultMessage="Contact Name" /></div>
-                    <div><FormattedMessage id="COMMON.PRICE" defaultMessage="Price" /></div>
-                    <div><FormattedMessage id="COMMON.QUANTITY" defaultMessage="Quantity" /></div>
-                    <div><FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" /></div>
-                    <div><FormattedMessage id="COMMON.TOTAL_PRICE" defaultMessage="Total Price" /></div>
-                    <div className="text-center"><FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" /></div>
+                    <div>
+                      <FormattedMessage id="COMMON.NO" defaultMessage="No." />
+                    </div>
+                    <div className="ml-3">
+                      <FormattedMessage
+                        id="COMMON.CONTACT_NAME"
+                        defaultMessage="Contact Name"
+                      />
+                    </div>
+                    <div>
+                      <FormattedMessage
+                        id="COMMON.PRICE"
+                        defaultMessage="Price"
+                      />
+                    </div>
+                    <div>
+                      <FormattedMessage
+                        id="COMMON.QUANTITY"
+                        defaultMessage="Quantity"
+                      />
+                    </div>
+                    <div>
+                      <FormattedMessage
+                        id="COMMON.UNIT"
+                        defaultMessage="Unit"
+                      />
+                    </div>
+                    <div>
+                      <FormattedMessage
+                        id="COMMON.TOTAL_PRICE"
+                        defaultMessage="Total Price"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <FormattedMessage
+                        id="COMMON.ACTIONS"
+                        defaultMessage="Actions"
+                      />
+                    </div>
                   </div>
 
                   {menuAllocations.map((row, idx) => (
@@ -316,7 +351,12 @@ export default function SidebarModal({
                             handlePartyChange(idx, e.target.value)
                           }
                         >
-                          <option value=""><FormattedMessage id="COMMON.SELECT_NAME" defaultMessage="Select Name" /></option>
+                          <option value="">
+                            <FormattedMessage
+                              id="COMMON.SELECT_NAME"
+                              defaultMessage="Select Name"
+                            />
+                          </option>
                           {contactNames.map((c) => (
                             <option key={c.id} value={c.partyName}>
                               {c.partyName}
@@ -328,7 +368,10 @@ export default function SidebarModal({
                       <div>
                         <BaseInput
                           type="number"
-                          placeholder={intl.formatMessage({ id: "COMMON.PRICE", defaultMessage: "Price" })}
+                          placeholder={intl.formatMessage({
+                            id: "COMMON.PRICE",
+                            defaultMessage: "Price",
+                          })}
                           value={row.price}
                           onChange={(e) =>
                             handleInputChange(idx, "price", e.target.value)
@@ -339,7 +382,10 @@ export default function SidebarModal({
                       <div>
                         <BaseInput
                           type="number"
-                          placeholder={intl.formatMessage({ id: "COMMON.QUANTITY", defaultMessage: "Qty" })}
+                          placeholder={intl.formatMessage({
+                            id: "COMMON.QUANTITY",
+                            defaultMessage: "Qty",
+                          })}
                           value={row.quantity}
                           onChange={(e) =>
                             handleInputChange(idx, "quantity", e.target.value)
@@ -354,7 +400,12 @@ export default function SidebarModal({
                             handleInputChange(idx, "unitName", e.target.value)
                           }
                         >
-                          <option value=""><FormattedMessage id="COMMON.SELECT_NAME" defaultMessage="Select Name" /></option>
+                          <option value="">
+                            <FormattedMessage
+                              id="COMMON.SELECT_NAME"
+                              defaultMessage="Select Name"
+                            />
+                          </option>
                           {unit.map((c) => (
                             <option key={c.id} value={c.unitName}>
                               {c.unitName}
@@ -366,7 +417,10 @@ export default function SidebarModal({
                       <div>
                         <BaseInput
                           type="number"
-                          placeholder={intl.formatMessage({ id: "COMMON.TOTAL", defaultMessage: "Total" })}
+                          placeholder={intl.formatMessage({
+                            id: "COMMON.TOTAL",
+                            defaultMessage: "Total",
+                          })}
                           readOnly
                           value={row.totalPrice}
                         />
@@ -401,7 +455,10 @@ export default function SidebarModal({
                   className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={onClose}
                 >
-                  <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
+                  <FormattedMessage
+                    id="COMMON.CANCEL"
+                    defaultMessage="Cancel"
+                  />
                 </button>
                 <button
                   className="btn btn-sm btn-primary w-[100px] flex justify-center"

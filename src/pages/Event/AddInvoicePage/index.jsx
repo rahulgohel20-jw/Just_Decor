@@ -328,12 +328,7 @@ const AddInvoicePage = () => {
   }
 
   const handleSaveInvoice = async () => {
-    const userDataString = localStorage.getItem("userData");
-    const userData = JSON.parse(userDataString);
-    const UserId = userData.id;
-
-    console.log(UserId);
-    console.log("User Data:", userData);
+    const UserId = localStorage.getItem("userId");
 
     try {
       // Helper function to format date as DD/MM/YYYY hh:mm A

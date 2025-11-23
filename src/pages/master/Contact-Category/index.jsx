@@ -24,8 +24,7 @@ const ContactCategoryMaster = () => {
 
   const intl = useIntl();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData?.id;
+  let Id = JSON.parse(localStorage.getItem("userId"));
 
   // --------------------------
   // 1️⃣ FETCH API DATA (original)

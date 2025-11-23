@@ -1,14 +1,14 @@
 import { FormattedMessage } from "react-intl";
-import { toAbsoluteUrl } from "@/utils";
-import { FetchAllUser } from "@/services/apiServices";
+import { getUserById } from "@/services/apiServices";
 
-const fetchUserById = async (userId) => {
+const getUserData = async () => {
   try {
-    const response = await FetchAllUser(userId); // <- Adjust this API as per your actual endpoint
+    const userId = localStorage.getItem("userId");
+    if (!userId) return null;
+
+    const response = await getUserById(userId);
     if (response?.data?.success) {
-      const user = response.data.data;
-      localStorage.setItem("userData", JSON.stringify(user)); // update cache
-      return user;
+      return response.data.data;
     }
     return null;
   } catch (error) {
@@ -17,75 +17,12 @@ const fetchUserById = async (userId) => {
   }
 };
 
-const getUserRole = async () => {
-  try {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return null;
-
-    let userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData) {
-      userData = await fetchUserById(userId);
-    }
-
-    return userData?.userBasicDetails?.role?.id || null;
-  } catch (error) {
-    console.error("Error getting user role:", error);
-    return null;
-  }
-};
-
-const getUserPlan = async () => {
-  try {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return null;
-
-    let userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData) {
-      userData = await fetchUserById(userId);
-    }
-
-    return userData?.plan || null;
-  } catch (error) {
-    console.error("Error getting user plan:", error);
-    return null;
-  }
-};
-
-// const getUserRole = () => {
-//   try {
-//     const userData = JSON.parse(localStorage.getItem("userData"));
-//     return userData?.userBasicDetails?.role?.id || null;
-//   } catch (error) {
-//     console.error("Error parsing userData:", error);
-//     return null;
-//   }
-// };
-
-// const getUserPlan = () => {
-//   try {
-//     const userData = JSON.parse(localStorage.getItem("userData"));
-//     return userData?.plan || null;
-//   } catch (error) {
-//     console.error("Error parsing userData:", error);
-//     return null;
-//   }
-// };
-
-const userRoleId = getUserRole();
-const userPlan = getUserPlan();
-const userData = JSON.parse(localStorage.getItem("userData"));
-
-const isSuperAdmin = userRoleId === 1;
-const isNormalUser = userRoleId === 2;
-const hasNoPlan = userPlan === null;
-
 const disableMenuItems = (menuItems) => {
   return menuItems.map((item) => {
     const isPlanPage = item.path && item.path.toLowerCase().includes("price");
-
     return {
       ...item,
-      disabled: isPlanPage ? false : true,
+      disabled: !isPlanPage,
       statusLabel: isPlanPage ? undefined : "Locked 🔒",
       children: item.children ? disableMenuItems(item.children) : undefined,
     };
@@ -484,8 +421,8 @@ const superAdminMenuItems = [
 
 // Main function to get menu
 export const getMenuSidebar = async () => {
-  const userRoleId = await getUserRole();
-  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userData = await getUserData();
+  const userRoleId = userData?.userBasicDetails?.role?.id || null;
 
   const userPlan = userData?.plan || null;
   const isApproved = userData?.isApprove === true;

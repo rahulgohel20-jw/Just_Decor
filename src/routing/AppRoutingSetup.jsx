@@ -126,7 +126,6 @@ import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
 import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
-import EventPreparationPage from "@/pages/Event/EventPreparationPage";
 import EventPlanningPage from "../pages/Event/EventPlanningPage";
 import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
 import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
@@ -232,16 +231,12 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="copy" />}
           />
           <Route path="/menu-preparation" element={<EventPlanningPage />} />
-          <Route path="/menu-preparations" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
-          <Route
-            path="/menu-preparations/:eventId"
-            element={<EventPreparationPage mode="menu" />}
-          />
+
           <Route
             path="/menu-preparation/:eventId"
             element={<EventPlanningPage mode="menu" />}

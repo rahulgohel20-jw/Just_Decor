@@ -92,7 +92,7 @@ const AddCustomer = ({
     }
   }, []);
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
+  const Id = localStorage.getItem("userId");
   const triggerTranslate = (text, fieldType) => {
     if (!text?.trim()) return;
 
@@ -178,7 +178,7 @@ const AddCustomer = ({
     try {
       const {
         data: { data },
-      } = await GetAllContactCategory(userData.id);
+      } = await GetAllContactCategory(Id);
       setCategories(data["Contact Category Details"] || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -252,13 +252,13 @@ const AddCustomer = ({
 
     setIsLoading(true);
     try {
-      if (!userData?.id) {
+      if (!Id) {
         throw new Error("User data not found");
       }
 
       const payload = {
         ...formData,
-        userId: userData.id,
+        userId: Id,
         bdate: formatDateToDDMMYYYY(formData.bdate),
       };
 
@@ -351,7 +351,17 @@ const AddCustomer = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {formData.id ? <FormattedMessage id="USER.MASTER.EDIT_CUSTOMER" defaultMessage="Edit Customer" /> : <FormattedMessage id="USER.MASTER.NEW_CUSTOMER" defaultMessage="New Customer" />}
+            {formData.id ? (
+              <FormattedMessage
+                id="USER.MASTER.EDIT_CUSTOMER"
+                defaultMessage="Edit Customer"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.NEW_CUSTOMER"
+                defaultMessage="New Customer"
+              />
+            )}
           </h2>
           <button
             onClick={handleModalClose}
@@ -368,7 +378,12 @@ const AddCustomer = ({
             {/* Name fields */}
             <div>
               <InputToTextLang
-                label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />}
+                label={
+                  <FormattedMessage
+                    id="COMMON.NAME_ENGLISH"
+                    defaultMessage="Name (English)"
+                  />
+                }
                 name="nameEnglish"
                 value={formData.nameEnglish}
                 onChange={handleChange}
@@ -383,14 +398,24 @@ const AddCustomer = ({
             </div>
 
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.NAME_GUJARATI"
+                  defaultMessage="Name (ગુજરાતી)"
+                />
+              }
               name="nameGujarati"
               value={formData.nameGujarati}
               onChange={handleChange}
               lng="gu"
             />
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.NAME_HINDI"
+                  defaultMessage="Name (हिंदी)"
+                />
+              }
               name="nameHindi"
               value={formData.nameHindi}
               onChange={handleChange}
@@ -399,21 +424,36 @@ const AddCustomer = ({
 
             {/* Home Address */}
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.HOME_ADDRESS_ENGLISH" defaultMessage="Home Address (English)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.HOME_ADDRESS_ENGLISH"
+                  defaultMessage="Home Address (English)"
+                />
+              }
               name="addressEnglish"
               value={formData.addressEnglish}
               onChange={handleChange}
               lng="en-US"
             />
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.HOME_ADDRESS_GUJARATI" defaultMessage="Home Address (ગુજરાતી)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.HOME_ADDRESS_GUJARATI"
+                  defaultMessage="Home Address (ગુજરાતી)"
+                />
+              }
               name="addressGujarati"
               value={formData.addressGujarati}
               onChange={handleChange}
               lng="gu"
             />
             <InputToTextLang
-              label={<FormattedMessage id="COMMON.HOME_ADDRESS_HINDI" defaultMessage="Home Address (हिंदी)" />}
+              label={
+                <FormattedMessage
+                  id="COMMON.HOME_ADDRESS_HINDI"
+                  defaultMessage="Home Address (हिंदी)"
+                />
+              }
               name="addressHindi"
               value={formData.addressHindi}
               onChange={handleChange}
@@ -423,7 +463,10 @@ const AddCustomer = ({
             {/* Contact Category */}
             <div className="flex flex-col gap-1">
               <label className="text-gray-600">
-                <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY" defaultMessage="Contact Category" />
+                <FormattedMessage
+                  id="USER.MASTER.CONTACT_CATEGORY"
+                  defaultMessage="Contact Category"
+                />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
@@ -440,7 +483,12 @@ const AddCustomer = ({
                   onChange={handleChange}
                   required
                 >
-                  <option value=""><FormattedMessage id="USER.MASTER.SELECT_CATEGORY" defaultMessage="-- Select Category --" /></option>
+                  <option value="">
+                    <FormattedMessage
+                      id="USER.MASTER.SELECT_CATEGORY"
+                      defaultMessage="-- Select Category --"
+                    />
+                  </option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.nameEnglish}
@@ -465,7 +513,12 @@ const AddCustomer = ({
             {/* Email */}
             <div>
               <InputSimple
-                label={<FormattedMessage id="USER.MASTER.EMAIL" defaultMessage="Email" />}
+                label={
+                  <FormattedMessage
+                    id="USER.MASTER.EMAIL"
+                    defaultMessage="Email"
+                  />
+                }
                 name="email"
                 type="email"
                 value={formData.email}
@@ -481,7 +534,12 @@ const AddCustomer = ({
             {/* Mobile */}
             <div>
               <InputSimple
-                label={<FormattedMessage id="USER.MASTER.MOBILE_NO" defaultMessage="Mobile Number" />}
+                label={
+                  <FormattedMessage
+                    id="USER.MASTER.MOBILE_NO"
+                    defaultMessage="Mobile Number"
+                  />
+                }
                 name="mobileno"
                 type="tel"
                 value={formData.mobileno}
@@ -496,7 +554,12 @@ const AddCustomer = ({
 
             <div>
               <InputSimple
-                label={<FormattedMessage id="USER.MASTER.ALTERNATIVE_NO" defaultMessage="Alternative Number" />}
+                label={
+                  <FormattedMessage
+                    id="USER.MASTER.ALTERNATIVE_NO"
+                    defaultMessage="Alternative Number"
+                  />
+                }
                 name="altMobileno"
                 type="tel"
                 value={formData.altMobileno}
@@ -512,7 +575,12 @@ const AddCustomer = ({
 
             <div>
               <InputSimple
-                label={<FormattedMessage id="USER.MASTER.GST_NO" defaultMessage="GST Number" />}
+                label={
+                  <FormattedMessage
+                    id="USER.MASTER.GST_NO"
+                    defaultMessage="GST Number"
+                  />
+                }
                 name="gst"
                 value={formData.gst}
                 onChange={handleChange}
@@ -526,7 +594,10 @@ const AddCustomer = ({
             {/* Birth Date */}
             <div className="relative">
               <label htmlFor="birth_date" className="block text-gray-600 mb-1">
-                <FormattedMessage id="USER.MASTER.BIRTHDATE" defaultMessage="Birth Date" />
+                <FormattedMessage
+                  id="USER.MASTER.BIRTHDATE"
+                  defaultMessage="Birth Date"
+                />
               </label>
               <input
                 type="date"
@@ -540,7 +611,10 @@ const AddCustomer = ({
             {/* Document Type */}
             <div className="flex flex-col w-full">
               <label className="text-gray-600">
-                <FormattedMessage id="USER.MASTER.SELECT_DOCUMENT" defaultMessage="Select Document" />
+                <FormattedMessage
+                  id="USER.MASTER.SELECT_DOCUMENT"
+                  defaultMessage="Select Document"
+                />
               </label>
               <select
                 name="document"
@@ -549,19 +623,34 @@ const AddCustomer = ({
                 className="border border-gray-300 rounded-lg p-2 w-full"
               >
                 <option value="">
-                  <FormattedMessage id="USER.MASTER.SELECT_DOCUMENT_OPTION" defaultMessage="-- Select Document --" />
+                  <FormattedMessage
+                    id="USER.MASTER.SELECT_DOCUMENT_OPTION"
+                    defaultMessage="-- Select Document --"
+                  />
                 </option>
                 <option value="aadhar">
-                  <FormattedMessage id="USER.MASTER.AADHAR_CARD" defaultMessage="Aadhar Card" />
+                  <FormattedMessage
+                    id="USER.MASTER.AADHAR_CARD"
+                    defaultMessage="Aadhar Card"
+                  />
                 </option>
                 <option value="pan">
-                  <FormattedMessage id="USER.MASTER.PAN_CARD" defaultMessage="PAN Card" />
+                  <FormattedMessage
+                    id="USER.MASTER.PAN_CARD"
+                    defaultMessage="PAN Card"
+                  />
                 </option>
                 <option value="passport">
-                  <FormattedMessage id="USER.MASTER.PASSPORT" defaultMessage="Passport" />
+                  <FormattedMessage
+                    id="USER.MASTER.PASSPORT"
+                    defaultMessage="Passport"
+                  />
                 </option>
                 <option value="driving">
-                  <FormattedMessage id="USER.MASTER.DRIVING_LICENSE" defaultMessage="Driving License" />
+                  <FormattedMessage
+                    id="USER.MASTER.DRIVING_LICENSE"
+                    defaultMessage="Driving License"
+                  />
                 </option>
               </select>
             </div>
@@ -569,7 +658,10 @@ const AddCustomer = ({
             {/* Document Upload */}
             <div className="flex flex-col">
               <label className="text-gray-600">
-                <FormattedMessage id="USER.MASTER.UPLOAD_DOCUMENTS" defaultMessage="Upload Documents" />
+                <FormattedMessage
+                  id="USER.MASTER.UPLOAD_DOCUMENTS"
+                  defaultMessage="Upload Documents"
+                />
               </label>
               <div className="flex items-center space-x-4">
                 <button
@@ -619,7 +711,16 @@ const AddCustomer = ({
               onClick={CustomerAddApi}
               disabled={isLoading}
             >
-              {isLoading ? <FormattedMessage id="COMMON.SAVING" defaultMessage="Saving..." /> : formData.id ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+              {isLoading ? (
+                <FormattedMessage
+                  id="COMMON.SAVING"
+                  defaultMessage="Saving..."
+                />
+              ) : formData.id ? (
+                <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+              ) : (
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+              )}
             </button>
           </div>
         </div>

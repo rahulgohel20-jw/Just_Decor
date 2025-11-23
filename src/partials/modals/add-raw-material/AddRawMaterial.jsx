@@ -47,8 +47,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
 
   const intl = useIntl();
-  let userdata = JSON.parse(localStorage.getItem("userData"));
-  let id = userdata.id;
+  let id = localStorage.getItem("userId");
 
   const formik = useFormik({
     initialValues: {

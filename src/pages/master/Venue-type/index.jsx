@@ -42,10 +42,10 @@ const VenueTypeMaster = () => {
 
   const userId = useMemo(() => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-      return userData?.id ? parseInt(userData.id, 10) : null;
+      const userID = localStorage.getItem("userId");
+      return userID;
     } catch (e) {
-      console.error("Error parsing userData", e);
+      console.error("Error parsing userid", e);
       return null;
     }
   }, []);

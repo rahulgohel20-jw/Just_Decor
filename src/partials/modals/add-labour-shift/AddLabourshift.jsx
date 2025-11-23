@@ -36,15 +36,15 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) return alert("User data not found");
+      const Id = localStorage.getItem("userId");
+      if (!Id) return alert("User data not found");
 
       const payload = {
         nameEnglish: values.nameEnglish,
         nameGujarati: values.nameGujarati,
         nameHindi: values.nameHindi,
         shifttime: values.time,
-        userId: JSON.parse(localStorage.getItem("userData"))?.id || 0,
+        userId: Id,
       };
 
       let response;

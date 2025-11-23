@@ -237,8 +237,7 @@ const CreateEventPage = () => {
       return;
     }
 
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const userId = userData?.id;
+    const userId = localStorage.getItem("userId");
 
     const payload = {
       ...formData,

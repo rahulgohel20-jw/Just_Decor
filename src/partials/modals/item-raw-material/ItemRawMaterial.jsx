@@ -22,8 +22,7 @@ const ItemRawmaterial = ({
   const [unitOptions, setUnitOptions] = useState([]);
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let userId = userData?.id;
+  let userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (!isModalOpen) return;

@@ -17,10 +17,9 @@ const QuotationDashboard = () => {
     remaining: 0,
     total: 0,
   });
-  const user = JSON.parse(localStorage.getItem("userData"));
+  const userId = localStorage.getItem("userId");
   const [originalData, setOriginalData] = useState([]);
 
-  const userId = user?.id || 0;
   const intl = useIntl();
   const fetchQuotations = async () => {
     const response = await GetAllQuotation(userId);

@@ -27,12 +27,12 @@ const AddContactCategory = ({
   };
 
   const [contactTypes, setContactTypes] = useState([]);
+  const Id = JSON.parse(localStorage.getItem("userId"));
 
   // ✅ Fetch dropdown values
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (userData?.id) {
-      GetAllContactType(userData.id)
+    if (Id) {
+      GetAllContactType(Id)
         .then((res) => {
           setContactTypes(res?.data?.data?.["Contact Type Details"] || []);
         })
@@ -54,13 +54,12 @@ const AddContactCategory = ({
   // ✅ Submit handler
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      if (!Id) {
         alert("User data not found");
         return;
       }
 
-      const payload = { ...values, userId: userData.id };
+      const payload = { ...values, userId: Id };
 
       if (contactCategory) {
         await EditContactCategory(contactCategory.contactid, payload);
@@ -91,7 +90,17 @@ const AddContactCategory = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {contactCategory ? <FormattedMessage id="USER.MASTER.EDIT_CONTACT_CATEGORY" defaultMessage="Edit Contact Category" /> : <FormattedMessage id="USER.MASTER.NEW_CONTACT_CATEGORY" defaultMessage="New Contact Category" />}
+            {contactCategory ? (
+              <FormattedMessage
+                id="USER.MASTER.EDIT_CONTACT_CATEGORY"
+                defaultMessage="Edit Contact Category"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.NEW_CONTACT_CATEGORY"
+                defaultMessage="New Contact Category"
+              />
+            )}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -143,14 +152,41 @@ const AddContactCategory = ({
             return (
               <Form>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />} name="nameEnglish" />
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />} name="nameGujarati" />
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />} name="nameHindi" />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_ENGLISH"
+                        defaultMessage="Name (English)"
+                      />
+                    }
+                    name="nameEnglish"
+                  />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_GUJARATI"
+                        defaultMessage="Name (ગુજરાતી)"
+                      />
+                    }
+                    name="nameGujarati"
+                  />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_HINDI"
+                        defaultMessage="Name (हिंदी)"
+                      />
+                    }
+                    name="nameHindi"
+                  />
 
                   {/* Dropdown */}
                   <div className="flex flex-col">
                     <label className="block text-gray-600 mb-1">
-                      <FormattedMessage id="USER.MASTER.CONTACT_TYPE" defaultMessage="Contact Type" />
+                      <FormattedMessage
+                        id="USER.MASTER.CONTACT_TYPE"
+                        defaultMessage="Contact Type"
+                      />
                       <span className="text-red-500">*</span>
                     </label>
                     <Field
@@ -158,7 +194,12 @@ const AddContactCategory = ({
                       name="contcatTypeId"
                       className="border border-gray-300 rounded-lg p-2 w-full"
                     >
-                      <option value=""><FormattedMessage id="USER.MASTER.SELECT_CONTACT_TYPE" defaultMessage="-- Select Contact Type --" /></option>
+                      <option value="">
+                        <FormattedMessage
+                          id="USER.MASTER.SELECT_CONTACT_TYPE"
+                          defaultMessage="-- Select Contact Type --"
+                        />
+                      </option>
                       {contactTypes
                         .filter((type) => type.isActive)
                         .map((type) => (
@@ -176,7 +217,12 @@ const AddContactCategory = ({
 
                   {/* Priority */}
                   <InputWithFormik
-                    label={<FormattedMessage id="USER.MASTER.PRIORITY" defaultMessage="Priority" />}
+                    label={
+                      <FormattedMessage
+                        id="USER.MASTER.PRIORITY"
+                        defaultMessage="Priority"
+                      />
+                    }
                     name="sequence"
                     type="number"
                   />
@@ -189,14 +235,27 @@ const AddContactCategory = ({
                     onClick={() => onClose(false)}
                     className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
                   >
-                    <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
+                    <FormattedMessage
+                      id="COMMON.CANCEL"
+                      defaultMessage="Cancel"
+                    />
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
                   >
-                    {contactCategory ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+                    {contactCategory ? (
+                      <FormattedMessage
+                        id="COMMON.UPDATE"
+                        defaultMessage="Update"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="COMMON.SAVE"
+                        defaultMessage="Save"
+                      />
+                    )}
                   </button>
                 </div>
               </Form>

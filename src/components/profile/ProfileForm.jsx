@@ -14,26 +14,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const LOCAL_STORAGE_KEY = "userProfileForm";
-
 const getUserIdFromLocalStorage = () => {
   try {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    return userData?.id || null;
+    const userId = localStorage.getItem("userId");
+    return userId || null;
   } catch {
     return null;
-  }
-};
-
-const getPlanAndRoleFromLocalStorage = () => {
-  try {
-    const parsed = JSON.parse(localStorage.getItem("userData"));
-    return {
-      planId: parsed?.plan?.id || 0,
-      roleId: parsed?.userBasicDetails?.role?.id || 0,
-    };
-  } catch {
-    return { planId: 0, roleId: 0 };
   }
 };
 
@@ -100,6 +86,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     try {
       const res = await getUserById(userMasterId);
       const user = res?.data?.data?.["User Details"]?.[0];
+
       if (user) {
         const values = {
           firstName: user.firstName,
@@ -109,6 +96,8 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           companyName: user.userBasicDetails?.companyName,
           companyEmail: user.userBasicDetails?.companyEmail,
           address: user.userBasicDetails?.address,
+          role: user.userBasicDetails?.role?.id,
+          plan: user?.plan?.id,
           officePhone: user.userBasicDetails?.officeNo,
           country: {
             value: user.userBasicDetails?.country?.id,
@@ -127,53 +116,45 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
         };
 
         setInitialValues(values);
+
         form.setFieldsValue(values);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(values));
 
         if (values.country?.value) await loadStates(values.country.value);
         if (values.state?.value) await loadCities(values.state.value);
-        
+
         return values;
       }
     } catch {
-      // fallback only if API fails
-      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        setInitialValues(parsed);
-        form.setFieldsValue(parsed);
-        return parsed;
-      } else {
-        message.error("Failed to fetch user details");
-      }
+      message.error("Failed to fetch user details");
     }
   }, [userMasterId, form, loadStates, loadCities]);
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData, refreshKey]); // Add refreshKey as dependency
+  }, [fetchUserData, refreshKey]);
 
   const handleValuesChange = (_, allValues) => {
     if (!initialValues) return;
     setIsChanged(!isEqual(initialValues, allValues));
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allValues));
   };
 
   const onFinish = async (values) => {
-    const { planId, roleId } = getPlanAndRoleFromLocalStorage();
+    const planId = initialValues.plan;
+    const roleId = initialValues.role;
+
     if (!planId || !roleId) return message.error("Missing Plan or Role ID.");
-    
+
     // Validate required location fields
     if (!values.country?.value) {
       return message.error("Please select a country");
     }
-    
+
     const payload = {
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
-      password: "123",
-      confirmPassword: "123",
+      password: "",
+      confirmPassword: "",
       contactNo: values.phone,
       companyName: values.companyName,
       companyEmail: values.companyEmail,
@@ -193,37 +174,16 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
       clientId: 0,
       reportingManagerId: 0,
     };
-    
+
     try {
       await updateusermaster(userMasterId, payload);
       message.success("Profile updated successfully");
-      
+
       // Refresh data from API after successful update
       await fetchUserData();
-      
+
       setIsChanged(false);
-      
-      // Update localStorage in userData as well (for consistency)
-      try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (userData) {
-          userData.firstName = values.firstName;
-          userData.lastName = values.lastName;
-          userData.email = values.email;
-          userData.contactNo = values.phone;
-          if (userData.userBasicDetails) {
-            userData.userBasicDetails.companyName = values.companyName;
-            userData.userBasicDetails.companyEmail = values.companyEmail;
-            userData.userBasicDetails.address = values.address;
-            userData.userBasicDetails.officeNo = values.officePhone;
-            userData.userBasicDetails.bio = values.bio;
-          }
-          localStorage.setItem("userData", JSON.stringify(userData));
-        }
-      } catch (e) {
-        console.error("Failed to update userData in localStorage:", e);
-      }
-      
+
       if (onSaveSuccess) {
         onSaveSuccess();
       }
@@ -247,11 +207,13 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     onSelect,
     required = false
   ) => (
-    <Form.Item 
-      label={label} 
-      name={name} 
+    <Form.Item
+      label={label}
+      name={name}
       className="mb-8"
-      rules={required ? [{ required: true, message: `Please select ${label}` }] : []}
+      rules={
+        required ? [{ required: true, message: `Please select ${label}` }] : []
+      }
     >
       <Select
         showSearch
@@ -306,26 +268,42 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Form.Item
-          label={<FormattedMessage id="COMMON.FIRST_NAME" defaultMessage="First Name" />}
+          label={
+            <FormattedMessage
+              id="COMMON.FIRST_NAME"
+              defaultMessage="First Name"
+            />
+          }
           name="firstName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_FIRST_NAME", defaultMessage: "Enter your first name.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_FIRST_NAME",
+              defaultMessage: "Enter your first name..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label={<FormattedMessage id="COMMON.LAST_NAME" defaultMessage="Last Name" />}
+          label={
+            <FormattedMessage
+              id="COMMON.LAST_NAME"
+              defaultMessage="Last Name"
+            />
+          }
           name="lastName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_LAST_NAME", defaultMessage: "Enter your last name.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_LAST_NAME",
+              defaultMessage: "Enter your last name..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
@@ -337,64 +315,108 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_EMAIL", defaultMessage: "Enter your email.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_EMAIL",
+              defaultMessage: "Enter your email..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
         <Form.Item
-          label={<FormattedMessage id="COMMON.PHONE_NUMBER" defaultMessage="Phone Number" />}
+          label={
+            <FormattedMessage
+              id="COMMON.PHONE_NUMBER"
+              defaultMessage="Phone Number"
+            />
+          }
           name="phone"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_PHONE_NUMBER", defaultMessage: "Enter your phone number.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_PHONE_NUMBER",
+              defaultMessage: "Enter your phone number..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label={<FormattedMessage id="COMMON.COMPANY_NAME" defaultMessage="Company Name" />}
+          label={
+            <FormattedMessage
+              id="COMMON.COMPANY_NAME"
+              defaultMessage="Company Name"
+            />
+          }
           name="companyName"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_COMPANY_NAME", defaultMessage: "Enter your company name.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_COMPANY_NAME",
+              defaultMessage: "Enter your company name..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
 
         <Form.Item
-          label={<FormattedMessage id="COMMON.COMPANY_EMAIL" defaultMessage="Company Email ID" />}
+          label={
+            <FormattedMessage
+              id="COMMON.COMPANY_EMAIL"
+              defaultMessage="Company Email ID"
+            />
+          }
           name="companyEmail"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
             readOnly={!isEditing}
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_COMPANY_EMAIL", defaultMessage: "Enter your company email.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_COMPANY_EMAIL",
+              defaultMessage: "Enter your company email..",
+            })}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
         <Form.Item
-          label={<FormattedMessage id="COMMON.OFFICE_PHONE" defaultMessage="Office Number" />}
+          label={
+            <FormattedMessage
+              id="COMMON.OFFICE_PHONE"
+              defaultMessage="Office Number"
+            />
+          }
           name="officePhone"
           rules={[{ required: true }]}
         >
           <Input
             size="large"
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_OFFICE_PHONE", defaultMessage: "Enter your office number.." })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_OFFICE_PHONE",
+              defaultMessage: "Enter your office number..",
+            })}
             readOnly={!isEditing}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
         </Form.Item>
-        <Form.Item label={<FormattedMessage id="COMMON.ADDRESS" defaultMessage="Address" />} name="address" rules={[{ required: true }]}>
+        <Form.Item
+          label={
+            <FormattedMessage id="COMMON.ADDRESS" defaultMessage="Address" />
+          }
+          name="address"
+          rules={[{ required: true }]}
+        >
           <Input
             size="large"
-            placeholder={intl.formatMessage({ id: "COMMON.ENTER_ADDRESS", defaultMessage: "Enter your address" })}
+            placeholder={intl.formatMessage({
+              id: "COMMON.ENTER_ADDRESS",
+              defaultMessage: "Enter your address",
+            })}
             readOnly={!isEditing}
             className="rounded-xl h-11 bg-[#F2F7FB] border border-[#E6ECF1]"
           />
@@ -438,12 +460,21 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
         )}
       </div>
 
-      <Form.Item label={<FormattedMessage id="COMMON.BIO" defaultMessage="Bio (optional)" />} name="bio" className="mb-9">
+      <Form.Item
+        label={
+          <FormattedMessage id="COMMON.BIO" defaultMessage="Bio (optional)" />
+        }
+        name="bio"
+        className="mb-9"
+      >
         <TextArea
           rows={4}
           readOnly={!isEditing}
           className="rounded-xl bg-[#F2F7FB] border border-[#E6ECF1]"
-          placeholder={intl.formatMessage({ id: "COMMON.ENTER_BIO", defaultMessage: "Enter your bio..." })}
+          placeholder={intl.formatMessage({
+            id: "COMMON.ENTER_BIO",
+            defaultMessage: "Enter your bio...",
+          })}
         />
       </Form.Item>
 
