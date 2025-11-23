@@ -13,7 +13,7 @@ import AddRawMaterial from "@/partials/modals/raw-material-category/AddRawMateri
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-const RawMaterialMaster = () => {
+const AddRawMaterialCategory = () => {
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
     useState(null);
@@ -199,4 +199,4 @@ const RawMaterialMaster = () => {
     </Fragment>
   );
 };
-export default RawMaterialMaster;
+export default AddRawMaterialCategory;

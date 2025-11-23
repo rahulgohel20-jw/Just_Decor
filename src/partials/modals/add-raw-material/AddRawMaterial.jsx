@@ -4,6 +4,9 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
+import AddUnit from "@/partials/modals/add-unit/AddUnit";
+import AddRawMaterialCategory from "@/partials/modals/raw-material-category/AddRawMaterial";
+
 import {
   GetRawMaterialcategory,
   GetUnitData,
@@ -45,7 +48,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [unitList, setUnitList] = useState([]);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
-
+  const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+  const [isRawCategoryModalOpen, setIsRawCategoryModalOpen] = useState(false);
+  const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
+    useState(null);
   const intl = useIntl();
   let userdata = JSON.parse(localStorage.getItem("userData"));
   let id = userdata.id;
@@ -457,25 +463,41 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               />
               <span className="text-red-500">*</span>
             </label>
-            <select
-              className="select"
-              name="rawCategoryId"
-              value={formik.values.rawCategoryId}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            >
-              <option value="">
-                <FormattedMessage
-                  id="USER.RAWMATERIAL.SELECT_CATEGORY"
-                  defaultMessage="Select Raw Material Category"
-                />
-              </option>
-              {rawCategory.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
+
+            <div className="flex items-center gap-2">
+              <select
+                className="select flex-1"
+                name="rawCategoryId"
+                value={formik.values.rawCategoryId}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
+                <option value="">
+                  <FormattedMessage
+                    id="USER.RAWMATERIAL.SELECT_CATEGORY"
+                    defaultMessage="Select Raw Material Category"
+                  />
                 </option>
-              ))}
-            </select>
+                {rawCategory.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* + Button to open modal */}
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
+                onClick={() => {
+                  setSelectedRawMaterialCategory(null);
+                  setIsRawCategoryModalOpen(true);
+                }}
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
+
             {formik.touched.rawCategoryId && formik.errors.rawCategoryId && (
               <span className="text-red-500 text-sm">
                 {formik.errors.rawCategoryId}
@@ -484,30 +506,45 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           </div>
 
           {/* Unit */}
+          {/* Unit */}
           <div className="flex flex-col">
-            <label className="form-label">
+            <label className="form-label flex items-center gap-2">
               <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />
               <span className="text-red-500">*</span>
             </label>
-            <select
-              className="select"
-              name="unitid"
-              value={formik.values.unitid}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            >
-              <option value="">
-                <FormattedMessage
-                  id="COMMON.SELECT_UNIT"
-                  defaultMessage="Select Unit"
-                />
-              </option>
-              {unitList.map((unit) => (
-                <option key={unit.value} value={unit.value}>
-                  {unit.label}
+
+            <div className="flex items-center gap-2">
+              <select
+                className="select flex-1"
+                name="unitid"
+                value={formik.values.unitid}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
+                <option value="">
+                  <FormattedMessage
+                    id="COMMON.SELECT_UNIT"
+                    defaultMessage="Select Unit"
+                  />
                 </option>
-              ))}
-            </select>
+
+                {unitList.map((unit) => (
+                  <option key={unit.value} value={unit.value}>
+                    {unit.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* + Button to open modal */}
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
+                onClick={() => setIsUnitModalOpen(true)}
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
+
             {formik.touched.unitid && formik.errors.unitid && (
               <span className="text-red-500 text-sm">
                 {formik.errors.unitid}
@@ -671,6 +708,17 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           }}
           onAddSupplier={handleSupplierAction}
           supplierData={editingSupplier}
+        />
+        <AddUnit
+          isModalOpen={isUnitModalOpen}
+          setIsModalOpen={setIsUnitModalOpen}
+          refreshData={FetchUnit}
+        />
+        <AddRawMaterialCategory
+          isOpen={isRawCategoryModalOpen}
+          onClose={() => setIsRawCategoryModalOpen(false)}
+          refreshData={FetchRawMaterialCategory}
+          rawMaterialCategory={selectedRawMaterialCategory}
         />
       </CustomModal>
     )

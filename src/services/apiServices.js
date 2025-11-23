@@ -72,6 +72,8 @@ export const LoginOutUser = (email, eventtype) => {
 export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
+
+
 //get customer by id by cat id
 export const GetPartyMasterByCatId = (catTypeId, userId) => {
   return GET(

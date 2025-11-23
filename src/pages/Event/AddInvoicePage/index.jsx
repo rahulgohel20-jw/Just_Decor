@@ -482,9 +482,7 @@ const AddInvoicePage = () => {
         animate__faster
       `,
           },
-          hideClass: {
-            popup: `
-          },
+
           hideClass: {
             popup: `
         animate__animated

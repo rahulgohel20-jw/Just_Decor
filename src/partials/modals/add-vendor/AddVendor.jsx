@@ -11,7 +11,7 @@ import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage } from "react-intl";
 
-const AddCustomer = ({
+const AddVendor = ({
   isModalOpen,
   setIsModalOpen,
   selectedCustomer,
@@ -180,10 +180,10 @@ const AddCustomer = ({
         data: { data },
       } = await GetAllContactCategory(userData.id);
 
-      // Filter to show ONLY Customer type (contactType.id === 2)
+      // Filter out Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
       const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id === 2;
+        return cat.contactType?.id !== 2;
       });
 
       setCategories(filteredCategories);
@@ -361,12 +361,12 @@ const AddCustomer = ({
             {formData.id ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_CUSTOMER"
-                defaultMessage="Edit Customer"
+                defaultMessage="edit Vendor"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CUSTOMER"
-                defaultMessage="New Customer"
+                defaultMessage="New Vendor"
               />
             )}
           </h2>
@@ -773,4 +773,4 @@ const InputSimple = ({
   </div>
 );
 
-export default AddCustomer;
+export default AddVendor;
