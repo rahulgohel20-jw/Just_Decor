@@ -22,7 +22,7 @@ const DishCostingPage = () => {
   const { eventId } = useParams();
   const [activeTab, setActiveTab] = useState("Function Wise");
   const [viewType, setViewType] = useState("Function Wise");
-  const [functionType, setFunctionType] = useState("Dinner");
+  const [functionType, setFunctionType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
@@ -37,11 +37,7 @@ const DishCostingPage = () => {
   const openSelectMenureport = useCallback(() => {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
-  });
-  const grandTotal =
-    (dishCostingData?.rawmaterialcharge || 0) +
-    (dishCostingData?.outsideagencycharge || 0) +
-    (dishCostingData?.extraexpensecharge || 0);
+  }, [eventId]);
 
   const intl = useIntl();
   const isTotal = viewType === "Total Wise";
@@ -104,13 +100,8 @@ const DishCostingPage = () => {
   const handleRawMaterialClick = () => {
     setIsModalOpen(true);
   };
-  useEffect(() => {
-    if (allFunctionWiseCosting?.length > 0 && !selectedFunctionId) {
-      setSelectedFunctionId(allFunctionWiseCosting[0].eventFunctionId);
-      setSelectedFunctionPax(allFunctionWiseCosting[0].pax);
-    }
-  }, [allFunctionWiseCosting]);
 
+  // Fetch event data on mount
   useEffect(() => {
     const fetchEventData = async () => {
       try {
@@ -122,19 +113,12 @@ const DishCostingPage = () => {
           const event = res.data.data["Event Details"][0];
           setEventData(event);
 
-          const partyName = event?.party?.nameEnglish || "-";
-          const eventType = event?.eventType?.nameEnglish || "-";
-          const venue = event?.venue || "-";
-          const eventDateTime = event?.eventStartDateTime || "-";
-          const totalFunctions = event?.eventFunctions?.length || 0;
-          const totalPax = event?.eventFunctions?.reduce(
-            (sum, func) => sum + (func.pax || 0),
-            0
-          );
-
+          // Auto-select first function by default
           if (event?.eventFunctions?.length > 0) {
-            setActiveTab(event.eventFunctions[0].function?.nameEnglish);
-            setSelectedFunctionPax(event.eventFunctions[0].pax || 0);
+            const firstFunction = event.eventFunctions[0];
+            setFunctionType(firstFunction.function?.nameEnglish || "");
+            setSelectedFunctionPax(firstFunction.pax || 0);
+            setSelectedFunctionId(firstFunction.id);
           }
         }
       } catch (error) {
@@ -147,36 +131,18 @@ const DishCostingPage = () => {
     if (eventId) fetchEventData();
   }, [eventId]);
 
+  // Fetch all function costing data when eventData is available
   useEffect(() => {
-    const fetchDishCosting = async () => {
-      if (!eventId || !selectedFunctionId) return;
-
-      try {
-        const res = await GetDishCostingByEventFunction(
-          eventId,
-          selectedFunctionId
-        );
-        console.log("Dish Costing API Response:", res.data);
-
-        // Extract the 'data' object from the API response
-        setDishCostingData(res.data.data);
-      } catch (err) {
-        console.error("Error fetching dish costing:", err);
-      }
-    };
-
-    fetchDishCosting();
-  }, [eventId, selectedFunctionId]);
-
-  if (event?.eventFunctions?.length > 0) {
     const fetchAllCosting = async () => {
+      if (!eventData?.eventFunctions?.length) return;
+
       const allData = [];
 
-      for (const func of event.eventFunctions) {
+      for (const func of eventData.eventFunctions) {
         try {
           const res = await GetDishCostingByEventFunction(eventId, func.id);
           allData.push({
-            id: func.id,
+            eventFunctionId: func.id,
             name: func.function?.nameEnglish,
             pax: func.pax,
             raw: res.data.data.rawmaterialcharge || 0,
@@ -192,8 +158,27 @@ const DishCostingPage = () => {
     };
 
     fetchAllCosting();
-  }
-  // COMPUTED VALUES
+  }, [eventData, eventId]);
+
+  // Fetch dish costing when a function is selected
+  useEffect(() => {
+    const fetchDishCosting = async () => {
+      if (!eventId || !selectedFunctionId) return;
+
+      try {
+        const res = await GetDishCostingByEventFunction(
+          eventId,
+          selectedFunctionId
+        );
+        console.log("Dish Costing API Response:", res.data);
+        setDishCostingData(res.data.data);
+      } catch (err) {
+        console.error("Error fetching dish costing:", err);
+      }
+    };
+
+    fetchDishCosting();
+  }, [eventId, selectedFunctionId]);
 
   return (
     <Fragment>
@@ -324,7 +309,7 @@ const DishCostingPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="w-[300px] flex gap-2 my-5 overflow-x-auto">
+        <div className="w-[full] flex gap-2 my-5 overflow-x-auto">
           {eventData?.eventFunctions?.length > 0 ? (
             eventData.eventFunctions.map((func, index) => {
               const funcName =
@@ -333,11 +318,11 @@ const DishCostingPage = () => {
                 <button
                   key={index}
                   onClick={() => {
-                    setFunctionType(funcName); // highlight tab
-                    setSelectedFunctionPax(func.pax || 0); // set pax
-                    setSelectedFunctionId(func.id); // ✅ set function ID for API
+                    setFunctionType(funcName);
+                    setSelectedFunctionPax(func.pax || 0);
+                    setSelectedFunctionId(func.id);
                   }}
-                  className={`flex-1 btn btn-sm p-5 whitespace-nowrap ${
+                  className={`flex-1 max-w-[200px] btn btn-sm p-5 whitespace-nowrap ${
                     functionType === funcName ? "btn-primary" : "btn-light"
                   }`}
                 >
@@ -365,7 +350,7 @@ const DishCostingPage = () => {
                   />
                 </span>
                 <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
-                  {selectedFunctionPax || "-"}
+                  {totalPax || "-"}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -449,7 +434,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
-                  ₹ ₹ {totalRaw.toLocaleString()}
+                  ₹ {totalAgency.toLocaleString()}
                 </div>
               </div>
 
@@ -461,28 +446,13 @@ const DishCostingPage = () => {
                 <div className="text-sm text-gray-600 mb-2">
                   <FormattedMessage
                     id="COMMON.TOTAL_GENERAL_FIX_CHARGES"
-                    defaultMessage="
-                    Total Extra Expense"
+                    defaultMessage="Total Extra Expense"
                   />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
-                  ₹ {totalRaw.toLocaleString()}
+                  ₹ {totalExtra.toLocaleString()}
                 </div>
               </div>
-
-              {/* Total Crockery Charges */}
-              {/* <div className="bg-white-50 rounded-lg p-5 border border-orange-100 relative">
-                <div className="absolute top-4 right-4 w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <i className="ki-filled ki-coffee text-orange-600 text-xl"></i>
-                </div>
-                <div className="text-sm text-gray-600 mb-2">
-                  <FormattedMessage
-                    id="COMMON.TOTAL_CROCKERY_CHARGES"
-                    defaultMessage="Total Crockery Charges"
-                  />
-                </div>
-                <div className="text-3xl font-bold text-gray-900">₹ 0.00</div>
-              </div> */}
             </div>
 
             {/* Bottom Summary Cards */}
@@ -496,12 +466,7 @@ const DishCostingPage = () => {
                   />
                 </div>
                 <div className="text-3xl font-bold text-blue-500">
-                  ₹{" "}
-                  {(
-                    Number(dishCostingData?.rawmaterialcharge || 0) +
-                    Number(dishCostingData?.outsideagencycharge || 0) +
-                    Number(dishCostingData?.extraexpensecharge || 0)
-                  ).toLocaleString()}
+                  ₹ {grandTotalComputed.toLocaleString()}
                 </div>
               </div>
 
@@ -513,8 +478,8 @@ const DishCostingPage = () => {
                     defaultMessage="Dish Costing"
                   />
                 </div>
-                <div className="text-3xl font-bold text-green-500  border-green-600 rounded-md px-3 py-1 inline-block">
-                  ₹₹ {perPersonCost}
+                <div className="text-3xl font-bold text-green-500 border-green-600 rounded-md px-3 py-1 inline-block">
+                  ₹ {perPersonCost}
                 </div>
               </div>
             </div>
@@ -536,7 +501,6 @@ const DishCostingPage = () => {
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
-            activeFunctionName = { activeFunctionName };
           }}
         />
       </Container>

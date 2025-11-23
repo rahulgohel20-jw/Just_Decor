@@ -187,6 +187,7 @@ import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit
 import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
 import VenuetypeMaster from "../pages/master/Venue-type";
+import VendorMaster from "../pages/master/vendor-master";
 
 const AppRoutingSetup = () => {
   return (
@@ -306,6 +307,7 @@ const AppRoutingSetup = () => {
           />
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
+          <Route path="/master/vendor-master" element={<VendorMaster />} />
           <Route
             path="/master/raw-material-master"
             element={<RawMaterialMaster />}
