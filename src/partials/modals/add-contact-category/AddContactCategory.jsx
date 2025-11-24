@@ -15,6 +15,7 @@ const AddContactCategory = ({
   onClose,
   contactCategory,
   refreshData,
+  excludeCustomerType = false, // New prop to control filtering
 }) => {
   if (!isOpen) return null;
 
@@ -34,13 +35,20 @@ const AddContactCategory = ({
     if (Id) {
       GetAllContactType(Id)
         .then((res) => {
-          setContactTypes(res?.data?.data?.["Contact Type Details"] || []);
+          const allTypes = res?.data?.data?.["Contact Type Details"] || [];
+
+          // Filter out Customer type (id === 2) if excludeCustomerType is true
+          const filteredTypes = excludeCustomerType
+            ? allTypes.filter((type) => type.id != 2) // Using != for loose comparison
+            : allTypes;
+
+          setContactTypes(filteredTypes);
         })
         .catch((err) => {
           console.error("Error fetching contact types:", err);
         });
     }
-  }, []);
+  }, [Id, excludeCustomerType]);
 
   // ✅ Validation schema
   const validationSchema = Yup.object().shape({

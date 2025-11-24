@@ -3,7 +3,7 @@ import {
   AddRawMaterialCat,
   EditRawMaterialCat,
   GetRawType,
-  Translateapi, // ✅ added
+  Translateapi,
 } from "@/services/apiServices";
 import RawMaterialDropdown from "@/components/dropdowns/MealTypeDropdown";
 import { Checkbox } from "antd";
@@ -11,8 +11,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
+import { Plus } from "lucide-react";
+import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 
-// ✅ Validation schema
+// Validation schema
 const validationSchema = Yup.object().shape({
   nameEnglish: Yup.string().required("Name (English) is required"),
   nameGujarati: Yup.string().required("Name (ગુજરાતી) is required"),
@@ -33,9 +35,11 @@ const AddRawMaterial = ({
 
   const [options, setOptions] = useState([]);
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [isRawModalOpen, setIsRawModalOpen] = useState(false);
+  const [selectedRawCategory, setSelectedRawCategory] = useState(null);
   let userId = localStorage.getItem("userId");
 
-  // ✅ translate function for Name fields
+  // Translate function for Name fields
   const triggerTranslate = (text, setFieldValue) => {
     if (!text?.trim()) return;
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -52,8 +56,8 @@ const AddRawMaterial = ({
     setDebounceTimer(timer);
   };
 
-  // Fetch dropdown options
-  useEffect(() => {
+  // Function to fetch dropdown options
+  const FetchRawTypeCategory = () => {
     if (!userId) return;
 
     GetRawType(userId)
@@ -66,10 +70,14 @@ const AddRawMaterial = ({
             value: item.id,
           }))
         );
-        console.log(options);
       })
       .catch((error) => console.error("Error fetching raw type:", error));
-  }, []);
+  };
+
+  // Fetch dropdown options on mount
+  useEffect(() => {
+    FetchRawTypeCategory();
+  }, [userId]);
 
   // Initial values
   const initialValues = {
@@ -80,8 +88,6 @@ const AddRawMaterial = ({
     rawMaterialCatTypeId: rawMaterialCategory?.rawtypeid || "",
     isDirect: rawMaterialCategory?.isDirect || false,
   };
-
-  console.log("raw", initialValues);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -168,7 +174,7 @@ const AddRawMaterial = ({
           enableReinitialize
         >
           {({ values, setFieldValue, isSubmitting }) => {
-            // ✅ watch English field & auto-translate
+            // Watch English field & auto-translate
             useEffect(() => {
               if (values.nameEnglish) {
                 triggerTranslate(values.nameEnglish, setFieldValue);
@@ -177,7 +183,7 @@ const AddRawMaterial = ({
 
             return (
               <Form className="space-y-6">
-                {/* ✅ Name fields in 1 row (3 columns) */}
+                {/* Name fields in 1 row (3 columns) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <InputWithIcon
                     label={
@@ -208,9 +214,20 @@ const AddRawMaterial = ({
                   />
                 </div>
 
-                {/* ✅ Rest in 2-column grid */}
+                {/* Sequence field */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Type */}
+                  <InputWithIcon
+                    label={
+                      <FormattedMessage
+                        id="COMMON.SEQUENCE"
+                        defaultMessage="Sequence"
+                      />
+                    }
+                    name="sequence"
+                    type="number"
+                  />
+
+                  {/* Type field with Add button */}
                   <div>
                     <label className="block text-gray-600 font-medium mb-1">
                       <FormattedMessage
@@ -219,48 +236,58 @@ const AddRawMaterial = ({
                       />{" "}
                       <span className="text-red-500">*</span>
                     </label>
-                    <RawMaterialDropdown
-                      value={values.rawMaterialCatTypeId}
-                      onChange={(val) =>
-                        setFieldValue("rawMaterialCatTypeId", val)
-                      }
-                      options={options}
-                      createBtn={true}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    />
+
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <RawMaterialDropdown
+                          value={values.rawMaterialCatTypeId}
+                          onChange={(val) =>
+                            setFieldValue("rawMaterialCatTypeId", val)
+                          }
+                          options={options}
+                          createBtn={true}
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRawCategory(null);
+                          setIsRawModalOpen(true);
+                        }}
+                        className="px-2 py-3 bg-primary text-white  rounded-full hover:bg-primary-dark flex items-center gap-1"
+                        title="Add Raw Material Type"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
+
                     <ErrorMessage
                       name="rawMaterialCatTypeId"
                       component="div"
                       className="text-red-500 text-sm mt-1"
                     />
                   </div>
+                </div>
 
-                  {/* Sequence */}
-                  <InputWithIcon
-                    label={
-                      <FormattedMessage
-                        id="USER.MASTER.SEQUENCE"
-                        defaultMessage="Sequence"
-                      />
-                    }
-                    name="sequence"
-                    type="number"
-                  />
-
-                  {/* Checkbox full row */}
-                  <div className="flex items-center gap-2 mt-2 col-span-2">
-                    <Checkbox
-                      checked={values.isDirect}
-                      onChange={(e) =>
-                        setFieldValue("isDirect", e.target.checked)
-                      }
-                    >
-                      <FormattedMessage
-                        id="USER.MASTER.IS_DIRECT"
-                        defaultMessage="Direct Order"
-                      />
-                    </Checkbox>
-                  </div>
+                {/* isDirect Checkbox */}
+                <div className="flex items-center gap-2">
+                  <Field name="isDirect">
+                    {({ field }) => (
+                      <Checkbox
+                        checked={field.value}
+                        onChange={(e) =>
+                          setFieldValue("isDirect", e.target.checked)
+                        }
+                      >
+                        <FormattedMessage
+                          id="USER.MASTER.IS_DIRECT"
+                          defaultMessage="Is Direct"
+                        />
+                      </Checkbox>
+                    )}
+                  </Field>
                 </div>
 
                 {/* Buttons */}
@@ -297,6 +324,14 @@ const AddRawMaterial = ({
             );
           }}
         </Formik>
+
+        {/* Add Raw Material Type Modal */}
+        <AddRawMaterialType
+          isOpen={isRawModalOpen}
+          onClose={() => setIsRawModalOpen(false)}
+          refreshData={FetchRawTypeCategory}
+          rawdata={selectedRawCategory}
+        />
       </div>
     </div>
   );

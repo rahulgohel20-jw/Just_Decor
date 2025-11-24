@@ -50,4 +50,3 @@ export const useAutoTranslation = () => {
 
   return { translate };
 };
-

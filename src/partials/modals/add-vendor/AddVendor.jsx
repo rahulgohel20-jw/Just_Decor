@@ -361,7 +361,7 @@ const AddVendor = ({
             {formData.id ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_CUSTOMER"
-                defaultMessage="edit Vendor"
+                defaultMessage="Edit Vendor"
               />
             ) : (
               <FormattedMessage
@@ -736,6 +736,7 @@ const AddVendor = ({
         isOpen={isconatctModalOpen}
         onClose={setIsContactModalOpen}
         refreshData={fetchCategories}
+        excludeCustomerType={true}
       />
     </div>
   );

@@ -9,6 +9,7 @@ const ItemRawmaterial = ({
   setIsModalOpen,
   refreshData = () => {},
   selectedEvent,
+  existingRawMaterials = [], // Add this prop to receive existing raw materials
 }) => {
   const initialFormState = {
     rawMaterial: "",
@@ -91,13 +92,45 @@ const ItemRawmaterial = ({
       );
       const selectedUnit = unitOptions.find((u) => u.name === formData.unit);
 
+      // Check for duplicate raw material (skip check if editing)
+      if (!selectedEvent) {
+        const isDuplicate = existingRawMaterials.some(
+          (existing) => existing.name === formData.rawMaterial
+        );
+
+        if (isDuplicate) {
+          // Set error instead of showing SweetAlert
+          setErrors((prev) => ({
+            ...prev,
+            rawMaterial: `${formData.rawMaterial} has already been added. Please select a different raw material.`,
+          }));
+          return;
+        }
+      } else {
+        // If editing, check if the new selection is different and already exists
+        const isDuplicate = existingRawMaterials.some(
+          (existing) =>
+            existing.name === formData.rawMaterial &&
+            existing.id !== selectedEvent.id
+        );
+
+        if (isDuplicate) {
+          // Set error instead of showing SweetAlert
+          setErrors((prev) => ({
+            ...prev,
+            rawMaterial: `${formData.rawMaterial} has already been added. Please select a different raw material.`,
+          }));
+          return;
+        }
+      }
+
       const weightNum = Number(formData.weight);
       const rateNum = selectedMaterial?.rate || 0;
 
       const totalRate = weightNum * rateNum;
 
       const newRow = {
-        id: Date.now(),
+        id: selectedEvent?.id || Date.now(),
         rawMaterialId: selectedMaterial.id,
         name: formData.rawMaterial,
         weight: weightNum,
@@ -109,7 +142,9 @@ const ItemRawmaterial = ({
       Swal.fire({
         icon: "success",
         title: "Saved!",
-        text: `Raw Material ${formData.rawMaterial} added successfully!`,
+        text: `Raw Material ${formData.rawMaterial} ${
+          selectedEvent ? "updated" : "added"
+        } successfully!`,
       });
 
       refreshData(newRow);
