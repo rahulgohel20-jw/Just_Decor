@@ -57,8 +57,10 @@ const FunctionsStep = ({ formData, setFormData }) => {
       rate: "",
       raw_material_time: null,
       address: "",
+      venueName: formData?.venueName || "", // ✅ Default event venue
       notes: "",
     };
+
     setFormData({
       ...formData,
       eventFunction: [...(formData.eventFunction || []), newFunction],
