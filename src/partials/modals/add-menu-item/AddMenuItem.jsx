@@ -1134,6 +1134,7 @@ const AddMenuItem = ({
         isModalOpen={isItemModalOpen}
         setIsModalOpen={setIsItemModalOpen}
         selectedEvent={editingRow}
+        existingRawMaterials={tableData} // Pass the current table data
         refreshData={(updatedRow) => {
           if (editingRow) {
             setTableData((prev) =>

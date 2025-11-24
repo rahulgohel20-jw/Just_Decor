@@ -35,9 +35,8 @@ const Priceplan = () => {
   const [loading, setLoading] = useState(false);
   const { translate } = useAutoTranslation();
   const [translatedPlans, setTranslatedPlans] = useState([]);
-  const [language, setLanguage] = useState("en");
+  const { language } = useLanguage();
 
-  // user states
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [underVerification, setUnderVerification] = useState(false);
@@ -66,6 +65,16 @@ const Priceplan = () => {
     };
     loadLabels();
   }, []);
+
+  useEffect(() => {
+    const loadLabels = async () => {
+      setLabels({
+        quarterly: await translate("Quarterly"),
+        annually: await translate("Annually"),
+      });
+    };
+    loadLabels();
+  }, [language]); // <-- ADD LANGUAGE HERE
 
   useEffect(() => {
     if (!token) return;
@@ -275,7 +284,7 @@ const Priceplan = () => {
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-10">
-        {(underVerification || (user && !user.isApprove)) && (
+        {underVerification && user && !user.isApprove && (
           <div className="relative bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-6 rounded-b-xl overflow-hidden">
             <div className="flex items-start gap-3 relative ">
               <p className="sm:text-base">
@@ -323,6 +332,7 @@ const Priceplan = () => {
         </div>
       ) : (
         <div
+          key={language}
           className={`grid gap-8 md:gap-6 items-stretch ${
             orderedPlans.filter((plan) => plan.id !== 5).length === 1
               ? "grid-cols-1 max-w-lg mx-auto"
