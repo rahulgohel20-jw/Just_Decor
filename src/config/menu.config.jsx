@@ -8,7 +8,7 @@ const getUserData = async () => {
 
     const response = await getUserById(userId);
     if (response?.data?.success) {
-      return response.data.data;
+      return response.data.data["User Details"][0];
     }
     return null;
   } catch (error) {
@@ -432,25 +432,35 @@ const superAdminMenuItems = [
 // Main function to get menu
 export const getMenuSidebar = async () => {
   const userData = await getUserData();
+
   const userRoleId = userData?.userBasicDetails?.role?.id || null;
+  console.log(userRoleId);
 
   const userPlan = userData?.plan || null;
   const isApproved = userData?.isApprove === true;
 
   const isSuperAdmin = userRoleId === 1;
-  const isNormalUser = userRoleId === 2;
+  const isNormalUser = userRoleId >= 2;
   const hasNoPlan = !userPlan;
 
-  if (isSuperAdmin) return superAdminMenuItems;
-
-  if (isNormalUser && (hasNoPlan || !isApproved)) {
-    return disableMenuItems(allMenuItems);
+  // Super Admin => Full admin menu
+  if (isSuperAdmin) {
+    return superAdminMenuItems;
   }
 
-  return superAdminMenuItems;
+  // Normal user => check plan + approval
+  if (isNormalUser) {
+    if (hasNoPlan || !isApproved) {
+      return disableMenuItems(allMenuItems);
+    }
+    return allMenuItems;
+  }
+
+  // Default fallback => locked
+  return disableMenuItems(allMenuItems);
 };
 
-export const MENU_SIDEBAR = getMenuSidebar();
+export const MENU_SIDEBAR = getMenuSidebar;
 
 export const MENU_MEGA = [
   {
