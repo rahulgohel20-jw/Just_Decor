@@ -53,7 +53,6 @@ export const GetAllCustomer = (Id) => {
   return GET(`/partymaster/getallbyuserid?userId=${Id}`);
 };
 
-
 //get customer by id by cat id
 export const GetPartyMasterByCatId = (catTypeId, userId) => {
   return GET(
@@ -771,6 +770,12 @@ export const GetAllInvoice = (id) => {
   return GET(`/invoice/getallbyfilter?userid=${id}`);
 };
 
+export const GetAllInvoicedatabyfilter = (enddate, startdate, id) => {
+  return GET(
+    `/invoice/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+  );
+};
+
 export const GeteventInvoicedata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
 };
@@ -908,6 +913,33 @@ export const GetALLMemberDetailsByID = (id) => {
 export const GetVenueType = (id) => {
   return GET(`/venuemaster/getallbyuser?userId=${id}`);
 };
+
+export const GetClientwisedashboardata = (id) => {
+  return GET(`/dashboard/admin/userWiseDashboardData?userId=${id}`);
+};
+export const GetClientdashboardsalesdata = (date, useriD) => {
+  return GET(
+    `/dashboard/admin/userWiseDashboardPieChart1?dateString=${date}&userId=${useriD}`
+  );
+};
+
+export const GetClientdashboardinvoicedata = (date, useriD) => {
+  return GET(
+    `/dashboard/admin/userWiseEventQuotationPieChart3?dateString=${date}&userId=${useriD}`
+  );
+};
+export const GetClientdashboardquotationdata = (date, useriD) => {
+  return GET(
+    `/dashboard/admin/userWiseSalesInvoicePieChart2?dateString=${date}&userId=${useriD}`
+  );
+};
+
+export const GetClienteventdata = (startdate, enddate, useriD) => {
+  return GET(
+    `/dashboard/admin/getEventsByUserAndDate?endDate=${startdate}&startDate=${enddate}&userId=${useriD}`
+  );
+};
+
 export const AddVenueTypeApi = (data) => {
   return POST(`/venuemaster/add`, data);
 };
@@ -936,7 +968,6 @@ export const TranslateHindi = (data) => {
 export const deleteRawmatrialcatidInmenuitem = (id) => {
   return DELETE(`/menuitems/deleteitemrawmaterialbyid?id=${id}`);
 };
-
 
 export const deleteFunction = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
