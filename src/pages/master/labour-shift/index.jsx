@@ -22,8 +22,7 @@ const Labourshiftmaster = () => {
   const [originalData, setOriginalData] = useState([]); // unfiltered API data
   const [searchQuery, setSearchQuery] = useState("");
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const Id = userData?.id;
+  const Id = localStorage.getItem("userId");
 
   // --------------------------
   // 🔥 Get translated field

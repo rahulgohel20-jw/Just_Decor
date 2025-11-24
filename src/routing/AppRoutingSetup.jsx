@@ -85,7 +85,7 @@ import { ProductListDetail, ProductListPage } from "@/pages/product";
 import { ContactDetail, ContactListPage } from "@/pages/contact";
 import { LinkList } from "@/pages/link";
 import { CompanyListPage, CompanyDetails } from "@/pages/company";
-import { SalesTeamList, UserRoleList, MemberList } from "@/pages/team";
+import { SalesTeamList, MemberList } from "@/pages/team";
 import {
   NotificationsSettingsPage,
   GeneralSettingsPage,
@@ -126,7 +126,6 @@ import Leavedashboard from "@/pages/Leave/dashboard/Leavedashboard";
 import CalendarPage from "@/pages/Event/CalendarPage";
 import CreateEventPage from "@/pages/Event/CreateEventPage";
 import EventListPage from "@/pages/Event/EventListPage";
-import EventPreparationPage from "@/pages/Event/EventPreparationPage";
 import EventPlanningPage from "../pages/Event/EventPlanningPage";
 import EventMenuAllocationPage from "@/pages/Event/EventMenuAllocationPage";
 import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
@@ -187,6 +186,7 @@ import SuperAdminMemberEdit from "../pages/superadminmember/SuperAdminMemberEdit
 import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
 import VenuetypeMaster from "../pages/master/Venue-type";
+import VendorMaster from "../pages/master/vendor-master";
 
 const AppRoutingSetup = () => {
   return (
@@ -213,7 +213,6 @@ const AppRoutingSetup = () => {
           <Route path="/product" element={<ProductListPage />}></Route>
           <Route path="/product/detail" element={<ProductListDetail />}></Route>
           <Route path="/team/seals-team" element={<SalesTeamList />} />
-          <Route path="/team/user-role" element={<UserRoleList />} />
           <Route path="/team/all-members" element={<MemberList />} />
           <Route path="/database" element={<Database />} />
           {/* event management routes */}
@@ -233,16 +232,12 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="copy" />}
           />
           <Route path="/menu-preparation" element={<EventPlanningPage />} />
-          <Route path="/menu-preparations" element={<EventPreparationPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
-          <Route
-            path="/menu-preparations/:eventId"
-            element={<EventPreparationPage mode="menu" />}
-          />
+
           <Route
             path="/menu-preparation/:eventId"
             element={<EventPlanningPage mode="menu" />}
@@ -306,6 +301,7 @@ const AppRoutingSetup = () => {
           />
           {/* Masters */}
           <Route path="/master/customers" element={<CustomerMaster />} />
+          <Route path="/master/vendor-master" element={<VendorMaster />} />
           <Route
             path="/master/raw-material-master"
             element={<RawMaterialMaster />}

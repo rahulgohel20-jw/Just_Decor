@@ -153,17 +153,31 @@ const LabourOtherManagementPage = () => {
     const fetchContactCategories = async () => {
       if (!userId) return;
 
+      console.log("🔍 Fetch triggered with userId:", userId);
+
       try {
         const res = await GetAllContactCategory(userId);
+
+        console.log("📦 Full API Response:", res);
+
         const allCategories =
           res?.data?.data?.["Contact Category Details"] || [];
-        const labour = allCategories.filter(
-          (cat) =>
-            cat?.contactType?.nameEnglish?.trim()?.toLowerCase() === LABOUR_TYPE
-        );
+
+        console.log("📄 Extracted Categories:", allCategories);
+
+        const labour = allCategories.filter((cat) => {
+          const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
+          console.log(
+            `➡ Checking Category: ${cat?.nameEnglish} | Contact Type: ${typeName}`
+          );
+          return typeName === LABOUR_TYPE;
+        });
+
+        console.log("✅ Filtered Labour Categories:", labour);
+
         setLabourCategories(labour);
       } catch (error) {
-        console.error("Error fetching contact categories:", error);
+        console.error("❌ Error fetching contact categories:", error);
       }
     };
 
@@ -190,7 +204,14 @@ const LabourOtherManagementPage = () => {
 
     fetchContacts();
   }, [labourCategories, userId]);
-
+  // Add this useEffect after setting labourCategories
+  useEffect(() => {
+    console.log("🎯 Labour Type Dropdown Options:", labourCategories);
+    console.log(
+      "🎯 Labour Type Names:",
+      labourCategories.map((cat) => cat.nameEnglish)
+    );
+  }, [labourCategories]);
   useEffect(() => {
     const fetchEventData = async () => {
       if (!eventId) return;
@@ -838,6 +859,7 @@ const LabourRow = ({
   <tr className="border-t">
     <td className="text-center !px-[3px]">{index + 1}.</td>
     <td className="!px-[3px]">
+      {console.log("🔽 Dropdown Labour Categories:", labourCategories)}
       <Select
         className="custom-select-sm"
         showSearch
@@ -846,11 +868,19 @@ const LabourRow = ({
         onChange={(value) => onLabourTypeChange(row.id, value)}
         style={{ width: "100%" }}
       >
-        {labourCategories.map((item) => (
-          <Select.Option key={item.id} value={item.nameEnglish}>
-            {item.nameEnglish}
-          </Select.Option>
-        ))}
+        {labourCategories.map((item) => {
+          console.log(
+            "📌 Option:",
+            item.nameEnglish,
+            "| Contact Type:",
+            item?.contactType?.nameEnglish
+          );
+          return (
+            <Select.Option key={item.id} value={item.nameEnglish}>
+              {item.nameEnglish}
+            </Select.Option>
+          );
+        })}
       </Select>
     </td>
     <td className="!px-[3px]">

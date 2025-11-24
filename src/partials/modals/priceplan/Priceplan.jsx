@@ -54,10 +54,8 @@ const Priceplan = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const stored =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("userData") || "null")
-      : null;
-  const token = stored?.token;
+    typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+  const token = stored;
 
   useEffect(() => {
     const loadLabels = async () => {
@@ -318,13 +316,6 @@ const Priceplan = () => {
           </div>
         </div>
       </div>
-
-      {console.log(
-        "paymentData.amount",
-        paymentData.amount,
-        "user?.isApprove",
-        user?.isApprove
-      )}
 
       {loading ? (
         <div className="flex justify-center py-10">

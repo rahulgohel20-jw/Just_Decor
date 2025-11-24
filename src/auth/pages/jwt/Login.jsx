@@ -8,7 +8,7 @@ import { KeenIcon } from "@/components";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
-
+import PlanExpire from "../../../partials/modals/planExpire/PlanExpire";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Wrong email format")
@@ -32,6 +32,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthContext();
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState(null);
   const { currentLayout } = useLayout();
@@ -46,8 +47,10 @@ const Login = () => {
 
       try {
         const auth = await login(values.email, values.password);
+        console.log(auth, "auth");
 
-        const userId = auth?.user?.id;
+        const userId = auth?.userId;
+
         if (!userId) throw new Error("User ID not found after login.");
 
         const userResponse = await FetchAllUser(userId);
@@ -63,21 +66,27 @@ const Login = () => {
           console.log("Full API response:", userResponse);
           throw new Error("Failed to fetch user details.");
         }
+        window.history.pushState(null, "", "/justcaterings/auth/login");
+        window.history.replaceState(null, "", "/justcaterings/auth/login");
 
         const userDetails = userData["User Details"][0];
 
         const roleId = Number(userDetails?.userBasicDetails?.role?.id);
         const userPlan = userDetails?.userPlan?.plan ?? null;
+        const plan = userDetails?.plan ?? null;
         const isApprove = userDetails?.isApprove;
+
+        console.log(plan);
 
         console.log("Role ID:", roleId);
         console.log("User Plan:", userPlan);
         console.log("Approved:", isApprove);
 
         if (roleId === 1) {
-          // Admin
+          // 🧑‍💼 Super Admin
           navigate("/super-dashboard", { replace: true });
         } else if (roleId === 2) {
+          // 🧑‍💻 Admin
           const hasValidPlan =
             userPlan &&
             userPlan !== "" &&
@@ -86,16 +95,22 @@ const Login = () => {
               ? Object.keys(userPlan).length > 0
               : true);
 
-          if (!hasValidPlan) {
+          if (!hasValidPlan || isApprove === false) {
             navigate("/price", { replace: true });
-          } else if (hasValidPlan && isApprove === false) {
-            navigate("/price", { replace: true });
+          } else {
+            navigate("/", { replace: true });
           }
-          // 🧩 Condition 3: Has plan and approved → go to dashboard/home
-          else {
+        } else if (roleId > 2) {
+          // 👥 Other roles: Manager, Team, etc.
+          const hasValidPlan = plan !== "null";
+          if (!hasValidPlan) {
+            setModalOpen(true);
+            return;
+          } else {
             navigate("/", { replace: true });
           }
         } else {
+          // Default redirect for unknown roles
           navigate("/", { replace: true });
         }
       } catch (error) {
@@ -260,6 +275,7 @@ const Login = () => {
           </Link>
         </div>
       </form>
+      <PlanExpire open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 };

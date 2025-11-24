@@ -85,16 +85,16 @@ const AddVenueType = ({
       return;
     }
 
-    let userData;
+    let userId;
     try {
-      userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userId = localStorage.getItem("userId");
     } catch (e) {
-      console.error("Failed to parse userData:", e);
+      console.error("Failed to parse userID:", e);
       Swal.fire("Error", "Invalid user session", "error");
       return;
     }
 
-    if (!userData?.id) {
+    if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
       return;
     }
@@ -103,7 +103,7 @@ const AddVenueType = ({
       nameEnglish: formData.nameEnglish.trim(),
       nameGujarati: formData.nameGujarati?.trim() || "",
       nameHindi: formData.nameHindi?.trim() || "",
-      userId: parseInt(userData.id, 10),
+      userId: userId,
     };
 
     console.log("Final Payload Sent to API:", payload);

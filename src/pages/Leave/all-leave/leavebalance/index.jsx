@@ -8,11 +8,6 @@ const LeaveBalanceTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleEdit = (userData) => {
-    setSelectedUser(userData);
-    setIsModalOpen(true);
-  };
-
   const columnsWithActions = [
     ...leaveBalanceColumns.filter((col) => col.accessorKey !== "actions"),
     {
@@ -25,7 +20,6 @@ const LeaveBalanceTable = () => {
             title="Edit"
             onClick={(e) => {
               e.stopPropagation(); // Prevent row selection
-              handleEdit(row.original);
             }}
           >
             <i className="ki-filled ki-notepad-edit text-primary"></i>

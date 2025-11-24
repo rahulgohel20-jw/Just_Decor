@@ -26,8 +26,7 @@ const MenuItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData?.id;
+  let Id = localStorage.getItem("userId");
 
   useEffect(() => {
     FetchMenuItems(currentPage);

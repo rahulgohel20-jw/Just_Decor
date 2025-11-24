@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { ClockCircleOutlined, LoginOutlined, LogoutOutlined, ReloadOutlined } from "@ant-design/icons";
-import { GetUserlogs } from "@/services/apiServices";
+import {
+  ClockCircleOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import { GetUserlogs, getUserById } from "@/services/apiServices";
 import { Spin, Empty, message } from "antd";
 import dayjs from "dayjs";
 
@@ -17,23 +22,23 @@ export default function Log() {
   const fetchUserLogs = async () => {
     try {
       setLoading(true);
-      
+
       // Get user email from localStorage
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
+      const userid = localStorage.getItem("userId");
+      const res = await getUserById(userid);
+
+      const email = res.data.data["User Details"][0].email;
+
+      if (!email) {
         message.error("User not found");
         return;
       }
-      
-      const user = JSON.parse(userData);
-      const userEmail = user.email;
 
-      const response = await GetUserlogs(userEmail);
-      console.log("log",response.data.data)
-      
+      const response = await GetUserlogs(email);
+
       if (response?.data?.success) {
         const apiLogs = response.data.data;
-        
+
         // Transform API logs to match component format
         const formattedLogs = apiLogs.map((log) => ({
           id: log.id,
@@ -44,13 +49,14 @@ export default function Log() {
           ipAddress: log.ipAddress,
           user: log.user,
           isActive: log.isActive,
-          highlight: log.eventType === "logout" || log.eventType === "AUTO-LOGOUT",
+          highlight:
+            log.eventType === "logout" || log.eventType === "AUTO-LOGOUT",
           createAt: log.createAt, // Keep original timestamp for sorting
         }));
 
         // Sort logs in descending order (newest first)
-        const sortedLogs = formattedLogs.sort((a, b) => 
-          new Date(b.createAt) - new Date(a.createAt)
+        const sortedLogs = formattedLogs.sort(
+          (a, b) => new Date(b.createAt) - new Date(a.createAt)
         );
 
         setLogs(sortedLogs);
@@ -81,17 +87,14 @@ export default function Log() {
   const getEventColor = (eventType, highlight) => {
     if (highlight) return "border-red-500 text-red-500";
     if (eventType === "login") return "border-green-500 text-green-500";
-    if (eventType === "logout" || eventType === "AUTO-LOGOUT") return "border-red-500 text-red-500";
+    if (eventType === "logout" || eventType === "AUTO-LOGOUT")
+      return "border-red-500 text-red-500";
     return "border-[#28375F] text-[#28375F]";
   };
 
   return (
     <Container>
-      
-
       <div className="bg-white rounded-md border border-gray-200 shadow-sm">
-        
-
         {/* Timeline section */}
         <div className="relative pl-9 py-6">
           {loading ? (
@@ -118,7 +121,9 @@ export default function Log() {
                   )}`}
                 >
                   {typeof getEventIcon(log.eventType) === "string" ? (
-                    <span className="text-lg">{getEventIcon(log.eventType)}</span>
+                    <span className="text-lg">
+                      {getEventIcon(log.eventType)}
+                    </span>
                   ) : (
                     getEventIcon(log.eventType)
                   )}
@@ -135,10 +140,10 @@ export default function Log() {
                         log.eventType === "login"
                           ? "bg-green-100 text-green-700"
                           : log.eventType === "logout"
-                          ? "bg-red-100 text-red-700"
-                          : log.eventType === "auto-logout"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-gray-100 text-gray-700"
+                            ? "bg-red-100 text-red-700"
+                            : log.eventType === "auto-logout"
+                              ? "bg-orange-100 text-orange-700"
+                              : "bg-gray-100 text-gray-700"
                       }`}
                     >
                       {log.eventType}
@@ -146,10 +151,12 @@ export default function Log() {
                   </div>
                   <p
                     className={`text-sm ${
-                      log.highlight ? "text-red-600 font-medium" : "text-gray-700"
+                      log.highlight
+                        ? "text-red-600 font-medium"
+                        : "text-gray-700"
                     }`}
                   >
-                    {log.description }
+                    {log.description}
                   </p>
                   {log.ipAddress && (
                     <p className="text-sm font-semibold text-green-700 mt-1">
@@ -157,9 +164,7 @@ export default function Log() {
                     </p>
                   )}
                   {log.user && (
-                    <p className="text-sm text-gray-800">
-                      User: {log.user}
-                    </p>
+                    <p className="text-sm text-gray-800">User: {log.user}</p>
                   )}
                 </div>
               </div>

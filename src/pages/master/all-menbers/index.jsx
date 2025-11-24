@@ -21,8 +21,7 @@ const AllMemberMaster = () => {
 
   const intl = useIntl(); // ✅ fixed
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const Id = userData?.id;
+  const Id = localStorage.getItem("userId");
 
   useEffect(() => {
     FetchMembers();
@@ -39,17 +38,19 @@ const AllMemberMaster = () => {
             sr_no: index + 1,
             email: member.email || "-",
             full_name:
-              `${member.firstName || ""} ${member.lastName || ""}`.trim() || "-",
+              `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
+              "-",
             memberid: member.id,
             country: member["userBasicDetails"]?.country?.name || "-",
             contact: member.contactNo || "-",
             role: member["userBasicDetails"]?.role?.name || "-",
-            task_access:
-              member["userBasicDetails"]?.isTaskAccess ? "Yes" : "No",
-            leave_attendence_access:
-              member["userBasicDetails"]?.isAttendanceLeaveAccess
-                ? "Yes"
-                : "No",
+            task_access: member["userBasicDetails"]?.isTaskAccess
+              ? "Yes"
+              : "No",
+            leave_attendence_access: member["userBasicDetails"]
+              ?.isAttendanceLeaveAccess
+              ? "Yes"
+              : "No",
             city: member["userBasicDetails"]?.city?.name || "-",
             state: member["userBasicDetails"]?.state?.name || "-",
             companyEmail: member["userBasicDetails"]?.companyEmail || "-",

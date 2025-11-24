@@ -24,8 +24,7 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
     const fetchAgencies = async () => {
       setLoading(true);
       try {
-        const storedUser = JSON.parse(localStorage.getItem("userData"));
-        const userId = storedUser?.id;
+        const userId = localStorage.getItem("userId");
         const response = await GetAllSupllierVendors(userId);
         if (response?.data?.data?.["Party Details"]) {
           setAgencies(response?.data?.data?.["Party Details"]);

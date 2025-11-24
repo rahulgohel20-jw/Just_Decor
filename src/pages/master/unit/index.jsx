@@ -40,8 +40,7 @@ const UnitMaster = () => {
     };
   }, []);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   // 🔥 Helper to get unit name based on language
   const getUnitNameByLang = (unit) => {

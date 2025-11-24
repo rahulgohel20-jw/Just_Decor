@@ -1,15 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 
-export default function PaymentSuccess({ open, onClose, approve = false }) {
-  // Auto-close when approved after short delay
-  useEffect(() => {
-    if (approve && onClose) {
-      const timer = setTimeout(() => onClose(), 1000); // 1s delay
-      return () => clearTimeout(timer);
-    }
-  }, [approve, onClose]);
-
+export default function PlanExpire({ open, onClose }) {
   return (
     <AnimatePresence>
       {open && (
@@ -32,11 +24,10 @@ export default function PaymentSuccess({ open, onClose, approve = false }) {
           >
             <div className="px-8 py-12 text-center">
               {/* Top Message */}
-              {!approve && (
-                <p className="text-sm text-[#005BA8] font-medium mb-4">
-                  Please wait until admin verifies your submission
-                </p>
-              )}
+
+              <p className="text-sm text-[#005BA8] font-medium mb-4">
+                Please Contact your admin
+              </p>
 
               {/* Animated Success Icon */}
               <div className="relative mb-8 flex justify-center">
@@ -86,7 +77,7 @@ export default function PaymentSuccess({ open, onClose, approve = false }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
-                Payment Successful
+                OOPS!
               </motion.h2>
 
               <motion.div
@@ -96,39 +87,12 @@ export default function PaymentSuccess({ open, onClose, approve = false }) {
                 transition={{ delay: 1 }}
               >
                 <p className="text-gray-600 text-base leading-relaxed">
-                  Thank you for your submission. Your request is under review by
-                  our admin.
+                  Something Went Wrong
                 </p>
                 <p className="text-gray-600 text-base leading-relaxed">
-                  We will contact you once verified.
-                </p>
-                <p className="text-gray-500 text-sm mt-4">
-                  For any questions, reach us at:{" "}
-                  <a
-                    href="tel:000-000-0000"
-                    className="font-semibold text-gray-700 hover:underline"
-                  >
-                    +91 8866889580
-                  </a>
+                  Contact your admin.
                 </p>
               </motion.div>
-
-              <motion.button
-                onClick={() => approve && onClose()}
-                disabled={!approve}
-                className={`font-semibold text-lg py-3 px-12 rounded-lg transition-colors ${
-                  approve
-                    ? "bg-white text-[#005BA8] hover:bg-red-50"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 }}
-                whileHover={approve ? { scale: 1.02 } : {}}
-                whileTap={approve ? { scale: 0.98 } : {}}
-              >
-                {approve ? "OK" : "Waiting for approval..."}
-              </motion.button>
             </div>
           </motion.div>
         </div>

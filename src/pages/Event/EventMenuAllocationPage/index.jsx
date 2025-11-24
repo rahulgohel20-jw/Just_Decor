@@ -782,8 +782,7 @@ const EventMenuAllocationPage = () => {
   }
   const handleMainSave = async () => {
     try {
-      let userData = JSON.parse(localStorage.getItem("userData"));
-      let Id = userData.id;
+      let Id = localStorage.getItem("userId");
 
       const payload = rows.map((r) => {
         const outsideAllocations =

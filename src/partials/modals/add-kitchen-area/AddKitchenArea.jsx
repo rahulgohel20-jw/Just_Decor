@@ -103,13 +103,13 @@ const AddKitchenAreaModal = ({
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
 
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = JSON.parse(localStorage.getItem("userId"));
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...formData, userId: userData.id };
+      const payload = { ...formData, userId: Id };
 
       if (selectedMenuCategory) {
         await UpdateKitchenArea(selectedMenuCategory.id, payload);
@@ -141,7 +141,7 @@ const AddKitchenAreaModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">

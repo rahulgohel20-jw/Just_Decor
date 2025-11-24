@@ -11,7 +11,7 @@ import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage } from "react-intl";
 
-const AddCustomer = ({
+const AddVendor = ({
   isModalOpen,
   setIsModalOpen,
   selectedCustomer,
@@ -92,7 +92,7 @@ const AddCustomer = ({
     }
   }, []);
 
-  const Id = localStorage.getItem("userId");
+  const userData = localStorage.getItem("userId");
   const triggerTranslate = (text, fieldType) => {
     if (!text?.trim()) return;
 
@@ -178,12 +178,12 @@ const AddCustomer = ({
     try {
       const {
         data: { data },
-      } = await GetAllContactCategory(Id);
+      } = await GetAllContactCategory(userData);
 
-      // Filter to show ONLY Customer type (contactType.id === 2)
+      // Filter out Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
       const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id === 2;
+        return cat.contactType?.id !== 2;
       });
 
       setCategories(filteredCategories);
@@ -259,13 +259,13 @@ const AddCustomer = ({
 
     setIsLoading(true);
     try {
-      if (!Id) {
+      if (!userData) {
         throw new Error("User data not found");
       }
 
       const payload = {
         ...formData,
-        userId: Id,
+        userId: userData,
         bdate: formatDateToDDMMYYYY(formData.bdate),
       };
 
@@ -361,12 +361,12 @@ const AddCustomer = ({
             {formData.id ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_CUSTOMER"
-                defaultMessage="Edit Customer"
+                defaultMessage="edit Vendor"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CUSTOMER"
-                defaultMessage="New Customer"
+                defaultMessage="New Vendor"
               />
             )}
           </h2>
@@ -773,4 +773,4 @@ const InputSimple = ({
   </div>
 );
 
-export default AddCustomer;
+export default AddVendor;

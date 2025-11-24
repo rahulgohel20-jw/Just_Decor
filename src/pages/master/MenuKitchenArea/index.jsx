@@ -25,8 +25,7 @@ const MenuKitchenArea = () => {
     FetchCategoryData();
   }, [searchQuery]);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   const FetchCategoryData = async () => {
     try {

@@ -328,12 +328,7 @@ const AddInvoicePage = () => {
   }
 
   const handleSaveInvoice = async () => {
-    const userDataString = localStorage.getItem("userData");
-    const userData = JSON.parse(userDataString);
-    const UserId = userData.id;
-
-    console.log(UserId);
-    console.log("User Data:", userData);
+    const UserId = localStorage.getItem("userId");
 
     try {
       // Helper function to format date as DD/MM/YYYY hh:mm A
@@ -485,10 +480,10 @@ const AddInvoicePage = () => {
 
           hideClass: {
             popup: `
-        animate__animated
-        animate__fadeOutUp
-        animate__faster
-      `,
+      animate__animated
+      animate__fadeOutUp
+      animate__faster
+    `,
           },
           customClass: {
             popup: "rounded-2xl shadow-xl",
@@ -496,17 +491,14 @@ const AddInvoicePage = () => {
             confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
           },
         }).then(() => {
-          // After success, update rows to remove isNewRow flag and make them editable
           setRows((prevRows) =>
             prevRows.map((row) => ({
               ...row,
-              isNewRow: false, // Remove the new row flag
-              isCustom: true, // Keep as custom (editable)
-              // If response contains updated data with IDs, update them
+              isNewRow: false,
+              isCustom: true,
             }))
           );
 
-          // Optionally refetch the invoice data to get the latest from backend
           fetchInvoiceData();
         });
       } else {

@@ -27,7 +27,6 @@ const AddMenuSubCategory = ({
   const requiredFields = ["nameEnglish"];
   const [debounceTimer, setDebounceTimer] = useState(null);
 
-
   const intl = useIntl();
 
   useEffect(() => {
@@ -52,13 +51,13 @@ const AddMenuSubCategory = ({
 
   const handleSubmit = () => {
     if (checkErrors()) {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Userid = localStorage.getItem("userId");
+      if (!Userid) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...formData, userId: userData.id };
+      const payload = { ...formData, userId: Userid };
 
       if (editData) {
         editSubCategory(editData.id, payload)
@@ -131,7 +130,19 @@ const AddMenuSubCategory = ({
       open={isModalOpen}
       width={1000}
       onClose={() => setIsModalOpen(false)}
-      title={editData ? <FormattedMessage id="EDIT_MENU_SUB_CATEGORY" defaultMessage="Edit Menu Sub Category" /> : <FormattedMessage id="NEW_MENU_SUB_CATEGORY" defaultMessage="New Menu Sub Category" />}
+      title={
+        editData ? (
+          <FormattedMessage
+            id="EDIT_MENU_SUB_CATEGORY"
+            defaultMessage="Edit Menu Sub Category"
+          />
+        ) : (
+          <FormattedMessage
+            id="NEW_MENU_SUB_CATEGORY"
+            defaultMessage="New Menu Sub Category"
+          />
+        )
+      }
       footer={[
         <div className="flex justify-end" key="footer-buttons">
           <button
@@ -146,7 +157,11 @@ const AddMenuSubCategory = ({
             className="btn-primary text-white px-4 py-2 rounded-md"
             onClick={handleSubmit}
           >
-            {editData ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />}
+            {editData ? (
+              <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
+            ) : (
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+            )}
           </button>
         </div>,
       ]}
@@ -157,7 +172,10 @@ const AddMenuSubCategory = ({
           formData={formData}
           setFormData={setFormData}
           name="name"
-          label={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
+          label={intl.formatMessage({
+            id: "COMMON.NAME",
+            defaultMessage: "Name",
+          })}
           error={errors.nameEnglish}
           required
         />

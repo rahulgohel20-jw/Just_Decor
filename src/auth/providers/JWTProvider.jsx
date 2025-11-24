@@ -1,64 +1,52 @@
 import { createContext, useState, useEffect, useRef } from "react";
-import { LoginUser } from "@/services/apiServices";
+import { LoginUser, getUserById, LoginOutUser } from "@/services/apiServices";
 import * as authHelper from "../_helpers";
-import { LoginOutUser } from "../../services/apiServices";
 import { message } from "antd";
-
-const API_URL = import.meta.env.VITE_APP_API_URL;
-export const REGISTER_URL = `${API_URL}/register`;
-export const FORGOT_PASSWORD_URL = `${API_URL}/forgot-password`;
-export const RESET_PASSWORD_URL = `${API_URL}/reset-password`;
-export const GET_USER_URL = `${API_URL}/user`;
 
 const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [auth, setAuth] = useState(authHelper.getAuth());
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
   const inactivityTimerRef = useRef(null);
 
-  const INACTIVITY_LIMIT = 10 * 60 * 60 * 1000;
+  const INACTIVITY_LIMIT = 10 * 60 * 60 * 1000; // 10 hours
 
   const saveAuth = (auth) => {
     setAuth(auth);
-    if (auth) {
-      authHelper.setAuth(auth);
-    } else {
-      authHelper.removeAuth();
-      localStorage.removeItem("userData");
-      localStorage.removeItem("userToken");
-    }
+    if (auth) authHelper.setAuth(auth);
+    else authHelper.removeAuth();
   };
 
   const verify = async () => {
-    const userToken = localStorage.getItem("userToken");
-    const storedUserData = localStorage.getItem("userData");
+    const token = localStorage.getItem("userToken");
+    const userId = localStorage.getItem("userId");
 
-    if (userToken && storedUserData) {
-      setCurrentUser(JSON.parse(storedUserData));
-    } else {
+    if (!token || !userId) {
       saveAuth(undefined);
       setCurrentUser(undefined);
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const response = await getUserById(userId);
+      if (response?.data?.success) {
+        setCurrentUser(response.data.data);
+      } else {
+        logout();
+      }
+    } catch (error) {
+      console.error("Verify failed:", error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     verify();
-
-    const handleStorageChange = () => {
-      const userToken = localStorage.getItem("userToken");
-      const storedUserData = localStorage.getItem("userData");
-
-      if (!userToken || !storedUserData) {
-        saveAuth(undefined);
-        setCurrentUser(undefined);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const login = async (email, password) => {
@@ -68,52 +56,36 @@ const AuthProvider = ({ children }) => {
       if (response.data.success && response.data.data["User Details"]) {
         const userData = response.data.data["User Details"][0];
 
-        const auth = {
+        const authData = {
+          userId: userData.id,
           access_token: userData.token,
           token_type: userData.tokenType,
           expires_in: userData.expiresIn,
-          user: {
-            id: userData.id,
-            email: userData.email,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            contactNo: userData.contactNo,
-            isActive: userData.isActive,
-            isApprove: userData.isApprove,
-            clientId: userData.clientId,
-            createdAt: userData.createdAt,
-          },
         };
 
-        // ✅ Save auth
-        saveAuth(auth);
-        console.log("email fetch", auth.user.email);
+        saveAuth(authData);
 
-        // ✅ Store user data and token
-        localStorage.setItem("userData", JSON.stringify(userData));
         localStorage.setItem("userToken", userData.token);
         localStorage.setItem("lang", "en");
 
-        try {
-          await LoginOutUser(auth.user.email, "login");
-          message.success("login Successfully");
-        } catch (apiError) {
-          console.error("Failed to send login notification:", apiError);
-          // Continue with logout even if API call fails
-        }
-
-        // ✅ Store userId separately (for easy access later)
-        if (userData.id) {
-          localStorage.setItem("userId", userData.id.toString());
-        }
+        const finalUserId =
+          userData.clientId === 0 || userData.clientId === -1
+            ? userData.id
+            : userData.clientId;
+        localStorage.setItem("userId", finalUserId.toString());
 
         setCurrentUser(userData);
 
-        startInactivityTimer(); // Start inactivity tracking after login
-        return auth;
-      } else {
-        throw new Error("Login failed: Invalid credentials");
+        try {
+          await LoginOutUser(userData.email, "login");
+          message.success("Login Successfully");
+        } catch {}
+
+        startInactivityTimer();
+        return authData;
       }
+
+      throw new Error("Invalid login response");
     } catch (error) {
       saveAuth(undefined);
       setCurrentUser(undefined);
@@ -126,52 +98,25 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    const email = currentUser?.email;
+
+    window.location.href = "/justcaterings/auth/login";
+
     try {
-      // Get user email before clearing localStorage
-      const storedUserData = localStorage.getItem("userData");
-      let userEmail = currentUser?.email;
-
-      // If currentUser is not set, try to get email from localStorage
-      if (!userEmail && storedUserData) {
-        const userData = JSON.parse(storedUserData);
-        userEmail = userData.email;
+      if (email) {
+        await LoginOutUser(email, "logout");
       }
-      console.log("email", userEmail);
-
-      // Call logout API if email exists
-      if (userEmail) {
-        try {
-          await LoginOutUser(userEmail, "logout");
-          console.log("Logout notification sent successfully");
-          message.success("Logout Successfully");
-        } catch (apiError) {
-          console.error("Failed to send logout notification:", apiError);
-          // Continue with logout even if API call fails
-        }
-      }
-
-      // Clear all localStorage items
-      localStorage.removeItem("phone");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("email");
-      localStorage.removeItem("userProfileForm");
-
-      // Clear auth state
-      saveAuth(undefined);
-      setCurrentUser(undefined);
-    } catch (error) {
-      console.error("Error during logout:", error);
-
-      // Force logout even if there's an error
-      localStorage.removeItem("phone");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("email");
-      localStorage.removeItem("userProfileForm");
-      saveAuth(undefined);
-      setCurrentUser(undefined);
+    } catch (err) {
+      console.error("Logout notification failed:", err);
     }
+
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("lang");
+
+    saveAuth(undefined);
+    setCurrentUser(undefined);
+    clearInactivityTimer();
   };
 
   // -------------------------------
@@ -179,62 +124,19 @@ const AuthProvider = ({ children }) => {
   // -------------------------------
   const resetInactivityTimer = () => {
     clearTimeout(inactivityTimerRef.current);
-
-    inactivityTimerRef.current = setTimeout(async () => {
-      console.warn("Auto logout due to inactivity");
-
-      try {
-        // Get user email before logout
-        const storedUserData = localStorage.getItem("userData");
-        let userEmail = currentUser?.email;
-
-        if (!userEmail && storedUserData) {
-          const userData = JSON.parse(storedUserData);
-          userEmail = userData.email;
-        }
-
-        if (userEmail) {
-          try {
-            // 👇 Call the API before logging out
-            await LoginOutUser(userEmail, "auto-logout");
-          } catch (apiError) {
-            console.error("Failed to send auto-logout notification:", apiError);
-          }
-        }
-
-        // ✅ Proceed with regular logout cleanup
-        logout();
-      } catch (err) {
-        console.error("Error during auto logout:", err);
-        logout(); // Force logout anyway
-      }
-    }, INACTIVITY_LIMIT);
+    inactivityTimerRef.current = setTimeout(() => logout(), INACTIVITY_LIMIT);
   };
 
   const startInactivityTimer = () => {
     resetInactivityTimer();
 
-    const activityEvents = [
-      "mousemove",
-      "keydown",
-      "click",
-      "scroll",
-      "touchstart",
-    ];
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    const onActivity = () => resetInactivityTimer();
 
-    const handleUserActivity = () => {
-      resetInactivityTimer();
-    };
+    events.forEach((e) => window.addEventListener(e, onActivity));
 
-    activityEvents.forEach((event) => {
-      window.addEventListener(event, handleUserActivity);
-    });
-
-    // Cleanup when user logs out or component unmounts
     return () => {
-      activityEvents.forEach((event) => {
-        window.removeEventListener(event, handleUserActivity);
-      });
+      events.forEach((e) => window.removeEventListener(e, onActivity));
       clearInactivityTimer();
     };
   };
@@ -246,14 +148,11 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  // Start timer when user is logged in
   useEffect(() => {
     if (currentUser) {
       const cleanup = startInactivityTimer();
       return cleanup;
-    } else {
-      clearInactivityTimer();
-    }
+    } else clearInactivityTimer();
   }, [currentUser]);
 
   return (
@@ -262,12 +161,12 @@ const AuthProvider = ({ children }) => {
         loading,
         setLoading,
         auth,
-        saveAuth,
         currentUser,
         setCurrentUser,
+        saveAuth,
         login,
         logout,
-        verify,
+        verify, // 👈 Still exposed
       }}
     >
       {children}

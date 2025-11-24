@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import { useAuthContext } from "@/auth";
@@ -16,6 +16,7 @@ import {
   MenuArrow,
   MenuIcon,
 } from "@/components/menu";
+import { getUserById } from "@/services/apiServices";
 const DropdownUser = ({ menuItemRef }) => {
   const { settings, storeSettings } = useSettings();
   const { logout } = useAuthContext();
@@ -26,8 +27,25 @@ const DropdownUser = ({ menuItemRef }) => {
       themeMode: newThemeMode,
     });
   };
-  let data = localStorage.getItem("userData");
-  let userdata = JSON.parse(data);
+  const [userdata, setUserData] = useState([]);
+  let Id = localStorage.getItem("userId");
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        if (!Id) return;
+
+        const res = await getUserById(Id);
+        const user = res.data.data["User Details"][0];
+        console.log(user);
+
+        setUserData(user);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUser();
+  }, [Id]);
 
   const buildHeader = () => {
     return (
@@ -39,16 +57,10 @@ const DropdownUser = ({ menuItemRef }) => {
             alt=""
           />
           <div className="flex flex-col gap-1.5">
-            <Link
-              to="/account/hoteme/get-stard"
-              className="text-sm text-gray-800 hover:text-primary font-semibold leading-none"
-            >
+            <Link className="text-sm text-gray-800 hover:text-primary font-semibold leading-none">
               {userdata?.firstName} {userdata?.lastName}
             </Link>
-            <a
-              href="mailto:c.fisher@gmail.com"
-              className="text-xs text-gray-600 hover:text-primary font-medium leading-none"
-            >
+            <a className="text-xs text-gray-600 hover:text-primary font-medium leading-none">
               {userdata?.email}
             </a>
           </div>

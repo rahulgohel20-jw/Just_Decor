@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddRole from "@/partials/modals/add-role/AddRole";
+// import AddRole from "@/partials/modals/add-role/AddRole";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 
@@ -52,12 +52,12 @@ const RoleAndPermission = () => {
         </div>
       </div>
       <TableComponent columns={columns} data={tableData} paginationSize={10} />
-      <AddRole
+      {/* <AddRole
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         isEditMode={isEditMode}
         editData={editData}
-      />
+      /> */}
     </>
   );
 };

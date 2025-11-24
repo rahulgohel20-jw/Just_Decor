@@ -36,9 +36,7 @@ const EventBasicInfoStep = ({
   const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
-  let userData = JSON.parse(localStorage.getItem("userData"));
-
-  let Id = userData.id;
+  let Id = JSON.parse(localStorage.getItem("userId"));
 
   useEffect(() => {
     fetchVenueTypes();

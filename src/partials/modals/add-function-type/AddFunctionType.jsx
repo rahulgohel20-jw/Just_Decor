@@ -43,8 +43,8 @@ const AddFunctionType = ({
     validationSchema,
     onSubmit: async (values) => {
       try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData?.id) {
+        const Id = JSON.parse(localStorage.getItem("userId"));
+        if (!Id) {
           message.error("User not logged in");
           return;
         }
@@ -55,7 +55,7 @@ const AddFunctionType = ({
           nameHindi: values.nameHindi,
           startTime: values.startTime ? values.startTime.format("HH:mm A") : "",
           endTime: values.endTime ? values.endTime.format("HH:mm A") : "",
-          userId: userData.id,
+          userId: Id,
         };
 
         let res;

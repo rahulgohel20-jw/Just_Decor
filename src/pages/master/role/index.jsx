@@ -12,9 +12,6 @@ import { GetAllRole, DeleteRole } from "@/services/apiServices";
 import AddRole from "@/partials/modals/add-role-master/AddRole";
 import { FormattedMessage, useIntl } from "react-intl";
 
-
-
-
 const RoleMaster = () => {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
@@ -61,8 +58,7 @@ const RoleMaster = () => {
 
   const fetchRoles = async (search = "") => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const userId = userData?.id;
+      const userId = localStorage.getItem("userId");
 
       const res = await GetAllRole(userId);
       let roles = res?.data?.data?.["Role Details"] || [];
@@ -115,7 +111,18 @@ const RoleMaster = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="USER.MASTER.ROLE_MASTER" defaultMessage="Role Master" /> }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="USER.MASTER.ROLE_MASTER"
+                    defaultMessage="Role Master"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* Filters */}
@@ -124,7 +131,10 @@ const RoleMaster = () => {
             <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
             <input
               className="input pl-8"
-              placeholder={intl.formatMessage({ id: "USER.MASTER.SEARCH_ROLE", defaultMessage: "Search Role" })}
+              placeholder={intl.formatMessage({
+                id: "USER.MASTER.SEARCH_ROLE",
+                defaultMessage: "Search Role",
+              })}
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -139,18 +149,22 @@ const RoleMaster = () => {
                 setIsRoleModalOpen(true);
               }}
             >
-              <i className="ki-filled ki-plus"></i> <FormattedMessage id="USER.MASTER.ADD_ROLE" defaultMessage="Add Role" />
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="USER.MASTER.ADD_ROLE"
+                defaultMessage="Add Role"
+              />
             </button>
           </div>
         </div>
 
         {/* Modal */}
         <AddRole
-  isModalOpen={isRoleModalOpen}  // ✅ Changed from isOpen
-  setIsModalOpen={setIsRoleModalOpen}  // ✅ Changed from onClose
-  editData={selectedRole}  // ✅ Changed from selectedRole
-  successFunction={fetchRoles}  // ✅ Changed from refreshData
-/>
+          isModalOpen={isRoleModalOpen} // ✅ Changed from isOpen
+          setIsModalOpen={setIsRoleModalOpen} // ✅ Changed from onClose
+          editData={selectedRole} // ✅ Changed from selectedRole
+          successFunction={fetchRoles} // ✅ Changed from refreshData
+        />
 
         {/* Table */}
         <TableComponent

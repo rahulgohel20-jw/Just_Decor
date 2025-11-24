@@ -63,8 +63,7 @@ const EventPlanningPage = () => {
 
   const [itemNotes, setItemNotes] = useState("");
   const [categoryNotes, setCategoryNotes] = useState("");
-  const userDataRaw = localStorage.getItem("userData");
-  const userId = userDataRaw ? JSON.parse(userDataRaw).id : null;
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchEventData = async () => {
