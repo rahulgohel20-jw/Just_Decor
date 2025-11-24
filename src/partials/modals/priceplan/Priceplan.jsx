@@ -271,11 +271,12 @@ const Priceplan = () => {
   };
 
   const userHasPlan = !!user?.plan;
+  console.log("userplan", user);
 
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-10">
-        {(underVerification || (user && !user.isApprove)) && (
+        {underVerification && user && !user.isApprove && (
           <div className="relative bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-6 rounded-b-xl overflow-hidden">
             <div className="flex items-start gap-3 relative ">
               <p className="sm:text-base">

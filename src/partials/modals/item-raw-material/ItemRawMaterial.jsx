@@ -58,7 +58,8 @@ const ItemRawmaterial = ({
       .then((res) => {
         const units = res.data.data["Unit Details"].map((unit) => ({
           id: unit.id,
-          name: unit.nameEnglish || "-",
+          nameEnglish: unit.nameEnglish,
+          symbolEnglish: unit.symbolEnglish,
         }));
         setUnitOptions(units);
       })
@@ -212,11 +213,12 @@ const ItemRawmaterial = ({
               >
                 <option value="">Select Unit</option>
                 {unitOptions.map((unit) => (
-                  <option key={unit.id} value={unit.name}>
-                    {unit.name}
+                  <option key={unit.id} value={unit.id}>
+                    {unit.nameEnglish} ({unit.symbolEnglish})
                   </option>
                 ))}
               </select>
+
               {errors.unit && (
                 <p className="text-red-500 text-sm mt-1">{errors.unit}</p>
               )}

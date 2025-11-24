@@ -447,7 +447,7 @@ export const getMenuSidebar = async () => {
     return disableMenuItems(allMenuItems);
   }
 
-  return allMenuItems;
+  return superAdminMenuItems;
 };
 
 export const MENU_SIDEBAR = getMenuSidebar();

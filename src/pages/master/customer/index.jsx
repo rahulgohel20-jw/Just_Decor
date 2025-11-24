@@ -75,7 +75,7 @@ const CustomerMaster = () => {
         const formatted = data["Party Details"]
           .filter((cust) => {
             const contactTypeId = cust.contact?.contactType?.id;
-            return contactTypeId === 2;
+            return contactTypeId === 4;
           })
           .map((cust, index) => ({
             sr_no: index + 1,
