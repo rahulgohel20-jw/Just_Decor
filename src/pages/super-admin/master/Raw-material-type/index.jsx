@@ -10,10 +10,11 @@ import {
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
-const RawMaterialType = () => {
+const SuperRawMaterialType = () => {
   const [isRawModalOpen, setIsRawModalOpen] = useState(false);
   const [selectedRawCategory, setSelectedRawCategory] = useState(null);
   const [tableData, setTableData] = useState();
@@ -55,7 +56,7 @@ const RawMaterialType = () => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  let userId = 1;
+  let userId = localStorage.getItem("userId");
   let language = localStorage.getItem("lang");
 
   const FetchRawTypeCategory = () => {
@@ -177,8 +178,31 @@ const RawMaterialType = () => {
               />
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setSelectedRawCategory(null);
+                setIsRawModalOpen(true);
+              }}
+              title="Add Contact Category"
+            >
+              <i className="ki-filled ki-plus"></i>{" "}
+              {
+                <FormattedMessage
+                  id="USER.MASTER.ADD_RAW_MATERIAL_TYPE"
+                  defaultMessage="Add Raw Material Type"
+                />
+              }
+            </button>
+          </div>
         </div>
-
+        <AddRawMaterialType
+          isOpen={isRawModalOpen}
+          onClose={setIsRawModalOpen}
+          refreshData={FetchRawTypeCategory}
+          rawdata={selectedRawCategory}
+        />
         <TableComponent
           columns={columns(handleEdit, DeleteRawMaterialType, statusmenuitem)}
           data={tableData}
@@ -188,4 +212,4 @@ const RawMaterialType = () => {
     </Fragment>
   );
 };
-export default RawMaterialType;
+export default SuperRawMaterialType;
