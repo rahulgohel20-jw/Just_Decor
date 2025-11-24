@@ -183,7 +183,7 @@ const AddCustomer = ({
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
       const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id === 2;
+        return cat.contactType?.id === 4;
       });
 
       setCategories(filteredCategories);
