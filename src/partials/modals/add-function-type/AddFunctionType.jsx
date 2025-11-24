@@ -53,8 +53,8 @@ const AddFunctionType = ({
           nameEnglish: values.nameEnglish,
           nameGujarati: values.nameGujarati,
           nameHindi: values.nameHindi,
-          startTime: values.startTime ? values.startTime.format("HH:mm") : "",
-          endTime: values.endTime ? values.endTime.format("HH:mm") : "",
+          startTime: values.startTime ? values.startTime.format("HH:mm A") : "",
+          endTime: values.endTime ? values.endTime.format("HH:mm A") : "",
           userId: Id,
         };
 
@@ -120,10 +120,10 @@ const AddFunctionType = ({
         nameGujarati: selectedFunction.nameGujarati || "",
         nameHindi: selectedFunction.nameHindi || "",
         startTime: selectedFunction.start_time
-          ? dayjs(selectedFunction.start_time, "HH:mm")
+          ? dayjs(selectedFunction.start_time, "HH:mm A")
           : null,
         endTime: selectedFunction.end_time
-          ? dayjs(selectedFunction.end_time, "HH:mm")
+          ? dayjs(selectedFunction.end_time, "HH:mm A")
           : null,
       });
     } else {
@@ -220,7 +220,8 @@ const AddFunctionType = ({
               </label>
               <TimePicker
                 className="input"
-                format="HH:mm"
+                format="HH:mm A"
+                use12Hours
                 value={formik.values.startTime}
                 onChange={(time) => formik.setFieldValue("startTime", time)} // ✅ Fixed
               />
@@ -242,7 +243,8 @@ const AddFunctionType = ({
               </label>
               <TimePicker
                 className="input"
-                format="HH:mm"
+                format="HH:mm A"
+                use12Hours
                 value={formik.values.endTime}
                 onChange={(time) => formik.setFieldValue("endTime", time)} // ✅ Fixed
               />

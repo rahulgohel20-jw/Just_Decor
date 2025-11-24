@@ -26,14 +26,17 @@ const STEP_KEYS = ["basic_info", "client_info", "functions", "other"];
 
 const CreateEventPage = () => {
   const { eventId } = useParams();
-
   const navigate = useNavigate();
   const location = useLocation();
+
   const mode = location.pathname.includes("/copy")
     ? "copy"
     : eventId
       ? "edit"
       : "create";
+
+  // Get selected date from calendar navigation state
+  const selectedDateFromCalendar = location.state?.event_date;
 
   const initialFormData = useMemo(
     () => ({
@@ -41,7 +44,6 @@ const CreateEventPage = () => {
       eventStartDateTime: "",
       eventEndDateTime: "",
       venueId: "",
-
       eventTypeId: "",
       managerId: "",
       partyId: "",
@@ -62,11 +64,32 @@ const CreateEventPage = () => {
   const [current, setCurrent] = useState(0);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
   let STATUS_NAME_TO_ID = {
     Inquiry: "0",
     Confirm: "1",
     Cancel: "2",
   };
+
+  // Auto-fill dates when coming from calendar (create mode only)
+  useEffect(() => {
+    if (mode === "create" && selectedDateFromCalendar) {
+      console.log(
+        "Auto-filling dates from calendar:",
+        selectedDateFromCalendar
+      );
+
+      const selectedDate = dayjs(selectedDateFromCalendar);
+      const startDateTime = selectedDate.hour(10).minute(0); // Default start time 10:00 AM
+      const endDateTime = selectedDate.hour(14).minute(0); // Default end time 2:00 PM (4 hours later)
+
+      setFormData((prev) => ({
+        ...prev,
+        eventStartDateTime: startDateTime.format("DD/MM/YYYY hh:mm A"),
+        eventEndDateTime: endDateTime.format("DD/MM/YYYY hh:mm A"),
+      }));
+    }
+  }, [mode, selectedDateFromCalendar]);
 
   useEffect(() => {
     if ((mode === "edit" || mode === "copy") && eventId) {
@@ -123,7 +146,6 @@ const CreateEventPage = () => {
               notesHindi: f.notesHindi || "",
               id: f.id,
             })),
-
             mealTypeId: event.mealType?.id || "",
             meal_notes: event.meal_notes || "",
             service: event.service || "",
@@ -141,11 +163,9 @@ const CreateEventPage = () => {
       await schema.validate(data, { abortEarly: false });
       return {};
     } catch (err) {
-      console.log("Yup validation error:", err); // Debug log
-
+      console.log("Yup validation error:", err);
       const validationErrors = {};
 
-      // Check if err.inner exists and is an array
       if (err.inner && Array.isArray(err.inner)) {
         err.inner.forEach((error) => {
           if (error.path) {
@@ -153,10 +173,8 @@ const CreateEventPage = () => {
           }
         });
       } else if (err.path && err.message) {
-        // Handle single error case
         validationErrors[err.path] = err.message;
       } else {
-        // Fallback for unexpected error structure
         console.error("Unexpected Yup error structure:", err);
         validationErrors.general = "Validation failed";
       }
@@ -168,7 +186,7 @@ const CreateEventPage = () => {
   const validateStep = useCallback(
     async (step) => {
       const stepKey = STEP_KEYS[step];
-      console.log("Validating step:", stepKey, "with data:", formData); // Debug log
+      console.log("Validating step:", stepKey, "with data:", formData);
 
       if (!stepKey) {
         console.log("Invalid step key:", stepKey);
@@ -188,7 +206,7 @@ const CreateEventPage = () => {
           stepKey,
           ":",
           validationErrors
-        ); // Debug log
+        );
 
         setErrors(validationErrors);
         return Object.keys(validationErrors).length === 0;
@@ -206,7 +224,7 @@ const CreateEventPage = () => {
         formData,
         eventValidationSchema
       );
-      console.log("All steps validation errors:", validationErrors); // Debug log
+      console.log("All steps validation errors:", validationErrors);
 
       setErrors(validationErrors);
       return Object.keys(validationErrors).length === 0;
@@ -258,33 +276,26 @@ const CreateEventPage = () => {
 
       if (mode === "edit" && eventId) {
         response = await UpdateEventMaster(eventId, payload);
-        console.log("Payload:", payload);
+        console.log("Update Response:", response);
 
         if (
-          response?.data?.msg?.toLowerCase().includes("Successfully") ||
-          response?.data?.status === true
+          response?.data?.msg?.toLowerCase().includes("success") ||
+          response?.data?.data?.success === true ||
+          response?.status === 200
         ) {
           Swal.fire({
             title: "Event Updated Successfully!",
-            text: "Your event has been updated to the calendar.",
+            text: "Your event has been updated in the calendar.",
             icon: "success",
             background: "#f5faff",
             color: "#003f73",
             confirmButtonText: "Okay",
             confirmButtonColor: "#005BA8",
             showClass: {
-              popup: `
-      animate__animated
-      animate__fadeInDown
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeInDown animate__faster",
             },
             hideClass: {
-              popup: `
-      animate__animated
-      animate__fadeOutUp
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeOutUp animate__faster",
             },
             customClass: {
               popup: "rounded-2xl shadow-xl",
@@ -292,30 +303,23 @@ const CreateEventPage = () => {
               confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
             },
           });
-
           navigate("/calendar");
         } else {
           Swal.fire({
-            title: "Event Update Error!",
-            text: response?.data?.msg,
+            title: "Event Update Failed!",
+            text:
+              response?.data?.msg ||
+              "Failed to update event. Please try again.",
             icon: "error",
             background: "#f5faff",
             color: "#003f73",
             confirmButtonText: "Okay",
             confirmButtonColor: "#005BA8",
             showClass: {
-              popup: `
-      animate__animated
-      animate__fadeInDown
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeInDown animate__faster",
             },
             hideClass: {
-              popup: `
-      animate__animated
-      animate__fadeOutUp
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeOutUp animate__faster",
             },
             customClass: {
               popup: "rounded-2xl shadow-xl",
@@ -327,8 +331,11 @@ const CreateEventPage = () => {
         }
       } else {
         response = await CreateEventMaster(payload);
+        console.log("Create Response:", response);
+
         if (
-          response?.data?.msg?.toLowerCase().includes("Successfully") ||
+          response?.data?.msg?.toLowerCase().includes("success") ||
+          response?.status === 200 ||
           response?.data?.status === 200
         ) {
           Swal.fire({
@@ -340,18 +347,10 @@ const CreateEventPage = () => {
             confirmButtonText: "Okay",
             confirmButtonColor: "#005BA8",
             showClass: {
-              popup: `
-      animate__animated
-      animate__fadeInDown
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeInDown animate__faster",
             },
             hideClass: {
-              popup: `
-      animate__animated
-      animate__fadeOutUp
-      animate__faster
-    `,
+              popup: "animate__animated animate__fadeOutUp animate__faster",
             },
             customClass: {
               popup: "rounded-2xl shadow-xl",
@@ -359,19 +358,62 @@ const CreateEventPage = () => {
               confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
             },
           });
-
           navigate("/calendar");
         } else {
-          response.data?.msg && errorMsgPopup(response.data.msg);
+          Swal.fire({
+            title: "Event Creation Failed!",
+            text:
+              response?.data?.msg ||
+              "Failed to create event. Please try again.",
+            icon: "error",
+            background: "#f5faff",
+            color: "#003f73",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#005BA8",
+            showClass: {
+              popup: "animate__animated animate__fadeInDown animate__faster",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp animate__faster",
+            },
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
           console.error("Backend returned an error:", response);
         }
       }
     } catch (err) {
-      response.data?.msg && errorMsgPopup(response.data.msg);
       console.error(
         `Error ${mode === "edit" ? "updating" : "creating"} event:`,
         err
       );
+
+      Swal.fire({
+        title: `Event ${mode === "edit" ? "Update" : "Creation"} Failed!`,
+        text:
+          err?.response?.data?.msg ||
+          err?.message ||
+          "An unexpected error occurred. Please try again.",
+        icon: "error",
+        background: "#f5faff",
+        color: "#003f73",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#005BA8",
+        showClass: {
+          popup: "animate__animated animate__fadeInDown animate__faster",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp animate__faster",
+        },
+        customClass: {
+          popup: "rounded-2xl shadow-xl",
+          title: "text-2xl font-bold",
+          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        },
+      });
     }
   }, [formData, mode, eventId, navigate, validateAllSteps, errors]);
 

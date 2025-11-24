@@ -65,12 +65,12 @@ const EventBasicInfoStep = ({
 
   const FetchManager = () => {
     Fetchmanager(Id).then((res) => {
-      const manager = res.data.data["userDetails"].map((man, index) => ({
+      const managerList = res.data.data["userDetails"].map((man, index) => ({
         sr_no: index + 1,
         value: man.id,
         label: man.firstName || "-",
       }));
-      setManager(manager);
+      setManager(managerList);
     });
   };
 
@@ -94,6 +94,18 @@ const EventBasicInfoStep = ({
   const handleFormDataChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Handler specifically for dropdowns that need synthetic event
+  const handleDropdownChange = (fieldName, value) => {
+    const syntheticEvent = {
+      target: {
+        name: fieldName,
+        value: value,
+      },
+    };
+    onInputChange(syntheticEvent, fieldName);
+  };
+
   const handleOpenEventTypeModal = () => {
     setSelectedEvent(null);
     setIsEventTypeModalOpen(true);
@@ -148,6 +160,7 @@ const EventBasicInfoStep = ({
               </span>
             </label>
             <DatePicker
+              disabled
               className="input"
               format="DD/MM/YYYY"
               value={

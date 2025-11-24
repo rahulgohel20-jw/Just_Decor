@@ -472,11 +472,12 @@ const AddInvoicePage = () => {
           confirmButtonColor: "#005BA8",
           showClass: {
             popup: `
-      animate__animated
-      animate__fadeInDown
-      animate__faster
-    `,
+        animate__animated
+        animate__fadeInDown
+        animate__faster
+      `,
           },
+
           hideClass: {
             popup: `
       animate__animated
