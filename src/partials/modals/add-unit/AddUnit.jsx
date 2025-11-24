@@ -55,11 +55,10 @@ const AddUnit = ({
     },
     validationSchema,
     onSubmit: async (values) => {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id)
-        return Swal.fire("Error", "User data not found", "error");
+      const Id = localStorage.getItem("userId");
+      if (!Id) return Swal.fire("Error", "User data not found", "error");
 
-      const payload = { ...values, userId: userData.id };
+      const payload = { ...values, userId: Id };
       try {
         const res = selectedUnit
           ? await EditUnit(selectedUnit.unitId, payload)

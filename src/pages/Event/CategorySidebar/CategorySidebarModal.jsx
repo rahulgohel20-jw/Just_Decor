@@ -42,8 +42,7 @@ export default function CategorySidebarModal({
   const FetchAllSuplier = async () => {
     setLoading(true);
     try {
-      const user = JSON.parse(localStorage.getItem("userData"));
-      const userId = user?.id || 0;
+      const userId = localStorage.getItem("userId");
       const res = await GetAllSupllierVendors(userId);
       const supplierData = res?.data?.data?.["Party Details"] || [];
       setSuppliers(supplierData);

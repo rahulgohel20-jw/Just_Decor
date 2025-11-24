@@ -1,10 +1,9 @@
-import { Fragment, useEffect, useState } from "react"; // removed useStyle
+import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 
-import AddCustomer from "@/partials/modals/add-customer/AddCustomer";
 import {
   GetAllCustomer,
   DeleteCustomerApi,
@@ -23,8 +22,7 @@ const VendorMaster = () => {
   const [tableData, setTableData] = useState([]);
 
   const intl = useIntl();
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const userId = userData.id;
+  const userId = localStorage.getItem("userId");
   const lang = localStorage.getItem("lang") || "en";
 
   // Exclude contact type ID 2 (Customer)

@@ -27,9 +27,8 @@ const RawMaterial = () => {
     FetchRawMaterial();
   }, []);
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
+  let Id = localStorage.getItem("userId");
 
-  let Id = userData.id;
   const FetchRawMaterial = () => {
     GetAllRawMaterial(Id)
       .then((res) => {

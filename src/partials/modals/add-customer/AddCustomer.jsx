@@ -92,7 +92,7 @@ const AddCustomer = ({
     }
   }, []);
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
+  const Id = localStorage.getItem("userId");
   const triggerTranslate = (text, fieldType) => {
     if (!text?.trim()) return;
 
@@ -178,7 +178,7 @@ const AddCustomer = ({
     try {
       const {
         data: { data },
-      } = await GetAllContactCategory(userData.id);
+      } = await GetAllContactCategory(Id);
 
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
@@ -259,13 +259,13 @@ const AddCustomer = ({
 
     setIsLoading(true);
     try {
-      if (!userData?.id) {
+      if (!Id) {
         throw new Error("User data not found");
       }
 
       const payload = {
         ...formData,
-        userId: userData.id,
+        userId: Id,
         bdate: formatDateToDDMMYYYY(formData.bdate),
       };
 

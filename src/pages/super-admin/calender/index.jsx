@@ -14,9 +14,8 @@ const SuperCalendarPage = () => {
 
   const [data, setData] = useState([]);
 
-  // 📌 Get userData from localStorage
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const Id = userData?.id;
+  // 📌 Get userId from localStorage
+  const Id = localStorage.getItem("userId");
 
   // ✅ Fetch Users by Role ID only
   const FetchUserByRoleId = async () => {
@@ -59,8 +58,6 @@ const SuperCalendarPage = () => {
     FetchUserByRoleId();
   }, []);
 
- 
-
   return (
     <Fragment>
       <Container>
@@ -93,9 +90,6 @@ const SuperCalendarPage = () => {
         {/* Calendar */}
         <CalendarComponent
           data={data}
-          
-        
-        
           customTooltip={(event) => `
             <div class="p-1">
               <p class="mb-1 font-semibold text-[#005BA8]">${event.title}</p>

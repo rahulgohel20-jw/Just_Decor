@@ -42,14 +42,14 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       alert("User data not found");
       setSubmitting(false);
       return;
     }
 
-    const payload = { ...values, userId: userData.id };
+    const payload = { ...values, userId: userId };
 
     try {
       const response = rawdata

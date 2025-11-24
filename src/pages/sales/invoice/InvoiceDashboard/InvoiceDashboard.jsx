@@ -20,8 +20,7 @@ const InvoiceDashboard = () => {
   });
   const [originalData, setOriginalData] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("userData"));
-  const userId = user?.id || 0;
+  const userId = localStorage.getItem("userId");
 
   const fetchInvoices = async () => {
     try {

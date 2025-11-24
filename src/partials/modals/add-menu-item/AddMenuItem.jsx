@@ -106,6 +106,7 @@ const AddMenuItem = ({
     pricePerHelper: "",
   });
   const [completedTabs, setCompletedTabs] = useState(["tab_1"]);
+  const UserId = JSON.parse(localStorage.getItem("userId"));
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -145,16 +146,15 @@ const AddMenuItem = ({
 
   useEffect(() => {
     if (isModalOpen) {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      if (!UserId) {
         console.error("User ID not found");
         return;
       }
 
       Promise.all([
-        GetMenuCategoryByUserIdmenuitem(userData.id),
-        GetAllSubCategorymenuitem(userData.id),
-        GetAllKitchenAreaById(userData.id),
+        GetMenuCategoryByUserIdmenuitem(UserId),
+        GetAllSubCategorymenuitem(UserId),
+        GetAllKitchenAreaById(UserId),
       ])
         .then(([catRes, subRes, kitchenRes]) => {
           setCategories(catRes?.data?.data?.["Menu Category Details"] || []);
@@ -169,10 +169,8 @@ const AddMenuItem = ({
     }
   }, [isModalOpen]);
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
-
   useEffect(() => {
-    RawMaterialName(userData.id, (name = "Outside Supplier (Food)"))
+    RawMaterialName(UserId, (name = "Outside Supplier (Food)"))
       .then((res) => {
         const categories = res?.data?.data?.["Contact Category Details"].map(
           (cat) => ({ id: cat.id, name: cat.nameEnglish || "-" })
@@ -182,7 +180,7 @@ const AddMenuItem = ({
       .catch((err) =>
         console.error("Error loading RawMaterialName data:", err)
       );
-    GetUnitData(userData.id)
+    GetUnitData(UserId)
       .then((res) => {
         const units = res.data.data["Unit Details"].map((unit) => ({
           id: unit.id,
@@ -193,7 +191,7 @@ const AddMenuItem = ({
       .catch((err) => {
         console.error("Error fetching unit data:", err);
       });
-    ContactNameItem(userData.id, (name = "CHEF LABOUR"))
+    ContactNameItem(UserId, (name = "CHEF LABOUR"))
       .then((res) => {
         const names =
           res?.data?.data?.["Party Details"]?.map((item) => ({
@@ -307,7 +305,7 @@ const AddMenuItem = ({
   };
 
   const handleSubmit = () => {
-    if (!userData?.id) {
+    if (!UserId) {
       message.error("User not found");
       return;
     }
@@ -379,7 +377,7 @@ const AddMenuItem = ({
       slogan: formik.values.menuSlogan,
       price: safeNumber(formik.values.price),
       sequence: safeNumber(formik.values.priority),
-      userId: userData.id,
+      userId: UserId,
       menuCategoryId: safeNumber(formik.values.menuItemCategory),
       menuSubCategoryId: safeNumber(formik.values.menuSubItemCategory),
       kitchenAreaId: safeNumber(formik.values.kitchenArea),
@@ -483,7 +481,7 @@ const AddMenuItem = ({
       return;
     }
 
-    ContactNameItem(userData.id, categoryName)
+    ContactNameItem(UserId, categoryName)
       .then((res) => {
         const names =
           res?.data?.data?.["Party Details"]?.map((item) => ({

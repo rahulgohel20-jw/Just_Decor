@@ -101,9 +101,9 @@ export default function SidebarChefModal({
 
     const FetchContactName = async () => {
       try {
-        let userData = JSON.parse(localStorage.getItem("userData"));
-        let Id = userData.id;
-        const res = await ContactNameItem(Id, "CHEF LABOUR");
+        let userId = localStorage.getItem("userId");
+
+        const res = await ContactNameItem(userId, "CHEF LABOUR");
         if (res?.data?.data) {
           setContactNames(res.data.data["Party Details"]);
         }

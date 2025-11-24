@@ -108,7 +108,7 @@ axiosInstance.interceptors.response.use(
       } catch (err) {
         localStorage.removeItem("token");
         localStorage.removeItem("userToken");
-        localStorage.removeItem("userData");
+        localStorage.removeItem("userId");
         window.location.href = "/auth/login";
         return Promise.reject(err);
       }
@@ -120,6 +120,8 @@ axiosInstance.interceptors.response.use(
     ) {
       localStorage.removeItem("userToken");
       localStorage.removeItem("userData");
+      localStorage.removeItem("userId");
+
       window.location.href = "/auth/login";
       return Promise.reject(error);
     }

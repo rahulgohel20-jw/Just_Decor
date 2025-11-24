@@ -343,8 +343,8 @@ const QuotationPage = () => {
   };
 
   const buildPayload = () => {
-    let userData = JSON.parse(localStorage.getItem("userData"));
-    let Id = userData.id;
+    let Id = localStorage.getItem("userId");
+
     const subtotal = quotationData.functions.reduce((sum, fn) => {
       const total = parseFloat(fn.totalPrice) || 0;
       return sum + total;

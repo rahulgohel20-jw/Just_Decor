@@ -195,6 +195,8 @@
   "USER.MASTER.EVENT_TYPE_MASTER": "ઇવેન્ટ ટાઇપ માસ્ટર",
   "USER.MASTER.EVENT_TYPE": "ઇવેન્ટ ટાઇપ",
   "USER.MASTER.ADD_EVENT_TYPE": "એડ ઇવેન્ટ ટાઇપ",
+  "USER.MASTER.ADDROLE": "",
+  "USER.MASTER.EDITROLE": "",
   "USER.MASTER.SEARCH_EVENT_TYPE": "સર્ચ ઇવેન્ટ ટાઇપ...",
   "USER.MASTER.EDIT_EVENT_TYPE": "એડિટ ઇવેન્ટ ટાઇપ",
   "USER.MASTER.EDIT_UNIT": "એડિટ યુનિટ",

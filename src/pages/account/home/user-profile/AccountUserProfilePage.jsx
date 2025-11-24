@@ -28,8 +28,8 @@ const TABS = [
 
 const getUserIdFromLocalStorage = () => {
   try {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    return userData?.id || null;
+    const userId = localStorage.getItem("userId");
+    return userId || null;
   } catch {
     return null;
   }
@@ -77,23 +77,6 @@ const AccountUserProfilePage = () => {
           // This might come from API in future
           image: profileData.image, // Keep the uploaded image
         });
-
-        // Update localStorage userData with fresh data
-        try {
-          const userData = JSON.parse(localStorage.getItem("userData")) || {};
-          const updatedUserData = {
-            ...userData,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            contactNo: user.contactNo,
-            userBasicDetails: user.userBasicDetails,
-            plan: user.plan,
-          };
-          localStorage.setItem("userData", JSON.stringify(updatedUserData));
-        } catch (e) {
-          console.error("Failed to update localStorage:", e);
-        }
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error);

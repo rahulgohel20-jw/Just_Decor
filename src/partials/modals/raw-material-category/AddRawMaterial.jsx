@@ -33,6 +33,7 @@ const AddRawMaterial = ({
 
   const [options, setOptions] = useState([]);
   const [debounceTimer, setDebounceTimer] = useState(null);
+  let userId = localStorage.getItem("userId");
 
   // ✅ translate function for Name fields
   const triggerTranslate = (text, setFieldValue) => {
@@ -53,10 +54,9 @@ const AddRawMaterial = ({
 
   // Fetch dropdown options
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData?.id) return;
+    if (!userId) return;
 
-    GetRawType(userData.id)
+    GetRawType(userId)
       .then((res) => {
         const rawData =
           res?.data?.data?.["Raw Material Category Type Details"] || [];
@@ -85,13 +85,12 @@ const AddRawMaterial = ({
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      if (!userId) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...values, userId: userData.id };
+      const payload = { ...values, userId: userId };
 
       let response;
       if (rawMaterialCategory) {

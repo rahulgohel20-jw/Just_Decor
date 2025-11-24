@@ -25,13 +25,13 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = JSON.parse(localStorage.getItem("userId"));
+      if (!Id) {
         alert("User data not found");
         return;
       }
 
-      const payload = { ...values, userId: userData.id };
+      const payload = { ...values, userId: Id };
 
       if (contactType) {
         await EditContactType(contactType.contacttypeid, payload);
@@ -58,7 +58,17 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {contactType ? <FormattedMessage id="USER.MASTER.EDIT_CONTACT_TYPE" defaultMessage="Edit Contact Type" /> : <FormattedMessage id="USER.MASTER.NEW_CONTACT_TYPE" defaultMessage="New Contact Type" />}
+            {contactType ? (
+              <FormattedMessage
+                id="USER.MASTER.EDIT_CONTACT_TYPE"
+                defaultMessage="Edit Contact Type"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.MASTER.NEW_CONTACT_TYPE"
+                defaultMessage="New Contact Type"
+              />
+            )}
           </h2>
           <button
             onClick={() => onClose(false)}
@@ -110,9 +120,33 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
             return (
               <Form>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_ENGLISH" defaultMessage="Name (English)" />} name="nameEnglish" />
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_GUJARATI" defaultMessage="Name (ગુજરાતી)" />} name="nameGujarati" />
-                  <InputWithFormik label={<FormattedMessage id="COMMON.NAME_HINDI" defaultMessage="Name (हिंदी)" />} name="nameHindi" />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_ENGLISH"
+                        defaultMessage="Name (English)"
+                      />
+                    }
+                    name="nameEnglish"
+                  />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_GUJARATI"
+                        defaultMessage="Name (ગુજરાતી)"
+                      />
+                    }
+                    name="nameGujarati"
+                  />
+                  <InputWithFormik
+                    label={
+                      <FormattedMessage
+                        id="COMMON.NAME_HINDI"
+                        defaultMessage="Name (हिंदी)"
+                      />
+                    }
+                    name="nameHindi"
+                  />
                 </div>
 
                 {/* Actions */}
@@ -122,14 +156,27 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
                     onClick={() => onClose(false)}
                     className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
                   >
-                    <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL" defaultMessage="Cancel" />
+                    <FormattedMessage
+                      id="USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL"
+                      defaultMessage="Cancel"
+                    />
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
                   >
-                    {contactType ? <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" /> : <FormattedMessage id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_SAVE_BUTTON" defaultMessage="Save" />}
+                    {contactType ? (
+                      <FormattedMessage
+                        id="COMMON.UPDATE"
+                        defaultMessage="Update"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_SAVE_BUTTON"
+                        defaultMessage="Save"
+                      />
+                    )}
                   </button>
                 </div>
               </Form>

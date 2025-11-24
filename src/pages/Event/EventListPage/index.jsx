@@ -35,8 +35,7 @@ const EventListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentLang, setCurrentLang] = useState("");
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   // Get current language
   const getCurrentLanguage = () => {

@@ -65,8 +65,8 @@ const AddMenuCategory = ({
 
   const handleSubmit = () => {
     if (checkErrors()) {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
@@ -74,7 +74,7 @@ const AddMenuCategory = ({
       if (editData) {
         const payload = {
           ...formData,
-          userId: userData.id,
+          userId: Id,
           slogan: formData.menuSlogan,
         };
 
@@ -96,7 +96,7 @@ const AddMenuCategory = ({
             console.error("Error editing meal:", error);
           });
       } else {
-        const payload = { ...formData, userId: userData.id };
+        const payload = { ...formData, userId: Id };
         AddCategory(payload)
           .then((res) => {
             Swal.fire("Success", "Category added successfully!", "success");

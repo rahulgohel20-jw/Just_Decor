@@ -59,13 +59,13 @@ const CustomPackageMaster = () => {
 
   const fetchPackages = async () => {
     try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
         Swal.fire("Error", "User ID not found!", "error");
         return;
       }
 
-      const res = await GetCustomPackageapi(userData.id);
+      const res = await GetCustomPackageapi(Id);
       const allPackages = res?.data?.data?.["Package Details"] || [];
 
       console.log("📦 Fetched packages:", allPackages);
@@ -182,7 +182,6 @@ const CustomPackageMaster = () => {
   };
 
   const handleEdit = (id) => {
-    console.log("✅ Navigating to edit page with id:", id);
     navigate(`/master/custom-package/addpackage?id=${id}`);
   };
 

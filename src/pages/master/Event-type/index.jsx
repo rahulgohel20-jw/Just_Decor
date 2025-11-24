@@ -20,8 +20,7 @@ const EventTypeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
 
   // 🔥 Load language
   const lang = localStorage.getItem("lang") || "en";

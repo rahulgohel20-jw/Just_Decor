@@ -121,10 +121,10 @@ const FunctionsMaster = () => {
     }));
 
   const fetchFunctions = (name = "") => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
+    const Id = JSON.parse(localStorage.getItem("userId"));
     const apiCall = name
       ? GetFunctionsByFunctionName(name)
-      : GetAllFunctionsByUserId(userData.id);
+      : GetAllFunctionsByUserId(Id);
 
     apiCall
       .then((res) => {

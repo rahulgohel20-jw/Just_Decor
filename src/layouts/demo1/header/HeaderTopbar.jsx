@@ -9,6 +9,7 @@ import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";
 import CheckInModal from "@/partials/modals/CheckInModal";
+import { getUserById } from "@/services/apiServices";
 
 const HeaderTopbar = () => {
   const navigate = useNavigate();
@@ -23,29 +24,24 @@ const HeaderTopbar = () => {
   const [companyName, setCompanyName] = useState("");
 
   // ✅ Load company name from localStorage
-  useEffect(() => {
+  useEffect(async () => {
     try {
-      const storedUser = localStorage.getItem("userData");
-      if (!storedUser) {
-        console.warn("⚠️ No userdata found in localStorage");
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
+        console.warn("⚠️ No user data found in localStorage");
         return;
       }
+      const user = await getUserById(Id);
+      const User_data = user.data.data["User Details"][0];
 
-      const user = JSON.parse(storedUser);
-      const company =
-        user?.userBasicDetails?.companyName?.trim() ||
-        user?.companyName?.trim() ||
-        "";
+      const company = User_data?.userBasicDetails?.companyName || "";
 
       setCompanyName(company || "Company");
     } catch (error) {
-      console.error("❌ Error reading userdata:", error);
+      console.error("❌ Error reading user data:", error);
       setCompanyName("Company");
     }
   }, []);
-
-  const handleOpen = () => setSearchModalOpen(true);
-  const handleClose = () => setSearchModalOpen(false);
 
   return (
     <div className="flex items-center justify-between w-full">

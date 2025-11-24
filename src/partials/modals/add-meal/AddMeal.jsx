@@ -44,14 +44,14 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData?.id) {
+      const Id = localStorage.getItem("userId");
+      if (!Id) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
       try {
-        const payload = { ...values, userId: userData.id };
+        const payload = { ...values, userId: Id };
 
         if (selectedMeal) {
           const res = await EditMealType(selectedMeal.mealid, payload);
@@ -149,7 +149,9 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
               })}
               name="nameEnglish"
               value={formik.values.nameEnglish}
-              onChange={(e) => formik.setFieldValue("nameEnglish", e.target.value)}
+              onChange={(e) =>
+                formik.setFieldValue("nameEnglish", e.target.value)
+              }
               lng="en-US"
               required
               error={formik.touched.nameEnglish && formik.errors.nameEnglish}
@@ -168,7 +170,9 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
               })}
               name="nameGujarati"
               value={formik.values.nameGujarati}
-              onChange={(e) => formik.setFieldValue("nameGujarati", e.target.value)}
+              onChange={(e) =>
+                formik.setFieldValue("nameGujarati", e.target.value)
+              }
               lng="gu"
             />
 
@@ -185,7 +189,9 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
               })}
               name="nameHindi"
               value={formik.values.nameHindi}
-              onChange={(e) => formik.setFieldValue("nameHindi", e.target.value)}
+              onChange={(e) =>
+                formik.setFieldValue("nameHindi", e.target.value)
+              }
               lng="hi"
             />
           </div>

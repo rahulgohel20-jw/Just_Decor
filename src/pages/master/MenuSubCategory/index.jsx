@@ -23,8 +23,8 @@ const MenuSubCategory = () => {
 
   const intl = useIntl();
 
-  let userData = JSON.parse(localStorage.getItem("userData"));
-  let Id = userData.id;
+  let Id = localStorage.getItem("userId");
+
   const FetchSubCategoryData = () => {
     GetAllSubCategory({ userid: Id, menuSubCategoryName: searchQuery })
       .then((res) => {

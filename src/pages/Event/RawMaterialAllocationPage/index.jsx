@@ -81,8 +81,7 @@ const RawMaterialAllocation = () => {
     const fetchAgencies = async () => {
       setLoading(true);
       try {
-        const storedUser = JSON.parse(localStorage.getItem("userData"));
-        const userId = storedUser?.id;
+        const userId = localStorage.getItem("userId");
         const response = await GetAllSupllierVendors(userId);
         const list = response?.data?.data?.["Party Details"] || [];
         setAgencies(list);
