@@ -62,7 +62,7 @@ const createEmptyLabourRow = () => ({
 const LabourOtherManagementPage = () => {
   const { eventId } = useParams();
   const storedUser = useMemo(
-    () => JSON.parse(localStorage.getItem("user") || "{}"),
+    () => JSON.parse(localStorage.getItem("userData") || "{}"),
     []
   );
   const [activeFunctionName, setActiveFunctionName] = useState("");
@@ -770,7 +770,7 @@ const LabourTable = ({
             <tr className="bg-gray-50">
               <th className="text-center w-[50px]">#</th>
               <th className="w-[3%]">Labour Type</th>
-              <th className="w-[3%]">Contact</th>
+              <th className="w-[3%]">Vendors</th>
               <th className="w-[20%]">Labour Shift</th>
               <th className="w-[25%]">Date Time</th>
               <th className="w-[15%]">Price</th>

@@ -946,3 +946,8 @@ export const TranslateHindi = (data) => {
 export const deleteRawmatrialcatidInmenuitem = (id) => {
   return DELETE(`/menuitems/deleteitemrawmaterialbyid?id=${id}`);
 };
+
+
+export const deleteFunction = (id) => {
+  return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
+};

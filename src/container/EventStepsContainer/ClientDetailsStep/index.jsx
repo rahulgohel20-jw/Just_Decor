@@ -15,11 +15,10 @@ const ClientDetailsStep = ({
   errors,
 }) => {
   const classes = useStyles();
-  const languageContext = useLanguage(); // Get current language
+  const languageContext = useLanguage();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [customer, setCustomer] = useState([]);
 
-  // Debug: Check what the language context returns
   console.log("Language Context:", languageContext);
 
   useEffect(() => {
@@ -31,14 +30,12 @@ const ClientDetailsStep = ({
 
   // Helper function to get the correct language field
   const getLocalizedField = (item, fieldName) => {
-    // Extract locale from languageContext (adjust based on your actual structure)
     const currentLocale =
       languageContext?.locale || languageContext?.language || "en";
 
     console.log("Current Locale:", currentLocale);
     console.log("Item:", item);
 
-    // Map locale codes to field suffixes
     const languageMap = {
       en: "English",
       "en-US": "English",
@@ -90,13 +87,12 @@ const ClientDetailsStep = ({
     }
   };
 
-  const FetchCustomerName = () => {
+  const FetchCustomerName = (autoSelectLatest = false) => {
     GetAllCustomer(Id)
       .then((res) => {
         const partyDetails = res.data.data["Party Details"];
 
         const customername = partyDetails.map((customer, index) => {
-          // Get localized name based on current language
           const localizedName = getLocalizedField(customer, "name");
           const localizedAddress = getLocalizedField(customer, "address");
 
@@ -107,7 +103,6 @@ const ClientDetailsStep = ({
             mobile: customer.mobileno,
             address: localizedAddress,
             customername: localizedName,
-            // Store all language versions for potential use
             nameEnglish: customer.nameEnglish,
             nameHindi: customer.nameHindi,
             nameGujarati: customer.nameGujarati,
@@ -118,10 +113,30 @@ const ClientDetailsStep = ({
         });
 
         setCustomer(customername);
+
+        // Auto-select the latest added customer
+        if (autoSelectLatest && customername.length > 0) {
+          const latestCustomer = customername[customername.length - 1];
+          console.log("Auto-selecting latest customer:", latestCustomer);
+
+          setFormData((prev) => ({
+            ...prev,
+            partyId: latestCustomer.value,
+            customer_name: latestCustomer.customername,
+            mobileno: latestCustomer.mobile || "",
+            address: latestCustomer.address || "",
+          }));
+        }
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  // Handler to refresh data after adding new customer
+  const handleCustomerAdded = () => {
+    console.log("New customer added, refreshing and auto-selecting...");
+    FetchCustomerName(true); // Pass true to auto-select latest
   };
 
   // Re-fetch customer data when language changes to update labels
@@ -301,7 +316,7 @@ const ClientDetailsStep = ({
           <AddCustomer
             isModalOpen={isMemberModalOpen}
             setIsModalOpen={setIsMemberModalOpen}
-            refreshData={FetchCustomerName}
+            refreshData={handleCustomerAdded}
           />
         </div>
       </div>
