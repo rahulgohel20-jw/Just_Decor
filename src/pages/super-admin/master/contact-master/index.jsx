@@ -10,11 +10,11 @@ import {
   SearchContactCategory,
 } from "@/services/apiServices";
 import useStyle from "./style";
-// import AddContactType from "@/partials/modals/add-contact-type/AddContactType";
+import AddContactType from "@/partials/modals/add-contact-type/AddContactType";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const ContactTypeMaster = () => {
+const SuperContactTypeMaster = () => {
   const classes = useStyle();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedcontactType, setSelectedcontactType] = useState(null);
@@ -22,7 +22,7 @@ const ContactTypeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
-  let Id = 1;
+  let Id = localStorage.getItem("userId");
 
   // 🔥 Load language from localStorage
   const lang = localStorage.getItem("lang") || "en";
@@ -184,14 +184,30 @@ const ContactTypeMaster = () => {
               />
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setIsContactModalOpen(true);
+                setSelectedcontactType(null);
+              }}
+            >
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="USER.MASTER.ADD_CONTACT_TYPE"
+                defaultMessage="Add Contact Type"
+              />
+            </button>
+          </div>
         </div>
 
-        {/* <AddContactType
+        <AddContactType
           isOpen={isContactModalOpen}
           onClose={setIsContactModalOpen}
           refreshData={FetchContactType}
           contactType={selectedcontactType}
-        /> */}
+        />
 
         <TableComponent
           columns={columns(handleEdit, DeleteContactType, statusCategory)}
@@ -203,4 +219,4 @@ const ContactTypeMaster = () => {
   );
 };
 
-export default ContactTypeMaster;
+export default SuperContactTypeMaster;

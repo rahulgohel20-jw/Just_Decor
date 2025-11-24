@@ -13,7 +13,7 @@ import {
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const UnitMaster = () => {
+const SuperUnitMaster = () => {
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -40,7 +40,7 @@ const UnitMaster = () => {
     };
   }, []);
 
-  let Id = 1;
+  let Id = localStorage.getItem("userId");
 
   // 🔥 Helper to get unit name based on language
   const getUnitNameByLang = (unit) => {
@@ -301,6 +301,26 @@ const UnitMaster = () => {
               />
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setIsEventTypeModalOpen(true);
+                setSelectedUnit(null);
+              }}
+              title={intl.formatMessage({
+                id: "USER.MASTER.ADD_UNIT",
+                defaultMessage: "Add Unit",
+              })}
+            >
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="USER.MASTER.ADD_UNIT"
+                defaultMessage="Add Unit"
+              />
+            </button>
+          </div>
         </div>
 
         <AddUnit
@@ -320,4 +340,4 @@ const UnitMaster = () => {
   );
 };
 
-export default UnitMaster;
+export default SuperUnitMaster;

@@ -427,6 +427,39 @@ const superAdminMenuItems = [
     icon: "ki-filled ki-users text-primary",
     path: "/renewal-history",
   },
+  {
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Contact Type"
+          />
+        ),
+        path: "/super-contact-type-master",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_CATEGORIES"
+            defaultMessage="Raw Material Type"
+          />
+        ),
+        path: "/super-raw-material-type-master",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
+            defaultMessage="Unit Master"
+          />
+        ),
+        path: "/super-unit-master",
+      },
+    ],
+  },
 ];
 
 // Main function to get menu
