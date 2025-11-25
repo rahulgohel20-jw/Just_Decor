@@ -187,6 +187,9 @@ import UserRights from "../pages/userrights/UserRights";
 import SuperAdminUserLogs from "../pages/superadminmember/SuperAdminUserLogs";
 import VenuetypeMaster from "../pages/master/Venue-type";
 import VendorMaster from "../pages/master/vendor-master";
+import SuperContactTypeMaster from "../pages/super-admin/master/contact-master";
+import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type";
+import SuperUnitMaster from "../pages/super-admin/master/unit";
 
 const AppRoutingSetup = () => {
   return (
@@ -328,7 +331,15 @@ const AppRoutingSetup = () => {
             path="/Superadmin-member-edit/:id"
             element={<SuperAdminMemberEdit />}
           />
-
+          <Route
+            path="/super-contact-type-master"
+            element={<SuperContactTypeMaster />}
+          />
+          <Route
+            path="/super-raw-material-type-master"
+            element={<SuperRawMaterialType />}
+          />
+          <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"
