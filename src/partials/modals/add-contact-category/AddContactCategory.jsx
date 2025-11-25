@@ -33,7 +33,7 @@ const AddContactCategory = ({
   // ✅ Fetch dropdown values
   useEffect(() => {
     if (Id) {
-      GetAllContactType(Id)
+      GetAllContactType(1)
         .then((res) => {
           const allTypes = res?.data?.data?.["Contact Type Details"] || [];
 

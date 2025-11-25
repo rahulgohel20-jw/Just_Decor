@@ -22,8 +22,6 @@ const ContactTypeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
-  let Id = 1;
-
   // 🔥 Load language from localStorage
   const lang = localStorage.getItem("lang") || "en";
 

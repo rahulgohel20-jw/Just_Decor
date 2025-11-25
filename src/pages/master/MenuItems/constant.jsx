@@ -38,7 +38,12 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "category",
-    header: <FormattedMessage id="MASTER.MENU_ITEM_CATEGORY" defaultMessage="Menu Item Category" />,
+    header: (
+      <FormattedMessage
+        id="MASTER.MENU_ITEM_CATEGORY"
+        defaultMessage="Menu Item Category"
+      />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
