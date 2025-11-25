@@ -1,40 +1,57 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { Tooltip } from "antd";
 import { DataGridColumnHeader } from "@/components";
 import AdduserRight from "@/partials/modals/add-user-right/AdduserRight";
 import Addpermission from "@/partials/modals/add-user-right/Addpermission";
+import {
+  GetAllRole,
+  GetRightsBYroleId,
+  GetPages,
+} from "@/services/apiServices";
 
 const UserRights = () => {
-  // === Data State ===
-  const [tableData, setTableData] = useState([
-    { sr_no: "0001", role: "Team Member", created_date: "01 Jan 2024" },
-    { sr_no: "0002", role: "Manager", created_date: "02 Jan 2024" },
-    { sr_no: "0003", role: "Team Member", created_date: "03 Jan 2024" },
-    { sr_no: "0004", role: "Team Member", created_date: "04 Jan 2024" },
-    { sr_no: "0005", role: "Team Member", created_date: "05 Jan 2024" },
-  ]);
+  const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pages, setPages] = useState([]);
 
-  // === Modal State for Add/Edit User Rights ===
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState(null);
 
-  // === Modal State for Permission Modal ===
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedPermissions, setSelectedPermissions] = useState(null);
 
-  // === Handlers for User Modal ===
-  const handleAdd = () => {
-    setSelectedFunction(null);
-    setIsUserModalOpen(true);
+  const userId = localStorage.getItem("userId");
+
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      const res = await GetAllRole(userId);
+
+      if (res?.data?.success && res?.data?.data) {
+        const formatted = res.data.data["Role Details"].map((item, index) => ({
+          sr_no: index + 1,
+          roleId: item.id,
+          role: item.name,
+          created_date: item.createdAt || "N/A",
+          id: item._id,
+        }));
+        setTableData(formatted);
+      } else {
+        setTableData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEdit = (record) => {
-    setSelectedFunction(record);
-    setIsUserModalOpen(true);
-  };
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   const handleUserModalClose = () => {
     setIsUserModalOpen(false);
@@ -42,14 +59,41 @@ const UserRights = () => {
   };
 
   const handleUserModalSuccess = () => {
-    // Refresh table data if needed
     setIsUserModalOpen(false);
+    fetchRoles();
   };
 
-  // === Handlers for Permission Modal ===
-  const handleOpenPermission = (rowData) => {
+  const handleOpenPermission = async (rowData) => {
     setSelectedRow(rowData);
     setIsPermissionModalOpen(true);
+
+    try {
+      const [pagesRes, rightsRes] = await Promise.all([
+        GetPages(),
+        GetRightsBYroleId(rowData.roleId),
+      ]);
+
+      if (pagesRes?.data?.success) {
+        const pageList = pagesRes.data.data["UserRightsPages"] || [];
+
+        setPages(pageList);
+
+        const rights = rightsRes.data.data["UserRights"];
+
+        let formattedPermissions = rights.map((p) => ({
+          name: p.pageName,
+          Add: p.add,
+          Edit: p.edit,
+          view: p.view,
+          Delete: p.delete,
+          roleId: rowData.roleId,
+        }));
+
+        setSelectedPermissions(formattedPermissions);
+      }
+    } catch (error) {
+      console.error("Error fetching pages/rights:", error);
+    }
   };
 
   const handleClosePermission = () => {
@@ -58,10 +102,9 @@ const UserRights = () => {
   };
 
   const refreshData = () => {
-    // TODO: reload data if backend integration
+    fetchRoles();
   };
 
-  // === Table Columns ===
   const columns = [
     {
       accessorKey: "sr_no",
@@ -76,15 +119,6 @@ const UserRights = () => {
       ),
     },
     {
-      accessorKey: "active_status",
-      header: "Active Status",
-      cell: () => (
-        <div className="flex items-center gap-2">
-          <button className="btn bg-green-200 text-green-700">Active</button>
-        </div>
-      ),
-    },
-    {
       accessorKey: "created_date",
       header: ({ column }) => (
         <DataGridColumnHeader title="Created Date" column={column} />
@@ -94,30 +128,12 @@ const UserRights = () => {
       accessorKey: "rights",
       header: "Rights",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <button
-            className="btn btn-primary"
-            onClick={() => handleOpenPermission(row.original)}
-          >
-            Rights
-          </button>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Tooltip title="Edit">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-              onClick={() => handleEdit(row.original)}
-            >
-              <i className="ki-filled ki-user-edit text-blue-600"></i>
-            </button>
-          </Tooltip>
-        </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => handleOpenPermission(row.original)}
+        >
+          Rights
+        </button>
       ),
     },
   ];
@@ -125,7 +141,6 @@ const UserRights = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
           <Breadcrumbs items={[{ title: "User Rights" }]} />
         </div>
@@ -134,9 +149,9 @@ const UserRights = () => {
           <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
           <input className="input pl-8" type="text" placeholder="Search Role" />
         </div>
-        <TableComponent columns={columns} data={tableData} />
 
-        {/* Add/Edit User Rights Modal */}
+        <TableComponent columns={columns} data={tableData} loading={loading} />
+
         <AdduserRight
           isOpen={isUserModalOpen}
           onClose={handleUserModalClose}
@@ -144,11 +159,12 @@ const UserRights = () => {
           onSuccess={handleUserModalSuccess}
         />
 
-        {/* Permission Modal */}
         <Addpermission
           isOpen={isPermissionModalOpen}
           onClose={handleClosePermission}
           contactType={selectedRow}
+          permissionsData={selectedPermissions}
+          pages={pages}
           refreshData={refreshData}
         />
       </Container>
