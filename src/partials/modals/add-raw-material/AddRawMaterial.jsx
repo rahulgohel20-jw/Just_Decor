@@ -202,10 +202,15 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
     GetUnitData(id).then((response) => {
       const data = response?.data?.data["Unit Details"];
       setUnitList(
-        data.map((item) => ({ label: item.nameEnglish, value: item.id }))
+        data.map((item) => ({
+          id: item.id,
+          nameEnglish: item.nameEnglish,
+          symbolEnglish: item.symbolEnglish,
+        }))
       );
     });
   };
+
   const handleRemoveSupplier = (item) => {
     if (!item.deleteId || item.backendId === 0) {
       setTableData((prevData) =>
@@ -528,8 +533,8 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                 </option>
 
                 {unitList.map((unit) => (
-                  <option key={unit.value} value={unit.value}>
-                    {unit.label}
+                  <option key={unit.id} value={unit.id}>
+                    {unit.nameEnglish} ({unit.symbolEnglish})
                   </option>
                 ))}
               </select>

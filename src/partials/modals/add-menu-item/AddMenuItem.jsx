@@ -236,8 +236,10 @@ const AddMenuItem = ({
         const formattedTableData = selectedMenuItem.rawdata.map((item) => ({
           id: item.id,
           weight: item.weight || 0,
-          unit: item.unit?.symbolEnglish || "",
+          unit: item.unit?.nameEnglish || "",
+          unitId: item.unit?.id || "", // Add unitId
           name: item.rawMaterial?.nameEnglish || "",
+          categoryName: item.rawMaterial?.rawMaterialCat?.nameEnglish || "-", // Fix: Use rawMaterialCat
           rawMaterialId: item.rawMaterial?.id || "",
           rate: item.rate || 0,
           quantity: item.weight || 0,

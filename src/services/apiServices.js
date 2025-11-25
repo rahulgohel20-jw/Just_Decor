@@ -131,7 +131,7 @@ export const updateContactTypeStatus = (Id, statusId) => {
 
 export const GetAllRawMaterial = (Id) => {
   return GET(
-    `rawmaterial/getallbyuserid?rawMateriaCatlId=0&unitid=0&userid=${Id}`
+    `rawmaterial/getallbyuserid?pageNo=1&pageSize=10000&rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
 export const DeleteRole = (Id) => {

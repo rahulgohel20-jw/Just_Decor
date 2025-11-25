@@ -264,11 +264,50 @@ const CreateEventPage = () => {
           ? null
           : Number(formData.venueId),
       status: Number(formData.status),
-      eventFunction: (formData.eventFunction || []).map((f) => ({
-        ...f,
+      eventFunction: (formData.eventFunction || []).map((f, index) => ({
+        eventFuncId: f.eventFuncId || 0,
         functionId: f.functionId != null ? Number(f.functionId) : null,
+        functionStartDateTime: f.functionStartDateTime || "",
+        functionEndDateTime: f.functionEndDateTime || "",
+        pax: f.pax ? Number(f.pax) : 0,
+        rate: f.rate ? Number(f.rate) : 0,
+        function_venue: f.function_venue || "",
+        notesEnglish: f.notesEnglish || "",
+        notesGujarati: f.notesGujarati || "",
+        notesHindi: f.notesHindi || "",
+        sortorder: index + 1, // Add sort order based on position
       })),
       userId,
+    };
+
+    // Helper function to get status-based message
+    const getStatusMessage = (status, isUpdate = false) => {
+      const statusId = String(status);
+      const action = isUpdate ? "updated" : "created";
+      const actionCaps = isUpdate ? "Updated" : "Created";
+
+      switch (statusId) {
+        case "0": // Inquiry
+          return {
+            title: `Event Inquiry ${actionCaps} Successfully!`,
+            text: `Your event inquiry has been ${action} and saved to the calendar.`,
+          };
+        case "1": // Confirm
+          return {
+            title: `Event Confirmed Successfully!`,
+            text: `Your event has been confirmed and ${action} in the calendar.`,
+          };
+        case "2": // Cancel
+          return {
+            title: `Event Cancelled Successfully!`,
+            text: `Your event has been cancelled and ${action} in the calendar.`,
+          };
+        default:
+          return {
+            title: `Event ${actionCaps} Successfully!`,
+            text: `Your event has been ${action} in the calendar.`,
+          };
+      }
     };
 
     try {
@@ -281,11 +320,13 @@ const CreateEventPage = () => {
         if (
           response?.data?.msg?.toLowerCase().includes("success") ||
           response?.data?.data?.success === true ||
-          response?.status === 200
+          response?.data?.success === true
         ) {
+          const statusMessage = getStatusMessage(formData.status, true);
+
           Swal.fire({
-            title: "Event Updated Successfully!",
-            text: "Your event has been updated in the calendar.",
+            title: statusMessage.title,
+            text: statusMessage.text,
             icon: "success",
             background: "#f5faff",
             color: "#003f73",
@@ -338,9 +379,11 @@ const CreateEventPage = () => {
           response?.status === 200 ||
           response?.data?.status === 200
         ) {
+          const statusMessage = getStatusMessage(formData.status, false);
+
           Swal.fire({
-            title: "Event Created Successfully!",
-            text: "Your event has been added to the calendar.",
+            title: statusMessage.title,
+            text: statusMessage.text,
             icon: "success",
             background: "#f5faff",
             color: "#003f73",
@@ -416,7 +459,6 @@ const CreateEventPage = () => {
       });
     }
   }, [formData, mode, eventId, navigate, validateAllSteps, errors]);
-
   const handleInputChange = useCallback(
     ({ target: { value, name } }) => {
       setFormData((prev) => ({ ...prev, [name]: value }));
