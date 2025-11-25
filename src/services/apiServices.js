@@ -309,6 +309,10 @@ export const GetPages = () => {
   return GET(`/user-rights/getPages`);
 };
 
+export const GetRightsBYroleId = (roleId) => {
+  return GET(`/user-rights/getByRole?roleId=${roleId}`);
+};
+
 export const AddRights = (data) => {
   return POST(`/user-rights/addRights`, data);
 };
