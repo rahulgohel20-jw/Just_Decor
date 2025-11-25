@@ -8,6 +8,8 @@ import {
   FetchAllUser,
   GetPlansByBillingCycle,
 } from "@/services/apiServices";
+import { FormattedMessage } from "react-intl";
+
 import { useAutoTranslation } from "../../../utils/useAutoTranslation";
 import PaymentSuccess from "../successmodal/paymentsuccess";
 import Swal from "sweetalert2";
@@ -33,9 +35,9 @@ const parseJwt = (token) => {
 const Priceplan = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { translate } = useAutoTranslation();
   const [translatedPlans, setTranslatedPlans] = useState([]);
   const { language } = useLanguage();
+  const { translate } = useAutoTranslation(language);
 
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -107,6 +109,7 @@ const Priceplan = () => {
 
   useEffect(() => {
     if (!activeCycle) return;
+    setTranslatedPlans([]);
     fetchPlans();
   }, [activeCycle, language]);
 
@@ -298,7 +301,10 @@ const Priceplan = () => {
         )}
 
         <h2 className="text-3xl mt-4 md:text-4xl font-semibold text-[#170F49]">
-          Plans & Pricing
+          <FormattedMessage
+            id="USER.MASTER.RAW_MATERIAL_TYPE"
+            defaultMessage="   Plans & Pricing"
+          />
         </h2>
         <p className="text-[#6F6C8F] mt-3 max-w-xl mx-auto text-base leading-relaxed">
           Whether your time-saving automation needs are large or small, we're
@@ -352,7 +358,7 @@ const Priceplan = () => {
               const isHighlighted = isPopular || isSinglePlan;
 
               return (
-                <div key={plan.id} className="relative group">
+                <div key={`${plan.id}-${language}`} className="relative group">
                   {/* Glow effect behind card */}
                   {isHighlighted && (
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
@@ -394,8 +400,7 @@ const Priceplan = () => {
                       >
                         <img
                           src={toAbsoluteUrl(
-                            `/media/price/${plan.name.toLowerCase()}.png
-`
+                            `/media/price/${plan.originalName.toLowerCase()}.png`
                           )}
                           alt={plan.name}
                           className={`${isHighlighted ? "h-14 w-14" : "h-12 w-12"} object-contain`}

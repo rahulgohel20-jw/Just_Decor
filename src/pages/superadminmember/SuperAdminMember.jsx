@@ -247,7 +247,7 @@ const MemberProfile = () => {
                     <p className="text-gray-800 mb-1 font-semibold">
                       State ID:
                     </p>
-                    <p className="text-gray-600">{memberData.stateId}</p>
+                    <p className="text-gray-600">{memberData.stateName}</p>
                   </div>
 
                   <div>
@@ -298,7 +298,7 @@ const MemberProfile = () => {
                       Reporting Manager ID:
                     </p>
                     <p className="text-gray-600">
-                      {memberData.reportingManagerId}
+                      {memberData.reportingManagerName}
                     </p>
                   </div>
                 </div>

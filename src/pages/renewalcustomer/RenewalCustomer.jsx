@@ -174,12 +174,22 @@ const RenewalCustomer = () => {
         </div>
 
         {/* Loader / Message Display */}
-        {loading && <p>Loading...</p>}
-        {error && !loading && (
-          <p className="text-red-500 font-medium mb-2">{error}</p>
+        {!loading && tableData.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <img
+              src={
+                import.meta.env.BASE_URL + "media/placeholders/placeholder.png"
+              }
+              className="max-w-[1000px] mb-4 "
+              alt="No data"
+            />
+
+            <p className="text-gray-500 text-lg font-medium">
+              No renewal records found
+            </p>
+          </div>
         )}
 
-        {/* Table */}
         {!loading && tableData.length > 0 && (
           <TableComponent columns={columns} data={filteredData} />
         )}

@@ -444,9 +444,12 @@ const SuperAdminMemberEdit = () => {
         }
       });
 
-      // Add call file
+      // Add call file - always include field to prevent null pointer exception
       if (callFile) {
         formData.append("callFile", callFile);
+      } else {
+        // Send empty blob to satisfy backend requirement
+        formData.append("callFile", new Blob(), "");
       }
 
       console.log("Submitting FormData:");
@@ -862,7 +865,7 @@ const SuperAdminMemberEdit = () => {
             </div>
             <div className="p-4 border-t">
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Import Call File
+                Import Call File (Optional)
               </label>
               <Input
                 type="file"
