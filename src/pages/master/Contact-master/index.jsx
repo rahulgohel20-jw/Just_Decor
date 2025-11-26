@@ -22,8 +22,6 @@ const ContactTypeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
 
-  let Id = 1;
-
   // 🔥 Load language from localStorage
   const lang = localStorage.getItem("lang") || "en";
 
@@ -87,7 +85,7 @@ const ContactTypeMaster = () => {
   }, [searchQuery, lang]);
 
   const FetchContactType = () => {
-    GetAllContactType(Id)
+    GetAllContactType(1)
       .then((res) => {
         const formatted = res.data.data["Contact Type Details"].map(
           (cust, index) => ({

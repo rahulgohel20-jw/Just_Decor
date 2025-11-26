@@ -283,6 +283,7 @@ const Priceplan = () => {
   };
 
   const userHasPlan = !!user?.plan;
+  console.log("userplan", user);
 
   return (
     <div className="container mx-auto px-4">

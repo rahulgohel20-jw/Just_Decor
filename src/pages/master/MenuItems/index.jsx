@@ -12,7 +12,9 @@ import {
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-import { Form } from "antd";
+import { Form, Spin } from "antd";
+
+const ITEMS_PER_PAGE = 1000; // Show 50 items per page
 
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -20,71 +22,78 @@ const MenuItems = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
   const [totalItems, setTotalItems] = useState(0);
-  const [originalData, setOriginalData] = useState([]);
-
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
   const intl = useIntl();
 
   let Id = localStorage.getItem("userId");
 
   useEffect(() => {
-    FetchMenuItems(currentPage);
+    // Initial load - load first page
+    fetchPage(1);
   }, []);
-  // fetch on mount
 
   useEffect(() => {
+    // Reset on search
     setCurrentPage(1);
-    FetchMenuItems(1);
+    fetchPage(1);
   }, [searchQuery]);
 
-  const FetchMenuItems = (page = currentPage, size = pageSize) => {
-    console.log("📩 Sending:", { page, size });
+  // Fetch specific page from API
+  const fetchPage = async (page) => {
+    setLoading(true);
 
-    GetAllMenuItems({
-      userId: Id,
-      itemName: searchQuery,
-      page,
-      size,
-    })
-      .then((res) => {
-        setOriginalData(res?.data?.data?.items || []);
-        setTotalItems(res?.data?.data?.totalItems || 0);
-      })
-      .catch(() => setOriginalData([]));
+    try {
+      console.log(`📩 Fetching page ${page} with ${ITEMS_PER_PAGE} items`);
+
+      const response = await GetAllMenuItems({
+        userId: Id,
+        itemName: searchQuery,
+        page: page,
+        size: ITEMS_PER_PAGE,
+      });
+
+      const items = response?.data?.data?.items || [];
+      const total = response?.data?.data?.totalItems || 0;
+
+      setTotalItems(total);
+
+      // Map items to table format
+      const language = localStorage.getItem("lang");
+      const languageMap = {
+        en: "nameEnglish",
+        hi: "nameHindi",
+        gu: "nameGujarati",
+      };
+      const field = languageMap[language] || "nameEnglish";
+
+      const mapped = items.map((item, index) => ({
+        sr_no: (page - 1) * ITEMS_PER_PAGE + index + 1,
+        id: item.id,
+        name: item[field] || "-",
+        category: item.menuCategory?.[field] || "-",
+        subCategory: item.menuSubCategory?.[field] || "-",
+        kitchenArea: item.kitchenArea?.[field] || "-",
+        slogan: item.slogan || "-",
+        price: item.price || "-",
+        priority: item.sequence || "-",
+        image: item.imagePath || "",
+        status: item.isActive,
+        rawdata: item.menuItemRawMaterials || [],
+        menuAllocation: item.menuItemAllocationConfigs || [],
+        _originalItem: item, // Keep original for updates
+      }));
+
+      setTableData(mapped);
+      console.log(`✅ Loaded ${items.length} items for page ${page}`);
+    } catch (error) {
+      console.error("Error loading page:", error);
+      setTableData([]);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  useEffect(() => {
-    const language = localStorage.getItem("lang");
-
-    const languageMap = {
-      en: "nameEnglish",
-      hi: "nameHindi",
-      gu: "nameGujarati",
-    };
-
-    const field = languageMap[language] || "nameEnglish";
-
-    const mapped = originalData.map((item, index) => ({
-      sr_no: index + 1,
-      id: item.id,
-
-      name: item[field] || "-",
-      category: item.menuCategory?.[field] || "-",
-      subCategory: item.menuSubCategory?.[field] || "-",
-      kitchenArea: item.kitchenArea?.[field] || "-",
-
-      slogan: item.slogan || "-",
-      price: item.price || "-",
-      priority: item.sequence || "-",
-      image: item.imagePath || "",
-      status: item.isActive,
-      rawdata: item.menuItemRawMaterials || [],
-      menuAllocation: item.menuItemAllocationConfigs || [],
-    }));
-
-    setTableData(mapped);
-  }, [originalData, localStorage.getItem("lang")]);
 
   const handleDelete = (id) => {
     if (!id || isNaN(id)) {
@@ -108,7 +117,9 @@ const MenuItems = () => {
               response &&
               (response.success || response.data.success === true)
             ) {
-              FetchMenuItems();
+              // Reload current page after delete
+              fetchPage(currentPage);
+
               Swal.fire({
                 title: "Removed!",
                 text: "Menu Item has been removed successfully.",
@@ -126,10 +137,10 @@ const MenuItems = () => {
       }
     });
   };
-  const handlePagination = (page, size = pageSize) => {
+
+  const handlePagination = (page) => {
     setCurrentPage(page);
-    setPageSize(size);
-    FetchMenuItems(page, size);
+    fetchPage(page);
   };
 
   const handleEdit = (menuItem) => {
@@ -140,12 +151,21 @@ const MenuItems = () => {
   const statusmenuitem = async (id, currentStatus) => {
     try {
       const newStatus = !currentStatus;
-      const res = await updatestatusmneuitem(id, newStatus);
+      await updatestatusmneuitem(id, newStatus);
 
-      FetchMenuItems();
+      // Update status in current page data without reloading
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: newStatus } : item
+        )
+      );
     } catch (error) {
       console.error("Error updating status:", error);
     }
+  };
+
+  const refreshData = () => {
+    fetchPage(currentPage);
   };
 
   return (
@@ -183,6 +203,12 @@ const MenuItems = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            {loading && (
+              <div className="flex items-center gap-2 text-primary">
+                <Spin size="small" />
+                <span className="text-sm">Loading items...</span>
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -206,28 +232,28 @@ const MenuItems = () => {
         </div>
 
         {/* Add/Edit modal */}
-        {isItemModalOpen &&
-          (() => {
-            return (
-              <AddMenuItem
-                isModalOpen={isItemModalOpen}
-                setIsModalOpen={setIsItemModalOpen}
-                refreshData={FetchMenuItems}
-                selectedMenuItem={selectedMenuItem}
-              />
-            );
-          })()}
+        {isItemModalOpen && (
+          <AddMenuItem
+            isModalOpen={isItemModalOpen}
+            setIsModalOpen={setIsItemModalOpen}
+            refreshData={refreshData}
+            selectedMenuItem={selectedMenuItem}
+          />
+        )}
 
-        {/* Table */}
+        {/* Table - Server-side pagination with 50 items per page */}
         <TableComponent
           columns={columns(handleEdit, handleDelete, statusmenuitem)}
           data={tableData}
-          paginationSize={10}
+          loading={loading}
           pagination={{
             current: currentPage,
+            pageSize: ITEMS_PER_PAGE,
             total: totalItems,
-            pageSize,
-            onChange: (page) => handlePagination(page),
+            onChange: handlePagination,
+            showSizeChanger: false,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
           }}
         />
       </Container>

@@ -1,21 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
-import { AddContactMasterType, EditContactType } from "@/services/apiServices";
+import { AddRights } from "@/services/apiServices";
 
-const AddPermission = ({ isOpen, onClose, contactType, refreshData }) => {
+const AddPermission = ({
+  isOpen,
+  onClose,
+  contactType,
+  permissionsData,
+  refreshData,
+}) => {
   if (!isOpen) return null;
 
-  const [permissions, setPermissions] = useState([
-    { name: "Dashboard", create: true, update: false, view: false },
-    { name: "Master", create: true, update: false, view: false },
-    { name: "Raw Material Master", create: true, update: false, view: false },
-    { name: "Dish Costing", create: true, update: false, view: false },
-    { name: "User Master", create: true, update: false, view: false },
-    { name: "Settings", create: true, update: false, view: false },
-  ]);
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    if (permissionsData?.length > 0) {
+      setPermissions(permissionsData);
+    }
+  }, [permissionsData]);
 
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Group name is required"),
@@ -28,40 +33,48 @@ const AddPermission = ({ isOpen, onClose, contactType, refreshData }) => {
       )
     );
   };
-
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async () => {
     try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        Swal.fire("Error", "User not found", "error");
-        return;
-      }
+      console.log(permissionsData[0].roleId);
 
       const payload = {
-        ...values,
-        permissions,
-        userId: userId,
+        roleId: permissionsData[0].roleId,
+        rightsList: permissions.map((perm) => ({
+          pageid: perm.pageid,
+          view: perm.view || false,
+          edit: perm.Edit || false,
+          delete: perm.Delete || false,
+          add: perm.Add || false,
+        })),
       };
 
-      if (contactType) {
-        await EditContactType(contactType.contacttypeid, payload);
-        Swal.fire(
-          "Updated!",
-          "Security group updated successfully.",
-          "success"
-        );
-      } else {
-        await AddContactMasterType(payload);
-        Swal.fire("Saved!", "Security group added successfully.", "success");
-      }
+      console.log("Payload => ", payload);
 
-      refreshData?.();
-      onClose(false);
-    } catch (error) {
-      console.error("Error saving permissions:", error);
-      Swal.fire("Error", "Something went wrong!", "error");
-    } finally {
-      setSubmitting(false);
+      const res = await AddRights(payload);
+
+      if (res?.data?.success === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Permissions updated successfully!",
+        });
+
+        refreshData();
+        onClose(false);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: res?.data?.message || "Something went wrong!",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "API Failed",
+        text: "Unable to update permissions!",
+      });
     }
   };
 
@@ -72,17 +85,7 @@ const AddPermission = ({ isOpen, onClose, contactType, refreshData }) => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              {contactType ? (
-                <FormattedMessage
-                  id="USER.MASTER.EDIT_CONTACT_TYPE"
-                  defaultMessage="Security Groups"
-                />
-              ) : (
-                <FormattedMessage
-                  id="USER.MASTER.NEW_CONTACT_TYPE"
-                  defaultMessage="Security Groups"
-                />
-              )}
+              Permissions - {contactType?.role}
             </h2>
             <p className="text-gray-500 text-sm">
               Manage Rights. Maintain Security.
@@ -98,74 +101,52 @@ const AddPermission = ({ isOpen, onClose, contactType, refreshData }) => {
 
         {/* Form */}
         <Formik
-          initialValues={{ nameEnglish: "" }}
+          initialValues={{ nameEnglish: contactType?.role || "" }}
+          enableReinitialize
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
             <Form className="space-y-6">
-              {/* Permission Table */}
+              {/* Permissions Table */}
               <div className="rounded-lg overflow-hidden border border-gray-200">
-                {/* Header */}
-                <div className="grid grid-cols-4 bg-[#005BA8] text-white font-medium text-center py-2">
-                  <div className="flex items-center justify-center gap-2">
-                    Permission
-                    <input
-                      type="checkbox"
-                      className="w-5 h-5 accent-white cursor-pointer"
-                      onChange={() => {
-                        // Optional: add select-all logic here
-                        const allChecked = permissions.every(
-                          (p) => p.permission
-                        );
-                        setPermissions((prev) =>
-                          prev.map((p) => ({ ...p, permission: !allChecked }))
-                        );
-                      }}
-                    />
-                  </div>
-                  <div className="border-l border-white">Create</div>
-                  <div className="border-l border-white">Update</div>
+                <div className="grid grid-cols-5 bg-[#005BA8] text-white font-medium text-center py-2">
+                  <div>Permission</div>
+                  <div className="border-l border-white">Add</div>
+                  <div className="border-l border-white">Edit</div>
                   <div className="border-l border-white">View</div>
+                  <div className="border-l border-white">Delete</div>
                 </div>
 
-                {/* Member Section */}
-                <div className="max-h-96 overflow-y-auto border-t border-b border-gray-200">
-                  <div className="bg-[#F7FAFF] text-gray-700 font-semibold text-center py-2 sticky top-0">
-                    Member
-                  </div>
-
-                  {/* Permission Rows */}
-                  <div className="divide-y divide-gray-200">
-                    {permissions.map((perm, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-4 items-center text-center py-3 hover:bg-gray-50"
-                      >
-                        <div className="text-gray-700 font-medium text-left pl-4">
-                          {perm.name}
-                        </div>
-
-                        {["create", "update", "view"].map((field, i) => (
-                          <div
-                            key={field}
-                            className={`flex justify-center ${
-                              i !== 0 ? "border-l border-gray-200" : ""
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={perm[field]}
-                              onChange={() =>
-                                handlePermissionChange(index, field)
-                              }
-                              className="w-5 h-5 accent-[#005BA8] cursor-pointer"
-                            />
-                          </div>
-                        ))}
+                <div className="max-h-96 overflow-y-auto divide-y divide-gray-200">
+                  {permissions.map((perm, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-5 items-center text-center py-3 hover:bg-gray-50"
+                    >
+                      <div className="text-gray-700 font-medium text-left pl-4">
+                        {perm?.name}
                       </div>
-                    ))}
-                  </div>
+
+                      {["Add", "Edit", "view", "Delete"].map((field, i) => (
+                        <div
+                          key={field}
+                          className={`flex justify-center ${
+                            i !== 0 ? "border-l border-gray-200" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={perm[field] || false}
+                            onChange={() =>
+                              handlePermissionChange(index, field)
+                            }
+                            className="w-5 h-5 accent-[#005BA8] cursor-pointer"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               </div>
 

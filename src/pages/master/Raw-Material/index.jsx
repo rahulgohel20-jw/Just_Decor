@@ -23,14 +23,11 @@ const RawMaterial = () => {
   const intl = useIntl();
   const [rawOriginalData, setRawOriginalData] = useState([]);
 
-  useEffect(() => {
-    FetchRawMaterial();
-  }, []);
-
   let Id = localStorage.getItem("userId");
 
+  // ✅ Fetch All Raw Materials (No Pagination)
   const FetchRawMaterial = () => {
-    GetAllRawMaterial(Id)
+    GetAllRawMaterial(Id, 1, 10000) // PAGE 1, LIMIT 10000
       .then((res) => {
         const list = res.data.data["Raw Material Details"] || [];
         setRawOriginalData(list);
@@ -39,6 +36,10 @@ const RawMaterial = () => {
         console.error("Error fetching raw materials:", error);
       });
   };
+
+  useEffect(() => {
+    FetchRawMaterial();
+  }, []);
 
   useEffect(() => {
     const language = localStorage.getItem("lang");
@@ -114,7 +115,7 @@ const RawMaterial = () => {
             }
           })
           .catch((error) => {
-            console.error("Error deleting Event type:", error);
+            console.error("Error deleting raw material:", error);
           });
       }
     });
@@ -129,17 +130,15 @@ const RawMaterial = () => {
     updateRawMaterialStatus(raw_material_id, status)
       .then((res) => {
         FetchRawMaterial();
-        res.data?.msg && successMsgPopup(res.data.msg);
       })
       .catch((error) => {
-        console.error("Error deleting Event type:", error);
+        console.error("Error status update:", error);
       });
   };
 
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
             items={[
@@ -154,7 +153,7 @@ const RawMaterial = () => {
             ]}
           />
         </div>
-        {/* filters */}
+
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
             className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
@@ -173,6 +172,7 @@ const RawMaterial = () => {
               />
             </div>
           </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
@@ -180,7 +180,6 @@ const RawMaterial = () => {
                 setSelectedRawMaterial(null);
                 setIsRawMaterialModalOpen(true);
               }}
-              title="Add Contact Category"
             >
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
@@ -190,21 +189,22 @@ const RawMaterial = () => {
             </button>
           </div>
         </div>
+
         <AddRawMaterial
           isOpen={isRawMaterialModalOpen}
           onClose={setIsRawMaterialModalOpen}
           refreshData={FetchRawMaterial}
           rawmaterial={selectedRawMaterial}
         />
-        {/* Supplier Modal */}
 
         <TableComponent
           columns={columns(handleEdit, DeleteRawMaterial, statusRaw)}
-          data={tableData && tableData.length ? tableData : defaultData}
-          paginationSize={100}
+          data={tableData}
+          pagination={false} // 🚀 SHOW ALL ITEMS WITHOUT PAGINATION
         />
       </Container>
     </Fragment>
   );
 };
+
 export default RawMaterial;
