@@ -7,7 +7,7 @@ import { AddRights, GetAllRole } from "@/services/apiServices";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const AddRole = ({ isModalOpen, setIsModalOpen }) => {
+const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [formData, setFormData] = useState({});
   const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
   const [pages, setPages] = useState([]);
@@ -24,22 +24,47 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
     axios.get(`${API_BASE}/user-rights/getPages`).then((res) => {
-      console.log("Pages response:", res.data);
       setPages(res.data?.data["UserRightsPages"] || []);
     });
 
     const userid = localStorage.getItem("userId");
 
-    GetAllRole(userid)
-      .then((res) => {
-        console.log("Roles:", res.data);
-        const list = res.data?.data["Role Details"] || [];
-        setRoles(list);
-      })
-      .catch((err) => {
-        console.error("Error fetching roles:", err);
-      });
-  }, [isModalOpen]);
+    // Fetch all roles
+    GetAllRole(userid).then((res) => {
+      const list = res.data?.data["Role Details"] || [];
+      setRoles(list);
+
+      // If edit mode: prefill role
+      if (editData) {
+        setFormData({ role_name: editData.role_name });
+      }
+    });
+
+    // Fetch assigned rights if edit mode
+    if (editData) {
+      axios
+        .get(`${API_BASE}/user-rights/getRoleRights/${editData.id}`)
+        .then((res) => {
+          const assignedRights = res.data?.data || [];
+          let formattedRights = {};
+
+          assignedRights.forEach((item) => {
+            formattedRights[item.pageid] = {
+              pageid: item.pageid,
+              view: item.view,
+              edit: item.edit,
+              delete: item.delete,
+              add: item.add,
+            };
+          });
+
+          setRights(formattedRights);
+        })
+        .catch((err) => console.log("Error fetching role rights:", err));
+    } else {
+      setRights({});
+    }
+  }, [isModalOpen, editData]);
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -58,21 +83,32 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
   const handleAddRole = () => {
     const role = roles.find((r) => r.name === formData.role_name);
 
+    const actions = ["view", "edit", "delete", "add"];
+
+    const rightsList = Object.values(rights).map((item) => ({
+      pageid: item.pageid,
+      ...actions.reduce((acc, action) => {
+        acc[action] = !!item[action];
+        return acc;
+      }, {}),
+    }));
+
     const payload = {
       roleId: role?.id || 0,
-      rightsList: Object.values(rights),
+      rightsList,
     };
 
-    console.log("FINAL PAYLOAD:", payload);
+    console.log("FINAL UPDATED PAYLOAD:", payload);
 
     AddRights(payload)
       .then((res) => {
-        if (res.success == true) {
+        console.log(res.data.success);
+
+        if (res.data.success === true) {
           Swal.fire({
             icon: "success",
             title: "Success",
             text: "User rights added successfully!",
-            confirmButtonColor: "#3085d6",
           });
           resetForm();
           handleModalClose();
@@ -80,20 +116,15 @@ const AddRole = ({ isModalOpen, setIsModalOpen }) => {
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: err?.response?.data?.message || "Something went wrong!",
-            confirmButtonColor: "#d33",
+            text: res?.message || "Something went wrong!",
           });
-          resetForm();
         }
       })
       .catch((err) => {
-        console.error("Error:", err);
-
         Swal.fire({
           icon: "error",
           title: "Error",
           text: err?.response?.data?.message || "Something went wrong!",
-          confirmButtonColor: "#d33",
         });
       });
   };

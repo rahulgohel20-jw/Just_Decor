@@ -20,6 +20,7 @@ const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(1000);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

@@ -444,6 +444,7 @@ export default function Signup() {
                   options={states}
                   icon="ki-map"
                   iconColor="text-primary"
+                  placeholder="Select State"
                   error={touched.stateId && errors.stateId}
                 />
 
@@ -456,6 +457,7 @@ export default function Signup() {
                   options={cities}
                   icon="ki-map"
                   iconColor="text-primary"
+                  placeholder="Select City"
                   error={touched.cityId && errors.cityId}
                 />
               </div>

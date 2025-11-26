@@ -15,17 +15,6 @@ export const columns = [
       <DataGridColumnHeader title="Role" column={column} />
     ),
   },
-  {
-    accessorKey: "Active Status",
-    headerKey: "Active Status",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <button className=" btn bg-green-200 text-green-700">Active</button>
-        </div>
-      );
-    },
-  },
 
   {
     accessorKey: "created_date",
@@ -39,33 +28,16 @@ export const columns = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
-          <button className=" btn btn-primary" 
-           onClick={() => handleOpenPermission(row.original)}
-          >Rights</button>
+          <button
+            className=" btn btn-primary"
+            onClick={() => handleOpenPermission(row.original)}
+          >
+            Rights
+          </button>
         </div>
       );
     },
   },
-  {
-    accessorKey: "status",
-    header: "Actions",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <Tooltip title="View">
-            <Link to={""}>
-              <button
-                className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-                onClick={() => handleActionClick(row.original)} 
-                title="View"
-              >
-                <i className="ki-filled ki-user-edit text-purple-700"></i>
-              </button>
-      </div>
-    );
-  },
-},
-
 ];
 
 export const defaultData = [

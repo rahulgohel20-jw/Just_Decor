@@ -10,6 +10,7 @@ import {
   fetchCitiesByState,
 } from "@/services/apiServices";
 import Select from "react-select";
+import Swal from "sweetalert2";
 
 const AddMember = ({
   isModalOpen,
@@ -176,8 +177,13 @@ const AddMember = ({
     try {
       const res = await getUserById(Id);
       const user_Data = res?.data?.data["User Details"][0];
+
       if (!user_Data) {
-        console.error("No data in localStorage");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "User not found!",
+        });
         return;
       }
 
@@ -194,38 +200,76 @@ const AddMember = ({
         companyName:
           formData.companyName || parsedData.userBasicDetails.companyName,
 
-        confirmPassword: formData.confirmpassword || null,
-        password: formData.password || null,
-
-        // static values
         countryCode: "+91",
         cityId: Number(formData.cityId),
         stateId: Number(formData.stateId),
         countryId: Number(formData.countryId),
         reportingManagerId: 0,
 
-        // localStorage values
         clientId: parsedData.id,
         planId: parsedData.plan.id,
 
-        // role & access
         roleId: Number(selectedRole),
         isTaskAccess: taskAccess,
         isAttendanceLeaveAccess: leaveAccess,
       };
 
+      // 👉 Add password only if given
+      if (formData.password && formData.confirmpassword) {
+        payload.password = formData.password;
+        payload.confirmPassword = formData.confirmpassword;
+      } else {
+        payload.password = "";
+        payload.confirmPassword = "";
+      }
+
+      let apiRes;
       if (formData.memberid) {
         payload.memberId = formData.memberid;
-        const res = await UpdateMember(payload.memberId, payload);
-        console.log("Updating member with payload:", res);
+        apiRes = await UpdateMember(payload.memberId, payload);
+
+        if (apiRes?.data?.success === true) {
+          Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: "Member updated successfully!",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Update Failed",
+            text: apiRes?.data?.message || "Something went wrong!",
+          });
+          return;
+        }
       } else {
-        await AddMemberapi(payload);
+        apiRes = await AddMemberapi(payload);
+
+        if (apiRes?.data?.success === true) {
+          Swal.fire({
+            icon: "success",
+            title: "Created!",
+            text: "Member added successfully!",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Creation Failed",
+            text: apiRes?.data?.message || "Something went wrong!",
+          });
+          return;
+        }
       }
 
       refreshData();
       handleModalClose();
     } catch (err) {
-      console.error("❌ Error saving member:", err.response?.data || err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.response?.data?.message || "Something went wrong!",
+      });
+      console.error(err);
     }
   };
 

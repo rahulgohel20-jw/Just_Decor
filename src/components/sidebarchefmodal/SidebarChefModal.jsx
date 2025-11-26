@@ -103,7 +103,7 @@ export default function SidebarChefModal({
       try {
         let userId = localStorage.getItem("userId");
 
-        const res = await ContactNameItem(userId, "CHEF LABOUR");
+        const res = await ContactNameItem(userId, "Chef Labour");
         if (res?.data?.data) {
           setContactNames(res.data.data["Party Details"]);
         }

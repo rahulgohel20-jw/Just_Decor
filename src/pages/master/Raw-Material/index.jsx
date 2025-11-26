@@ -60,7 +60,7 @@ const RawMaterial = () => {
 
     const field = languageMap[language] || "nameEnglish";
 
-    const mapped = rawOriginalData.map((raw, index) => ({
+    let mapped = rawOriginalData.map((raw, index) => ({
       sr_no: index + 1,
       raw_material_id: raw.id,
       raw_material_cat_id: raw.rawMaterialCat?.id,
@@ -75,6 +75,19 @@ const RawMaterial = () => {
       weightPer100Pax: raw.weightPer100Pax,
       isGeneralFix: raw.isGeneralFix,
     }));
+
+    // 🔍 Search Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+
+      mapped = mapped.filter(
+        (item) =>
+          item.raw_material_name?.toLowerCase().includes(q) ||
+          item.raw_material_category?.toLowerCase().includes(q) ||
+          item.unit?.toLowerCase().includes(q) ||
+          String(item.rate)?.toLowerCase().includes(q)
+      );
+    }
 
     setAllTableData(mapped);
   }, [rawOriginalData]);

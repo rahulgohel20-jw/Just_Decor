@@ -61,9 +61,8 @@ const AddRawMaterialCategory = () => {
     };
 
     const selectedField = languageMap[language] || "nameEnglish";
-    console.log(rawOriginalData);
 
-    const mapped = rawOriginalData.map((cust, index) => ({
+    let mapped = rawOriginalData.map((cust, index) => ({
       sr_no: index + 1,
       name: cust[selectedField] || "-",
       rawtype: cust.rawMaterialCatType[selectedField] || "-",
@@ -74,8 +73,17 @@ const AddRawMaterialCategory = () => {
       isDirect: cust.isDirect,
     }));
 
+    // 🔍 Apply Search Filter
+    if (searchQuery.trim()) {
+      mapped = mapped.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.rawtype.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
     setTableData(mapped);
-  }, [rawOriginalData, localStorage.getItem("lang")]);
+  }, [rawOriginalData, searchQuery, localStorage.getItem("lang")]);
 
   const statusmenuitem = async (rawCatid, currentStatus) => {
     try {
