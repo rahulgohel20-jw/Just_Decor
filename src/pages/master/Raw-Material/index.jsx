@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -18,22 +18,29 @@ const RawMaterial = () => {
   const classes = useStyle();
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
   const [selectedRawMaterial, setSelectedRawMaterial] = useState(null);
-  const [tableData, setTableData] = useState(defaultData);
+  const [allTableData, setAllTableData] = useState([]); // All data (unfiltered)
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
   const intl = useIntl();
   const [rawOriginalData, setRawOriginalData] = useState([]);
 
   let Id = localStorage.getItem("userId");
 
-  // ✅ Fetch All Raw Materials (No Pagination)
+  // Fetch All Raw Materials (No Pagination)
   const FetchRawMaterial = () => {
+    setLoading(true);
     GetAllRawMaterial(Id, 1, 10000) // PAGE 1, LIMIT 10000
       .then((res) => {
         const list = res.data.data["Raw Material Details"] || [];
         setRawOriginalData(list);
+        console.log(`✅ Loaded ${list.length} raw materials`);
       })
       .catch((error) => {
         console.error("Error fetching raw materials:", error);
+        setRawOriginalData([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -41,6 +48,7 @@ const RawMaterial = () => {
     FetchRawMaterial();
   }, []);
 
+  // Map raw data to table format whenever language or data changes
   useEffect(() => {
     const language = localStorage.getItem("lang");
 
@@ -81,8 +89,31 @@ const RawMaterial = () => {
       );
     }
 
-    setTableData(mapped);
-  }, [rawOriginalData, searchQuery, localStorage.getItem("lang")]);
+    setAllTableData(mapped);
+  }, [rawOriginalData]);
+
+  // 🔍 Client-side filtering with useMemo for performance
+  const filteredTableData = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return allTableData;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    console.log(`🔍 Filtering with query: "${query}"`);
+
+    const filtered = allTableData.filter((item) => {
+      return (
+        item.raw_material_name?.toLowerCase().includes(query) ||
+        item.raw_material_category?.toLowerCase().includes(query) ||
+        item.unit?.toLowerCase().includes(query)
+      );
+    });
+
+    console.log(
+      `✅ Found ${filtered.length} matches out of ${allTableData.length}`
+    );
+    return filtered;
+  }, [allTableData, searchQuery]);
 
   const DeleteRawMaterial = (raw_material_id) => {
     Swal.fire({
@@ -171,6 +202,11 @@ const RawMaterial = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            {searchQuery && (
+              <span className="text-sm text-gray-600">
+                {filteredTableData.length} of {allTableData.length} items
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -199,8 +235,9 @@ const RawMaterial = () => {
 
         <TableComponent
           columns={columns(handleEdit, DeleteRawMaterial, statusRaw)}
-          data={tableData}
-          pagination={false} // 🚀 SHOW ALL ITEMS WITHOUT PAGINATION
+          data={filteredTableData} // 🔍 Use filtered data instead of all data
+          loading={loading}
+          pagination={false} // Show all filtered items without pagination
         />
       </Container>
     </Fragment>
