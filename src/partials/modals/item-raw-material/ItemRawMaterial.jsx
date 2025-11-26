@@ -55,7 +55,7 @@ const ItemRawmaterial = ({
         console.error("Error fetching raw materials:", err);
       });
 
-    GetUnitData(userId)
+    GetUnitData(1)
       .then((res) => {
         const units = res.data.data["Unit Details"].map((unit) => ({
           id: unit.id,
