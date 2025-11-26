@@ -82,6 +82,10 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
+export const GetAllContactCategorybycontacttype = (Id) => {
+  return GET(`/contactcategory/getallbycatid?conCatId=1&userId=${Id}`);
+};
+
 //search ContactCategory
 export const SearchContactCategory = (data, Id) => {
   return GET(
