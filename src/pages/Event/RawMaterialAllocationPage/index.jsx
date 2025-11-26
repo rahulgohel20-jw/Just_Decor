@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
@@ -29,12 +29,16 @@ const RawMaterialAllocation = () => {
   const [data, setData] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const unitOptions = ["Kilogram", "Gram", "Litre", "NOS"];
-  const [isRawSidebar, setIsRawSidebar] = useState();
+  const [isRawSidebar, setIsRawSidebar] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState(null);
+
+  // 🔥 NEW: Track if data has been modified
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const isInitialLoad = useRef(true);
 
   const intl = useIntl();
 
@@ -107,7 +111,6 @@ const RawMaterialAllocation = () => {
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => ({
-          // ✅ FIX: Add proper IDs
           id: item.id || index + 1,
           rawMaterialId: item.rawMaterialId || item.id || 0,
           material: item.rawMaterialNameEng || "N/A",
@@ -123,6 +126,7 @@ const RawMaterialAllocation = () => {
           eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
         }));
         setData(formatted);
+        setHasUnsavedChanges(false); // Reset unsaved changes flag
       } else {
         setData([]);
       }
@@ -138,32 +142,25 @@ const RawMaterialAllocation = () => {
     const updated = [...data];
     updated[index][field] = value;
     setData(updated);
+    setHasUnsavedChanges(true); // 🔥 Mark as having unsaved changes
   };
 
-  const handleSave = async () => {
+  // 🔥 NEW: Auto-save function
+  const autoSave = async (showNotification = false) => {
     try {
       if (!eventId) {
-        Swal.fire({
-          icon: "error",
-          title: "Missing Event ID",
-          text: "Event ID is required.",
-        });
-        return;
+        console.warn("Missing Event ID, skipping auto-save");
+        return false;
       }
 
       if (!data || data.length === 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "No Data",
-          text: "There are no raw materials to save.",
-        });
-        return;
+        console.warn("No data to save, skipping auto-save");
+        return false;
       }
 
       const payload = {
         eventId: parseInt(eventId),
         eventRawMaterial: data.map((item) => {
-          // Find supplier ID
           const supplierId =
             agencies.find(
               (a) => a.nameEnglish === item.agency || a.name === item.agency
@@ -171,7 +168,6 @@ const RawMaterialAllocation = () => {
             item.supplierId ||
             0;
 
-          // Map functions
           const eventRawMatFunctions = (
             item.eventRawMaterialFunctions || []
           ).map((fn) => ({
@@ -199,60 +195,85 @@ const RawMaterialAllocation = () => {
         }),
       };
 
-      console.log("=== SAVE PAYLOAD ===");
-      console.log(JSON.stringify(payload, null, 2));
-      console.log("===================");
+      console.log("🔄 Auto-saving...", payload);
 
       const response = await RawMaterialallocation(payload);
-
-      console.log("=== API RESPONSE ===");
-      console.log(response);
-      console.log("===================");
 
       if (
         response?.data?.success === true ||
         response?.status === 200 ||
         response?.status === 201
       ) {
-        await Swal.fire({
-          icon: "success",
-          title: "Saved",
-          text: "Raw Material Allocation saved successfully!",
-        });
+        console.log("✅ Auto-save successful");
+        setHasUnsavedChanges(false);
 
-        // Refresh data
-        const currentTab = tabs.find((tab) => tab.value === activeTab);
-        if (currentTab?.categoryId) {
-          await fetchRawMaterialItems(currentTab.categoryId);
+        if (showNotification) {
+          Swal.fire({
+            icon: "success",
+            title: "Saved",
+            text: "Data saved successfully!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
         }
+
+        return true;
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Save Failed",
-          text: response?.data?.message || "Something went wrong.",
-        });
+        console.error("❌ Auto-save failed:", response);
+        return false;
       }
     } catch (error) {
-      console.error("=== ERROR SAVING ===");
-      console.error(error);
-      console.error("===================");
+      console.error("❌ Error during auto-save:", error);
+      return false;
+    }
+  };
 
+  const handleSave = async () => {
+    const success = await autoSave(true);
+
+    if (success) {
+      // Refresh data after successful save
+      const currentTab = tabs.find((tab) => tab.value === activeTab);
+      if (currentTab?.categoryId) {
+        await fetchRawMaterialItems(currentTab.categoryId);
+      }
+    } else {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text:
-          error?.response?.data?.message ||
-          error?.message ||
-          "An error occurred while saving data.",
+        title: "Save Failed",
+        text: "Something went wrong while saving.",
       });
     }
   };
+
+  // 🔥 NEW: Handle tab switch with auto-save
+  const handleTabSwitch = async (tab) => {
+    console.log("🔄 Switching tab from", activeTab, "to", tab.value);
+
+    // Auto-save current tab data before switching
+    if (hasUnsavedChanges && data.length > 0) {
+      console.log("💾 Auto-saving before tab switch...");
+      const success = await autoSave(false);
+
+      if (success) {
+        console.log("✅ Auto-save completed, switching tab");
+      } else {
+        console.warn("⚠️ Auto-save failed, but continuing with tab switch");
+      }
+    }
+
+    // Switch to new tab
+    setActiveTab(tab.value);
+    fetchRawMaterialItems(tab.categoryId);
+  };
+
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+
   function openSelectMenureport() {
-    console.log("🟢 Opening SelectMenureport for event:", eventId); // Debug log
+    console.log("🟢 Opening SelectMenureport for event:", eventId);
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
   }
@@ -267,6 +288,7 @@ const RawMaterialAllocation = () => {
       agency: agency,
     }));
     setData(updated);
+    setHasUnsavedChanges(true); // 🔥 Mark as changed
   };
 
   const handleAllocatePlace = (place) => {
@@ -275,6 +297,7 @@ const RawMaterialAllocation = () => {
       place: place,
     }));
     setData(updated);
+    setHasUnsavedChanges(true); // 🔥 Mark as changed
   };
 
   const handleAllocateDate = (date) => {
@@ -285,6 +308,7 @@ const RawMaterialAllocation = () => {
       date: formatted,
     }));
     setData(updated);
+    setHasUnsavedChanges(true); // 🔥 Mark as changed
   };
 
   const renderModalData = () => {
@@ -387,6 +411,7 @@ const RawMaterialAllocation = () => {
     setSelectedRow(row);
     setIsRawSidebar(true);
   };
+
   const handleSaveFromSidebar = (updatedRow) => {
     console.log("Saving from sidebar:", updatedRow);
 
@@ -398,7 +423,6 @@ const RawMaterialAllocation = () => {
         return {
           ...item,
           ...updatedRow,
-          // Ensure these fields are preserved
           rawMaterialId: item.rawMaterialId,
           id: item.id,
         };
@@ -407,15 +431,17 @@ const RawMaterialAllocation = () => {
     });
 
     setData(updatedData);
+    setHasUnsavedChanges(true); // 🔥 Mark as changed
 
     Swal.fire({
       icon: "success",
       title: "Updated",
-      text: "Row updated successfully. Don't forget to click the main Save button!",
+      text: "Row updated successfully. Changes will be saved when switching tabs or clicking Save.",
       timer: 2000,
       showConfirmButton: false,
     });
   };
+
   const totalPrice = data.reduce(
     (acc, item) => acc + Number(item.total || 0),
     0
@@ -527,10 +553,12 @@ const RawMaterialAllocation = () => {
                 Report
               </button>
               <button
+                onClick={handleSave}
                 className="bg-primary text-white text-sm px-5 py-2 rounded-md transition"
                 title="Save"
               >
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                {hasUnsavedChanges && <span className="ml-1">*</span>}
               </button>
             </div>
           </div>
@@ -548,10 +576,7 @@ const RawMaterialAllocation = () => {
             tabs.map((tab) => (
               <button
                 key={tab.value}
-                onClick={() => {
-                  setActiveTab(tab.value);
-                  fetchRawMaterialItems(tab.categoryId);
-                }}
+                onClick={() => handleTabSwitch(tab)}
                 className={`px-4 py-2 text-sm font-medium border border-gray-200 ${
                   activeTab === tab.value
                     ? "bg-primary text-white"
@@ -715,6 +740,7 @@ const RawMaterialAllocation = () => {
               className="bg-primary text-white text-sm px-6 py-2 rounded-md transition"
             >
               <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+              {hasUnsavedChanges && <span className="ml-1">*</span>}
             </button>
           </div>
         </div>
@@ -745,7 +771,7 @@ const RawMaterialAllocation = () => {
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
           onConfirm={(reportType) => {
-            console.log("✅ SelectMenureport confirmed with:", reportType); // 👈 Debug log
+            console.log("✅ SelectMenureport confirmed with:", reportType);
             setIsSelectMenuReport(false);
             setSelectedReportType(reportType);
             setIsMenuReport(true);

@@ -89,7 +89,8 @@ const LabourOtherManagementPage = () => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
 
-  const userId = storedUser?.id || eventData?.user?.id || 0;
+  const userId = localStorage.getItem("userId");
+  console.log("userid", userId);
 
   useEffect(() => {
     const fetchShifts = async () => {

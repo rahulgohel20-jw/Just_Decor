@@ -63,7 +63,7 @@ export default function SidebarRawMaterial({
           return;
         }
 
-        const res = await Getunit(userId);
+        const res = await Getunit(1);
 
         if (res?.data?.data) {
           const unitData = res.data.data["Unit Details"].map((unit) => ({

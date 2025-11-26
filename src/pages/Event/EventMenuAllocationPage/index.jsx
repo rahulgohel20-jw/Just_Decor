@@ -363,13 +363,20 @@ const EventMenuAllocationPage = () => {
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
-      setIsCategoryModal(true);
-      setMenuLoading(true);
       const eventFunctionId = activeFunction?.id || 1;
       const isFromNewTable = item.isFromNewTable || false;
       const menuItemId = item.menuItemId || item.id;
 
       console.log("🔍 Fetching raw materials for menuItemId:", menuItemId);
+
+      // 🔥 CRITICAL FIX: Open modal immediately with empty data
+      setSelectedRow({
+        "MenuItem RawMaterial Details": [],
+        menuItemName: item.menuItemName || "-",
+        menuItemId: menuItemId,
+      });
+      setIsCategoryModal(true);
+      setMenuLoading(true);
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
@@ -383,7 +390,7 @@ const EventMenuAllocationPage = () => {
         const apiData = res.data.data;
         console.log("🔍 Selected Row Data:", apiData);
 
-        // ✅ FIX: The API returns "MenuItem RawMaterial Details" (with spaces), not "menuItemRawMaterials"
+        // ✅ FIX: The API returns "MenuItem RawMaterial Details" (with spaces)
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
@@ -391,9 +398,12 @@ const EventMenuAllocationPage = () => {
 
         console.log("🔍 Raw Materials from API:", rawMaterials);
 
+        // 🔥 Update selectedRow with fetched data
         setSelectedRow({
           ...apiData,
-          menuItemRawMaterials: rawMaterials, // Normalize the key
+          "MenuItem RawMaterial Details": rawMaterials,
+          menuItemName: item.menuItemName || apiData.menuItemName || "-",
+          menuItemId: menuItemId,
         });
 
         if (rawMaterials && rawMaterials.length > 0) {
@@ -434,9 +444,21 @@ const EventMenuAllocationPage = () => {
         }
       } else {
         console.warn("⚠️ API call unsuccessful or no data returned");
+        // Keep the empty state if API fails
+        setSelectedRow({
+          "MenuItem RawMaterial Details": [],
+          menuItemName: item.menuItemName || "-",
+          menuItemId: menuItemId,
+        });
       }
     } catch (error) {
       console.error("❌ Error fetching SelectedItemNameMenuAllocation:", error);
+      // Keep the empty state if there's an error
+      setSelectedRow({
+        "MenuItem RawMaterial Details": [],
+        menuItemName: item.menuItemName || "-",
+        menuItemId: item.menuItemId || item.id,
+      });
     } finally {
       setMenuLoading(false);
     }
@@ -752,23 +774,60 @@ const EventMenuAllocationPage = () => {
   };
 
   const handleCategorySave = (saveData) => {
-    setAllocationData((prev) => ({
-      ...prev,
-      [`${saveData.menuItemId}-category`]: saveData,
-    }));
+    console.log("🔍 handleCategorySave received:", saveData);
+    console.log("🔍 Raw materials in saveData:", saveData.rawMaterials);
 
-    // Also update the rows to store raw materials
-    setRows((prevRows) =>
-      prevRows.map((r) => {
+    // Store in allocationData
+    setAllocationData((prev) => {
+      const updated = {
+        ...prev,
+        [`${saveData.menuItemId}-category`]: saveData,
+      };
+      console.log("🔍 Updated allocationData:", updated);
+      return updated;
+    });
+
+    // 🔥 CRITICAL FIX: Update the rows with the saved raw materials
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((r) => {
         if (r.menuItemId === saveData.menuItemId) {
+          console.log("🔍 ✅ Updating row for menuItemId:", r.menuItemId);
+          console.log(
+            "🔍 Previous menuItemRawMaterials count:",
+            r.menuItemRawMaterials?.length || 0
+          );
+          console.log(
+            "🔍 New rawMaterials count:",
+            saveData.rawMaterials?.length || 0
+          );
+
+          // Check if partyId exists in the new data
+          if (saveData.rawMaterials && saveData.rawMaterials.length > 0) {
+            console.log(
+              "🔍 First raw material partyId:",
+              saveData.rawMaterials[0].partyId
+            );
+            console.log(
+              "🔍 First raw material place:",
+              saveData.rawMaterials[0].place
+            );
+          }
+
           return {
             ...r,
+            // 🔥 Replace the entire menuItemRawMaterials array with saved data
             menuItemRawMaterials: saveData.rawMaterials || [],
           };
         }
         return r;
-      })
-    );
+      });
+
+      console.log("🔍 ✅ Rows updated after category save");
+      return updatedRows;
+    });
+
+    // Close the modal
+    setIsCategoryModal(false);
   };
 
   if (loading) {
@@ -783,6 +842,28 @@ const EventMenuAllocationPage = () => {
   const handleMainSave = async () => {
     try {
       let Id = localStorage.getItem("userId");
+
+      // 🔥 FIX: Ensure we have valid eventId and eventFunctionId
+      const validEventId = Number(eventId);
+      const validEventFunctionId = activeFunction?.id;
+
+      if (!validEventId || !validEventFunctionId) {
+        Swal.fire({
+          title: "Error!",
+          text: "Missing event or function information. Please refresh and try again.",
+          icon: "error",
+          confirmButtonColor: "#d33",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      console.log(
+        "🔍 Event ID:",
+        validEventId,
+        "Function ID:",
+        validEventFunctionId
+      );
 
       const payload = rows.map((r) => {
         const outsideAllocations =
@@ -831,47 +912,100 @@ const EventMenuAllocationPage = () => {
           allocationData[`${r.menuItemId}-category`]?.rawMaterials || [];
         const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
-        // Use allocation data if available, otherwise use row data
+        // 🔥 PRIORITY FIX: Always prefer row data over allocation data
+        // because handleCategorySave updates the rows
         const rawMaterialsSource =
-          rawMaterialsFromAllocation.length > 0
-            ? rawMaterialsFromAllocation
-            : rawMaterialsFromRow;
+          rawMaterialsFromRow.length > 0
+            ? rawMaterialsFromRow
+            : rawMaterialsFromAllocation;
 
         console.log(
-          "🔍🔍🔍 Raw materials source before mapping:",
-          rawMaterialsSource
+          "🔍 Raw materials for menuItemId:",
+          r.menuItemId,
+          "- Using",
+          rawMaterialsFromRow.length > 0 ? "ROW data" : "ALLOCATION data",
+          "- Count:",
+          rawMaterialsSource.length
         );
 
-        // ✅ Map to API format
+        // Log sample to verify partyId
+        if (rawMaterialsSource.length > 0) {
+          console.log("🔍 Sample raw material:", {
+            partyId: rawMaterialsSource[0].partyId,
+            place: rawMaterialsSource[0].place,
+            rawMaterialId: rawMaterialsSource[0].rawMaterialId,
+          });
+        }
+
+        // ✅ Map to API format with proper partyId extraction
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
-          console.log("🔍 Mapping individual raw material:", rm);
+          // 🔥 FIX: Extract partyId correctly - it might be nested or have different names
+          let partyId = 0;
+
+          // Check multiple possible sources for partyId
+          if (
+            rm.partyId !== undefined &&
+            rm.partyId !== null &&
+            rm.partyId !== 0
+          ) {
+            partyId = rm.partyId;
+          } else if (
+            rm.party_id !== undefined &&
+            rm.party_id !== null &&
+            rm.party_id !== 0
+          ) {
+            partyId = rm.party_id;
+          } else if (rm.party?.id) {
+            partyId = rm.party.id;
+          }
+
+          // 🔥 FIX: Extract unitId correctly
+          let unitId = 0;
+          if (
+            rm.unitId !== undefined &&
+            rm.unitId !== null &&
+            rm.unitId !== 0
+          ) {
+            unitId = rm.unitId;
+          } else if (
+            rm.unit_id !== undefined &&
+            rm.unit_id !== null &&
+            rm.unit_id !== 0
+          ) {
+            unitId = rm.unit_id;
+          } else if (rm.unit?.id) {
+            unitId = rm.unit.id;
+          }
 
           const mapped = {
             dateTime: rm.dateTime || "",
-            eventFunctionId: rm.eventFunctionId || activeFunction?.id || 0,
-            eventId: rm.eventId || Number(eventId) || 0,
+            eventFunctionId: validEventFunctionId, // 🔥 Use validated eventFunctionId
+            eventId: validEventId, // 🔥 Use validated eventId
             id: rm.id !== undefined ? rm.id : 0,
             menuItemId: rm.menuItemId || r.menuItemId || 0,
-            partyId: rm.partyId !== undefined ? rm.partyId : 0,
+            partyId: partyId, // 🔥 Use the extracted partyId
             place: rm.place || "",
             rate: rm.rate || 0,
             rawMaterialId: rm.rawMaterialId || 0,
             rawmaterial_rate: rm.rawmaterial_rate || 0,
             rawmaterial_weight: rm.rawmaterial_weight || 0,
-            unitId: rm.unitId || 0,
+            unitId: unitId, // 🔥 Use the extracted unitId
             weight: rm.weight || 0,
           };
 
-          console.log("🔍 Mapped result:", mapped);
+          console.log(
+            "🔍 Mapped raw material - partyId:",
+            mapped.partyId,
+            "unitId:",
+            mapped.unitId
+          );
           return mapped;
         });
 
-        console.log("🔍🔍🔍 Final menuItemRawMaterials:", menuItemRawMaterials);
-
-        return {
+        const rowPayload = {
           chefLabour: r.chefLabour || false,
-          eventFunctionId: activeFunction?.id || 0,
-          eventId: Number(eventId) || 0,
+          eventFunctionId: validEventFunctionId, // 🔥 Use validated eventFunctionId
+          eventId: validEventId, // 🔥 Use validated eventId
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
@@ -882,13 +1016,22 @@ const EventMenuAllocationPage = () => {
           outside: r.outside || false,
           personCount: r.personCount || 0,
           place: r.place || "venue",
-          userId: Id,
+          userId: Number(Id) || 0, // 🔥 Convert userId to number
         };
+
+        console.log("🔍 Row payload for menuItemId:", r.menuItemId, rowPayload);
+        return rowPayload;
       });
 
-      console.log("Final payload:", JSON.stringify(payload, null, 2));
+      console.log(
+        "📤 Final payload being sent:",
+        JSON.stringify(payload, null, 2)
+      );
 
       const res = await MenuAllocationSave(payload);
+
+      console.log("📥 API Response:", res?.data);
+
       if (res?.data?.success === true) {
         Swal.fire({
           title: "Saved Successfully!",
@@ -898,20 +1041,32 @@ const EventMenuAllocationPage = () => {
           confirmButtonText: "OK",
         });
 
-        // ✅ Optional: Refresh data after save
-        await fetchMenuAllocation(activeFunction?.id);
+        // ✅ Refresh data after save
+        await fetchMenuAllocation(validEventFunctionId);
+      } else {
+        Swal.fire({
+          title: "Save Failed!",
+          text:
+            res?.data?.msg ||
+            res?.data?.message ||
+            "Failed to save menu allocation details.",
+          icon: "error",
+          confirmButtonColor: "#d33",
+          confirmButtonText: "OK",
+        });
       }
     } catch (error) {
-      console.error("Error saving menu allocation:", error);
+      console.error("❌ Error saving menu allocation:", error);
       Swal.fire({
         title: "Error!",
-        text: "Failed to save menu allocation details.",
+        text: error.message || "Failed to save menu allocation details.",
         icon: "error",
         confirmButtonColor: "#d33",
         confirmButtonText: "OK",
       });
     }
   };
+
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
@@ -1225,6 +1380,7 @@ const EventMenuAllocationPage = () => {
           selectedRowData={selectedRow}
           eventFunctionId={activeFunction?.id}
           eventId={eventId}
+          onSave={handleCategorySave} // 🔥 ADD THIS LINE
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}

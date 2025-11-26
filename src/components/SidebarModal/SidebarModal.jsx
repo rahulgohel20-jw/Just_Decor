@@ -56,7 +56,7 @@ export default function SidebarModal({
           alloc.totalPrice || (price && quantity ? price * quantity : "");
 
         return {
-          partyId: alloc.partyId || null,
+          partyId: alloc.partyId || 0,
           partyName: alloc.partyName || "",
           price: alloc.price || "",
           quantity: alloc.quantity || "",
@@ -114,7 +114,7 @@ export default function SidebarModal({
           return;
         }
 
-        const res = await Getunit(userId);
+        const res = await Getunit(1);
 
         if (res?.data?.data) {
           const unitData = res.data.data["Unit Details"].map((unit) => ({

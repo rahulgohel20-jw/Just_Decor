@@ -91,7 +91,14 @@ const ClientDetailsStep = ({
       .then((res) => {
         const partyDetails = res.data.data["Party Details"];
 
-        const customername = partyDetails.map((customer, index) => {
+        // ✅ fetch only customers
+        const onlyCustomers = partyDetails.filter(
+          (p) =>
+            p.contact?.contactType?.nameEnglish?.trim().toLowerCase() ===
+            "customer"
+        );
+
+        const customername = onlyCustomers.map((customer, index) => {
           const localizedName = getLocalizedField(customer, "name");
           const localizedAddress = getLocalizedField(customer, "address");
 
@@ -113,10 +120,8 @@ const ClientDetailsStep = ({
 
         setCustomer(customername);
 
-        // Auto-select the latest added customer
         if (autoSelectLatest && customername.length > 0) {
           const latestCustomer = customername[customername.length - 1];
-          console.log("Auto-selecting latest customer:", latestCustomer);
 
           setFormData((prev) => ({
             ...prev,
