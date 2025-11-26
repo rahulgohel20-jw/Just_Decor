@@ -49,7 +49,7 @@ const ContactTypeMaster = () => {
         return;
       }
 
-      SearchContactCategory(searchQuery, Id)
+      SearchContactCategory(searchQuery, 1)
         .then(({ data: { data } }) => {
           if (data && data["Contact Type Details"]) {
             const formatted = data["Contact Type Details"].map(
@@ -75,7 +75,7 @@ const ContactTypeMaster = () => {
 
   // ------------------ FETCH CONTACT TYPE ------------------
   const FetchContactType = () => {
-    GetAllContactType(Id)
+    GetAllContactType(1)
       .then((res) => {
         const formatted = res.data.data["Contact Type Details"].map(
           (cust, index) => ({

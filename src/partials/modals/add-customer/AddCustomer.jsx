@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import {
   AddCustomerapi,
-  GetAllContactCategory,
+  GetAllContactCategorybycontacttype,
   EditCustomerApi,
   Translateapi,
 } from "@/services/apiServices";
@@ -178,15 +178,13 @@ const AddCustomer = ({
     try {
       const {
         data: { data },
-      } = await GetAllContactCategory(Id);
+      } = await GetAllContactCategorybycontacttype(Id);
 
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
-      const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id === 10;
-      });
+      console.log(allCategories, "data");
 
-      setCategories(filteredCategories);
+      setCategories(allCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
       Swal.fire({

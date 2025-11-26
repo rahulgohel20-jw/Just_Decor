@@ -100,7 +100,7 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     const email = currentUser?.email;
 
-    window.location.href = "/justcaterings/auth/login";
+    // window.location.href = "/justcaterings/auth/login";
 
     try {
       if (email) {

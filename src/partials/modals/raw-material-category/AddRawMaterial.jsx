@@ -58,10 +58,10 @@ const AddRawMaterial = ({
 
   // Function to fetch dropdown options
   const FetchRawTypeCategory = () => {
-    if (!userId) return;
-
-    GetRawType(userId)
+    GetRawType(1)
       .then((res) => {
+        console.log(res);
+
         const rawData =
           res?.data?.data?.["Raw Material Category Type Details"] || [];
         setOptions(
@@ -158,12 +158,6 @@ const AddRawMaterial = ({
               />
             )}
           </h2>
-          <button
-            onClick={() => onClose(false)}
-            className="text-2xl text-gray-600"
-          >
-            &times;
-          </button>
         </div>
 
         {/* Formik Form */}
@@ -246,7 +240,7 @@ const AddRawMaterial = ({
                           }
                           options={options}
                           createBtn={true}
-                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          className="w-full p-2 border border-gray-300 rounded-lg !h-10"
                         />
                       </div>
 
@@ -326,12 +320,6 @@ const AddRawMaterial = ({
         </Formik>
 
         {/* Add Raw Material Type Modal */}
-        <AddRawMaterialType
-          isOpen={isRawModalOpen}
-          onClose={() => setIsRawModalOpen(false)}
-          refreshData={FetchRawTypeCategory}
-          rawdata={selectedRawCategory}
-        />
       </div>
     </div>
   );
