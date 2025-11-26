@@ -180,7 +180,7 @@ const AddMenuItem = ({
       .catch((err) =>
         console.error("Error loading RawMaterialName data:", err)
       );
-    GetUnitData(UserId)
+    GetUnitData(1)
       .then((res) => {
         const units = res.data.data["Unit Details"].map((unit) => ({
           id: unit.id,

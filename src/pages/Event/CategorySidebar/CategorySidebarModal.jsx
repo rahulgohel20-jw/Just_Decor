@@ -47,7 +47,7 @@ export default function CategorySidebarModal({
       const supplierData = res?.data?.data?.["Party Details"] || [];
       setSuppliers(supplierData);
 
-      const unitRes = await GetUnitData(userId);
+      const unitRes = await GetUnitData(1);
       const unitData = unitRes?.data?.data?.["Unit Details"] || [];
       setUnit(unitData);
     } catch (err) {
@@ -61,35 +61,55 @@ export default function CategorySidebarModal({
     FetchAllSuplier();
   }, []);
 
+  // 🔥 FIX: Add selectedRowData as a dependency and properly reset state
+  // 🔥 CRITICAL FIX: Reset rawMaterials when modal opens with new data
   useEffect(() => {
-    if (selectedRowData) {
-      console.log(selectedRowData);
+    // Always reset first when selectedRowData changes
+    console.log("🔍 selectedRowData changed:", selectedRowData);
 
-      const details =
-        selectedRowData?.["MenuItem RawMaterial Details"]?.map(
-          (item, index) => ({
-            id: `row-${Date.now()}-${index}`, // Unique ID for React key and operations
-            itemId: item.id || 0, // Store the original item ID from API
-            name: item.rawMaterialName || "",
-            menuItemName: item.menuItemName || "-",
-            agency: item.partyName || "",
-            dateTime: item.dateTime
-              ? dayjs(item.dateTime, "DD/MM/YYYY hh:mm a")
-              : null,
-            weight: item.weight || "",
-            unit: item.unitName || "",
-            place: item.place || "",
-            rawMaterialId: item.rawMaterialId || 0,
-            menuItemId: item.menuItemId || 0,
-            rate: item.rate || 0,
-            rawmaterial_rate: item.rawmaterial_rate || 0,
-            rawmaterial_weight: item.rawmaterial_weight || 0,
-          })
-        ) || [];
-
-      setRawMaterials(details.length ? details : []);
+    if (!open) {
+      // Don't process if modal is closed
+      return;
     }
-  }, [selectedRowData]);
+
+    if (!selectedRowData) {
+      // Reset state when no data is selected
+      console.log("⚠️ No selectedRowData, resetting...");
+      setRawMaterials([]);
+      return;
+    }
+
+    const rawMaterialDetails = selectedRowData["MenuItem RawMaterial Details"];
+    console.log("🔍 Raw material details:", rawMaterialDetails);
+
+    if (rawMaterialDetails && rawMaterialDetails.length > 0) {
+      const details = rawMaterialDetails.map((item, index) => ({
+        id: `row-${Date.now()}-${index}`,
+        itemId: item.id || 0,
+        name: item.rawMaterialName || "",
+        menuItemName: item.menuItemName || "-",
+        agency: item.partyName || "",
+        dateTime: item.dateTime
+          ? dayjs(item.dateTime, "DD/MM/YYYY hh:mm a")
+          : null,
+        weight: item.weight || "",
+        unit: item.unitName || "",
+        place: item.place || "",
+        rawMaterialId: item.rawMaterialId || 0,
+        menuItemId: item.menuItemId || 0,
+        rate: item.rate || 0,
+        rawmaterial_rate: item.rawmaterial_rate || 0,
+        rawmaterial_weight: item.rawmaterial_weight || 0,
+      }));
+
+      console.log("✅ Setting raw materials:", details);
+      setRawMaterials(details);
+    } else {
+      // 🔥 CRITICAL FIX: Reset state when no raw materials found
+      console.log("⚠️ No raw materials found, resetting to empty array");
+      setRawMaterials([]);
+    }
+  }, [selectedRowData, open]); // 🔥 Add both selectedRowData and open as dependencies
 
   useEffect(() => {
     if (!open) return;
@@ -143,7 +163,6 @@ export default function CategorySidebarModal({
       showConfirmButton: false,
     });
 
-    // Reset selected agency after allocation
     setSelectedAgency("");
   };
 
@@ -182,7 +201,6 @@ export default function CategorySidebarModal({
       showConfirmButton: false,
     });
 
-    // Reset selected place after allocation
     setSelectedPlace("");
   };
 
@@ -205,14 +223,22 @@ export default function CategorySidebarModal({
           suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
         const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
 
+        console.log("🔍 Submitting raw material:", {
+          name: item.name,
+          agency: item.agency,
+          partyId: partyId,
+          unit: item.unit,
+          unitId: unitId,
+        });
+
         return {
-          id: item.itemId || 0, // Use the original item ID, or 0 for new items
+          id: item.itemId || 0,
           eventId: eventId || 0,
           eventFunctionId: eventFunctionId || 0,
           menuItemId: item.menuItemId || 0,
           rawMaterialId: item.rawMaterialId || 0,
-          partyId: partyId,
-          unitId: unitId,
+          partyId: partyId, // 🔥 Make sure partyId is correctly mapped
+          unitId: unitId, // 🔥 Make sure unitId is correctly mapped
           dateTime: item.dateTime
             ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
@@ -223,7 +249,8 @@ export default function CategorySidebarModal({
           place: item.place || "",
         };
       });
-      console.log("payload", payload);
+
+      console.log("🔍 Raw material payload with partyIds:", payload);
 
       const hasInvalidData = payload.some(
         (item) =>
@@ -252,11 +279,12 @@ export default function CategorySidebarModal({
         });
 
         if (onSave) {
+          // 🔥 FIX: Pass the payload (which has partyId) instead of rawMaterials
           onSave({
             menuItemId: payload[0]?.menuItemId,
             eventFunctionId,
             eventId,
-            rawMaterials: payload,
+            rawMaterials: payload, // 🔥 Pass the mapped payload with partyId and unitId
             response: res.data,
           });
         }
@@ -306,7 +334,7 @@ export default function CategorySidebarModal({
                   <div className="text-[18px] font-semibold text-gray-800">
                     {rawMaterials.length > 0
                       ? rawMaterials[0].menuItemName || "—"
-                      : "—"}
+                      : selectedRowData?.menuItemName || "—"}
                   </div>
                 </div>
                 <button
@@ -320,9 +348,7 @@ export default function CategorySidebarModal({
 
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="p-5 flex-shrink-0">
-                  {/* Header Section - Show menu item name */}
-
-                  {/* Bulk Allocate Section - Centered */}
+                  {/* Bulk Allocate Section */}
                   <div className="flex items-start justify-start gap-4 mt-4">
                     {/* Bulk Allocate Agency */}
                     <div className="flex items-end gap-2">
@@ -417,188 +443,208 @@ export default function CategorySidebarModal({
 
                 {/* Scrollable Table Section */}
                 <div className="flex-1 overflow-y-auto px-5 min-h-0">
-                  {/* Table */}
-                  <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                    {/* Head */}
-                    <div
-                      className={`${GRID} items-center px-5 py-3 bg-[#F9FAFC] text-[13px] font-medium text-gray-900`}
-                    >
-                      <div>
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.NO"
-                          defaultMessage="No."
-                        />
-                      </div>
-                      <div className="pl-6">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.ITEM_NAME"
-                          defaultMessage="Item Name"
-                        />
-                      </div>
-                      <div className="pl-4">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.AGENCY"
-                          defaultMessage="Agency"
-                        />
-                      </div>
-                      <div className="pl-4">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.DATE_TIME"
-                          defaultMessage="Date &amp; Time"
-                        />
-                      </div>
-                      <div className="pl-3">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.WEIGHT"
-                          defaultMessage="Weight"
-                        />
-                      </div>
-                      <div className="pl-2">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.UNIT"
-                          defaultMessage="Unit"
-                        />
-                      </div>
-                      <div className="pl-2">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.PLACE"
-                          defaultMessage="Place"
-                        />
-                      </div>
+                  {/* 🔥 FIX: Show message when no raw materials */}
+                  {rawMaterials.length === 0 ? (
+                    <div className="flex items-center justify-center h-full p-8">
                       <div className="text-center">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.ACTIONS"
-                          defaultMessage="Action"
-                        />
+                        <i className="ki-filled ki-information-2 text-6xl text-gray-300 mb-4"></i>
+                        <p className="text-lg font-medium text-gray-700 mb-2">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.NO_RAW_MATERIALS"
+                            defaultMessage="No raw materials found for this item"
+                          />
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.NO_RAW_MATERIALS_DESC"
+                            defaultMessage="This menu item doesn't have any raw materials allocated yet."
+                          />
+                        </p>
                       </div>
                     </div>
-
-                    {/* Rows */}
-                    {rawMaterials.map((row, idx) => (
+                  ) : (
+                    <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                      {/* Head */}
                       <div
-                        key={row.id}
-                        className={`${GRID} items-center gap-4 px-5 py-3 border-t border-gray-100 hover:bg-gray-50/60`}
+                        className={`${GRID} items-center px-5 py-3 bg-[#F9FAFC] text-[13px] font-medium text-gray-900`}
                       >
-                        <div className="text-[13px] text-gray-700">
-                          {idx + 1}.
-                        </div>
-                        <div className="pl-2 text-[13px] text-gray-800">
-                          {row.name || "—"}
-                        </div>
-
                         <div>
-                          <BaseSelect
-                            value={row.agency || ""}
-                            onChange={(e) =>
-                              handleChange(row.id, "agency", e.target.value)
-                            }
-                          >
-                            <option value="">
-                              <FormattedMessage
-                                id="SIDEBAR_MODAL.SELECT_AGENCY"
-                                defaultMessage="Select Agency"
-                              />
-                            </option>
-                            {suppliers.map((s, i) => (
-                              <option key={i} value={s.nameEnglish}>
-                                {s.nameEnglish}
-                              </option>
-                            ))}
-                          </BaseSelect>
-                        </div>
-
-                        <div>
-                          <DatePicker
-                            className="input "
-                            showTime
-                            value={row.dateTime}
-                            format="MM/DD/YYYY hh:mm A"
-                            onChange={(val) =>
-                              handleChange(row.id, "dateTime", val)
-                            }
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.NO"
+                            defaultMessage="No."
                           />
                         </div>
-
-                        <div>
-                          <BaseInput
-                            type="text"
-                            value={row.weight || ""}
-                            onChange={(e) =>
-                              handleChange(row.id, "weight", e.target.value)
-                            }
-                            placeholder={intl.formatMessage({
-                              id: "SIDEBAR_MODAL.WEIGHT_PLACEHOLDER",
-                              defaultMessage: "Enter weight",
-                            })}
+                        <div className="pl-6">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.ITEM_NAME"
+                            defaultMessage="Item Name"
                           />
                         </div>
-
-                        <div>
-                          <BaseSelect
-                            value={row.unit || ""}
-                            onChange={(e) =>
-                              handleChange(row.id, "unit", e.target.value)
-                            }
-                          >
-                            <option value="">
-                              <FormattedMessage
-                                id="SIDEBAR_MODAL.SELECT_UNIT"
-                                defaultMessage="Select Unit"
-                              />
-                            </option>
-                            {unit.map((u, i) => (
-                              <option key={i} value={u.nameEnglish}>
-                                {u.nameEnglish}
-                              </option>
-                            ))}
-                          </BaseSelect>
+                        <div className="pl-4">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.AGENCY"
+                            defaultMessage="Agency"
+                          />
                         </div>
-
-                        <div>
-                          <BaseSelect
-                            value={row.place || ""}
-                            onChange={(e) =>
-                              handleChange(row.id, "place", e.target.value)
-                            }
-                          >
-                            <option value="">
-                              <FormattedMessage
-                                id="SIDEBAR_MODAL.SELECT_PLACE"
-                                defaultMessage="Select Place"
-                              />
-                            </option>
-                            <option>
-                              <FormattedMessage
-                                id="SIDEBAR_MODAL.AT_VENUE"
-                                defaultMessage="At Venue"
-                              />
-                            </option>
-                            <option>
-                              <FormattedMessage
-                                id="SIDEBAR_MODAL.GO_DOWN"
-                                defaultMessage="GoDown"
-                              />
-                            </option>
-                          </BaseSelect>
+                        <div className="pl-4">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.DATE_TIME"
+                            defaultMessage="Date &amp; Time"
+                          />
                         </div>
-
-                        <div className="flex items-center justify-center">
-                          <Tooltip title="Remove">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveRow(row.id)}
-                              className="btn btn-sm btn-icon btn-danger btn-clear"
-                            >
-                              <i className="ki-filled ki-trash"></i>
-                            </button>
-                          </Tooltip>
+                        <div className="pl-3">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.WEIGHT"
+                            defaultMessage="Weight"
+                          />
+                        </div>
+                        <div className="pl-2">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.UNIT"
+                            defaultMessage="Unit"
+                          />
+                        </div>
+                        <div className="pl-2">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.PLACE"
+                            defaultMessage="Place"
+                          />
+                        </div>
+                        <div className="text-center">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.ACTIONS"
+                            defaultMessage="Action"
+                          />
                         </div>
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Rows */}
+                      {rawMaterials.map((row, idx) => (
+                        <div
+                          key={row.id}
+                          className={`${GRID} items-center gap-4 px-5 py-3 border-t border-gray-100 hover:bg-gray-50/60`}
+                        >
+                          <div className="text-[13px] text-gray-700">
+                            {idx + 1}.
+                          </div>
+                          <div className="pl-2 text-[13px] text-gray-800">
+                            {row.name || "—"}
+                          </div>
+
+                          <div>
+                            <BaseSelect
+                              value={row.agency || ""}
+                              onChange={(e) =>
+                                handleChange(row.id, "agency", e.target.value)
+                              }
+                            >
+                              <option value="">
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.SELECT_AGENCY"
+                                  defaultMessage="Select Agency"
+                                />
+                              </option>
+                              {suppliers.map((s, i) => (
+                                <option key={i} value={s.nameEnglish}>
+                                  {s.nameEnglish}
+                                </option>
+                              ))}
+                            </BaseSelect>
+                          </div>
+
+                          <div>
+                            <DatePicker
+                              className="input"
+                              showTime
+                              value={row.dateTime}
+                              format="MM/DD/YYYY hh:mm A"
+                              onChange={(val) =>
+                                handleChange(row.id, "dateTime", val)
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            <BaseInput
+                              type="text"
+                              value={row.weight || ""}
+                              onChange={(e) =>
+                                handleChange(row.id, "weight", e.target.value)
+                              }
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.WEIGHT_PLACEHOLDER",
+                                defaultMessage: "Enter weight",
+                              })}
+                            />
+                          </div>
+
+                          <div>
+                            <BaseSelect
+                              value={row.unit || ""}
+                              onChange={(e) =>
+                                handleChange(row.id, "unit", e.target.value)
+                              }
+                            >
+                              <option value="">
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.SELECT_UNIT"
+                                  defaultMessage="Select Unit"
+                                />
+                              </option>
+                              {unit.map((u, i) => (
+                                <option key={i} value={u.nameEnglish}>
+                                  {u.nameEnglish}
+                                </option>
+                              ))}
+                            </BaseSelect>
+                          </div>
+
+                          <div>
+                            <BaseSelect
+                              value={row.place || ""}
+                              onChange={(e) =>
+                                handleChange(row.id, "place", e.target.value)
+                              }
+                            >
+                              <option value="">
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.SELECT_PLACE"
+                                  defaultMessage="Select Place"
+                                />
+                              </option>
+                              <option>
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.AT_VENUE"
+                                  defaultMessage="At Venue"
+                                />
+                              </option>
+                              <option>
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.GO_DOWN"
+                                  defaultMessage="GoDown"
+                                />
+                              </option>
+                            </BaseSelect>
+                          </div>
+
+                          <div className="flex items-center justify-center">
+                            <Tooltip title="Remove">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRow(row.id)}
+                                className="btn btn-sm btn-icon btn-danger btn-clear"
+                              >
+                                <i className="ki-filled ki-trash"></i>
+                              </button>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Footer with Save/Cancel buttons - Fixed at bottom */}
+                {/* Footer with Save/Cancel buttons */}
                 <div className="flex-shrink-0 p-5 border-t border-gray-200 bg-white">
                   <div className="flex items-center justify-between gap-3">
                     <button
@@ -613,6 +659,7 @@ export default function CategorySidebarModal({
                     <button
                       onClick={handleSubmit}
                       className="h-9 px-4 rounded-md bg-primary text-white text-sm hover:bg-blue-700"
+                      disabled={rawMaterials.length === 0}
                     >
                       <FormattedMessage
                         id="COMMON.SAVE"
