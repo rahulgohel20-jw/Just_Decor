@@ -65,8 +65,8 @@ const VendorMaster = () => {
   const formatCustomerData = (customers) =>
     customers
       .filter((cust) => {
-        const contactTypeId = cust.contact?.contactType?.id;
-        return contactTypeId !== 2; // Exclude Customer
+        const typeName = cust.contact?.contactType?.nameEnglish?.toLowerCase();
+        return typeName !== "customer"; // Exclude by word
       })
       .map((cust, index) => ({
         sr_no: index + 1,

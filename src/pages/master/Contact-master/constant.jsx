@@ -28,7 +28,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
     header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {
       return (
-        <div className="flex items-center  gap-1">
+        <div className="flex items-center justify-center  gap-1">
           <Popconfirm
             title="Are you sure to change this status?"
             onConfirm={() =>

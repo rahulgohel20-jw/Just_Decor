@@ -80,15 +80,25 @@ const RawMaterialType = () => {
 
     const field = languageMap[language] || "nameEnglish";
 
-    const mapped = rawOriginalData.map((cust, index) => ({
+    let mapped = rawOriginalData.map((cust, index) => ({
       sr_no: index + 1,
       name: cust[field] || "-",
       rawid: cust.id,
       status: cust.isActive,
     }));
 
+    // 👀 Optional frontend filtering to keep UI instant
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      mapped = mapped.filter(
+        (item) =>
+          item.name?.toLowerCase().includes(q) ||
+          item.sr_no?.toString()?.includes(q)
+      );
+    }
+
     setTableData(mapped);
-  }, [rawOriginalData, language]);
+  }, [rawOriginalData, searchQuery, localStorage.getItem("lang")]);
 
   const DeleteRawMaterialType = (rawid) => {
     Swal.fire({

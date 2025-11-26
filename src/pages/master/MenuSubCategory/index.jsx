@@ -88,6 +88,17 @@ const MenuSubCategory = () => {
   useEffect(() => {
     FetchSubCategoryData();
   }, [searchQuery]);
+
+  // 🔍 Debounced search API call
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      FetchSubCategoryData();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
+
+  // 🌍 Language-based mapping + local filter
   useEffect(() => {
     const language = localStorage.getItem("lang");
 
@@ -99,14 +110,24 @@ const MenuSubCategory = () => {
 
     const field = languageMap[language] || "nameEnglish";
 
-    const mapped = originalData.map((item, index) => ({
+    let mapped = originalData.map((item, index) => ({
       ...item,
       sr_no: index + 1,
       nameEnglish: item[field] || "-",
     }));
 
+    // Optional extra filtering (Frontend backup search)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      mapped = mapped.filter(
+        (item) =>
+          item[field]?.toLowerCase().includes(q) ||
+          item.sequence?.toString().includes(q)
+      );
+    }
+
     setTableData(mapped);
-  }, [originalData, localStorage.getItem("lang")]);
+  }, [originalData, searchQuery, localStorage.getItem("lang")]);
 
   return (
     <Fragment>

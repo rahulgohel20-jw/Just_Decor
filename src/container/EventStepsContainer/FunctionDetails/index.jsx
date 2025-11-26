@@ -22,9 +22,11 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   GetAllFunctionsByUserId,
   deleteFunction,
+  GetVenueType,
 } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import Swal from "sweetalert2";
+import { useLanguage } from "@/i18n";
 
 const SortableRow = ({ id, children }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -61,24 +63,79 @@ const FunctionsDetails = ({
   eventEndDateTime,
   errors = {},
 }) => {
+  const { locale } = useLanguage();
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [options, setOptions] = useState([]);
   const [selectedFunctionIndex, setSelectedFunctionIndex] = useState(null);
+  const [venueList, setVenueList] = useState([]);
+  const [selectedVenueName, setSelectedVenueName] = useState("");
 
-  const createEmptyRow = () => ({
-    eventFuncId: 0,
-    functionId: null,
-    functionStartDateTime: null,
-    functionEndDateTime: null,
-    pax: "",
-    rate: "",
-    function_venue: "",
-    notesEnglish: "",
-    notesGujarati: "",
-    notesHindi: "",
-    id: Date.now() + Math.random(),
-  });
+  console.log("🏢 FunctionsDetails - formData.venueId:", formData.venueId);
+  console.log("🌍 FunctionsDetails - Current locale:", locale);
+
+  // Helper to get localized venue name
+  const getLocalizedVenueName = (venue) => {
+    if (!venue) return "";
+
+    const localeMap = {
+      en: venue.nameEnglish,
+      gu: venue.nameGujarati,
+      hi: venue.nameHindi,
+    };
+
+    return localeMap[locale] || venue.nameEnglish || "";
+  };
+
+  // Fetch venue list and set selected venue name
+  useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const Id = localStorage.getItem("userId");
+        const res = await GetVenueType(Id);
+        const venueArray = res?.data?.data?.["Venue Details"] || [];
+
+        console.log("📍 Fetched venues:", venueArray);
+        setVenueList(venueArray);
+
+        // Find and set the selected venue name
+        if (formData.venueId) {
+          const selectedVenue = venueArray.find(
+            (v) => v.id === formData.venueId
+          );
+          if (selectedVenue) {
+            const venueName = getLocalizedVenueName(selectedVenue);
+            console.log("✅ Selected venue found:", selectedVenue);
+            console.log("🏷️ Localized venue name:", venueName);
+            setSelectedVenueName(venueName);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error fetching venues:", error);
+      }
+    };
+
+    fetchVenues();
+  }, [formData.venueId, locale]);
+
+  const createEmptyRow = () => {
+    const newRow = {
+      eventFuncId: 0,
+      functionId: null,
+      functionStartDateTime: null,
+      functionEndDateTime: null,
+      pax: "",
+      rate: "",
+      function_venue: selectedVenueName, // Prefill with selected venue
+      notesEnglish: "",
+      notesGujarati: "",
+      notesHindi: "",
+      id: Date.now() + Math.random(),
+    };
+
+    console.log("➕ Creating new row with venue:", newRow.function_venue);
+    return newRow;
+  };
 
   // Helper to extract date only
   const extractDateOnly = (dateTimeString) => {
@@ -139,11 +196,12 @@ const FunctionsDetails = ({
     FetchFunction();
     setFormData((prev) => {
       if (!prev.eventFunction || prev.eventFunction.length === 0) {
+        console.log("🎬 Initializing with first function row");
         return { ...prev, eventFunction: [createEmptyRow()] };
       }
       return prev;
     });
-  }, []);
+  }, [selectedVenueName]); // Re-run when venue name changes
 
   const handleAddClick = () => setShowFunctionModal(true);
 
@@ -159,6 +217,7 @@ const FunctionsDetails = ({
   };
 
   const handleAddFunction = () => {
+    console.log("➕ Adding new function with venue:", selectedVenueName);
     setFormData({
       ...formData,
       eventFunction: [...(formData.eventFunction || []), createEmptyRow()],
@@ -268,6 +327,7 @@ const FunctionsDetails = ({
   const handleInputChange = (index, field, value) => {
     const updatedArray = [...formData.eventFunction];
     updatedArray[index][field] = value;
+    console.log(`📝 Updated ${field} at index ${index}:`, value);
     setFormData({ ...formData, eventFunction: updatedArray });
   };
 

@@ -301,13 +301,16 @@ const Priceplan = () => {
 
         <h2 className="text-3xl mt-4 md:text-4xl font-semibold text-[#170F49]">
           <FormattedMessage
-            id="USER.MASTER.RAW_MATERIAL_TYPE"
+            id="USER.PRICE_PLAN.TITLE"
             defaultMessage="   Plans & Pricing"
           />
         </h2>
         <p className="text-[#6F6C8F] mt-3 max-w-xl mx-auto text-base leading-relaxed">
-          Whether your time-saving automation needs are large or small, we're
-          here to help you scale.
+          <FormattedMessage
+            id="USER.PRICE_PLAN.SUBTITLE"
+            defaultMessage="    Whether your time-saving automation needs are large or small, we're
+          here to help you scale."
+          />
         </p>
 
         <div className="flex justify-center mt-8">

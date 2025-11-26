@@ -9,7 +9,7 @@ import {
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddVendor = ({
   isModalOpen,
@@ -18,6 +18,7 @@ const AddVendor = ({
   refreshData = () => {},
 }) => {
   if (!isModalOpen) return null;
+  const intl = useIntl();
 
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -528,6 +529,10 @@ const AddVendor = ({
                 }
                 name="email"
                 type="email"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.EMAIL",
+                  defaultMessage: "Mail",
+                })}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -548,6 +553,10 @@ const AddVendor = ({
                   />
                 }
                 name="mobileno"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.MOBILE_NO",
+                  defaultMessage: "Mobile Number",
+                })}
                 type="tel"
                 value={formData.mobileno}
                 onChange={handleChange}
@@ -568,6 +577,10 @@ const AddVendor = ({
                   />
                 }
                 name="altMobileno"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.ALTERNATIVE_NO",
+                  defaultMessage: "Alternative Number",
+                })}
                 type="tel"
                 value={formData.altMobileno}
                 onChange={handleChange}
@@ -589,6 +602,11 @@ const AddVendor = ({
                   />
                 }
                 name="gst"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.GST_NO",
+                  defaultMessage: "GST Number",
+                })}
+                type="text"
                 value={formData.gst}
                 onChange={handleChange}
                 error={errors.gst}
@@ -608,6 +626,7 @@ const AddVendor = ({
               </label>
               <input
                 type="date"
+                placeholder="{intl.formatMessage({ id: 'USER.MASTER.BIRTHDATE', defaultMessage: 'Birth Date' })}"
                 name="bdate"
                 className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
                 value={formData.bdate}
@@ -750,6 +769,7 @@ const InputSimple = ({
   required,
   type = "text",
   error,
+  placeholder,
 }) => (
   <div>
     <label className="block text-gray-600 mb-1">
@@ -768,7 +788,7 @@ const InputSimple = ({
       className={`border rounded-lg p-2 w-full ${
         error ? "border-red-500" : "border-gray-300"
       }`}
-      placeholder={label}
+      placeholder={placeholder}
       required={required}
     />
   </div>

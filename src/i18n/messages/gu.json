@@ -727,6 +727,9 @@
   "USER.EVENT.QUOTATION": "કોટેશન",
   "USER.EVENT.EVENT_DATE": "ઈવેન્ટ ડેટ",
   "USER.EVENT.EVENT_NAME": "ઈવેન્ટ નામ",
-  "USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ"
+  "USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ",
+"USER.PRICE_PLAN.TITLE" :"યોજનાઓ અને કિંમતો",
+"USER.PRICE_PLAN.SUBTITLE": "તમારી સમય-બચત automation ની જરૂરિયાતો મોટી હોય કે નાની, અમે તમને વિકાસ કરવામાં મદદ કરવા અહીં છીએ."
+
 
 }
