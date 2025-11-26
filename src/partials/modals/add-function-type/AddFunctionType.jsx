@@ -11,8 +11,7 @@ import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddFunctionType = ({
   isOpen,
@@ -21,6 +20,7 @@ const AddFunctionType = ({
   onSuccess = () => {},
 }) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const intl = useIntl();
 
   const initialState = {
     nameEnglish: "",
@@ -29,8 +29,6 @@ const AddFunctionType = ({
     startTime: null,
     endTime: null,
   };
-
-  const intl = useIntl();
 
   const validationSchema = Yup.object({
     nameEnglish: Yup.string().required("Name is required"),
@@ -169,6 +167,10 @@ const AddFunctionType = ({
                   defaultMessage="Name (English)"
                 />
               }
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_ENGLISH",
+                defaultMessage: "Name (English)",
+              })}
               value={formik.values.nameEnglish}
               onChange={(e) =>
                 formik.setFieldValue("nameEnglish", e.target.value)
@@ -177,6 +179,7 @@ const AddFunctionType = ({
               required
               error={formik.touched.nameEnglish && formik.errors.nameEnglish}
             />
+
             <InputToTextLang
               label={
                 <FormattedMessage
@@ -184,6 +187,10 @@ const AddFunctionType = ({
                   defaultMessage="Name (ગુજરાતી)"
                 />
               }
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_GUJARATI",
+                defaultMessage: "Name (ગુજરાતી)",
+              })}
               value={formik.values.nameGujarati}
               onChange={(e) =>
                 formik.setFieldValue("nameGujarati", e.target.value)
@@ -197,6 +204,10 @@ const AddFunctionType = ({
                   defaultMessage="Name (हिंदी)"
                 />
               }
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_HINDI",
+                defaultMessage: "Name (हिंदी)",
+              })}
               value={formik.values.nameHindi}
               onChange={(e) =>
                 formik.setFieldValue("nameHindi", e.target.value)

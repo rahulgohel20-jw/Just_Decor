@@ -10,7 +10,7 @@ import { Checkbox } from "antd";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { Plus } from "lucide-react";
 import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 
@@ -32,6 +32,7 @@ const AddRawMaterial = ({
   refreshData,
 }) => {
   if (!isOpen) return null;
+  const intl = useIntl();
 
   const [options, setOptions] = useState([]);
   const [debounceTimer, setDebounceTimer] = useState(null);
@@ -187,6 +188,10 @@ const AddRawMaterial = ({
                       />
                     }
                     name="nameEnglish"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_ENGLISH",
+                      defaultMessage: "Name (English)",
+                    })}
                   />
                   <InputWithIcon
                     label={
@@ -196,6 +201,10 @@ const AddRawMaterial = ({
                       />
                     }
                     name="nameHindi"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_HINDI",
+                      defaultMessage: "Name (हिंदी)",
+                    })}
                   />
                   <InputWithIcon
                     label={
@@ -205,6 +214,10 @@ const AddRawMaterial = ({
                       />
                     }
                     name="nameGujarati"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_GUJARATI",
+                      defaultMessage: "Name (ગુજરાતી)",
+                    })}
                   />
                 </div>
 
@@ -219,6 +232,10 @@ const AddRawMaterial = ({
                     }
                     name="sequence"
                     type="number"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.SEQUENCE",
+                      defaultMessage: "Sequence",
+                    })}
                   />
 
                   {/* Type field with Add button */}
@@ -325,7 +342,7 @@ const AddRawMaterial = ({
   );
 };
 
-const InputWithIcon = ({ label, name, type = "text" }) => (
+const InputWithIcon = ({ label, name, placeholder, type = "text" }) => (
   <div className="relative">
     <label className="block text-gray-600 mb-1">
       {label}
@@ -335,7 +352,7 @@ const InputWithIcon = ({ label, name, type = "text" }) => (
       type={type}
       name={name}
       className="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder={label}
+      placeholder={placeholder}
     />
     <ErrorMessage
       name={name}

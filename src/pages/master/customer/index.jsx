@@ -72,32 +72,34 @@ const CustomerMaster = () => {
   const FetchCustomer = () => {
     GetAllCustomer(Id)
       .then(({ data: { data } }) => {
-        const formatted = data["Party Details"]
-          .filter((cust) => {
-            const contactTypeId = cust.contact?.contactType?.id;
-            return contactTypeId === 4;
-          })
-          .map((cust, index) => ({
-            sr_no: index + 1,
-            customerid: cust.id,
-            customer: getNameByLang(cust),
-            address: getAddressByLang(cust),
-            contact_type: getContactTypeByLang(cust),
-            email: cust.email || "-",
-            mobile: cust.mobileno || "-",
-            gst: cust.gst || "-",
-            birthdate: cust.birthDate || "-",
-            document: cust.document || "-",
-            altMobileno: cust.altMobileno || "",
-            contactCategoryId: cust.contact?.id,
-            image: cust.documentImage || "",
-            nameEnglish: cust.nameEnglish,
-            nameHindi: cust.nameHindi,
-            nameGujarati: cust.nameGujarati,
-            addressEnglish: cust.addressEnglish,
-            addressHindi: cust.addressHindi,
-            addressGujarati: cust.addressGujarati,
-          }));
+        const allCustomers = data["Party Details"] || [];
+
+        const filtered = allCustomers.filter(
+          (cust) =>
+            cust.contact?.contactType?.nameEnglish?.toLowerCase() === "customer"
+        );
+
+        const formatted = filtered.map((cust, index) => ({
+          sr_no: index + 1,
+          customerid: cust.id,
+          customer: getNameByLang(cust),
+          address: getAddressByLang(cust),
+          contact_type: getContactTypeByLang(cust),
+          email: cust.email || "-",
+          mobile: cust.mobileno || "-",
+          gst: cust.gst || "-",
+          birthdate: cust.birthDate || "-",
+          document: cust.document || "-",
+          altMobileno: cust.altMobileno || "",
+          contactCategoryId: cust.contact?.id,
+          image: cust.documentImage || "",
+          nameEnglish: cust.nameEnglish,
+          nameHindi: cust.nameHindi,
+          nameGujarati: cust.nameGujarati,
+          addressEnglish: cust.addressEnglish,
+          addressHindi: cust.addressHindi,
+          addressGujarati: cust.addressGujarati,
+        }));
 
         setTableData(formatted);
       })

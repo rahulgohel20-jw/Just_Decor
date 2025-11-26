@@ -9,7 +9,7 @@ import {
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddCustomer = ({
   isModalOpen,
@@ -18,6 +18,7 @@ const AddCustomer = ({
   refreshData = () => {},
 }) => {
   if (!isModalOpen) return null;
+  const intl = useIntl();
 
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -182,7 +183,9 @@ const AddCustomer = ({
 
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
-      console.log(allCategories, "data");
+      const filteredCategories = allCategories.filter((cat) => {
+        return cat.contactType?.nameEnglish?.toLowerCase() === "customer";
+      });
 
       setCategories(allCategories);
     } catch (error) {
@@ -392,9 +395,14 @@ const AddCustomer = ({
                 name="nameEnglish"
                 value={formData.nameEnglish}
                 onChange={handleChange}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.NAME_ENGLISH",
+                  defaultMessage: "Name (English)",
+                })}
                 lng="en-US"
                 required
               />
+
               {errors.nameEnglish && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.nameEnglish}
@@ -410,6 +418,10 @@ const AddCustomer = ({
                 />
               }
               name="nameGujarati"
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_GUJARATI",
+                defaultMessage: "Name (ગુજરાતી)",
+              })}
               value={formData.nameGujarati}
               onChange={handleChange}
               lng="gu"
@@ -422,6 +434,10 @@ const AddCustomer = ({
                 />
               }
               name="nameHindi"
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_HINDI",
+                defaultMessage: "Name (हिंदी)",
+              })}
               value={formData.nameHindi}
               onChange={handleChange}
               lng="hi"
@@ -436,6 +452,10 @@ const AddCustomer = ({
                 />
               }
               name="addressEnglish"
+              placeholder={intl.formatMessage({
+                id: "COMMON.HOME_ADDRESS_ENGLISH",
+                defaultMessage: "Home Address (English)",
+              })}
               value={formData.addressEnglish}
               onChange={handleChange}
               lng="en-US"
@@ -448,6 +468,10 @@ const AddCustomer = ({
                 />
               }
               name="addressGujarati"
+              placeholder={intl.formatMessage({
+                id: "COMMON.HOME_ADDRESS_GUJARATI",
+                defaultMessage: "Home Address (ગુજરાતી)",
+              })}
               value={formData.addressGujarati}
               onChange={handleChange}
               lng="gu"
@@ -460,6 +484,10 @@ const AddCustomer = ({
                 />
               }
               name="addressHindi"
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_HINDI",
+                defaultMessage: "Name (हिंदी)",
+              })}
               value={formData.addressHindi}
               onChange={handleChange}
               lng="hi"
@@ -484,6 +512,10 @@ const AddCustomer = ({
                       : "border-gray-300"
                   }`}
                   name="contactCategoryId"
+                  placeholder={intl.formatMessage({
+                    id: "USER.MASTER.CONTACT_CATEGORY",
+                    defaultMessage: "Contact Category",
+                  })}
                   value={formData.contactCategoryId}
                   onChange={handleChange}
                   required
@@ -526,6 +558,10 @@ const AddCustomer = ({
                 }
                 name="email"
                 type="email"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.EMAIL",
+                  defaultMessage: "Mail",
+                })}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -546,6 +582,10 @@ const AddCustomer = ({
                   />
                 }
                 name="mobileno"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.MOBILE_NO",
+                  defaultMessage: "Mobile Number",
+                })}
                 type="tel"
                 value={formData.mobileno}
                 onChange={handleChange}
@@ -566,6 +606,10 @@ const AddCustomer = ({
                   />
                 }
                 name="altMobileno"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.ALTERNATIVE_NO",
+                  defaultMessage: "Alternative Number",
+                })}
                 type="tel"
                 value={formData.altMobileno}
                 onChange={handleChange}
@@ -587,6 +631,11 @@ const AddCustomer = ({
                   />
                 }
                 name="gst"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.GST_NO",
+                  defaultMessage: "GST Number",
+                })}
+                type="text"
                 value={formData.gst}
                 onChange={handleChange}
                 error={errors.gst}
@@ -606,6 +655,7 @@ const AddCustomer = ({
               </label>
               <input
                 type="date"
+                placeholder="{intl.formatMessage({ id: 'USER.MASTER.BIRTHDATE', defaultMessage: 'Birth Date' })}"
                 name="bdate"
                 className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
                 value={formData.bdate}
@@ -747,6 +797,7 @@ const InputSimple = ({
   required,
   type = "text",
   error,
+  placeholder,
 }) => (
   <div>
     <label className="block text-gray-600 mb-1">
@@ -765,7 +816,7 @@ const InputSimple = ({
       className={`border rounded-lg p-2 w-full ${
         error ? "border-red-500" : "border-gray-300"
       }`}
-      placeholder={label}
+      placeholder={placeholder}
       required={required}
     />
   </div>

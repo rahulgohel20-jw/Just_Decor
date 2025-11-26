@@ -116,7 +116,10 @@ const EventViewModal = ({
     }
   }, [eventData, isModalOpen]);
 
-  const handleModalClose = () => setIsModalOpen(false);
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    window.history.back(); // go back one step in browser history
+  };
 
   const openMenuReport = (eventId) => {
     if (!eventId) {

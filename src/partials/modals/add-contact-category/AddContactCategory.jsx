@@ -8,7 +8,7 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddContactCategory = ({
   isOpen,
@@ -26,6 +26,7 @@ const AddContactCategory = ({
     sequence: "",
     contcatTypeId: "",
   };
+  const intl = useIntl();
 
   const [contactTypes, setContactTypes] = useState([]);
   const Id = JSON.parse(localStorage.getItem("userId"));
@@ -37,9 +38,8 @@ const AddContactCategory = ({
         .then((res) => {
           const allTypes = res?.data?.data?.["Contact Type Details"] || [];
 
-          // Filter out Customer type (id === 2) if excludeCustomerType is true
           const filteredTypes = excludeCustomerType
-            ? allTypes.filter((type) => type.id != 2) // Using != for loose comparison
+            ? allTypes.filter((type) => type.id != 2)
             : allTypes;
 
           setContactTypes(filteredTypes);
@@ -168,6 +168,10 @@ const AddContactCategory = ({
                       />
                     }
                     name="nameEnglish"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_ENGLISH",
+                      defaultMessage: "Name (English)",
+                    })}
                   />
                   <InputWithFormik
                     label={
@@ -177,6 +181,10 @@ const AddContactCategory = ({
                       />
                     }
                     name="nameGujarati"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_GUJARATI",
+                      defaultMessage: "Name (ગુજરાતી)",
+                    })}
                   />
                   <InputWithFormik
                     label={
@@ -186,6 +194,10 @@ const AddContactCategory = ({
                       />
                     }
                     name="nameHindi"
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.NAME_HINDI",
+                      defaultMessage: "Name (हिंदी)",
+                    })}
                   />
 
                   {/* Dropdown */}
@@ -233,6 +245,10 @@ const AddContactCategory = ({
                     }
                     name="sequence"
                     type="number"
+                    placeholder={intl.formatMessage({
+                      id: "USER.MASTER.PRIORITY",
+                      defaultMessage: "Priority",
+                    })}
                   />
                 </div>
 
@@ -275,7 +291,7 @@ const AddContactCategory = ({
   );
 };
 
-const InputWithFormik = ({ label, name, type = "text" }) => (
+const InputWithFormik = ({ label, name, type = "text", placeholder }) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">
       {label}
@@ -284,7 +300,7 @@ const InputWithFormik = ({ label, name, type = "text" }) => (
     <Field
       type={type}
       name={name}
-      placeholder={label}
+      placeholder={placeholder}
       className="border border-gray-300 rounded-lg p-2 w-full"
     />
     <ErrorMessage

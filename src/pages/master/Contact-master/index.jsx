@@ -39,41 +39,51 @@ const ContactTypeMaster = () => {
 
   useEffect(() => {
     FetchContactType();
-  }, [lang]); // 🔥 re-fetch when language changes automatically
+  }, [lang]);
 
-  // ------------------ SEARCH FUNCTION ------------------
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (!searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+
+      if (!query) {
         FetchContactType();
         return;
       }
 
-      SearchContactCategory(searchQuery, 1)
+      SearchContactCategory(query, Id, lang)
         .then(({ data: { data } }) => {
-          if (data && data["Contact Type Details"]) {
-            const formatted = data["Contact Type Details"].map(
-              (cust, index) => ({
-                sr_no: index + 1,
-                contact_type: getNameByLang(cust),
-                contacttypeid: cust.id,
-              })
-            );
-            setTableData(formatted);
-          } else {
-            setTableData([]);
-          }
+          const list = data?.["Contact Type Details"] || [];
+
+          // 🔥 Normalize search to support GU/HI/EN loose matching
+          const formatted = list
+            .filter((cust) => {
+              const name = getNameByLang(cust).toLowerCase();
+
+              // remove special characters & spaces for better matching
+              const normalize = (str) => str.replace(/[\s.,()\-]/g, "");
+
+              return (
+                normalize(name).includes(normalize(query)) ||
+                name.startsWith(query) ||
+                name.includes(query)
+              );
+            })
+            .map((cust, index) => ({
+              sr_no: index + 1,
+              contact_type: getNameByLang(cust),
+              contacttypeid: cust.id,
+            }));
+
+          setTableData(formatted);
         })
         .catch((error) => {
-          console.error("Error searching customer:", error);
+          console.error("Search error:", error);
         });
-    }, 500);
+    }, 350);
 
     return () => clearTimeout(handler);
-  }, [searchQuery, lang]); // 🔥 also updates search results after language change
-  // -----------------------------------------------------
+  }, [searchQuery, lang]);
 
-  // ------------------ FETCH CONTACT TYPE ------------------
   const FetchContactType = () => {
     GetAllContactType(1)
       .then((res) => {
