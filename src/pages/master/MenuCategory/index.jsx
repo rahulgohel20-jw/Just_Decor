@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -13,32 +13,53 @@ import {
 import ViewMenuCategory from "../../../partials/modals/view-menu-category/ViewMenuCategory";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
+import { Spin } from "antd";
 
 const MenuCategory = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isViewCategoryModalOpen, setIsViewCategoryModalOpen] = useState(false);
   const [selectedMenuCategory, setSelectedCategory] = useState(null);
-  const [tableData, setTableData] = useState();
+  const [allTableData, setAllTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [originalData, setOriginalData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const intl = useIntl();
 
   let Id = localStorage.getItem("userId");
 
-  const FetchCategoryData = () => {
-    GetAllCategory({ userid: Id, menuCategoryName: searchQuery })
-      .then((res) => {
-        const list = res.data.data["Menu Category Details"] || [];
-        setOriginalData(list);
-      })
-      .catch((error) => {
-        console.error("Error fetching category:", error);
+  // Fetch ALL categories
+  const FetchCategoryData = async () => {
+    setLoading(true);
+    try {
+      console.log("📥 Fetching all categories...");
+
+      const res = await GetAllCategory({
+        userid: Id,
+        menuCategoryName: "",
       });
+
+      const list = res.data.data["Menu Category Details"] || [];
+      setOriginalData(list);
+
+      console.log(`✅ Loaded ${list.length} categories`, list);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+      setOriginalData([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Initial load
+  useEffect(() => {
+    FetchCategoryData();
+  }, []);
+
+  // Map data based on language
   useEffect(() => {
     const language = localStorage.getItem("lang");
+    console.log("🌍 Current language:", language);
 
     const languageMap = {
       en: "nameEnglish",
@@ -51,12 +72,61 @@ const MenuCategory = () => {
     const mapped = originalData.map((item, index) => ({
       ...item,
       sr_no: index + 1,
-      nameEnglish: item[field] || "-",
+      // Display name based on current language
+      displayName: item[field] || "-",
+      // IMPORTANT: Keep all original language fields for search
+      nameEnglish: item.nameEnglish || "",
+      nameHindi: item.nameHindi || "",
+      nameGujarati: item.nameGujarati || "",
       imagePath: item.imagePath || "",
     }));
 
-    setTableData(mapped);
-  }, [originalData, localStorage.getItem("lang")]);
+    console.log("📊 Mapped table data:", mapped);
+    setAllTableData(mapped);
+  }, [originalData]);
+
+  // Client-side filtering - searches across ALL language fields
+  const filteredTableData = useMemo(() => {
+    if (!searchQuery.trim()) {
+      console.log("🔍 No search query - showing all data");
+      return allTableData;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    console.log(`🔍 Filtering with query: "${query}"`);
+    console.log("📋 Total data to search:", allTableData.length);
+
+    const filtered = allTableData.filter((item) => {
+      // Search across all language fields
+      const searchInEnglish = (item.nameEnglish || "")
+        .toLowerCase()
+        .includes(query);
+      const searchInHindi = (item.nameHindi || "")
+        .toLowerCase()
+        .includes(query);
+      const searchInGujarati = (item.nameGujarati || "")
+        .toLowerCase()
+        .includes(query);
+
+      const matchesSearch =
+        searchInEnglish || searchInHindi || searchInGujarati;
+
+      if (matchesSearch) {
+        console.log(`✅ Match found:`, {
+          english: item.nameEnglish,
+          hindi: item.nameHindi,
+          gujarati: item.nameGujarati,
+        });
+      }
+
+      return matchesSearch;
+    });
+
+    console.log(
+      `✅ Filtered results: ${filtered.length} out of ${allTableData.length}`
+    );
+    return filtered;
+  }, [allTableData, searchQuery]);
 
   const DeleteCategory = (id) => {
     Swal.fire({
@@ -99,10 +169,18 @@ const MenuCategory = () => {
     UpdateStatus(id, status)
       .then((res) => {
         FetchCategoryData();
-        res.data?.msg && successMsgPopup(res.data.msg);
+        if (res.data?.msg) {
+          Swal.fire({
+            title: "Success!",
+            text: res.data.msg,
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        }
       })
       .catch((error) => {
-        console.error("Error deleting Event type:", error);
+        console.error("Error updating status:", error);
       });
   };
 
@@ -116,13 +194,13 @@ const MenuCategory = () => {
     setIsViewCategoryModalOpen(true);
   };
 
-  useEffect(() => {
+  const refreshData = () => {
     FetchCategoryData();
-  }, [searchQuery]);
+  };
+
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
             items={[
@@ -137,9 +215,9 @@ const MenuCategory = () => {
             ]}
           />
         </div>
-        {/* filters */}
+
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className={`flex flex-wrap items-center gap-2`}>
+          <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -150,14 +228,33 @@ const MenuCategory = () => {
                 })}
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  console.log("⌨️ Search input changed:", value);
+                  setSearchQuery(value);
+                }}
               />
             </div>
+            {loading && (
+              <div className="flex items-center gap-2 text-primary">
+                <Spin size="small" />
+                <span className="text-sm">Loading...</span>
+              </div>
+            )}
+            {!loading && (
+              <span className="text-sm text-gray-600">
+                Showing {filteredTableData.length} of {allTableData.length}{" "}
+                categories
+              </span>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
-              onClick={() => setIsCategoryModalOpen(true)}
+              onClick={() => {
+                setSelectedCategory(null);
+                setIsCategoryModalOpen(true);
+              }}
               title="Add Category"
             >
               <i className="ki-filled ki-plus"></i>{" "}
@@ -168,17 +265,20 @@ const MenuCategory = () => {
             </button>
           </div>
         </div>
+
         <AddMenuCategory
           isModalOpen={isCategoryModalOpen}
           setIsModalOpen={setIsCategoryModalOpen}
-          refreshData={FetchCategoryData}
+          refreshData={refreshData}
           editData={selectedMenuCategory}
         />
+
         <ViewMenuCategory
           isModalOpen={isViewCategoryModalOpen}
           setIsModalOpen={setIsViewCategoryModalOpen}
           editData={selectedMenuCategory}
         />
+
         <TableComponent
           columns={columns(
             handleEdit,
@@ -186,11 +286,13 @@ const MenuCategory = () => {
             statusCategory,
             handleView
           )}
-          data={tableData}
-          paginationSize={10}
+          data={filteredTableData}
+          loading={loading}
+          pagination={false}
         />
       </Container>
     </Fragment>
   );
 };
+
 export default MenuCategory;

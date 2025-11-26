@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -14,7 +14,7 @@ import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Form, Spin } from "antd";
 
-const ITEMS_PER_PAGE = 1000; // Show 50 items per page
+const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -28,71 +28,79 @@ const MenuItems = () => {
 
   let Id = localStorage.getItem("userId");
 
+  // Wrap fetchPage in useCallback to prevent unnecessary recreations
+  const fetchPage = useCallback(
+    async (page, search = searchQuery) => {
+      setLoading(true);
+
+      try {
+        console.log(`📩 Fetching page ${page} with search: "${search}"`);
+
+        const response = await GetAllMenuItems({
+          userId: Id,
+          itemName: search || "", // Ensure empty string if no search
+          page: page,
+          size: ITEMS_PER_PAGE,
+        });
+
+        const items = response?.data?.data?.items || [];
+        const total = response?.data?.data?.totalItems || 0;
+
+        setTotalItems(total);
+
+        // Map items to table format
+        const language = localStorage.getItem("lang");
+        const languageMap = {
+          en: "nameEnglish",
+          hi: "nameHindi",
+          gu: "nameGujarati",
+        };
+        const field = languageMap[language] || "nameEnglish";
+
+        const mapped = items.map((item, index) => ({
+          sr_no: (page - 1) * ITEMS_PER_PAGE + index + 1,
+          id: item.id,
+          name: item[field] || "-",
+          category: item.menuCategory?.[field] || "-",
+          subCategory: item.menuSubCategory?.[field] || "-",
+          kitchenArea: item.kitchenArea?.[field] || "-",
+          slogan: item.slogan || "-",
+          price: item.price || "-",
+          priority: item.sequence || "-",
+          image: item.imagePath || "",
+          status: item.isActive,
+          rawdata: item.menuItemRawMaterials || [],
+          menuAllocation: item.menuItemAllocationConfigs || [],
+          _originalItem: item,
+        }));
+
+        setTableData(mapped);
+        console.log(`✅ Loaded ${items.length} items for page ${page}`);
+      } catch (error) {
+        console.error("Error loading page:", error);
+        setTableData([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [Id, searchQuery]
+  ); // Include dependencies
+
+  // Initial load
   useEffect(() => {
-    // Initial load - load first page
     fetchPage(1);
   }, []);
 
+  // Search effect with debounce
   useEffect(() => {
-    // Reset on search
-    setCurrentPage(1);
-    fetchPage(1);
+    const timeoutId = setTimeout(() => {
+      console.log("🔍 Search triggered:", searchQuery);
+      setCurrentPage(1);
+      fetchPage(1, searchQuery);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
-
-  // Fetch specific page from API
-  const fetchPage = async (page) => {
-    setLoading(true);
-
-    try {
-      console.log(`📩 Fetching page ${page} with ${ITEMS_PER_PAGE} items`);
-
-      const response = await GetAllMenuItems({
-        userId: Id,
-        itemName: searchQuery,
-        page: page,
-        size: ITEMS_PER_PAGE,
-      });
-
-      const items = response?.data?.data?.items || [];
-      const total = response?.data?.data?.totalItems || 0;
-
-      setTotalItems(total);
-
-      // Map items to table format
-      const language = localStorage.getItem("lang");
-      const languageMap = {
-        en: "nameEnglish",
-        hi: "nameHindi",
-        gu: "nameGujarati",
-      };
-      const field = languageMap[language] || "nameEnglish";
-
-      const mapped = items.map((item, index) => ({
-        sr_no: (page - 1) * ITEMS_PER_PAGE + index + 1,
-        id: item.id,
-        name: item[field] || "-",
-        category: item.menuCategory?.[field] || "-",
-        subCategory: item.menuSubCategory?.[field] || "-",
-        kitchenArea: item.kitchenArea?.[field] || "-",
-        slogan: item.slogan || "-",
-        price: item.price || "-",
-        priority: item.sequence || "-",
-        image: item.imagePath || "",
-        status: item.isActive,
-        rawdata: item.menuItemRawMaterials || [],
-        menuAllocation: item.menuItemAllocationConfigs || [],
-        _originalItem: item, // Keep original for updates
-      }));
-
-      setTableData(mapped);
-      console.log(`✅ Loaded ${items.length} items for page ${page}`);
-    } catch (error) {
-      console.error("Error loading page:", error);
-      setTableData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = (id) => {
     if (!id || isNaN(id)) {
@@ -116,8 +124,7 @@ const MenuItems = () => {
               response &&
               (response.success || response.data.success === true)
             ) {
-              // Reload current page after delete
-              fetchPage(currentPage);
+              fetchPage(currentPage, searchQuery);
 
               Swal.fire({
                 title: "Removed!",
@@ -139,7 +146,7 @@ const MenuItems = () => {
 
   const handlePagination = (page) => {
     setCurrentPage(page);
-    fetchPage(page);
+    fetchPage(page, searchQuery);
   };
 
   const handleEdit = (menuItem) => {
@@ -152,7 +159,6 @@ const MenuItems = () => {
       const newStatus = !currentStatus;
       await updatestatusmneuitem(id, newStatus);
 
-      // Update status in current page data without reloading
       setTableData((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, status: newStatus } : item
@@ -164,13 +170,12 @@ const MenuItems = () => {
   };
 
   const refreshData = () => {
-    fetchPage(currentPage);
+    fetchPage(currentPage, searchQuery);
   };
 
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
             items={[
@@ -186,7 +191,6 @@ const MenuItems = () => {
           />
         </div>
 
-        {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="filItems relative">
@@ -230,7 +234,6 @@ const MenuItems = () => {
           </div>
         </div>
 
-        {/* Add/Edit modal */}
         {isItemModalOpen && (
           <AddMenuItem
             isModalOpen={isItemModalOpen}
@@ -240,7 +243,6 @@ const MenuItems = () => {
           />
         )}
 
-        {/* Table - Server-side pagination with 50 items per page */}
         <TableComponent
           columns={columns(handleEdit, handleDelete, statusmenuitem)}
           data={tableData}

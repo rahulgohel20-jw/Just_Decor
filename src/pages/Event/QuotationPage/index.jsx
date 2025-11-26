@@ -439,7 +439,7 @@ const QuotationPage = () => {
       .then((response) => {
         if (
           response?.data?.msg?.toLowerCase().includes("Successfully") ||
-          response?.data?.status === true
+          response?.data?.success === true
         ) {
           Swal.fire({
             title: response?.data?.msg,
