@@ -24,23 +24,27 @@ const HeaderTopbar = () => {
   const [companyName, setCompanyName] = useState("");
 
   // ✅ Load company name from localStorage
-  useEffect(async () => {
-    try {
-      const Id = localStorage.getItem("userId");
-      if (!Id) {
-        console.warn("⚠️ No user data found in localStorage");
-        return;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const Id = localStorage.getItem("userId");
+        if (!Id) {
+          console.warn("⚠️ No user data found in localStorage");
+          return;
+        }
+
+        const user = await getUserById(Id);
+        const User_data = user.data.data["User Details"][0];
+        const company = User_data?.userBasicDetails?.companyName || "";
+
+        setCompanyName(company || "Company");
+      } catch (error) {
+        console.error("❌ Error reading user data:", error);
+        setCompanyName("Company");
       }
-      const user = await getUserById(Id);
-      const User_data = user.data.data["User Details"][0];
+    };
 
-      const company = User_data?.userBasicDetails?.companyName || "";
-
-      setCompanyName(company || "Company");
-    } catch (error) {
-      console.error("❌ Error reading user data:", error);
-      setCompanyName("Company");
-    }
+    fetchUser();
   }, []);
 
   return (
