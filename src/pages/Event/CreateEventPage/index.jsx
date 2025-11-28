@@ -80,8 +80,8 @@ const CreateEventPage = () => {
       );
 
       const selectedDate = dayjs(selectedDateFromCalendar);
-      const startDateTime = selectedDate.hour(10).minute(0); // Default start time 10:00 AM
-      const endDateTime = selectedDate.hour(14).minute(0); // Default end time 2:00 PM (4 hours later)
+      const startDateTime = selectedDate.hour(8).minute(0); // Default start time 10:00 AM
+      const endDateTime = selectedDate.hour(12).minute(0); // Default end time 2:00 PM (4 hours later)
 
       setFormData((prev) => ({
         ...prev,
@@ -120,7 +120,8 @@ const CreateEventPage = () => {
             status: statusId,
             venueId: event.venue.id || "",
             eventTypeId: event.eventType?.id || "",
-            managerId: event.manager?.id || "",
+            managerId: event.managerId || "",
+
             partyId: event.party?.id || "",
             customer_name: event.party?.nameEnglish || "",
             address: event.address || event.party?.addressEnglish || "",

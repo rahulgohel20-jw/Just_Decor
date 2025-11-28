@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
+
 import { Link } from "react-router-dom";
 import {
   DeleteEventMaster,
@@ -33,7 +35,7 @@ const EventViewModal = ({
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
-
+  const [isSelectMenuReport, setIsSelectMenuReport] = useState(false);
   useEffect(() => {
     const translateText = async (text) => {
       if (!text) {
@@ -387,7 +389,7 @@ const EventViewModal = ({
                   />
                 ),
                 icon: "/media/eventviewicon/menureport.png",
-                onClick: () => openMenuReport(safeEventId),
+                onClick: () => setIsSelectMenuReport(true),
               },
               {
                 label: (
@@ -468,6 +470,16 @@ const EventViewModal = ({
             />
           </button>
         </div>
+        <SelectMenureport
+          eventId={safeEventId}
+          isSelectMenureport={isSelectMenuReport} // keep the original prop name
+          setIsSelectMenuReport={setIsSelectMenuReport} // fix the prop name
+          onConfirm={() => {
+            setIsSelectMenuReport(false);
+            setMenuReportEventId(safeEventId);
+            setIsMenuReport(true);
+          }}
+        />
 
         <MenuReport
           isModalOpen={isMenuReport}

@@ -347,24 +347,10 @@ const InvoiceFooter = ({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button
-          className="btn btn-light"
-          title={
-            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
-          }
-        >
+        <button className="btn btn-light">
           <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
         </button>
-        <button
-          className="btn btn-primary"
-          title={
-            <FormattedMessage
-              id="COMMON.SAVE_AND_SEND"
-              defaultMessage="Save & Send"
-            />
-          }
-          onClick={onSave}
-        >
+        <button className="btn btn-primary" onClick={onSave}>
           <i className="ki-outline ki-paper-plane"></i>
 
           <FormattedMessage id="COMMON.SAVE_AND_SEND" defaultMessage="Save " />

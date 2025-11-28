@@ -71,8 +71,14 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
             return;
           }
           Swal.fire(
-            intl.formatMessage({ id: "COMMON.SUCCESS" }),
-            intl.formatMessage({ id: "USER.MASTER.MEAL_ADDED_SUCCESS" }),
+            intl.formatMessage({
+              id: "COMMON.SUCCESS",
+              defaultMessage: "Save",
+            }),
+            intl.formatMessage({
+              id: "USER.MASTER.MEAL_ADDED_SUCCESS",
+              defaultMessage: "Meal Type is Added Successfull",
+            }),
             "success"
           );
         }

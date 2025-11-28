@@ -561,6 +561,7 @@ const FunctionsDetails = ({
                               getFunctionFieldError(index, "functionId")
                                 ? "#ef4444"
                                 : undefined,
+                            width: "200px",
                           }}
                         />
                         {getFunctionFieldError(index, "functionId") && (
