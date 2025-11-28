@@ -153,8 +153,6 @@ const AddInvoicePage = () => {
           if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
             mappedRows = invoiceDetails.invoiceFunctionItems.map(
               (item, index) => {
-                // ✅ A row is custom if it was manually added (check if it has an ID but isEventFunction is explicitly false)
-                // OR if the functionName doesn't match any event function names
                 const isManuallyAdded =
                   item.isEventFunction === false ||
                   (item.id > 0 && !item.isEventFunction);
@@ -171,7 +169,7 @@ const AddInvoicePage = () => {
                     (Number(item.person || item.pax || 0) +
                       Number(item.extra || item.extraPax || 0)) *
                       Number(item.rate || item.ratePerPlate || 0),
-                  isCustom: isManuallyAdded, // ✅ TRUE for manually added rows
+                  isCustom: isManuallyAdded,
                   isEventFunction: item.isEventFunction === true,
                   id: item.id || 0,
                   isNewRow: false,
@@ -190,7 +188,7 @@ const AddInvoicePage = () => {
                 amount: (Number(func.pax || 0) + 0) * Number(func.rate || 0),
                 isCustom: false,
                 isEventFunction: true,
-                id: 0, // New rows from eventFunctions will have id: 0
+                id: 0,
               })
             );
           }
@@ -199,7 +197,6 @@ const AddInvoicePage = () => {
 
           setRows(mappedRows.length > 0 ? mappedRows : rows);
 
-          // Initialize temp values AFTER setting invoice data
           setTempValues({
             billingaddress: invoiceDetails.billingaddress || "",
             billingname: invoiceDetails.billingname || "",
@@ -208,10 +205,9 @@ const AddInvoicePage = () => {
             gstnumber: invoiceDetails.gstnumber || "",
           });
 
-          // Initialize footer data from API
           setFooterData({
             notes: invoiceDetails.notes || "Thanks for your Business...",
-            gst: 0, // Will be calculated as cgst + sgst + igst
+            gst: 0,
             cgst: parseFloat(invoiceDetails.cgst) || 0,
             sgst: parseFloat(invoiceDetails.sgst) || 0,
             igst: parseFloat(invoiceDetails.igst) || 0,
@@ -224,8 +220,6 @@ const AddInvoicePage = () => {
             igstAmnt: parseFloat(invoiceDetails.igstAmnt) || 0,
             grandTotal: parseFloat(invoiceDetails.grandTotal) || 0,
           });
-
-          message.success("Invoice data loaded successfully");
         } else {
           message.warning("No invoice data found");
         }
@@ -263,12 +257,11 @@ const AddInvoicePage = () => {
         isCustom: true,
         isEventFunction: false,
         id: 0,
-        isNewRow: true, // ✅ ADD THIS
+        isNewRow: true,
       },
     ]);
   };
 
-  // Callback to update footer data from InvoiceFooter component
   const handleFooterDataChange = (newFooterData) => {
     setFooterData(newFooterData);
   };

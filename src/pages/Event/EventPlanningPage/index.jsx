@@ -763,13 +763,6 @@ const EventPlanningPage = () => {
   return (
     <Fragment>
       <div className="flex flex-col min-h-screen w-full">
-        <button
-          // onClick={() => navigate(1)}
-          className="flex items-center gap-1 text-primary hover:text-primary/80"
-        >
-          <i className="fa fa-arrow-left"></i>
-          <span className="font-medium">Back</span>
-        </button>
         <div className="flex-1 overflow-auto px-4 py-2">
           <div className="gap-2 pb-2 mb-3">
             <Breadcrumbs items={[{ title: "Menu Planning" }]} />
@@ -874,7 +867,7 @@ const EventPlanningPage = () => {
                         Event Start Date :
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.eventStartDateTime}
+                        {eventData?.eventStartDateTime?.split(" ")[0]}
                       </span>
                     </div>
                   </div>
@@ -890,7 +883,7 @@ const EventPlanningPage = () => {
                         Event End Date :
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.eventEndDateTime}
+                        {eventData?.eventEndDateTime?.split(" ")[0]}
                       </span>
                     </div>
                   </div>

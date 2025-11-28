@@ -5,6 +5,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import AddMember from "@/partials/modals/add-member/AddMember";
+
 import {
   UpdateMemberById,
   GetALLMemberDetailsByID,
@@ -20,6 +22,7 @@ const SuperAdminMemberEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   // Dropdown options state
   const [states, setStates] = useState([]);
@@ -51,6 +54,7 @@ const SuperAdminMemberEdit = () => {
       amount: "",
       payid: "",
       transactionDate: "",
+      paidAmount: "",
       remarks: "",
       docPath: null,
     },
@@ -236,6 +240,7 @@ const SuperAdminMemberEdit = () => {
                 id: dp.id,
                 paymentType: dp.paymentType || "",
                 amount: dp.amount || "",
+                paidAmount: dp.paidAmount || "",
                 payid: dp.payid || "",
                 transactionDate: dp.transactionDateTime
                   ? dp.transactionDateTime
@@ -402,6 +407,10 @@ const SuperAdminMemberEdit = () => {
         formData.append(
           `userDownPayments[${index}].amount`,
           payment.amount || ""
+        );
+        formData.append(
+          `userDownPayments[${index}].paidAmount`,
+          payment.paidAmount || ""
         );
         formData.append(
           `userDownPayments[${index}].payid`,
@@ -652,44 +661,57 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Reporting Manager
-                </label>
-                <Select
-                  placeholder="Select Reporting Manager"
-                  value={memberDetails.reportingManagerId}
-                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
-                  options={managers}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
-                  className="w-full"
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Reporting Manager
+                  </label>
+                  <Select
+                    placeholder="Select Reporting Manager"
+                    value={memberDetails.reportingManagerId}
+                    onChange={(v) =>
+                      handleMemberChange("reportingManagerId", v)
+                    }
+                    options={managers}
+                    showSearch
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                    className="w-full"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMemberModalOpen(true)}
+                  className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/80 transition"
+                >
+                  <PlusOutlined className="text-xs" />
+                </button>
               </div>
             </div>
           </section>
 
           {/* Down Payment Details */}
           <section className="border rounded-md">
-            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+            <div className="flex justify-between items-center bg-gray-100 px-3 py-2 font-semibold text-gray-700 border-b">
               <span>Down Payment Details</span>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                className="bg-primary p-4 hover:bg-blue-500"
+                className="bg-primary hover:bg-blue-500"
                 size="small"
                 onClick={addDownPayment}
               >
                 Add New
               </Button>
             </div>
-            <div className="p-4 space-y-3">
+
+            <div className="p-3 space-y-3">
               {downPayments.map((row, index) => (
-                <div key={index} className="grid grid-cols-7 gap-3 items-end">
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                <div key={index} className="flex flex-wrap gap-2 items-end">
+                  {/* Payment Type */}
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
                       Payment Type
                     </label>
                     <Select
@@ -704,26 +726,46 @@ const SuperAdminMemberEdit = () => {
                         { label: "Other", value: "other" },
                       ]}
                       placeholder="Select type"
-                      className="w-full"
+                      className="w-full text-xs"
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {/* Amount (small width) */}
+                  <div className="w-20">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
                       Amount
                     </label>
                     <Input
                       value={row.amount}
-                      onChange={(e) =>
-                        handleDownPaymentChange(index, "amount", e.target.value)
-                      }
-                      placeholder="Enter amount"
                       type="number"
+                      disabled
+                      className="text-xs"
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {/* Paid Amount */}
+                  <div className="flex-1 min-w-[80px]">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                      Paid Amount
+                    </label>
+                    <Input
+                      value={row.paidAmount}
+                      onChange={(e) =>
+                        handleDownPaymentChange(
+                          index,
+                          "paidAmount",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter amount"
+                      type="number"
+                      className="text-xs"
+                    />
+                  </div>
+
+                  {/* Payment ID */}
+                  <div className="flex-1 min-w-[100px]">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
                       Payment ID
                     </label>
                     <Input
@@ -731,12 +773,14 @@ const SuperAdminMemberEdit = () => {
                       onChange={(e) =>
                         handleDownPaymentChange(index, "payid", e.target.value)
                       }
-                      placeholder="Enter payment ID"
+                      placeholder="Enter ID"
+                      className="text-xs"
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {/* Transaction Date */}
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
                       Transaction Date
                     </label>
                     <Input
@@ -749,15 +793,17 @@ const SuperAdminMemberEdit = () => {
                           e.target.value
                         )
                       }
+                      className="text-xs"
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {/* Remarks */}
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
                       Remarks
                     </label>
                     <Input
-                      placeholder="Enter remarks"
+                      placeholder="Remarks"
                       value={row.remarks}
                       onChange={(e) =>
                         handleDownPaymentChange(
@@ -766,27 +812,30 @@ const SuperAdminMemberEdit = () => {
                           e.target.value
                         )
                       }
+                      className="text-xs"
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Upload Document
-                    </label>
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleDownPaymentFile(index, e.target.files[0])
-                      }
-                    />
-                  </div>
-
-                  <div>
+                  {/* Upload + Delete inline */}
+                  <div className="flex items-center gap-2 min-w-[140px]">
+                    <div className="flex-1">
+                      <label className="block mb-1 text-xs font-medium text-gray-700">
+                        Upload
+                      </label>
+                      <Input
+                        type="file"
+                        onChange={(e) =>
+                          handleDownPaymentFile(index, e.target.files[0])
+                        }
+                        className="text-xs"
+                      />
+                    </div>
                     <Button
                       icon={<DeleteOutlined />}
                       danger
                       onClick={() => removeDownPayment(index)}
-                      className="w-full"
+                      size="small"
+                      className="mt-6"
                     />
                   </div>
                 </div>
@@ -887,6 +936,12 @@ const SuperAdminMemberEdit = () => {
             <Button onClick={() => navigate(-1)}>Cancel</Button>
           </div>
         </div>
+        <AddMember
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+          refreshData={fetchUserData} // refresh after adding a manager
+          selectedMember={null} // optional, if adding new member
+        />
       </Container>
     </Fragment>
   );
