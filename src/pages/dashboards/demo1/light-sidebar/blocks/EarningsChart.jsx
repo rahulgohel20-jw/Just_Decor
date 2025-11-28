@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import ApexChart from "react-apexcharts";
-import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -9,13 +8,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormattedMessage } from "react-intl";
-
-const fetchEarningsChart = () => {
-  return axios.get(`${import.meta.env.VITE_APP_API_URL}/sales/index`);
-};
+import {
+  SuperAdminDashboardMonthWiseData,
+  GetAllPlans,
+} from "@/services/apiServices";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 
 const EarningsChart = () => {
-  const [charData, setCharData] = useState([31, 40, 28, 51, 42, 109, 100, 85, 95, 70, 80, 90]);
+  const [charData, setCharData] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [startDate, setStartDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs());
+
   const categories = [
     "Jan",
     "Feb",
@@ -30,186 +36,146 @@ const EarningsChart = () => {
     "Nov",
     "Dec",
   ];
-  
+
+  const monthIndex = {
+    January: 0,
+    February: 1,
+    March: 2,
+    April: 3,
+    May: 4,
+    June: 5,
+    July: 6,
+    August: 7,
+    September: 8,
+    October: 9,
+    November: 10,
+    December: 11,
+  };
+
+  // Fetch chart data
+  const fetchChartData = async () => {
+    if (!startDate || !endDate || !selectedPlan) return;
+
+    try {
+      const res = await SuperAdminDashboardMonthWiseData(
+        endDate.format("DD/MM/YYYY"),
+        selectedPlan,
+        startDate.format("DD/MM/YYYY")
+      );
+
+      if (res?.data?.success) {
+        const apiData = res.data.data;
+        const updated = Array(12).fill(0);
+
+        apiData.forEach((item) => {
+          const idx = monthIndex[item.month];
+          if (idx !== undefined) updated[idx] = item.total / 1000;
+        });
+
+        setCharData(updated);
+      }
+    } catch (err) {
+      console.error("Error fetching month data:", err);
+    }
+  };
+
+  // Fetch plans for dropdown
+  const fetchPlans = async () => {
+    try {
+      const res = await GetAllPlans();
+      if (res?.data?.success) {
+        const planList = res.data.data["Plan Details"] || [];
+        setPlans(planList);
+
+        // Set default selected plan
+        if (planList.length > 0) setSelectedPlan(planList[0].id.toString());
+      }
+    } catch (err) {
+      console.error("Error fetching plans:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchEarningsChart()
-      .then(value => setCharData(value.data))
-      .catch(error => console.error('Error fetching chart data:', error));
+    fetchPlans();
   }, []);
 
-  // Calculate max value dynamically
+  useEffect(() => {
+    fetchChartData();
+  }, [selectedPlan, startDate, endDate]);
+
   const maxValue = Math.ceil(Math.max(...charData) / 20) * 20;
 
   const options = {
     series: [
       {
-        name: "series1",
+        name:
+          plans.find((plan) => plan.id.toString() === selectedPlan)?.name || "",
         data: charData ?? [],
       },
     ],
-    chart: {
-      height: 250,
-      type: "area",
-      toolbar: {
-        show: false,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      show: false,
-    },
-    stroke: {
-      curve: "smooth",
-      show: true,
-      width: 3,
-      colors: ["var(--tw-primary)"],
-    },
-    xaxis: {
-      categories: categories,
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-      labels: {
-        style: {
-          colors: "var(--tw-gray-500)",
-          fontSize: "12px",
-        },
-      },
-      crosshairs: {
-        position: "front",
-        stroke: {
-          color: "var(--tw-primary)",
-          width: 1,
-          dashArray: 3,
-        },
-      },
-      tooltip: {
-        enabled: false,
-        formatter: undefined,
-        offsetY: 0,
-        style: {
-          fontSize: "12px",
-        },
-      },
-    },
+    chart: { height: 250, type: "area", toolbar: { show: false } },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    stroke: { curve: "smooth", width: 3, colors: ["var(--tw-primary)"] },
+    xaxis: { categories },
     yaxis: {
       min: 0,
       max: maxValue,
       tickAmount: 5,
-      axisTicks: {
-        show: false,
-      },
-      labels: {
-        style: {
-          colors: "var(--tw-gray-500)",
-          fontSize: "12px",
-        },
-        formatter: (defaultValue) => {
-          return `$${defaultValue}K`;
-        },
-      },
-    },
-    tooltip: {
-      enabled: true,
-      custom({ series, seriesIndex, dataPointIndex, w }) {
-        const number = parseInt(series[seriesIndex][dataPointIndex]) * 1000;
-        const month = w.globals.seriesX[seriesIndex][dataPointIndex];
-        const monthName = categories[month];
-        const formatter = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        });
-        const formattedNumber = formatter.format(number);
-        return `
-          <div class="flex flex-col gap-2 p-3.5">
-            <div class="font-medium text-2sm text-gray-600">${monthName}, 2024 Sales</div>
-            <div class="flex items-center gap-1.5">
-              <div class="font-semibold text-md text-gray-900">${formattedNumber}</div>
-              <span class="badge badge-outline badge-success badge-xs">+24%</span>
-            </div>
-          </div>
-          `;
-      },
-    },
-    markers: {
-      size: 0,
-      colors: "var(--tw-primary-light)",
-      strokeColors: "var(--tw-primary)",
-      strokeWidth: 4,
-      strokeOpacity: 1,
-      strokeDashArray: 0,
-      fillOpacity: 1,
-      discrete: [],
-      shape: "circle",
-      offsetX: 0,
-      offsetY: 0,
-      onClick: undefined,
-      onDblClick: undefined,
-      showNullDataPoints: true,
-      hover: {
-        size: 8,
-        sizeOffset: 0,
-      },
-    },
-    fill: {
-      gradient: {
-        opacityFrom: 0.25,
-        opacityTo: 0,
-      },
-    },
-    grid: {
-      borderColor: "var(--tw-gray-200)",
-      strokeDashArray: 5,
-      yaxis: {
-        lines: {
-          show: true,
-        },
-      },
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
+      labels: { formatter: (v) => `$${v}K` },
     },
   };
 
   return (
     <div className="card h-full">
+      {" "}
       <div className="card-header">
-        <h3 className="card-title"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_EARNINGS" defaultMessage="Earnings" /></h3>
-
+        {" "}
+        <h3 className="card-title">
+          {" "}
+          <FormattedMessage
+            id="USER.DASHBOARD.DASHBOARD_EARNINGS"
+            defaultMessage="Earnings"
+          />{" "}
+        </h3>
         <div className="flex items-center gap-5">
-          
-    <Select defaultValue="1">
+          {/* PLAN DROPDOWN */}
+          <Select
+            value={selectedPlan}
+            onValueChange={(value) => setSelectedPlan(value)}
+          >
             <SelectTrigger className="w-28" size="sm">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent className="w-32">
-              <SelectItem value="1"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ALL_SALES" defaultMessage="All" /></SelectItem>
-              <SelectItem value="lite"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_LITE_SALES" defaultMessage="Lite" /></SelectItem>
-              <SelectItem value="elite"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_ELITE_SALES" defaultMessage="Elite" /></SelectItem>
-              <SelectItem value="premium"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_PREMIUM_SALES" defaultMessage="Premium" /></SelectItem>
+              {plans.map((plan) => (
+                <SelectItem key={plan.id} value={plan.id.toString()}>
+                  {plan.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select defaultValue="1">
-            <SelectTrigger className="w-28" size="sm">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent className="w-32">
-              <SelectItem value="1"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_1MONTH_SALES" defaultMessage="1 Month" /></SelectItem>
-              <SelectItem value="3"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_3MONTH_SALES" defaultMessage="3 Months" /></SelectItem>
-              <SelectItem value="6"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_6MONTH_SALES" defaultMessage="6 Months" /></SelectItem>
-              <SelectItem value="12"><FormattedMessage id="USER.DASHBOARD.DASHBOARD_HIGHLIGHT_12MONTH_SALES" defaultMessage="12 Months" /></SelectItem>
-            </SelectContent>
-          </Select>
+
+          {/* START DATE */}
+          <DatePicker
+            value={startDate}
+            onChange={(value) => setStartDate(value)}
+            className="w-32"
+            size="sm"
+            placeholder="Start Date"
+          />
+
+          {/* END DATE */}
+          <DatePicker
+            value={endDate}
+            onChange={(value) => setEndDate(value)}
+            className="w-32"
+            size="sm"
+            placeholder="End Date"
+          />
         </div>
       </div>
-      <div className="card-body flex flex-col justify-end items-stretch grow px-3 py-1">
+      <div className="card-body flex flex-col justify-end px-3 py-1">
         <ApexChart
           id="earnings_chart"
           options={options}

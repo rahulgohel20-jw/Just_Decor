@@ -1,52 +1,56 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { toAbsoluteUrl } from "@/utils/Assets";
+import { SuperAdminDashboardTotalUserAndPlan } from "../../../../../services/apiServices";
 
-const ChannelStats = () => {
-  const items = [
-    {
-      logo: "liteplan.svg",
-      info: "₹ 8k",
-      desc: "Lite Plan",
-      growth: "2.1%",
-      isPositive: true,
-    },
-    {
-      logo: "eliteplan.svg",
-      info: "₹ 15k",
-      desc: "Elite Plans",
-      growth: "2.1%",
-      isPositive: true,
-    },
-    {
-      logo: "premiumplan.svg",
-      info: "₹ 608",
-      desc: "Premium Plan ",
-      growth: "2.1%",
-      isPositive: true,
-    },
-    {
-      logo: "active.svg",
-      info: "₹ 2.5k",
-      desc: "Active Users",
-      growth: "2.1%",
-      isPositive: true,
-    },
-    {
-      logo: "totaluser.svg",
-      info: "₹ 2.5k",
-      desc: "Total Users",
-      growth: "2.1%",
-      isPositive: true,
-    },
-  ];
+const ChannelStats = ({ data }) => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const planIcon = {
+      "E-Lite": "eliteplan.svg",
+      Lite: "liteplan.svg",
+      Elite: "eliteplan.svg",
+      Premium: "premiumplan.svg",
+    };
+
+    const mapped = [
+      ...data.planData.map((p) => ({
+        logo: planIcon[p.planName] || "default.svg",
+        info: `₹ ${p.totalAmountReceived}`,
+        desc: `${p.planName} Plan`,
+        growth: "2.1%",
+        isPositive: true,
+      })),
+
+      {
+        logo: "active.svg",
+        info: data.totalActiveUser,
+        desc: "Active Users",
+        growth: "2.1%",
+        isPositive: true,
+      },
+
+      {
+        logo: "totaluser.svg",
+        info: data.totalAllUser,
+        desc: "Total Users",
+        growth: "2.1%",
+        isPositive: true,
+      },
+    ];
+
+    setItems(mapped);
+  }, [data]);
 
   const renderItem = (item, index) => {
     return (
       <div
         key={index}
-        className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-[#D6ECFF] dark:border-gray-700 p-3 flex-1 min-w-[220px]"
+        className="flex gap-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-[#D6ECFF] dark:border-gray-700 p-3 flex-1 min-w-[220px]"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           {/* Icon Container */}
           <div className="rounded-lg bg-[#D6ECFF] p-3 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
             <img
@@ -63,25 +67,11 @@ const ChannelStats = () => {
               {item.info}
             </span>
             {/* Growth Indicator */}
-            <div className="flex items-center gap-1 text-green-600 dark:text-green-500">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 10l7-7m0 0l7 7m-7-7v18"
-                />
-              </svg>
-              <span className="text-sm font-semibold">{item.growth}</span>
-            </div>
           </div>
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {item.desc}
+            </span>
           </div>
         </div>
         <div></div>
@@ -90,11 +80,9 @@ const ChannelStats = () => {
   };
 
   return (
-    <Fragment>
-      {items.map((item, index) => {
-        return renderItem(item, index);
-      })}
-    </Fragment>
+    <div className="flex justify-between gap-3 w-full">
+      {items.map(renderItem)}
+    </div>
   );
 };
 

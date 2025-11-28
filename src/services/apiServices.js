@@ -289,9 +289,11 @@ export const UpdateEventStatus = (Id, statusId) => {
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
 };
+
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
+
 export const GeteventQuoataiondata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
 };
@@ -986,3 +988,16 @@ export const deleteRawmatrialcatidInmenuitem = (id) => {
 export const deleteFunction = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
 };
+
+export const SuperAdminDashboardPlanWiseTotal = () => {
+  return GET(`/dashboard/superadmin/planWiseTotal`);
+}
+
+
+export const SuperAdminDashboardTotalUserAndPlan = () => {
+  return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
+}
+
+export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
+  return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
+}
