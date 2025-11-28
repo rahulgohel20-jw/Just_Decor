@@ -55,10 +55,11 @@ const AddUnit = ({
     },
     validationSchema,
     onSubmit: async (values) => {
-      const Id = localStorage.getItem("userId");
-      if (!Id) return Swal.fire("Error", "User data not found", "error");
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData?.id)
+        return Swal.fire("Error", "User data not found", "error");
 
-      const payload = { ...values, userId: Id };
+      const payload = { ...values, userId: userData.id };
       try {
         const res = selectedUnit
           ? await EditUnit(selectedUnit.unitId, payload)
@@ -425,7 +426,19 @@ const AddUnit = ({
           </div>
 
           {/* Is Parent Unit */}
-
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="isParentUnit"
+                checked={formik.values.isParentUnit}
+                onChange={formik.handleChange}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:h-5 after:w-5 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+            </label>
+            <span className="text-gray-700 font-medium">Is Parent Unit</span>
+          </div>
           {/* Conditional fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderSelect("decimalLimit", "Decimal Limit For Quantity*", [
@@ -433,8 +446,40 @@ const AddUnit = ({
               "1",
               "2",
             ])}
+            {!formik.values.isParentUnit && (
+              <>
+                {renderSelect("parentUnit", "Parent Unit", [])}
+                <div>
+                  <label className="text-sm text-gray-600 mb-1 block">
+                    Equivalent
+                  </label>
+                  <input
+                    name="equivalent"
+                    type="text"
+                    value={formik.values.equivalent}
+                    onChange={formik.handleChange}
+                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Enter Equivalent"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
+          {/* Dynamic Range Info */}
+          <RangeTypeRadios />
+          <RangeInfoSection />
+          <RangeTable />
+
+          {formik.values.rangeType !== "Step Wise Range" && (
+            <button
+              type="button"
+              onClick={addRangeRow}
+              className="p-2 rounded-lg flex items-center gap-2 bg-primary text-white font-medium mt-2"
+            >
+              <span className="text-xl">＋</span> Add Range
+            </button>
+          )}
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-4 border-t">
             <button

@@ -105,11 +105,18 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
         console.log(res.data.success);
 
         if (res.data.success === true) {
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "User rights added successfully!",
-          });
+          Swal.fire(
+            {
+              icon: "success",
+              title: "Success",
+              text: "User rights added successfully!",
+              position: "top-end",
+              timer: 1500,
+              showConfirmButton: false,
+              zIndex: 9999,
+            },
+            200
+          );
           resetForm();
           handleModalClose();
         } else {

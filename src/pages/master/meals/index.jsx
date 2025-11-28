@@ -24,9 +24,6 @@ const MealMaster = () => {
   const intl = useIntl();
   const Id = localStorage.getItem("userId");
 
-  // --------------------------
-  // 🔥 Get translated field
-  // --------------------------
   const getTranslatedName = (item) => {
     switch (intl.locale) {
       case "hi":
@@ -38,9 +35,6 @@ const MealMaster = () => {
     }
   };
 
-  // --------------------------
-  // Fetch All Meals
-  // --------------------------
   const FetchMealType = () => {
     GetMealType(Id)
       .then((res) => {
@@ -48,7 +42,7 @@ const MealMaster = () => {
 
         const formatted = mealData.map((item, index) => ({
           sr_no: index + 1,
-          meal_type: getTranslatedName(item), // ← 🔥 Auto Translated
+          meal_type: getTranslatedName(item),
           mealid: item.id,
         }));
 
@@ -59,16 +53,10 @@ const MealMaster = () => {
       });
   };
 
-  // --------------------------
-  // Initial Load
-  // --------------------------
   useEffect(() => {
     FetchMealType();
   }, []);
 
-  // --------------------------
-  // Search with Debounce
-  // --------------------------
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
@@ -82,7 +70,7 @@ const MealMaster = () => {
 
           const formatted = mealData.map((item, index) => ({
             sr_no: index + 1,
-            meal_type: getTranslatedName(item), // ← 🔥 Auto Translated
+            meal_type: getTranslatedName(item),
             mealid: item.id,
           }));
 
@@ -96,9 +84,6 @@ const MealMaster = () => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // --------------------------
-  // Delete Meal
-  // --------------------------
   const DeleteMealtype = (mealid) => {
     Swal.fire({
       title: "Are you sure?",

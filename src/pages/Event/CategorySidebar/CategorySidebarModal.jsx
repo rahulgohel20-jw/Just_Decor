@@ -61,26 +61,17 @@ export default function CategorySidebarModal({
     FetchAllSuplier();
   }, []);
 
-  // 🔥 FIX: Add selectedRowData as a dependency and properly reset state
-  // 🔥 CRITICAL FIX: Reset rawMaterials when modal opens with new data
   useEffect(() => {
-    // Always reset first when selectedRowData changes
-    console.log("🔍 selectedRowData changed:", selectedRowData);
-
     if (!open) {
-      // Don't process if modal is closed
       return;
     }
 
     if (!selectedRowData) {
-      // Reset state when no data is selected
-      console.log("⚠️ No selectedRowData, resetting...");
       setRawMaterials([]);
       return;
     }
 
     const rawMaterialDetails = selectedRowData["MenuItem RawMaterial Details"];
-    console.log("🔍 Raw material details:", rawMaterialDetails);
 
     if (rawMaterialDetails && rawMaterialDetails.length > 0) {
       const details = rawMaterialDetails.map((item, index) => ({
@@ -102,14 +93,12 @@ export default function CategorySidebarModal({
         rawmaterial_weight: item.rawmaterial_weight || 0,
       }));
 
-      console.log("✅ Setting raw materials:", details);
       setRawMaterials(details);
     } else {
-      // 🔥 CRITICAL FIX: Reset state when no raw materials found
       console.log("⚠️ No raw materials found, resetting to empty array");
       setRawMaterials([]);
     }
-  }, [selectedRowData, open]); // 🔥 Add both selectedRowData and open as dependencies
+  }, [selectedRowData, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -128,7 +117,6 @@ export default function CategorySidebarModal({
     );
   };
 
-  // Bulk Allocate Agency to all rows
   const handleAllocateAgency = () => {
     if (!selectedAgency) {
       Swal.fire({
@@ -166,7 +154,6 @@ export default function CategorySidebarModal({
     setSelectedAgency("");
   };
 
-  // Bulk Allocate Place to all rows
   const handleAllocatePlace = () => {
     if (!selectedPlace) {
       Swal.fire({
@@ -223,24 +210,16 @@ export default function CategorySidebarModal({
           suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
         const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
 
-        console.log("🔍 Submitting raw material:", {
-          name: item.name,
-          agency: item.agency,
-          partyId: partyId,
-          unit: item.unit,
-          unitId: unitId,
-        });
-
         return {
           id: item.itemId || 0,
           eventId: eventId || 0,
           eventFunctionId: eventFunctionId || 0,
           menuItemId: item.menuItemId || 0,
           rawMaterialId: item.rawMaterialId || 0,
-          partyId: partyId, // 🔥 Make sure partyId is correctly mapped
-          unitId: unitId, // 🔥 Make sure unitId is correctly mapped
+          partyId: partyId,
+          unitId: unitId,
           dateTime: item.dateTime
-            ? dayjs(item.dateTime).format("YYYY-MM-DD HH:mm:ss")
+            ? dayjs(item.dateTime).format("DD/MM/YYYY hh:mm a")
             : "",
           weight: Number(item.weight) || 0,
           rawmaterial_weight: Number(item.rawmaterial_weight) || 1,
@@ -249,8 +228,6 @@ export default function CategorySidebarModal({
           place: item.place || "",
         };
       });
-
-      console.log("🔍 Raw material payload with partyIds:", payload);
 
       const hasInvalidData = payload.some(
         (item) =>
@@ -279,12 +256,11 @@ export default function CategorySidebarModal({
         });
 
         if (onSave) {
-          // 🔥 FIX: Pass the payload (which has partyId) instead of rawMaterials
           onSave({
             menuItemId: payload[0]?.menuItemId,
             eventFunctionId,
             eventId,
-            rawMaterials: payload, // 🔥 Pass the mapped payload with partyId and unitId
+            rawMaterials: payload,
             response: res.data,
           });
         }

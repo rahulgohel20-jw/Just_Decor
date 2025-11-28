@@ -14,6 +14,8 @@ const SelectedItems = ({
 }) => {
   const { categoriesOrder = [], categories = {} } = data;
 
+  console.log(data);
+
   // -------------------------------
   // EXPAND / COLLAPSE STATE
   // -------------------------------

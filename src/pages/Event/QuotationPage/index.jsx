@@ -286,10 +286,11 @@ const QuotationPage = () => {
           name: "",
           date: null,
           persons: "",
-          extra: "",
           rate: "",
           totalPrice: "0.00",
           isFromQuotationItems: false,
+          isNewFunction: true,
+          isLocked: false, // NEW
         },
       ],
     }));
@@ -899,19 +900,33 @@ const QuotationPage = () => {
                           readOnly={fn.isFromQuotationItems}
                         />
                       </div>
+
                       <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
-                        <input
-                          className="input w-full"
-                          value={fn.extra}
-                          onChange={(e) =>
-                            handleFunctionChange(index, "extra", e.target.value)
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.EXTRA",
-                            defaultMessage: "Extra",
-                          })}
-                          type="number"
-                        />
+                        {fn.isNewFunction ? (
+                          // Show just a dash or "N/A" for new functions
+                          <div className="input w-full bg-gray-100 flex items-center justify-center cursor-not-allowed">
+                            -
+                          </div>
+                        ) : (
+                          <input
+                            className={`input w-full ${fn.isNewFunction ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            value={fn.extra}
+                            onChange={(e) =>
+                              handleFunctionChange(
+                                index,
+                                "extra",
+                                e.target.value
+                              )
+                            }
+                            placeholder={intl.formatMessage({
+                              id: "COMMON.EXTRA",
+                              defaultMessage: "Extra",
+                            })}
+                            type="number"
+                            disabled={fn.isNewFunction}
+                            readOnly={fn.isNewFunction}
+                          />
+                        )}
                       </div>
                       <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
                         <input
@@ -1182,9 +1197,7 @@ const QuotationPage = () => {
                         <div
                           className="bg-white py-3 px-5 rounded-lg border border-gray-200 cursor-pointer"
                           onClick={() =>
-                            document
-                              .getElementById(`advance-payment-date-${i}`)
-                              ?.focus()
+                            document.getElementById(`advance-payment-date-${i}`)
                           }
                         >
                           <div className="flex flex-col gap-2">

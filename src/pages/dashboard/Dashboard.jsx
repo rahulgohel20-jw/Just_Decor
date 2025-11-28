@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { FormattedMessage } from "react-intl";
 import { Container } from "@/components/container";
 import { useLanguage } from "@/i18n";
@@ -22,13 +22,63 @@ import {
   Highlights,
   Teams,
 } from "../dashboards/demo1";
+import {
+  GetUsersByRoleId,
+  SuperAdminDashboardTotalUserAndPlan,
+} from "../../services/apiServices";
 
 const Dashboard = () => {
   const [date, setDate] = useState({
     from: new Date(2025, 0, 20),
     to: addDays(new Date(2025, 0, 20), 20),
   });
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [teamsData, setTeamsData] = useState([]); // Store teams data here
   const { isRTL } = useLanguage();
+
+  // 🔥 Fetch dashboard data
+  useEffect(() => {
+    SuperAdminDashboardTotalUserAndPlan()
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setDashboardData(res.data.data);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const res = await GetUsersByRoleId(2); // roleId 2
+        if (res?.data?.success === true) {
+          const users = res?.data?.data?.["User Details"] || [];
+
+          // Map the API response to Teams table structure
+          const mappedTeams = users.map((user) => ({
+            id: user.id,
+            name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+            phone: user.contactNo || user.userBasicDetails?.officeNo || "N/A",
+            is_active: user.isActive ?? false,
+            created_at:
+              user.createdAt || user.userBasicDetails?.createdAt || "N/A",
+            created_at_iso: user.createdAt
+              ? new Date(
+                  user.createdAt.split("/").reverse().join("-")
+                ).toISOString()
+              : null,
+          }));
+
+          setTeamsData(mappedTeams);
+        }
+      } catch (err) {
+        console.error("Error fetching team:", err);
+      }
+    };
+
+    fetchTeam();
+  }, []);
 
   return (
     <Fragment>
@@ -93,14 +143,14 @@ const Dashboard = () => {
           <div className="grid lg:grid-cols-1 gap-y-5 lg:gap-7.5 items-stretch">
             <div className="">
               <div className="flex gap-5 h-full">
-                <ChannelStats />
+                <ChannelStats data={dashboardData} />
               </div>
             </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
             <div className="lg:col-span-1">
-              <Highlights limit={3} />
+              <Highlights limit={3} data={dashboardData} />
             </div>
 
             <div className="lg:col-span-2">
@@ -108,8 +158,9 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Pass dynamic API data as prop */}
           <div>
-            <Teams />
+            <Teams data={teamsData} />
           </div>
         </div>
       </Container>

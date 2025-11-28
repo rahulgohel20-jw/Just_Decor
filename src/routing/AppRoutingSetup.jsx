@@ -190,6 +190,7 @@ import VendorMaster from "../pages/master/vendor-master";
 import SuperContactTypeMaster from "../pages/super-admin/master/contact-master";
 import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type";
 import SuperUnitMaster from "../pages/super-admin/master/unit";
+import PaymentHistory from "../pages/setting/paymenthistory";
 
 const AppRoutingSetup = () => {
   return (
@@ -397,6 +398,7 @@ const AppRoutingSetup = () => {
             path="/settings/subscription"
             element={<SubscriptionSettingsPage />}
           />
+          <Route path="/setting/payment-history" element={<PaymentHistory />} />
           <Route path="/settings/channel" element={<ChannelSettingsPage />} />
           <Route
             path="/settings/notifications"

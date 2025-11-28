@@ -289,9 +289,11 @@ export const UpdateEventStatus = (Id, statusId) => {
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
 };
+
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
+
 export const GeteventQuoataiondata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
 };
@@ -925,18 +927,18 @@ export const GetVenueType = (id) => {
 export const GetClientwisedashboardata = (id) => {
   return GET(`/dashboard/admin/userWiseDashboardData?userId=${id}`);
 };
-export const GetClientdashboardsalesdata = (date, useriD) => {
+export const GetClientdashboardpiechart1 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseDashboardPieChart1?dateString=${date}&userId=${useriD}`
   );
 };
 
-export const GetClientdashboardinvoicedata = (date, useriD) => {
+export const GetClientdashboardpiechart3 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseEventQuotationPieChart3?dateString=${date}&userId=${useriD}`
   );
 };
-export const GetClientdashboardquotationdata = (date, useriD) => {
+export const GetClientdashboardpiechart2 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseSalesInvoicePieChart2?dateString=${date}&userId=${useriD}`
   );
@@ -944,7 +946,13 @@ export const GetClientdashboardquotationdata = (date, useriD) => {
 
 export const GetClienteventdata = (startdate, enddate, useriD) => {
   return GET(
-    `/dashboard/admin/getEventsByUserAndDate?endDate=${startdate}&startDate=${enddate}&userId=${useriD}`
+    `/dashboard/admin/getEventsByUserAndDate?endDate=${enddate}&startDate=${startdate}&userId=${useriD}`
+  );
+};
+
+export const Getmostsellingitems = (enddate, startdate, userId) => {
+  return GET(
+    `/dashboard/admin/getMostSellingItems?endDate=${enddate}&startDate=${startdate}&userId=${userId}`
   );
 };
 
@@ -980,3 +988,16 @@ export const deleteRawmatrialcatidInmenuitem = (id) => {
 export const deleteFunction = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
 };
+
+export const SuperAdminDashboardPlanWiseTotal = () => {
+  return GET(`/dashboard/superadmin/planWiseTotal`);
+}
+
+
+export const SuperAdminDashboardTotalUserAndPlan = () => {
+  return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
+}
+
+export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
+  return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
+}

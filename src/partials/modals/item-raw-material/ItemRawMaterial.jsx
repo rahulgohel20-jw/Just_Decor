@@ -55,7 +55,7 @@ const ItemRawmaterial = ({
         console.error("Error fetching raw materials:", err);
       });
 
-    GetUnitData(userId)
+    GetUnitData(1)
       .then((res) => {
         const units = res.data.data["Unit Details"].map((unit) => ({
           id: unit.id,
@@ -91,7 +91,9 @@ const ItemRawmaterial = ({
       const selectedMaterial = rawMaterialOptions.find(
         (rm) => rm.name === formData.rawMaterial
       );
-      const selectedUnit = unitOptions.find((u) => u.name === formData.unit);
+      const selectedUnit = unitOptions.find(
+        (u) => u.id === Number(formData.unit)
+      );
 
       // Check for duplicate raw material (skip check if editing)
       if (!selectedEvent) {
@@ -135,7 +137,7 @@ const ItemRawmaterial = ({
         rawMaterialId: selectedMaterial.id,
         name: formData.rawMaterial,
         weight: weightNum,
-        unit: formData.unit,
+        unit: selectedUnit?.nameEnglish || "",
         unitId: selectedUnit?.id || "",
         rate: totalRate,
       };
@@ -147,6 +149,7 @@ const ItemRawmaterial = ({
           selectedEvent ? "updated" : "added"
         } successfully!`,
       });
+      console.log(newRow);
 
       refreshData(newRow);
       setIsModalOpen(false);

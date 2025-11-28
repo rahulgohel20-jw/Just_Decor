@@ -32,8 +32,9 @@ const AuthProvider = ({ children }) => {
 
     try {
       const response = await getUserById(userId);
+
       if (response?.data?.success) {
-        setCurrentUser(response.data.data);
+        setCurrentUser(response.data.data["User Details"][0]);
       } else {
         logout();
       }

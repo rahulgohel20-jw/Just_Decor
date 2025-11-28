@@ -1,4 +1,10 @@
-import { Fragment, useState, useEffect, useRef } from "react";
+import {
+  Fragment,
+  useState,
+  useEffect,
+  useRef,
+  useInsertionEffect,
+} from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
@@ -11,6 +17,7 @@ import {
   GetAllRawMaterialAllocationItems,
   GetAllSupllierVendors,
   RawMaterialallocation,
+  GetEventMasterById,
 } from "@/services/apiServices";
 import { useLocation } from "react-router-dom";
 import { Select, DatePicker } from "antd";
@@ -35,12 +42,35 @@ const RawMaterialAllocation = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState(null);
-
+  const [eventData, setEventData] = useState([]);
   // 🔥 NEW: Track if data has been modified
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
 
   const intl = useIntl();
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEventData();
+    }
+  }, [eventId]);
+
+  const fetchEventData = async () => {
+    try {
+      const eventData = await GetEventMasterById(eventId);
+      const data = eventData.data.data["Event Details"] || [];
+      console.log(data);
+
+      if (data && data.length > 0) {
+        const event = eventData.data.data["Event Details"][0];
+        setEventData(event);
+      } else {
+        console.error("error in fetching event data");
+      }
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+    }
+  };
 
   useEffect(() => {
     if (eventTypeId) {
@@ -111,7 +141,7 @@ const RawMaterialAllocation = () => {
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => ({
-          id: item.id || index + 1,
+          id: index + 1,
           rawMaterialId: item.rawMaterialId || item.id || 0,
           material: item.rawMaterialNameEng || "N/A",
           qty: item.qty || 0,
@@ -142,10 +172,9 @@ const RawMaterialAllocation = () => {
     const updated = [...data];
     updated[index][field] = value;
     setData(updated);
-    setHasUnsavedChanges(true); // 🔥 Mark as having unsaved changes
+    setHasUnsavedChanges(true);
   };
 
-  // 🔥 NEW: Auto-save function
   const autoSave = async (showNotification = false) => {
     try {
       if (!eventId) {
@@ -232,7 +261,6 @@ const RawMaterialAllocation = () => {
     const success = await autoSave(true);
 
     if (success) {
-      // Refresh data after successful save
       const currentTab = tabs.find((tab) => tab.value === activeTab);
       if (currentTab?.categoryId) {
         await fetchRawMaterialItems(currentTab.categoryId);
@@ -478,7 +506,7 @@ const RawMaterialAllocation = () => {
                     />
                   </span>
                   <span className="text-sm font-medium text-gray-900">
-                    Ev001
+                    {eventData?.eventNo}
                   </span>
                 </div>
               </div>
@@ -493,7 +521,7 @@ const RawMaterialAllocation = () => {
                     />
                   </span>
                   <span className="text-sm font-medium text-gray-900">
-                    Vivek
+                    {eventData?.party?.nameEnglish}
                   </span>
                 </div>
               </div>
@@ -508,7 +536,7 @@ const RawMaterialAllocation = () => {
                     />
                   </span>
                   <span className="text-sm font-medium text-gray-900">
-                    Wedding
+                    {eventData?.eventType?.nameEnglish}
                   </span>
                 </div>
               </div>
@@ -523,7 +551,7 @@ const RawMaterialAllocation = () => {
                     />{" "}
                   </span>
                   <span className="text-sm font-medium text-gray-900">
-                    Ahmedabad
+                    {eventData?.venue?.nameEnglish}
                   </span>
                 </div>
               </div>
@@ -538,7 +566,7 @@ const RawMaterialAllocation = () => {
                     />
                   </span>
                   <span className="text-sm font-medium text-gray-900">
-                    10/10/2025 10:00AM
+                    {eventData?.eventStartDateTime}
                   </span>
                 </div>
               </div>

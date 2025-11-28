@@ -2,17 +2,14 @@ import { useEffect, useState } from "react";
 import { DatePicker, Form } from "antd";
 import dayjs from "dayjs";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
-import ManagerDropdown from "@/components/dropdowns/ManagerDropdown";
 import VenueDropdown from "../../../components/dropdowns/VenueDropdown";
 import AddVenueType from "../../../partials/modals/add-venue-type/AddVenueType";
 import EventStatusDropdown from "@/components/dropdowns/EventStatusDropdown";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
 import useStyles from "./style";
-import AddMember from "@/partials/modals/add-member/AddMember";
 import AddEventType from "@/partials/modals/add-event-type/AddEventType";
 import {
   GetEventType,
-  Fetchmanager,
   GetVenueType,
   TranslateHindi,
   TranslateGujarati,
@@ -28,8 +25,7 @@ const EventBasicInfoStep = ({
 }) => {
   const classes = useStyles();
   const [eventTypes, setEventTypes] = useState([]);
-  const [manager, setManager] = useState([]);
-  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [venueList, setVenueList] = useState([]);
@@ -41,7 +37,6 @@ const EventBasicInfoStep = ({
   useEffect(() => {
     fetchVenueTypes();
     Fetcheventtype();
-    FetchManager();
   }, []);
 
   const Fetcheventtype = async () => {
@@ -61,17 +56,6 @@ const EventBasicInfoStep = ({
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const FetchManager = () => {
-    Fetchmanager(Id).then((res) => {
-      const managerList = res.data.data["userDetails"].map((man, index) => ({
-        sr_no: index + 1,
-        value: man.id,
-        label: man.firstName || "-",
-      }));
-      setManager(managerList);
-    });
   };
 
   const fetchVenueTypes = () => {
@@ -361,46 +345,8 @@ const EventBasicInfoStep = ({
           </div>
 
           {/* Manager */}
-          <div className="select__grp flex flex-col">
-            <label className="form-label">
-              <FormattedMessage
-                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_MANAGER_LABEL"
-                defaultMessage="Manager"
-              />
-              <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                *
-              </span>
-            </label>
-            <div className="sg__inner flex items-center gap-1 relative">
-              <ManagerDropdown
-                value={formData.managerId}
-                onChange={onInputChange}
-                options={manager}
-                name="managerId"
-              />
-              <button
-                type="button"
-                onClick={() => setIsMemberModalOpen(true)}
-                title="Add Manager"
-                className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
-              >
-                <i className="ki-filled ki-plus"></i>
-              </button>
-            </div>
-            {errors.managerId && (
-              <span className="text-red-600 font-normal text-sm mt-0.50">
-                {errors.managerId}
-              </span>
-            )}
-          </div>
         </div>
 
-        {/* Modals */}
-        <AddMember
-          isModalOpen={isMemberModalOpen}
-          setIsModalOpen={setIsMemberModalOpen}
-          refreshData={FetchManager}
-        />
         <AddEventType
           isModalOpen={isEventTypeModalOpen}
           setIsModalOpen={setIsEventTypeModalOpen}

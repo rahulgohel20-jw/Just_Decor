@@ -58,10 +58,9 @@ const EventPlanningPage = () => {
   const [packageInfoByFunction, setPackageInfoByFunction] = useState({});
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
-
+  const [refreshList, setRefreshList] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
-
   const [itemNotes, setItemNotes] = useState("");
   const [categoryNotes, setCategoryNotes] = useState("");
   const userId = localStorage.getItem("userId");
@@ -763,13 +762,6 @@ const EventPlanningPage = () => {
   return (
     <Fragment>
       <div className="flex flex-col min-h-screen w-full">
-        <button
-          // onClick={() => navigate(1)}
-          className="flex items-center gap-1 text-primary hover:text-primary/80"
-        >
-          <i className="fa fa-arrow-left"></i>
-          <span className="font-medium">Back</span>
-        </button>
         <div className="flex-1 overflow-auto px-4 py-2">
           <div className="gap-2 pb-2 mb-3">
             <Breadcrumbs items={[{ title: "Menu Planning" }]} />
@@ -874,7 +866,7 @@ const EventPlanningPage = () => {
                         Event Start Date :
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.eventStartDateTime}
+                        {eventData?.eventStartDateTime?.split(" ")[0]}
                       </span>
                     </div>
                   </div>
@@ -890,7 +882,7 @@ const EventPlanningPage = () => {
                         Event End Date :
                       </span>
                       <span className="font-semibold text-sm text-primary">
-                        {eventData?.eventEndDateTime}
+                        {eventData?.eventEndDateTime?.split(" ")[0]}
                       </span>
                     </div>
                   </div>
@@ -982,10 +974,10 @@ const EventPlanningPage = () => {
                 selectedPkgInfo && (
                   <div className="flex w-full  bg-blue-50 border border-blue-300 rounded-lg p-2 justify-between">
                     <p className="text-sm font-semibold text-primary">
-                      Package Name: {selectedPkgInfo.packageName}
+                      Name: {selectedPkgInfo.packageName}
                     </p>
                     <p className="text-sm font-semibold text-primary">
-                      Package Price: ₹{selectedPkgInfo.packagePrice}
+                      Price: ₹{selectedPkgInfo.packagePrice}
                     </p>
                   </div>
                 )}
@@ -1011,10 +1003,10 @@ const EventPlanningPage = () => {
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
                   <CategoryList
+                    refreshKey={refreshList}
                     selectedCategoryId={selectedCategoryId}
                     onCategoryChange={handleCategoryChange}
                     searchTerm={categorySearchTerm}
-                    // PASS only current function package categories
                     packageCategories={currentPackageCategories}
                     savedCategoriesOrder={
                       selectedByFunction[selectedFunction]?.categoriesOrder ||
@@ -1055,6 +1047,7 @@ const EventPlanningPage = () => {
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
                   <MenuItemGrid
+                    refreshKey={refreshList}
                     category={selectedCategory}
                     categoryId={selectedCategoryId}
                     pageSize={100}
@@ -1062,7 +1055,6 @@ const EventPlanningPage = () => {
                     selectedIdsSet={getSelectedIdsForFunction(selectedFunction)}
                     onToggleSelect={onToggleSelectItem}
                     selectedFunctionId={selectedFunction}
-                    // PASS package items for current function so grid can show PKG badge / ordering
                     packageItems={currentPackageItems}
                   />
                 </div>
@@ -1188,12 +1180,12 @@ const EventPlanningPage = () => {
       <AddMenuItem
         isModalOpen={isItemModalOpen}
         setIsModalOpen={setIsItemModalOpen}
-        refreshData={initializeData}
+        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}
-        refreshData={initializeData}
+        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <MenuNotes
         isOpen={showNoteModal}

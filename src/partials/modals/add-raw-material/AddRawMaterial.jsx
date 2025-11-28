@@ -4,7 +4,6 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
-import AddUnit from "@/partials/modals/add-unit/AddUnit";
 import AddRawMaterialCategory from "@/partials/modals/raw-material-category/AddRawMaterial";
 
 import {
@@ -48,7 +47,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [unitList, setUnitList] = useState([]);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
-  const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
   const [isRawCategoryModalOpen, setIsRawCategoryModalOpen] = useState(false);
   const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
     useState(null);
@@ -540,13 +538,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               </select>
 
               {/* + Button to open modal */}
-              <button
-                type="button"
-                className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
-                onClick={() => setIsUnitModalOpen(true)}
-              >
-                <i className="ki-filled ki-plus"></i>
-              </button>
             </div>
 
             {formik.touched.unitid && formik.errors.unitid && (
@@ -713,11 +704,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           onAddSupplier={handleSupplierAction}
           supplierData={editingSupplier}
         />
-        <AddUnit
-          isModalOpen={isUnitModalOpen}
-          setIsModalOpen={setIsUnitModalOpen}
-          refreshData={FetchUnit}
-        />
+
         <AddRawMaterialCategory
           isOpen={isRawCategoryModalOpen}
           onClose={() => setIsRawCategoryModalOpen(false)}

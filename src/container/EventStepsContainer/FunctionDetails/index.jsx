@@ -118,6 +118,27 @@ const FunctionsDetails = ({
     fetchVenues();
   }, [formData.venueId, locale]);
 
+  // Add this useEffect after the venue fetch useEffect
+  useEffect(() => {
+    if (selectedVenueName && formData?.eventFunction?.length > 0) {
+      const needsUpdate = formData.eventFunction.some(
+        (func) => !func.function_venue || func.function_venue === ""
+      );
+
+      if (needsUpdate) {
+        console.log("🔄 Updating existing rows with venue:", selectedVenueName);
+        setFormData((prev) => ({
+          ...prev,
+          eventFunction: prev.eventFunction.map((func) =>
+            !func.function_venue || func.function_venue === ""
+              ? { ...func, function_venue: selectedVenueName }
+              : func
+          ),
+        }));
+      }
+    }
+  }, [selectedVenueName]);
+
   const createEmptyRow = () => {
     const newRow = {
       eventFuncId: 0,
@@ -130,6 +151,7 @@ const FunctionsDetails = ({
       notesEnglish: "",
       notesGujarati: "",
       notesHindi: "",
+      sortorder: (formData?.eventFunction?.length || 0) + 1,
       id: Date.now() + Math.random(),
     };
 
@@ -218,9 +240,11 @@ const FunctionsDetails = ({
 
   const handleAddFunction = () => {
     console.log("➕ Adding new function with venue:", selectedVenueName);
+    const newFunction = createEmptyRow();
+
     setFormData({
       ...formData,
-      eventFunction: [...(formData.eventFunction || []), createEmptyRow()],
+      eventFunction: [...(formData.eventFunction || []), newFunction],
     });
   };
 
@@ -327,12 +351,19 @@ const FunctionsDetails = ({
   const handleInputChange = (index, field, value) => {
     const updatedArray = [...formData.eventFunction];
     updatedArray[index][field] = value;
+
+    // Ensure sortorder is maintained
+    const functionsWithSortOrder = updatedArray.map((func, idx) => ({
+      ...func,
+      sortorder: idx + 1,
+    }));
+
     console.log(`📝 Updated ${field} at index ${index}:`, value);
-    setFormData({ ...formData, eventFunction: updatedArray });
+    setFormData({ ...formData, eventFunction: functionsWithSortOrder });
   };
 
   const sortFunctionsByDateTime = (functions) => {
-    return [...functions].sort((a, b) => {
+    const sorted = [...functions].sort((a, b) => {
       if (!a.functionStartDateTime) return 1;
       if (!b.functionStartDateTime) return -1;
       return (
@@ -340,8 +371,13 @@ const FunctionsDetails = ({
         dayjs(b.functionStartDateTime, "DD/MM/YYYY hh:mm A").valueOf()
       );
     });
-  };
 
+    // Re-assign sortorder after sorting
+    return sorted.map((func, index) => ({
+      ...func,
+      sortorder: index + 1,
+    }));
+  };
   const handleFunctionSelect = (index, functionId) => {
     const selected = options.find((opt) => opt.value === functionId);
     const updatedArray = [...formData.eventFunction];
@@ -375,13 +411,27 @@ const FunctionsDetails = ({
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+
     const oldIndex = formData.eventFunction.findIndex(
       (f) => f.id === active.id
     );
     const newIndex = formData.eventFunction.findIndex((f) => f.id === over.id);
+
+    const reorderedFunctions = arrayMove(
+      formData.eventFunction,
+      oldIndex,
+      newIndex
+    );
+
+    // Update sortorder for all functions after reordering
+    const functionsWithSortOrder = reorderedFunctions.map((func, index) => ({
+      ...func,
+      sortorder: index + 1,
+    }));
+
     setFormData({
       ...formData,
-      eventFunction: arrayMove(formData.eventFunction, oldIndex, newIndex),
+      eventFunction: functionsWithSortOrder,
     });
   };
 
@@ -511,6 +561,7 @@ const FunctionsDetails = ({
                               getFunctionFieldError(index, "functionId")
                                 ? "#ef4444"
                                 : undefined,
+                            width: "200px",
                           }}
                         />
                         {getFunctionFieldError(index, "functionId") && (
