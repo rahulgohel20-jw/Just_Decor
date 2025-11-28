@@ -11,11 +11,7 @@ export const columns = (onEdit, onDelete) => [
     header: "Name",
     accessorKey: "name",
   },
-  {
-    id: "categoryName",
-    header: "Category",
-    accessorKey: "categoryName",
-  },
+
   {
     id: "weight",
     header: "Weight",

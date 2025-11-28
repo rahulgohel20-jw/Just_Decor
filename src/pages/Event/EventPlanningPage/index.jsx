@@ -58,10 +58,9 @@ const EventPlanningPage = () => {
   const [packageInfoByFunction, setPackageInfoByFunction] = useState({});
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showCategoryNoteModal, setShowCategoryNoteModal] = useState(false);
-
+  const [refreshList, setRefreshList] = useState(false);
   const [currentItemForNotes, setCurrentItemForNotes] = useState(null);
   const [currentCategoryForNotes, setCurrentCategoryForNotes] = useState(null);
-
   const [itemNotes, setItemNotes] = useState("");
   const [categoryNotes, setCategoryNotes] = useState("");
   const userId = localStorage.getItem("userId");
@@ -975,10 +974,10 @@ const EventPlanningPage = () => {
                 selectedPkgInfo && (
                   <div className="flex w-full  bg-blue-50 border border-blue-300 rounded-lg p-2 justify-between">
                     <p className="text-sm font-semibold text-primary">
-                      Package Name: {selectedPkgInfo.packageName}
+                      Name: {selectedPkgInfo.packageName}
                     </p>
                     <p className="text-sm font-semibold text-primary">
-                      Package Price: ₹{selectedPkgInfo.packagePrice}
+                      Price: ₹{selectedPkgInfo.packagePrice}
                     </p>
                   </div>
                 )}
@@ -1004,10 +1003,10 @@ const EventPlanningPage = () => {
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
                   <CategoryList
+                    refreshKey={refreshList}
                     selectedCategoryId={selectedCategoryId}
                     onCategoryChange={handleCategoryChange}
                     searchTerm={categorySearchTerm}
-                    // PASS only current function package categories
                     packageCategories={currentPackageCategories}
                     savedCategoriesOrder={
                       selectedByFunction[selectedFunction]?.categoriesOrder ||
@@ -1048,6 +1047,7 @@ const EventPlanningPage = () => {
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
                   <MenuItemGrid
+                    refreshKey={refreshList}
                     category={selectedCategory}
                     categoryId={selectedCategoryId}
                     pageSize={100}
@@ -1055,7 +1055,6 @@ const EventPlanningPage = () => {
                     selectedIdsSet={getSelectedIdsForFunction(selectedFunction)}
                     onToggleSelect={onToggleSelectItem}
                     selectedFunctionId={selectedFunction}
-                    // PASS package items for current function so grid can show PKG badge / ordering
                     packageItems={currentPackageItems}
                   />
                 </div>
@@ -1181,12 +1180,12 @@ const EventPlanningPage = () => {
       <AddMenuItem
         isModalOpen={isItemModalOpen}
         setIsModalOpen={setIsItemModalOpen}
-        refreshData={initializeData}
+        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}
-        refreshData={initializeData}
+        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <MenuNotes
         isOpen={showNoteModal}
