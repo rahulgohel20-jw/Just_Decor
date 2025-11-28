@@ -67,7 +67,7 @@ export const eventValidationSchema = yup.object().shape({
     ),
   venueId: yup.string().required("Venue is required"),
   eventTypeId: yup.string().required("Event Type is required"),
-  managerId: yup.string().required("Manager Name is required"),
+   managerId: yup.string().required("Manager Name is required"),
 
   customer_name: yup.string().required("Customer Name is required"),
   address: yup.string().required("Customer Address is required"),
@@ -115,7 +115,6 @@ export const stepValidationSchemas = {
       .required("Venue is required")
       .nullable(),
     eventTypeId: yup.string().required("Event Type is required"),
-    managerId: yup.string().required("Manager Name is required"),
   }),
 
   client_info: yup.object().shape({

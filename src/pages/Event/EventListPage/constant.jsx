@@ -138,22 +138,6 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
           <Tooltip
             title={
               <FormattedMessage
-                id="COMMON.DELETE"
-                defaultMessage="Delete Event"
-              />
-            }
-          >
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              onClick={() => onDelete(row.original.eventid)}
-            >
-              <i className="ki-filled ki-trash text-danger"></i>
-            </button>
-          </Tooltip>
-
-          <Tooltip
-            title={
-              <FormattedMessage
                 id="USER.EVENT.MENU_PREP"
                 defaultMessage="Menu Preparation"
               />
@@ -180,6 +164,49 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
               </button>
             </Link>
           </Tooltip>
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.EVENT.MENU_ALLOC"
+                defaultMessage="Raw Material Allocation"
+              />
+            }
+          >
+            <Link to={`/raw-material-allocation/${row.original.eventid}`}>
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-category"></i>
+              </button>
+            </Link>
+          </Tooltip>
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_LABOUR_OTHER_MANAGEMENT"
+                defaultMessage="Labour / Other Management"
+              />
+            }
+          >
+            <Link to={`/labour-and-other-management/${row.original.eventid}`}>
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-user text-primary"></i>
+              </button>
+            </Link>
+          </Tooltip>
+
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DISH_COSTING"
+                defaultMessage="Dish Costing"
+              />
+            }
+          >
+            <Link to={`/dish-costing/${row.original.eventid}`}>
+              <button className="btn btn-sm btn-icon btn-clear">
+                <i className="ki-filled ki-grid-2"></i>
+              </button>
+            </Link>
+          </Tooltip>
 
           <Tooltip
             title={
@@ -194,6 +221,22 @@ export const columns = (onDelete, viewEvent, openMenuReport) => [
               onClick={() => openMenuReport(row.original.eventid)}
             >
               <i className="ki-filled ki-notepad text-gray-500"></i>
+            </button>
+          </Tooltip>
+
+          <Tooltip
+            title={
+              <FormattedMessage
+                id="COMMON.DELETE"
+                defaultMessage="Delete Event"
+              />
+            }
+          >
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onDelete(row.original.eventid)}
+            >
+              <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
         </div>

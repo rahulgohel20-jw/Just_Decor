@@ -2,14 +2,20 @@ import { DatePicker } from "antd";
 import { Crown, Sparkles } from "lucide-react";
 import MealTypeDropdown from "@/components/dropdowns/MealTypeDropdown";
 import { useEffect, useState } from "react";
+import ManagerDropdown from "@/components/dropdowns/ManagerDropdown";
+import AddMember from "@/partials/modals/add-member/AddMember";
+
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 import useStyles from "./style";
-import { GetMealType } from "@/services/apiServices";
+import { GetMealType, Fetchmanager } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const classes = useStyles();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [options, setOptions] = useState([]);
+  const [manager, setManager] = useState([]);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
   const handleAddClick = () => {
     setShowCustomerModal(true);
   };
@@ -23,6 +29,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
 
   useEffect(() => {
     FetchMealtype();
+    FetchManager();
   }, []);
   let Id = localStorage.getItem("userId");
 
@@ -48,6 +55,16 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
       });
   };
 
+  const FetchManager = () => {
+    Fetchmanager(Id).then((res) => {
+      const managerList = res.data.data["userDetails"].map((man, index) => ({
+        sr_no: index + 1,
+        value: man.id,
+        label: man.firstName || "-",
+      }));
+      setManager(managerList);
+    });
+  };
   return (
     <>
       <div className={`flex flex-col gap-3 lg:gap-4 ${classes.customStyle}`}>
@@ -122,6 +139,53 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
+        <div className="card w-full">
+          <div className="p-4">
+            {/* Title */}
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="text-primary" />
+              <p className="text-base font-medium text-gray-900">
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_SERVICE_AND_REMARK"
+                  defaultMessage="Manager Name"
+                />
+              </p>
+            </div>
+
+            {/* Manager Dropdown Section */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <div className="w-56">
+                  {" "}
+                  {/* Adjust width here (56 ≈ 224px) */}
+                  <ManagerDropdown
+                    value={formData.managerId}
+                    onChange={onInputChange}
+                    options={manager}
+                    name="managerId"
+                    className="w-full"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsMemberModalOpen(true)}
+                  title="Add Manager"
+                  className="btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8"
+                >
+                  <i className="ki-filled ki-plus"></i>
+                </button>
+              </div>
+
+              {errors.managerId && (
+                <span className="text-red-600 font-normal text-sm">
+                  {errors.managerId}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -193,6 +257,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
+
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -416,6 +481,11 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
           isOpen={showCustomerModal}
           onClose={() => setShowCustomerModal(false)}
           refreshData={FetchMealtype}
+        />
+        <AddMember
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+          refreshData={FetchManager}
         />
       </div>
     </>

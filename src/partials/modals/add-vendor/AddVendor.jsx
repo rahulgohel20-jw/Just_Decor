@@ -354,7 +354,10 @@ const AddVendor = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/50"
+      style={{ zIndex: 1100 }}
+    >
       <div className="bg-[#F2F7FB] rounded-xl w-full max-w-5xl p-6 relative">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

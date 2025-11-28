@@ -12,7 +12,6 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Plus } from "lucide-react";
-import AddRawMaterialType from "@/partials/modals/raw-material-type/AddRawMaterialType";
 
 // Validation schema
 const validationSchema = Yup.object().shape({
@@ -36,7 +35,6 @@ const AddRawMaterial = ({
 
   const [options, setOptions] = useState([]);
   const [debounceTimer, setDebounceTimer] = useState(null);
-  const [isRawModalOpen, setIsRawModalOpen] = useState(false);
   const [selectedRawCategory, setSelectedRawCategory] = useState(null);
   let userId = localStorage.getItem("userId");
 
@@ -159,6 +157,12 @@ const AddRawMaterial = ({
               />
             )}
           </h2>
+          <button
+            onClick={() => onClose(false)}
+            className="text-gray-500 hover:text-red-500 transition"
+          >
+            <i className="ki-filled ki-cross text-2xl"></i>
+          </button>
         </div>
 
         {/* Formik Form */}
@@ -256,22 +260,8 @@ const AddRawMaterial = ({
                             setFieldValue("rawMaterialCatTypeId", val)
                           }
                           options={options}
-                          createBtn={true}
-                          className="w-full p-2 border border-gray-300 rounded-lg !h-10"
                         />
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedRawCategory(null);
-                          setIsRawModalOpen(true);
-                        }}
-                        className="px-2 py-3 bg-primary text-white  rounded-full hover:bg-primary-dark flex items-center gap-1"
-                        title="Add Raw Material Type"
-                      >
-                        <Plus size={18} />
-                      </button>
                     </div>
 
                     <ErrorMessage

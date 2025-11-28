@@ -334,8 +334,9 @@ export const allMenuItems = [
             defaultMessage="Payment History"
           />
         ),
-        path: "settings/channel",
+        path: "setting/payment-history",
       },
+
       // {
       //   title: (
       //     <FormattedMessage
