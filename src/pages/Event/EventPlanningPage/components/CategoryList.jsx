@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { GetAllCategoryformenu } from "@/services/apiServices";
 
 const CategoryList = ({
+  refreshKey,
   selectedCategoryId = 0, // ⭐ Highlight by ID
   onCategoryChange = () => {},
   searchTerm = "",
@@ -12,40 +13,41 @@ const CategoryList = ({
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const response = await GetAllCategoryformenu(userId);
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await GetAllCategoryformenu(userId);
 
-        if (response?.data) {
-          const categoryData =
-            response.data.data["Menu Category Details"] || [];
+      if (response?.data) {
+        const categoryData = response.data.data["Menu Category Details"] || [];
 
-          const categoryList = [
-            { id: 0, name: "All" },
-            ...categoryData.map((cat) => ({
-              id: cat.id,
-              name: cat.nameEnglish || cat.name,
-            })),
-          ];
+        const categoryList = [
+          { id: 0, name: "All" },
+          ...categoryData.map((cat) => ({
+            id: cat.id,
+            name: cat.nameEnglish || cat.name,
+          })),
+        ];
 
-          setCategories(categoryList);
+        setCategories(categoryList);
 
-          // Ensure selected category exists in list
-          const found = categoryList.find((c) => c.id === selectedCategoryId);
-          if (!found) onCategoryChange("All", 0);
-        }
-      } catch (error) {
-        console.error("Error loading categories:", error);
-        setCategories([{ id: 0, name: "All" }]);
-      } finally {
-        setLoading(false);
+        // Ensure selected category exists in list
+        const found = categoryList.find((c) => c.id === selectedCategoryId);
+        if (!found) onCategoryChange("All", 0);
       }
-    };
-
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      setCategories([{ id: 0, name: "All" }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchCategories();
   }, []);
+  useEffect(() => {
+    fetchCategories();
+  }, [refreshKey]);
 
   // -------------------------------------------------------
   // ⭐ CATEGORY SORTING PRIORITY:

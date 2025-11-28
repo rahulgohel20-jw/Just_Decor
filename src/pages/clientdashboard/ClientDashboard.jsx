@@ -1,164 +1,319 @@
 "use client";
-import { Fragment, useEffect } from "react";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Container } from "@/components/container";
 import Chart from "react-apexcharts";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, defaultData } from "./constant";
-import { Search, RefreshCcw } from "lucide-react";
-import { invoicecolumns, defaultinvoiceData } from "./invoiceconstant";
+import { columns } from "./constant";
+import { Search, RefreshCcw, Phone } from "lucide-react";
+import { invoicecolumns } from "./invoiceconstant";
 import { itemcolumns, defaultitemData } from "./itemconstant";
-import { Phone, MessageCircle, HelpCircle } from "lucide-react";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import VideoTutorial from "@/components/videoTutorial/VideoTutorial";
 import {
   GetClientwisedashboardata,
-  GetClientdashboardsalesdata,
+  GetClientdashboardpiechart1,
+  GetClientdashboardpiechart2,
+  GetClientdashboardpiechart3,
   GetClienteventdata,
   GetAllInvoicedatabyfilter,
+  Getmostsellingitems,
 } from "@/services/apiServices";
+import dayjs from "dayjs";
+import { DatePicker } from "antd";
+
+const { RangePicker } = DatePicker;
+
+// debounce function
+const debounce = (fn, delay = 300) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const formatDate = (date) => dayjs(date).format("DD/MM/YYYY");
 
 const ClientDashboard = () => {
   const [dashboarddata, setDashboarddata] = useState([]);
   const [salesPiechart, setSalesPiechart] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("today");
+
+  // separate periods for each chart
+  const [selectedExpensePeriod, setSelectedExpensePeriod] = useState("today");
+  const [selectedQuotationPeriod, setSelectedQuotationPeriod] =
+    useState("today");
+  const [selectedInvoicePeriod, setSelectedInvoicePeriod] = useState("today");
+
+  const [isChartLoading, setIsChartLoading] = useState(false);
+  const [customChartDates, setCustomChartDates] = useState({
+    expense: null,
+    quotation: null,
+    invoice: null,
+  });
+
   const [eventData, setEventData] = useState([]);
   const [eventDateRange, setEventDateRange] = useState("today");
+  const [customEventDates, setCustomEventDates] = useState(null);
+  const [eventSearchInput, setEventSearchInput] = useState("");
+  const [eventSearch, setEventSearch] = useState("");
+
+  const [originalData, setOriginalData] = useState([]);
   const [invoiceDateRange, setInvoiceDateRange] = useState("today");
+  const [customInvoiceDates, setCustomInvoiceDates] = useState(null);
+  const [invoiceSearchInput, setInvoiceSearchInput] = useState("");
+  const [invoiceSearch, setInvoiceSearch] = useState("");
+
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const userId = localStorage.getItem("userId");
-  const [originalData, setOriginalData] = useState([]);
+  const [openTutorial, setOpenTutorial] = useState(false);
+  const [expensesChartData, setExpensesChartData] = useState(null);
+  const [quotationChartData, setQuotationChartData] = useState(null);
+  const [invoiceChartData, setInvoiceChartData] = useState(null);
 
-  useEffect(() => {
-    fetchdashboarddata();
-    fetchdashboardsalespiechart(selectedPeriod);
-    fetchEventData(eventDateRange);
-    fetchInvoices(eventDateRange);
-  }, [selectedPeriod, eventDateRange]);
+  const [itemData, setItemData] = useState([]);
+  const [itemDateRange, setItemDateRange] = useState("today");
+  const [customItemDates, setCustomItemDates] = useState(null);
+  const [itemSearchInput, setItemSearchInput] = useState("");
+  const [itemSearch, setItemSearch] = useState("");
+  const [isItemLoading, setIsItemLoading] = useState(false);
 
-  const fetchdashboarddata = async () => {
-    try {
-      const res = await GetClientwisedashboardata(userId);
-      setDashboarddata(res?.data?.data);
-      console.log("Dashboard Data:", res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    }
-  };
-
-  const fetchdashboardsalespiechart = async (period) => {
-    try {
-      const date = "24/11/2025";
-      const res = await GetClientdashboardsalesdata(date, userId);
-      setSalesPiechart(res?.data?.data);
-      console.log("Sales Chart Data:", res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    }
-  };
-
-  const getDateRange = (range) => {
-    const today = new Date();
-    let startDate, endDate;
+  const getDateRange = (range, custom = null) => {
+    const today = dayjs();
+    let start, end;
 
     switch (range) {
       case "today":
-        startDate = endDate = formatDate(today);
+        start = end = today;
         break;
       case "week":
-        const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay());
-        startDate = formatDate(weekStart);
-        endDate = formatDate(today);
+        start = today.subtract(7, "day");
+        end = today;
         break;
       case "month":
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        startDate = formatDate(monthStart);
-        endDate = formatDate(today);
+        start = today.startOf("month");
+        end = today;
+        break;
+      case "custom":
+        if (!custom || !custom[0] || !custom[1]) {
+          const fallback = today;
+          start = end = fallback;
+        } else {
+          start = dayjs(custom[0]);
+          end = dayjs(custom[1]);
+        }
         break;
       default:
-        startDate = endDate = formatDate(today);
+        start = end = today;
+    }
+    return { startDate: formatDate(start), endDate: formatDate(end) };
+  };
+
+  // ---------------- DASHBOARD SUMMARY ----------------
+  const fetchdashboarddata = async () => {
+    const res = await GetClientwisedashboardata(userId);
+    setDashboarddata(res?.data?.data);
+  };
+
+  // ---------------- PIE CHART DATA ----------------
+  const handlePeriodChange = async (period, type) => {
+    setIsChartLoading(true);
+
+    let range;
+    if (period === "custom") {
+      const selected = customChartDates[type];
+      if (!selected || !selected[0] || !selected[1]) {
+        setIsChartLoading(false);
+        return;
+      }
+      range = getDateRange("custom", selected);
+    } else {
+      range = getDateRange(period);
     }
 
-    return { startDate, endDate };
+    let res;
+
+    if (type === "expense") {
+      res = await GetClientdashboardpiechart1(
+        range.startDate,
+
+        userId
+      );
+      setExpensesChartData(res?.data?.data);
+      setSelectedExpensePeriod(period);
+    }
+
+    if (type === "quotation") {
+      res = await GetClientdashboardpiechart3(
+        range.startDate,
+
+        userId
+      );
+      setQuotationChartData(res?.data?.data);
+      setSelectedQuotationPeriod(period);
+    }
+
+    if (type === "invoice") {
+      res = await GetClientdashboardpiechart2(
+        range.startDate,
+
+        userId
+      );
+      console.log(res?.data?.data);
+
+      setInvoiceChartData(res?.data?.data);
+      setSelectedInvoicePeriod(period);
+    }
+
+    setIsChartLoading(false);
   };
 
-  // Format date to DD-MM-YYYY
-  const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
+  // ---------------- EVENTS ----------------
   const fetchEventData = async (range) => {
     setIsLoadingEvents(true);
-    try {
-      const { startDate, endDate } = getDateRange(range);
-      const res = await GetClienteventdata(startDate, endDate, userId);
-      const data = res?.data?.data;
 
-      const eventdata = data.map((cust, index) => ({
-        Invoice: index + 1,
+    const { startDate, endDate } =
+      range === "custom"
+        ? getDateRange("custom", customEventDates)
+        : getDateRange(range);
+
+    const res = await GetClienteventdata(startDate, endDate, userId);
+    const list = res?.data?.data || [];
+
+    setEventData(
+      list.map((cust, i) => ({
+        Invoice: i + 1,
         CustomerName: cust.userFullName,
         Eventname: cust.eventName,
         eventDate: cust.eventStartDateTime,
         Venue: cust.venueName,
         status: cust.status,
-      }));
-      setEventData(eventdata);
-      console.log("Event Data:", res?.data);
-    } catch (error) {
-      console.error("Error fetching event data:", error);
-      setEventData([]);
-    } finally {
-      setIsLoadingEvents(false);
-    }
+      }))
+    );
+    setIsLoadingEvents(false);
   };
 
+  // ---------------- INVOICES ----------------
   const fetchInvoices = async (range) => {
-    try {
-      const { endDate, startDate } = getDateRange(range);
-      const response = await GetAllInvoicedatabyfilter(
-        endDate,
-        startDate,
-        userId
-      );
+    const { startDate, endDate } =
+      range === "custom"
+        ? getDateRange("custom", customInvoiceDates)
+        : getDateRange(range);
 
-      const list = response?.data?.data?.["Event Invoice Details"] || [];
+    const res = await GetAllInvoicedatabyfilter(startDate, endDate, userId);
+    const list = res?.data?.data?.["Event Invoice Details"] || [];
 
-      const invoicedata = list.map((cust, index) => ({
+    setOriginalData(
+      list.map((cust) => ({
         Invoice: cust.invoiceCode,
         CustomerName: cust.event.party.nameEnglish,
         Eventname: cust.event.eventType.nameEnglish,
         eventDate: cust.event.eventStartDateTime,
         Venue: cust.event.venue.nameEnglish,
         BalanceDue: cust.remainingAmount,
-      }));
-      console.log(list);
-
-      setOriginalData(invoicedata);
-      console.log(originalData);
-    } catch (error) {
-      console.error("Error fetching invoices:", error);
-    }
+      }))
+    );
   };
 
-  const [openTutorial, setOpenTutorial] = useState(false);
+  // ---------------- MOST SELLING ITEMS ----------------
+  const fetchMostSelling = async (range) => {
+    setIsItemLoading(true);
 
+    const { startDate, endDate } =
+      range === "custom"
+        ? getDateRange("custom", customItemDates)
+        : getDateRange(range);
+
+    try {
+      const res = await Getmostsellingitems(endDate, startDate, userId);
+      const list = res?.data.data || [];
+
+      setItemData(
+        list.map((item, i) => ({
+          no: i + 1,
+          item: item?.nameEnglish,
+          quantity: item?.qtyCurrent,
+          selling: item?.statusDirection,
+          amount: item?.statusValue,
+        }))
+      );
+      console.log(itemData);
+    } catch (error) {
+      console.log("Error fetching most selling items:", error);
+    }
+
+    setIsItemLoading(false);
+  };
+
+  // ---------------- EFFECTS ----------------
+  // Initial load
+  useEffect(() => {
+    fetchdashboarddata();
+    // load charts initially with "today"
+    handlePeriodChange("today", "expense");
+    handlePeriodChange("today", "quotation");
+    handlePeriodChange("today", "invoice");
+    fetchEventData("today");
+    fetchInvoices("today");
+    fetchMostSelling("today");
+  }, []);
+
+  // debounce search listeners
+  useEffect(() => {
+    const handler = debounce((v) => setEventSearch(v));
+    handler(eventSearchInput);
+  }, [eventSearchInput]);
+
+  useEffect(() => {
+    const handler = debounce((v) => setInvoiceSearch(v));
+    handler(invoiceSearchInput);
+  }, [invoiceSearchInput]);
+
+  useEffect(() => {
+    const handler = debounce((v) => setItemSearch(v));
+    handler(itemSearchInput);
+  }, [itemSearchInput]);
+
+  const handleEventCustomApply = () => {
+    if (customEventDates) fetchEventData("custom");
+  };
+  const handleInvoiceCustomApply = () => {
+    if (customInvoiceDates) fetchInvoices("custom");
+  };
+
+  // 🔥 SEARCH FILTER LOGIC
+  const filteredEvents = eventData.filter((d) => {
+    const s = eventSearch.toLowerCase();
+    return (
+      d.CustomerName?.toLowerCase().includes(s) ||
+      d.Eventname?.toLowerCase().includes(s)
+    );
+  });
+
+  const filteredInvoices = originalData.filter((d) => {
+    const s = invoiceSearch.toLowerCase();
+    return (
+      d.CustomerName?.toLowerCase().includes(s) ||
+      d.Eventname?.toLowerCase().includes(s)
+    );
+  });
+
+  // ---------------- CHART CONFIG ----------------
   const expenseChart = {
-    series: salesPiechart?.expenses
-      ? [
-          salesPiechart.expenses.chefLaborCharge || 0,
-          salesPiechart.expenses.outsideAgencyCharge || 0,
-          salesPiechart.expenses.laborCharge || 0,
-          salesPiechart.expenses.rawmaterialCharge || 0,
-          salesPiechart.expenses.extraExpenseCharge || 0,
-        ]
-      : [0, 0, 0, 0, 0],
+    series: [
+      expensesChartData?.cheflaborcharge || 0,
+      expensesChartData?.outsideagencycharge || 0,
+      expensesChartData?.laborcharge || 0,
+      expensesChartData?.rawmaterialcharge || 0,
+      expensesChartData?.extraexpensecharge || 0,
+    ],
     options: {
       chart: { type: "donut" },
+      plotOptions: {
+        pie: {
+          donut: { size: "70%" },
+        },
+      },
       labels: [
         "Chef Labor Charge",
         "Outside Agency Charge",
@@ -168,7 +323,10 @@ const ClientDashboard = () => {
       ],
       legend: {
         position: "right",
-        fontSize: "13px",
+        horizontalAlign: "center",
+        fontSize: "12px",
+        markers: { width: 10, height: 10 },
+        itemMargin: { horizontal: 10, vertical: 5 },
       },
       dataLabels: { enabled: false },
       colors: ["#3B82F6", "#10B981", "#F97316", "#EF4444", "#8B5CF6"],
@@ -176,98 +334,63 @@ const ClientDashboard = () => {
       responsive: [
         {
           breakpoint: 1024,
-          options: {
-            chart: { width: "100%" },
-            legend: { position: "bottom" },
-          },
+          options: { chart: { width: "100%" }, legend: { position: "bottom" } },
         },
       ],
     },
   };
 
-  // Invoice Chart Configuration
   const InvoiceChart = {
-    series: salesPiechart?.invoice
-      ? [
-          salesPiechart.invoice.totalSales || 0,
-          salesPiechart.invoice.totalPaid || 0,
-          salesPiechart.invoice.totalUnpaid || 0,
-        ]
-      : [0, 0, 0],
+    series: [
+      invoiceChartData?.totalSales || 0,
+      invoiceChartData?.totalSalesPaid || 0,
+      invoiceChartData?.totalSalesRemaining || 0,
+    ],
     options: {
-      chart: { type: "donut" },
+      chart: { type: "donut", height: 100 },
       labels: ["Total Sales", "Total Paid", "Total Unpaid"],
-      legend: {
-        position: "right",
-        fontSize: "13px",
-      },
+      legend: { position: "right", fontSize: "13px" },
       dataLabels: { enabled: false },
       colors: ["#3B82F6", "#10B981", "#F97316"],
       stroke: { width: 2 },
       responsive: [
         {
           breakpoint: 1024,
-          options: {
-            chart: { width: "100%" },
-            legend: { position: "bottom" },
-          },
+          options: { chart: { width: "100%" }, legend: { position: "bottom" } },
         },
       ],
     },
   };
 
-  // Quotation Chart Configuration
   const QuotationChart = {
-    series: salesPiechart?.quotation
-      ? [
-          salesPiechart.quotation.totalSales || 0,
-          salesPiechart.quotation.totalPaid || 0,
-          salesPiechart.quotation.totalUnpaid || 0,
-        ]
-      : [0, 0, 0],
+    series: [
+      quotationChartData?.totalQuotaion || 0,
+      quotationChartData?.totalQuotaionPaid || 0,
+      quotationChartData?.totalQuotaionRemaining || 0,
+    ],
     options: {
-      chart: { type: "donut" },
+      chart: { type: "donut", height: 100 },
       labels: ["Total Sales", "Total Paid", "Total Unpaid"],
-      legend: {
-        position: "right",
-        fontSize: "13px",
-      },
+      legend: { position: "right", fontSize: "13px" },
       dataLabels: { enabled: false },
       colors: ["#3B82F6", "#10B981", "#F97316"],
       stroke: { width: 2 },
       responsive: [
         {
           breakpoint: 1024,
-          options: {
-            chart: { width: "100%" },
-            legend: { position: "bottom" },
-          },
+          options: { chart: { width: "100%" }, legend: { position: "bottom" } },
         },
       ],
     },
   };
 
-  const handlePeriodChange = (e, chartType) => {
-    const period = e.target.value;
-    setSelectedPeriod(period);
-  };
+  const ChartLoader = () => (
+    <div className="flex items-center justify-center h-[280px] animate-pulse">
+      <div className="w-40 h-40 rounded-full bg-gray-200" />
+    </div>
+  );
 
-  const handleEventDateRangeChange = (e) => {
-    const range = e.target.value;
-    setEventDateRange(range);
-  };
-  const handleInvoiceDateRangeChange = (e) => {
-    const range = e.target.value;
-    setInvoiceDateRange(range);
-  };
-
-  const handleRefreshEvents = () => {
-    fetchEventData(eventDateRange);
-  };
-  const handleRefreshinvoice = () => {
-    fetchInvoices(eventDateRange);
-  };
-
+  // ---------------- JSX ----------------
   return (
     <Fragment>
       <Container>
@@ -356,171 +479,203 @@ const ClientDashboard = () => {
           </div>
         </div>
 
+        {/* ---------------- UPGRADED PIE CHARTS ---------------- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="border border-primary bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-700">
-                Sales Chart - Expenses
-              </h3>
-              <select
-                className="border rounded-md px-3 py-1 text-sm text-gray-600"
-                onChange={(e) => handlePeriodChange(e, "expense")}
-                value={selectedPeriod}
-              >
-                <option value="today">Today's</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
-            {salesPiechart ? (
-              <Chart
-                options={expenseChart.options}
-                series={expenseChart.series}
-                type="donut"
-                height={230}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-[230px]">
-                <p className="text-gray-500">Loading chart data...</p>
-              </div>
-            )}
-          </div>
+          {[
+            {
+              title: "Sales Chart - Expenses",
+              data: expenseChart,
+              state: selectedExpensePeriod,
+              type: "expense",
+            },
+            {
+              title: "Quotation Chart",
+              data: QuotationChart,
+              state: selectedQuotationPeriod,
+              type: "quotation",
+            },
+            {
+              title: "Invoice Chart",
+              data: InvoiceChart,
+              state: selectedInvoicePeriod,
+              type: "invoice",
+            },
+          ].map((chart, i) => {
+            const hasData = chart.data.series.some((v) => v > 0);
 
-          <div className="border border-primary bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-700">Quotation Chart</h3>
-              <select
-                className="border rounded-md px-3 py-1 text-sm text-gray-600"
-                onChange={(e) => handlePeriodChange(e, "quotation")}
-                value={selectedPeriod}
+            return (
+              <div
+                key={i}
+                className="border border-primary bg-white rounded-lg shadow-sm p-6 space-y-4 transition-all duration-300 hover:shadow-md no-scrollbar"
+                style={{
+                  backgroundImage: `url(${toAbsoluteUrl("/media/images/piechartframe.png")})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               >
-                <option value="today">Today's</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
-            {salesPiechart ? (
-              <Chart
-                options={QuotationChart.options}
-                series={QuotationChart.series}
-                type="donut"
-                height={230}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-[230px]">
-                <p className="text-gray-500">Loading chart data...</p>
-              </div>
-            )}
-          </div>
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-700">
+                      {chart.title}
+                    </h3>
+                    <select
+                      className="border rounded-md px-3 py-1 text-sm text-gray-600"
+                      value={chart.state}
+                      onChange={(e) =>
+                        handlePeriodChange(e.target.value, chart.type)
+                      }
+                    >
+                      <option value="today">Today's</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                  </div>
+                </div>
 
-          <div className="border border-primary bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-700">Invoice Chart</h3>
-              <select
-                className="border rounded-md px-3 py-1 text-sm text-gray-600"
-                onChange={(e) => handlePeriodChange(e, "invoice")}
-                value={selectedPeriod}
-              >
-                <option value="today">Today's</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
-            {salesPiechart ? (
-              <Chart
-                options={InvoiceChart.options}
-                series={InvoiceChart.series}
-                type="donut"
-                height={230}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-[230px]">
-                <p className="text-gray-500">Loading chart data...</p>
+                {isChartLoading ? (
+                  <ChartLoader />
+                ) : !hasData ? (
+                  <div className="flex items-center justify-center h-[280px] text-gray-500 text-sm">
+                    No Data Available
+                  </div>
+                ) : (
+                  <Chart
+                    options={chart.data.options}
+                    series={chart.data.series}
+                    type="donut"
+                    height={120}
+                  />
+                )}
               </div>
-            )}
-          </div>
+            );
+          })}
         </div>
 
+        {/* -------------------- EVENTS SECTION -------------------- */}
         <div className="border border-primary p-3 rounded-lg mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
             <h2 className="text-base font-semibold text-gray-800">
               Upcoming Events
             </h2>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-1.5 w-full md:w-64 shadow-sm">
-                <Search className="text-blue-500 w-4 h-4 mr-2" />
-                <input
-                  type="text"
-                  placeholder="Search here..."
-                  className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400"
-                />
-              </div>
+
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <input
+                type="text"
+                placeholder="Search Client / Event..."
+                value={eventSearchInput}
+                onChange={(e) => setEventSearchInput(e.target.value)}
+                className="border rounded px-3 py-2 text-sm w-full md:w-60"
+              />
+
               <select
-                className="border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 shadow-sm cursor-pointer"
+                className="border rounded px-3 py-2 text-sm cursor-pointer h-10"
                 value={eventDateRange}
-                onChange={handleEventDateRangeChange}
+                onChange={(e) => setEventDateRange(e.target.value)}
               >
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
                 <option value="month">This Month</option>
+                <option value="custom">Custom Range</option>
               </select>
+
+              {eventDateRange === "custom" && (
+                <>
+                  <RangePicker
+                    onChange={(e) => setCustomEventDates(e)}
+                    allowClear
+                  />
+                  <button
+                    className="bg-primary text-white px-3 py-2 rounded"
+                    onClick={handleEventCustomApply}
+                  >
+                    Apply
+                  </button>
+                </>
+              )}
+
               <button
-                className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 shadow-sm"
-                onClick={handleRefreshEvents}
-                disabled={isLoadingEvents}
+                className="p-2 rounded-lg border bg-white shadow-sm"
+                onClick={() =>
+                  eventDateRange === "custom"
+                    ? fetchEventData("custom")
+                    : fetchEventData(eventDateRange)
+                }
               >
-                <RefreshCcw
-                  className={`w-4 h-4 text-gray-600 ${isLoadingEvents ? "animate-spin" : ""}`}
-                />
+                <RefreshCcw className="w-4 h-4" />
               </button>
             </div>
           </div>
+
           {isLoadingEvents ? (
-            <div className="flex items-center justify-center py-8">
-              <p className="text-gray-500">Loading events...</p>
+            <div className="py-7 text-center text-gray-500">
+              Loading Events...
             </div>
           ) : (
             <TableComponent
               columns={columns}
-              data={eventData}
+              data={filteredEvents}
               paginationSize={10}
             />
           )}
         </div>
 
+        {/* -------------------- INVOICE SECTION -------------------- */}
         <div className="border border-primary p-3 rounded-lg mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
             <h2 className="text-base font-semibold text-gray-800">Invoices</h2>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-1.5 w-full md:w-64 shadow-sm">
-                <Search className="text-blue-500 w-4 h-4 mr-2" />
-                <input
-                  type="text"
-                  placeholder="Search here..."
-                  className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400"
-                />
-              </div>
+
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <input
+                type="text"
+                placeholder="Search Client / Event..."
+                value={invoiceSearchInput}
+                onChange={(e) => setInvoiceSearchInput(e.target.value)}
+                className="border rounded px-3 py-2 text-sm w-full md:w-60"
+              />
+
               <select
-                className="border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 shadow-sm cursor-pointer"
+                className="border rounded px-3 py-2 text-sm cursor-pointer h-10"
                 value={invoiceDateRange}
-                onChange={handleInvoiceDateRangeChange}
+                onChange={(e) => setInvoiceDateRange(e.target.value)}
               >
-                <option>Today</option>
-                <option>Last Month</option>
-                <option>Custom Range</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="custom">Custom Range</option>
               </select>
+
+              {invoiceDateRange === "custom" && (
+                <>
+                  <RangePicker
+                    onChange={(e) => setCustomInvoiceDates(e)}
+                    allowClear
+                  />
+                  <button
+                    className="bg-primary text-white px-3 py-2 rounded"
+                    onClick={handleInvoiceCustomApply}
+                  >
+                    Apply
+                  </button>
+                </>
+              )}
+
               <button
-                className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 shadow-sm"
-                onClick={handleRefreshinvoice}
-                disabled={isLoadingEvents}
+                className="p-2 rounded-lg border bg-white shadow-sm"
+                onClick={() =>
+                  invoiceDateRange === "custom"
+                    ? fetchInvoices("custom")
+                    : fetchInvoices(invoiceDateRange)
+                }
               >
-                <RefreshCcw className="w-4 h-4 text-gray-600" />
+                <RefreshCcw className="w-4 h-4" />
               </button>
             </div>
           </div>
+
           <TableComponent
             columns={invoicecolumns}
-            data={originalData}
+            data={filteredInvoices}
             paginationSize={10}
           />
         </div>
@@ -531,31 +686,73 @@ const ClientDashboard = () => {
               <h2 className="text-base font-semibold text-gray-800">
                 Most Selling Item
               </h2>
+
               <div className="flex items-center gap-3">
                 <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-1.5 w-full md:w-64 shadow-sm">
                   <Search className="text-blue-500 w-4 h-4 mr-2" />
                   <input
                     type="text"
                     placeholder="Search here..."
-                    className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400"
+                    value={itemSearchInput}
+                    onChange={(e) => setItemSearchInput(e.target.value)}
+                    className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400 h-6"
                   />
                 </div>
-                <select className="border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 shadow-sm cursor-pointer">
-                  <option>Today</option>
-                  <option>Last Month</option>
-                  <option>Custom Range</option>
+
+                <select
+                  className="border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 shadow-sm cursor-pointer"
+                  value={itemDateRange}
+                  onChange={(e) => setItemDateRange(e.target.value)}
+                >
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="custom">Custom Range</option>
                 </select>
-                <button className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 shadow-sm">
+
+                {itemDateRange === "custom" && (
+                  <>
+                    <RangePicker
+                      onChange={(e) => setCustomItemDates(e)}
+                      allowClear
+                    />
+                    <button
+                      className="bg-primary text-white px-3 py-2 rounded"
+                      onClick={() => fetchMostSelling("custom")}
+                    >
+                      Apply
+                    </button>
+                  </>
+                )}
+
+                <button
+                  className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 shadow-sm"
+                  onClick={() =>
+                    itemDateRange === "custom"
+                      ? fetchMostSelling("custom")
+                      : fetchMostSelling(itemDateRange)
+                  }
+                >
                   <RefreshCcw className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
             </div>
-            <TableComponent
-              columns={itemcolumns}
-              data={defaultitemData}
-              paginationSize={10}
-            />
+
+            {isItemLoading ? (
+              <div className="py-7 text-center text-gray-500">Loading...</div>
+            ) : (
+              <TableComponent
+                columns={itemcolumns}
+                data={itemData.filter(
+                  (d) =>
+                    d.item?.toLowerCase().includes(itemSearch.toLowerCase()) ||
+                    d.quantity?.toString().includes(itemSearch)
+                )}
+                paginationSize={10}
+              />
+            )}
           </div>
+
           <div className="w-[30%] bg-white border border-primary rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-lg font-semibold text-[#003366]">
@@ -633,6 +830,7 @@ const ClientDashboard = () => {
             </span>
           </button>
         </div>
+
         <VideoTutorial
           open={openTutorial}
           onClose={() => setOpenTutorial(false)}

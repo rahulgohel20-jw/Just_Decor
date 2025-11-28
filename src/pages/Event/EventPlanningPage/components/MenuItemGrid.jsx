@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Getmenuprep } from "@/services/apiServices";
 import { toAbsoluteUrl } from "@/utils";
 const MenuItemGrid = ({
+  refreshKey,
   category = "All",
   categoryId = 0,
   pageSize = 100,
@@ -96,6 +97,10 @@ const MenuItemGrid = ({
     },
     [selectedFunctionId, userId]
   );
+
+  useEffect(() => {
+    fetchMenuItems(); // re-fetch category or item list
+  }, [refreshKey]);
 
   // -----------------------------------------------------
   // APPLY CATEGORY / SEARCH

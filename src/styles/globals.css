@@ -31,6 +31,10 @@ html,
   display: none;
 }
 
+.apexcharts-legend {
+  scrollbar-width: none;
+}
+
 @layer utilities {
   .bg-user-access {
     @apply bg-lightUserAccessBg dark:bg-darkUserAccessBg bg-no-repeat;

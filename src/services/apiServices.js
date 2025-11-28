@@ -925,18 +925,18 @@ export const GetVenueType = (id) => {
 export const GetClientwisedashboardata = (id) => {
   return GET(`/dashboard/admin/userWiseDashboardData?userId=${id}`);
 };
-export const GetClientdashboardsalesdata = (date, useriD) => {
+export const GetClientdashboardpiechart1 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseDashboardPieChart1?dateString=${date}&userId=${useriD}`
   );
 };
 
-export const GetClientdashboardinvoicedata = (date, useriD) => {
+export const GetClientdashboardpiechart3 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseEventQuotationPieChart3?dateString=${date}&userId=${useriD}`
   );
 };
-export const GetClientdashboardquotationdata = (date, useriD) => {
+export const GetClientdashboardpiechart2 = (date, useriD) => {
   return GET(
     `/dashboard/admin/userWiseSalesInvoicePieChart2?dateString=${date}&userId=${useriD}`
   );
@@ -944,7 +944,13 @@ export const GetClientdashboardquotationdata = (date, useriD) => {
 
 export const GetClienteventdata = (startdate, enddate, useriD) => {
   return GET(
-    `/dashboard/admin/getEventsByUserAndDate?endDate=${startdate}&startDate=${enddate}&userId=${useriD}`
+    `/dashboard/admin/getEventsByUserAndDate?endDate=${enddate}&startDate=${startdate}&userId=${useriD}`
+  );
+};
+
+export const Getmostsellingitems = (enddate, startdate, userId) => {
+  return GET(
+    `/dashboard/admin/getMostSellingItems?endDate=${enddate}&startDate=${startdate}&userId=${userId}`
   );
 };
 

@@ -2,12 +2,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { useMenuChildren } from "@/components/menu";
-import { getMenuSidebar } from "@/config/menu.config";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
 import { useMenus } from "@/providers";
 import { useLayout } from "@/providers";
 import { deepMerge } from "@/utils";
 import { demo1LayoutConfig } from "./";
+import { useMenu } from "@/hooks/useMenu";
 
 // Interface defining the structure for layout provider properties
 
@@ -55,11 +55,15 @@ const useDemo1Layout = () => useContext(Demo1LayoutContext);
 const Demo1LayoutProvider = ({ children }) => {
   const { pathname } = useLocation(); // Gets the current path
   const { setMenuConfig } = useMenus(); // Accesses menu configuration methods
-
+  const { menu: MENU_SIDEBAR, loading } = useMenu();
+  const secondaryMenu = useMenuChildren(pathname, MENU_SIDEBAR, 0);
   // Get the menu dynamically based on current user role
-  const MENU_SIDEBAR = getMenuSidebar();
-
-  const secondaryMenu = useMenuChildren(pathname, MENU_SIDEBAR, 0); // Retrieves the secondary menu
+  useEffect(() => {
+    if (!loading) {
+      setMenuConfig("primary", MENU_SIDEBAR);
+      setMenuConfig("secondary", secondaryMenu);
+    }
+  }, [loading, MENU_SIDEBAR, secondaryMenu]);
 
   // Sets the primary and secondary menu configurations
   setMenuConfig("primary", MENU_SIDEBAR);
