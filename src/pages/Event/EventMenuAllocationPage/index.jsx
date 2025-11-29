@@ -362,12 +362,10 @@ const EventMenuAllocationPage = () => {
       console.log(storedCategory?.response?.isFromNewTable, "data");
 
       const isFromNewTable =
-        storedCategory &&
-        storedCategory?.response?.isFromNewTable !== undefined &&
-        storedCategory?.response?.isFromNewTable !== null &&
-        storedCategory?.response?.isFromNewTable !== ""
-          ? storedCategory?.response?.isFromNewTable
-          : item.isFromNewTable || false;
+        storedCategory?.response?.isFromNewTable ??
+        storedCategory?.isFromNewTable ??
+        item.isFromNewTable ??
+        false;
 
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
@@ -379,7 +377,7 @@ const EventMenuAllocationPage = () => {
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
-        isFromNewTable,
+
         menuItemId
       );
 
@@ -746,10 +744,14 @@ const EventMenuAllocationPage = () => {
     setAllocationData((prev) => {
       const updated = {
         ...prev,
-        [`${saveData.menuItemId}-category`]: saveData,
+        [`${saveData.menuItemId}-category`]: {
+          ...saveData,
+          response: {
+            isFromNewTable: saveData.isFromNewTable || false,
+          },
+        },
       };
       console.log(updated, "save data");
-
       return updated;
     });
 
@@ -759,11 +761,11 @@ const EventMenuAllocationPage = () => {
           return {
             ...r,
             menuItemRawMaterials: saveData.rawMaterials || [],
+            isFromNewTable: saveData.isFromNewTable || false,
           };
         }
         return r;
       });
-
       return updatedRows;
     });
 

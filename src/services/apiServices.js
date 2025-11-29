@@ -210,11 +210,10 @@ export const RawMaterialName = (Id, name) => {
 
 export const SelectedItemNameMenuAllocation = (
   eventfunctionid,
-  data,
   menuitemid
 ) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&isFromNewTable=${data}&menuItemId=${menuitemid}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
 };
 export const ContactNameItem = (Id, name) => {
@@ -289,9 +288,11 @@ export const UpdateEventStatus = (Id, statusId) => {
 export const Fetchmanager = (Id) => {
   return GET(`/user/getmanagerandadminusersbyclient?clientUserId=${Id}`);
 };
+
 export const GetAllPlans = () => {
   return GET(`/plans/getall`);
 };
+
 export const GeteventQuoataiondata = (id) => {
   return GET(`/eventmaster/getallbypartyid?partyId=${id}`);
 };
@@ -547,6 +548,11 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+//upload Image
+export const uploadProfileImage = (data, queryParams) => {
+  return UPLOAD(`/file/uploadfile?${queryParams}`, data);
+};
+
 //getmenuitem
 export const GetAllMenuItems = ({
   userId,
@@ -652,6 +658,12 @@ export const updatestatusrawmaterialtype = (id, currentStatus) => {
 export const GetRawMaterialcategory = (id) => {
   return GET(
     `/rawmaterialcategory/getallbyuserid?categoryTypeId=0&userid=${id}`
+  );
+};
+
+export const UpdateSequence = (data) => {
+  return PUT(
+    `/rawmaterial/updatesequence`, data
   );
 };
 
@@ -987,6 +999,23 @@ export const deleteFunction = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
 };
 
+export const SuperAdminDashboardPlanWiseTotal = () => {
+  return GET(`/dashboard/superadmin/planWiseTotal`);
+}
+
+
+export const SuperAdminDashboardTotalUserAndPlan = () => {
+  return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
+}
+
+export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
+  return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
+}
+
+
+export const DeleteRawMaterialItem = (Id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);
+};
 export const GetSuperalladmininvoice = () => {
   return GET(`/invoice-operations/getAllAdminInvoice`);
 };

@@ -7,6 +7,7 @@ import {
   GetAllSupllierVendors,
   GetUnitData,
   SelectedRawMenuallocation,
+  DeleteRawMaterialItem,
 } from "@/services/apiServices";
 
 import { FormattedMessage, useIntl } from "react-intl";
@@ -107,8 +108,82 @@ export default function CategorySidebarModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const handleRemoveRow = (id) => {
-    setRawMaterials((prev) => prev.filter((r) => r.id !== id));
+  const handleRemoveRow = async (id) => {
+    const rowToDelete = rawMaterials.find((r) => r.id === id);
+
+    // If the item has an itemId (saved in database), show confirmation and delete from backend
+    if (rowToDelete?.itemId && rowToDelete.itemId !== 0) {
+      const result = await Swal.fire({
+        title: intl.formatMessage({
+          id: "COMMON.ARE_YOU_SURE",
+          defaultMessage: "Are you sure?",
+        }),
+        text: intl.formatMessage({
+          id: "SIDEBAR_MODAL.DELETE_RAW_MATERIAL_WARNING",
+          defaultMessage:
+            "This will permanently delete this raw material item.",
+        }),
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: intl.formatMessage({
+          id: "COMMON.YES_DELETE",
+          defaultMessage: "Yes, delete it!",
+        }),
+        cancelButtonText: intl.formatMessage({
+          id: "COMMON.CANCEL",
+          defaultMessage: "Cancel",
+        }),
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      try {
+        console.log("Deleting raw material item with ID:", rowToDelete.itemId);
+        const response = await DeleteRawMaterialItem(rowToDelete.itemId);
+
+        if (response?.data?.success) {
+          setRawMaterials((prev) => prev.filter((r) => r.id !== id));
+
+          Swal.fire({
+            title: intl.formatMessage({
+              id: "COMMON.DELETED",
+              defaultMessage: "Deleted!",
+            }),
+            text: intl.formatMessage({
+              id: "SIDEBAR_MODAL.RAW_MATERIAL_DELETED",
+              defaultMessage: "Raw material item has been deleted.",
+            }),
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } else {
+          throw new Error(response?.data?.message || "Delete failed");
+        }
+      } catch (error) {
+        console.error("Error deleting raw material:", error);
+        Swal.fire({
+          title: intl.formatMessage({
+            id: "COMMON.ERROR",
+            defaultMessage: "Error",
+          }),
+          text:
+            error.message ||
+            intl.formatMessage({
+              id: "SIDEBAR_MODAL.DELETE_FAILED",
+              defaultMessage: "Failed to delete raw material item.",
+            }),
+          icon: "error",
+        });
+      }
+    } else {
+      // If the item is not saved yet, just remove it from the state
+      setRawMaterials((prev) => prev.filter((r) => r.id !== id));
+    }
   };
 
   const handleChange = (id, field, value) => {

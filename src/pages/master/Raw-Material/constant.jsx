@@ -12,7 +12,12 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "raw_material_name",
-    header: <FormattedMessage id="COMMON.RAW_MATERIAL_NAME" defaultMessage="Raw Material Name" />,
+    header: (
+      <FormattedMessage
+        id="COMMON.RAW_MATERIAL_NAME"
+        defaultMessage="Raw Material Name"
+      />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -20,7 +25,12 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "raw_material_category",
-    header: <FormattedMessage id="COMMON.RAW_MATERIAL_CATEGORY" defaultMessage="Raw Material Category" />,
+    header: (
+      <FormattedMessage
+        id="COMMON.RAW_MATERIAL_CATEGORY"
+        defaultMessage="Raw Material Category"
+      />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -34,7 +44,6 @@ export const columns = (onEdit, onDelete, onStatus) => [
       cellClassName: "w-[4%]",
     },
   },
-
   {
     accessorKey: "priority",
     header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
@@ -48,7 +57,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
     header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {
       return (
-        <div className="flex items-center  gap-1">
+        <div className="flex items-center gap-1">
           <Popconfirm
             title="Are you sure to change this status?"
             onConfirm={() =>
@@ -80,7 +89,6 @@ export const columns = (onEdit, onDelete, onStatus) => [
       cellClassName: "w-[10%]",
     },
   },
-
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
@@ -98,15 +106,13 @@ export const columns = (onEdit, onDelete, onStatus) => [
           </Tooltip>
 
           <Tooltip title="Delete">
-            {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
               onClick={() => onDelete(row.original.raw_material_id)}
             >
-              <i className="ki-filled ki-trash  text-danger"></i>
+              <i className="ki-filled ki-trash text-danger"></i>
             </button>
-            {/* </Link> */}
           </Tooltip>
         </div>
       );
