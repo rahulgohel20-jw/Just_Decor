@@ -6,8 +6,10 @@ import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddMember from "@/partials/modals/add-member/AddMember";
+import Swal from "sweetalert2";
 
 import {
+  deleteDownPayment,
   UpdateMemberById,
   GetALLMemberDetailsByID,
   fetchCountries,
@@ -114,9 +116,12 @@ const SuperAdminMemberEdit = () => {
           })
         );
         setCities(cityOptions);
+        return cityOptions; // <-- return the cities array
       }
+      return [];
     } catch (err) {
       console.error("Error loading cities:", err);
+      return [];
     }
   };
 
@@ -183,24 +188,33 @@ const SuperAdminMemberEdit = () => {
         const user = users.find((u) => u.id === parseInt(id));
 
         if (user) {
-          // SET STATE AND LOAD CITIES FIRST
           if (user.stateId) {
             setSelectedState(user.stateId);
-            await loadCities(user.stateId);
+
+            // Load cities first
+            const cities = await loadCities(user.stateId);
+
+            // Find city by name
+            const matchedCity = cities.find((c) => c.label === user.cityName);
+
+            setMemberDetails((prev) => ({
+              ...prev,
+              cityId: matchedCity?.value || "", // <-- Set correct ID
+            }));
           }
 
-          setMemberDetails({
+          // rest fields
+          setMemberDetails((prev) => ({
+            ...prev,
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             contactNo: user.contactNo || "",
             address: user.address || "",
-            cityId: user.cityId || "",
-
             memberType: user.memberType || "",
             planId: user.userPlan?.plan?.id || "",
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
-          });
+          }));
 
           // PREFILL PLAN
           if (user.userPlan?.plan) {
@@ -233,14 +247,14 @@ const SuperAdminMemberEdit = () => {
             );
           }
 
-          // PREFILL DOWN PAYMENTS
+          // PREFILL DOWN PAYMENTS - FIX: Added paidAmount field
           if (user.downPayment && user.downPayment.length > 0) {
             setDownPayments(
               user.downPayment.map((dp) => ({
                 id: dp.id,
                 paymentType: dp.paymentType || "",
                 amount: dp.amount || "",
-                paidAmount: dp.paidAmount || "",
+                paidAmount: dp.paidAmount || "", // ✅ THIS WAS MISSING - Now it will load existing paidAmount
                 payid: dp.payid || "",
                 transactionDate: dp.transactionDateTime
                   ? dp.transactionDateTime
@@ -512,6 +526,49 @@ const SuperAdminMemberEdit = () => {
       </Container>
     );
   }
+  const handleDeleteDownPayment = async (index, paymentId) => {
+    // If the payment doesn't have an ID, it's not saved yet - just remove from state
+    if (!paymentId) {
+      removeDownPayment(index);
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this down payment deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await deleteDownPayment(paymentId);
+
+        if (response?.data?.success) {
+          message.success("Down payment deleted successfully!");
+          // Remove from state
+          removeDownPayment(index);
+          // Optionally refresh data to get updated list
+          await fetchUserData();
+        } else {
+          message.error(
+            response?.data?.msg || "Failed to delete down payment."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting down payment:", error);
+      message.error(
+        error.response?.data?.msg ||
+          error.message ||
+          "Failed to delete down payment."
+      );
+    }
+  };
 
   return (
     <Fragment>
@@ -818,24 +875,27 @@ const SuperAdminMemberEdit = () => {
 
                   {/* Upload + Delete inline */}
                   <div className="flex items-center gap-2 min-w-[140px]">
-                    <div className="flex-1">
-                      <label className="block mb-1 text-xs font-medium text-gray-700">
-                        Upload
+                    {/* File Upload */}
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-600 font-medium mb-1">
+                        Upload Document
                       </label>
-                      <Input
+                      <input
                         type="file"
                         onChange={(e) =>
                           handleDownPaymentFile(index, e.target.files[0])
                         }
-                        className="text-xs"
+                        className="border rounded p-2 w-48"
                       />
                     </div>
+
                     <Button
                       icon={<DeleteOutlined />}
                       danger
-                      onClick={() => removeDownPayment(index)}
+                      onClick={() => handleDeleteDownPayment(index, row.id)}
                       size="small"
                       className="mt-6"
+                      title={row.id ? "Delete from database" : "Remove entry"}
                     />
                   </div>
                 </div>
@@ -891,13 +951,16 @@ const SuperAdminMemberEdit = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Upload Document
+                  {/* File Upload */}
+                  {/* KYC File Upload */}
+                  <div className="flex flex-col">
+                    <label className="text-sm text-gray-600 font-medium mb-1">
+                      Upload KYC File
                     </label>
-                    <Input
+                    <input
                       type="file"
                       onChange={(e) => handleKycFile(index, e.target.files[0])}
+                      className="border rounded p-2 w-48"
                     />
                   </div>
 
@@ -912,15 +975,17 @@ const SuperAdminMemberEdit = () => {
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Import Call File (Optional)
+            <section className="border rounded-md p-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Upload Call File
               </label>
-              <Input
+
+              <input
                 type="file"
                 onChange={(e) => setCallFile(e.target.files[0])}
+                className="border rounded p-2 w-60"
               />
-            </div>
+            </section>
           </section>
 
           {/* Footer Buttons */}

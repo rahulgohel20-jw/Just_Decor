@@ -986,3 +986,18 @@ export const deleteRawmatrialcatidInmenuitem = (id) => {
 export const deleteFunction = (id) => {
   return DELETE(`/eventfunction/deleteeventfunction?id=${id}`);
 };
+
+export const GetSuperalladmininvoice = () => {
+  return GET(`/invoice-operations/getAllAdminInvoice`);
+};
+
+export const GetAdminInvoiceById  = (id) => {
+  return GET(`/invoice-operations/getAdminInvoiceById?id=${id}`);
+}
+export const deleteMenuItemRawMaterial = (id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${id}`);
+};
+
+export const deleteDownPayment = (id) => {
+  return DELETE(`/user/deleteuserdownpaymentbyid?id=${id}`);
+};

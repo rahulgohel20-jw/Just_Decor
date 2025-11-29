@@ -19,7 +19,7 @@ const InvoiceDetail = ({ Eventid }) => {
       title: (
         <FormattedMessage
           id="SALES.INVOICE_FUNCTION"
-          defaultMessage="Function"
+          defaultMessage="Plan Name"
         />
       ),
       dataIndex: "function",
@@ -29,7 +29,7 @@ const InvoiceDetail = ({ Eventid }) => {
       title: (
         <FormattedMessage
           id="SALES.INVOICE_DATE_TIME"
-          defaultMessage="Date & Time"
+          defaultMessage="Start Date "
         />
       ),
       dataIndex: "date",
@@ -37,23 +37,12 @@ const InvoiceDetail = ({ Eventid }) => {
     },
     {
       title: (
-        <FormattedMessage id="SALES.INVOICE_PERSON" defaultMessage="Person" />
+        <FormattedMessage id="SALES.INVOICE_PERSON" defaultMessage="End Date" />
       ),
       dataIndex: "person",
       key: "person",
     },
-    {
-      title: (
-        <FormattedMessage id="SALES.INVOICE_EXTRA" defaultMessage="Extra" />
-      ),
-      dataIndex: "extra",
-      key: "extra",
-    },
-    {
-      title: <FormattedMessage id="SALES.INVOICE_RATE" defaultMessage="Rate" />,
-      dataIndex: "rate",
-      key: "rate",
-    },
+
     {
       title: (
         <FormattedMessage id="SALES.INVOICE_AMOUNT" defaultMessage="Amount" />
@@ -181,7 +170,18 @@ const InvoiceDetail = ({ Eventid }) => {
             <span className="text-gray-500">
               <FormattedMessage
                 id="INVOICE.BILLING_NAME"
-                defaultMessage="Billing Name"
+                defaultMessage="Party Name"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.billingName}
+            </span>
+          </p>
+          <p className="flex justify-between mb-1 gap-4">
+            <span className="text-gray-500">
+              <FormattedMessage
+                id="INVOICE.BILLING_NAME"
+                defaultMessage="billing Name"
               />
             </span>
             <span className="font-medium text-right">
@@ -214,7 +214,7 @@ const InvoiceDetail = ({ Eventid }) => {
             <span className="text-gray-500">
               <FormattedMessage
                 id="INVOICE.EVENT_DATE"
-                defaultMessage="Event Date"
+                defaultMessage="Billing Addre"
               />
             </span>
             <span className="font-medium text-right">
@@ -246,6 +246,17 @@ const InvoiceDetail = ({ Eventid }) => {
               {invoiceInfo.dueDate}
             </span>
           </p>
+          <p className="flex justify-between mb-1 gap-4">
+            <span className="text-gray-500">
+              <FormattedMessage
+                id="INVOICE.DUE_DATE"
+                defaultMessage="Shipping Address"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.dueDate}
+            </span>
+          </p>
         </div>
       </div>
 
@@ -254,7 +265,7 @@ const InvoiceDetail = ({ Eventid }) => {
         <h4 className="p-4 font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
           <FormattedMessage
             id="FUNCTION.DETAILS"
-            defaultMessage="Function Details"
+            defaultMessage="Plan Information"
           />
         </h4>
         <Table

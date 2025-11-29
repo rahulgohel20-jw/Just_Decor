@@ -41,7 +41,7 @@ export const columns = [
       return (
         <div className="flex items-center gap-2">
           <Tooltip title="View">
-            <Link to={""}>
+            <Link to={"/super/invoice-preview"}>
               <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 title="View"
@@ -56,12 +56,4 @@ export const columns = [
   },
 ];
 
-export const defaultData = [
-  {
-    Invoice: "INV-0001",
-    CustomerName: "John ",
-    plan: "E-lite",
-    Amount: "₹ 35000",
-    BalanceDue: "₹ 35000",
-  },
-];
+export const defaultData = [];

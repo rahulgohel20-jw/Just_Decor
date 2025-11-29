@@ -177,7 +177,7 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 import Database from "../pages/master/superadmindatabase";
 import Plan from "../components/plan/Plan";
-import SuperadminInvoice from "../components/superadmininvoice/SuperadminInvoice";
+import SuperadminInvoice from "../components/superadminInvoice/SuperadminInvoice";
 import Addinvoice from "../components/superadminInvoice/Addinvoice";
 import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
 import SuperCalendarPage from "../pages/super-admin/calender";
@@ -191,6 +191,7 @@ import SuperContactTypeMaster from "../pages/super-admin/master/contact-master";
 import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type";
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
+import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
 
 const AppRoutingSetup = () => {
   return (
@@ -237,6 +238,7 @@ const AppRoutingSetup = () => {
           />
           <Route path="/menu-preparation" element={<EventPlanningPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
+          <Route path="/super/invoice-preview" element={<InvoicePreview />} />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
