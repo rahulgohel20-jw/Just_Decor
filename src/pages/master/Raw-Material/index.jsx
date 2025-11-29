@@ -1,12 +1,13 @@
 import { Fragment, useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import {
   GetAllRawMaterial,
   Deleterawmaterial,
   updateRawMaterialStatus,
+  GetRawMaterialcategory,
+  UpdateSequence,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
@@ -18,18 +19,23 @@ const RawMaterial = () => {
   const classes = useStyle();
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
   const [selectedRawMaterial, setSelectedRawMaterial] = useState(null);
-  const [allTableData, setAllTableData] = useState([]); // All data (unfiltered)
+  const [allTableData, setAllTableData] = useState([]);
+  const [displayData, setDisplayData] = useState([]); // Added for drag & drop
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const intl = useIntl();
   const [rawOriginalData, setRawOriginalData] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   let Id = localStorage.getItem("userId");
 
-  // Fetch All Raw Materials (No Pagination)
+  // Fetch All Raw Materials
   const FetchRawMaterial = () => {
     setLoading(true);
-    GetAllRawMaterial(Id, 1, 10000) // PAGE 1, LIMIT 10000
+    GetAllRawMaterial(Id, 1, 10000)
       .then((res) => {
         const list = res.data.data["Raw Material Details"] || [];
         setRawOriginalData(list);
@@ -44,23 +50,41 @@ const RawMaterial = () => {
       });
   };
 
+  // Fetch Categories
+  const FetchCategories = () => {
+    GetRawMaterialcategory(Id)
+      .then((res) => {
+        const list = res.data.data["Raw Material Category Details"] || [];
+        setCategories(list);
+        console.log(`✅ Loaded ${list.length} categories`);
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      });
+  };
+
   useEffect(() => {
     FetchRawMaterial();
+    FetchCategories();
   }, []);
 
-  // Map raw data to table format whenever language or data changes
+  // Map raw data to table format
   useEffect(() => {
     const language = localStorage.getItem("lang");
-
     const languageMap = {
       en: "nameEnglish",
       hi: "nameHindi",
       gu: "nameGujarati",
     };
-
     const field = languageMap[language] || "nameEnglish";
 
-    let mapped = rawOriginalData.map((raw, index) => ({
+    // Sort by sequence first
+    const sortedData = [...rawOriginalData].sort((a, b) => {
+      return (a.sequence || 0) - (b.sequence || 0);
+    });
+
+    const mapped = sortedData.map((raw, index) => ({
       sr_no: index + 1,
       raw_material_id: raw.id,
       raw_material_cat_id: raw.rawMaterialCat?.id,
@@ -76,44 +100,104 @@ const RawMaterial = () => {
       isGeneralFix: raw.isGeneralFix,
     }));
 
-    // 🔍 Search Filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-
-      mapped = mapped.filter(
-        (item) =>
-          item.raw_material_name?.toLowerCase().includes(q) ||
-          item.raw_material_category?.toLowerCase().includes(q) ||
-          item.unit?.toLowerCase().includes(q) ||
-          String(item.rate)?.toLowerCase().includes(q)
-      );
-    }
-
     setAllTableData(mapped);
   }, [rawOriginalData]);
 
-  // 🔍 Client-side filtering with useMemo for performance
+  // Client-side filtering
   const filteredTableData = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allTableData;
+    let filtered = allTableData;
+
+    if (categoryFilter) {
+      filtered = filtered.filter(
+        (item) => item.raw_material_cat_id === parseInt(categoryFilter)
+      );
     }
 
-    const query = searchQuery.toLowerCase().trim();
-    console.log(`🔍 Filtering with query: "${query}"`);
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((item) => {
+        return (
+          item.raw_material_name?.toLowerCase().includes(query) ||
+          item.raw_material_category?.toLowerCase().includes(query) ||
+          item.unit?.toLowerCase().includes(query) ||
+          String(item.rate)?.toLowerCase().includes(query)
+        );
+      });
+    }
 
-    const filtered = allTableData.filter((item) => {
-      return (
-        item.raw_material_name?.toLowerCase().includes(query) ||
-        item.raw_material_category?.toLowerCase().includes(query) ||
-        item.unit?.toLowerCase().includes(query)
-      );
-    });
-
-    console.log(
-      `✅ Found ${filtered.length} matches out of ${allTableData.length}`
-    );
     return filtered;
-  }, [allTableData, searchQuery]);
+  }, [allTableData, searchQuery, categoryFilter]);
+
+  // Sync displayData with filteredTableData
+  useEffect(() => {
+    setDisplayData(filteredTableData);
+  }, [filteredTableData]);
+
+  // Drag & Drop Handlers
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = "1";
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reorderedData = [...displayData];
+    const [draggedItem] = reorderedData.splice(draggedIndex, 1);
+    reorderedData.splice(dropIndex, 0, draggedItem);
+
+    // Optimistically update UI
+    setDisplayData(reorderedData);
+
+    // Update sequences
+    const updatePayload = reorderedData.map((item, index) => ({
+      rawMaterialCatId: item.raw_material_cat_id || 0,
+      rawMaterialId: item.raw_material_id,
+      sequence: index + 1,
+    }));
+
+    console.log("📦 Updating sequences:", updatePayload);
+
+    UpdateSequence(updatePayload)
+      .then((res) => {
+        FetchRawMaterial();
+      })
+      .catch((error) => {
+        console.error("❌ Error updating sequence:", error);
+        // Revert on error
+        setDisplayData(filteredTableData);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to update sequence.",
+          icon: "error",
+        });
+      });
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const DeleteRawMaterial = (raw_material_id) => {
     Swal.fire({
@@ -167,6 +251,9 @@ const RawMaterial = () => {
       });
   };
 
+  // Generate table columns
+  const tableColumns = columns(handleEdit, DeleteRawMaterial, statusRaw);
+
   return (
     <Fragment>
       <Container>
@@ -202,9 +289,40 @@ const RawMaterial = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            {searchQuery && (
+
+            <div className="filItems">
+              <select
+                className="select"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">
+                  {intl.formatMessage({
+                    id: "COMMON.ALL_CATEGORIES",
+                    defaultMessage: "All Categories",
+                  })}
+                </option>
+                {categories.map((cat) => {
+                  const language = localStorage.getItem("lang");
+                  const languageMap = {
+                    en: "nameEnglish",
+                    hi: "nameHindi",
+                    gu: "nameGujarati",
+                  };
+                  const field = languageMap[language] || "nameEnglish";
+
+                  return (
+                    <option key={cat.id} value={cat.id}>
+                      {cat[field]}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {(searchQuery || categoryFilter) && (
               <span className="text-sm text-gray-600">
-                {filteredTableData.length} of {allTableData.length} items
+                {displayData.length} of {allTableData.length} items
               </span>
             )}
           </div>
@@ -233,12 +351,79 @@ const RawMaterial = () => {
           rawmaterial={selectedRawMaterial}
         />
 
-        <TableComponent
-          columns={columns(handleEdit, DeleteRawMaterial, statusRaw)}
-          data={filteredTableData} // 🔍 Use filtered data instead of all data
-          loading={loading}
-          pagination={false} // Show all filtered items without pagination
-        />
+        {/* Custom Table with Drag & Drop */}
+        <div className="card">
+          <div className="">
+            {loading ? (
+              <div className="flex justify-center items-center py-10">
+                <div className="spinner-border" role="status">
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th className="w-10">
+                        <i className="ki-filled ki-sort-vertical text-gray-500"></i>
+                      </th>
+                      {tableColumns.map((col, index) => (
+                        <th key={index}>{col.header}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayData.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={tableColumns.length + 1}
+                          className="text-center py-10 text-gray-500"
+                        >
+                          No data available
+                        </td>
+                      </tr>
+                    ) : (
+                      displayData.map((row, rowIndex) => (
+                        <tr
+                          key={row.raw_material_id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, rowIndex)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => handleDragOver(e, rowIndex)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, rowIndex)}
+                          className={`cursor-grab transition-all ${
+                            dragOverIndex === rowIndex
+                              ? "border-t-2 border-primary"
+                              : ""
+                          }`}
+                          style={{
+                            backgroundColor:
+                              draggedIndex === rowIndex
+                                ? "#f3f4f6"
+                                : "transparent",
+                          }}
+                        >
+                          <td className="text-center cursor-grab active:cursor-grabbing">
+                            ⋮⋮
+                          </td>
+                          {tableColumns.map((col, colIndex) => (
+                            <td key={colIndex}>
+                              {col.cell
+                                ? col.cell({ row: { original: row } })
+                                : row[col.accessorKey]}
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
       </Container>
     </Fragment>
   );

@@ -379,7 +379,7 @@ const EventMenuAllocationPage = () => {
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
-        isFromNewTable,
+        true,
         menuItemId
       );
 
@@ -746,7 +746,12 @@ const EventMenuAllocationPage = () => {
     setAllocationData((prev) => {
       const updated = {
         ...prev,
-        [`${saveData.menuItemId}-category`]: saveData,
+        [`${saveData.menuItemId}-category`]: {
+          ...saveData,
+          response: {
+            isFromNewTable: saveData.isFromNewTable || false,
+          },
+        },
       };
       console.log(updated, "save data");
 
@@ -759,6 +764,7 @@ const EventMenuAllocationPage = () => {
           return {
             ...r,
             menuItemRawMaterials: saveData.rawMaterials || [],
+            isFromNewTable: saveData.isFromNewTable || false,
           };
         }
         return r;

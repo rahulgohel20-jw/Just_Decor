@@ -662,6 +662,12 @@ export const GetRawMaterialcategory = (id) => {
   );
 };
 
+export const UpdateSequence = (data) => {
+  return PUT(
+    `/rawmaterial/updatesequence`, data
+  );
+};
+
 export const DeleteRawMaterialcategory = (id) => {
   return DELETE(`/rawmaterialcategory/delete?id=${id}`);
 };
