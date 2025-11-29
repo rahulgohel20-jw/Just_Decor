@@ -210,11 +210,10 @@ export const RawMaterialName = (Id, name) => {
 
 export const SelectedItemNameMenuAllocation = (
   eventfunctionid,
-  data,
   menuitemid
 ) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&isFromNewTable=${data}&menuItemId=${menuitemid}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
 };
 export const ContactNameItem = (Id, name) => {
@@ -549,6 +548,11 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+//upload Image
+export const uploadProfileImage = (data, queryParams) => {
+  return UPLOAD(`/file/uploadfile?${queryParams}`, data);
+};
+
 //getmenuitem
 export const GetAllMenuItems = ({
   userId,
@@ -654,6 +658,12 @@ export const updatestatusrawmaterialtype = (id, currentStatus) => {
 export const GetRawMaterialcategory = (id) => {
   return GET(
     `/rawmaterialcategory/getallbyuserid?categoryTypeId=0&userid=${id}`
+  );
+};
+
+export const UpdateSequence = (data) => {
+  return PUT(
+    `/rawmaterial/updatesequence`, data
   );
 };
 
@@ -1001,3 +1011,8 @@ export const SuperAdminDashboardTotalUserAndPlan = () => {
 export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
   return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
 }
+
+
+export const DeleteRawMaterialItem = (Id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);
+};

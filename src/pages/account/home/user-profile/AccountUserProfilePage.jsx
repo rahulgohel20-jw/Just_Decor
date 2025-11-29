@@ -7,7 +7,7 @@ import Log from "@/components/profile/log";
 import clsx from "clsx";
 import { toAbsoluteUrl } from "@/utils";
 import { FormattedMessage } from "react-intl";
-import { getUserById } from "@/services/apiServices";
+import { getUserById, uploadProfileImage } from "@/services/apiServices";
 import { message } from "antd";
 import { useNavigate } from "react-router";
 
@@ -39,6 +39,7 @@ const AccountUserProfilePage = () => {
   const [activeTab, setActiveTab] = useState("account");
   const [priceModal, setPriceModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: "",
     lastName: "",
@@ -74,8 +75,7 @@ const AccountUserProfilePage = () => {
           accountId: user.userCode || "ID-45453423",
           language: "English",
           roleName: user.userBasicDetails?.role?.name || "",
-          // This might come from API in future
-          image: profileData.image, // Keep the uploaded image
+          image: user.profileImage || profileData.image,
         });
       }
     } catch (error) {
@@ -100,6 +100,77 @@ const AccountUserProfilePage = () => {
     setIsEditing(false);
     // Refresh profile data after successful save
     setRefreshKey((prev) => prev + 1);
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      message.error(
+        "Please upload a valid image file (JPEG, JPG, PNG, or GIF)"
+      );
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      message.error("File size should not exceed 5MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Create FormData
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const fileType = file.type.split("/")[1];
+
+      // Build URL with query parameters
+      const params = new URLSearchParams({
+        fileType: fileType,
+        moduleId: userMasterId.toString(),
+        moduleName: "userlogo",
+      });
+
+      // Make the API call with query parameters in URL
+      const response = await uploadProfileImage(formData, params.toString());
+
+      if (response?.data?.success) {
+        const uploadedImageUrl =
+          response.data.fullPath ||
+          response.data.data?.fileUrl ||
+          response.data.data?.url;
+
+        // Update profile data with the uploaded image URL
+        setProfileData((prev) => ({
+          ...prev,
+          image: uploadedImageUrl,
+        }));
+        console.log("ImageUrl", uploadedImageUrl);
+
+        message.success(
+          response.data.msg || "Profile image uploaded successfully!"
+        );
+        setRefreshKey((prev) => prev + 1);
+      } else {
+        throw new Error(
+          response?.data?.msg || response?.data?.message || "Upload failed"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      message.error(
+        error.message || "Failed to upload image. Please try again."
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const content = {
@@ -144,12 +215,17 @@ const AccountUserProfilePage = () => {
 
                   {/* Hover Overlay */}
                   <div
-                    className="absolute inset-0 rounded-full bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                    className={`absolute inset-0 rounded-full bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                      isUploading ? "cursor-wait" : "cursor-pointer"
+                    }`}
                     onClick={() =>
+                      !isUploading &&
                       document.getElementById("upload-image-input").click()
                     }
                   >
-                    {!profileData.image ? (
+                    {isUploading ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    ) : !profileData.image ? (
                       <img
                         src={toAbsoluteUrl("/media/icons/camera.png")}
                         alt="upload"
@@ -177,11 +253,13 @@ const AccountUserProfilePage = () => {
                   <input
                     id="upload-image-input"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/gif"
                     className="hidden"
+                    disabled={isUploading}
                     onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
+                        // Show preview immediately
                         const reader = new FileReader();
                         reader.onload = () => {
                           setProfileData({
@@ -190,6 +268,9 @@ const AccountUserProfilePage = () => {
                           });
                         };
                         reader.readAsDataURL(file);
+
+                        // Upload to server
+                        handleFileUpload(file);
                       }
                     }}
                   />
