@@ -210,11 +210,10 @@ export const RawMaterialName = (Id, name) => {
 
 export const SelectedItemNameMenuAllocation = (
   eventfunctionid,
-  data,
   menuitemid
 ) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&isFromNewTable=${data}&menuItemId=${menuitemid}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
 };
 export const ContactNameItem = (Id, name) => {
@@ -1012,3 +1011,8 @@ export const SuperAdminDashboardTotalUserAndPlan = () => {
 export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
   return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
 }
+
+
+export const DeleteRawMaterialItem = (Id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);
+};
