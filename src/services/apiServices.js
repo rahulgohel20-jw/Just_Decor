@@ -549,6 +549,11 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+//upload Image
+export const uploadProfileImage = (data, queryParams) => {
+  return UPLOAD(`/file/uploadfile?${queryParams}`, data);
+};
+
 //getmenuitem
 export const GetAllMenuItems = ({
   userId,

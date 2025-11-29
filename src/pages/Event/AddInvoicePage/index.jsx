@@ -405,7 +405,7 @@ const AddInvoicePage = () => {
         cgst: String(footerData.cgst),
         cgstAmnt: footerData.cgstAmnt,
         discount: footerData.discount,
-        duedate: dueDate ? dueDate.format("DD/MM/YYYY hh:mm A") : null,
+        duedate: dueDate ? dueDate.format("DD/MM/YYYY") : null,
         eventId: eventId,
         eventInvoiceFunctionPayments:
           invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
