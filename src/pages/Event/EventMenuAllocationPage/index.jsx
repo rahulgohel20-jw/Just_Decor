@@ -9,7 +9,7 @@ import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-
+import SummaryItemModalchefoutside from "../../../components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
 import {
   GetEventMasterById,
   GetMenuAllocation,
@@ -320,6 +320,7 @@ const EventMenuAllocationPage = () => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const intl = useIntl();
 
@@ -958,6 +959,10 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
+  // Change this function name from openSelectMenureport to openSummaryItemModalchefoutside
+  const openSummaryItemModalchefoutside = () => {
+    setIsModalOpen(true);
+  };
   return (
     <Fragment>
       <Container>
@@ -1180,6 +1185,36 @@ const EventMenuAllocationPage = () => {
                 </div>
                 <div className="flex w-full items-center justify-start gap-5 md:justify-end">
                   <button
+                    onClick={openSummaryItemModalchefoutside}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="Chef Outside"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="Chef Outside"
+                    />
+                  </button>
+                  <button
+                    onClick={openSummaryItemModalchefoutside}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="Outside Agency"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="Outside Agency"
+                    />
+                  </button>
+                  <button
+                    onClick={openSummaryItemModalchefoutside}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="In House Cook"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="In House Cook"
+                    />
+                  </button>
+                  <button
                     onClick={openSelectMenureport}
                     className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
                     title="Report"
@@ -1280,6 +1315,10 @@ const EventMenuAllocationPage = () => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
+        />
+        <SummaryItemModalchefoutside
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
         />
       </Container>
     </Fragment>

@@ -4,6 +4,8 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
+import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
+
 import AddRawMaterialCategory from "@/partials/modals/raw-material-category/AddRawMaterial";
 
 import {
@@ -48,6 +50,9 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isRawCategoryModalOpen, setIsRawCategoryModalOpen] = useState(false);
+  const [isVendorOpen, setIsVendorOpen] = useState(false);
+  const [isSupplierOpen, setIsSupplierOpen] = useState(false);
+
   const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
     useState(null);
   const intl = useIntl();
@@ -354,6 +359,15 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const filteredTableData = tableData.filter((supplier) =>
     supplier.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const openSupplier = () => {
+    setIsVendorOpen(false);
+    setTimeout(() => setIsSupplierOpen(true), 150); // delay prevents race condition
+  };
+
+  const openVendor = () => {
+    setIsSupplierOpen(false);
+    setTimeout(() => setIsVendorOpen(true), 150);
+  };
 
   return (
     isOpen && (
@@ -668,7 +682,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   className="btn btn-primary"
                   type="button"
                   onClick={() => {
-                    setIsSupplierModalOpen(true);
+                    openSupplier();
                     setEditingSupplier(null);
                   }}
                   title="Add Supplier"
@@ -696,13 +710,19 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
 
         {/* Supplier Modal */}
         <AddSupplier
-          isOpen={isSupplierModalOpen}
+          isOpen={isSupplierOpen}
           onClose={() => {
-            setIsSupplierModalOpen(false);
-            setEditingSupplier(null);
+            setIsSupplierOpen(false);
           }}
-          onAddSupplier={handleSupplierAction}
-          supplierData={editingSupplier}
+          onOpenVendor={() => openVendor()}
+        />
+
+        <AddVendor
+          isOpen={isVendorOpen}
+          onClose={() => {
+            setIsVendorOpen(false);
+            openSupplier(); // <--- return back to supplier
+          }}
         />
 
         <AddRawMaterialCategory

@@ -294,14 +294,14 @@ const AccountUserProfilePage = () => {
                     />
                   </span>
                 </button>
-                <div className="px-5 pb-5 space-y-4">
+                <div className="px-2 pb-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="w-[200px]">
                       <span className="text-sm bg-primary text-white p-2 rounded-2xl">
                         {profileData.planName} Plan
                       </span>
                     </div>
-                    <div className="flex flex-col w-[200px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
+                    <div className="flex flex-col w-[400px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
                       <span className="text-xs text-center text-[#005BA8]">
                         <FormattedMessage
                           id="PROFILE.UPGRADE_YOUR_PLAN"

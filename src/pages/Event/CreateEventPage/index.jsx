@@ -37,12 +37,15 @@ const CreateEventPage = () => {
 
   // Get selected date from calendar navigation state
   const selectedDateFromCalendar = location.state?.event_date;
+  const initialFormData = useMemo(() => {
+    const today = dayjs();
+    const defaultStartTime = today.hour(8).minute(0).second(0); // 8:00 AM
+    const defaultEndTime = today.hour(12).minute(0).second(0); // 12:00 PM
 
-  const initialFormData = useMemo(
-    () => ({
+    return {
       inquiryDate: dayjs().format("DD/MM/YYYY"),
-      eventStartDateTime: "",
-      eventEndDateTime: "",
+      eventStartDateTime: defaultStartTime.format("DD/MM/YYYY hh:mm A"),
+      eventEndDateTime: defaultEndTime.format("DD/MM/YYYY hh:mm A"),
       venueId: "",
       eventTypeId: "",
       managerId: "",
@@ -56,9 +59,8 @@ const CreateEventPage = () => {
       service: "",
       theme: "",
       remark: "",
-    }),
-    []
-  );
+    };
+  }, []);
 
   const [formData, setFormData] = useState(initialFormData);
   const [current, setCurrent] = useState(0);
@@ -71,26 +73,41 @@ const CreateEventPage = () => {
     Cancel: "2",
   };
 
-  // Auto-fill dates when coming from calendar (create mode only)
   useEffect(() => {
-    if (mode === "create" && selectedDateFromCalendar) {
-      console.log(
-        "Auto-filling dates from calendar:",
-        selectedDateFromCalendar
-      );
+    if (mode === "create") {
+      // Check if dates are coming from calendar navigation
+      if (selectedDateFromCalendar) {
+        console.log(
+          "Auto-filling dates from calendar:",
+          selectedDateFromCalendar
+        );
 
-      const selectedDate = dayjs(selectedDateFromCalendar);
-      const startDateTime = selectedDate.hour(8).minute(0); // Default start time 10:00 AM
-      const endDateTime = selectedDate.hour(12).minute(0); // Default end time 2:00 PM (4 hours later)
+        const selectedDate = dayjs(selectedDateFromCalendar);
+        const startDateTime = selectedDate.hour(8).minute(0); // 8:00 AM
+        const endDateTime = selectedDate.hour(12).minute(0); // 12:00 PM
 
-      setFormData((prev) => ({
-        ...prev,
-        eventStartDateTime: startDateTime.format("DD/MM/YYYY hh:mm A"),
-        eventEndDateTime: endDateTime.format("DD/MM/YYYY hh:mm A"),
-      }));
+        setFormData((prev) => ({
+          ...prev,
+          eventStartDateTime: startDateTime.format("DD/MM/YYYY hh:mm A"),
+          eventEndDateTime: endDateTime.format("DD/MM/YYYY hh:mm A"),
+        }));
+      }
+      // If no date from calendar, set default dates with today's date
+      else if (!formData.eventStartDateTime && !formData.eventEndDateTime) {
+        console.log("Setting default dates for manual event creation");
+
+        const today = dayjs();
+        const startDateTime = today.hour(8).minute(0).second(0); // 8:00 AM today
+        const endDateTime = today.hour(12).minute(0).second(0); // 12:00 PM today
+
+        setFormData((prev) => ({
+          ...prev,
+          eventStartDateTime: startDateTime.format("DD/MM/YYYY hh:mm A"),
+          eventEndDateTime: endDateTime.format("DD/MM/YYYY hh:mm A"),
+        }));
+      }
     }
   }, [mode, selectedDateFromCalendar]);
-
   useEffect(() => {
     if ((mode === "edit" || mode === "copy") && eventId) {
       setLoading(true);
