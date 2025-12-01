@@ -358,16 +358,6 @@ const EventMenuAllocationPage = () => {
       const eventFunctionId = activeFunction?.id || 1;
       const menuItemId = item.menuItemId || item.id;
 
-      const categoryKey = `${menuItemId}-category`;
-      const storedCategory = allocationData[categoryKey];
-      console.log(storedCategory?.response?.isFromNewTable, "data");
-
-      const isFromNewTable =
-        storedCategory?.response?.isFromNewTable ??
-        storedCategory?.isFromNewTable ??
-        item.isFromNewTable ??
-        false;
-
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -378,7 +368,6 @@ const EventMenuAllocationPage = () => {
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
-
         menuItemId
       );
 
@@ -502,11 +491,8 @@ const EventMenuAllocationPage = () => {
 
         const updatedRowsPromises = transformedRows.map(async (row) => {
           try {
-            const isFromNewTable = itemFlagMap.get(row.menuItemId) || false;
-
             const res = await SelectedItemNameMenuAllocation(
               eventFunctionId,
-              isFromNewTable,
               row.menuItemId
             );
 
@@ -847,9 +833,10 @@ const EventMenuAllocationPage = () => {
         const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
         const rawMaterialsSource =
-          rawMaterialsFromRow.length > 0
-            ? rawMaterialsFromRow
-            : rawMaterialsFromAllocation;
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials &&
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials.length > 0
+            ? allocationData[`${r.menuItemId}-category`].rawMaterials
+            : r.menuItemRawMaterials || [];
 
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
           let partyId = 0;
