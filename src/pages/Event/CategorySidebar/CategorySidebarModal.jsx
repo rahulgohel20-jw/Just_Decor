@@ -8,6 +8,7 @@ import {
   GetUnitData,
   SelectedRawMenuallocation,
   DeleteRawMaterialItem,
+  SelectedItemNameMenuAllocation,
 } from "@/services/apiServices";
 
 import { FormattedMessage, useIntl } from "react-intl";
@@ -330,12 +331,51 @@ export default function CategorySidebarModal({
           text: "Raw material data saved successfully.",
         });
 
+        let freshData = [];
+
+        try {
+          const refresh = await SelectedItemNameMenuAllocation(
+            eventFunctionId,
+            payload[0]?.menuItemId
+          );
+
+          if (refresh?.data?.success) {
+            freshData =
+              refresh.data.data["MenuItem RawMaterial Details"] ||
+              refresh.data.data.menuItemRawMaterials ||
+              [];
+
+            setRawMaterials(
+              freshData.map((item, index) => ({
+                id: `row-${Date.now()}-${index}`,
+                itemId: item.id || 0,
+                name: item.rawMaterialName || "",
+                menuItemName: item.menuItemName || "-",
+                agency: item.partyName || "",
+                dateTime: item.dateTime
+                  ? dayjs(item.dateTime, "DD/MM/YYYY hh:mm a")
+                  : null,
+                weight: item.weight || "",
+                unit: item.unitName || "",
+                place: item.place || "",
+                rawMaterialId: item.rawMaterialId || 0,
+                menuItemId: item.menuItemId || 0,
+                rate: item.rate || 0,
+                rawmaterial_rate: item.rawmaterial_rate || 0,
+                rawmaterial_weight: item.rawmaterial_weight || 0,
+              }))
+            );
+          }
+        } catch (err) {
+          console.error("Error refresh raw materials:", err);
+        }
+
         if (onSave) {
           onSave({
             menuItemId: payload[0]?.menuItemId,
             eventFunctionId,
             eventId,
-            rawMaterials: payload,
+            rawMaterials: freshData,
             response: res.data,
           });
         }
