@@ -5,9 +5,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddMember from "@/partials/modals/add-member/AddMember";
+import Swal from "sweetalert2";
 
 import {
+  deleteDownPayment,
   UpdateMemberById,
   GetALLMemberDetailsByID,
   fetchCountries,
@@ -22,7 +23,6 @@ const SuperAdminMemberEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   // Dropdown options state
   const [states, setStates] = useState([]);
@@ -31,8 +31,9 @@ const SuperAdminMemberEdit = () => {
   const [managers, setManagers] = useState([]);
 
   // Selected dropdown values for cascading
-  const DEFAULT_COUNTRY_ID = 1;
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   // Member Details State
   const [memberDetails, setMemberDetails] = useState({
@@ -47,29 +48,29 @@ const SuperAdminMemberEdit = () => {
     reportingManagerId: "",
   });
 
-  // Down Payment State
+  // Down Payment State - FIXED: paidAmount instead of paidamount
   const [downPayments, setDownPayments] = useState([
     {
       paymentType: "",
       amount: "",
+      paidAmount: "",
       payid: "",
       transactionDate: "",
-      paidAmount: "",
       remarks: "",
       docPath: null,
+      existingDocPath: null, // To store existing document URL
     },
   ]);
 
   // KYC State
   const [kycDetails, setKycDetails] = useState([
-    { kycType: "", kycNo: "", docPath: null },
+    { kycType: "", kycNo: "", docPath: null, existingDocPath: null },
   ]);
 
   const [callFile, setCallFile] = useState(null);
 
   // Fetch all dropdown data on mount
   useEffect(() => {
-    loadStatesForDefaultCountry();
     loadPlans();
     loadManagers();
   }, []);
@@ -84,7 +85,6 @@ const SuperAdminMemberEdit = () => {
     }
   }, [id]);
 
-  // Load States for default country
   const loadStatesForDefaultCountry = async () => {
     try {
       const response = await fetchStatesByCountry(DEFAULT_COUNTRY_ID);
@@ -114,9 +114,12 @@ const SuperAdminMemberEdit = () => {
           })
         );
         setCities(cityOptions);
+        return cityOptions;
       }
+      return [];
     } catch (err) {
       console.error("Error loading cities:", err);
+      return [];
     }
   };
 
@@ -183,24 +186,33 @@ const SuperAdminMemberEdit = () => {
         const user = users.find((u) => u.id === parseInt(id));
 
         if (user) {
-          // SET STATE AND LOAD CITIES FIRST
           if (user.stateId) {
             setSelectedState(user.stateId);
-            await loadCities(user.stateId);
+
+            // Load cities first
+            const cities = await loadCities(user.stateId);
+
+            // Find city by name
+            const matchedCity = cities.find((c) => c.label === user.cityName);
+
+            setMemberDetails((prev) => ({
+              ...prev,
+              cityId: matchedCity?.value || "",
+            }));
           }
 
-          setMemberDetails({
+          // rest fields
+          setMemberDetails((prev) => ({
+            ...prev,
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             contactNo: user.contactNo || "",
             address: user.address || "",
-            cityId: user.cityId || "",
-
             memberType: user.memberType || "",
             planId: user.userPlan?.plan?.id || "",
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
-          });
+          }));
 
           // PREFILL PLAN
           if (user.userPlan?.plan) {
@@ -229,11 +241,12 @@ const SuperAdminMemberEdit = () => {
                 kycType: doc.kycType || "",
                 kycNo: doc.kycNo || "",
                 docPath: null,
+                existingDocPath: doc.docPath || null, // Store existing document URL
               }))
             );
           }
 
-          // PREFILL DOWN PAYMENTS
+          // PREFILL DOWN PAYMENTS - FIXED: using paidAmount
           if (user.downPayment && user.downPayment.length > 0) {
             setDownPayments(
               user.downPayment.map((dp) => ({
@@ -251,6 +264,7 @@ const SuperAdminMemberEdit = () => {
                   : "",
                 remarks: dp.remarks || "",
                 docPath: null,
+                // existingDocPath: dp.docPath || null, // Store existing document URL
               }))
             );
           }
@@ -278,9 +292,11 @@ const SuperAdminMemberEdit = () => {
         paymentType: "",
         amount: "",
         payid: "",
+        paidAmount: "",
         transactionDate: "",
         remarks: "",
         docPath: null,
+        existingDocPath: null,
       },
     ]);
   };
@@ -335,13 +351,35 @@ const SuperAdminMemberEdit = () => {
   };
 
   const addKyc = () => {
-    setKycDetails([...kycDetails, { kycType: "", kycNo: "", docPath: null }]);
+    setKycDetails([
+      ...kycDetails,
+      { kycType: "", kycNo: "", docPath: null, existingDocPath: null },
+    ]);
   };
 
   const removeKyc = (index) => {
     if (kycDetails.length === 1)
       return message.warning("At least one entry is required!");
     setKycDetails(kycDetails.filter((_, i) => i !== index));
+  };
+
+  // Helper function to view/download document
+  const handleViewDocument = (docPath) => {
+    if (!docPath) {
+      message.warning("No document available");
+      return;
+    }
+
+    // If docPath is a full URL, open it directly
+    if (docPath.startsWith("http://") || docPath.startsWith("https://")) {
+      window.open(docPath, "_blank");
+    } else {
+      // If it's a relative path, construct the full URL
+      // Replace 'YOUR_BASE_URL' with your actual API base URL
+      const baseUrl =
+        process.env.REACT_APP_API_BASE_URL || "http://your-api-url.com";
+      window.open(`${baseUrl}/${docPath}`, "_blank");
+    }
   };
 
   const handleSubmit = async () => {
@@ -453,12 +491,9 @@ const SuperAdminMemberEdit = () => {
         }
       });
 
-      // Add call file - always include field to prevent null pointer exception
+      // Add call file
       if (callFile) {
         formData.append("callFile", callFile);
-      } else {
-        // Send empty blob to satisfy backend requirement
-        formData.append("callFile", new Blob(), "");
       }
 
       console.log("Submitting FormData:");
@@ -512,6 +547,50 @@ const SuperAdminMemberEdit = () => {
       </Container>
     );
   }
+
+  const handleDeleteDownPayment = async (index, paymentId) => {
+    // If the payment doesn't have an ID, it's not saved yet - just remove from state
+    if (!paymentId) {
+      removeDownPayment(index);
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this down payment deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await deleteDownPayment(paymentId);
+
+        if (response?.data?.success) {
+          message.success("Down payment deleted successfully!");
+          // Remove from state
+          removeDownPayment(index);
+          // Optionally refresh data to get updated list
+          await fetchUserData();
+        } else {
+          message.error(
+            response?.data?.msg || "Failed to delete down payment."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting down payment:", error);
+      message.error(
+        error.response?.data?.msg ||
+          error.message ||
+          "Failed to delete down payment."
+      );
+    }
+  };
 
   return (
     <Fragment>
@@ -605,6 +684,7 @@ const SuperAdminMemberEdit = () => {
                   value={selectedState}
                   onChange={handleStateChange}
                   options={states}
+                  disabled={!selectedCountry}
                   showSearch
                   filterOption={(input, option) =>
                     option.label.toLowerCase().includes(input.toLowerCase())
@@ -661,57 +741,44 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Reporting Manager
-                  </label>
-                  <Select
-                    placeholder="Select Reporting Manager"
-                    value={memberDetails.reportingManagerId}
-                    onChange={(v) =>
-                      handleMemberChange("reportingManagerId", v)
-                    }
-                    options={managers}
-                    showSearch
-                    filterOption={(input, option) =>
-                      option.label.toLowerCase().includes(input.toLowerCase())
-                    }
-                    className="w-full"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMemberModalOpen(true)}
-                  className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/80 transition"
-                >
-                  <PlusOutlined className="text-xs" />
-                </button>
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Reporting Manager
+                </label>
+                <Select
+                  placeholder="Select Reporting Manager"
+                  value={memberDetails.reportingManagerId}
+                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
+                  options={managers}
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                  className="w-full"
+                />
               </div>
             </div>
           </section>
 
           {/* Down Payment Details */}
           <section className="border rounded-md">
-            <div className="flex justify-between items-center bg-gray-100 px-3 py-2 font-semibold text-gray-700 border-b">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Down Payment Details</span>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                className="bg-primary hover:bg-blue-500"
+                className="bg-primary p-4 hover:bg-blue-500"
                 size="small"
                 onClick={addDownPayment}
               >
                 Add New
               </Button>
             </div>
-
-            <div className="p-3 space-y-3">
+            <div className="p-4 space-y-3">
               {downPayments.map((row, index) => (
-                <div key={index} className="flex flex-wrap gap-2 items-end">
-                  {/* Payment Type */}
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                <div key={index} className="grid grid-cols-7 gap-3 items-end">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Payment Type
                     </label>
                     <Select
@@ -726,24 +793,23 @@ const SuperAdminMemberEdit = () => {
                         { label: "Other", value: "other" },
                       ]}
                       placeholder="Select type"
-                      className="w-full text-xs"
+                      className="w-full"
                     />
                   </div>
 
-                  {/* Amount (small width) */}
-                  <div className="w-20">
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Amount
                     </label>
                     <Input
                       value={row.amount}
+                      onChange={(e) =>
+                        handleDownPaymentChange(index, "amount", e.target.value)
+                      }
+                      placeholder="Enter amount"
                       type="number"
-                      disabled
-                      className="text-xs"
                     />
                   </div>
-
-                  {/* Paid Amount */}
                   <div className="flex-1 min-w-[80px]">
                     <label className="block mb-1 text-xs font-medium text-gray-700">
                       Paid Amount
@@ -762,10 +828,8 @@ const SuperAdminMemberEdit = () => {
                       className="text-xs"
                     />
                   </div>
-
-                  {/* Payment ID */}
-                  <div className="flex-1 min-w-[100px]">
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Payment ID
                     </label>
                     <Input
@@ -773,14 +837,12 @@ const SuperAdminMemberEdit = () => {
                       onChange={(e) =>
                         handleDownPaymentChange(index, "payid", e.target.value)
                       }
-                      placeholder="Enter ID"
-                      className="text-xs"
+                      placeholder="Enter payment ID"
                     />
                   </div>
 
-                  {/* Transaction Date */}
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Transaction Date
                     </label>
                     <Input
@@ -793,17 +855,15 @@ const SuperAdminMemberEdit = () => {
                           e.target.value
                         )
                       }
-                      className="text-xs"
                     />
                   </div>
 
-                  {/* Remarks */}
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Remarks
                     </label>
                     <Input
-                      placeholder="Remarks"
+                      placeholder="Enter remarks"
                       value={row.remarks}
                       onChange={(e) =>
                         handleDownPaymentChange(
@@ -812,30 +872,44 @@ const SuperAdminMemberEdit = () => {
                           e.target.value
                         )
                       }
-                      className="text-xs"
                     />
                   </div>
 
-                  {/* Upload + Delete inline */}
-                  <div className="flex items-center gap-2 min-w-[140px]">
-                    <div className="flex-1">
-                      <label className="block mb-1 text-xs font-medium text-gray-700">
-                        Upload
-                      </label>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Upload Document
+                    </label>
+                    <div className="flex gap-2">
                       <Input
                         type="file"
                         onChange={(e) =>
                           handleDownPaymentFile(index, e.target.files[0])
                         }
-                        className="text-xs"
+                        className="flex-1"
                       />
+                      {row.existingDocPath && (
+                        <Button
+                          type="default"
+                          size="small"
+                          onClick={() =>
+                            handleViewDocument(row.existingDocPath)
+                          }
+                          className="whitespace-nowrap"
+                        >
+                          View Doc
+                        </Button>
+                      )}
                     </div>
+                  </div>
+
+                  <div>
                     <Button
                       icon={<DeleteOutlined />}
                       danger
-                      onClick={() => removeDownPayment(index)}
+                      onClick={() => handleDeleteDownPayment(index, row.id)}
                       size="small"
                       className="mt-6"
+                      title={row.id ? "Delete from database" : "Remove entry"}
                     />
                   </div>
                 </div>
@@ -895,10 +969,27 @@ const SuperAdminMemberEdit = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Upload Document
                     </label>
-                    <Input
-                      type="file"
-                      onChange={(e) => handleKycFile(index, e.target.files[0])}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        onChange={(e) =>
+                          handleKycFile(index, e.target.files[0])
+                        }
+                        className="flex-1"
+                      />
+                      {kyc.existingDocPath && (
+                        <Button
+                          type="default"
+                          size="small"
+                          onClick={() =>
+                            handleViewDocument(kyc.existingDocPath)
+                          }
+                          className="whitespace-nowrap"
+                        >
+                          View Doc
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div>
@@ -914,7 +1005,7 @@ const SuperAdminMemberEdit = () => {
             </div>
             <div className="p-4 border-t">
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Import Call File (Optional)
+                Import Call File
               </label>
               <Input
                 type="file"
@@ -936,12 +1027,6 @@ const SuperAdminMemberEdit = () => {
             <Button onClick={() => navigate(-1)}>Cancel</Button>
           </div>
         </div>
-        <AddMember
-          isModalOpen={isMemberModalOpen}
-          setIsModalOpen={setIsMemberModalOpen}
-          refreshData={fetchUserData} // refresh after adding a manager
-          selectedMember={null} // optional, if adding new member
-        />
       </Container>
     </Fragment>
   );

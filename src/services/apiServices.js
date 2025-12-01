@@ -1016,3 +1016,18 @@ export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => 
 export const DeleteRawMaterialItem = (Id) => {
   return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);
 };
+export const GetSuperalladmininvoice = () => {
+  return GET(`/invoice-operations/getAllAdminInvoice`);
+};
+
+export const GetAdminInvoiceById = (id) => {
+  return GET(`/invoice-operations/getadmininvoicebyid?id=${id}`);
+};
+
+export const deleteMenuItemRawMaterial = (id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${id}`);
+};
+
+export const deleteDownPayment = (id) => {
+  return DELETE(`/user/deleteuserdownpaymentbyid?id=${id}`);
+};

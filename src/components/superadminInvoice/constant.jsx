@@ -35,18 +35,27 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    header: "Action",
+    accessorKey: "action",
     cell: ({ row }) => {
+      const id = row.original?.id;
+
       return (
-        <div className="flex items-center gap-2">
-          <Tooltip title="View">
-            <Link to={""}>
-              <button
-                className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-                title="View"
-              >
+        <div className="flex gap-2">
+          {/* View Button */}
+          <Tooltip title="View Invoice">
+            <Link to={`/super/invoice-preview/${id}`}>
+              <button className="btn btn-sm btn-icon text-primary">
                 <i className="ki-filled ki-eye text-purple-700"></i>
+              </button>
+            </Link>
+          </Tooltip>
+
+          {/* Edit Button (opens Add Invoice with invoice id) */}
+          <Tooltip title="Edit Invoice">
+            <Link to={`/addInvoice?id=${id}`}>
+              <button className="btn btn-sm btn-icon text-success">
+                <i className="ki-filled ki-pencil text-green-600"></i>
               </button>
             </Link>
           </Tooltip>
@@ -56,12 +65,4 @@ export const columns = [
   },
 ];
 
-export const defaultData = [
-  {
-    Invoice: "INV-0001",
-    CustomerName: "John ",
-    plan: "E-lite",
-    Amount: "₹ 35000",
-    BalanceDue: "₹ 35000",
-  },
-];
+export const defaultData = [];

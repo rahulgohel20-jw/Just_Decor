@@ -4,7 +4,13 @@ import { GetSuplier } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 
-const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
+const AddSupplier = ({
+  isOpen,
+  onClose,
+  onAddSupplier,
+  supplierData,
+  onReopenSupplier,
+}) => {
   const [formData, setFormData] = useState({
     suplierlistid: "",
   });
@@ -131,7 +137,10 @@ const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
                 {/* Open Vendor Modal */}
                 <button
                   type="button"
-                  onClick={() => setIsVendorModalOpen(true)}
+                  onClick={() => {
+                    setIsVendorModalOpen(true);
+                    onClose(false); // hide supplier modal
+                  }}
                   className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
                   title="Add Vendor"
                 >
@@ -147,7 +156,15 @@ const AddSupplier = ({ isOpen, onClose, onAddSupplier, supplierData }) => {
       {/* AddVendor Modal */}
       <AddVendor
         isModalOpen={isVendorModalOpen}
-        setIsModalOpen={setIsVendorModalOpen}
+        setIsModalOpen={(val) => {
+          setIsVendorModalOpen(val);
+
+          if (!val) {
+            // Vendor modal is closed → reopen supplier
+            onClose(true);
+            FetchSuplier();
+          }
+        }}
         refreshData={FetchSuplier}
       />
     </>
