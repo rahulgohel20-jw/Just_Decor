@@ -14,8 +14,57 @@ html,
   font-family: Inter, system-ui, sans-serif !important;
 }
 
+/* Parent wrapper rounded border */
+.allocation-inner-tabs .ant-tabs-nav {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 4px;
+  background: #ffffff;
+}
+
+/* Inactive tab */
+.allocation-inner-tabs .ant-tabs-tab {
+  margin: 0 !important;
+  border-radius: 8px !important;
+  padding: 0;
+}
+
+/* Inactive tab text */
+.allocation-inner-tabs .ant-tabs-tab-btn {
+  display: block;
+  padding: 8px 24px;
+  font-size: 14px;
+  color: #000 !important;
+  font-weight: 500;
+}
+
+/* Remove blue underline */
+.allocation-inner-tabs .ant-tabs-ink-bar {
+  display: none !important;
+}
+
+/* ACTIVE TAB background + text */
+.allocation-inner-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  background: #005ba8 !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+}
+
 .font-14 {
   font-size: 14px !important;
+}
+
+.custom-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #005ba8 !important;
+  font-weight: 700;
+  font-size: larger;
+}
+
+.custom-tabs .ant-tabs-ink-bar {
+  background: #005ba8 !important;
+}
+.allocation-inner-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ffffff !important;
 }
 
 .dnd-active .cursor-grab {

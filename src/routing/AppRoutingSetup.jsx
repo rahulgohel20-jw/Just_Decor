@@ -192,7 +192,7 @@ import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type"
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
-
+import MenuItemMaster from "../pages/master/MenuItemMaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -220,6 +220,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/all-members" element={<MemberList />} />
           <Route path="/database" element={<Database />} />
+          <Route path="/master/menu-items" element={<MenuItemMaster />} />
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
           <Route

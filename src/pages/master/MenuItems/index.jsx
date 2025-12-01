@@ -13,10 +13,12 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Form, Spin } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
+  const navigate = useNavigate();
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -218,8 +220,9 @@ const MenuItems = () => {
             <button
               className="btn btn-primary"
               onClick={() => {
-                setSelectedMenuItem(null);
-                setIsItemModalOpen(true);
+                navigate("/master/menu-items");
+                // setSelectedMenuItem(null);
+                // setIsItemModalOpen(true);
               }}
               title={intl.formatMessage({
                 id: "MASTER.ADD_MENU_ITEM",
