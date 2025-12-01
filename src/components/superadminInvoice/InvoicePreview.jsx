@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "antd";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import { useParams } from "react-router-dom";
 import {
   EditOutlined,
   ShareAltOutlined,
@@ -8,11 +9,11 @@ import {
   PrinterOutlined,
   DollarCircleOutlined,
 } from "@ant-design/icons";
-import InvoiceList from "@/components/InvoiceTable/InvoiceList";
 import InvoiceDetail from "./InvoiceDetail";
 import { FormattedMessage } from "react-intl";
 
 export default function InvoicePreview() {
+  const { id } = useParams();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   return (
@@ -28,13 +29,15 @@ export default function InvoicePreview() {
           ]}
         />
       </div>
-      <div className="p-4 flex">
-        <InvoiceList onSelectInvoice={setSelectedInvoice} />
 
+      <div className="p-4 flex">
+        {/* Invoice List */}
+
+        {/* Invoice Detail */}
         <div className="p-4 flex flex-col gap-4 items-center w-full">
           <div className="flex items-center justify-between gap-2 w-full">
             <span className="text-lg font-bold text-primary">
-              {selectedInvoice?.invoiceCode || "INV – 0001"}
+              {selectedInvoice?.invoiceCode || id || "INV – 0001"}
             </span>
           </div>
 
@@ -83,10 +86,16 @@ export default function InvoicePreview() {
 
           <div className="border border-dashed mb-4 border-[#0000001A] w-full mt-4"></div>
 
-          <div>
-            <div>
-              <InvoiceDetail invoice={selectedInvoice} mode="preview" />
-            </div>
+          <div className="w-full">
+            {selectedInvoice || id ? (
+              <InvoiceDetail
+                invoiceId={id}
+                invoice={selectedInvoice}
+                mode={selectedInvoice ? "preview" : "view"}
+              />
+            ) : (
+              <p className="text-gray-400">Select an invoice to preview</p>
+            )}
           </div>
         </div>
       </div>

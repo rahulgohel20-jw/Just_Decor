@@ -70,6 +70,7 @@ const SuperadminInvoice = () => {
         [];
 
       const invoiceList = list.map((item) => ({
+        id: item.id, // <-- required for preview routing
         Invoice: `INV-${String(item.id).padStart(4, "0")}`,
         CustomerName: item.userName || "-",
         plan: item.planName || "-",

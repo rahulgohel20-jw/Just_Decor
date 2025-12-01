@@ -1020,9 +1020,10 @@ export const GetSuperalladmininvoice = () => {
   return GET(`/invoice-operations/getAllAdminInvoice`);
 };
 
-export const GetAdminInvoiceById  = (id) => {
-  return GET(`/invoice-operations/getAdminInvoiceById?id=${id}`);
-}
+export const GetAdminInvoiceById = (id) => {
+  return GET(`/invoice-operations/getadmininvoicebyid?id=${id}`);
+};
+
 export const deleteMenuItemRawMaterial = (id) => {
   return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${id}`);
 };

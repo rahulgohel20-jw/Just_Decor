@@ -238,7 +238,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/menu-preparation" element={<EventPlanningPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
-          <Route path="/super/invoice-preview" element={<InvoicePreview />} />
+          <Route
+            path="/super/invoice-preview/:id"
+            element={<InvoicePreview />}
+          />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
