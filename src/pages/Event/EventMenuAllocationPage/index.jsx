@@ -9,7 +9,9 @@ import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import SummaryItemModalchefoutside from "../../../components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
+import SummaryItemModalchefoutside from "@/components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
+import SummaryItemModalOutsideAgency from "@/components/sidebarOutSideAgency/SummaryItemModalOutSideAgency";
+import SummaryItemModalInHousecook from "@/components/sidebarmodalinhousecook/SummaryItemModalInHousecook";
 import {
   GetEventMasterById,
   GetMenuAllocation,
@@ -321,6 +323,9 @@ const EventMenuAllocationPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
+    useState(false);
+  const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
 
   const intl = useIntl();
 
@@ -959,9 +964,16 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
-  // Change this function name from openSelectMenureport to openSummaryItemModalchefoutside
   const openSummaryItemModalchefoutside = () => {
     setIsModalOpen(true);
+  };
+
+  const openSummaryItemModalOustsideAgency = () => {
+    setIsOutsideAgencyModalOpen(true);
+  };
+
+  const openSummaryItemModalInHouseCook = () => {
+    setIsInHouseCookModalOpen(true);
   };
   return (
     <Fragment>
@@ -1195,7 +1207,7 @@ const EventMenuAllocationPage = () => {
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalchefoutside}
+                    onClick={openSummaryItemModalOustsideAgency}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Outside Agency"
                   >
@@ -1205,7 +1217,7 @@ const EventMenuAllocationPage = () => {
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalchefoutside}
+                    onClick={openSummaryItemModalInHouseCook}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="In House Cook"
                   >
@@ -1319,6 +1331,14 @@ const EventMenuAllocationPage = () => {
         <SummaryItemModalchefoutside
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+        />
+        <SummaryItemModalOutsideAgency
+          open={isOutsideAgencyModalOpen}
+          onClose={() => setIsOutsideAgencyModalOpen(false)}
+        />
+        <SummaryItemModalInHousecook
+          open={isInHouseCookModalOpen}
+          onClose={() => setIsInHouseCookModalOpen(false)}
         />
       </Container>
     </Fragment>

@@ -1031,3 +1031,19 @@ export const deleteMenuItemRawMaterial = (id) => {
 export const deleteDownPayment = (id) => {
   return DELETE(`/user/deleteuserdownpaymentbyid?id=${id}`);
 };
+
+export const Addtemplate = (data) => {
+  return POST(`/templatemodulemaster/add`, data);
+}
+
+export const GettemplatebyuserId  = () => {
+  return GET(`templatemodulemaster/getall`);
+}
+
+export const Deletetemplatebyid = (id) => {
+  return DELETE(`/templatemodulemaster/deletebyid?id=${id}`);
+}
+
+export const Edittemplatebyid = (id, data) => {
+  return PUT(`/templatemodulemaster/update?id=${id}`, data);
+}

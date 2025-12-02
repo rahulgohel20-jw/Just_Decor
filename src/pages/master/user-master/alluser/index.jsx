@@ -32,7 +32,7 @@ const AllUser = () => {
         city: user.userBasicDetails?.city?.name || "-",
         contactNo: user.contactNo,
         companyName: user.userBasicDetails?.companyName || "-",
-        plan: user.plan?.name || "-",
+        plan: user.userPlan?.plan?.name || "-",
         isActive: user.isActive,
         isApprove: user.isApprove,
         createdAt: user.createdAt,
@@ -89,7 +89,7 @@ const AllUser = () => {
     setEditingUserId(user);
     setIsModalOpen(true);
   };
-  
+
   const handleApprove = async (userId) => {
     try {
       setLoading(true);

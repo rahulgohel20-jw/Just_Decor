@@ -13,7 +13,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-export default function SummaryItemModalchefoutside({ open, onClose }) {
+export default function SummaryItemModalOutsideAgency({ open, onClose }) {
   const [activeTab, setActiveTab] = useState("dinner");
   const [showItems, setShowItems] = useState(false);
 
@@ -90,7 +90,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
               <div className="bg-white border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Summary Item - Chef Outside
+                    Summary Item - Outside Agency
                   </h2>
                   <button
                     onClick={onClose}
@@ -149,7 +149,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                   {/* Summary Card */}
                   <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
                     {/* Header Row */}
-                    <div className="grid grid-cols-6 gap-12 mb-3 pb-2 border-b border-gray-300">
+                    <div className="grid grid-cols-7 gap-12 mb-3 pb-2 border-b border-gray-300">
                       <div className="text-sm font-semibold text-gray-700 ps-3">
                         #
                       </div>
@@ -163,6 +163,10 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                         Quantity
                       </div>
                       <div className="text-sm font-semibold text-gray-700">
+                        {" "}
+                        Unit
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700">
                         Total Price
                       </div>
                       <div className="text-sm font-semibold text-gray-700">
@@ -171,7 +175,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                     </div>
 
                     {/* Data Row */}
-                    <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
+                    <div className="grid grid-cols-7 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
                       <div className="text-sm text-gray-800">1</div>
                       <div className="text-sm font-medium text-gray-900">
                         {summaryData.contactName}
@@ -185,9 +189,13 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                           {summaryData.unit}
                         </span>
                       </div>
+                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-3">
+                        gram
+                      </div>
                       <div className="text-sm font-semibold text-gray-900 flex justify-start ps-6">
                         {summaryData.totalPrice}
                       </div>
+
                       <div
                         className={`flex justify-start gap-5 p-2 rounded-md transition-all duration-300 
                          `}

@@ -192,6 +192,7 @@ import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type"
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
+import TemplateName from "../pages/super-admin/master/template-name";
 
 const AppRoutingSetup = () => {
   return (
@@ -346,6 +347,10 @@ const AppRoutingSetup = () => {
             element={<SuperRawMaterialType />}
           />
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
+          <Route
+            path="/super-template-name-master"
+            element={<TemplateName />}
+          />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"
