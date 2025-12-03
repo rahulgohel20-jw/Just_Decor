@@ -113,11 +113,10 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                 </div>
               </div>
 
-              {/* Content */}
               <div className="overflow-y-hidden max-h-[calc(90vh-80px)]">
                 <div className="p-6">
                   <div className="flex items-center gap-6 ">
-                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mb-8">
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
                       Dinnerrrr
                     </button>
 
@@ -137,19 +136,10 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                         />
                       </div>
                     </div>
-
-                    <button className="btn btn-sm btn-primary w-[120px] flex justify-center mb-8">
-                      <FormattedMessage
-                        id="SIDEBAR_MODAL.CHEF_LABOUR"
-                        defaultMessage="Chef Labour"
-                      />
-                    </button>
                   </div>
 
-                  {/* Summary Card */}
                   <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    {/* Header Row */}
-                    <div className="grid grid-cols-5 gap-12 mb-3 pb-2 border-b border-gray-300">
+                    <div className="grid grid-cols-6 gap-12 mb-3 pb-2 border-b border-gray-300">
                       <div className="text-sm font-semibold text-gray-700 ps-3">
                         #
                       </div>
@@ -160,6 +150,9 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                         Number
                       </div>
                       <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
+                        person
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
                         Remark
                       </div>
                       <div className="text-sm font-semibold text-gray-700">
@@ -167,14 +160,16 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                       </div>
                     </div>
 
-                    {/* Data Row */}
-                    <div className="grid grid-cols-5 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
+                    <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
                       <div className="text-sm text-gray-800">1</div>
                       <div className="text-sm font-medium text-gray-900">
                         {summaryData.contactName}
                       </div>
                       <div className="text-sm text-gray-800 flex justify-start ps-2 ">
                         1234567890
+                      </div>
+                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
+                        100
                       </div>
                       <div className="text-sm text-gray-800 flex justify-start ps-8 ">
                         remarks
@@ -192,7 +187,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                           </button>
 
                           <button
-                            className="p-1.5 text-white transition-colors flex items-center justify-center"
+                            className="p-1.1 text-white transition-colors flex items-center justify-center"
                             title="Download PDF"
                           >
                             <img
@@ -232,7 +227,6 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                           exit={{ opacity: 0, height: 0 }}
                           className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
                         >
-                          {/* Table Header */}
                           <div className="grid grid-cols-6 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
                             <div className="text-sm font-semibold text-gray-700">
                               #
@@ -245,7 +239,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                               Person
                             </div>
                             <div className="text-sm font-semibold text-gray-700">
-                              Place
+                              Quantity
                             </div>
                             <div className="text-sm font-semibold text-gray-700">
                               Notes
@@ -256,8 +250,8 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                               maxHeight:
                                 summaryData.items.length > 3 ? "150px" : "auto",
                               overflowY: "auto",
-                              scrollbarWidth: "none", // Firefox
-                              msOverflowStyle: "none", // IE/Edge
+                              scrollbarWidth: "none",
+                              msOverflowStyle: "none",
                             }}
                             className="scroll-hidden"
                           >
@@ -279,8 +273,8 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                                 <div className="text-sm text-gray-700 flex justify-start ps-2">
                                   {item.person}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start ">
-                                  {item.place}
+                                <div className="text-sm text-gray-700 flex justify-start">
+                                  200
                                 </div>
                                 <div className="text-sm text-gray-700">
                                   Notes

@@ -30,7 +30,6 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
     contactName: "AMZAD KHAN",
     price: 1000,
     quantity: 12,
-    unit: "Kilogram",
     totalPrice: "12000 INR",
     date: "27/11/2025 08:00 pm",
     items: [
@@ -113,11 +112,10 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                 </div>
               </div>
 
-              {/* Content */}
               <div className="overflow-y-hidden max-h-[calc(90vh-80px)]">
                 <div className="p-6">
                   <div className="flex items-center gap-6 ">
-                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mb-10">
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
                       Dinner
                     </button>
 
@@ -137,19 +135,10 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                         />
                       </div>
                     </div>
-
-                    <button className="btn btn-sm btn-primary w-[120px] flex justify-center mb-10">
-                      <FormattedMessage
-                        id="SIDEBAR_MODAL.CHEF_LABOUR"
-                        defaultMessage="Chef Labour"
-                      />
-                    </button>
                   </div>
 
-                  {/* Summary Card */}
                   <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    {/* Header Row */}
-                    <div className="grid grid-cols-7 gap-12 mb-3 pb-2 border-b border-gray-300">
+                    <div className="grid grid-cols-8 gap-12 mb-3 pb-2 border-b border-gray-300">
                       <div className="text-sm font-semibold text-gray-700 ps-3">
                         #
                       </div>
@@ -157,14 +146,16 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                         Contact Name
                       </div>
                       <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3  ">
-                        Price
+                        Person
                       </div>
                       <div className="text-sm font-semibold text-gray-700">
                         Quantity
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
-                        {" "}
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
                         Unit
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-7  ">
+                        Price
                       </div>
                       <div className="text-sm font-semibold text-gray-700">
                         Total Price
@@ -174,8 +165,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                       </div>
                     </div>
 
-                    {/* Data Row */}
-                    <div className="grid grid-cols-7 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
+                    <div className="grid grid-cols-8 mt-3 gap-4 items-center bg-white p-3 rounded-lg shadow-sm">
                       <div className="text-sm text-gray-800">1</div>
                       <div className="text-sm font-medium text-gray-900">
                         {summaryData.contactName}
@@ -183,16 +173,20 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                       <div className="text-sm text-gray-800 flex justify-start ps-5 ">
                         {summaryData.price}
                       </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-3 ">
+                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
                         {summaryData.quantity}{" "}
                         <span className="text-gray-500">
                           {summaryData.unit}
                         </span>
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-3">
+                      <div className="text-sm text-gray-800 flex justify-start ps-7 ">
                         gram
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-6">
+                      <div className="text-sm text-gray-800 flex justify-center ps-5 ">
+                        {summaryData.price}
+                      </div>
+
+                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-8">
                         {summaryData.totalPrice}
                       </div>
 
@@ -209,7 +203,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                           </button>
 
                           <button
-                            className="p-1.5 text-white transition-colors flex items-center justify-center"
+                            className="p-1.1 text-white transition-colors flex items-center justify-center"
                             title="Download PDF"
                           >
                             <img
@@ -250,7 +244,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                           className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
                         >
                           {/* Table Header */}
-                          <div className="grid grid-cols-6 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
+                          <div className="grid grid-cols-5 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
                             <div className="text-sm font-semibold text-gray-700">
                               #
                             </div>
@@ -261,9 +255,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                             <div className="text-sm font-semibold text-gray-700">
                               Person
                             </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              Place
-                            </div>
+
                             <div className="text-sm font-semibold text-gray-700">
                               Notes
                             </div>
@@ -285,7 +277,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-6 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                className="grid grid-cols-5 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                               >
                                 <div className="text-sm text-gray-700">
                                   {item.id}
@@ -296,9 +288,7 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                                 <div className="text-sm text-gray-700 flex justify-start ps-2">
                                   {item.person}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start ">
-                                  {item.place}
-                                </div>
+
                                 <div className="text-sm text-gray-700">
                                   Notes
                                 </div>

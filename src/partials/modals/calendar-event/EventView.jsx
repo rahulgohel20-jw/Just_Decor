@@ -417,6 +417,22 @@ const EventViewModal = ({
                     },
                   }),
               },
+              {
+                label: (
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_INVOICE"
+                    defaultMessage="Expense"
+                  />
+                ),
+                icon: "/media/eventviewicon/expense.png",
+                onClick: () =>
+                  navigate("/expense-management", {
+                    state: {
+                      eventId: safeEventId,
+                      eventTypeId: eventTypeId,
+                    },
+                  }),
+              },
             ].map((item, idx) => (
               <div
                 key={idx}

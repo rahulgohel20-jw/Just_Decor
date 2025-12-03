@@ -193,6 +193,7 @@ import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
 import TemplateName from "../pages/super-admin/master/template-name";
+import ExpenseMainPage from "../pages/Event/ExpensePage";
 
 const AppRoutingSetup = () => {
   return (
@@ -271,6 +272,7 @@ const AppRoutingSetup = () => {
             path="/labour-and-other-management/:eventId"
             element={<LabourOtherManagementPage mode="labour" />}
           />
+          <Route path="/expense-management" element={<ExpenseMainPage />} />
           <Route
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}

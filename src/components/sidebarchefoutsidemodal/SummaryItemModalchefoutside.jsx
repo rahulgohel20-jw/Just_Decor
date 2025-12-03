@@ -30,7 +30,6 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
     contactName: "AMZAD KHAN",
     price: 1000,
     quantity: 12,
-    unit: "Kilogram",
     totalPrice: "12000 INR",
     date: "27/11/2025 08:00 pm",
     items: [
@@ -90,7 +89,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
               <div className="bg-white border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Summary Item - Chef Outside
+                    Summary Item - Chef Labour
                   </h2>
                   <button
                     onClick={onClose}
@@ -113,11 +112,10 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                 </div>
               </div>
 
-              {/* Content */}
               <div className="overflow-y-hidden max-h-[calc(90vh-80px)]">
                 <div className="p-6">
                   <div className="flex items-center gap-6 ">
-                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mb-10">
+                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
                       Dinner
                     </button>
 
@@ -137,102 +135,146 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                         />
                       </div>
                     </div>
-
-                    <button className="btn btn-sm btn-primary w-[120px] flex justify-center mb-10">
-                      <FormattedMessage
-                        id="SIDEBAR_MODAL.CHEF_LABOUR"
-                        defaultMessage="Chef Labour"
-                      />
-                    </button>
                   </div>
 
-                  {/* Summary Card */}
                   <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    {/* Header Row */}
-                    <div className="grid grid-cols-6 gap-12 mb-3 pb-2 border-b border-gray-300">
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
+                    <div
+                      className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] 
+  mt-3 items-center"
+                    >
+                      {/* # */}
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         #
                       </div>
-                      <div className="text-sm font-semibold text-gray-700 ">
+
+                      {/* Contact Name */}
+                      <div className="text-sm font-semibold text-gray-700 ps-3">
                         Contact Name
                       </div>
-                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3  ">
-                        Price
+
+                      {/* Type */}
+                      <div className="text-sm font-semibold text-gray-700 ps-3">
+                        Type
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
-                        Quantity
+
+                      {/* Quantity */}
+                      <div className="flex flex-col items-center">
+                        <span className="text-sm font-semibold text-gray-700">
+                          Quantity
+                        </span>
+
+                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                          <span>Counter</span>
+                          <span>Helper</span>
+                        </div>
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
+
+                      {/* Price */}
+                      <div className="flex flex-col items-center">
+                        <span className="text-sm font-semibold text-gray-700">
+                          Price
+                        </span>
+
+                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                          <span>Counter</span>
+                          <span>Helper</span>
+                        </div>
+                      </div>
+
+                      {/* Person */}
+                      <div className="text-sm font-semibold text-gray-700 text-center">
+                        Person
+                      </div>
+
+                      {/* Total Price */}
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         Total Price
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
+
+                      {/* Action */}
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         Action
                       </div>
                     </div>
 
-                    {/* Data Row */}
-                    <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
-                      <div className="text-sm text-gray-800">1</div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {summaryData.contactName}
+                    <div
+                      className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] 
+             mt-3 items-center bg-white p-3 rounded-lg shadow-sm border"
+                    >
+                      {/* No. */}
+                      <div className="text-sm text-gray-800 text-center flex justify-start ps-1">
+                        1
                       </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-5 ">
-                        {summaryData.price}
-                      </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-3 ">
-                        {summaryData.quantity}{" "}
-                        <span className="text-gray-500">
-                          {summaryData.unit}
-                        </span>
-                      </div>
-                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-6">
-                        {summaryData.totalPrice}
-                      </div>
-                      <div
-                        className={`flex justify-start gap-5 p-2 rounded-md transition-all duration-300 
-                         `}
-                      >
-                        <div className="flex gap-2">
-                          <button
-                            className="p-1.5 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
-                            title="Send via WhatsApp"
-                          >
-                            <WhatsAppIcon />
-                          </button>
 
-                          <button
-                            className="p-1.5 text-white transition-colors flex items-center justify-center"
-                            title="Download PDF"
+                      {/* Contact Name */}
+                      <div className="text-sm font-medium text-gray-900">
+                        {summaryData.contactName || "Select Name"}
+                      </div>
+
+                      {/* Type */}
+                      <div className="text-sm text-gray-800">
+                        {summaryData.type || "Select Options"}
+                      </div>
+
+                      {/* Quantity */}
+                      <div className="flex justify-center space-x-2  gap-9 text-gray-700">
+                        <span>{summaryData.counterQty || 0} </span>
+                        <span>{summaryData.helperQty || 0} </span>
+                      </div>
+
+                      {/* Price */}
+                      <div className="flex justify-center space-x-2 gap-9 text-gray-700">
+                        <span>{summaryData.counterPrice || 0} </span>
+                        <span>{summaryData.helperPrice || 0} </span>
+                      </div>
+
+                      {/* Person */}
+                      <div className="text-gray-700 text-center">
+                        {summaryData.person || 0}
+                      </div>
+
+                      {/* Total Price */}
+                      <div className="text-sm font-semibold text-gray-900 text-center ps-7">
+                        {summaryData.totalPrice || 0}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center justify-center space-x-2">
+                        <button className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white">
+                          <WhatsAppIcon />
+                        </button>
+
+                        <button className="p-2 flex items-center justify-center">
+                          <img
+                            src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
+                            className="w-6 h-6 object-contain"
+                            alt="PDF Icon"
+                          />
+                        </button>
+
+                        <button
+                          onClick={() => setShowItems(!showItems)}
+                          className="text-blue-600 hover:text-gray-600 transition-transform"
+                        >
+                          <motion.svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            animate={{ rotate: showItems ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
                           >
-                            <img
-                              src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
-                              alt="PDF Icon"
-                              className="w-6 h-6 object-contain"
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
                             />
-                          </button>
-                          <button
-                            onClick={() => setShowItems(!showItems)}
-                            className="text-blue-600 hover:text-gray-600 transition-transform"
-                          >
-                            <motion.svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              animate={{ rotate: showItems ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </motion.svg>
-                          </button>
-                        </div>
+                          </motion.svg>
+                        </button>
                       </div>
                     </div>
+
                     <AnimatePresence>
                       {showItems && (
                         <motion.div
@@ -254,7 +296,8 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                               Person
                             </div>
                             <div className="text-sm font-semibold text-gray-700">
-                              Place
+                              {" "}
+                              Quantity
                             </div>
                             <div className="text-sm font-semibold text-gray-700">
                               Notes
@@ -288,9 +331,10 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                                 <div className="text-sm text-gray-700 flex justify-start ps-2">
                                   {item.person}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start ">
-                                  {item.place}
+                                <div className="text-sm text-gray-700 flex justify-start">
+                                  200
                                 </div>
+
                                 <div className="text-sm text-gray-700">
                                   Notes
                                 </div>

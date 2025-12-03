@@ -1199,11 +1199,11 @@ const EventMenuAllocationPage = () => {
                   <button
                     onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
-                    title="Chef Outside"
+                    title="Chef Labour"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="Chef Outside"
+                      defaultMessage="Chef Labour"
                     />
                   </button>
                   <button
