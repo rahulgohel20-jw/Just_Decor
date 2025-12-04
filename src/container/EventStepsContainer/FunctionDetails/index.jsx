@@ -378,29 +378,44 @@ const FunctionsDetails = ({
       sortorder: index + 1,
     }));
   };
+  // Find this function in your FunctionsDetails component (around line 240)
+  // REPLACE the entire handleFunctionSelect function with this:
+
   const handleFunctionSelect = (index, functionId) => {
     const selected = options.find((opt) => opt.value === functionId);
     const updatedArray = [...formData.eventFunction];
     if (!selected) return;
 
     const currentRow = updatedArray[index];
-    if (!currentRow.functionStartDateTime && !currentRow.functionEndDateTime) {
-      const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
-      const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
-      const startTime = dayjs(selected.functionstartTime, "HH:mm");
-      const endTime = dayjs(selected.functionendTime, "HH:mm");
 
-      updatedArray[index].functionStartDateTime = eventStartDate
-        .hour(startTime.hour())
-        .minute(startTime.minute())
-        .format("DD/MM/YYYY hh:mm A");
-      updatedArray[index].functionEndDateTime = eventEndDate
-        .hour(endTime.hour())
-        .minute(endTime.minute())
-        .format("DD/MM/YYYY hh:mm A");
-    }
+    // Always update the times when a function is selected
+    const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
+    const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
+    const startTime = dayjs(selected.functionstartTime, "HH:mm");
+    const endTime = dayjs(selected.functionendTime, "HH:mm");
+
+    // Use existing date if available, otherwise use event date
+    const baseStartDate = currentRow.functionStartDateTime
+      ? dayjs(currentRow.functionStartDateTime, "DD/MM/YYYY hh:mm A")
+      : eventStartDate;
+
+    const baseEndDate = currentRow.functionEndDateTime
+      ? dayjs(currentRow.functionEndDateTime, "DD/MM/YYYY hh:mm A")
+      : eventEndDate;
+
+    // Update with new function times while preserving the date
+    updatedArray[index].functionStartDateTime = baseStartDate
+      .hour(startTime.hour())
+      .minute(startTime.minute())
+      .format("DD/MM/YYYY hh:mm A");
+
+    updatedArray[index].functionEndDateTime = baseEndDate
+      .hour(endTime.hour())
+      .minute(endTime.minute())
+      .format("DD/MM/YYYY hh:mm A");
 
     updatedArray[index].functionId = functionId;
+
     setFormData({
       ...formData,
       eventFunction: sortFunctionsByDateTime(updatedArray),
@@ -673,7 +688,7 @@ const FunctionsDetails = ({
                         <Input
                           className="w-full text-center"
                           value={func.pax}
-                          type="number"
+                          type="text"
                           onChange={(e) =>
                             handleInputChange(index, "pax", e.target.value)
                           }
@@ -691,7 +706,7 @@ const FunctionsDetails = ({
                         <Input
                           className="w-full text-center"
                           value={func.rate}
-                          type="number"
+                          type="text"
                           placeholder="Rate"
                           onChange={(e) =>
                             handleInputChange(index, "rate", e.target.value)

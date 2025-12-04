@@ -54,9 +54,6 @@ const AddContactCategory = ({
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name is required"),
     contcatTypeId: Yup.string().required("Contact Type is required"),
-    sequence: Yup.number()
-      .typeError("Priority must be a number")
-      .required("Priority is required"),
   });
 
   // ✅ Submit handler
@@ -249,6 +246,7 @@ const AddContactCategory = ({
                       id: "USER.MASTER.PRIORITY",
                       defaultMessage: "Priority",
                     })}
+                    required={false}
                   />
                 </div>
 
@@ -291,23 +289,33 @@ const AddContactCategory = ({
   );
 };
 
-const InputWithFormik = ({ label, name, type = "text", placeholder }) => (
+const InputWithFormik = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  required = true,
+}) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">
       {label}
-      <span className="text-red-500">*</span>
+      {required && <span className="text-red-500">*</span>}
     </label>
+
     <Field
       type={type}
       name={name}
       placeholder={placeholder}
       className="border border-gray-300 rounded-lg p-2 w-full"
     />
-    <ErrorMessage
-      name={name}
-      component="div"
-      className="text-red-500 text-sm mt-1"
-    />
+
+    {required && (
+      <ErrorMessage
+        name={name}
+        component="div"
+        className="text-red-500 text-sm mt-1"
+      />
+    )}
   </div>
 );
 

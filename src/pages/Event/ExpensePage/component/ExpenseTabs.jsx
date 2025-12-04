@@ -1,22 +1,29 @@
 // ExpenseTabs.jsx
 export default function ExpenseTabs({ activeTab, setActiveTab }) {
-  const tabs = ["supplier", "customer", "manager"];
+  const tabs = ["manager", "supplier", "customer"];
 
   return (
-    <div className="flex gap-6 mb-6 border-b border-gray-200">
-      {tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={`pb-3 px-1 font-medium transition-colors ${
-            activeTab === tab
-              ? "text-gray-900 border-b-2 border-gray-900"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          {tab.charAt(0).toUpperCase() + tab.slice(1)}
-        </button>
-      ))}
+    <div className="bg-gradient-to-br to-slate-100 pb-3">
+      <div className="max-w-1xl mx-auto">
+        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl w-fit">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`
+                px-5 py-2 rounded-xl text-[15px] transition-all duration-200
+                ${
+                  activeTab === tab
+                    ? "bg-white font-semibold text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }
+              `}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

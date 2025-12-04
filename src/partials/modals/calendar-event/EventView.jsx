@@ -424,7 +424,7 @@ const EventViewModal = ({
                     defaultMessage="Expense"
                   />
                 ),
-                icon: "/media/eventviewicon/expense.png",
+                icon: "/media/eventviewicon/icon.png",
                 onClick: () =>
                   navigate("/expense-management", {
                     state: {

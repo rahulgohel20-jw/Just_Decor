@@ -33,7 +33,6 @@ export default function AddNewManagerModal({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[200]">
-          {/* Background Overlay */}
           <motion.div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
@@ -42,9 +41,7 @@ export default function AddNewManagerModal({ open, onClose }) {
             onClick={onClose}
           />
 
-          {/* Centered Wrapper */}
           <div className="absolute inset-0 pointer-events-none flex items-center justify-end p-4">
-            {/* Sliding Panel */}
             <motion.div
               className="pointer-events-auto w-[900px] max-w-[95vw] h-[90vh] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
               initial={{ x: "110%" }}
@@ -52,7 +49,6 @@ export default function AddNewManagerModal({ open, onClose }) {
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 220, damping: 28 }}
             >
-              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
                   Add New Manager
@@ -77,11 +73,9 @@ export default function AddNewManagerModal({ open, onClose }) {
                 </button>
               </div>
 
-              {/* Body */}
               <div className="overflow-y-auto p-6 space-y-6">
-                {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-6">
-                  <div>
+                  <div className="relative">
                     <label className="text-sm font-medium text-gray-600">
                       Manager Name
                     </label>
@@ -89,15 +83,27 @@ export default function AddNewManagerModal({ open, onClose }) {
                       name="manager"
                       value={form.manager}
                       onChange={handleInput}
-                      className="input mt-1 appearance-none pr-8"
+                      className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select a manager</option>
                       <option value="1">Manager 1</option>
                       <option value="2">Manager 2</option>
                     </select>
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                      ▼
-                    </span>
+
+                    {/* Custom dropdown arrow */}
+                    <svg
+                      className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
 
                   <div>
@@ -161,7 +167,7 @@ export default function AddNewManagerModal({ open, onClose }) {
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <label className="text-sm font-medium text-gray-600">
                       Payment Type
                     </label>
@@ -175,6 +181,19 @@ export default function AddNewManagerModal({ open, onClose }) {
                       <option value="cash">Cash</option>
                       <option value="online">Online</option>
                     </select>
+                    <svg
+                      className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
                 </div>
 
@@ -188,7 +207,7 @@ export default function AddNewManagerModal({ open, onClose }) {
                     value={form.description}
                     onChange={handleInput}
                     placeholder="Add a description..."
-                    className="input mt-1 h-24"
+                    className="mt-1 w-full h-24 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
 
@@ -202,7 +221,7 @@ export default function AddNewManagerModal({ open, onClose }) {
                     value={form.remarks}
                     onChange={handleInput}
                     placeholder="Add any notes here..."
-                    className="input mt-1 h-24 pr-3"
+                    className="mt-1 w-full h-24 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
 

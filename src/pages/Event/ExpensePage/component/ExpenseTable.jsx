@@ -1,7 +1,6 @@
-// ExpenseTable.jsx
-import { Eye } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 
-export default function ExpenseTable({ activeTab, data }) {
+export default function ExpenseTable({ activeTab, data, onAddExpense }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -49,7 +48,7 @@ export default function ExpenseTable({ activeTab, data }) {
           {data.map((expense) => (
             <tr
               key={expense.id}
-              className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              className="border-b border-gray-100 bg-[#F9FAFC] transition-colors"
             >
               <td className="py-4">
                 <div className="flex items-center gap-3">
@@ -93,8 +92,12 @@ export default function ExpenseTable({ activeTab, data }) {
               </td>
 
               {activeTab === "manager" && (
-                <td className="py-4">
+                <td className="py-7 flex gap-2">
                   <Eye className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                  <Plus
+                    className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    onClick={() => onAddExpense(expense.name)}
+                  />
                 </td>
               )}
             </tr>
