@@ -66,8 +66,8 @@ const Login = () => {
           console.log("Full API response:", userResponse);
           throw new Error("Failed to fetch user details.");
         }
-        window.history.pushState(null, "", "/justcaterings/auth/login");
-        window.history.replaceState(null, "", "/justcaterings/auth/login");
+        window.history.pushState(null, "", "/JCX/auth/login");
+        window.history.replaceState(null, "", "/JCX/auth/login");
 
         const userDetails = userData["User Details"][0];
 

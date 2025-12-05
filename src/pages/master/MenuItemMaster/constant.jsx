@@ -1,7 +1,7 @@
 import { Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
 
-export const columns = [
+export const columns = (handleEditRow, handleDeleteRow) => [
   {
     accessorKey: "sr_no",
     header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
@@ -52,16 +52,25 @@ export const columns = [
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
+      const rowData = row.original;
       return (
         <div className="flex items-center  gap-1">
           <Tooltip className="cursor-pointer" title="Edit Contact">
-            <button className="btn btn-sm btn-icon btn-clear" title="Edit">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Edit"
+              onClick={() => handleEditRow(rowData)}
+            >
               <i className="ki-filled ki-notepad-edit text-primary"></i>
             </button>
           </Tooltip>
 
           <Tooltip title="Delete">
-            <button className="btn btn-sm btn-icon btn-clear" title="Delete">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Delete"
+              onClick={() => handleDeleteRow(rowData)}
+            >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
           </Tooltip>
@@ -75,12 +84,4 @@ export const columns = [
   },
 ];
 
-export const defaultData = [
-  {
-    sr_no: 1,
-    name: "Swapnil Ghodeswar",
-    weight: "500",
-    unit: "Gram",
-    rate: "400",
-  },
-];
+export const defaultData = [];

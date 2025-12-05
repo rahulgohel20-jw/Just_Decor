@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import MenuItemMaster from "../MenuItemMaster";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
@@ -153,8 +154,9 @@ const MenuItems = () => {
   };
 
   const handleEdit = (menuItem) => {
-    setSelectedMenuItem(menuItem);
-    setIsItemModalOpen(true);
+    navigate("/master/menu-items", {
+      state: { editData: menuItem._originalItem },
+    });
   };
 
   const statusmenuitem = async (id, currentStatus) => {

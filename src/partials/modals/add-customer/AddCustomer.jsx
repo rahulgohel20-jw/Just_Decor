@@ -177,9 +177,10 @@ const AddCustomer = ({
 
   const fetchCategories = async () => {
     try {
+      const concatId = 1;
       const {
         data: { data },
-      } = await GetAllContactCategorybycontacttype(Id);
+      } = await GetAllContactCategorybycontacttype(concatId, Id);
 
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];

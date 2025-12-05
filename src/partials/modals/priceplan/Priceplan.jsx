@@ -81,6 +81,8 @@ const Priceplan = () => {
   useEffect(() => {
     if (!token) return;
     const decoded = parseJwt(token);
+    console.log(decoded);
+
     const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
     if (idFromToken) {
       setUserId(idFromToken);
@@ -201,7 +203,7 @@ const Priceplan = () => {
         return;
       }
 
-      const razorpayKey = "rzp_live_RfdMpWMxxgESGK";
+      const razorpayKey = "rzp_live_RnS3PAVZPas6yI";
 
       const options = {
         key: razorpayKey,
