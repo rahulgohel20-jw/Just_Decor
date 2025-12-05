@@ -19,6 +19,14 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
   {
+    accessorKey: "category",
+    header: <FormattedMessage id="COMMON.NAME" defaultMessage="Category" />,
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
     accessorKey: "isActive",
     header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => {

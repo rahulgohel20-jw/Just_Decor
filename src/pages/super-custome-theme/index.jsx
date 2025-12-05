@@ -11,14 +11,14 @@ const ReportcustomeTheme = () => {
   const navigate = useNavigate();
 
   const themes = [
-    { title: "Elegant – Wedding", img: "/justcaterings/images/report-theme1.png" },
-    { title: "Basic – Dark", img: "/justcaterings/images/report-theme2.png" },
-    { title: "Classic – Event", img: "/justcaterings/images/report-theme3.png" },
-    { title: "Outdoor – Elegant", img: "/justcaterings/images/report-theme1.png" },
-    { title: "Luxury – Banquet", img: "/justcaterings/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/justcaterings/images/report-theme3.png" },
-        { title: "Luxury – Banquet", img: "/justcaterings/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/justcaterings/images/report-theme3.png" },
+    { title: "Elegant – Wedding", img: "/JCX/images/report-theme1.png" },
+    { title: "Basic – Dark", img: "/JCX/images/report-theme2.png" },
+    { title: "Classic – Event", img: "/JCX/images/report-theme3.png" },
+    { title: "Outdoor – Elegant", img: "/JCX/images/report-theme1.png" },
+    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
+    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
+    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
+    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
   ];
 
   const allThemes = showMore ? [...themes, ...themes] : themes;
@@ -33,7 +33,8 @@ const ReportcustomeTheme = () => {
     try {
       if (!window.jspdf) {
         const script = document.createElement("script");
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
         script.async = true;
         await new Promise((resolve, reject) => {
           script.onload = resolve;
@@ -44,7 +45,11 @@ const ReportcustomeTheme = () => {
       }
 
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
       pdf.setFontSize(24);
       pdf.setTextColor(0, 91, 168);
@@ -101,56 +106,47 @@ const ReportcustomeTheme = () => {
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
-
         <div className="pb-4 mb-3 border-b border-gray-200">
           <Breadcrumbs items={[{ title: "Menu Report Themes" }]} />
           <p className="text-sm text-gray-500 mt-1">
             Discover unique designs, crafted for your reports.
           </p>
 
-      
-           <div className="flex justify-end gap-3 mt-3">
-  <button
-    
-    className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#004C8C] transition"
-  >
- 
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-      />
-    </svg>
-    Preview
-  </button>
+          <div className="flex justify-end gap-3 mt-3">
+            <button className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#004C8C] transition">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              Preview
+            </button>
 
-  <button
-
-    className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#008B5A] transition"
-  >
-
-     <img src={`${import.meta.env.BASE_URL}images/pushicon.png`} alt="icon" className="inline-block w-5 h-5" />
-
-    Push
-  </button>
-</div>
-
+            <button className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#008B5A] transition">
+              <img
+                src={`${import.meta.env.BASE_URL}images/pushicon.png`}
+                alt="icon"
+                className="inline-block w-5 h-5"
+              />
+              Push
+            </button>
+          </div>
         </div>
 
-      
         <div className="flex flex-wrap gap-10">
           {allThemes.map((theme, index) => (
             <div
@@ -204,7 +200,6 @@ const ReportcustomeTheme = () => {
           ))}
         </div>
 
-       
         <div className="flex justify-center mt-8">
           <button
             onClick={() => setShowMore(!showMore)}
@@ -215,7 +210,6 @@ const ReportcustomeTheme = () => {
         </div>
       </Container>
 
-   
       {selectedTheme && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] overflow-hidden relative flex flex-col">
