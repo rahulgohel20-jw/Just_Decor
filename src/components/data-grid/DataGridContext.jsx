@@ -35,7 +35,7 @@ export const DataGridProvider = (props) => {
           <img
             src={toAbsoluteUrl("/media/placeholders/placeholder.png")}
             alt="No data"
-            className="w-auto"
+            className="w-auto h-[400px] "
           />
         </div>
       ),

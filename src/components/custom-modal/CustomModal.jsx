@@ -1,18 +1,60 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
+
 const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
   const modalRef = useRef(null);
+
   const handleClose = (event, reason) => {
     if (reason === "backdropClick") {
       setShake(true);
-      setTimeout(() => setShake(false), 300); // Clear after animation
+      setTimeout(() => setShake(false), 300);
       return;
     }
     onClose();
   };
+
+  // Enhanced body scroll lock
+  useEffect(() => {
+    if (open) {
+      // Get current scroll position
+      const scrollY = window.scrollY;
+
+      // Lock body scroll
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+
+      // Also lock html element
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || "0") * -1);
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [open]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       const target = e.target;
@@ -30,20 +72,23 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
         setTimeout(() => setShake(false), 300);
       }
     };
+
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
+
   return (
     <Modal
-      maskClosable={false} //  disables closing on backdrop click
-      keyboard={false} //disables closing on Esc
-      closable={false} // Disable default close button
+      maskClosable={false}
+      keyboard={false}
+      closable={false}
+      getContainer={false}
+      centered
       title={
         title ? (
           <>
@@ -70,17 +115,11 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
         </div>
       )}
       footer={footer ? <div className="pt-3">{footer}</div> : null}
-      styles={{
-        content: { backgroundColor: "#F2F7FB" },
-        header: { backgroundColor: "#F2F7FB", borderBottom: "none" },
-        body: { backgroundColor: "#F2F7FB" },
-        footer: { backgroundColor: "#F2F7FB", borderTop: "none" },
-        ...(rest.styles || {}),
-      }}
       {...rest}
     >
       {children}
     </Modal>
   );
 };
+
 export { CustomModal };

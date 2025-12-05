@@ -19,6 +19,8 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     useMenuApi(userId);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("chef");
+  const [isSaveOnly, setIsSaveOnly] = useState(false);
 
   const [chefunit, setChefunit] = useState([]);
   const [contact, setContact] = useState([]);
@@ -26,6 +28,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   const [outsideName, setOutsideName] = useState([]);
   const [insideCookNames, setInsideCookNames] = useState([]);
   const [concatId, setConcatId] = useState(null);
+  const [pendingEditValues, setPendingEditValues] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -81,28 +84,27 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       message.error("Failed to load contact names");
     }
   };
+  useEffect(() => {
+    if (!isEdit || !editData) return;
+    const alloc = editData.menuItemAllocationConfigs;
+    if (!alloc) return;
 
+    if (alloc.selectChefLabourAgency) setActiveTab("chef");
+    else if (alloc.selectOutsideAgency) setActiveTab("outside");
+    else if (alloc.selectInsideAgency) setActiveTab("inside");
+  }, [isEdit, editData]);
   useEffect(() => {
     console.log(editData);
 
-    if (!editData || !isEdit) return;
+    if (!isEdit || !editData) return;
 
     const alloc = editData.menuItemAllocationConfigs;
     if (!alloc) return;
 
-    if (
-      !chefNames.length ||
-      !insideCookNames.length ||
-      !contact.length ||
-      !chefunit.length
-    )
-      return;
-
     const values = {};
-
     values.venue = alloc.godownLocation === "AT VENUE" ? "at_venue" : "go_down";
-    values.remarks = alloc.remarks;
 
+    // Chef
     if (alloc.selectChefLabourAgency && alloc.chefLabourItem) {
       values["counter wise"] = alloc.chefLabourItem.allocation_type;
       values.counterno = alloc.chefLabourItem.counterNo;
@@ -116,25 +118,101 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       values.unit = alloc.outsideItem.unit?.id;
       values.outside_price = alloc.outsideItem.pricePerHelper;
       values.contactCategory = alloc.outsideItem.contactCategory?.id;
-      values.outside_remarks = alloc.remarks;
-
-      if (alloc.outsideItem.contactCategory?.id) {
-        fetchChefcontactname(alloc.outsideItem.contactCategory.id).then(() => {
-          form.setFieldsValue({ outside_contactName: alloc.party?.id });
-        });
-      }
       values.outside_contactName = alloc.party?.id;
+      values.outside_remarks = alloc.remarks;
     }
 
     if (alloc.selectInsideAgency && alloc.insideItem) {
       values.chef_name = alloc.party?.id;
       values.chef_number = alloc.party?.mobileno;
+      values.remarks = alloc.remarks;
     }
 
-    form.setFieldsValue(values);
-  }, [editData, chefNames, insideCookNames, contact, chefunit, form, isEdit]);
+    setPendingEditValues(values);
+  }, [isEdit, editData]);
+  const refreshData = async () => {
+    try {
+      const [unitRes, contactRes, chefRes, insideRes] = await Promise.all([
+        getUnits(),
+        getContactCategory(),
+        getContactNames(5),
+        getContactNames(7),
+      ]);
 
-  /** FORMAT PAYLOAD BEFORE SAVE */
+      setChefunit(
+        unitRes?.data?.data?.["Unit Details"]?.map((item) => ({
+          unitid: item.id,
+          unitname: item.nameEnglish,
+        })) || []
+      );
+
+      setContact(
+        contactRes?.data?.data?.["Contact Category Details"]?.map((item) => ({
+          contactid: item.id,
+          contactName: item.nameEnglish,
+        })) || []
+      );
+
+      setChefNames(
+        chefRes?.data?.data?.["Party Details"]?.map((item) => ({
+          id: item.id,
+          name: item.nameEnglish,
+          number: item.mobileno,
+        })) || []
+      );
+
+      setInsideCookNames(
+        insideRes?.data?.data?.["Party Details"]?.map((item) => ({
+          id: item.id,
+          name: item.nameEnglish,
+          number: item.mobileno,
+        })) || []
+      );
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to refresh data");
+    }
+  };
+
+  useEffect(() => {
+    if (!pendingEditValues) return;
+
+    const dropdownsLoaded =
+      chefNames.length &&
+      insideCookNames.length &&
+      contact.length &&
+      chefunit.length;
+
+    if (!dropdownsLoaded) return;
+
+    // If Outside agency needs async contact name fetch, handle it then set form
+    const loadOutsideContact = async () => {
+      if (pendingEditValues.contactCategory) {
+        await fetchChefcontactname(pendingEditValues.contactCategory);
+      }
+      form.setFieldsValue(pendingEditValues);
+    };
+
+    loadOutsideContact();
+  }, [pendingEditValues, chefNames, insideCookNames, contact, chefunit]);
+  const handleAddContact = (fieldName) => {
+    switch (fieldName) {
+      case "chef_contactName":
+        setConcatId(5);
+        break;
+      case "outside_contactName":
+        setConcatId(6);
+        break;
+      case "chef_name":
+        setConcatId(7);
+        break;
+      default:
+        return;
+    }
+
+    setIsMemberModalOpen(true);
+  };
+
   const formatAllocationFields = (v) => {
     const allocation = {
       id:
@@ -197,13 +275,14 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     return allocation;
   };
 
-  /** SAVE */
   const onFinish = async (values) => {
     try {
+      if (!isSaveOnly) {
+        Swal.close();
+        return onPrev();
+      }
       const allocationObject = formatAllocationFields(values);
       const payload = buildPayload(menuDetails, allocationObject);
-
-      console.log("Final Payload:", JSON.stringify(payload, null, 2)); // Debug log
 
       let apiRes = isEdit
         ? await UpdateMenuItem(editData.id, payload)
@@ -224,7 +303,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       Swal.fire({
         title: success ? "Success!" : "Failed",
         icon: success ? "success" : "error",
-        text: data?.message,
+        text: data?.msg,
       });
 
       if (success) navigate("/master/menu-item");
@@ -313,25 +392,29 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
           />
         </Form.Item>
 
-        <Tabs defaultActiveKey="chef" destroyInactiveTabPane={false}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key)}
+          destroyInactiveTabPane={false}
+        >
           <Tabs.TabPane tab="Select Chef Labour Agency" key="chef">
             <RenderAllocationFields
               fields={chefFields}
-              onAddClick={setConcatId}
+              onAddClick={handleAddContact}
               form={form}
             />
           </Tabs.TabPane>
           <Tabs.TabPane tab="Select Outside Agency" key="outside">
             <RenderAllocationFields
               fields={outsideFields}
-              onAddClick={setConcatId}
+              onAddClick={handleAddContact}
               form={form}
             />
           </Tabs.TabPane>
           <Tabs.TabPane tab="Select Inside Cook" key="inside">
             <RenderAllocationFields
               fields={insideFields}
-              onAddClick={setConcatId}
+              onAddClick={handleAddContact}
               form={form}
             />
           </Tabs.TabPane>
@@ -339,7 +422,13 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
 
         <div className="flex justify-between pt-4 mb-6">
           <Button onClick={onPrev}>Previous</Button>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            onClick={() => {
+              setIsSaveOnly(true);
+              form.submit();
+            }}
+          >
             {isEdit ? "Update" : "Save"}
           </Button>
         </div>
@@ -349,6 +438,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         isModalOpen={isMemberModalOpen}
         setIsModalOpen={setIsMemberModalOpen}
         concatId={concatId}
+        refreshData={refreshData}
       />
     </div>
   );

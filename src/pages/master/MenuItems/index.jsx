@@ -3,8 +3,6 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
-import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
-import MenuItemMaster from "../MenuItemMaster";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
@@ -71,6 +69,7 @@ const MenuItems = () => {
           slogan: item.slogan || "-",
           price: item.price || "-",
           priority: item.sequence || "-",
+          cost: item.dishCosting || 0,
           image: item.imagePath || "",
           status: item.isActive,
           rawdata: item.menuItemRawMaterials || [],
@@ -239,15 +238,6 @@ const MenuItems = () => {
             </button>
           </div>
         </div>
-
-        {isItemModalOpen && (
-          <AddMenuItem
-            isModalOpen={isItemModalOpen}
-            setIsModalOpen={setIsItemModalOpen}
-            refreshData={refreshData}
-            selectedMenuItem={selectedMenuItem}
-          />
-        )}
 
         <TableComponent
           columns={columns(handleEdit, handleDelete, statusmenuitem)}

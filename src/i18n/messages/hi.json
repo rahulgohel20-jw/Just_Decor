@@ -131,7 +131,7 @@
   "USER.MASTER.CONTACT_TYPE": "कॉन्टैक्ट टाइप",
   "USER.MASTER.CONTACT_CATEGORY_MASTER": "कॉन्टैक्ट कैटेगरी मास्टर",
   "USER.MASTER.CONTACT_CATEGORY": "कॉन्टैक्ट कैटेगरी",
-  "COMMON.VENDOR_MASTER" : "वेंडर मास्टर",
+  "COMMON.VENDOR_MASTER": "वेंडर मास्टर",
   "USER.MASTER.PRIORITY": "प्रायोरिटी",
   "USER.MASTER.EDIT_CONTACT_TYPE": "कॉन्टैक्ट टाइप एडिट करें",
   "USER.MASTER.NEW_CONTACT_TYPE": "नया कॉन्टैक्ट टाइप",
@@ -253,7 +253,7 @@
   "USER.RAWMATERIAL.CATEGORY": "रॉ मटेरियल कैटेगरी",
   "USER.RAWMATERIAL.SELECT_CATEGORY": "रॉ मटेरियल कैटेगरी चुनें",
   "COMMON.SELECT_UNIT": "यूनिट चुनें",
-  "COMMON.SUPPLIER_RATE": "सप्लायर रेट",
+  "COMMON.SUPPLIER_RATE": " रेट",
   "USER.RAWMATERIAL.GENERAL_FIX": "जनरल फिक्स रॉ मटेरियल",
   "USER.RAWMATERIAL.WEIGHT": "100 लोगों पर वेट",
   "USER.SUPPLIER.SEARCH_SUPPLIER": "सप्लायर खोजें...",
@@ -728,8 +728,6 @@
   "USER.EVENT.EVENT_NAME": "इवेंट नेम",
   "USER.EVENT.EVENT_CODE": "इवेंट कोड",
 
-   "USER.PRICE_PLAN.TITLE": "योजनाएँ और मूल्य निर्धारण",
-   "USER.PRICE_PLAN.SUBTITLE" : "चाहे आपकी समय-बचत ऑटोमेशन की ज़रूरतें बड़ी हों या छोटी, हम आपको बढ़ने में मदद करने के लिए यहाँ हैं।"
-
-
+  "USER.PRICE_PLAN.TITLE": "योजनाएँ और मूल्य निर्धारण",
+  "USER.PRICE_PLAN.SUBTITLE": "चाहे आपकी समय-बचत ऑटोमेशन की ज़रूरतें बड़ी हों या छोटी, हम आपको बढ़ने में मदद करने के लिए यहाँ हैं।"
 }

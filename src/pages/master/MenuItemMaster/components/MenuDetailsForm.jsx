@@ -77,6 +77,10 @@ const MenuDetailsForm = ({
   } = useRecipe(rawmaterialList, defaultData);
 
   useEffect(() => {
+    setIsSaveOnly(false);
+  }, [onNext]);
+
+  useEffect(() => {
     const loadInitial = async () => {
       try {
         const [rawRes, catRes] = await Promise.all([
@@ -145,7 +149,6 @@ const MenuDetailsForm = ({
       category: Number(editData.menuCategory?.id),
       subCategory: editData.menuSubCategory?.id,
       remarks: editData.remarks,
-      //   imageUrl: editData.imagePath,
     });
 
     if (editData.imagePath) {
@@ -264,7 +267,6 @@ const MenuDetailsForm = ({
   const onFinish = async (values) => {
     const file = fileList?.[0]?.originFileObj;
 
-    // Check if image was changed in edit mode
     const imageChanged =
       isEdit && file && editData?.imagePath !== fileList?.[0]?.url;
     const shouldUploadImage = (!isEdit && file) || imageChanged;
@@ -274,8 +276,8 @@ const MenuDetailsForm = ({
       recipes: tableData,
       totalRate,
       dishCosting,
-      file, // ⬅ Pass file to allocation config
-      shouldUploadImage, // ⬅ Flag to know if upload needed
+      file,
+      shouldUploadImage,
     };
     setMenuDetails(details);
 
@@ -284,7 +286,6 @@ const MenuDetailsForm = ({
       return;
     }
 
-    // SAVE FLOW from MenuDetailsForm (skip AllocationConfig)
     try {
       const payload = buildPayload(details, {});
       let res;
@@ -299,7 +300,6 @@ const MenuDetailsForm = ({
       const data = res?.data;
       const success = data?.success === true;
 
-      // Upload image only if needed
       if (success && shouldUploadImage && file) {
         const formData = new FormData();
         formData.append("moduleId", data.moduleId);
@@ -311,7 +311,7 @@ const MenuDetailsForm = ({
 
       Swal.fire({
         title: success ? "Success!" : "Failed",
-        text: data?.message,
+        text: data?.msg,
         icon: success ? "success" : "error",
       });
 
