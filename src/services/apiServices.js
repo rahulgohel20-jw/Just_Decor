@@ -82,8 +82,10 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
-export const GetAllContactCategorybycontacttype = (Id) => {
-  return GET(`/contactcategory/getallbycatid?conCatId=1&userId=${Id}`);
+export const GetAllContactCategorybycontacttype = (concatId, Id) => {
+  return GET(
+    `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`
+  );
 };
 
 //search ContactCategory
@@ -109,6 +111,10 @@ export const DeleteContactCategory = (Id) => {
 //Contact Type
 export const GetAllContactType = (Id) => {
   return GET(`/contacttype/getallbyuserid?userId=${Id}`);
+};
+
+export const GetAllContactTypeById = (Id) => {
+  return GET(`contacttype/getbyid?id=${Id}`);
 };
 
 // Add Contact Type
@@ -162,6 +168,10 @@ export const SelectedRawMenuallocation = (data) => {
   return POST(`/menuallocation/addorupdatemenuitemrawmat`, data);
 };
 
+export const GetRawmaterialforitem = (userid) => {
+  return GET(`/rawmaterial/getbyuserid?isActive=true&userid=${userid}`);
+};
+
 // Get All Supllier Vendors
 
 export const GetAllSupllierVendors = (Id) => {
@@ -208,10 +218,7 @@ export const RawMaterialName = (Id, name) => {
   );
 };
 
-export const SelectedItemNameMenuAllocation = (
-  eventfunctionid,
-  menuitemid
-) => {
+export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
   return GET(
     `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
@@ -219,6 +226,12 @@ export const SelectedItemNameMenuAllocation = (
 export const ContactNameItem = (Id, name) => {
   return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
 };
+export const OutsideContactName = (cattypeid, userid) => {
+  return GET(
+    `/partymaster/getallbycattypeid?catTypeId=${cattypeid}&userId=${userid}`
+  );
+};
+
 export const StatusChange = (Id, name) => {
   return PUT(`/eventmaster/changeeventstatus?eventId=${Id}&status=${name}`);
 };
@@ -393,6 +406,11 @@ export const GetAllCategory = (data) => {
 export const GetAllCategoryformenu = (id) => {
   return GET(`/menucategory/getallbyuserid?isActive=true&userid=${id}`);
 };
+export const Getmenusubcategory = (menucategoryid, userId) => {
+  return GET(
+    `/menusubcategory/getallbyuserid?isActive=true&menuCategoryId=${menucategoryid}&userid=${userId}`
+  );
+};
 
 //Get menu preparation items
 export const Getmenuprep = (
@@ -439,14 +457,17 @@ export const AddCategory = (data) => {
 
 //Add category Type
 export const MenuReportData = (
+  eventFunctionId,
   eventId,
   catImg,
   catIns,
   catSlogan,
-  itemSlogan
+  itemSlogan,
+  itemIns,
+  lang
 ) => {
   return GET(
-    `/menupreparation/generateexclusivereport?eventFunctionId=-1&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemSlogan=${itemSlogan}`
+    `/menupreparation/generateexclusivereport2?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemInstruction=${itemIns}&isItemSlogan=${itemSlogan}&lang=${lang}`
   );
 };
 
@@ -662,9 +683,7 @@ export const GetRawMaterialcategory = (id) => {
 };
 
 export const UpdateSequence = (data) => {
-  return PUT(
-    `/rawmaterial/updatesequence`, data
-  );
+  return PUT(`/rawmaterial/updatesequence`, data);
 };
 
 export const DeleteRawMaterialcategory = (id) => {
@@ -1001,17 +1020,21 @@ export const deleteFunction = (id) => {
 
 export const SuperAdminDashboardPlanWiseTotal = () => {
   return GET(`/dashboard/superadmin/planWiseTotal`);
-}
-
+};
 
 export const SuperAdminDashboardTotalUserAndPlan = () => {
   return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
-}
+};
 
-export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
-  return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
-}
-
+export const SuperAdminDashboardMonthWiseData = (
+  endDate,
+  planId,
+  startDate
+) => {
+  return GET(
+    `/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`
+  );
+};
 
 export const DeleteRawMaterialItem = (Id) => {
   return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);

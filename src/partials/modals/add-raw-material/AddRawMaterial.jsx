@@ -713,7 +713,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           isOpen={isSupplierOpen}
           onClose={() => {
             setIsSupplierOpen(false);
+            setEditingSupplier(null);
           }}
+          onAddSupplier={handleSupplierAction}
+          supplierData={editingSupplier}
           onOpenVendor={() => openVendor()}
         />
 

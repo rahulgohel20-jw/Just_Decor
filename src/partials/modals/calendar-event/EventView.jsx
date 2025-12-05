@@ -26,10 +26,14 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
+  console.log(eventDataAll);
+
+  const eventFunctionId = 35;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
+
   const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
   console.log("🔵 EVENT DATA RAW =>", eventData);
   console.log("🟢 eventDataAll =>", eventDataAll);
@@ -495,8 +499,8 @@ const EventViewModal = ({
         </div>
         <SelectMenureport
           eventId={safeEventId}
-          isSelectMenureport={isSelectMenuReport} // keep the original prop name
-          setIsSelectMenuReport={setIsSelectMenuReport} // fix the prop name
+          isSelectMenureport={isSelectMenuReport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setMenuReportEventId(safeEventId);
@@ -505,6 +509,7 @@ const EventViewModal = ({
         />
 
         <MenuReport
+          eventFunctionId={eventFunctionId}
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}

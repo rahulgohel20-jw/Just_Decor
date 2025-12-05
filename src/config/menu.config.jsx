@@ -202,21 +202,22 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MENU_ITEM_SUB_CATEGORY"
-            defaultMessage="Menu Item Sub Category"
-          />
-        ),
-        path: "/master/menu-sub-category",
-      },
-      {
-        title: (
-          <FormattedMessage
             id="COMMON.MENU_ITEM_CATEGORY"
             defaultMessage="Menu Item Category"
           />
         ),
         path: "/master/menu-category",
       },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.MENU_ITEM_SUB_CATEGORY"
+            defaultMessage="Menu Item Sub Category"
+          />
+        ),
+        path: "/master/menu-sub-category",
+      },
+
       {
         title: (
           <FormattedMessage

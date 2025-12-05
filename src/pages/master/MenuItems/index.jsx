@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns, categoryData } from "./constant";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
+import MenuItemMaster from "../MenuItemMaster";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
@@ -13,10 +14,12 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Form, Spin } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
+  const navigate = useNavigate();
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -151,8 +154,9 @@ const MenuItems = () => {
   };
 
   const handleEdit = (menuItem) => {
-    setSelectedMenuItem(menuItem);
-    setIsItemModalOpen(true);
+    navigate("/master/menu-items", {
+      state: { editData: menuItem._originalItem },
+    });
   };
 
   const statusmenuitem = async (id, currentStatus) => {
@@ -218,8 +222,9 @@ const MenuItems = () => {
             <button
               className="btn btn-primary"
               onClick={() => {
-                setSelectedMenuItem(null);
-                setIsItemModalOpen(true);
+                navigate("/master/menu-items");
+                // setSelectedMenuItem(null);
+                // setIsItemModalOpen(true);
               }}
               title={intl.formatMessage({
                 id: "MASTER.ADD_MENU_ITEM",

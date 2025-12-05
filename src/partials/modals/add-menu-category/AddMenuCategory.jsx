@@ -83,11 +83,13 @@ const AddMenuCategory = ({
             if (res.data?.status === true) {
               Swal.fire("Success", res.data.msg, "success");
             }
-            uploadImage({
-              ModuleId: res.data.ModuleId,
-              FileType: res.data.FileType,
-              ModuleName: res.data.ModuleName,
-            });
+            if (ModuleId) {
+              uploadImage({
+                ModuleId: res.data.ModuleId,
+                FileType: res.data.FileType,
+                ModuleName: res.data.ModuleName,
+              });
+            }
           })
           .catch((error) => {
             const errorMsg =
@@ -99,18 +101,50 @@ const AddMenuCategory = ({
         const payload = { ...formData, userId: Id };
         AddCategory(payload)
           .then((res) => {
-            Swal.fire("Success", "Category added successfully!", "success");
-            uploadImage({
-              ModuleId: res.data.ModuleId,
-              FileType: res.data.FileType,
-              ModuleName: res.data.ModuleName,
-            });
+            if (res.data?.success === true) {
+              Swal.fire("Success", res.data.msg, "success");
+
+              if (formData.file) {
+                uploadImage({
+                  ModuleId: res.data.ModuleId,
+                  FileType: res.data.FileType,
+                  ModuleName: res.data.ModuleName,
+                });
+              } else {
+                refreshData();
+                setIsModalOpen(false);
+              }
+
+              return;
+            }
+
+            Swal.fire(
+              "Error",
+              res.data?.msg || "Something went wrong",
+              "error"
+            );
           })
           .catch((error) => {
+            if (error?.response?.data?.success === true) {
+              Swal.fire("Success", error.response.data.msg, "success");
+
+              const response = error.response.data;
+              if (formData.file) {
+                uploadImage({
+                  ModuleId: response.ModuleId,
+                  FileType: response.FileType,
+                  ModuleName: response.ModuleName,
+                });
+              } else {
+                refreshData();
+                setIsModalOpen(false);
+              }
+              return;
+            }
+
             const errorMsg =
               error?.response?.data?.msg || "Something went wrong";
             Swal.fire("Error", errorMsg, "error");
-            console.error("Error adding meal:", error);
           });
       }
     }
