@@ -55,7 +55,7 @@ const allocationTabsConfig = {
     {
       type: "input",
       label: "Price (Price Per 1 Labour)",
-      name: " chef_price",
+      name: "chef_price",
     },
     {
       type: "select",

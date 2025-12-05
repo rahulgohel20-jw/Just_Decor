@@ -16,7 +16,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
     cell: ({ row }) => {
       return (
         <img
-          src={row.original.image || "/no-image.png"} // fallback image if empty
+          src={row.original.image || "/no-image.png"}
           alt={row.original.name}
           className="w-12 h-12 object-cover rounded-md"
         />
@@ -50,8 +50,8 @@ export const columns = (onEdit, onDelete, onstatus) => [
     },
   },
   {
-    accessorKey: "priority",
-    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
+    accessorKey: "cost",
+    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Cost" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

@@ -1180,7 +1180,6 @@ const EventPlanningPage = () => {
       <AddMenuItem
         isModalOpen={isItemModalOpen}
         setIsModalOpen={setIsItemModalOpen}
-        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
