@@ -5,14 +5,11 @@ import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefMo
 import Swal from "sweetalert2";
 import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
-import SidebarInsideModal from "../../../components/SidebarInsidemodal/SidebarInsideModal ";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import SummaryItemModalchefoutside from "@/components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
-import SummaryItemModalOutsideAgency from "@/components/sidebarOutSideAgency/SummaryItemModalOutSideAgency";
-import SummaryItemModalInHousecook from "@/components/sidebarmodalinhousecook/SummaryItemModalInHousecook";
+import SummaryItemModalchefoutside from "../../../components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
 import {
   GetEventMasterById,
   GetMenuAllocation,
@@ -215,11 +212,9 @@ const TableRow = ({ row, onChange }) => {
       if (type === "chef" && row.openChefSidebar) {
         row.openChefSidebar();
       }
-      if (type === "inside" && row.openInsideSidebar) {
-        row.openInsideSidebar();
-      }
     }
   };
+
   return (
     <div className="grid grid-cols-12 items-center gap-6 border-b border-gray-100 px-4 py-4 text-sm">
       <div className="col-span-2 font-medium text-gray-800">
@@ -263,21 +258,11 @@ const TableRow = ({ row, onChange }) => {
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      <div className="col-span-2 flex justify-center">
         <Checkbox
           checked={row.inside}
           onChange={(e) => handleCheckboxChange("inside", e.target.checked)}
         />
-        {row.inside && (
-          <button
-            type="button"
-            onClick={() => row.openInsideSidebar && row.openInsideSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Inside Details"
-          >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
-          </button>
-        )}
       </div>
 
       <div className="col-span-1 flex justify-center">
@@ -336,10 +321,7 @@ const EventMenuAllocationPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
-    useState(false);
-  const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
-  const [isInsideModal, setIsInsideModal] = useState(false);
+
   const intl = useIntl();
 
   useEffect(() => {
@@ -596,7 +578,6 @@ const EventMenuAllocationPage = () => {
         ...r,
         openSidebar: () => {
           setIsChefModal(false);
-          setIsInsideModal(false);
           setSelectedRow({
             ...r,
             eventId,
@@ -606,18 +587,7 @@ const EventMenuAllocationPage = () => {
         },
         openChefSidebar: () => {
           setOpen(false);
-          setIsInsideModal(false);
           setIsChefModal(true);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-        },
-        openInsideSidebar: () => {
-          setOpen(false);
-          setIsChefModal(false);
-          setIsInsideModal(true);
           setSelectedRow({
             ...r,
             eventId,
@@ -627,6 +597,7 @@ const EventMenuAllocationPage = () => {
       })),
     [rows, eventId, activeFunction]
   );
+
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
       prevGroups.map((group) => ({
@@ -754,42 +725,6 @@ const EventMenuAllocationPage = () => {
     });
 
     setIsChefModal(false);
-  };
-
-  const handleInsideSave = (saveData) => {
-    setAllocationData((prev) => ({
-      ...prev,
-      [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
-    }));
-
-    setRows((prevRows) => {
-      const updatedRows = prevRows.map((r) => {
-        if (
-          r.menuItemId === saveData.menuItemId &&
-          r.menuCategoryId === saveData.menuCategoryId
-        ) {
-          return {
-            ...r,
-            eventFunctionMenuAllocations: [
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => !a.isInside
-              ),
-              ...saveData.allocations.map((alloc) => ({
-                ...alloc,
-                isInside: true,
-              })),
-            ],
-          };
-        }
-        return r;
-      });
-
-      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
-
-      return updatedRows;
-    });
-
-    setIsInsideModal(false);
   };
 
   const handleCategorySave = (saveData) => {
@@ -1024,16 +959,9 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
+  // Change this function name from openSelectMenureport to openSummaryItemModalchefoutside
   const openSummaryItemModalchefoutside = () => {
     setIsModalOpen(true);
-  };
-
-  const openSummaryItemModalOustsideAgency = () => {
-    setIsOutsideAgencyModalOpen(true);
-  };
-
-  const openSummaryItemModalInHouseCook = () => {
-    setIsInHouseCookModalOpen(true);
   };
   return (
     <Fragment>
@@ -1259,15 +1187,15 @@ const EventMenuAllocationPage = () => {
                   <button
                     onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
-                    title="Chef Labour"
+                    title="Chef Outside"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="Chef Labour"
+                      defaultMessage="Chef Outside"
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalOustsideAgency}
+                    onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Outside Agency"
                   >
@@ -1277,7 +1205,7 @@ const EventMenuAllocationPage = () => {
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalInHouseCook}
+                    onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="In House Cook"
                   >
@@ -1391,24 +1319,6 @@ const EventMenuAllocationPage = () => {
         <SummaryItemModalchefoutside
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-        />
-        <SummaryItemModalOutsideAgency
-          open={isOutsideAgencyModalOpen}
-          onClose={() => setIsOutsideAgencyModalOpen(false)}
-        />
-        <SummaryItemModalInHousecook
-          open={isInHouseCookModalOpen}
-          onClose={() => setIsInHouseCookModalOpen(false)}
-        />
-        <SidebarInsideModal
-          open={isInsideModal}
-          onClose={() => setIsInsideModal(false)}
-          eventId={selectedRow?.eventId}
-          eventFunctionId={selectedRow?.eventFunctionId}
-          row={selectedRow}
-          functionName={activeFunction?.function?.nameEnglish}
-          functionDateTime={activeFunction?.functionStartDateTime}
-          onSave={handleInsideSave}
         />
       </Container>
     </Fragment>

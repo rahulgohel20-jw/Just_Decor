@@ -31,6 +31,12 @@ const EventViewModal = ({
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
   const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
+  console.log("🔵 EVENT DATA RAW =>", eventData);
+  console.log("🟢 eventDataAll =>", eventDataAll);
+  console.log("🟡 safeEventId =>", safeEventId);
+  console.log("🟣 Event Type Id =>", eventTypeId);
+  console.log("🏠 Venue =>", eventDataAll?.venue);
+  console.log("🏠 Venue Name =>", eventDataAll?.venue?.nameEnglish);
 
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
@@ -263,8 +269,9 @@ const EventViewModal = ({
               </p>
               <h3 className="font-semibold text-base mb-2">
                 {translatedTitle ||
-                  eventData?.event?._def?.address ||
-                  "Loading..."}
+                  eventDataAll?.venue?.nameEnglish ||
+                  "No Venue Found"}
+                rk
               </h3>
             </div>
 
@@ -410,7 +417,7 @@ const EventViewModal = ({
                 ),
                 icon: "/media/eventviewicon/invoice.png",
                 onClick: () =>
-                  navigate("/add-invoice", {
+                  navigate(`/add-invoice/${safeEventId}`, {
                     state: {
                       eventId: safeEventId,
                       eventTypeId: eventTypeId,

@@ -7,15 +7,37 @@ import { dashboardData, expensesData } from "./component/data";
 import AddNewManagerModal from "@/partials/modals/add-manager/AddNewManagerModal";
 import AddSupplierCustomerModal from "@/partials/modals/add-supplier-customer-modal/AddSupplierCustomerModal";
 import AddExpenseModal from "../../../partials/modals/add-Expense-Modal/AddExpenseModal";
+
+// 👉 Import View Modal
+import ViewExpenseDetailsModal from "@/partials/modals/view-expense-modal/ViewExpenseDetailsModal";
+
 export default function ExpenseDetails() {
   const [activeTab, setActiveTab] = useState("manager");
   const [searchQuery, setSearchQuery] = useState("");
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
   const [contactType, setContactType] = useState("Supplier");
   const [openExpenseModal, setOpenExpenseModal] = useState(false);
-  const [selectedManager, setSelectedManager] = useState(""); // to know which manager clicked
+  const [selectedManager, setSelectedManager] = useState("");
+
+  // 👉 View modal states
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewData, setViewData] = useState(null);
 
   const [openManagerModal, setOpenManagerModal] = useState(false);
+
+  // 👉 Handle View Click
+  const handleView = (expense) => {
+    setViewData({
+      manager: expense.name,
+      role: expense.role,
+      contact: expense.mobile,
+      totalAmount: expense.amount,
+      paymentMethod: expense.paymentType,
+      items: expense.items ?? [],
+    });
+
+    setViewOpen(true);
+  };
 
   const getTitle = () => {
     return `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Expense Usage Details`;
@@ -26,7 +48,7 @@ export default function ExpenseDetails() {
   };
 
   return (
-    <div className="min-h-screen  p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-900 mb-8">{getTitle()}</h1>
@@ -69,9 +91,12 @@ export default function ExpenseDetails() {
               setSelectedManager(managerName);
               setOpenExpenseModal(true);
             }}
+            // 👉 Add View Click
+            onView={handleView}
           />
         </div>
 
+        {/* Floating Add Button */}
         <button
           onClick={() => {
             if (activeTab === "manager") {
@@ -95,16 +120,26 @@ export default function ExpenseDetails() {
           open={openManagerModal}
           onClose={() => setOpenManagerModal(false)}
         />
+
+        {/* Add Supplier/Customer Modal */}
         <AddSupplierCustomerModal
           open={openSupplierModal}
           type={contactType}
           onClose={() => setOpenSupplierModal(false)}
         />
 
+        {/* Add Expense Modal */}
         <AddExpenseModal
           open={openExpenseModal}
           onClose={() => setOpenExpenseModal(false)}
           managerName={selectedManager}
+        />
+
+        {/* 👉 View Expense Modal */}
+        <ViewExpenseDetailsModal
+          open={viewOpen}
+          onClose={() => setViewOpen(false)}
+          data={viewData}
         />
       </div>
     </div>

@@ -284,7 +284,7 @@ const AppRoutingSetup = () => {
           <Route path="/event-invoice" element={<EventInvoicePage />} />
           <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
-          <Route path="/add-invoice" element={<AddInvoicePage />} />
+          <Route path="/add-invoice/:id" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/report-themes" element={<ReportThemes />} />

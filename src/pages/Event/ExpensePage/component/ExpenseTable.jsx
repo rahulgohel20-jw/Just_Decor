@@ -1,17 +1,18 @@
 import { Eye, Plus } from "lucide-react";
 
-export default function ExpenseTable({ activeTab, data, onAddExpense }) {
+export default function ExpenseTable({
+  activeTab,
+  data,
+  onAddExpense,
+  onView,
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="text-left border-b border-gray-200">
             <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
-              {activeTab === "supplier"
-                ? "Supplier Name"
-                : activeTab === "customer"
-                  ? "Customer Name"
-                  : "Manager Name"}
+              {activeTab === "manager" ? "Manager Name" : "Name"}
             </th>
 
             {activeTab === "manager" && (
@@ -28,12 +29,13 @@ export default function ExpenseTable({ activeTab, data, onAddExpense }) {
             <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
               Date
             </th>
+
             <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
               Amount
             </th>
 
             <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
-              {activeTab === "manager" ? "Payment Type" : "Status"}
+              Payment Type
             </th>
 
             {activeTab === "manager" && (
@@ -74,26 +76,25 @@ export default function ExpenseTable({ activeTab, data, onAddExpense }) {
               <td className="py-4 font-medium">{expense.amount}</td>
 
               <td className="py-4">
-                {activeTab === "manager" ? (
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      expense.paymentType === "Cash"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    {expense.paymentType}
-                  </span>
-                ) : (
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                    Completed
-                  </span>
-                )}
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    expense.paymentType === "Cash"
+                      ? "bg-purple-100 text-purple-700"
+                      : "bg-green-100 text-green-700"
+                  }`}
+                >
+                  {expense.paymentType}
+                </span>
               </td>
 
               {activeTab === "manager" && (
                 <td className="py-7 flex gap-2">
-                  <Eye className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                  {/* VIEW BUTTON */}
+                  <Eye
+                    className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    onClick={() => onView(expense)}
+                  />
+
                   <Plus
                     className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
                     onClick={() => onAddExpense(expense.name)}
