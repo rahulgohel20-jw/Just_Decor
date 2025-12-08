@@ -6,12 +6,13 @@ import {
   GetAllCategoryformenu,
   Getmenusubcategory,
   AddMenuItems,
+  uploadFile,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
 const { Dragger } = Upload;
 
-const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
+const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [form] = Form.useForm();
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
@@ -85,6 +86,8 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
     try {
       const values = await form.validateFields();
 
+      const file = values?.image?.file || null;
+
       const payload = {
         userId: Number(userId),
         menuCategoryId: values.menuCategory || 0,
@@ -103,24 +106,33 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
         totalRate: 0,
       };
 
-      if (values?.image?.file) {
-        payload.image = values.image.file;
-      }
-
       const res = await AddMenuItems(payload);
       const data = res?.data;
-      const success = data?.success === true;
+      const success = data?.success;
+
+      if (success && file) {
+        const formData = new FormData();
+        formData.append("moduleId", data.moduleId);
+        formData.append("moduleName", data.moduleName);
+        formData.append("fileType", data.fileType);
+        formData.append("file", file);
+
+        await uploadFile(formData);
+      }
 
       Swal.fire({
         title: success ? "Success!" : "Failed",
         text: data?.msg,
         icon: success ? "success" : "error",
       });
-      setIsModalOpen(false);
-      form.resetFields();
+
+      if (success) {
+        refreshData();
+        setIsModalOpen(false);
+        form.resetFields();
+      }
     } catch (error) {
       console.log("Save Menu Item Error:", error);
-      message.error("Failed to add menu item");
     }
   };
 

@@ -763,8 +763,34 @@ const EventPlanningPage = () => {
     <Fragment>
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 overflow-auto px-4 py-2">
-          <div className="gap-2 pb-2 mb-3">
-            <Breadcrumbs items={[{ title: "Menu Planning" }]} />
+          <div className="flex justify-between items-center mb-4">
+            {/* LEFT: Page Title + 3 Custom Buttons */}
+            <div className="flex items-center gap-6">
+              <h2 className="text-xl text-black font-semibold">
+                Menu Planning
+              </h2>
+
+              {/* ONLY FOR THIS SCREEN */}
+              <div className="flex gap-2">
+                <button className="btn btn-light text-black font-semibold ">
+                  <i className="ki-filled ki-user"></i> Edit Pax
+                </button>
+
+                <button className="btn btn-light text-black font-semibold">
+                  <i className="ki-filled ki-menu"></i> Menu Allocation
+                </button>
+
+                <button className="btn btn-light text-black font-semibold">
+                  <i className="ki-filled ki-gift"></i> Raw Material Allocation
+                </button>
+                <button className="btn btn-light text-black font-semibold">
+                  <i className="ki-filled ki-gift"></i> Agency Distribution
+                </button>
+              </div>
+            </div>
+
+            {/* RIGHT SIDE: Breadcrumbs */}
+            <Breadcrumbs items={[{ title: "" }]} />
           </div>
 
           <div className="border rounded mb-4 w-full">
@@ -894,7 +920,7 @@ const EventPlanningPage = () => {
                       alt="rate"
                     />
                     <span className="text-sm font-semibold text-gray-900">
-                      Default Rate:
+                      Rate:
                     </span>
                     <input
                       type="number"
@@ -1180,6 +1206,7 @@ const EventPlanningPage = () => {
       <AddMenuItem
         isModalOpen={isItemModalOpen}
         setIsModalOpen={setIsItemModalOpen}
+        refreshData={() => setRefreshList((prev) => !prev)}
       />
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
