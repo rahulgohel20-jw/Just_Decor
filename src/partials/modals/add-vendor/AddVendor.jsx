@@ -10,6 +10,7 @@ import {
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage, useIntl } from "react-intl";
+import Select from "react-select"; // inside your form
 
 const AddVendor = ({
   isModalOpen,
@@ -31,13 +32,10 @@ const AddVendor = ({
   // Yup validation schema
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name (English) is required"),
-
     mobileno: Yup.string()
       .required("Mobile number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-    email: Yup.string()
-      .required("Email is required")
-      .email("Please enter a valid email address"),
+
     contactCategoryId: Yup.string().required("Contact category is required"),
   });
 
@@ -94,6 +92,7 @@ const AddVendor = ({
   }, []);
 
   const userData = localStorage.getItem("userId");
+
   const triggerTranslate = (text, fieldType) => {
     if (!text?.trim()) return;
 
@@ -170,38 +169,36 @@ const AddVendor = ({
         setFormData(initialFormState);
         setImagePreview(null);
       }
-      // Clear errors when modal opens/closes
       setErrors({});
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
 
- const fetchCategories = async () => {
-   try {
-     const {
-       data: { data },
-     } = await GetAllContactCategory(userData);
+  const fetchCategories = async () => {
+    try {
+      const {
+        data: { data },
+      } = await GetAllContactCategory(userData);
 
-     // Filter out Customer type (contactType.id === 2)
-     const allCategories = data["Contact Category Details"] || [];
-     const filteredCategories = allCategories.filter((cat) => {
-       return cat.contactType?.id !== 1;
-     });
+      const allCategories = data["Contact Category Details"] || [];
+      const filteredCategories = allCategories.filter((cat) => {
+        return cat.contactType?.id !== 1;
+      });
 
-     setCategories(filteredCategories);
-   } catch (error) {
-     console.error("Error fetching categories:", error);
-     // Only show error if Add Vendor modal is not open
-     if (!isModalOpen) {
-       Swal.fire({
-         icon: "error",
-         title: "Error",
-         text: "Failed to fetch categories. Please try again.",
-         timer: 3000,
-         showConfirmButton: false,
-       });
-     }
-   }
- };
+      setCategories(filteredCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      if (!isModalOpen) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch categories. Please try again.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
+    }
+  };
+
   const handleIconClick = () => {
     fileInputRef.current?.click();
   };
@@ -217,7 +214,6 @@ const AddVendor = ({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear specific field error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -250,13 +246,11 @@ const AddVendor = ({
         errorObject[error.path] = error.message;
       });
       setErrors(errorObject);
-
       return false;
     }
   };
 
   const CustomerAddApi = async () => {
-    // Validate form before submission
     const isValid = await validateForm();
     if (!isValid) return;
 
@@ -274,8 +268,6 @@ const AddVendor = ({
 
       if (formData.id) {
         await EditCustomerApi(formData.id, payload);
-
-        // Success alert for edit
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -285,8 +277,6 @@ const AddVendor = ({
         });
       } else {
         await AddCustomerapi(payload);
-
-        // Success alert for add
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -303,8 +293,6 @@ const AddVendor = ({
       setErrors({});
     } catch (error) {
       console.error("Error saving customer:", error);
-
-      // Error alert
       Swal.fire({
         icon: "error",
         title: "Error!",
@@ -317,19 +305,46 @@ const AddVendor = ({
     }
   };
 
-  const handleModalClose = () => {
-    // Show confirmation dialog if form has data
-    const hasFormData = Object.values(formData).some(
-      (value) =>
-        value &&
-        value !== "" &&
-        value !==
-          initialFormState[
-            Object.keys(formData).find((key) => formData[key] === value)
-          ]
-    );
+  const handleModalClose = (force = false) => {
+    const closeModal = () => {
+      setIsModalOpen(false);
+      setFormData(initialFormState);
+      setImagePreview(null);
+      setErrors({});
+      setIsContactModalOpen(false);
+    };
 
-    if (hasFormData && !formData.id) {
+    // Force close (X button) - close immediately
+    if (force) {
+      closeModal();
+      return;
+    }
+
+    // If editing existing record, close immediately
+    if (formData.id) {
+      closeModal();
+      return;
+    }
+
+    // Only check user-entered fields (not auto-translated ones)
+    const userEnteredFields = [
+      "nameEnglish",
+      "addressEnglish",
+      "email",
+      "mobileno",
+      "altMobileno",
+      "gst",
+      "bdate",
+      "contactCategoryId",
+      "document",
+    ];
+
+    const hasFormData = userEnteredFields.some((key) => {
+      const value = formData[key];
+      return value && value !== "" && value !== initialFormState[key];
+    });
+
+    if (hasFormData) {
       Swal.fire({
         title: "Are you sure?",
         text: "You have unsaved changes. Do you want to close without saving?",
@@ -339,19 +354,25 @@ const AddVendor = ({
         cancelButtonColor: "#3085d6",
         confirmButtonText: "Yes, close it!",
         cancelButtonText: "Cancel",
+        backdrop: true,
+        allowOutsideClick: false,
+        customClass: {
+          container: "swal-high-zindex",
+        },
+        didOpen: () => {
+          // Ensure SweetAlert appears above the modal
+          const swalContainer = document.querySelector(".swal2-container");
+          if (swalContainer) {
+            swalContainer.style.zIndex = "99999";
+          }
+        },
       }).then((result) => {
         if (result.isConfirmed) {
-          setIsModalOpen(false);
-          setFormData(initialFormState);
-          setImagePreview(null);
-          setErrors({});
+          closeModal();
         }
       });
     } else {
-      setIsModalOpen(false);
-      setFormData(initialFormState);
-      setImagePreview(null);
-      setErrors({});
+      closeModal();
     }
   };
 
@@ -377,7 +398,7 @@ const AddVendor = ({
             )}
           </h2>
           <button
-            onClick={handleModalClose}
+            onClick={() => handleModalClose(true)}
             className="text-2xl text-gray-600 hover:text-gray-800"
             disabled={isLoading}
           >
@@ -473,7 +494,6 @@ const AddVendor = ({
               lng="hi"
             />
 
-            {/* Contact Category */}
             <div className="flex flex-col gap-1">
               <label className="text-gray-600">
                 <FormattedMessage
@@ -485,29 +505,33 @@ const AddVendor = ({
                 </span>
               </label>
               <div className="flex items-center gap-2">
-                <select
-                  className={`border rounded-lg p-2 w-full ${
-                    errors.contactCategoryId
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  name="contactCategoryId"
-                  value={formData.contactCategoryId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">
-                    <FormattedMessage
-                      id="USER.MASTER.SELECT_CATEGORY"
-                      defaultMessage="-- Select Category --"
-                    />
-                  </option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nameEnglish}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  options={categories.map((cat) => ({
+                    value: cat.id,
+                    label: cat.nameEnglish,
+                  }))}
+                  value={
+                    formData.contactCategoryId
+                      ? {
+                          value: formData.contactCategoryId,
+                          label: categories.find(
+                            (c) => c.id === formData.contactCategoryId
+                          )?.nameEnglish,
+                        }
+                      : null
+                  }
+                  onChange={(selected) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contactCategoryId: selected?.value || "",
+                    }))
+                  }
+                  placeholder={intl.formatMessage({
+                    id: "USER.MASTER.SELECT_CATEGORY",
+                    defaultMessage: "-- Select Category --",
+                  })}
+                  className={`w-full ${errors.contactCategoryId ? "border-red-500" : ""}`}
+                />
                 <button
                   type="button"
                   className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none"
@@ -522,7 +546,6 @@ const AddVendor = ({
                 </p>
               )}
             </div>
-
             {/* Email */}
             <div>
               <InputSimple
@@ -631,7 +654,6 @@ const AddVendor = ({
               </label>
               <input
                 type="date"
-                placeholder="{intl.formatMessage({ id: 'USER.MASTER.BIRTHDATE', defaultMessage: 'Birth Date' })}"
                 name="bdate"
                 className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
                 value={formData.bdate}
@@ -730,7 +752,7 @@ const AddVendor = ({
           <div className="flex w-full justify-end mt-6 gap-3">
             <button
               type="button"
-              onClick={handleModalClose}
+              onClick={() => handleModalClose(false)}
               className="btn btn-secondary"
               disabled={isLoading}
             >
@@ -758,9 +780,9 @@ const AddVendor = ({
       </div>
       <AddContactCategory
         isOpen={isconatctModalOpen}
-        onClose={setIsContactModalOpen}
         refreshData={fetchCategories}
         excludeCustomerType={true}
+        onClose={() => setIsContactModalOpen(false)}
       />
     </div>
   );
@@ -779,7 +801,7 @@ const InputSimple = ({
   <div>
     <label className="block text-gray-600 mb-1">
       {label}
-      {required && (
+      {required && type !== "email" && (
         <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
           *
         </span>

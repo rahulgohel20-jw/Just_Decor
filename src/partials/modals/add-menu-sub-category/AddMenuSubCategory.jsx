@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import Select from "react-select";
+
 import {
   editSubCategory,
   AddSubCategory,
@@ -153,6 +155,11 @@ const AddMenuSubCategory = ({
     }
   }, [editData, isModalOpen]);
 
+  const categoryOptions = categoryList.map((item) => ({
+    value: item.menuid,
+    label: `${item.menuName} — ${item.menunamegujarati} — ${item.menunameHindi}`,
+  }));
+
   return (
     <CustomModal
       open={isModalOpen}
@@ -216,18 +223,27 @@ const AddMenuSubCategory = ({
             })}
           </label>
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
-          >
-            <option value="">Select Category</option>
-            {categoryList.map((item) => (
-              <option key={item.menuid} value={item.menuid}>
-                {item.menuName} — {item.menunamegujarati} — {item.menunameHindi}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={categoryOptions}
+            value={
+              categoryOptions.find((opt) => opt.value === selectedCategory) ||
+              null
+            }
+            onChange={(selected) => setSelectedCategory(selected?.value || "")}
+            isSearchable
+            isClearable
+            placeholder="Select Category"
+            styles={{
+              menu: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base) => ({
+                ...base,
+                minHeight: "38px",
+                borderColor: "#d1d5db",
+                boxShadow: "none",
+                "&:hover": { borderColor: "#9ca3af" },
+              }),
+            }}
+          />
         </div>
       </div>
     </CustomModal>

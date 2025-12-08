@@ -227,7 +227,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                           exit={{ opacity: 0, height: 0 }}
                           className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
                         >
-                          <div className="grid grid-cols-6 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
+                          <div className="grid grid-cols-5 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
                             <div className="text-sm font-semibold text-gray-700">
                               #
                             </div>
@@ -238,9 +238,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                             <div className="text-sm font-semibold text-gray-700">
                               Person
                             </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              Quantity
-                            </div>
+
                             <div className="text-sm font-semibold text-gray-700">
                               Notes
                             </div>
@@ -262,7 +260,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-6 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                className="grid grid-cols-5 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                               >
                                 <div className="text-sm text-gray-700">
                                   {item.id}
@@ -273,9 +271,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                                 <div className="text-sm text-gray-700 flex justify-start ps-2">
                                   {item.person}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start">
-                                  200
-                                </div>
+
                                 <div className="text-sm text-gray-700">
                                   Notes
                                 </div>
