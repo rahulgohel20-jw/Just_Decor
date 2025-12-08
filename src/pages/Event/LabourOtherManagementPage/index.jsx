@@ -11,7 +11,7 @@ import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import ExtraExpenseTable from "./ExtraExpenseTable";
+
 import { useExtraExpense } from "./hooks/useExtraExpense";
 import {
   GetEventMasterById,
@@ -25,7 +25,7 @@ import {
 dayjs.extend(customParseFormat);
 
 const LABOUR_TYPE = "labour";
-const CATEGORIES = ["Labour", "Extra Expense"];
+const CATEGORIES = ["Labour"];
 const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
 const PLACES = ["At Venue", "At Godown"];
 
@@ -622,10 +622,7 @@ const LabourOtherManagementPage = () => {
                   <i className="ki-filled ki-document"></i>
                   Report
                 </button>
-                <button className="btn btn-light btn-sm h-10">
-                  <i className="ki-filled ki-document"></i>
-                  Checklist
-                </button>
+
                 <input
                   type="text"
                   placeholder="Search labour type..."
@@ -683,14 +680,6 @@ const LabourOtherManagementPage = () => {
         )}
 
         {/* Extra Expense Table */}
-        {activeCategory === "Extra Expense" && (
-          <ExtraExpenseTable
-            data={extraExpenseData}
-            onEdit={editExpense}
-            onDelete={deleteExpense}
-            onAddExpense={addExpense}
-          />
-        )}
 
         {/* Modals */}
         <AddNotes

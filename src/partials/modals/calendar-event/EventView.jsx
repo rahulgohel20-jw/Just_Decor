@@ -35,6 +35,12 @@ const EventViewModal = ({
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
 
   const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
+  console.log("🔵 EVENT DATA RAW =>", eventData);
+  console.log("🟢 eventDataAll =>", eventDataAll);
+  console.log("🟡 safeEventId =>", safeEventId);
+  console.log("🟣 Event Type Id =>", eventTypeId);
+  console.log("🏠 Venue =>", eventDataAll?.venue);
+  console.log("🏠 Venue Name =>", eventDataAll?.venue?.nameEnglish);
 
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
@@ -420,7 +426,23 @@ const EventViewModal = ({
                 ),
                 icon: "/media/eventviewicon/invoice.png",
                 onClick: () =>
-                  navigate("/add-invoice", {
+                  navigate(`/add-invoice/${safeEventId}`, {
+                    state: {
+                      eventId: safeEventId,
+                      eventTypeId: eventTypeId,
+                    },
+                  }),
+              },
+              {
+                label: (
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_INVOICE"
+                    defaultMessage="Expense"
+                  />
+                ),
+                icon: "/media/eventviewicon/icon.png",
+                onClick: () =>
+                  navigate("/expense-management", {
                     state: {
                       eventId: safeEventId,
                       eventTypeId: eventTypeId,

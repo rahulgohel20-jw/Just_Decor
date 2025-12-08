@@ -13,7 +13,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-export default function SummaryItemModalchefoutside({ open, onClose }) {
+export default function SummaryItemModalOutsideAgency({ open, onClose }) {
   const [activeTab, setActiveTab] = useState("dinner");
   const [showItems, setShowItems] = useState(false);
 
@@ -89,7 +89,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
               <div className="bg-white border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Summary Item - Chef Labour
+                    Summary Item - Outside Agency
                   </h2>
                   <button
                     onClick={onClose}
@@ -138,143 +138,103 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    <div
-                      className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] 
-  mt-3 items-center"
-                    >
-                      {/* # */}
-                      <div className="text-sm font-semibold text-gray-700 text-center">
+                    <div className="grid grid-cols-8 gap-12 mb-3 pb-2 border-b border-gray-300">
+                      <div className="text-sm font-semibold text-gray-700 ps-3">
                         #
                       </div>
-
-                      {/* Contact Name */}
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
+                      <div className="text-sm font-semibold text-gray-700 ">
                         Contact Name
                       </div>
-
-                      {/* Type */}
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
-                        Type
-                      </div>
-
-                      {/* Quantity */}
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Quantity
-                        </span>
-
-                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Counter</span>
-                          <span>Helper</span>
-                        </div>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Price
-                        </span>
-
-                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Counter</span>
-                          <span>Helper</span>
-                        </div>
-                      </div>
-
-                      {/* Person */}
-                      <div className="text-sm font-semibold text-gray-700 text-center">
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3  ">
                         Person
                       </div>
-
-                      {/* Total Price */}
-                      <div className="text-sm font-semibold text-gray-700 text-center">
+                      <div className="text-sm font-semibold text-gray-700">
+                        Quantity
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
+                        Unit
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-7  ">
+                        Price
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700">
                         Total Price
                       </div>
-
-                      {/* Action */}
-                      <div className="text-sm font-semibold text-gray-700 text-center">
+                      <div className="text-sm font-semibold text-gray-700">
                         Action
                       </div>
                     </div>
 
-                    <div
-                      className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] 
-             mt-3 items-center bg-white p-3 rounded-lg shadow-sm border"
-                    >
-                      {/* No. */}
-                      <div className="text-sm text-gray-800 text-center flex justify-start ps-1">
-                        1
-                      </div>
-
-                      {/* Contact Name */}
+                    <div className="grid grid-cols-8 mt-3 gap-4 items-center bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-sm text-gray-800">1</div>
                       <div className="text-sm font-medium text-gray-900">
-                        {summaryData.contactName || "Select Name"}
+                        {summaryData.contactName}
+                      </div>
+                      <div className="text-sm text-gray-800 flex justify-start ps-5 ">
+                        {summaryData.price}
+                      </div>
+                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
+                        {summaryData.quantity}{" "}
+                        <span className="text-gray-500">
+                          {summaryData.unit}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-800 flex justify-start ps-7 ">
+                        gram
+                      </div>
+                      <div className="text-sm text-gray-800 flex justify-center ps-5 ">
+                        {summaryData.price}
                       </div>
 
-                      {/* Type */}
-                      <div className="text-sm text-gray-800">
-                        {summaryData.type || "Select Options"}
+                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-8">
+                        {summaryData.totalPrice}
                       </div>
 
-                      {/* Quantity */}
-                      <div className="flex justify-center space-x-2  gap-9 text-gray-700">
-                        <span>{summaryData.counterQty || 0} </span>
-                        <span>{summaryData.helperQty || 0} </span>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex justify-center space-x-2 gap-9 text-gray-700">
-                        <span>{summaryData.counterPrice || 0} </span>
-                        <span>{summaryData.helperPrice || 0} </span>
-                      </div>
-
-                      {/* Person */}
-                      <div className="text-gray-700 text-center">
-                        {summaryData.person || 0}
-                      </div>
-
-                      {/* Total Price */}
-                      <div className="text-sm font-semibold text-gray-900 text-center ps-7">
-                        {summaryData.totalPrice || 0}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-center space-x-2">
-                        <button className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white">
-                          <WhatsAppIcon />
-                        </button>
-
-                        <button className="p-2 flex items-center justify-center">
-                          <img
-                            src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
-                            className="w-6 h-6 object-contain"
-                            alt="PDF Icon"
-                          />
-                        </button>
-
-                        <button
-                          onClick={() => setShowItems(!showItems)}
-                          className="text-blue-600 hover:text-gray-600 transition-transform"
-                        >
-                          <motion.svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            animate={{ rotate: showItems ? 180 : 0 }}
-                            transition={{ duration: 0.2 }}
+                      <div
+                        className={`flex justify-start gap-5 p-2 rounded-md transition-all duration-300 
+                         `}
+                      >
+                        <div className="flex gap-2">
+                          <button
+                            className="p-1.5 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
+                            title="Send via WhatsApp"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
+                            <WhatsAppIcon />
+                          </button>
+
+                          <button
+                            className="p-1.1 text-white transition-colors flex items-center justify-center"
+                            title="Download PDF"
+                          >
+                            <img
+                              src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
+                              alt="PDF Icon"
+                              className="w-6 h-6 object-contain"
                             />
-                          </motion.svg>
-                        </button>
+                          </button>
+                          <button
+                            onClick={() => setShowItems(!showItems)}
+                            className="text-blue-600 hover:text-gray-600 transition-transform"
+                          >
+                            <motion.svg
+                              className="w-6 h-6"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              animate={{ rotate: showItems ? 180 : 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </motion.svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
-
                     <AnimatePresence>
                       {showItems && (
                         <motion.div
@@ -284,7 +244,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                           className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
                         >
                           {/* Table Header */}
-                          <div className="grid grid-cols-6 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
+                          <div className="grid grid-cols-5 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
                             <div className="text-sm font-semibold text-gray-700">
                               #
                             </div>
@@ -295,10 +255,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                             <div className="text-sm font-semibold text-gray-700">
                               Person
                             </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              {" "}
-                              Quantity
-                            </div>
+
                             <div className="text-sm font-semibold text-gray-700">
                               Notes
                             </div>
@@ -320,7 +277,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-6 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                className="grid grid-cols-5 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                               >
                                 <div className="text-sm text-gray-700">
                                   {item.id}
@@ -330,9 +287,6 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                                 </div>
                                 <div className="text-sm text-gray-700 flex justify-start ps-2">
                                   {item.person}
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start">
-                                  200
                                 </div>
 
                                 <div className="text-sm text-gray-700">

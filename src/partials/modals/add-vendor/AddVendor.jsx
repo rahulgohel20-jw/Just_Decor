@@ -175,31 +175,33 @@ const AddVendor = ({
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
 
-  const fetchCategories = async () => {
-    try {
-      const {
-        data: { data },
-      } = await GetAllContactCategory(userData);
+ const fetchCategories = async () => {
+   try {
+     const {
+       data: { data },
+     } = await GetAllContactCategory(userData);
 
-      // Filter out Customer type (contactType.id === 2)
-      const allCategories = data["Contact Category Details"] || [];
-      const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id !== 1;
-      });
+     // Filter out Customer type (contactType.id === 2)
+     const allCategories = data["Contact Category Details"] || [];
+     const filteredCategories = allCategories.filter((cat) => {
+       return cat.contactType?.id !== 1;
+     });
 
-      setCategories(filteredCategories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch categories. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-    }
-  };
-
+     setCategories(filteredCategories);
+   } catch (error) {
+     console.error("Error fetching categories:", error);
+     // Only show error if Add Vendor modal is not open
+     if (!isModalOpen) {
+       Swal.fire({
+         icon: "error",
+         title: "Error",
+         text: "Failed to fetch categories. Please try again.",
+         timer: 3000,
+         showConfirmButton: false,
+       });
+     }
+   }
+ };
   const handleIconClick = () => {
     fileInputRef.current?.click();
   };
