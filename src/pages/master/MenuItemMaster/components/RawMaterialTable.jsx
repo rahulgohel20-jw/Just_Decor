@@ -1,14 +1,51 @@
-// MenuItemMaster/components/RawMaterialTable.jsx
+import { useMemo } from "react";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../constant";
 
-const RawMaterialTable = ({ data, onEditRow, onDeleteRow }) => {
+const RawMaterialTable = ({
+  data,
+  onEditRow,
+  onDeleteRow,
+  selectedRows = [],
+  setSelectedRows,
+}) => {
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows([...data]);
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  const handleRowSelect = (row, checked) => {
+    if (checked) {
+      setSelectedRows((prev) => [...prev, row]);
+    } else {
+      setSelectedRows((prev) =>
+        prev.filter((item) => item.sr_no !== row.sr_no)
+      );
+    }
+  };
+
+  const isRowSelected = (row) => {
+    return selectedRows.some((item) => item.sr_no === row.sr_no);
+  };
+
+  const isAllSelected = data.length > 0 && selectedRows.length === data.length;
+
+  const tableColumns = useMemo(
+    () =>
+      columns(onEditRow, onDeleteRow, {
+        onSelectAll: handleSelectAll,
+        onRowSelect: handleRowSelect,
+        isRowSelected,
+        isAllSelected,
+      }),
+    [onEditRow, onDeleteRow, selectedRows, data]
+  );
+
   return (
-    <TableComponent
-      columns={columns(onEditRow, onDeleteRow)}
-      data={data}
-      paginationSize={2}
-    />
+    <TableComponent columns={tableColumns} data={data} paginationSize={10} />
   );
 };
 

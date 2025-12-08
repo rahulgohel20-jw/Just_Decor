@@ -16,7 +16,7 @@ import {
   SelectedItemNameMenuAllocation,
   MenuAllocationSave,
 } from "@/services/apiServices";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 
 const TopTabs = ({ value, onChange, functions }) => {
@@ -303,7 +303,8 @@ const TableRow = ({ row, onChange }) => {
 };
 
 const EventMenuAllocationPage = () => {
-  const { eventId } = useParams();
+  let { eventId } = useParams();
+  const navigate = useNavigate();
   const [activeFunction, setActiveFunction] = useState(null);
   const [rows, setRows] = useState([]);
   const [orderSummaryGroups, setOrderSummaryGroups] = useState([]);
@@ -966,19 +967,62 @@ const EventMenuAllocationPage = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.MENU_ALLOCATION"
-                    defaultMessage="Menu Allocation"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className="flex justify-between items-center mb-4">
+          {/* LEFT: Page Title + 3 Custom Buttons */}
+          <div className="flex items-center gap-6">
+            <h2 className="text-xl text-black font-semibold">
+              3. Menu Allocation
+            </h2>
+
+            {/* ONLY FOR THIS SCREEN */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+              >
+                <i
+                  className="ki-filled ki-menu "
+                  style={{ color: "white" }}
+                ></i>{" "}
+                2. Menu Planning
+              </button>
+
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                onClick={() =>
+                  navigate("/raw-material-allocation", {
+                    state: {
+                      eventId: eventId,
+                      eventTypeId: eventData?.eventType?.id,
+                    },
+                  })
+                }
+              >
+                <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
+                4. Raw Material Allocation
+              </button>
+
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                onClick={() =>
+                  navigate(`/labour-and-other-management/${eventId}`)
+                }
+              >
+                <i
+                  className="ki-filled ki-gift hover:!text-gray-400"
+                  style={{ color: "white" }}
+                ></i>{" "}
+                5. Agency Distribution
+              </button>
+              <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
+                <i
+                  className="ki-filled ki-user "
+                  style={{ color: "white" }}
+                ></i>{" "}
+                Edit Pax
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Event Details */}

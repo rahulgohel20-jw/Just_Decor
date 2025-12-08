@@ -406,6 +406,7 @@ export const GetAllCategory = (data) => {
 export const GetAllCategoryformenu = (id) => {
   return GET(`/menucategory/getallbyuserid?isActive=true&userid=${id}`);
 };
+
 export const Getmenusubcategory = (menucategoryid, userId) => {
   return GET(
     `/menusubcategory/getallbyuserid?isActive=true&menuCategoryId=${menucategoryid}&userid=${userId}`
@@ -1010,8 +1011,10 @@ export const TranslateHindi = (data) => {
   return POST(`/transliterate/to-hindi`, data);
 };
 
-export const deleteRawmatrialcatidInmenuitem = (id) => {
-  return DELETE(`/menuitems/deleteitemrawmaterialbyid?id=${id}`);
+export const deleteRawmatrialcatidInmenuitem = (data) => {
+  return DELETE(`/menuitems/deleteitemrawmaterialbyid `, {
+    data: data,
+  });
 };
 
 export const deleteFunction = (id) => {
@@ -1024,6 +1027,12 @@ export const SuperAdminDashboardPlanWiseTotal = () => {
 
 export const SuperAdminDashboardTotalUserAndPlan = () => {
   return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
+};
+
+export const GetRawmaterialItemByRecipe = (menuId, id) => {
+  return GET(
+    `/menuitems/getmenuitemrawmaterialbymenuid?menuItemId=${menuId}&userId=${id}`
+  );
 };
 
 export const SuperAdminDashboardMonthWiseData = (
@@ -1057,16 +1066,16 @@ export const deleteDownPayment = (id) => {
 
 export const Addtemplate = (data) => {
   return POST(`/templatemodulemaster/add`, data);
-}
+};
 
-export const GettemplatebyuserId  = () => {
+export const GettemplatebyuserId = () => {
   return GET(`templatemodulemaster/getall`);
-}
+};
 
 export const Deletetemplatebyid = (id) => {
   return DELETE(`/templatemodulemaster/deletebyid?id=${id}`);
-}
+};
 
 export const Edittemplatebyid = (id, data) => {
   return PUT(`/templatemodulemaster/update?id=${id}`, data);
-}
+};

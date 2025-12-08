@@ -384,6 +384,8 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
           name="venue"
         >
           <Select
+            showSearch
+            optionFilterProp="label"
             className="bg-[#F8FAFC] h-10"
             options={[
               { label: "At Venue", value: "at_venue" },

@@ -26,7 +26,7 @@ import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 
 const EventPlanningPage = () => {
-  const { eventId } = useParams();
+  let { eventId } = useParams();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +72,7 @@ const EventPlanningPage = () => {
         const response = await GetEventMasterById(eventId);
         const eventDetails =
           response?.data?.data?.["Event Details"]?.[0] || null;
+        console.log(eventDetails);
 
         setEventData(eventDetails);
 
@@ -767,30 +768,61 @@ const EventPlanningPage = () => {
             {/* LEFT: Page Title + 3 Custom Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
-                Menu Planning
+                2. Menu Planning
               </h2>
 
               {/* ONLY FOR THIS SCREEN */}
               <div className="flex gap-2">
-                <button className="btn btn-light text-black font-semibold ">
-                  <i className="ki-filled ki-user"></i> Edit Pax
+                <button
+                  onClick={() => navigate(`/menu-allocation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  3. Menu Allocation
                 </button>
 
-                <button className="btn btn-light text-black font-semibold">
-                  <i className="ki-filled ki-menu"></i> Menu Allocation
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() =>
+                    navigate("/raw-material-allocation", {
+                      state: {
+                        eventId: eventId,
+                        eventTypeId: eventData?.eventType?.id,
+                      },
+                    })
+                  }
+                >
+                  <i
+                    className="ki-filled ki-gift"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  4. Raw Material Allocation
                 </button>
 
-                <button className="btn btn-light text-black font-semibold">
-                  <i className="ki-filled ki-gift"></i> Raw Material Allocation
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() =>
+                    navigate(`/labour-and-other-management/${eventId}`)
+                  }
+                >
+                  <i
+                    className="ki-filled ki-gift hover:!text-gray-400"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  5. Agency Distribution
                 </button>
-                <button className="btn btn-light text-black font-semibold">
-                  <i className="ki-filled ki-gift"></i> Agency Distribution
+                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
+                  <i
+                    className="ki-filled ki-user "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  Edit Pax
                 </button>
               </div>
             </div>
-
-            {/* RIGHT SIDE: Breadcrumbs */}
-            <Breadcrumbs items={[{ title: "" }]} />
           </div>
 
           <div className="border rounded mb-4 w-full">

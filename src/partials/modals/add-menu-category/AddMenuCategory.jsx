@@ -32,7 +32,7 @@ const AddMenuCategory = ({
     sequence: "",
     file: "",
   };
-  const requiredFields = ["nameEnglish", "price", "sequence"];
+  const requiredFields = ["nameEnglish"];
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [debounceTimer, setDebounceTimer] = useState(null);
@@ -241,9 +241,6 @@ const AddMenuCategory = ({
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
-            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
-              *
-            </span>
           </label>
           <input
             type="number"
@@ -256,16 +253,10 @@ const AddMenuCategory = ({
               defaultMessage: "Price",
             })}
           />
-          {errors.price && (
-            <span className="text-red-500 text-sm">{errors.price}</span>
-          )}
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />
-            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
-              *
-            </span>
           </label>
           <input
             type="number"
@@ -278,9 +269,6 @@ const AddMenuCategory = ({
               defaultMessage: "Priority",
             })}
           />
-          {errors.sequence && (
-            <span className="text-red-500 text-sm">{errors.sequence}</span>
-          )}
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">

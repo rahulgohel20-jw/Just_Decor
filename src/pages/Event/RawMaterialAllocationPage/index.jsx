@@ -10,7 +10,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   GetAllRawMaterialAllocationCategory,
@@ -28,7 +28,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 const RawMaterialAllocation = () => {
   const location = useLocation();
-  const { eventId, eventTypeId } = location.state || {};
+  let { eventId, eventTypeId } = location.state || {};
+  const navigate = useNavigate();
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -479,18 +480,59 @@ const RawMaterialAllocation = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.RAW_MATERIAL_ALLOCATION"
-                    defaultMessage="Raw Material Allocation"
-                  />
-                ),
-              },
-            ]}
-          />
+          <div className="flex justify-between items-center mb-4">
+            {/* LEFT: Page Title + 3 Custom Buttons */}
+            <div className="flex items-center gap-6">
+              <h2 className="text-xl text-black font-semibold">
+                4. Raw Material Allocation
+              </h2>
+
+              {/* ONLY FOR THIS SCREEN */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  2. Menu Planning
+                </button>
+
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() => navigate(`/menu-allocation/${eventId}`)}
+                >
+                  <i
+                    className="ki-filled ki-gift"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  3. Menu Allocation
+                </button>
+
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() =>
+                    navigate(`/labour-and-other-management/${eventId}`)
+                  }
+                >
+                  <i
+                    className="ki-filled ki-gift hover:!text-gray-400"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  5. Agency Distribution
+                </button>
+                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
+                  <i
+                    className="ki-filled ki-user "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  Edit Pax
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="card bg-white mb-3">

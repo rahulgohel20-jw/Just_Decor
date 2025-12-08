@@ -480,8 +480,8 @@ const FunctionsDetails = ({
         <table className="w-full text-sm text-left border-gray-200 border-t">
           <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
             <tr>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-10"></th>
-              <th className="text-sm font-semibold text-gray-900 p-3">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-5"></th>
+              <th className="text-sm font-semibold text-gray-900 p-3 ">
                 <div className="flex items-center gap-2">
                   <span className="flex items-center">
                     <FormattedMessage
@@ -502,7 +502,7 @@ const FunctionsDetails = ({
                   </button>
                 </div>
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-30">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
                   defaultMessage="Start Date"
@@ -561,7 +561,7 @@ const FunctionsDetails = ({
                   return (
                     <SortableRow key={func.id || index} id={func.id || index}>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-10`}
                       >
                         <FunctionTypeDropdown
                           value={func.functionId || undefined}
@@ -591,7 +591,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <DatePicker
                           style={{
@@ -683,7 +683,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-24`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <Input
                           className="w-full text-center"
@@ -701,7 +701,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-24`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <Input
                           className="w-full text-center"

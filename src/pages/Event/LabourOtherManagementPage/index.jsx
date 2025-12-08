@@ -2,7 +2,7 @@ import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { DatePicker, Select } from "antd";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
@@ -60,7 +60,9 @@ const createEmptyLabourRow = () => ({
 });
 
 const LabourOtherManagementPage = () => {
-  const { eventId } = useParams();
+  let { eventId } = useParams();
+  const navigate = useNavigate();
+
   const storedUser = useMemo(
     () => JSON.parse(localStorage.getItem("userData") || "{}"),
     []
@@ -527,13 +529,65 @@ const LabourOtherManagementPage = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: "Labour/Other Management",
-              },
-            ]}
-          />
+          <div className="flex justify-between items-center mb-4">
+            {/* LEFT: Page Title + 3 Custom Buttons */}
+            <div className="flex items-center gap-6">
+              <h2 className="text-xl text-black font-semibold">
+                5. Agency Distribution
+              </h2>
+
+              {/* ONLY FOR THIS SCREEN */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  2. Menu Planning
+                </button>
+
+                <button
+                  onClick={() => navigate(`/menu-allocation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  3. Menu Allocation
+                </button>
+
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() =>
+                    navigate("/raw-material-allocation", {
+                      state: {
+                        eventId: eventId,
+                        eventTypeId: eventData?.eventType?.id,
+                      },
+                    })
+                  }
+                >
+                  <i
+                    className="ki-filled ki-gift"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  4. Raw Material Allocation
+                </button>
+
+                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
+                  <i
+                    className="ki-filled ki-user "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  Edit Pax
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Event Info Card */}

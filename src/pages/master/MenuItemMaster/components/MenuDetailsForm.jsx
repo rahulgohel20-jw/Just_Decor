@@ -24,13 +24,14 @@ import {
   Translateapi,
   uploadFile,
   UpdateMenuItem,
+  deleteRawmatrialcatidInmenuitem,
 } from "@/services/apiServices";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
 import { useNavigate } from "react-router-dom";
+import CopyRecipe from "../../../../partials/modals/CopyRecipe/CopyRecipe";
 import Swal from "sweetalert2";
-
 const { Dragger } = Upload;
 const { TextArea } = Input;
 
@@ -54,6 +55,8 @@ const MenuDetailsForm = ({
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
+  const [isCopyRecipe, setIsCopyRecipe] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   const {
     tableData,
@@ -91,6 +94,7 @@ const MenuDetailsForm = ({
         const rawData =
           rawRes?.data?.data?.["Raw Material Details"]?.map((item) => ({
             rawMaterialId: item.id,
+            category: item.rawMaterialCat.nameEnglish,
             name: item.nameEnglish,
             unitId: item.unit?.id,
             unit: item.unit?.nameEnglish,
@@ -169,12 +173,13 @@ const MenuDetailsForm = ({
     if (editData.menuItemRawMaterials?.length > 0) {
       const mapped = editData.menuItemRawMaterials.map((rm, idx) => ({
         sr_no: idx + 1,
-        menuRmId: rm.id,
-        rawMaterialId: rm.rawMaterial.id,
-        name: rm.rawMaterial.nameEnglish,
-        weight: rm.weight,
-        unitId: rm.unit.id,
-        unit: rm.unit.nameEnglish,
+        menuRmId: rm?.id,
+        category: rm.rawMaterial?.rawMaterialCat?.nameEnglish,
+        rawMaterialId: rm?.rawMaterial?.id,
+        name: rm?.rawMaterial?.nameEnglish,
+        weight: rm?.weight,
+        unitId: rm?.unit?.id,
+        unit: rm?.unit?.nameEnglish,
         supplierRate: rm.rawMaterial.supplierRate,
         rate: rm.rate,
       }));
@@ -218,6 +223,7 @@ const MenuDetailsForm = ({
       message.error("Failed to refresh data");
     }
   };
+
   const handleTranslate = async (value) => {
     if (!value || value.trim() === "") return;
 
@@ -262,6 +268,52 @@ const MenuDetailsForm = ({
 
   const handleRetry = () => {
     message.info("Retry upload logic can be added here.");
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedRows.length === 0) {
+      message.warning("Please select items to delete");
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You are about to delete ${selectedRows.length} item(s)`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!result.isConfirmed) return;
+
+      const itemsWithId = selectedRows.filter((row) => row.menuRmId);
+
+      if (itemsWithId.length > 0) {
+        const menuRmIds = itemsWithId.map((row) => row.menuRmId);
+        const payload = {
+          id: menuRmIds,
+        };
+        console.log(payload);
+
+        await deleteRawmatrialcatidInmenuitem(payload);
+      }
+
+      // Remove all selected items from table
+      const selectedSrNos = selectedRows.map((row) => row.sr_no);
+      setTableData((prev) =>
+        prev.filter((item) => !selectedSrNos.includes(item.sr_no))
+      );
+
+      setSelectedRows([]);
+      message.success(`Successfully deleted ${selectedRows.length} item(s)`);
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to delete items");
+    }
   };
 
   const onFinish = async (values) => {
@@ -320,6 +372,26 @@ const MenuDetailsForm = ({
       console.error(error);
       Swal.fire("Error", "Something went wrong", "error");
     }
+  };
+
+  const handleCopyRecipe = (copiedItems) => {
+    if (!copiedItems || copiedItems.length === 0) return;
+
+    const newRows = copiedItems.map((rm, idx) => ({
+      sr_no: tableData.length + idx + 1,
+      menuRmId: 0,
+      rawMaterialId: rm.rawmatrialId,
+      name: rm.name,
+      category: rm.category,
+      weight: rm.weight,
+      unitId: rm.unitId,
+      unit: rm.unit,
+      supplierRate: rm.supplierRate,
+      rate: rm.weight * rm.supplierRate,
+    }));
+
+    setTableData((prev) => [...prev, ...newRows]);
+    message.success(`${newRows.length} item(s) copied`);
   };
 
   const handleCancel = () => {
@@ -431,6 +503,8 @@ const MenuDetailsForm = ({
           >
             <div className="flex ">
               <Select
+                showSearch
+                optionFilterProp="label"
                 placeholder="Select Menu Item Category"
                 value={form.getFieldValue("category")}
                 options={menuCategory.map((c) => ({
@@ -466,6 +540,8 @@ const MenuDetailsForm = ({
           >
             <div className="flex ">
               <Select
+                showSearch
+                optionFilterProp="label"
                 placeholder="Select Menu Item Sub Category"
                 value={form.getFieldValue("subCategory")}
                 options={menuSubCategory.map((item) => ({
@@ -607,13 +683,15 @@ const MenuDetailsForm = ({
           </h1>
 
           <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-end flex-wrap">
+            <div className="flex gap-3 items-end flex-wrap">
               <div className="flex flex-col w-[300px]">
                 <label className="text-[#6A7C94] text-base font-medium mb-2">
                   Select Raw Material
                 </label>
                 <div className="flex">
                   <Select
+                    showSearch
+                    optionFilterProp="label"
                     placeholder="Select Raw Material"
                     className="bg-[#F8FAFC] h-10 w-full"
                     value={selectedRaw}
@@ -671,18 +749,30 @@ const MenuDetailsForm = ({
               </div>
             </div>
 
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAddRecipe}
-              className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
-            >
-              Add Recipe
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="primary"
+                onClick={() => {
+                  setIsCopyRecipe(true);
+                }}
+                className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
+              >
+                Copy Recipe
+              </Button>
+
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddRecipe}
+                className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
+              >
+                Add Recipe
+              </Button>
+            </div>
           </div>
 
-          {/* Search */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 mb-4">
+          {/* Search & Delete */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-4 mb-4">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -693,6 +783,17 @@ const MenuDetailsForm = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+
+            {selectedRows.length > 0 && (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleBulkDelete}
+                className="h-10 px-6 rounded-md"
+              >
+                Delete Selected ({selectedRows.length})
+              </Button>
+            )}
           </div>
 
           {/* Table */}
@@ -700,6 +801,8 @@ const MenuDetailsForm = ({
             data={filteredTableData}
             onEditRow={handleEditRow}
             onDeleteRow={handleDeleteRow}
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows}
           />
 
           {/* Footer Total */}
@@ -767,6 +870,11 @@ const MenuDetailsForm = ({
         isOpen={isRawMaterialModalOpen}
         onClose={setIsRawMaterialModalOpen}
         refreshData={refreshData}
+      />
+      <CopyRecipe
+        isOpen={isCopyRecipe}
+        onClose={setIsCopyRecipe}
+        onCopy={(data) => handleCopyRecipe(data)}
       />
     </>
   );

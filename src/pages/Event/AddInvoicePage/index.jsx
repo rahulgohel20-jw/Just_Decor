@@ -10,16 +10,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 
 import { Tooltip, message } from "antd";
-import {
-  SearchOutlined,
-  EditOutlined,
-  DownloadOutlined,
-  EyeOutlined,
-  SaveOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
-import { Download } from "lucide-react";
+import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
 import { GetInvoiceByEventId } from "@/services/apiServices";
 
@@ -35,6 +26,7 @@ const AddInvoicePage = () => {
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
+  const [isEdited, setIsEdited] = useState(false);
 
   // New state for invoice footer data
   const [footerData, setFooterData] = useState({
@@ -233,16 +225,21 @@ const AddInvoicePage = () => {
   };
 
   const handleInputChange = (index, field, value) => {
+    setIsEdited(true);
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
     setRows(updatedRows);
   };
 
   const handleDeleteRow = (key) => {
+    setIsEdited(true);
+
     setRows(rows.filter((row) => row.key !== key));
   };
 
   const handleAddRow = () => {
+    setIsEdited(true);
+
     const lastRow = rows[rows.length - 1];
     setRows([
       ...rows,
@@ -263,6 +260,7 @@ const AddInvoicePage = () => {
   };
 
   const handleFooterDataChange = (newFooterData) => {
+    setIsEdited(true);
     setFooterData(newFooterData);
   };
 
@@ -276,6 +274,8 @@ const AddInvoicePage = () => {
 
   // Handle temp value changes
   const handleTempValueChange = (field, value) => {
+    setIsEdited(true);
+    handleTempValueChange;
     setTempValues((prev) => ({
       ...prev,
       [field]: value,
@@ -405,7 +405,7 @@ const AddInvoicePage = () => {
         cgst: String(footerData.cgst),
         cgstAmnt: footerData.cgstAmnt,
         discount: footerData.discount,
-        duedate: dueDate ? dueDate.format("DD/MM/YYYY") : null,
+        duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
         eventId: eventId,
         eventInvoiceFunctionPayments:
           invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
@@ -454,6 +454,7 @@ const AddInvoicePage = () => {
       console.log("API Response:", response);
 
       if (response?.data?.success === true) {
+        setIsEdited(false);
         // ✅ SUCCESS ALERT
         Swal.fire({
           title: response?.data?.msg || "Invoice saved successfully!",
@@ -590,7 +591,10 @@ const AddInvoicePage = () => {
                           format="DD/MM/YYYY"
                           className="input w-full"
                           value={dueDate}
-                          onChange={(date) => setDueDate(date)}
+                          onChange={(date) => {
+                            setDueDate(date);
+                            setIsEdited(true);
+                          }}
                           placeholder="Select due date"
                         />
                       </div>
@@ -834,6 +838,7 @@ const AddInvoicePage = () => {
               footerData={footerData}
               onFooterDataChange={handleFooterDataChange}
               onSave={handleSaveInvoice}
+              isEdited={isEdited}
             />
           </div>
         </div>

@@ -62,6 +62,7 @@ export default function useRecipe(rawmaterialList, initialData = []) {
         row.sr_no === editingRowId
           ? {
               ...row,
+              category: raw.category,
               name: raw.name,
               weight,
               unit: unitName,
@@ -76,6 +77,7 @@ export default function useRecipe(rawmaterialList, initialData = []) {
     } else {
       const newRow = {
         sr_no: rowCounter,
+        category: raw.category,
         name: raw.name,
         weight,
         unit: unitName,
@@ -102,7 +104,10 @@ export default function useRecipe(rawmaterialList, initialData = []) {
     }
 
     try {
-      await deleteRawmatrialcatidInmenuitem(row.menuRmId);
+      const payload = {
+        id: row.menuRmId,
+      };
+      await deleteRawmatrialcatidInmenuitem(payload);
       setTableData((prev) => prev.filter((item) => item.sr_no !== row.sr_no));
       message.success("Deleted successfully");
     } catch (error) {
