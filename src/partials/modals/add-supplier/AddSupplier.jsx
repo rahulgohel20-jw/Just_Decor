@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { GetSuplier } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
+import Select from "react-select";
 
 const AddSupplier = ({
   isOpen,
@@ -115,24 +116,38 @@ const AddSupplier = ({
               </label>
 
               <div className="flex items-center gap-2">
-                <select
-                  className="select flex-1"
-                  name="suplierlistid"
-                  value={formData.suplierlistid}
-                  onChange={handleChange}
-                >
-                  <option value="">
-                    <FormattedMessage
-                      id="COMMON.SELECT_SUPPLIER"
-                      defaultMessage="Select Supplier"
-                    />
-                  </option>
-                  {suplierList.map((suplier) => (
-                    <option key={suplier.value} value={suplier.value}>
-                      {suplier.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex-1">
+                  <Select
+                    options={suplierList} // [{label, value}]
+                    value={
+                      suplierList.find(
+                        (s) => s.value === formData.suplierlistid
+                      ) || null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        suplierlistid: selected?.value || "",
+                      }))
+                    }
+                    isClearable
+                    isSearchable
+                    placeholder={
+                      <FormattedMessage
+                        id="COMMON.SELECT_SUPPLIER"
+                        defaultMessage="Select Supplier"
+                      />
+                    }
+                    styles={{
+                      menu: (base) => ({ ...base, zIndex: 9999 }),
+                      control: (base) => ({
+                        ...base,
+                        minHeight: "38px",
+                        borderColor: "#d1d5db",
+                      }),
+                    }}
+                  />
+                </div>
 
                 {/* Open Vendor Modal */}
                 <button

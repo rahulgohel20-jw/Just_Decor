@@ -160,7 +160,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                       {/* Quantity */}
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-semibold text-gray-700">
-                          Quantity
+                          Total Quantity
                         </span>
 
                         <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
@@ -172,7 +172,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                       {/* Price */}
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-semibold text-gray-700">
-                          Price
+                          Total Price
                         </span>
 
                         <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
@@ -183,7 +183,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
 
                       {/* Person */}
                       <div className="text-sm font-semibold text-gray-700 text-center">
-                        Person
+                        Total Person
                       </div>
 
                       {/* Total Price */}
@@ -284,7 +284,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                           className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
                         >
                           {/* Table Header */}
-                          <div className="grid grid-cols-6 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
+                          <div className="grid grid-cols-7 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
                             <div className="text-sm font-semibold text-gray-700">
                               #
                             </div>
@@ -292,14 +292,31 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                               Menu Item Name
                             </div>
 
-                            <div className="text-sm font-semibold text-gray-700">
+                            {/* Quantity */}
+                            <div className="flex flex-col items-center justify-start">
+                              <span className="text-sm font-semibold  text-gray-700">
+                                Quantity
+                              </span>
+
+                              <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                                <span>Counter</span>
+                                <span>Helper</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-sm font-semibold text-gray-700">
+                                Price
+                              </span>
+
+                              <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                                <span>Counter</span>
+                                <span>Helper</span>
+                              </div>
+                            </div>
+                            <div className="text-sm font-semibold text-gray-700 flex justify-center">
                               Person
                             </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              {" "}
-                              Quantity
-                            </div>
-                            <div className="text-sm font-semibold text-gray-700">
+                            <div className="text-sm font-semibold text-gray-700 flex justify-center">
                               Notes
                             </div>
                           </div>
@@ -320,7 +337,7 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-6 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                className="grid grid-cols-7 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                               >
                                 <div className="text-sm text-gray-700">
                                   {item.id}
@@ -328,14 +345,17 @@ export default function SummaryItemModalchefoutside({ open, onClose }) {
                                 <div className="text-sm font-medium text-gray-900 col-span-2">
                                   {item.name}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start ps-2">
+
+                                <div className="text-sm text-gray-700 flex justify-center ps-2">
+                                  0
+                                </div>
+                                <div className="text-sm text-gray-700 flex justify-center ps-2">
+                                  0
+                                </div>
+                                <div className="text-sm text-gray-700 flex justify-center ps-2">
                                   {item.person}
                                 </div>
-                                <div className="text-sm text-gray-700 flex justify-start">
-                                  200
-                                </div>
-
-                                <div className="text-sm text-gray-700">
+                                <div className="text-sm text-gray-700 flex justify-center">
                                   Notes
                                 </div>
                               </motion.div>

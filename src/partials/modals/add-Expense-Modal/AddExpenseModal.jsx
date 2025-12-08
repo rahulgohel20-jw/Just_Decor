@@ -65,6 +65,7 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
               </div>
 
               <div className="p-6 space-y-4">
+                {/* Manager */}
                 <div className="bg-gray-100 rounded-xl px-4 py-2 flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-800 font-semibold">
                     {managerName
@@ -77,6 +78,7 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                   <span>{managerName || "Select Manager"}</span>
                 </div>
 
+                {/* Item Name */}
                 <input
                   type="text"
                   name="itemName"
@@ -86,6 +88,7 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                   className="input mt-1 w-full"
                 />
 
+                {/* Amount */}
                 <input
                   type="number"
                   name="amount"
@@ -95,6 +98,7 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                   className="input mt-1 w-full"
                 />
 
+                {/* Date */}
                 <input
                   type="date"
                   name="date"
@@ -103,13 +107,14 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                   className="input mt-1 w-full"
                 />
 
-                <div className="flex justify-between mt-2">
-                  {["cash", "online", "card", "upi"].map((type) => (
+                {/* Payment Types — 3 top, 2 bottom */}
+                <div className="grid grid-cols-3 gap-2 mt-3">
+                  {["cash", "online", "card"].map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setForm({ ...form, paymentType: type })}
-                      className={`px-4 py-2 rounded-xl border flex-1 mx-1 ${
+                      className={`px-4 py-2 rounded-xl border ${
                         form.paymentType === type
                           ? "bg-blue-500 text-white border-blue-500"
                           : "bg-gray-100 text-gray-700 border-gray-200"
@@ -119,6 +124,34 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                     </button>
                   ))}
                 </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {["Net Banking", "upi"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() =>
+                        setForm({ ...form, paymentType: type.toLowerCase() })
+                      }
+                      className={`px-4 py-2 rounded-xl border ${
+                        form.paymentType === type.toLowerCase()
+                          ? "bg-blue-500 text-white border-blue-500"
+                          : "bg-gray-100 text-gray-700 border-gray-200"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Remarks (textarea) */}
+                <textarea
+                  name="remarks"
+                  value={form.remarks}
+                  onChange={handleInput}
+                  placeholder="Remarks"
+                  className="mt-1 w-full h-24 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                ></textarea>
               </div>
 
               <div className="p-4 border-t flex justify-end gap-2 bg-white">
