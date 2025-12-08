@@ -567,7 +567,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               <label className="form-label">
                 <FormattedMessage
                   id="COMMON.SUPPLIER_RATE"
-                  defaultMessage="Supplier Rate"
+                  defaultMessage="Rate"
                 />
               </label>
               <input

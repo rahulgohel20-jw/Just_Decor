@@ -21,18 +21,16 @@ const RenderAllocationFields = ({ fields, onAddClick, form }) => {
           ) : (
             <div className="flex">
               <Select
+                value={form.getFieldValue(f.name)} // <—— ADD THIS
                 placeholder={f.placeholder || f.label}
                 className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] w-full"
                 options={f.options || []}
                 onChange={(value) => {
-                  // Update form value first
                   form.setFieldsValue({ [f.name]: value });
-                  // Then call custom onChange if exists
-                  if (f.onChange) {
-                    f.onChange(value);
-                  }
+                  if (f.onChange) f.onChange(value);
                 }}
               />
+
               {f.showAddButton && (
                 <button
                   type="button"

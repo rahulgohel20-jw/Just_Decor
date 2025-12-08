@@ -45,7 +45,9 @@ const EventViewModal = ({
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
+  const [translatedAddress, setTranslatedAddress] = useState("");
   const [isSelectMenuReport, setIsSelectMenuReport] = useState(false);
+
   useEffect(() => {
     const translateText = async (text) => {
       if (!text) {
@@ -88,7 +90,7 @@ const EventViewModal = ({
             const resGujarati = await TranslateGujarati({ text });
 
             const translatedTextGu =
-              resGujarati?.data?.text || // Same structure as Hindi API
+              resGujarati?.data?.text ||
               resGujarati?.data?.translatedText ||
               resGujarati?.translatedText ||
               resGujarati?.data?.translated_text ||
@@ -107,30 +109,35 @@ const EventViewModal = ({
 
     const doTranslate = async () => {
       const title = eventData?.event?._def?.title || "";
+      const address = eventData?.event?._def?.extendedProps?.address || "";
 
-      if (!title) {
-        console.log("⚠️ No title found, setting empty string");
+      if (title) {
+        const translatedTitleResult = await translateText(title);
+        setTranslatedTitle(translatedTitleResult);
+      } else {
         setTranslatedTitle("");
-        return;
       }
 
-      const result = await translateText(title);
-
-      setTranslatedTitle(result);
+      if (address) {
+        const translatedAddressResult = await translateText(address);
+        setTranslatedAddress(translatedAddressResult);
+      } else {
+        setTranslatedAddress("");
+      }
     };
 
-    const shouldTranslate = isModalOpen && eventData?.event?._def?.title;
+    const shouldTranslate = isModalOpen && eventData?.event;
 
     if (shouldTranslate) {
       doTranslate();
     } else {
-      console.log("❌ Conditions not met, translation skipped");
+      setTranslatedTitle("");
+      setTranslatedAddress("");
     }
   }, [eventData, isModalOpen]);
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    window.history.back(); // go back one step in browser history
   };
 
   const openMenuReport = (eventId) => {
@@ -227,6 +234,7 @@ const EventViewModal = ({
             defaultMessage="Event View"
           />
         }
+        className="calendar-event-modal "
         width={1100}
       >
         <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -272,10 +280,7 @@ const EventViewModal = ({
                 />
               </p>
               <h3 className="font-semibold text-base mb-2">
-                {translatedTitle ||
-                  eventDataAll?.venue?.nameEnglish ||
-                  "No Venue Found"}
-                rk
+                {translatedAddress || eventDataAll?.address || "N/A"}
               </h3>
             </div>
 

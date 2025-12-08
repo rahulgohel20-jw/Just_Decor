@@ -218,15 +218,15 @@ export const allMenuItems = [
         path: "/master/menu-sub-category",
       },
 
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.KITCHEN_AREA"
-            defaultMessage="Kitchen Area"
-          />
-        ),
-        path: "/master/menu-kitchan-area",
-      },
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.KITCHEN_AREA"
+      //       defaultMessage="Kitchen Area"
+      //     />
+      //   ),
+      //   path: "/master/menu-kitchan-area",
+      // },
       {
         title: (
           <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />

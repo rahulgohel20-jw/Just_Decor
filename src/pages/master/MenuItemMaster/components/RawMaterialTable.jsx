@@ -7,7 +7,7 @@ const RawMaterialTable = ({ data, onEditRow, onDeleteRow }) => {
     <TableComponent
       columns={columns(onEditRow, onDeleteRow)}
       data={data}
-      paginationSize={10}
+      paginationSize={2}
     />
   );
 };
