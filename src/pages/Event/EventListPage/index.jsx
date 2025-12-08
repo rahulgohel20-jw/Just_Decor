@@ -114,6 +114,8 @@ const EventListPage = () => {
           .slice()
           .reverse()
           .map(async (cust, index) => {
+            console.log("CUST OBJECT:", cust);
+
             // Translate customer name and event type in parallel
             const [translatedCustomer, translatedEventType] = await Promise.all(
               [
@@ -125,6 +127,7 @@ const EventListPage = () => {
             return {
               sr_no: index + 1,
               eventid: cust.id,
+
               event_id: cust.eventNo || "-",
               event_date:
                 cust.eventStartDateTime.split(" ")[0] +
@@ -132,6 +135,7 @@ const EventListPage = () => {
                 cust.eventEndDateTime.split(" ")[0],
               customer: translatedCustomer, // Translated
               event_type: translatedEventType, // Translated
+
               proforma_invoice: (
                 <Tooltip className="cursor-pointer" title="Proforma Invoice">
                   <div
@@ -143,7 +147,13 @@ const EventListPage = () => {
                 </Tooltip>
               ),
               invoice: (
-                <Link to="/invoice-dashboard">
+                <Link
+                  to={`/add-invoice/${cust.id}`}
+                  state={{
+                    eventId: cust.id,
+                    eventTypeId: cust.eventType.id,
+                  }}
+                >
                   <Tooltip className="cursor-pointer" title="Invoice">
                     <div className="flex justify-center items-center w-full">
                       <Receipt className="w-5 h-5 text-success" />
@@ -151,6 +161,7 @@ const EventListPage = () => {
                   </Tooltip>
                 </Link>
               ),
+
               quotation: (
                 <Link to={`/quotation/${cust.id}`}>
                   <Tooltip className="cursor-pointer" title="Quotation">

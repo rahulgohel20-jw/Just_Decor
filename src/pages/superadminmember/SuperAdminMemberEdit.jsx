@@ -23,7 +23,8 @@ const SuperAdminMemberEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
+  const [updateResponse, setUpdateResponse] = useState(null);
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   // Dropdown options state
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -44,6 +45,7 @@ const SuperAdminMemberEdit = () => {
     cityId: "",
     memberType: "",
     planId: "",
+    isFile: "true",
     preFix: "",
     reportingManagerId: "",
   });
@@ -69,13 +71,34 @@ const SuperAdminMemberEdit = () => {
 
   const [callFile, setCallFile] = useState(null);
 
-  // Fetch all dropdown data on mount
-  useEffect(() => {
-    loadPlans();
-    loadManagers();
-  }, []);
+  const getDocumentUrl = (moduleName, moduleId, fileType) => {
+    const baseUrl =
+      process.env.REACT_APP_API_BASE_URL || "http://your-api-url.com";
+    // Adjust this path based on your actual API structure
+    // Common patterns: /uploads/${moduleName}/${moduleId}.${fileType}
+    // or: /api/files/${moduleName}/${moduleId}
+    return `${baseUrl}/uploads/${moduleName}/${moduleId}.${fileType}`;
+  };
 
-  // Fetch user data
+  const getModuleDisplayName = (moduleName) => {
+    const names = {
+      userDetails: "Profile Image",
+      userDocument: "KYC Document",
+      userDownPayment: "Payment Receipt",
+    };
+    return names[moduleName] || moduleName;
+  };
+  useEffect(() => {
+    const initialize = async () => {
+      await loadStatesForDefaultCountry(); // load states first
+      await loadPlans();
+      await loadManagers();
+      if (id) await fetchUserData(); // then fetch user
+    };
+
+    initialize();
+  }, [id]);
+
   useEffect(() => {
     if (id) {
       console.log("Component mounted with ID:", id, "Type:", typeof id);
@@ -87,7 +110,7 @@ const SuperAdminMemberEdit = () => {
 
   const loadStatesForDefaultCountry = async () => {
     try {
-      const response = await fetchStatesByCountry(DEFAULT_COUNTRY_ID);
+      const response = await fetchStatesByCountry(1);
       if (response.data.success) {
         const stateOptions = response?.data?.data?.["state Details"].map(
           (state) => ({
@@ -141,7 +164,6 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
-  // Load Managers
   const loadManagers = async () => {
     try {
       const clientUserId = 1;
@@ -160,7 +182,6 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
-  // Handle State Change
   const handleStateChange = (stateId) => {
     setSelectedState(stateId);
     setMemberDetails((prev) => ({ ...prev, cityId: "" }));
@@ -170,7 +191,6 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
-  // Handle City Change
   const handleCityChange = (cityId) => {
     setMemberDetails((prev) => ({ ...prev, cityId }));
   };
@@ -189,10 +209,8 @@ const SuperAdminMemberEdit = () => {
           if (user.stateId) {
             setSelectedState(user.stateId);
 
-            // Load cities first
             const cities = await loadCities(user.stateId);
 
-            // Find city by name
             const matchedCity = cities.find((c) => c.label === user.cityName);
 
             setMemberDetails((prev) => ({
@@ -201,7 +219,6 @@ const SuperAdminMemberEdit = () => {
             }));
           }
 
-          // rest fields
           setMemberDetails((prev) => ({
             ...prev,
             firstName: user.firstName || "",
@@ -210,6 +227,7 @@ const SuperAdminMemberEdit = () => {
             address: user.address || "",
             memberType: user.memberType || "",
             planId: user.userPlan?.plan?.id || "",
+            isFile: user.isFile || "true",
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
           }));
@@ -264,7 +282,7 @@ const SuperAdminMemberEdit = () => {
                   : "",
                 remarks: dp.remarks || "",
                 docPath: null,
-                // existingDocPath: dp.docPath || null, // Store existing document URL
+                existingDocPath: dp.docPath || null, // Store existing document URL
               }))
             );
           }
@@ -292,6 +310,7 @@ const SuperAdminMemberEdit = () => {
         paymentType: "",
         amount: "",
         payid: "",
+
         paidAmount: "",
         transactionDate: "",
         remarks: "",
@@ -404,6 +423,15 @@ const SuperAdminMemberEdit = () => {
       // Add member details (only non-empty values)
       formData.append("firstName", memberDetails.firstName);
       formData.append("lastName", memberDetails.lastName);
+      // Check if any file exists in KYC or Down Payment
+      // Check if any file exists in KYC, Down Payment, or Call File
+      const anyFileAttached =
+        kycDetails.some((k) => k.docPath instanceof File) ||
+        downPayments.some((d) => d.docPath instanceof File) ||
+        callFile instanceof File;
+
+      // Set isFile = true when NO file is attached
+      formData.append("isFile", !anyFileAttached);
 
       if (memberDetails.contactNo) {
         formData.append("contactNo", memberDetails.contactNo);
@@ -427,16 +455,12 @@ const SuperAdminMemberEdit = () => {
         formData.append("reportingManagerId", memberDetails.reportingManagerId);
       }
 
-      // Add down payments - only send entries with ID (existing) or complete new data
       const validDownPayments = downPayments.filter((payment) => {
-        // Keep if it has an ID (existing record)
         if (payment.id) return true;
-        // Keep if it has at least payment type AND amount (new record)
         return payment.paymentType && payment.amount;
       });
 
       validDownPayments.forEach((payment, index) => {
-        // CRITICAL: Always send id field - use 0 for new records
         formData.append(`userDownPayments[${index}].id`, payment.id || 0);
         formData.append(
           `userDownPayments[${index}].paymentType`,
@@ -454,7 +478,6 @@ const SuperAdminMemberEdit = () => {
           `userDownPayments[${index}].payid`,
           payment.payid || ""
         );
-        // Convert date format from yyyy-MM-dd to dd/MM/yyyy
         formData.append(
           `userDownPayments[${index}].transactionDate`,
           convertDateFormat(payment.transactionDate)
@@ -463,8 +486,7 @@ const SuperAdminMemberEdit = () => {
           `userDownPayments[${index}].remarks`,
           payment.remarks || ""
         );
-
-        if (payment.docPath) {
+        if (payment.docPath instanceof File) {
           formData.append(
             `userDownPayments[${index}].docPath`,
             payment.docPath
@@ -481,12 +503,12 @@ const SuperAdminMemberEdit = () => {
       });
 
       validKycDetails.forEach((kyc, index) => {
-        // CRITICAL: Always send id field - use 0 for new records
         formData.append(`userDocuments[${index}].id`, kyc.id || 0);
         formData.append(`userDocuments[${index}].kycType`, kyc.kycType || "");
         formData.append(`userDocuments[${index}].kycNo`, kyc.kycNo || "");
 
-        if (kyc.docPath) {
+        // Fix: use kyc instead of doc and correct variable name for index
+        if (kyc.docPath instanceof File) {
           formData.append(`userDocuments[${index}].docPath`, kyc.docPath);
         }
       });
@@ -513,11 +535,41 @@ const SuperAdminMemberEdit = () => {
 
       if (isSuccess) {
         message.success(response?.data?.msg || "Member updated successfully!");
-        navigate(-1);
+
+        // 🔥 Update local state with latest server returned uploaded files
+        const updatedData = response?.data?.data || {};
+
+        if (updatedData?.userDocument?.length) {
+          setKycDetails(
+            updatedData.userDocument.map((doc) => ({
+              id: doc.id,
+              kycType: doc.kycType,
+              kycNo: doc.kycNo,
+              docPath: null,
+              existingDocPath: doc.docPath,
+            }))
+          );
+        }
+
+        if (updatedData?.downPayment?.length) {
+          setDownPayments(
+            updatedData.downPayment.map((dp) => ({
+              id: dp.id,
+              paymentType: dp.paymentType,
+              amount: dp.amount,
+              paidAmount: dp.paidAmount,
+              payid: dp.payid,
+              transactionDate: dp.transactionDateTime?.split(" ")[0] || "",
+              remarks: dp.remarks,
+              docPath: null,
+              existingDocPath: dp.docPath,
+            }))
+          );
+        }
+
+        await fetchUserData();
       } else {
-        message.error(
-          response?.data?.msg || response?.msg || "Failed to update member"
-        );
+        message.error(response?.data?.msg || "Failed to update member");
       }
     } catch (err) {
       console.error("Update Error:", err);
@@ -684,7 +736,6 @@ const SuperAdminMemberEdit = () => {
                   value={selectedState}
                   onChange={handleStateChange}
                   options={states}
-                  disabled={!selectedCountry}
                   showSearch
                   filterOption={(input, option) =>
                     option.label.toLowerCase().includes(input.toLowerCase())
@@ -776,7 +827,7 @@ const SuperAdminMemberEdit = () => {
             </div>
             <div className="p-4 space-y-3">
               {downPayments.map((row, index) => (
-                <div key={index} className="grid grid-cols-7 gap-3 items-end">
+                <div key={index} className="grid grid-cols-8 gap-4 items-end">
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Payment Type
@@ -810,7 +861,7 @@ const SuperAdminMemberEdit = () => {
                       type="number"
                     />
                   </div>
-                  <div className="flex-1 min-w-[80px]">
+                  <div>
                     <label className="block mb-1 text-xs font-medium text-gray-700">
                       Paid Amount
                     </label>
@@ -825,7 +876,6 @@ const SuperAdminMemberEdit = () => {
                       }
                       placeholder="Enter amount"
                       type="number"
-                      className="text-xs"
                     />
                   </div>
                   <div>
@@ -879,7 +929,7 @@ const SuperAdminMemberEdit = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Upload Document
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-[200px]">
                       <Input
                         type="file"
                         onChange={(e) =>
@@ -902,7 +952,7 @@ const SuperAdminMemberEdit = () => {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="mb-2 flex justify-end">
                     <Button
                       icon={<DeleteOutlined />}
                       danger
@@ -969,7 +1019,7 @@ const SuperAdminMemberEdit = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Upload Document
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex   w-[200px]">
                       <Input
                         type="file"
                         onChange={(e) =>
@@ -1013,6 +1063,44 @@ const SuperAdminMemberEdit = () => {
               />
             </div>
           </section>
+          {updateResponse?.data?.length > 0 && (
+            <section className="border rounded-md p-4 mt-4">
+              <h3 className="font-semibold mb-2">Uploaded Files</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {updateResponse.data.map((file, index) => {
+                  const url = getDocumentUrl(
+                    file.moduleName,
+                    file.moduleId,
+                    file.fileType
+                  );
+
+                  return (
+                    <div key={index} className="border p-2 rounded">
+                      <p className="font-medium">
+                        {getModuleDisplayName(file.moduleName)}
+                      </p>
+                      {file.fileType === "img" ? (
+                        <img
+                          src={url}
+                          alt={file.moduleName}
+                          className="w-full h-40 object-cover rounded"
+                        />
+                      ) : (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          View Document
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* Footer Buttons */}
           <div className="flex justify-end gap-3 mt-6">

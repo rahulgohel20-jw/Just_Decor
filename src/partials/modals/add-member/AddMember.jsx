@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import AddRole from "@/partials/modals/add-role-master/AddRole";
+
 import {
   GetAllRole,
   AddMember as AddMemberapi,
@@ -20,6 +22,7 @@ const AddMember = ({
 }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
+  const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
 
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
@@ -146,13 +149,11 @@ const AddMember = ({
 
           setFormData(prefilled);
           setSelectedRole(member.userBasicDetails.role?.id || ""); // ✅ store id
-          // Prefill
           setTaskAccess(member.userBasicDetails.isTaskAccess ?? false);
           setLeaveAccess(
             member.userBasicDetails.isAttendanceLeaveAccess ?? false
           );
 
-          // fetch dependent state/city immediately
           if (prefilled.countryId) {
             fetchStatesByCountry(prefilled.countryId, "").then((res) =>
               setStates(res?.data?.data?.["state Details"] || [])
@@ -413,18 +414,33 @@ const AddMember = ({
           {/* Role */}
           <div className="flex flex-col">
             <label className="form-label">Role</label>
-            <select
-              className="select"
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-            >
-              <option value="">Select Role</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+
+            <div className="relative flex items-center">
+              <select
+                className="select w-full pr-12"
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+              >
+                <option value="">Select Role</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setOpenAddRoleModal(true)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 
+         w-8 h-8 bg-primary text-white rounded-full 
+         flex items-center justify-center hover:bg-primary/90 
+         transition-colors z-10"
+                title="Add New Role"
+              >
+                <i className="ki-filled ki-plus text-xs"></i>
+              </button>
+            </div>
           </div>
 
           {/* Email fields */}
@@ -500,6 +516,10 @@ const AddMember = ({
             </label>
           </div>
         </div>
+        <AddRole
+          isModalOpen={openAddRoleModal}
+          setIsModalOpen={setOpenAddRoleModal}
+        />
       </CustomModal>
     )
   );

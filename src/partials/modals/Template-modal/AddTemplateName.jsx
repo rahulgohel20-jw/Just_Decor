@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { AddRawType, EditRawType, Translateapi } from "@/services/apiServices"; // ✅ added Translateapi
+import {
+  Addtemplate,
+  Edittemplatebyid,
+  Translateapi,
+} from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
+const AddTemplateName = ({ isOpen, onClose, rawdata, refreshData }) => {
   if (!isOpen) return null;
 
   const [debounceTimer, setDebounceTimer] = useState(null);
@@ -14,17 +18,12 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
     nameEnglish: rawdata?.name || "",
     nameGujarati: rawdata?.nameGujarati || "",
     nameHindi: rawdata?.nameHindi || "",
-    priority: rawdata?.rawid || "",
   };
 
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name is required"),
-    priority: Yup.number()
-      .typeError("Priority must be a number")
-      .required("Priority is required"),
   });
 
-  // ✅ Translation function
   const triggerTranslate = (text, setFieldValue) => {
     if (!text?.trim()) return;
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -53,8 +52,8 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
 
     try {
       const response = rawdata
-        ? await EditRawType(rawdata.rawid, payload)
-        : await AddRawType(payload);
+        ? await Edittemplatebyid(rawdata.rawid, payload)
+        : await Addtemplate(payload);
 
       if (
         response?.data?.msg?.toLowerCase().includes("successfully") ||
@@ -100,19 +99,19 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-white rounded-xl w-[90%] md:w-[60%] lg:w-[40%] xl:w-[35%] p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {rawdata ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_RAW_MATERIAL_TYPE"
-                defaultMessage="Edit Raw Material type"
+                defaultMessage="Edit Template Name"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_RAW_MATERIAL_TYPE "
-                defaultMessage="Raw Material Type"
+                defaultMessage="Tempalate Name"
               />
             )}
           </h2>
@@ -124,7 +123,6 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
           </button>
         </div>
 
-        {/* Formik Form */}
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -132,7 +130,6 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
           enableReinitialize
         >
           {({ isSubmitting, values, setFieldValue }) => {
-            // ✅ watch English field & auto-translate
             useEffect(() => {
               if (values.nameEnglish) {
                 triggerTranslate(values.nameEnglish, setFieldValue);
@@ -140,23 +137,15 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
             }, [values.nameEnglish]);
 
             return (
-              <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* English */}
+              <Form className="grid grid-cols-1">
                 <div>
                   <label className="block text-gray-600 mb-1">
-                    <FormattedMessage
-                      id="COMMON.NAME_ENGLISH"
-                      defaultMessage=" Name English"
-                    />
-                    <span className="text-red-500">*</span>
+                    English Name <span className="text-red-500">*</span>
                   </label>
                   <Field
                     type="text"
                     name="nameEnglish"
-                    placeholder={intl.formatMessage({
-                      id: "COMMON.NAME_ENGLISH",
-                      defaultMessage: "Name english",
-                    })}
+                    placeholder="Enter English Name"
                     className="border border-gray-300 rounded-lg p-2 w-full"
                   />
                   <ErrorMessage
@@ -164,50 +153,32 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   />
-                </div>
 
-                {/* Gujarati */}
-                <div>
-                  <label className="block text-gray-600 mb-1">
-                    <FormattedMessage
-                      id="COMMON.NAME_GUJARATI"
-                      defaultMessage="Name Gujarati"
-                    />
-                    <span className="text-red-500">*</span>
+                  <label className="block text-gray-600 mt-4 mb-1">
+                    Gujarati Name
                   </label>
                   <Field
                     type="text"
                     name="nameGujarati"
-                    placeholder={intl.formatMessage({
-                      id: "COMMON.NAME_GUJARATI",
-                      defaultMessage: "Name Gujarati",
-                    })}
+                    placeholder="ગુજરાતી નામ"
                     className="border border-gray-300 rounded-lg p-2 w-full"
+                    disabled
                   />
                   <ErrorMessage
                     name="nameGujarati"
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   />
-                </div>
 
-                {/* Hindi */}
-                <div>
-                  <label className="block text-gray-600 mb-1">
-                    <FormattedMessage
-                      id="COMMON.NAME_HINDI"
-                      defaultMessage="Name Hindi"
-                    />
-                    <span className="text-red-500">*</span>
+                  <label className="block text-gray-600 mt-4 mb-1">
+                    Hindi Name
                   </label>
                   <Field
                     type="text"
                     name="nameHindi"
-                    placeholder={intl.formatMessage({
-                      id: "COMMON.NAME_HINDI",
-                      defaultMessage: "Name Hindi",
-                    })}
+                    placeholder="हिंदी नाम"
                     className="border border-gray-300 rounded-lg p-2 w-full"
+                    disabled
                   />
                   <ErrorMessage
                     name="nameHindi"
@@ -216,32 +187,6 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                   />
                 </div>
 
-                {/* Priority */}
-                <div>
-                  <label className="block text-gray-600 mb-1">
-                    <FormattedMessage
-                      id="COMMON.PRIORITY"
-                      defaultMessage="Priority"
-                    />
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    type="text"
-                    name="priority"
-                    placeholder={intl.formatMessage({
-                      id: "COMMON.PRIORITY",
-                      defaultMessage: "Priority",
-                    })}
-                    className="border border-gray-300 rounded-lg p-2 w-full"
-                  />
-                  <ErrorMessage
-                    name="priority"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
-
-                {/* Buttons */}
                 <div className="md:col-span-2 flex justify-end gap-3 mt-4">
                   <button
                     type="button"
@@ -280,4 +225,4 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
   );
 };
 
-export default AddRawMaterialType;
+export default AddTemplateName;

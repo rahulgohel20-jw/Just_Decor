@@ -192,6 +192,8 @@ import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type"
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
+import TemplateName from "../pages/super-admin/master/template-name";
+import ExpenseMainPage from "../pages/Event/ExpensePage";
 import MenuItemMaster from "../pages/master/MenuItemMaster";
 const AppRoutingSetup = () => {
   return (
@@ -271,6 +273,7 @@ const AppRoutingSetup = () => {
             path="/labour-and-other-management/:eventId"
             element={<LabourOtherManagementPage mode="labour" />}
           />
+          <Route path="/expense-management" element={<ExpenseMainPage />} />
           <Route
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
@@ -282,7 +285,7 @@ const AppRoutingSetup = () => {
           <Route path="/event-invoice" element={<EventInvoicePage />} />
           <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
-          <Route path="/add-invoice" element={<AddInvoicePage />} />
+          <Route path="/add-invoice/:id" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/report-themes" element={<ReportThemes />} />
@@ -347,6 +350,10 @@ const AppRoutingSetup = () => {
             element={<SuperRawMaterialType />}
           />
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
+          <Route
+            path="/super-template-name-master"
+            element={<TemplateName />}
+          />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"

@@ -191,13 +191,16 @@ const AddCustomer = ({
       setCategories(allCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch categories. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
+      // Only show warning if modal is not open
+      if (!isModalOpen) {
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Please add at least one customer category.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
     }
   };
 
