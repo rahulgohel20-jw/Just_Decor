@@ -272,6 +272,30 @@ export default function SidebarModal({
                       </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col w-[50px] gap-1">
+                      <div className="text-[12px] text-gray-600">
+                        <FormattedMessage
+                          id="SIDEBAR_MODAL.PERSON"
+                          defaultMessage="Person"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          className="input"
+                          type="text"
+                          value={
+                            menuAllocations.find(
+                              (m) =>
+                                m.menuItemId === row?.menuItemId &&
+                                m.menuCategoryId === row?.menuCategoryId
+                            )?.personCount || ""
+                          }
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       <FormattedMessage

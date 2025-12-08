@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Form } from "antd";
+import AddVendor from "@/partials/modals/add-vendor/AddVendor";
 
 const WhatsAppIcon = () => (
   <svg
@@ -44,6 +45,9 @@ export default function SidebarChefModal({
   const [contactNames, setContactNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [extraRows, setExtraRows] = useState([]);
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const intl = useIntl();
 
   useEffect(() => {
@@ -81,17 +85,12 @@ export default function SidebarChefModal({
 
         setMenuAllocations(processedAllocations);
 
-        // ✅ Load data into defaultRow if this item has exactly 0 allocations
-        // but we want to show what was previously saved in defaultRow
         const currentItem = processedAllocations.find(
           (m) =>
             m.menuItemId === row?.menuItemId &&
             m.menuCategoryId === row?.menuCategoryId &&
             m.chefLabour === true
         );
-
-        // If no allocations exist, keep defaultRow as is (don't reset)
-        // This allows data to persist
       } catch (error) {
         console.error("Error fetching event details:", error);
       } finally {
@@ -167,7 +166,6 @@ export default function SidebarChefModal({
     setDefaultRow((prev) => {
       const updated = { ...prev, [field]: value };
 
-      // ✅ Calculate total whenever quantity or price fields change
       const counterQty = parseFloat(updated.counterQuantity) || 0;
       const helperQty = parseFloat(updated.helperQuantity) || 0;
       const counterPrice = parseFloat(updated.counterPrice) || 0;
@@ -373,7 +371,6 @@ export default function SidebarChefModal({
                   <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
                 </button>
               </div>
-
               <div className="p-4">
                 {/* Top Buttons */}
                 <div className="flex items-center justify-between gap-4">
@@ -401,7 +398,32 @@ export default function SidebarChefModal({
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col w-[50px] gap-1">
+                        <div className="text-[12px] text-gray-600">
+                          <FormattedMessage
+                            id="SIDEBAR_MODAL.PERSON"
+                            defaultMessage="Person"
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <input
+                            className="input"
+                            type="text"
+                            value={
+                              menuAllocations.find(
+                                (m) =>
+                                  m.menuItemId === row?.menuItemId &&
+                                  m.menuCategoryId === row?.menuCategoryId
+                              )?.personCount || ""
+                            }
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-content-end gap-2 mt-6">
                       <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                         <FormattedMessage
                           id="SIDEBAR_MODAL.CHEF_LABOUR"
@@ -433,12 +455,14 @@ export default function SidebarChefModal({
                         defaultMessage="No."
                       />
                     </div>
-                    <div className="ml-2">
+                    <div className="ml-2 flex items-center gap-2">
                       <FormattedMessage
                         id="SIDEBAR_MODAL.CONTACT_NAME"
                         defaultMessage="Contact Name"
                       />
+                      <button onClick={() => setIsModalOpen(true)}>Add</button>
                     </div>
+
                     <div>
                       <FormattedMessage
                         id="SIDEBAR_MODAL.TYPE"
@@ -1044,6 +1068,7 @@ export default function SidebarChefModal({
           </div>
         </div>
       )}
+      <AddVendor open={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </AnimatePresence>
   );
 }

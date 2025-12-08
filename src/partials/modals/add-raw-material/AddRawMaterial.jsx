@@ -5,6 +5,7 @@ import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
 import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
+import Select from "react-select";
 
 import AddRawMaterialCategory from "@/partials/modals/raw-material-category/AddRawMaterial";
 
@@ -481,25 +482,28 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             </label>
 
             <div className="flex items-center gap-2">
-              <select
-                className="select flex-1"
-                name="rawCategoryId"
-                value={formik.values.rawCategoryId}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="USER.RAWMATERIAL.SELECT_CATEGORY"
-                    defaultMessage="Select Raw Material Category"
-                  />
-                </option>
-                {rawCategory.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1">
+                <Select
+                  options={rawCategory} // [{ label, value }]
+                  value={
+                    rawCategory.find(
+                      (c) => c.value === formik.values.rawCategoryId
+                    ) || null
+                  }
+                  onChange={(selected) =>
+                    formik.setFieldValue("rawCategoryId", selected?.value || "")
+                  }
+                  placeholder={intl.formatMessage({
+                    id: "USER.RAWMATERIAL.SELECT_CATEGORY",
+                    defaultMessage: "Select Raw Material Category",
+                  })}
+                  isClearable
+                  styles={{
+                    control: (base) => ({ ...base, minHeight: "38px" }), // match your input height
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                />
+              </div>
 
               {/* + Button to open modal */}
               <button
@@ -530,26 +534,34 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             </label>
 
             <div className="flex items-center gap-2">
-              <select
-                className="select flex-1"
-                name="unitid"
-                value={formik.values.unitid}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="COMMON.SELECT_UNIT"
-                    defaultMessage="Select Unit"
-                  />
-                </option>
-
-                {unitList.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.nameEnglish} ({unit.symbolEnglish})
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1">
+                <Select
+                  options={unitList.map((u) => ({
+                    value: u.id,
+                    label: `${u.nameEnglish} (${u.symbolEnglish})`,
+                  }))}
+                  value={
+                    unitList
+                      .map((u) => ({
+                        value: u.id,
+                        label: `${u.nameEnglish} (${u.symbolEnglish})`,
+                      }))
+                      .find((u) => u.value === formik.values.unitid) || null
+                  }
+                  onChange={(selected) =>
+                    formik.setFieldValue("unitid", selected?.value || "")
+                  }
+                  placeholder={intl.formatMessage({
+                    id: "COMMON.SELECT_UNIT",
+                    defaultMessage: "Select Unit",
+                  })}
+                  isClearable
+                  styles={{
+                    control: (base) => ({ ...base, minHeight: "38px" }),
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                />
+              </div>
 
               {/* + Button to open modal */}
             </div>

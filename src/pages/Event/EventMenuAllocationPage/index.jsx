@@ -9,7 +9,9 @@ import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import SummaryItemModalchefoutside from "../../../components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
+import SummaryItemModalchefoutside from "@/components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
+import SummaryItemModalOutsideAgency from "@/components/sidebarOutSideAgency/SummaryItemModalOutSideAgency";
+import SummaryItemModalInHousecook from "@/components/sidebarmodalinhousecook/SummaryItemModalInHousecook";
 import {
   GetEventMasterById,
   GetMenuAllocation,
@@ -321,7 +323,9 @@ const EventMenuAllocationPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
+    useState(false);
+  const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
   const intl = useIntl();
 
   useEffect(() => {
@@ -577,22 +581,40 @@ const EventMenuAllocationPage = () => {
       rows.map((r) => ({
         ...r,
         openSidebar: () => {
+          console.log("🔵 openSidebar called for:", r.itemName);
+          setIsChefModal(false);
+          setOpen(false);
+          setSelectedRow({
+            ...r,
+            eventId,
+            eventFunctionId: activeFunction?.id || null,
+          });
+          setTimeout(() => {
+            console.log("✅ Opening outside modal");
+            setOpen(true);
+          }, 0);
+        },
+        openChefSidebar: () => {
+          console.log("🟢 openChefSidebar called for:", r.itemName);
+          console.log("Current states:", {
+            eventId,
+            eventFunctionId: activeFunction?.id,
+            menuItemId: r.menuItemId,
+            menuCategoryId: r.menuCategoryId,
+          });
+
+          setOpen(false);
           setIsChefModal(false);
           setSelectedRow({
             ...r,
             eventId,
             eventFunctionId: activeFunction?.id || null,
           });
-          setOpen(true);
-        },
-        openChefSidebar: () => {
-          setOpen(false);
-          setIsChefModal(true);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
+
+          setTimeout(() => {
+            console.log("✅ Opening chef modal now");
+            setIsChefModal(true);
+          }, 0);
         },
       })),
     [rows, eventId, activeFunction]
@@ -959,9 +981,16 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
-  // Change this function name from openSelectMenureport to openSummaryItemModalchefoutside
   const openSummaryItemModalchefoutside = () => {
     setIsModalOpen(true);
+  };
+
+  const openSummaryItemModalOustsideAgency = () => {
+    setIsOutsideAgencyModalOpen(true);
+  };
+
+  const openSummaryItemModalInHouseCook = () => {
+    setIsInHouseCookModalOpen(true);
   };
   return (
     <Fragment>
@@ -1187,15 +1216,15 @@ const EventMenuAllocationPage = () => {
                   <button
                     onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
-                    title="Chef Outside"
+                    title="Chef Labour"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="Chef Outside"
+                      defaultMessage="Chef Labour"
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalchefoutside}
+                    onClick={openSummaryItemModalOustsideAgency}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Outside Agency"
                   >
@@ -1205,7 +1234,7 @@ const EventMenuAllocationPage = () => {
                     />
                   </button>
                   <button
-                    onClick={openSummaryItemModalchefoutside}
+                    onClick={openSummaryItemModalInHouseCook}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="In House Cook"
                   >
@@ -1319,6 +1348,14 @@ const EventMenuAllocationPage = () => {
         <SummaryItemModalchefoutside
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+        />
+        <SummaryItemModalOutsideAgency
+          open={isOutsideAgencyModalOpen}
+          onClose={() => setIsOutsideAgencyModalOpen(false)}
+        />
+        <SummaryItemModalInHousecook
+          open={isInHouseCookModalOpen}
+          onClose={() => setIsInHouseCookModalOpen(false)}
         />
       </Container>
     </Fragment>
