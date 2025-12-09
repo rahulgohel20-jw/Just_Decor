@@ -1,4 +1,4 @@
-import { Tooltip, Popconfirm, message, Form } from "antd";
+import { Tooltip, Popconfirm, message } from "antd";
 import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete, onstatus) => [
@@ -14,12 +14,32 @@ export const columns = (onEdit, onDelete, onstatus) => [
     accessorKey: "image",
     header: <FormattedMessage id="COMMON.IMAGE" defaultMessage="Image" />,
     cell: ({ row }) => {
+      const handleSelectFile = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Call upload function coming from row
+        row.original.uploadImage(row.original.id, file);
+      };
+
       return (
-        <img
-          src={row.original.image || "/no-image.png"}
-          alt={row.original.name}
-          className="w-12 h-12 object-cover rounded-md"
-        />
+        <div className="relative w-20 h-20 group">
+          <img
+            src={row.original.image || "/no-image.png"}
+            alt={row.original.name}
+            className="w-16 h-16 object-cover rounded-md border"
+          />
+
+          <label className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-primary/90 transition-all">
+            <i className="ki-filled ki-cloud-add text-white text-xs"></i>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleSelectFile}
+            />
+          </label>
+        </div>
       );
     },
     meta: {
@@ -92,7 +112,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {
       return (
-        <div className="flex items-center  gap-1">
+        <div className="flex items-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Contact">
             <button
               className="btn btn-sm btn-icon btn-clear"
@@ -109,7 +129,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
               title="Delete"
               onClick={() => onDelete(row.original.id)}
             >
-              <i className="ki-filled ki-trash  text-danger"></i>
+              <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
         </div>
