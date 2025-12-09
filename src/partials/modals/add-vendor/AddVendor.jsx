@@ -16,6 +16,7 @@ const AddVendor = ({
   isModalOpen,
   setIsModalOpen,
   selectedCustomer,
+  filterType = "all",
   refreshData = () => {},
 }) => {
   if (!isModalOpen) return null;
@@ -173,31 +174,43 @@ const AddVendor = ({
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
 
-  const fetchCategories = async () => {
-    try {
-      const {
-        data: { data },
-      } = await GetAllContactCategory(userData);
+const fetchCategories = async () => {
+  try {
+    const {
+      data: { data },
+    } = await GetAllContactCategory(userData);
 
-      const allCategories = data["Contact Category Details"] || [];
-      const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id !== 1;
-      });
+    const allCategories = data["Contact Category Details"] || [];
 
-      setCategories(filteredCategories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      if (!isModalOpen) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to fetch categories. Please try again.",
-          timer: 3000,
-          showConfirmButton: false,
-        });
-      }
+    let filteredCategories = allCategories;
+
+    if (filterType === "labour") {
+      // Show only Labour categories
+      filteredCategories = allCategories.filter(
+        (cat) => cat.contactType?.id === 2 // <-- use Labour ID
+      );
+    } else {
+      // Exclude system type if needed
+      filteredCategories = allCategories.filter(
+        (cat) => cat.contactType?.id !== 1
+      );
     }
-  };
+
+    setCategories(filteredCategories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    if (!isModalOpen) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch categories. Please try again.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+  }
+};
+
 
   const handleIconClick = () => {
     fileInputRef.current?.click();

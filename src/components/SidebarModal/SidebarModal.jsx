@@ -38,6 +38,7 @@ export default function SidebarModal({
   functionName,
   functionDateTime,
   onSave,
+  personCount,
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
@@ -280,13 +281,8 @@ export default function SidebarModal({
                         <input
                           className="input"
                           type="text"
-                          value={
-                            menuAllocations.find(
-                              (m) =>
-                                m.menuItemId === row?.menuItemId &&
-                                m.menuCategoryId === row?.menuCategoryId
-                            )?.personCount || ""
-                          }
+                         
+                          value={personCount || ""} 
                           readOnly
                         />
                       </div>

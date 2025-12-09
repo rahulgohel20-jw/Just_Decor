@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
+import SidebarInsideModal from "../../../components/SidebarInsidemodal/SidebarInsideModal ";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
@@ -214,6 +215,9 @@ const TableRow = ({ row, onChange }) => {
       if (type === "chef" && row.openChefSidebar) {
         row.openChefSidebar();
       }
+      if (type === "inside" && row.openInsideSidebar) {
+        row.openInsideSidebar();
+      }
     }
   };
 
@@ -260,11 +264,21 @@ const TableRow = ({ row, onChange }) => {
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center">
+      <div className="col-span-2 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.inside}
           onChange={(e) => handleCheckboxChange("inside", e.target.checked)}
         />
+        {row.inside && (
+          <button
+            type="button"
+            onClick={() => row.openInsideSidebar && row.openInsideSidebar()}
+            className="text-blue-500 hover:text-blue-700"
+            title="Edit Inside Details"
+          >
+            <i className="ki-filled ki-notepad-edit text-primary"></i>
+          </button>
+        )}
       </div>
 
       <div className="col-span-1 flex justify-center">
@@ -326,6 +340,7 @@ const EventMenuAllocationPage = () => {
   const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
     useState(false);
   const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
+  const [isInsideModal, setIsInsideModal] = useState(false);
   const intl = useIntl();
 
   useEffect(() => {
@@ -576,49 +591,95 @@ const EventMenuAllocationPage = () => {
     setPercentage("");
   };
 
-  const filtered = useMemo(
-    () =>
-      rows.map((r) => ({
-        ...r,
-        openSidebar: () => {
-          console.log("🔵 openSidebar called for:", r.itemName);
-          setIsChefModal(false);
-          setOpen(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setTimeout(() => {
-            console.log("✅ Opening outside modal");
-            setOpen(true);
-          }, 0);
-        },
-        openChefSidebar: () => {
-          console.log("🟢 openChefSidebar called for:", r.itemName);
-          console.log("Current states:", {
-            eventId,
-            eventFunctionId: activeFunction?.id,
-            menuItemId: r.menuItemId,
-            menuCategoryId: r.menuCategoryId,
-          });
+const filtered = useMemo(
+  () =>
+    rows.map((r) => ({
+      ...r,
+      openSidebar: () => {
+        console.log("🔵 openSidebar called for:", r.itemName);
+        setIsChefModal(false);
+        setOpen(false);
+        setIsInsideModal(false);
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: activeFunction?.id || null,
+        });
+        setTimeout(() => {
+          console.log("✅ Opening outside modal");
+          setOpen(true);
+        }, 0);
+      },
+      openChefSidebar: () => {
+        console.log("🟢 openChefSidebar called for:", r.itemName);
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: activeFunction?.id || null,
+        });
+        setTimeout(() => {
+          console.log("✅ Opening chef modal now");
+          setIsChefModal(true);
+        }, 0);
+      },
+      openInsideSidebar: () => {
+        console.log("🟣 openInsideSidebar called for:", r.itemName);
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: activeFunction?.id || null,
+        });
+        setTimeout(() => {
+          console.log("✅ Opening inside modal now");
+          setIsInsideModal(true);
+        }, 0);
+      },
+    })),
+  [rows, eventId, activeFunction]
+);
 
-          setOpen(false);
-          setIsChefModal(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
 
-          setTimeout(() => {
-            console.log("✅ Opening chef modal now");
-            setIsChefModal(true);
-          }, 0);
-        },
-      })),
-    [rows, eventId, activeFunction]
-  );
+const handleInsideSave = (saveData) => {
+  setAllocationData((prev) => ({
+    ...prev,
+    [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
+  }));
+
+  setRows((prevRows) => {
+    const updatedRows = prevRows.map((r) => {
+      if (
+        r.menuItemId === saveData.menuItemId &&
+        r.menuCategoryId === saveData.menuCategoryId
+      ) {
+        return {
+          ...r,
+          eventFunctionMenuAllocations: [
+            ...(r.eventFunctionMenuAllocations || []).filter(
+              (a) => !a.isInside
+            ),
+            ...saveData.allocations.map((alloc) => ({
+              ...alloc,
+              isInside: true,
+            })),
+          ],
+        };
+      }
+      return r;
+    });
+
+    updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
+
+    return updatedRows;
+  });
+
+  setIsInsideModal(false);
+};
 
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
@@ -844,6 +905,7 @@ const EventMenuAllocationPage = () => {
               totalPrice: alloc.totalPrice || 0,
               unitId: alloc.unitId || 0,
             })) || [];
+            
 
         const menuAllocationOrders = [
           ...outsideAllocations,
@@ -1307,6 +1369,7 @@ const EventMenuAllocationPage = () => {
           functionName={activeFunction?.function?.nameEnglish}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleOutsideSave}
+          personCount={selectedRow?.personCount}
         />
 
         <SidebarChefModal
@@ -1319,7 +1382,17 @@ const EventMenuAllocationPage = () => {
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleChefLabourSave}
         />
-
+        <SidebarInsideModal
+          open={isInsideModal}
+          onClose={() => setIsInsideModal(false)}
+          eventId={selectedRow?.eventId}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          row={selectedRow}
+          functionName={activeFunction?.function?.nameEnglish}
+          functionDateTime={activeFunction?.functionStartDateTime}
+          onSave={handleInsideSave}
+          personCount={selectedRow?.personCount}
+        />
         <CategorySidebarModal
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}

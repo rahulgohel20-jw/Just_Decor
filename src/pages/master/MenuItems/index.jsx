@@ -2,26 +2,25 @@ import { Fragment, useEffect, useState, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, categoryData } from "./constant";
+import { columns } from "./constant";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
   updatestatusmneuitem,
+  uploadFileformenu,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-import { Form, Spin } from "antd";
+import {  Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
   const navigate = useNavigate();
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,6 +73,8 @@ const MenuItems = () => {
           status: item.isActive,
           rawdata: item.menuItemRawMaterials || [],
           menuAllocation: item.menuItemAllocationConfigs || [],
+          uploadImage,
+
           _originalItem: item,
         }));
 
@@ -146,6 +147,48 @@ const MenuItems = () => {
       }
     });
   };
+
+const uploadImage = async (id, file) => {
+  if (!file) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const fileType = "MenuItemImage";
+    const moduleName = "MenuItem";
+
+    const response = await uploadFileformenu(formData, {
+      fileType,
+      moduleId: id,
+      moduleName,
+    });
+
+    // Get new image path from response
+    const newImage = response?.data?.imagePath || "";
+
+    // Update the specific row in tableData
+    setTableData((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, image: newImage } : item))
+    );
+
+    Swal.fire({
+      title: "Uploaded!",
+      text: "Image uploaded successfully.",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Upload failed!", error);
+    Swal.fire("Error", "Failed to upload image!", "error");
+  }
+};
+
+
+
+
+
 
   const handlePagination = (page) => {
     setCurrentPage(page);

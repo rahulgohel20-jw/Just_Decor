@@ -16,6 +16,7 @@ const AddContactCategory = ({
   onClose,
   contactCategory,
   refreshData,
+  labourOnly = false,
   excludeCustomerType = false, // New prop to control filtering
 }) => {
   if (!isOpen) return null;
@@ -25,7 +26,7 @@ const AddContactCategory = ({
     nameGujarati: "",
     nameHindi: "",
     sequence: "",
-    contcatTypeId: "",
+    contcatTypeId: labourOnly ? "" : "",
   };
   const intl = useIntl();
 
@@ -33,23 +34,23 @@ const AddContactCategory = ({
   const Id = JSON.parse(localStorage.getItem("userId"));
 
   // ✅ Fetch dropdown values
-  useEffect(() => {
-    if (Id) {
-      GetAllContactType(1)
-        .then((res) => {
-          const allTypes = res?.data?.data?.["Contact Type Details"] || [];
+ useEffect(() => {
+   if (Id) {
+     GetAllContactType(1)
+       .then((res) => {
+         let allTypes = res?.data?.data?.["Contact Type Details"] || [];
 
-          const filteredTypes = excludeCustomerType
-            ? allTypes.filter((type) => type.id != 2)
-            : allTypes;
+         if (labourOnly) {
+           // Show only Labour type
+           allTypes = allTypes.filter((type) => type.nameEnglish === "Labour");
+         }
 
-          setContactTypes(filteredTypes);
-        })
-        .catch((err) => {
-          console.error("Error fetching contact types:", err);
-        });
-    }
-  }, [Id, excludeCustomerType]);
+         setContactTypes(allTypes);
+       })
+       .catch((err) => console.error(err));
+   }
+ }, [Id, labourOnly]);
+
 
   // ✅ Validation schema
   const validationSchema = Yup.object().shape({

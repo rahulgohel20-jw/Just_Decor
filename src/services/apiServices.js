@@ -578,6 +578,13 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+export const uploadFileformenu = (formData, params) => {
+  return UPLOAD(`/file/uploadfile`, formData, {
+    params: params,
+  });
+};
+
+
 //upload Image
 export const uploadProfileImage = (data, queryParams) => {
   return UPLOAD(`/file/uploadfile?${queryParams}`, data);
