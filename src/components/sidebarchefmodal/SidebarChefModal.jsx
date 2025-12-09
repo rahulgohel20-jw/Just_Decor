@@ -150,16 +150,7 @@ export default function SidebarChefModal({
   };
 
   useEffect(() => {
-    console.log("📊 Extra Rows State:", extraRows);
-    extraRows.forEach((row, idx) => {
-      console.log(`Row ${idx + 1}:`, {
-        counterQty: row.counterQuantity,
-        counterPrice: row.counterPrice,
-        helperQty: row.helperQuantity,
-        helperPrice: row.helperPrice,
-        totalPrice: row.totalPrice,
-      });
-    });
+    extraRows.forEach((row, idx) => {});
   }, [extraRows]);
 
   const handleDefaultRowChange = (field, value) => {
@@ -186,13 +177,11 @@ export default function SidebarChefModal({
       const updated = [...prev];
       updated[index][field] = value;
 
-      // ✅ Calculate total whenever ANY quantity or price field changes
       const counterQty = parseFloat(updated[index].counterQuantity) || 0;
       const helperQty = parseFloat(updated[index].helperQuantity) || 0;
       const counterPrice = parseFloat(updated[index].counterPrice) || 0;
       const helperPrice = parseFloat(updated[index].helperPrice) || 0;
 
-      // ✅ Calculate: (Counter Qty × Counter Price) + (Helper Qty × Helper Price)
       updated[index].totalPrice =
         counterQty * counterPrice + helperQty * helperPrice;
 
@@ -223,7 +212,6 @@ export default function SidebarChefModal({
       if (currentItem && currentItem.eventFunctionMenuAllocations) {
         currentItem.eventFunctionMenuAllocations[allocIndex][field] = value;
 
-        // ✅ Calculate total for EVERY field change
         const alloc = currentItem.eventFunctionMenuAllocations[allocIndex];
         const counterQty = parseFloat(alloc.counterQuantity) || 0;
         const helperQty = parseFloat(alloc.helperQuantity) || 0;
@@ -257,7 +245,6 @@ export default function SidebarChefModal({
 
     const existingAllocations = currentItem?.eventFunctionMenuAllocations || [];
 
-    // ✅ Include default row if it has data
     const defaultRowData = [];
     if (
       defaultRow.partyId &&
@@ -275,7 +262,6 @@ export default function SidebarChefModal({
       });
     }
 
-    // Combine: existing + default + extra rows
     const allAllocations = [
       ...existingAllocations,
       ...defaultRowData,
@@ -316,13 +302,10 @@ export default function SidebarChefModal({
       allocations: allAllocations,
     };
 
-    // ✅ Call parent's onSave to update the main state
     if (onSave) {
       onSave(saveData);
     }
 
-    // ✅ DON'T reset defaultRow - keep the data for next time
-    // ✅ Only reset extraRows since those are truly "extra"
     setExtraRows([]);
 
     console.log("✅ Data saved and will persist on reopen");
@@ -511,7 +494,6 @@ export default function SidebarChefModal({
                           m.chefLabour === true
                       );
 
-                      // ✅ CASE 1: No data - Show default empty row with calculation
                       if (
                         !currentItem ||
                         !currentItem.eventFunctionMenuAllocations ||
@@ -521,7 +503,6 @@ export default function SidebarChefModal({
                           <div className="grid grid-cols-[64px_1fr_1fr_1fr_1fr_1fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100">
                             <div className="text-[13px] text-gray-700">1.</div>
 
-                            {/* Contact Name */}
                             <div>
                               <BaseSelect
                                 value={defaultRow.partyId}
@@ -546,7 +527,6 @@ export default function SidebarChefModal({
                               </BaseSelect>
                             </div>
 
-                            {/* Type */}
                             <div>
                               <BaseSelect
                                 value={defaultRow.serviceType}
@@ -584,7 +564,6 @@ export default function SidebarChefModal({
                               </BaseSelect>
                             </div>
 
-                            {/* Quantity */}
                             <div className="flex gap-2">
                               <BaseInput
                                 type="number"
@@ -616,7 +595,6 @@ export default function SidebarChefModal({
                               />
                             </div>
 
-                            {/* Price */}
                             <div className="flex gap-2">
                               <BaseInput
                                 type="number"
@@ -648,7 +626,6 @@ export default function SidebarChefModal({
                               />
                             </div>
 
-                            {/* ✅ Total Price - Now calculates! */}
                             <div>
                               <BaseInput
                                 type="number"
@@ -683,7 +660,6 @@ export default function SidebarChefModal({
                         );
                       }
 
-                      // ✅ CASE 2: Has existing data - Show existing rows
                       return currentItem.eventFunctionMenuAllocations.map(
                         (alloc, idx) => (
                           <div
@@ -876,7 +852,6 @@ export default function SidebarChefModal({
                         .
                       </div>
 
-                      {/* Contact Name */}
                       <div>
                         <BaseSelect
                           value={extraRow.partyId}
@@ -898,7 +873,6 @@ export default function SidebarChefModal({
                         </BaseSelect>
                       </div>
 
-                      {/* Type */}
                       <div>
                         <BaseSelect
                           value={extraRow.serviceType}
@@ -937,7 +911,6 @@ export default function SidebarChefModal({
                         </BaseSelect>
                       </div>
 
-                      {/* Quantity - Counter & Helper */}
                       <div className="flex gap-2">
                         <BaseInput
                           type="number"
@@ -971,7 +944,6 @@ export default function SidebarChefModal({
                         />
                       </div>
 
-                      {/* Price - Counter & Helper */}
                       <div className="flex gap-2">
                         <BaseInput
                           type="number"
@@ -1005,7 +977,6 @@ export default function SidebarChefModal({
                         />
                       </div>
 
-                      {/* ✅ CRITICAL FIX: Total Price field */}
                       <div>
                         <BaseInput
                           type="number"
@@ -1013,7 +984,7 @@ export default function SidebarChefModal({
                             id: "SIDEBAR_MODAL.TOTAL",
                             defaultMessage: "Total",
                           })}
-                          value={extraRow.totalPrice || ""} // ✅ Show empty string if 0
+                          value={extraRow.totalPrice || ""}
                           readOnly
                           style={{
                             backgroundColor: "#f9fafb",
@@ -1024,7 +995,6 @@ export default function SidebarChefModal({
                         />
                       </div>
 
-                      {/* Actions */}
                       <div className="flex items-center justify-center gap-1">
                         <button
                           type="button"

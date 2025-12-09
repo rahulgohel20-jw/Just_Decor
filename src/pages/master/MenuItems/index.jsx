@@ -7,6 +7,7 @@ import {
   GetAllMenuItems,
   DeleteMenuItem,
   updatestatusmneuitem,
+  uploadFileformenu,
   GetAllSubCategory,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
@@ -19,6 +20,7 @@ const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
   const navigate = useNavigate();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState([]);
@@ -87,6 +89,8 @@ const MenuItems = () => {
           status: item.isActive,
           rawdata: item.menuItemRawMaterials || [],
           menuAllocation: item.menuItemAllocationConfigs || [],
+          uploadImage,
+
           _originalItem: item,
         }));
 
@@ -157,6 +161,45 @@ const MenuItems = () => {
           });
       }
     });
+  };
+
+  const uploadImage = async (id, file) => {
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const fileType = "MenuItemImage";
+      const moduleName = "MenuItem";
+
+      const response = await uploadFileformenu(formData, {
+        fileType,
+        moduleId: id,
+        moduleName,
+      });
+
+      // Get new image path from response
+      const newImage = response?.data?.imagePath || "";
+
+      // Update the specific row in tableData
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, image: newImage } : item
+        )
+      );
+
+      Swal.fire({
+        title: "Uploaded!",
+        text: "Image uploaded successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Upload failed!", error);
+      Swal.fire("Error", "Failed to upload image!", "error");
+    }
   };
 
   const handlePagination = (page) => {

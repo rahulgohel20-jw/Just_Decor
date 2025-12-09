@@ -144,11 +144,12 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             {/* Title */}
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="text-primary" />
-              <p className="text-base font-medium text-gray-900">
+              <p className="text-base font-medium text-gray-900 flex items-center gap-1">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_SERVICE_AND_REMARK"
                   defaultMessage="Manager Name"
                 />
+                <span className="text-red-500 font-semibold">*</span>
               </p>
             </div>
 

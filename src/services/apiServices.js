@@ -159,6 +159,13 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+
+export const GetAllQuotationByFilter = (enddate, startdate, id) => {
+  return GET(
+    `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+  );
+};
+
 export const GetRawmaterialwithcatID = (catID, id) => {
   return GET(
     `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`
@@ -572,6 +579,12 @@ export const UpdateStatusKitchenArea = (id, isActive = true) => {
 // file upload
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
+};
+
+export const uploadFileformenu = (formData, params) => {
+  return UPLOAD(`/file/uploadfile`, formData, {
+    params: params,
+  });
 };
 
 //upload Image

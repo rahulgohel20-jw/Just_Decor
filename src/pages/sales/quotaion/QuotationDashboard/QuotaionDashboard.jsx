@@ -1,116 +1,138 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { columns, defaultData } from "./constant";
 import QuotationTable from "@/components/QuotationTable/QuotationTable";
 import { CommonHexagonBadge } from "@/partials/common";
-import { GetAllQuotation } from "@/services/apiServices";
+import {
+  GetAllQuotation,
+  GetAllQuotationByFilter,
+} from "@/services/apiServices";
 import { toAbsoluteUrl } from "@/utils";
 import { Download } from "lucide-react";
 import { useIntl } from "react-intl";
 import { FormattedMessage } from "react-intl";
 
+const formatDateAPI = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatDateDisplay = (dateString) => {
+  if (!dateString) return "N/A";
+  const d = new Date(dateString);
+  return `${String(d.getDate()).padStart(2, "0")}/${String(
+    d.getMonth() + 1
+  ).padStart(2, "0")}/${d.getFullYear()}`;
+};
+
 const QuotationDashboard = () => {
+  const intl = useIntl();
+  const userId = localStorage.getItem("userId");
+
   const [tableData, setTableData] = useState(defaultData);
+  const [searchText, setSearchText] = useState("");
+
+  const [selectedMonth, setSelectedMonth] = useState(""); // "", 1, 2, 3
+  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+
+  const [originalData, setOriginalData] = useState([]);
+
   const [totals, setTotals] = useState({
     receivable: 0,
     remaining: 0,
     total: 0,
   });
-  const userId = localStorage.getItem("userId");
-  const [originalData, setOriginalData] = useState([]);
 
-  const intl = useIntl();
-  const fetchQuotations = async () => {
-    const response = await GetAllQuotation(userId);
+  const calculateDateRange = (filterValue) => {
+    const end = new Date();
+    const start = new Date();
+
+    if (filterValue === "1") {
+      start.setMonth(start.getMonth() - 3);
+    } else if (filterValue === "2") {
+      start.setMonth(start.getMonth() - 6);
+    } else if (filterValue === "3" && customRange.start && customRange.end) {
+      return {
+        startDate: new Date(customRange.start),
+        endDate: new Date(customRange.end),
+      };
+    }
+
+    return { startDate: start, endDate: end };
+  };
+
+  const fetchQuotations = async (filterValue = "") => {
+    let response;
+
+    if (filterValue === "") {
+      response = await GetAllQuotation(userId);
+    } else {
+      const { startDate, endDate } = calculateDateRange(filterValue);
+
+      response = await GetAllQuotationByFilter(
+        formatDateAPI(endDate),
+        formatDateAPI(startDate),
+        userId
+      );
+    }
+
     const list =
       response?.data?.data["Event Functions Quotation Details"] || [];
-
-    setOriginalData(list); // store RAW data
-
-    const totalReciveAmt = list[0]?.overAllReceivableAmnt || 0;
-    const totalRemainingAmt = list[0]?.overAllRemainingAmnt || 0;
-    const totalAmt = list[0]?.overallTotalAmnt || 0;
+    setOriginalData(list);
 
     setTotals({
-      receivable: totalReciveAmt,
-      remaining: totalRemainingAmt,
-      total: totalAmt,
+      receivable: list[0]?.overAllReceivableAmnt || 0,
+      remaining: list[0]?.overAllRemainingAmnt || 0,
+      total: list[0]?.overallTotalAmnt || 0,
     });
   };
 
   useEffect(() => {
-    fetchQuotations();
+    fetchQuotations("");
   }, []);
 
+  // 📌 MAP TABLE DATA
   useEffect(() => {
-    const language = localStorage.getItem("lang");
-
+    const lang = localStorage.getItem("lang");
     const languageMap = {
       en: "nameEnglish",
       hi: "nameHindi",
       gu: "nameGujarati",
     };
+    const field = languageMap[lang] || "nameEnglish";
 
-    const field = languageMap[language] || "nameEnglish";
-
-    const mapped = originalData.map((quotation, index) => ({
+    const mapped = originalData.map((q, index) => ({
       Invoice: index + 1,
-
-      EventId: quotation?.event?.id || "-",
-      PartyId: quotation?.event?.party?.id || "-",
-
-      // 🔥 Multilingual Fields 🔥
-      CustomerName: quotation?.event?.party?.[field] || "-",
-      Eventname: quotation?.event?.eventType?.[field] || "-",
-
-      eventDate: quotation?.event?.eventStartDateTime
-        ? new Date(quotation.event.eventStartDateTime).toLocaleDateString(
-            "en-GB",
-            { day: "2-digit", month: "short", year: "numeric" }
-          )
+      EventId: q?.event?.id || "-",
+      PartyId: q?.event?.party?.id || "-",
+      CustomerName: q?.event?.party?.[field] || "-",
+      Eventname: q?.event?.eventType?.[field] || "-",
+      eventDate: q?.event?.eventStartDateTime
+        ? formatDateDisplay(q.event.eventStartDateTime)
         : "-",
-
-      QuotationDate: quotation?.createdAt || "-",
-      Amount: quotation?.totalAmount || "-",
-      BalanceDue: quotation?.remainingAmount || "-",
+      QuotationDate: q?.createdAt || "-",
+      Amount: q?.totalAmount || "-",
+      BalanceDue: q?.remainingAmount || "-",
     }));
 
     setTableData(mapped);
   }, [originalData, localStorage.getItem("lang")]);
 
-  const steps = [
-    {
-      title: (
-        <FormattedMessage
-          id="SALES.TOTAL_OUTSTANDING_RECEIVABLE"
-          defaultMessage="Total Outstanding Receivable"
-        />
-      ),
-      value: `₹ ${totals.receivable}`,
-      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="SALES.TOTAL_REMAINING"
-          defaultMessage="Total Remaining"
-        />
-      ),
-      value: `₹ ${totals.remaining}`,
-      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="SALES.TOTAL_AMOUNT"
-          defaultMessage="Total Amount"
-        />
-      ),
-      value: `₹ ${totals.total}`,
-      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
-    },
-  ];
+  // 🔍 Search Filter
+  const filteredData = useMemo(() => {
+    return tableData.filter((row) => {
+      const s = searchText.toLowerCase();
+      return (
+        row.CustomerName?.toLowerCase().includes(s) ||
+        row.Eventname?.toLowerCase().includes(s) ||
+        String(row.Invoice)?.toLowerCase().includes(s)
+      );
+    });
+  }, [tableData, searchText]);
 
   return (
     <Fragment>
@@ -124,9 +146,9 @@ const QuotationDashboard = () => {
           }
         `}
       </style>
+
       <Container>
-        {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
+        <div className="mb-3">
           <Breadcrumbs
             items={[
               {
@@ -141,85 +163,112 @@ const QuotationDashboard = () => {
           />
         </div>
 
-        {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
                 className="input pl-8"
-                placeholder={intl.formatMessage({
-                  id: "SALES.SEARCH_QUOTATION",
-                  defaultMessage: "Search Quotation",
-                })}
+                placeholder="Search Quotation"
                 type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
             </div>
+
+            {/* FILTER SELECT */}
             <div className="filItems relative">
-              <select defaultValue="All Invoice" className="select pe-7.5">
-                <option value="0" selected>
-                  <FormattedMessage
-                    id="SALES.ALL_QUOTATION"
-                    defaultMessage="All Quotations"
-                  />
-                </option>
-                <option value="1">
-                  <FormattedMessage
-                    id="SALES.LAST_3_MONTHS"
-                    defaultMessage="Last 3 Months"
-                  />
-                </option>
-                <option value="2">
-                  <FormattedMessage
-                    id="SALES.LAST_6_MONTHS"
-                    defaultMessage="Last 6 Months"
-                  />
-                </option>
-                <option value="3">
-                  <FormattedMessage
-                    id="SALES.CUSTOM_DATE"
-                    defaultMessage="Custom Date"
-                  />
-                </option>
+              <select
+                className="select pe-7.5"
+                value={selectedMonth}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setSelectedMonth(v);
+                  if (v !== "3") fetchQuotations(v);
+                }}
+              >
+                <option value="">All Quotations</option>
+                <option value="1">Last 3 Months</option>
+                <option value="2">Last 6 Months</option>
+                <option value="3">Custom Date</option>
               </select>
             </div>
+
+            {/* CUSTOM DATE */}
+            {selectedMonth === "3" && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  className="input"
+                  value={customRange.start}
+                  onChange={(e) =>
+                    setCustomRange((p) => ({ ...p, start: e.target.value }))
+                  }
+                />
+                <input
+                  type="date"
+                  className="input"
+                  value={customRange.end}
+                  onChange={(e) =>
+                    setCustomRange((p) => ({ ...p, end: e.target.value }))
+                  }
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() => fetchQuotations("3")}
+                >
+                  Apply
+                </button>
+              </div>
+            )}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button className="btn btn-primary" title="Download">
-              <Download style={{ width: "18", height: "18" }} />{" "}
-              <FormattedMessage id="SALES.DOWNLOAD" defaultMessage="Download" />
-            </button>
-          </div>
+
+          {/* DOWNLOAD BUTTON */}
+          <button className="btn btn-primary">
+            <Download style={{ width: 18, height: 18 }} /> Download
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 lg:gap-4 mb-4">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="card min-w-full p-4 rtl:[background-position:-center_center] [background-position:center_center] bg-no-repeat bg-[length:460px] user-access-bg"
-            >
-              <div className="flex flex-col items-center justify-center w-full gap-2">
+        {/* STAT CARDS */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          {[
+            {
+              label: "Total Outstanding Receivable",
+              value: totals.receivable,
+            },
+            {
+              label: "Total Remaining",
+              value: totals.remaining,
+            },
+            {
+              label: "Total Amount",
+              value: totals.total,
+            },
+          ].map((s, i) => (
+            <div key={i} className="card p-4 user-access-bg">
+              <div className="flex flex-col items-center gap-2">
                 <CommonHexagonBadge
-                  stroke="stroke-primary-clarity"
+                  stroke="stroke-primary"
                   fill="fill-light"
                   size="size-[50px]"
-                  badge={step.icon}
+                  badge={
+                    <i className="ki-filled ki-wallet text-xl text-primary"></i>
+                  }
                 />
-                <div className="flex flex-col items-center justify-center w-full">
-                  <p className="form-info text-gray-700 font-normal text-center mb-0">
-                    {step.title}
-                  </p>
-                  <h3 className="text-xl font-semibold text-primary mb-0">
-                    {step.value}
-                  </h3>
-                </div>
+                <p className="form-info text-gray-700 text-center">{s.label}</p>
+                <h3 className="text-xl font-semibold text-primary">
+                  ₹ {s.value}
+                </h3>
               </div>
             </div>
           ))}
         </div>
-        <QuotationTable columns={columns} data={tableData} />
+
+        {/* TABLE */}
+        <QuotationTable columns={columns} data={filteredData} />
       </Container>
     </Fragment>
   );
 };
+
 export default QuotationDashboard;

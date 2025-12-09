@@ -135,10 +135,12 @@ export const POST = (url, data) => axiosInstance.post(url, data);
 export const GET = (url, params) => axiosInstance.get(url, { params });
 export const PUT = (url, data) => axiosInstance.put(url, data);
 export const DELETE = (url, data) => axiosInstance.delete(url, data);
-export const UPLOAD = (url, formData, onUploadProgress) =>
+export const UPLOAD = (url, formData, config = {}) =>
   axiosInstance.post(url, formData, {
+    ...config,
     headers: {
       "Content-Type": "multipart/form-data",
+      ...(config.headers || {}),
     },
   });
 
