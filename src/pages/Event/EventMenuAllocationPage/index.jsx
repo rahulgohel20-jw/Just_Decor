@@ -328,6 +328,7 @@ const EventMenuAllocationPage = () => {
     useState(false);
   const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
   const intl = useIntl();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -577,49 +578,32 @@ const EventMenuAllocationPage = () => {
     setPercentage("");
   };
 
-  const filtered = useMemo(
-    () =>
-      rows.map((r) => ({
-        ...r,
-        openSidebar: () => {
-          console.log("🔵 openSidebar called for:", r.itemName);
-          setIsChefModal(false);
-          setOpen(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setTimeout(() => {
-            console.log("✅ Opening outside modal");
-            setOpen(true);
-          }, 0);
-        },
-        openChefSidebar: () => {
-          console.log("🟢 openChefSidebar called for:", r.itemName);
-          console.log("Current states:", {
-            eventId,
-            eventFunctionId: activeFunction?.id,
-            menuItemId: r.menuItemId,
-            menuCategoryId: r.menuCategoryId,
-          });
+  const filtered = useMemo(() => {
+    const filteredRows = rows.filter((r) => {
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        r.itemName.toLowerCase().includes(term) ||
+        r.categoryName?.toLowerCase().includes(term)
+      );
+    });
 
-          setOpen(false);
-          setIsChefModal(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-
-          setTimeout(() => {
-            console.log("✅ Opening chef modal now");
-            setIsChefModal(true);
-          }, 0);
-        },
-      })),
-    [rows, eventId, activeFunction]
-  );
+    return filteredRows.map((r) => ({
+      ...r,
+      openSidebar: () => {
+        setIsChefModal(false);
+        setOpen(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setOpen(true), 0);
+      },
+      openChefSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setIsChefModal(true), 0);
+      },
+    }));
+  }, [rows, eventId, activeFunction, searchTerm]);
 
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
@@ -1043,13 +1027,6 @@ const EventMenuAllocationPage = () => {
                 ></i>{" "}
                 5. Agency Distribution
               </button>
-              <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
-                <i
-                  className="ki-filled ki-user "
-                  style={{ color: "white" }}
-                ></i>{" "}
-                Edit Pax
-              </button>
             </div>
           </div>
         </div>
@@ -1253,6 +1230,8 @@ const EventMenuAllocationPage = () => {
                         defaultMessage: "Search item",
                       })}
                       type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>

@@ -11,20 +11,16 @@ const SelectedItems = ({
   onRateChange = () => {},
   onOpenItemNotes = () => {},
   onOpenCategoryNotes = () => {},
+  onInstructionsChange = () => {}, // NEW PROP
 }) => {
   const { categoriesOrder = [], categories = {} } = data;
 
-  console.log(data);
-
-  // -------------------------------
-  // EXPAND / COLLAPSE STATE
-  // -------------------------------
   const [expandedCategories, setExpandedCategories] = useState({});
 
   useEffect(() => {
     const defaults = {};
     categoriesOrder.forEach((cat) => {
-      defaults[cat] = true; // default expanded
+      defaults[cat] = true;
     });
     setExpandedCategories(defaults);
   }, [categoriesOrder]);
@@ -39,9 +35,6 @@ const SelectedItems = ({
   const getCategoryDroppableId = (cat) => `cat-${cat}`;
   const getItemDraggableId = (itemId) => `item-${itemId}`;
 
-  // -------------------------------
-  // DRAG END LOGIC
-  // -------------------------------
   const internalOnDragEnd = (result) => {
     const { destination, source, type, draggableId } = result;
     if (!destination) return;
@@ -98,9 +91,6 @@ const SelectedItems = ({
     });
   };
 
-  // -------------------------------
-  // TOTAL ITEMS + RATES
-  // -------------------------------
   const { totalItems, totalRate } = useMemo(() => {
     let itemCount = 0;
     let rateSum = 0;
@@ -123,9 +113,6 @@ const SelectedItems = ({
     return { totalItems: itemCount, totalRate: rateSum };
   }, [categoriesOrder, categories]);
 
-  // -------------------------------
-  // RENDER CATEGORIES + ITEMS
-  // -------------------------------
   const rendered = useMemo(() => {
     if (!categoriesOrder || categoriesOrder.length === 0) {
       return (
@@ -137,11 +124,7 @@ const SelectedItems = ({
 
     return (
       <DragDropContext onDragEnd={internalOnDragEnd}>
-        <Droppable
-          droppableId="categories-droppable"
-          type="CATEGORY"
-          direction="vertical"
-        >
+        <Droppable droppableId="categories-droppable" type="CATEGORY">
           {(provided) => (
             <div
               ref={provided.innerRef}
@@ -163,12 +146,11 @@ const SelectedItems = ({
                         {...provCat.draggableProps}
                         className="bg-white border rounded-xl shadow-sm p-3"
                       >
-                        {/* CATEGORY HEADER */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span
                               {...provCat.dragHandleProps}
-                              className="text-[#64748B] text-[22px] cursor-grab active:cursor-grabbing"
+                              className="text-[#64748B] text-[22px] cursor-grab"
                             >
                               ⋮⋮
                             </span>
@@ -177,24 +159,17 @@ const SelectedItems = ({
 
                           <div className="flex items-center gap-1 text-gray-500">
                             <img
-                              className="w-4 h-4"
+                              className="w-4 h-4 cursor-pointer"
                               src={toAbsoluteUrl("/media/menu/notes.png")}
                               alt="notes"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onOpenCategoryNotes(
-                                  catName,
-                                  data.categoryNotes?.[catName] || ""
-                                );
+                                onOpenCategoryNotes(catName);
                               }}
                             />
-                            {/* EXPAND / COLLAPSE BUTTON */}
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleCategory(catName);
-                              }}
+                              onClick={() => toggleCategory(catName)}
                               className="p-1 rounded hover:bg-gray-100"
                             >
                               {expandedCategories[catName] ? (
@@ -206,7 +181,6 @@ const SelectedItems = ({
                           </div>
                         </div>
 
-                        {/* ITEMS LIST (show only if expanded) */}
                         {expandedCategories[catName] && (
                           <Droppable
                             droppableId={getCategoryDroppableId(catName)}
@@ -216,7 +190,7 @@ const SelectedItems = ({
                               <div
                                 ref={provItems.innerRef}
                                 {...provItems.droppableProps}
-                                className={`space-y-2 min-h-[40px] rounded-lg transition-colors ${
+                                className={`space-y-2 min-h-[40px] rounded-lg ${
                                   snapshot.isDraggingOver ? "bg-blue-50" : ""
                                 }`}
                               >
@@ -230,75 +204,50 @@ const SelectedItems = ({
                                       <div
                                         ref={provItem.innerRef}
                                         {...provItem.draggableProps}
-                                        {...provItem.dragHandleProps}
-                                        className={`relative flex items-center justify-between bg-[#EEF3F7] p-2 rounded-lg cursor-grab active:cursor-grabbing transition-shadow ${
+                                        className={`relative bg-[#EEF3F7] p-2 rounded-lg transition-shadow ${
                                           snap.isDragging
                                             ? "shadow-lg ring-2 ring-blue-400"
                                             : ""
                                         }`}
                                       >
-                                        {/* PACKAGE RIBBON */}
-                                        {item.isPackageItem && (
-                                          <div className="absolute top-0 left-0">
-                                            <div
-                                              className="w-5 h-5 
-                                              border-t-[28px] border-t-primary 
-                                              border-r-[28px] border-r-transparent 
-                                              relative"
-                                            >
-                                              <span
-                                                className="absolute -top-[30px] left-[-1px] 
-                                                text-[9px] text-white font-semibold 
-                                                rotate-[-45deg]"
-                                              >
-                                                PKG
+                                        {/* TOP ROW */}
+                                        <div
+                                          {...provItem.dragHandleProps}
+                                          className="flex items-center justify-between"
+                                        >
+                                          {/* LEFT AREA: Icon + Title + (Rate if enabled) */}
+                                          <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
+                                              <img
+                                                src={
+                                                  item.imagePath &&
+                                                  /\.(jpg|jpeg|png|webp|gif)$/i.test(
+                                                    item.imagePath
+                                                  )
+                                                    ? item.imagePath
+                                                    : toAbsoluteUrl(
+                                                        "/media/menu/noImage.jpg"
+                                                      )
+                                                }
+                                                alt={item.nameEnglish}
+                                                className="w-full h-full object-cover"
+                                              />
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                              <span className="text-md text-black">
+                                                {item.nameEnglish}
                                               </span>
-                                            </div>
-                                          </div>
-                                        )}
 
-                                        {/* LEFT SECTION */}
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500 overflow-hidden">
-                                            <img
-                                              src={
-                                                item.imagePath &&
-                                                typeof item.imagePath ===
-                                                  "string" &&
-                                                item.imagePath !== "null" &&
-                                                item.imagePath !==
-                                                  "undefined" &&
-                                                item.imagePath.trim() !== "" &&
-                                                !item.imagePath.endsWith(
-                                                  "null"
-                                                ) &&
-                                                /\.(jpg|jpeg|png|webp|gif)$/i.test(
-                                                  item.imagePath
-                                                )
-                                                  ? item.imagePath
-                                                  : toAbsoluteUrl(
-                                                      "/media/menu/noImage.jpg"
-                                                    )
-                                              }
-                                              alt={item.nameEnglish}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          </div>
-
-                                          <div className="flex flex-col">
-                                            <div className="text-md text-black">
-                                              {item.nameEnglish}
-                                            </div>
-
-                                            {showRates && (
-                                              <div className="mt-1">
-                                                <label className="flex items-center gap-2">
-                                                  <span className="text-[15px] text-gray-500">
+                                              {showRates && (
+                                                <label className="flex items-center gap-1 mt-1">
+                                                  <span className="text-gray-500 text-xs">
                                                     Rate:
                                                   </span>
                                                   <input
-                                                    type="text"
+                                                    type="number"
                                                     value={item.rate}
+                                                    min={0}
                                                     onChange={(e) =>
                                                       onRateChange(
                                                         functionId,
@@ -310,51 +259,63 @@ const SelectedItems = ({
                                                     onClick={(e) =>
                                                       e.stopPropagation()
                                                     }
-                                                    className="h-6 w-16 rounded border border-gray-200 bg-gray-50 px-2 text-xs"
+                                                    className="w-16 h-6 rounded border border-gray-300 bg-white text-xs p-1"
                                                   />
                                                 </label>
-                                              </div>
-                                            )}
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          {/* RIGHT AREA: Notes & Delete */}
+                                          <div className="flex items-center gap-1 text-gray-600">
+                                            <img
+                                              className="w-4 h-4 cursor-pointer"
+                                              src={toAbsoluteUrl(
+                                                "/media/menu/notes.png"
+                                              )}
+                                              alt="notes"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                onOpenItemNotes(item.id);
+                                              }}
+                                            />
+                                            <button
+                                              type="button"
+                                              className="text-red-500 hover:bg-gray-200 rounded p-1"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRemove(
+                                                  functionId,
+                                                  catName,
+                                                  item.id
+                                                );
+                                              }}
+                                            >
+                                              <i className="ki-filled ki-trash text-[18px]" />
+                                            </button>
                                           </div>
                                         </div>
 
-                                        {/* REMOVE BUTTON */}
-                                        <div className="flex items-center gap-0 text-gray-500">
-                                          <img
-                                            className="w-4 h-4 cursor-pointer"
-                                            src={toAbsoluteUrl(
-                                              "/media/menu/notes.png"
-                                            )}
-                                            alt="notes"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              onOpenItemNotes(
-                                                item.id,
-                                                item.itemNotes || ""
-                                              );
-                                            }}
-                                          />
-                                          <button
-                                            type="button"
-                                            className="rounded hover:bg-gray-100 text-red-500 p-1"
-                                            aria-label="Remove"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              onRemove(
-                                                functionId,
-                                                catName,
-                                                item.id
-                                              );
-                                            }}
-                                          >
-                                            <i className="ki-filled ki-trash text-[20px]" />
-                                          </button>
-                                        </div>
+                                        {/* INSTRUCTIONS FIELD */}
+                                        <textarea
+                                          rows={2}
+                                          placeholder="Add instructions..."
+                                          value={item.itemNotes || ""}
+                                          onChange={(e) => {
+                                            onInstructionsChange(
+                                              functionId,
+                                              catName,
+                                              item.id,
+                                              e.target.value
+                                            );
+                                          }}
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm outline-none focus:outline-none focus:ring-0 resize-none"
+                                        />
                                       </div>
                                     )}
                                   </Draggable>
                                 ))}
-
                                 {provItems.placeholder}
                               </div>
                             )}
@@ -375,18 +336,18 @@ const SelectedItems = ({
   }, [
     categoriesOrder,
     categories,
+    expandedCategories,
     functionId,
     onRemove,
     showRates,
     onRateChange,
-    expandedCategories,
+    onInstructionsChange,
   ]);
 
   return (
     <div className="w-full flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto no-scrollbar">{rendered}</div>
 
-      {/* FOOTER */}
       <div className="border-t bg-white p-3 mt-auto">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-700 font-medium">

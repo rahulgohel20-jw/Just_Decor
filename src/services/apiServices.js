@@ -451,6 +451,10 @@ export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
 
+export const UpdateEventPax = (eventId, data) => {
+  return PUT(`/eventmaster/updatealleventfunction?id=${eventId}`, data);
+};
+
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
@@ -579,10 +583,11 @@ export const uploadProfileImage = (data, queryParams) => {
 export const GetAllMenuItems = ({
   userId,
   itemName = "",
+  subCategoryId,
   page = 1,
   size = 10,
 }) => {
-  const query = `?userId=${userId}&itemName=${itemName}&page=${page}&size=${size}`;
+  const query = `?userId=${userId}&itemName=${itemName}&menuSubCatId=${subCategoryId}&page=${page}&size=${size}`;
   return GET(`/menuitems/getallbyuserid${query}`);
 };
 

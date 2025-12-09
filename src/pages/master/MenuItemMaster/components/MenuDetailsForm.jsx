@@ -93,12 +93,13 @@ const MenuDetailsForm = ({
 
         const rawData =
           rawRes?.data?.data?.["Raw Material Details"]?.map((item) => ({
-            rawMaterialId: item.id,
-            category: item.rawMaterialCat.nameEnglish,
-            name: item.nameEnglish,
+            rawMaterialId: item?.id,
+            category: item?.rawMaterialCat?.nameEnglish,
+            name: item?.nameEnglish,
             unitId: item.unit?.id,
             unit: item.unit?.nameEnglish,
             supplierRate: item.supplierRate,
+            unitHierarchy: item.unitHierarchy,
           })) || [];
         setRawmaterialList(rawData);
 
@@ -259,6 +260,12 @@ const MenuDetailsForm = ({
   };
 
   const handleUploadChange = ({ fileList: newList }) => {
+    if (newList.length > 1) {
+      const hasUploaded = newList.some((f) => f.originFileObj);
+      if (hasUploaded) {
+        newList = newList.filter((f) => f.originFileObj);
+      }
+    }
     setFileList(newList);
   };
 
@@ -317,20 +324,23 @@ const MenuDetailsForm = ({
   };
 
   const onFinish = async (values) => {
-    const file = fileList?.[0]?.originFileObj;
-
-    const imageChanged =
-      isEdit && file && editData?.imagePath !== fileList?.[0]?.url;
-    const shouldUploadImage = (!isEdit && file) || imageChanged;
-
+    const newUpload = fileList.find((f) => f.originFileObj);
+    const file = newUpload?.originFileObj || null;
+    const shouldUploadImage = !!file;
+    const allValues = form.getFieldsValue(true);
     const details = {
-      ...values,
+      ...allValues,
       recipes: tableData,
       totalRate,
       dishCosting,
       file,
       shouldUploadImage,
     };
+
+    if (isEdit && !file && editData?.imagePath) {
+      details.removeImage = true;
+    }
+
     setMenuDetails(details);
 
     if (!isSaveOnly) {
@@ -395,6 +405,7 @@ const MenuDetailsForm = ({
   };
 
   const handleCancel = () => {
+    navigate("/master/menu-item");
     form.resetFields();
     setFileList([]);
   };
@@ -701,16 +712,33 @@ const MenuDetailsForm = ({
                     }))}
                     onChange={(value) => {
                       setSelectedRaw(value);
+
                       const found = rawmaterialList.find(
                         (r) => r.rawMaterialId === value
                       );
                       if (found) {
-                        setUnitOptions([
-                          { label: found.unit, value: found.unitId },
-                        ]);
+                        // Parent + children list
+                        const parent = found.unitHierarchy;
+                        const unitList = [
+                          {
+                            label: parent.nameEnglish,
+                            value: parent.unitId,
+                          },
+                          ...(parent.children?.map((child) => ({
+                            label: child.nameEnglish,
+                            value: child.unitId,
+                          })) || []),
+                        ];
+
+                        // Update dropdown options
+                        setUnitOptions(unitList);
+
+                        // Default selected = Parent unit
+                        setUnit(parent.unitId);
                       }
                     }}
                   />
+
                   <button
                     type="button"
                     className="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-r-xl shadow hover:scale-105 transition"

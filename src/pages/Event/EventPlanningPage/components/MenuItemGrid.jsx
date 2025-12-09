@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Getmenuprep } from "@/services/apiServices";
 import { toAbsoluteUrl } from "@/utils";
+import ShowMenuItems from "./ShowMenuItems";
+import { Eye } from "lucide-react";
+
 const MenuItemGrid = ({
   refreshKey,
   category = "All",
@@ -10,16 +13,45 @@ const MenuItemGrid = ({
   selectedIdsSet = new Set(),
   onToggleSelect = () => {},
   selectedFunctionId = null,
-  packageCategories = [], // 🔥 added
+  packageCategories = [],
+  selectedItemsData = {},
 }) => {
   const [allMenuItems, setAllMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [displayCount, setDisplayCount] = useState(pageSize);
-
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const userId = localStorage.getItem("userId");
   const sentinelRef = useRef();
   const observerRef = useRef();
+
+  const getItemWithSlogan = useCallback(
+    (item) => {
+      const itemId = Number(item.menuItemId || item.id);
+
+      // Search through selected items to find matching item with slogan
+      if (selectedItemsData?.categories) {
+        for (const categoryItems of Object.values(
+          selectedItemsData.categories
+        )) {
+          const foundItem = categoryItems.find(
+            (it) => Number(it.id) === itemId
+          );
+          if (foundItem) {
+            return {
+              ...item,
+              itemSlogan: foundItem.itemSlogan || "",
+              itemNotes: foundItem.itemNotes || "",
+            };
+          }
+        }
+      }
+
+      return item;
+    },
+    [selectedItemsData]
+  );
 
   // -----------------------------------------------------
   // 🔵 FETCH ITEMS (category based)
@@ -192,6 +224,12 @@ const MenuItemGrid = ({
     [onToggleSelect, category]
   );
 
+  const handleViewDetails = (item) => {
+    const itemWithSlogan = getItemWithSlogan(item); // 🆕 Get item with updated slogan
+    setSelectedItem(itemWithSlogan);
+    setIsModalOpen(true);
+  };
+
   // -----------------------------------------------------
   // UI STATES
   // -----------------------------------------------------
@@ -259,7 +297,7 @@ const MenuItemGrid = ({
                 </div>
               )}
 
-              <div className="w-full h-20 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
+              <div className="relative w-full h-20 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
                 {item.imagePath ? (
                   <img
                     src={
@@ -283,6 +321,15 @@ const MenuItemGrid = ({
                     alt="image"
                   />
                 )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewDetails(item);
+                  }}
+                  className="absolute top-1 left-1  text-white px-1 py-[2px] text-[11px] rounded flex items-center gap-1"
+                >
+                  <Eye className="text-primary" size={20} />
+                </button>
               </div>
 
               <div className="w-full text-center text-xs font-medium p-2 line-clamp-2">
@@ -307,6 +354,12 @@ const MenuItemGrid = ({
           <p className="text-gray-400 text-xs">No more items</p>
         )}
       </div>
+
+      <ShowMenuItems
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        item={selectedItem}
+      />
     </div>
   );
 };

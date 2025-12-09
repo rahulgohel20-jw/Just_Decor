@@ -2,37 +2,49 @@ import { Fragment, useEffect, useState, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns, categoryData } from "./constant";
+import { columns } from "./constant";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
   updatestatusmneuitem,
+  GetAllSubCategory,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-import { Form, Spin } from "antd";
+import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 1000;
 
 const MenuItems = () => {
   const navigate = useNavigate();
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const intl = useIntl();
+  const [subCategoryFilter, setSubCategoryFilter] = useState("");
+  const [subCategoryList, setSubCategoryList] = useState([]);
 
   let Id = localStorage.getItem("userId");
 
-  // Wrap fetchPage in useCallback to prevent unnecessary recreations
+  const FetchSubCategoryData = () => {
+    setLoading(true);
+    GetAllSubCategory({ userid: Id })
+      .then((res) => {
+        const list = res.data.data["Menu Sub Category Details"] || [];
+        console.log(list);
+
+        setSubCategoryList(list);
+      })
+      .catch((error) => console.error("Error fetching sub category:", error))
+      .finally(() => setLoading(false));
+  };
+
   const fetchPage = useCallback(
-    async (page, search = searchQuery) => {
+    async (page, search = searchQuery, subCat = subCategoryFilter) => {
       setLoading(true);
 
       try {
@@ -40,7 +52,8 @@ const MenuItems = () => {
 
         const response = await GetAllMenuItems({
           userId: Id,
-          itemName: search || "", // Ensure empty string if no search
+          itemName: search || "",
+          subCategoryId: subCat || "",
           page: page,
           size: ITEMS_PER_PAGE,
         });
@@ -87,14 +100,13 @@ const MenuItems = () => {
       }
     },
     [Id, searchQuery]
-  ); // Include dependencies
+  );
 
-  // Initial load
   useEffect(() => {
     fetchPage(1);
+    FetchSubCategoryData();
   }, []);
 
-  // Search effect with debounce
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       console.log("🔍 Search triggered:", searchQuery);
@@ -173,10 +185,6 @@ const MenuItems = () => {
     }
   };
 
-  const refreshData = () => {
-    fetchPage(currentPage, searchQuery);
-  };
-
   return (
     <Fragment>
       <Container>
@@ -196,11 +204,11 @@ const MenuItems = () => {
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex  items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
-                className="input pl-8"
+                className="input pl-8 w-[200px]"
                 placeholder={intl.formatMessage({
                   id: "MASTER.SEARCH_MENU_ITEMS",
                   defaultMessage: "Search Menu Items",
@@ -210,6 +218,25 @@ const MenuItems = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            <select
+              className="input min-w-[200px]"
+              value={subCategoryFilter}
+              onChange={(e) => {
+                const selected = e.target.value;
+                setSubCategoryFilter(selected);
+                setCurrentPage(1);
+
+                fetchPage(1, searchQuery, selected);
+              }}
+            >
+              <option value="">All Subcategories</option>
+              {subCategoryList?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.nameEnglish || item.name || "-"}
+                </option>
+              ))}
+            </select>
+
             {loading && (
               <div className="flex items-center gap-2 text-primary">
                 <Spin size="small" />
@@ -222,8 +249,6 @@ const MenuItems = () => {
               className="btn btn-primary"
               onClick={() => {
                 navigate("/master/menu-items");
-                // setSelectedMenuItem(null);
-                // setIsItemModalOpen(true);
               }}
               title={intl.formatMessage({
                 id: "MASTER.ADD_MENU_ITEM",

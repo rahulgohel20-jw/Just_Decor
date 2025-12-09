@@ -1,32 +1,28 @@
 import { useState, useEffect } from "react";
 import { Mic } from "lucide-react";
-const MenuNotes = ({ isOpen, onClose, notes, onSave }) => {
-  const [localNotes, setLocalNotes] = useState({
-    itemsNotes: "",
-    itemSlogan: "",
-  });
+
+const MenuNotes = ({ isOpen, onClose, itemId, notes = "", onSave }) => {
+  const [itemSlogan, setItemSlogan] = useState("");
+  console.log(notes);
 
   useEffect(() => {
-    if (isOpen && notes) {
-      setLocalNotes(notes);
+    if (isOpen && notes !== undefined) {
+      setItemSlogan(notes || "");
     }
   }, [isOpen, notes]);
 
   if (!isOpen) return null;
 
-  const handleChange = (field, value) => {
-    setLocalNotes((prev) => ({ ...prev, [field]: value }));
+  const handleSave = () => {
+    onSave(itemSlogan);
   };
 
-  const handleSave = () => {
-    onSave(localNotes);
-  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Add Notes And Slogan</h2>
+          <h2 className="text-xl font-semibold">Item Slogan</h2>
           <button onClick={onClose} className="text-2xl text-gray-600">
             &times;
           </button>
@@ -34,14 +30,9 @@ const MenuNotes = ({ isOpen, onClose, notes, onSave }) => {
         {/* Form */}
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <InputWithIcon
-            label="Item Notes"
-            value={localNotes.itemsNotes}
-            onChange={(e) => handleChange("itemsNotes", e.target.value)}
-          />
-          <InputWithIcon
             label="Item Slogan"
-            value={localNotes.itemSlogan}
-            onChange={(e) => handleChange("itemSlogan", e.target.value)}
+            value={itemSlogan}
+            onChange={(e) => setItemSlogan(e.target.value)}
           />
         </div>
         <div className="flex w-full justify-end mt-6 gap-3">

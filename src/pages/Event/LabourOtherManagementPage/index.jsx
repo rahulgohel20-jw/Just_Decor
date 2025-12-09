@@ -577,14 +577,6 @@ const LabourOtherManagementPage = () => {
                   ></i>{" "}
                   4. Raw Material Allocation
                 </button>
-
-                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
-                  <i
-                    className="ki-filled ki-user "
-                    style={{ color: "white" }}
-                  ></i>{" "}
-                  Edit Pax
-                </button>
               </div>
             </div>
           </div>

@@ -24,7 +24,7 @@ import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
-
+import EditPaxModal from "./components/EditPaxModal";
 const EventPlanningPage = () => {
   let { eventId } = useParams();
   const navigate = useNavigate();
@@ -64,30 +64,27 @@ const EventPlanningPage = () => {
   const [itemNotes, setItemNotes] = useState("");
   const [categoryNotes, setCategoryNotes] = useState("");
   const userId = localStorage.getItem("userId");
+  const [editPax, setEditPax] = useState(false);
+  const fetchEventData = async () => {
+    try {
+      setLoading(true);
+      const response = await GetEventMasterById(eventId);
+      const eventDetails = response?.data?.data?.["Event Details"]?.[0] || null;
 
-  useEffect(() => {
-    const fetchEventData = async () => {
-      try {
-        setLoading(true);
-        const response = await GetEventMasterById(eventId);
-        const eventDetails =
-          response?.data?.data?.["Event Details"]?.[0] || null;
-        console.log(eventDetails);
+      setEventData(eventDetails);
 
-        setEventData(eventDetails);
-
-        if (eventDetails?.eventFunctions?.[0]) {
-          setPersonCount(eventDetails.eventFunctions[0].pax);
-          setDefaultRate(eventDetails.eventFunctions[0].rate ?? "");
-          setSelectedFunction(eventDetails.eventFunctions[0].id);
-        }
-      } catch (err) {
-        setError("Failed to load event details");
-      } finally {
-        setLoading(false);
+      if (eventDetails?.eventFunctions?.[0]) {
+        setPersonCount(eventDetails.eventFunctions[0].pax);
+        setDefaultRate(eventDetails.eventFunctions[0].rate ?? "");
+        setSelectedFunction(eventDetails.eventFunctions[0].id);
       }
-    };
-
+    } catch (err) {
+      setError("Failed to load event details");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchEventData();
   }, [eventId]);
   useEffect(() => {
@@ -121,6 +118,8 @@ const EventPlanningPage = () => {
       if (!data) return;
 
       const selectedCats = data.selectedMenuPreparationItems || [];
+      console.log(selectedCats);
+
       const flatItems = data.menuPreparationItems || [];
 
       const categories = {};
@@ -141,6 +140,8 @@ const EventPlanningPage = () => {
             rate: Number(it.itemPrice),
             menuCategoryName: catName,
             catId: Number(cat.menuCategoryId || 0),
+            itemSlogan: it.itemSlogan || "",
+            itemNotes: it.itemNotes || "",
 
             // ⭐ Package metadata restored from API response
             isPackageItem: data?.menuPreparation?.isPackage || false,
@@ -555,7 +556,7 @@ const EventPlanningPage = () => {
           selectedMenuPreparationItems: items.map((item, itemIndex) => ({
             id: 0,
             itemNotes: item.itemNotes || "",
-            itemSlogan: "",
+            itemSlogan: item.itemSlogan || "",
             itemSortOrder: itemIndex,
             itemPrice: Number(item.rate),
             menuItemId: Number(item.id),
@@ -653,6 +654,37 @@ const EventPlanningPage = () => {
     }
   };
 
+  // Add this new handler after onRateChange
+  const onInstructionsChange = useCallback(
+    (functionId, categoryName, itemId, newInstructions) => {
+      setSelectedByFunction((prev) => {
+        const bucket = prev[functionId];
+        if (!bucket) return prev;
+
+        const categories = { ...bucket.categories };
+        const items = categories[categoryName] || [];
+
+        const updatedItems = items.map((item) =>
+          Number(item.id) === Number(itemId)
+            ? { ...item, itemNotes: newInstructions }
+            : item
+        );
+
+        return {
+          ...prev,
+          [functionId]: {
+            ...bucket,
+            categories: {
+              ...categories,
+              [categoryName]: updatedItems,
+            },
+          },
+        };
+      });
+    },
+    []
+  );
+
   const handleCategoryChange = (categoryName, categoryId) => {
     setSelectedCategory(categoryName);
     setSelectedCategoryId(categoryId);
@@ -661,9 +693,22 @@ const EventPlanningPage = () => {
   const handleCancel = () => {
     navigate(-1);
   };
-  const openItemNotesModal = (itemId, notes = "") => {
+  const openItemNotesModal = (itemId) => {
+    // Find the item in categories to get its itemSlogan
+    const bucket = selectedByFunction[selectedFunction];
+    let foundSlogan = "";
+
+    if (bucket && bucket.categories) {
+      Object.values(bucket.categories).forEach((items) => {
+        const item = items.find((it) => Number(it.id) === Number(itemId));
+        if (item) {
+          foundSlogan = item.itemSlogan || "";
+        }
+      });
+    }
+
     setCurrentItemForNotes(itemId);
-    setItemNotes(notes);
+    setItemNotes(foundSlogan);
     setShowNoteModal(true);
   };
   const openCategoryNotesModal = (categoryName, notes = "") => {
@@ -672,7 +717,7 @@ const EventPlanningPage = () => {
     setShowCategoryNoteModal(true);
   };
 
-  const handleNoteSave = (updatedNotes) => {
+  const handleNoteSave = (updatedSlogan) => {
     if (!selectedFunction || !currentItemForNotes) return;
 
     setSelectedByFunction((prev) => {
@@ -684,7 +729,7 @@ const EventPlanningPage = () => {
       Object.keys(bucket.categories).forEach((cat) => {
         updatedCategories[cat] = bucket.categories[cat].map((item) =>
           Number(item.id) === Number(currentItemForNotes)
-            ? { ...item, itemNotes: updatedNotes } // store item notes
+            ? { ...item, itemSlogan: updatedSlogan }
             : item
         );
       });
@@ -814,7 +859,10 @@ const EventPlanningPage = () => {
                   ></i>{" "}
                   5. Agency Distribution
                 </button>
-                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() => setEditPax(true)}
+                >
                   <i
                     className="ki-filled ki-user "
                     style={{ color: "white" }}
@@ -855,6 +903,7 @@ const EventPlanningPage = () => {
                     <input
                       type="number"
                       min={1}
+                      readOnly
                       className="input input-sm w-20"
                       value={personCount}
                       onChange={(e) => setPersonCount(e.target.value)}
@@ -1114,6 +1163,7 @@ const EventPlanningPage = () => {
                     onToggleSelect={onToggleSelectItem}
                     selectedFunctionId={selectedFunction}
                     packageItems={currentPackageItems}
+                    selectedItemsData={selectedByFunction[selectedFunction]}
                   />
                 </div>
               </div>
@@ -1158,6 +1208,7 @@ const EventPlanningPage = () => {
                 onRateChange={onRateChange}
                 onOpenItemNotes={openItemNotesModal}
                 onOpenCategoryNotes={openCategoryNotesModal}
+                onInstructionsChange={onInstructionsChange}
               />
             </div>
           </div>
@@ -1264,6 +1315,13 @@ const EventPlanningPage = () => {
         categoryId={currentCategoryForNotes}
         notes={categoryNotes}
         onSave={handleCategoryNoteSave}
+      />
+
+      <EditPaxModal
+        isOpen={editPax}
+        onClose={() => setEditPax(false)}
+        eventData={eventData}
+        onRefreshEvent={fetchEventData}
       />
     </Fragment>
   );

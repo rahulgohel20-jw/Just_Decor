@@ -1,12 +1,5 @@
-import {
-  Fragment,
-  useState,
-  useEffect,
-  useRef,
-  useInsertionEffect,
-} from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
@@ -522,13 +515,6 @@ const RawMaterialAllocation = () => {
                     style={{ color: "white" }}
                   ></i>{" "}
                   5. Agency Distribution
-                </button>
-                <button className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary">
-                  <i
-                    className="ki-filled ki-user "
-                    style={{ color: "white" }}
-                  ></i>{" "}
-                  Edit Pax
                 </button>
               </div>
             </div>
