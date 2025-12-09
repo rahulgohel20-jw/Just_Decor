@@ -7,16 +7,21 @@ const ManagerDropdown = ({ value, onChange, options, ...rest }) => {
 
   return (
     <Select
+      showSearch
+      allowClear
       value={value || undefined}
       onChange={handleChange}
       placeholder="Please select"
       options={options}
-      {...rest}
       className="w-full border-none shadow-none focus:outline-none"
       style={{
         border: "none",
         boxShadow: "none",
       }}
+      filterOption={(input, option) =>
+        (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+      }
+      {...rest}
     />
   );
 };

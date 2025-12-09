@@ -51,7 +51,7 @@ export default function ExpenseDetails() {
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{getTitle()}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-8">{getTitle()}</h1>
 
         {/* Dashboard Cards */}
         <div className="bg-gray-100 rounded-lg bg-gray-50 shadow-lg p-6 mb-8">

@@ -6,28 +6,44 @@ import InvoiceTable from "@/components/InvoiceTable/InvoiceTable";
 import { useNavigate } from "react-router-dom";
 import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
-import { GetAllInvoice } from "@/services/apiServices";
+
+import {
+  GetAllInvoice,
+  GetAllInvoicedatabyfilter,
+} from "@/services/apiServices";
 
 const InvoiceDashboard = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState(defaultData);
+  const [originalData, setOriginalData] = useState([]);
+
   const [totals, setTotals] = useState({
     receivable: 0,
     dueToday: 0,
     dueWithin30Days: 0,
-    overDue: 0,
-    avgPaymentDays: 7,
   });
-  const [originalData, setOriginalData] = useState([]);
 
   const userId = localStorage.getItem("userId");
 
+  /* ---------------------- DATE FORMATTER FOR API ---------------------- */
+  const formatDateAPI = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  /* ---------------------- FILTER STATES ---------------------- */
+  const [filterType, setFilterType] = useState("0"); // 0=All,1=3m,2=6m,3=custom
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  /* ---------------------- NORMAL API (ALL INVOICE) ---------------------- */
   const fetchInvoices = async () => {
     try {
       const response = await GetAllInvoice(userId);
-
       const list = response?.data?.data?.["Event Invoice Details"] || [];
-
       setOriginalData(list);
 
       if (list.length > 0) {
@@ -35,8 +51,6 @@ const InvoiceDashboard = () => {
           receivable: list[0]?.overAllReceivableAmnt || 0,
           dueToday: list[0]?.overAllRemainingAmnt || 0,
           dueWithin30Days: list[0]?.overallTotalAmnt || 0,
-          overDue: 0,
-          avgPaymentDays: 7,
         });
       }
     } catch (error) {
@@ -44,10 +58,61 @@ const InvoiceDashboard = () => {
     }
   };
 
+  /* ---------------------- FILTER API ---------------------- */
+  const applyInvoiceFilter = async () => {
+    try {
+      let start = "";
+      let end = "";
+
+      if (filterType === "1") {
+        // Last 3 months
+        const today = new Date();
+        const before3 = new Date();
+        before3.setMonth(today.getMonth() - 3);
+
+        start = formatDateAPI(before3);
+        end = formatDateAPI(today);
+      } else if (filterType === "2") {
+        // Last 6 months
+        const today = new Date();
+        const before6 = new Date();
+        before6.setMonth(today.getMonth() - 6);
+
+        start = formatDateAPI(before6);
+        end = formatDateAPI(today);
+      } else if (filterType === "3") {
+        // Custom date
+        if (!startDate || !endDate) return;
+        start = formatDateAPI(startDate);
+        end = formatDateAPI(endDate);
+      } else {
+        // All Invoice
+        fetchInvoices();
+        return;
+      }
+
+      const response = await GetAllInvoicedatabyfilter(end, start, userId);
+      const filteredList =
+        response?.data?.data?.["Event Invoice Details"] || [];
+      setOriginalData(filteredList);
+    } catch (err) {
+      console.error("Filter error:", err);
+    }
+  };
+
+  /* ---------------------- LOAD ALL ON FIRST RENDER ---------------------- */
   useEffect(() => {
     fetchInvoices();
   }, []);
 
+  /* ---------------------- AUTO APPLY FILTER ---------------------- */
+  useEffect(() => {
+    if (filterType !== "3") {
+      applyInvoiceFilter();
+    }
+  }, [filterType]);
+
+  /* ---------------------- MAP TABLE DATA ---------------------- */
   useEffect(() => {
     const language = localStorage.getItem("lang");
 
@@ -121,10 +186,6 @@ const InvoiceDashboard = () => {
     },
   ];
 
-  const handleAddInvoice = () => {
-    navigate("/add-invoice");
-  };
-
   return (
     <Fragment>
       <style>
@@ -139,61 +200,84 @@ const InvoiceDashboard = () => {
       </style>
 
       <Container>
-        {/* 🧭 Breadcrumb */}
+        {/* Breadcrumb */}
         <div className="mb-3">
           <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
         </div>
 
-        {/* 🔍 Filters */}
+        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
+            {/* Search */}
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input
-                className="input pl-8"
-                placeholder="Search invoice"
-                type="text"
-              />
+              <input className="input pl-8" placeholder="Search invoice" />
             </div>
+
+            {/* Filter Dropdown */}
             <div className="filItems relative">
-              <select defaultValue="0" className="select pe-7.5">
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="select pe-7.5"
+              >
                 <option value="0">All Invoice</option>
                 <option value="1">Last 3 Months</option>
                 <option value="2">Last 6 Months</option>
                 <option value="3">Custom Date</option>
               </select>
             </div>
+
+            {/* Custom Date Range */}
+            {filterType === "3" && (
+              <div className="flex gap-2 items-center">
+                <input
+                  type="date"
+                  className="input"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <input
+                  type="date"
+                  className="input"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={applyInvoiceFilter}
+                >
+                  Apply
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 💰 Summary Cards */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3 lg:gap-4 mb-4">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="card min-w-full p-4 rtl:[background-position:-center_center] [background-position:center_center] bg-no-repeat bg-[length:460px] user-access-bg"
+              className="card min-w-full p-4 bg-no-repeat bg-[length:460px] user-access-bg"
             >
-              <div className="flex flex-col items-center justify-center w-full gap-2">
+              <div className="flex flex-col items-center gap-2">
                 <CommonHexagonBadge
                   stroke="stroke-primary-clarity"
                   fill="fill-light"
                   size="size-[50px]"
                   badge={step.icon}
                 />
-                <div className="flex flex-col items-center justify-center w-full">
-                  <p className="form-info text-gray-700 font-normal text-center mb-0">
-                    {step.title}
-                  </p>
-                  <h3 className="text-xl font-semibold text-primary mb-0">
-                    {step.value}
-                  </h3>
-                </div>
+                <p className="form-info text-gray-700">{step.title}</p>
+                <h3 className="text-xl font-semibold text-primary">
+                  {step.value}
+                </h3>
               </div>
             </div>
           ))}
         </div>
 
-        {/* 📊 Table Component */}
+        {/* Table */}
         <InvoiceTable columns={columns} data={tableData} />
       </Container>
     </Fragment>

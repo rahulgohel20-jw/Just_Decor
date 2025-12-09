@@ -1,19 +1,26 @@
 import { Select } from "antd";
 
-const UserDropdown = ({ value, onChange, options = [], ...rest }) => {
+const UserDropdown = ({ value, onChange, options = [], name, ...rest }) => {
   const handleChange = (val) => {
-    // send in same format as your other inputs
-    onChange({ target: { name: "eventTypeId", value: val } });
+    onChange({
+      target: { name: name, value: val },
+    });
   };
 
   return (
     <Select
+      showSearch // 🔍 enables search
+      allowClear // optional (clear icon)
       value={value || undefined}
-      className="w-full border-none shadow-none focus:outline-none"
-      onChange={handleChange}
       placeholder="Please select"
+      className="w-full"
       style={{ width: "100%" }}
-      options={options}
+      onChange={handleChange}
+      optionFilterProp="label" // 🔥 search by label
+      filterOption={(input, option) =>
+        option.label.toLowerCase().includes(input.toLowerCase())
+      }
+      options={options} // must contain {label, value}
       {...rest}
     />
   );
