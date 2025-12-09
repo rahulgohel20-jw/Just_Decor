@@ -204,7 +204,6 @@ export default function SidebarModal({
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[100]">
-          {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
             initial={{ opacity: 0 }}
@@ -223,7 +222,6 @@ export default function SidebarModal({
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
-              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex flex-col">
                   <div className="text-[18px] font-semibold text-gray-800">
@@ -245,9 +243,7 @@ export default function SidebarModal({
                 </button>
               </div>
 
-              {/* Content */}
               <div className="flex-1 overflow-y-auto p-4">
-                {/* Top buttons */}
                 <div className="flex items-end gap-4">
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
@@ -315,7 +311,6 @@ export default function SidebarModal({
                   </button>
                 </div>
 
-                {/* TABLE */}
                 <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                   <div className="grid grid-cols-[64px_2fr_1fr_1fr_120px_1fr_88px] items-center px-4 py-3 bg-[#F9FAFC] text-[14px] font-medium text-black">
                     <div>
@@ -473,7 +468,6 @@ export default function SidebarModal({
                 </div>
               </div>
 
-              {/* Footer */}
               <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between gap-2">
                 <button
                   className="h-9 px-4 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"

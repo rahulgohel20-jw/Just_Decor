@@ -26,8 +26,7 @@ const SelectDropdown = ({
 
   const handleCreate = () => {
     // Logic for creating a new option can be added here
-    setCreateModalOpen ? setCreateModalOpen(true) : 
-    setCreateModeOpen(true);
+    setCreateModalOpen ? setCreateModalOpen(true) : setCreateModeOpen(true);
   };
 
   useEffect(() => {
@@ -72,10 +71,17 @@ const SelectDropdown = ({
         )}
         <Select
           {...rest}
+          showSearch // 🔍 enable search
+          allowClear // optional clear button
+          optionFilterProp="label" // 🔥 search using label
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          }
+          loading={isLoading}
           className={`${classes.select} ${rest.className || ""}`}
           onChange={handleChange}
           options={options}
-          placeholder={"Please select"}
+          placeholder={placeholder || "Please select"}
         />
       </div>
       {createModeOpen && (

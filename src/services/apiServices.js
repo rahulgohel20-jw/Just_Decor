@@ -159,6 +159,15 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+
+export const GetAllQuotationByFilter = (enddate, startdate, id) => {
+  return GET(
+    `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+  );
+};
+
+
+
 export const GetRawmaterialwithcatID = (catID, id) => {
   return GET(
     `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`
@@ -1070,3 +1079,4 @@ export const Deletetemplatebyid = (id) => {
 export const Edittemplatebyid = (id, data) => {
   return PUT(`/templatemodulemaster/update?id=${id}`, data);
 }
+
