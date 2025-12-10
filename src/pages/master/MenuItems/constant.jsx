@@ -70,6 +70,19 @@ export const columns = (onEdit, onDelete, onstatus) => [
     },
   },
   {
+    accessorKey: "subCategory",
+    header: (
+      <FormattedMessage
+        id="MASTER.MENU_ITEM_SUBCATEGORY"
+        defaultMessage="  Sub Category"
+      />
+    ),
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
     accessorKey: "cost",
     header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Cost" />,
     meta: {

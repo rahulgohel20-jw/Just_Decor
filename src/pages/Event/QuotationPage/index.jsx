@@ -27,6 +27,7 @@ const QuotationPage = () => {
   const [gstNumber, setGstNumber] = useState("");
   const [dueDate, setDueDate] = useState(null);
   const todayDate = new Date().toLocaleDateString("en-GB");
+  const [isEdited, setIsEdited] = useState(false);
 
   const intl = useIntl();
 
@@ -91,7 +92,7 @@ const QuotationPage = () => {
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             billingname: quotationInfo.billingname || "",
             gstnumber: quotationInfo.gstnumber || "",
-            duedate: quotationInfo.duedate || null,
+            duedate: quotationInfo.duedate || "",
             venueName: quotationInfo.event?.venue.nameEnglish || "",
             mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
@@ -317,6 +318,7 @@ const QuotationPage = () => {
   };
 
   const handleFunctionChange = (index, field, value) => {
+    setIsEdited(true);
     const newFunctions = [...quotationData.functions];
     newFunctions[index][field] = value;
 
@@ -341,6 +343,7 @@ const QuotationPage = () => {
   const handleNotesChange = (e) => {
     const value = e.target.value;
     setQuotationData((prev) => ({ ...prev, notes: value }));
+    setIsEdited(true);
   };
 
   const buildPayload = () => {
@@ -425,7 +428,7 @@ const QuotationPage = () => {
       totalAmount: totalPaid,
       userId: Id,
       billingname: billingName,
-      duedate: dueDate ? dueDate.format("DD/MM/YYYY") : null,
+      duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
       gstnumber: gstNumber,
     };
   };
@@ -471,6 +474,7 @@ const QuotationPage = () => {
             },
           });
         }
+        setIsEdited(false);
       })
       .catch((error) => {
         console.error("Error saving quotation:", error);
@@ -498,6 +502,7 @@ const QuotationPage = () => {
   };
 
   const handleAdvancePaymentChange = (idx, field, value) => {
+    setIsEdited(true);
     setQuotationData((prev) => {
       const list = [...prev.advancePayments];
       list[idx] = { ...list[idx], [field]: value };
@@ -506,6 +511,7 @@ const QuotationPage = () => {
   };
 
   const handleTaxChange = (index, field, value) => {
+    setIsEdited(true);
     const newTaxDetails = [...quotationData.taxDetails];
     const subtotal = quotationData.functions.reduce((sum, func) => {
       const total = parseFloat(func.totalPrice) || 0;
@@ -686,6 +692,8 @@ const QuotationPage = () => {
                       </span>
                     </div>
                   </div>
+                </div>
+                <div className="flex gap-[80px]">
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-user text-success"></i>
                     <div className="flex flex-col">
@@ -696,7 +704,7 @@ const QuotationPage = () => {
                         />
                       </span>
                       <input
-                        className="input text-sm font-medium text-gray-900"
+                        className="input text-sm font-medium text-gray-900 w-[260px]"
                         type="text"
                         value={billingName || quotationData.billingname}
                         onChange={(e) => setBillingName(e.target.value)}
@@ -713,7 +721,7 @@ const QuotationPage = () => {
                         />
                       </span>
                       <input
-                        className="input text-sm font-medium text-gray-900"
+                        className="input text-sm font-medium text-gray-900 w-[270px]"
                         type="text"
                         value={gstNumber || quotationData.gstnumber}
                         onChange={(e) => setGstNumber(e.target.value)}
@@ -745,7 +753,7 @@ const QuotationPage = () => {
                 </div>
               </div>
 
-              <div className="flex flex-row items-end gap-2">
+              <div className="flex flex-row items-end gap-2 mt-[-30px]">
                 <button className="btn btn-sm btn-primary" title="Print">
                   <i className="ki-filled ki-printer"></i>{" "}
                   <FormattedMessage id="COMMON.PRINT" defaultMessage="Print" />
@@ -1161,7 +1169,7 @@ const QuotationPage = () => {
                       </div>
 
                       <div className="flex flex-col gap-2 w-full">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center  gap-4">
                           <div className="text-base font-normal text-gray-700">
                             <FormattedMessage
                               id="COMMON.ADVANCE_PAYMENT"
@@ -1179,7 +1187,7 @@ const QuotationPage = () => {
                             <input
                               className="h-full text-gray-900 w-full"
                               value={pay.amount}
-                              type="number"
+                              type="text"
                               step="0.01"
                               min="0"
                               onChange={(e) =>
@@ -1296,8 +1304,9 @@ const QuotationPage = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-4">
-                  <input
-                    className="input w-full sm:w-[500px]"
+                  <textarea
+                    rows={5}
+                    className="input w-full sm:w-[500px] p-3"
                     placeholder={intl.formatMessage({
                       id: "COMMON.ADD_NOTES",
                       defaultMessage: "Add notes",
@@ -1310,6 +1319,7 @@ const QuotationPage = () => {
                     className="btn btn-success w-full sm:w-auto"
                     title="Save"
                     onClick={handleSaveNotes}
+                    disabled={!isEdited}
                   >
                     <i className="ki-filled ki-save-2"></i>{" "}
                     <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />

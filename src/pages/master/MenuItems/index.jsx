@@ -8,11 +8,12 @@ import {
   DeleteMenuItem,
   updatestatusmneuitem,
   uploadFileformenu,
+  GetAllSubCategory,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-import {  Spin } from "antd";
+import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 1000;
@@ -26,12 +27,26 @@ const MenuItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const intl = useIntl();
+  const [subCategoryFilter, setSubCategoryFilter] = useState("");
+  const [subCategoryList, setSubCategoryList] = useState([]);
 
   let Id = localStorage.getItem("userId");
 
-  // Wrap fetchPage in useCallback to prevent unnecessary recreations
+  const FetchSubCategoryData = () => {
+    setLoading(true);
+    GetAllSubCategory({ userid: Id })
+      .then((res) => {
+        const list = res.data.data["Menu Sub Category Details"] || [];
+        console.log(list);
+
+        setSubCategoryList(list);
+      })
+      .catch((error) => console.error("Error fetching sub category:", error))
+      .finally(() => setLoading(false));
+  };
+
   const fetchPage = useCallback(
-    async (page, search = searchQuery) => {
+    async (page, search = searchQuery, subCat = subCategoryFilter) => {
       setLoading(true);
 
       try {
@@ -39,7 +54,8 @@ const MenuItems = () => {
 
         const response = await GetAllMenuItems({
           userId: Id,
-          itemName: search || "", // Ensure empty string if no search
+          itemName: search || "",
+          subCategoryId: subCat || "",
           page: page,
           size: ITEMS_PER_PAGE,
         });
@@ -88,14 +104,13 @@ const MenuItems = () => {
       }
     },
     [Id, searchQuery]
-  ); // Include dependencies
+  );
 
-  // Initial load
   useEffect(() => {
     fetchPage(1);
+    FetchSubCategoryData();
   }, []);
 
-  // Search effect with debounce
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       console.log("🔍 Search triggered:", searchQuery);
@@ -148,47 +163,44 @@ const MenuItems = () => {
     });
   };
 
-const uploadImage = async (id, file) => {
-  if (!file) return;
+  const uploadImage = async (id, file) => {
+    if (!file) return;
 
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const fileType = "MenuItemImage";
-    const moduleName = "MenuItem";
+      const fileType = "MenuItemImage";
+      const moduleName = "MenuItem";
 
-    const response = await uploadFileformenu(formData, {
-      fileType,
-      moduleId: id,
-      moduleName,
-    });
+      const response = await uploadFileformenu(formData, {
+        fileType,
+        moduleId: id,
+        moduleName,
+      });
 
-    // Get new image path from response
-    const newImage = response?.data?.imagePath || "";
+      // Get new image path from response
+      const newImage = response?.data?.imagePath || "";
 
-    // Update the specific row in tableData
-    setTableData((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, image: newImage } : item))
-    );
+      // Update the specific row in tableData
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, image: newImage } : item
+        )
+      );
 
-    Swal.fire({
-      title: "Uploaded!",
-      text: "Image uploaded successfully.",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  } catch (error) {
-    console.error("Upload failed!", error);
-    Swal.fire("Error", "Failed to upload image!", "error");
-  }
-};
-
-
-
-
-
+      Swal.fire({
+        title: "Uploaded!",
+        text: "Image uploaded successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Upload failed!", error);
+      Swal.fire("Error", "Failed to upload image!", "error");
+    }
+  };
 
   const handlePagination = (page) => {
     setCurrentPage(page);
@@ -216,10 +228,6 @@ const uploadImage = async (id, file) => {
     }
   };
 
-  const refreshData = () => {
-    fetchPage(currentPage, searchQuery);
-  };
-
   return (
     <Fragment>
       <Container>
@@ -239,11 +247,11 @@ const uploadImage = async (id, file) => {
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex  items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
-                className="input pl-8"
+                className="input pl-8 w-[200px]"
                 placeholder={intl.formatMessage({
                   id: "MASTER.SEARCH_MENU_ITEMS",
                   defaultMessage: "Search Menu Items",
@@ -253,6 +261,25 @@ const uploadImage = async (id, file) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            <select
+              className="input min-w-[200px]"
+              value={subCategoryFilter}
+              onChange={(e) => {
+                const selected = e.target.value;
+                setSubCategoryFilter(selected);
+                setCurrentPage(1);
+
+                fetchPage(1, searchQuery, selected);
+              }}
+            >
+              <option value="">All Subcategories</option>
+              {subCategoryList?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.nameEnglish || item.name || "-"}
+                </option>
+              ))}
+            </select>
+
             {loading && (
               <div className="flex items-center gap-2 text-primary">
                 <Spin size="small" />
@@ -265,8 +292,6 @@ const uploadImage = async (id, file) => {
               className="btn btn-primary"
               onClick={() => {
                 navigate("/master/menu-items");
-                // setSelectedMenuItem(null);
-                // setIsItemModalOpen(true);
               }}
               title={intl.formatMessage({
                 id: "MASTER.ADD_MENU_ITEM",

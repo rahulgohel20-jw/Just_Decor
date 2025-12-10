@@ -5,11 +5,14 @@ import { InboxOutlined } from "@ant-design/icons";
 import {
   GetAllCategoryformenu,
   Getmenusubcategory,
+  AddMenuItems,
+  uploadFile,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 const { Dragger } = Upload;
 
-const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
+const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [form] = Form.useForm();
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
@@ -21,7 +24,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
       const res = await GetAllCategoryformenu(userId);
       console.log(res?.data?.data["Menu Category Details"]);
 
-      if (res?.success) {
+      if (res) {
         const options = res?.data?.data["Menu Category Details"].map(
           (item) => ({
             label: item.nameEnglish,
@@ -30,8 +33,8 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
         );
 
         setCategoryOptions(options);
-        console.log(options);
       }
+      console.log("out");
     } catch (err) {
       console.log("Category API Error:", err);
     }
@@ -40,17 +43,16 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
   const fetchSubCategories = async (categoryId) => {
     try {
       setLoadingSubCategories(true);
-      const res = await Getmenusubcategory({
-        menuCategoryId: categoryId,
-        createdBy: userId,
-      });
+      const res = await Getmenusubcategory(categoryId, userId);
       console.log(res);
 
-      if (res?.success) {
-        const options = res?.data?.map((item) => ({
-          label: item.name,
-          value: item.id,
-        }));
+      if (res) {
+        const options = res?.data?.data?.["Menu Sub Category Details"]?.map(
+          (item) => ({
+            label: item.nameEnglish,
+            value: item.id,
+          })
+        );
         setSubCategoryOptions(options);
       } else {
         setSubCategoryOptions([]);
@@ -64,11 +66,9 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   const handleCategoryChange = (categoryId) => {
-    // Reset sub category when category changes
     form.setFieldValue("menuSubCategory", undefined);
     setSubCategoryOptions([]);
 
-    // Fetch sub categories if a category is selected
     if (categoryId) {
       fetchSubCategories(categoryId);
     }
@@ -81,6 +81,60 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
       setSubCategoryOptions([]);
     }
   }, [isModalOpen]);
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const file = values?.image?.file || null;
+
+      const payload = {
+        userId: Number(userId),
+        menuCategoryId: values.menuCategory || 0,
+        menuSubCategoryId: values.menuSubCategory || "",
+        nameEnglish: values.nameEnglish || "",
+        nameGujarati: values.nameGujarati || "",
+        nameHindi: values.nameHindi || "",
+        slogan: values.slogan || "",
+        price: values.price || 0,
+        sequence: Number(values.priority) || 0,
+        remarks: values.remarks || "",
+        url: values.url || "",
+        menuItemRawMaterials: [],
+        menuItemAllocationConfigRequest: null,
+        dishCosting: 0,
+        totalRate: 0,
+      };
+
+      const res = await AddMenuItems(payload);
+      const data = res?.data;
+      const success = data?.success;
+
+      if (success && file) {
+        const formData = new FormData();
+        formData.append("moduleId", data.moduleId);
+        formData.append("moduleName", data.moduleName);
+        formData.append("fileType", data.fileType);
+        formData.append("file", file);
+
+        await uploadFile(formData);
+      }
+
+      Swal.fire({
+        title: success ? "Success!" : "Failed",
+        text: data?.msg,
+        icon: success ? "success" : "error",
+      });
+
+      if (success) {
+        refreshData();
+        setIsModalOpen(false);
+        form.resetFields();
+      }
+    } catch (error) {
+      console.log("Save Menu Item Error:", error);
+    }
+  };
 
   return (
     <CustomModal
@@ -99,7 +153,9 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen }) => {
           >
             Cancel
           </button>
-          <button className="btn btn-primary">Save</button>
+          <button className="btn btn-primary" onClick={handleSave}>
+            Save
+          </button>
         </div>
       }
     >

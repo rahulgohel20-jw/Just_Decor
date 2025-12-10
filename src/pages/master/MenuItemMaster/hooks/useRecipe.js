@@ -47,12 +47,14 @@ export default function useRecipe(rawmaterialList, initialData = []) {
       return message.error("Invalid raw material selected");
     }
 
-    const unitName =
-      unitOptions.find((u) => u.value === unit)?.label || raw.unit || "";
+    const unitName = unitOptions.find((u) => u.value === unit)?.label || "";
+
     const supplierRate = raw?.supplierRate || 0;
     const rate = Number(weight) * Number(supplierRate);
 
-    const duplicate = tableData.find((r) => r.name === raw.name);
+    const duplicate = tableData.find(
+      (r) => r.rawMaterialId === raw.rawMaterialId
+    );
     if (!editingRowId && duplicate) {
       return message.error("This raw material is already added.");
     }
@@ -62,34 +64,40 @@ export default function useRecipe(rawmaterialList, initialData = []) {
         row.sr_no === editingRowId
           ? {
               ...row,
-              name: raw.name,
+              category: raw.rawMaterialCat?.nameEnglish,
+              name: raw.nameEnglish,
               weight,
               unit: unitName,
+              unitId: unit,
               supplierRate,
               rate,
             }
           : row
       );
+
       setTableData(updatedRows);
       setEditingRowId(null);
       message.success("Recipe updated");
     } else {
       const newRow = {
         sr_no: rowCounter,
-        name: raw.name,
+        category: raw.rawMaterialCat?.nameEnglish,
+        name: raw.nameEnglish,
         weight,
         unit: unitName,
+        unitId: unit,
         supplierRate,
         rate,
         menuRmId: null,
-        rawMaterialId: raw.rawMaterialId || raw.id,
-        unitId: unit,
+        rawMaterialId: raw.rawMaterialId,
       };
+
       setTableData((prev) => [...prev, newRow]);
       setRowCounter((prev) => prev + 1);
       message.success("Recipe added");
     }
 
+    // reset inputs
     setSelectedRaw(null);
     setWeight("");
     setUnit(null);
@@ -102,7 +110,10 @@ export default function useRecipe(rawmaterialList, initialData = []) {
     }
 
     try {
-      await deleteRawmatrialcatidInmenuitem(row.menuRmId);
+      const payload = {
+        id: row.menuRmId,
+      };
+      await deleteRawmatrialcatidInmenuitem(payload);
       setTableData((prev) => prev.filter((item) => item.sr_no !== row.sr_no));
       message.success("Deleted successfully");
     } catch (error) {

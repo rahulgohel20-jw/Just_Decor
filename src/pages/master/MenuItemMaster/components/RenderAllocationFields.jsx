@@ -21,6 +21,8 @@ const RenderAllocationFields = ({ fields, onAddClick, form }) => {
           ) : (
             <div className="flex">
               <Select
+                showSearch
+                optionFilterProp="label"
                 value={form.getFieldValue(f.name)} // <—— ADD THIS
                 placeholder={f.placeholder || f.label}
                 className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] w-full"

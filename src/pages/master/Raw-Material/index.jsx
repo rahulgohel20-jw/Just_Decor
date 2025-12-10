@@ -29,6 +29,7 @@ const RawMaterial = () => {
   const [categories, setCategories] = useState([]);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [generalFixFilter, setGeneralFixFilter] = useState(false);
 
   let Id = localStorage.getItem("userId");
 
@@ -99,6 +100,7 @@ const RawMaterial = () => {
       weightPer100Pax: raw.weightPer100Pax,
       isGeneralFix: raw.isGeneralFix,
     }));
+    console.log(mapped);
 
     setAllTableData(mapped);
   }, [rawOriginalData]);
@@ -124,9 +126,12 @@ const RawMaterial = () => {
         );
       });
     }
+    if (generalFixFilter) {
+      filtered = filtered.filter((item) => item.isGeneralFix === true);
+    }
 
     return filtered;
-  }, [allTableData, searchQuery, categoryFilter]);
+  }, [allTableData, searchQuery, categoryFilter, generalFixFilter]);
 
   // Sync displayData with filteredTableData
   useEffect(() => {
@@ -319,6 +324,17 @@ const RawMaterial = () => {
                 })}
               </select>
             </div>
+
+            <button
+              className={`btn ${generalFixFilter ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => {
+                setGeneralFixFilter(!generalFixFilter);
+                setSearchQuery("");
+                setCategoryFilter("");
+              }}
+            >
+              {generalFixFilter ? "Show All" : "General Fix"}
+            </button>
 
             {(searchQuery || categoryFilter) && (
               <span className="text-sm text-gray-600">

@@ -18,9 +18,7 @@ const validationSchema = Yup.object().shape({
   nameEnglish: Yup.string().required("Name (English) is required"),
   nameGujarati: Yup.string().required("Name (ગુજરાતી) is required"),
   nameHindi: Yup.string().required("Name (हिंदी) is required"),
-  sequence: Yup.number()
-    .typeError("Sequence must be a number")
-    .required("Sequence is required"),
+
   rawMaterialCatTypeId: Yup.string().required("Type is required"),
 });
 

@@ -134,7 +134,7 @@ axiosInstance.interceptors.response.use(
 export const POST = (url, data) => axiosInstance.post(url, data);
 export const GET = (url, params) => axiosInstance.get(url, { params });
 export const PUT = (url, data) => axiosInstance.put(url, data);
-export const DELETE = (url) => axiosInstance.delete(url);
+export const DELETE = (url, data) => axiosInstance.delete(url, data);
 export const UPLOAD = (url, formData, config = {}) =>
   axiosInstance.post(url, formData, {
     ...config,
@@ -143,7 +143,5 @@ export const UPLOAD = (url, formData, config = {}) =>
       ...(config.headers || {}),
     },
   });
-
-
 
 export default axiosInstance;

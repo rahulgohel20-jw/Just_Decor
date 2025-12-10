@@ -45,8 +45,8 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
   {
-    accessorKey: "priority",
-    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
+    accessorKey: "rate",
+    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Rate" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",

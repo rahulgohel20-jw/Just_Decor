@@ -28,7 +28,7 @@ const EventViewModal = ({
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
   console.log(eventDataAll);
 
-  const eventFunctionId = 35;
+  const eventFunctionId = 108;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
 
   const safeEventId =
