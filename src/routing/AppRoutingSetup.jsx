@@ -195,6 +195,8 @@ import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
 import TemplateName from "../pages/super-admin/master/template-name";
 import ExpenseMainPage from "../pages/Event/ExpensePage";
 import MenuItemMaster from "../pages/master/MenuItemMaster";
+import SuperLeads from "../pages/super-admin/Leads";
+import AddLeadPage from "@/pages/super-admin/Leads/AddLead/AddLeadPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -341,6 +343,10 @@ const AppRoutingSetup = () => {
             path="/Superadmin-member-edit/:id"
             element={<SuperAdminMemberEdit />}
           />
+          <Route path="/super-Leads"
+          element ={<SuperLeads/>}/>
+          <Route path="/super-leads/addlead"
+          element ={<AddLeadPage/>}/>
           <Route
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}

@@ -1097,3 +1097,8 @@ export const Deletetemplatebyid = (id) => {
 export const Edittemplatebyid = (id, data) => {
   return PUT(`/templatemodulemaster/update?id=${id}`, data);
 };
+
+
+export const AddLead =(data) => {
+  return POST (`/leadmaster/add`,data);
+}
