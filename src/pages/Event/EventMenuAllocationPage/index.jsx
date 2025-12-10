@@ -113,7 +113,7 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
                   </div>
                   <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
                     {g.items.map((it, ii) => (
-                      <Fragment key={ii}>
+                      <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
                           onClick={() => onItemClick(it, g)}
@@ -603,58 +603,31 @@ const EventMenuAllocationPage = () => {
       );
     });
 
-    return (
-      filteredRows.map((r) => ({
-        ...r,
-        openSidebar: () => {
-          console.log("🔵 openSidebar called for:", r.itemName);
-          setIsChefModal(false);
-          setOpen(false);
-          setIsInsideModal(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setTimeout(() => {
-            console.log("✅ Opening outside modal");
-            setOpen(true);
-          }, 0);
-        },
-        openChefSidebar: () => {
-          console.log("🟢 openChefSidebar called for:", r.itemName);
-          setOpen(false);
-          setIsChefModal(false);
-          setIsInsideModal(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setTimeout(() => {
-            console.log("✅ Opening chef modal now");
-            setIsChefModal(true);
-          }, 0);
-        },
-        openInsideSidebar: () => {
-          console.log("🟣 openInsideSidebar called for:", r.itemName);
-          setOpen(false);
-          setIsChefModal(false);
-          setIsInsideModal(false);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setTimeout(() => {
-            console.log("✅ Opening inside modal now");
-            setIsInsideModal(true);
-          }, 0);
-        },
-      })),
-      [rows, eventId, activeFunction]
-    );
-  });
+    return filteredRows.map((r) => ({
+      ...r,
+      openSidebar: () => {
+        setIsChefModal(false);
+        setOpen(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setOpen(true), 0);
+      },
+      openChefSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setIsChefModal(true), 0);
+      },
+      openInsideSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setIsInsideModal(true), 0);
+      },
+    }));
+  }, [rows, eventId, activeFunction, searchTerm]);
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1383,9 +1356,9 @@ const EventMenuAllocationPage = () => {
                       </div>
                     ) : (
                       <div className="divide-y">
-                        {filtered.map((row) => (
+                        {filtered.map((row, index) => (
                           <TableRow
-                            key={row.key}
+                            key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                             row={row}
                             onChange={updateRow}
                           />
