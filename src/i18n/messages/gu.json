@@ -129,7 +129,7 @@
   "USER.MASTER.CONTACT_TYPE": "કોન્ટેક્ટ ટાઇપ",
   "USER.MASTER.CONTACT_CATEGORY_MASTER": "કોન્ટેક્ટ કેટેગરી માસ્ટર",
   "USER.MASTER.CONTACT_CATEGORY": "કોન્ટેક્ટ કેટેગરી",
-  "COMMON.VENDOR_MASTER" : "વેન્ડર માસ્ટર",
+  "COMMON.VENDOR_MASTER": "વેન્ડર માસ્ટર",
   "USER.MASTER.PRIORITY": "પ્રાયોરિટી",
   "USER.MASTER.NEW_CONTACT_TYPE": "ન્યૂ કોન્ટેક્ટ ટાઇપ",
   "USER.MASTER.EDIT_CONTACT_TYPE": "એડિટ કોન્ટેક્ટ ટાઇપ",
@@ -253,7 +253,7 @@
   "USER.RAWMATERIAL.CATEGORY": "રો મટેરિયલ કેટેગરી",
   "USER.RAWMATERIAL.SELECT_CATEGORY": "સિલેક્ટ રો મટેરિયલ કેટેગરી",
   "COMMON.SELECT_UNIT": "સિલેક્ટ યુનિટ",
-  "COMMON.SUPPLIER_RATE": "સપ્લાયર રેટ",
+  "COMMON.SUPPLIER_RATE": " રેટ",
   "USER.RAWMATERIAL.GENERAL_FIX": "જનરલ ફિક્સ રો મટેરિયલ",
   "USER.RAWMATERIAL.WEIGHT": "100 પર્સન વેઇટ",
   "USER.SUPPLIER.SEARCH_SUPPLIER": "સર્ચ સપ્લાયર...",
@@ -728,8 +728,6 @@
   "USER.EVENT.EVENT_DATE": "ઈવેન્ટ ડેટ",
   "USER.EVENT.EVENT_NAME": "ઈવેન્ટ નામ",
   "USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ",
-"USER.PRICE_PLAN.TITLE" :"યોજનાઓ અને કિંમતો",
-"USER.PRICE_PLAN.SUBTITLE": "તમારી સમય-બચત automation ની જરૂરિયાતો મોટી હોય કે નાની, અમે તમને વિકાસ કરવામાં મદદ કરવા અહીં છીએ."
-
-
+  "USER.PRICE_PLAN.TITLE": "યોજનાઓ અને કિંમતો",
+  "USER.PRICE_PLAN.SUBTITLE": "તમારી સમય-બચત automation ની જરૂરિયાતો મોટી હોય કે નાની, અમે તમને વિકાસ કરવામાં મદદ કરવા અહીં છીએ."
 }

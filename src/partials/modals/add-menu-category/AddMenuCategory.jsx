@@ -32,7 +32,7 @@ const AddMenuCategory = ({
     sequence: "",
     file: "",
   };
-  const requiredFields = ["nameEnglish", "price", "sequence"];
+  const requiredFields = ["nameEnglish"];
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [debounceTimer, setDebounceTimer] = useState(null);
@@ -83,11 +83,13 @@ const AddMenuCategory = ({
             if (res.data?.status === true) {
               Swal.fire("Success", res.data.msg, "success");
             }
-            uploadImage({
-              ModuleId: res.data.ModuleId,
-              FileType: res.data.FileType,
-              ModuleName: res.data.ModuleName,
-            });
+            if (ModuleId) {
+              uploadImage({
+                ModuleId: res.data.ModuleId,
+                FileType: res.data.FileType,
+                ModuleName: res.data.ModuleName,
+              });
+            }
           })
           .catch((error) => {
             const errorMsg =
@@ -99,18 +101,50 @@ const AddMenuCategory = ({
         const payload = { ...formData, userId: Id };
         AddCategory(payload)
           .then((res) => {
-            Swal.fire("Success", "Category added successfully!", "success");
-            uploadImage({
-              ModuleId: res.data.ModuleId,
-              FileType: res.data.FileType,
-              ModuleName: res.data.ModuleName,
-            });
+            if (res.data?.success === true) {
+              Swal.fire("Success", res.data.msg, "success");
+
+              if (formData.file) {
+                uploadImage({
+                  ModuleId: res.data.ModuleId,
+                  FileType: res.data.FileType,
+                  ModuleName: res.data.ModuleName,
+                });
+              } else {
+                refreshData();
+                setIsModalOpen(false);
+              }
+
+              return;
+            }
+
+            Swal.fire(
+              "Error",
+              res.data?.msg || "Something went wrong",
+              "error"
+            );
           })
           .catch((error) => {
+            if (error?.response?.data?.success === true) {
+              Swal.fire("Success", error.response.data.msg, "success");
+
+              const response = error.response.data;
+              if (formData.file) {
+                uploadImage({
+                  ModuleId: response.ModuleId,
+                  FileType: response.FileType,
+                  ModuleName: response.ModuleName,
+                });
+              } else {
+                refreshData();
+                setIsModalOpen(false);
+              }
+              return;
+            }
+
             const errorMsg =
               error?.response?.data?.msg || "Something went wrong";
             Swal.fire("Error", errorMsg, "error");
-            console.error("Error adding meal:", error);
           });
       }
     }
@@ -207,9 +241,6 @@ const AddMenuCategory = ({
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
-            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
-              *
-            </span>
           </label>
           <input
             type="number"
@@ -222,16 +253,10 @@ const AddMenuCategory = ({
               defaultMessage: "Price",
             })}
           />
-          {errors.price && (
-            <span className="text-red-500 text-sm">{errors.price}</span>
-          )}
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">
             <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />
-            <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
-              *
-            </span>
           </label>
           <input
             type="number"
@@ -244,9 +269,6 @@ const AddMenuCategory = ({
               defaultMessage: "Priority",
             })}
           />
-          {errors.sequence && (
-            <span className="text-red-500 text-sm">{errors.sequence}</span>
-          )}
         </div>
         <div className="relative">
           <label className="block text-gray-600 mb-1">

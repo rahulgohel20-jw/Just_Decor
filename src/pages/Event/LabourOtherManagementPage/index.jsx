@@ -2,7 +2,7 @@ import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { DatePicker, Select } from "antd";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
@@ -11,7 +11,8 @@ import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import ExtraExpenseTable from "./ExtraExpenseTable";
+import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
+import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 import { useExtraExpense } from "./hooks/useExtraExpense";
 import {
   GetEventMasterById,
@@ -25,7 +26,7 @@ import {
 dayjs.extend(customParseFormat);
 
 const LABOUR_TYPE = "labour";
-const CATEGORIES = ["Labour", "Extra Expense"];
+const CATEGORIES = ["Labour"];
 const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
 const PLACES = ["At Venue", "At Godown"];
 
@@ -43,9 +44,9 @@ const parseDate = (date, fallbackDate) => {
       : "";
 };
 
-const createEmptyLabourRow = () => ({
+const createEmptyLabourRow = (labourType = "") => ({
   id: Date.now(),
-  labourType: "",
+  labourType,
   contactId: null,
   contact: "",
   shift: "",
@@ -59,13 +60,19 @@ const createEmptyLabourRow = () => ({
   notesHindi: "",
 });
 
+
 const LabourOtherManagementPage = () => {
-  const { eventId } = useParams();
+  let { eventId } = useParams();
+  const navigate = useNavigate();
+
   const storedUser = useMemo(
     () => JSON.parse(localStorage.getItem("userData") || "{}"),
     []
   );
   const [activeFunctionName, setActiveFunctionName] = useState("");
+const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
+const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+
 
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -522,18 +529,90 @@ const LabourOtherManagementPage = () => {
     );
   }
 
+const handleAddLabourType = async (newCategory) => {
+  const category = {
+    id: newCategory.id || Date.now(), // ID returned by API
+    nameEnglish: newCategory.nameEnglish,
+    contactType: { nameEnglish: LABOUR_TYPE },
+  };
+
+  setLabourCategories((prev) => [...prev, category]);
+
+  // Fetch contacts for this new category
+  try {
+    const res = await GetPartyMasterByCatId(category.id, userId);
+    const contacts = res?.data?.data?.["Party Details"] || [];
+    setAllContacts((prev) => ({ ...prev, [category.id]: contacts }));
+  } catch (err) {
+    console.error("Failed to fetch contacts for new category", err);
+    setAllContacts((prev) => ({ ...prev, [category.id]: [] }));
+  }
+
+  // Add new row with this category pre-selected
+  setLabourData((prev) => [
+    ...prev,
+    createEmptyLabourRow(category.nameEnglish),
+  ]);
+};
+
+
+
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: "Labour/Other Management",
-              },
-            ]}
-          />
+          <div className="flex justify-between items-center mb-4">
+            {/* LEFT: Page Title + 3 Custom Buttons */}
+            <div className="flex items-center gap-6">
+              <h2 className="text-xl text-black font-semibold">
+                5. Agency Distribution
+              </h2>
+
+              {/* ONLY FOR THIS SCREEN */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  2. Menu Planning
+                </button>
+
+                <button
+                  onClick={() => navigate(`/menu-allocation/${eventId}`)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  3. Menu Allocation
+                </button>
+
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() =>
+                    navigate("/raw-material-allocation", {
+                      state: {
+                        eventId: eventId,
+                        eventTypeId: eventData?.eventType?.id,
+                      },
+                    })
+                  }
+                >
+                  <i
+                    className="ki-filled ki-gift"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  4. Raw Material Allocation
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Event Info Card */}
@@ -622,10 +701,7 @@ const LabourOtherManagementPage = () => {
                   <i className="ki-filled ki-document"></i>
                   Report
                 </button>
-                <button className="btn btn-light btn-sm h-10">
-                  <i className="ki-filled ki-document"></i>
-                  Checklist
-                </button>
+
                 <input
                   type="text"
                   placeholder="Search labour type..."
@@ -679,18 +755,12 @@ const LabourOtherManagementPage = () => {
             }}
             setSelectedRow={setSelectedRow}
             onSave={handleSave}
+            onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
+            onOpenAddVendor={() => setIsAddVendorOpen(true)}
           />
         )}
 
         {/* Extra Expense Table */}
-        {activeCategory === "Extra Expense" && (
-          <ExtraExpenseTable
-            data={extraExpenseData}
-            onEdit={editExpense}
-            onDelete={deleteExpense}
-            onAddExpense={addExpense}
-          />
-        )}
 
         {/* Modals */}
         <AddNotes
@@ -747,6 +817,27 @@ const LabourOtherManagementPage = () => {
             setIsMenuReport(true);
           }}
         />
+        {/* Add Labour Type Modal */}
+        {isAddLabourModalOpen && (
+          <AddContactCategory
+            isOpen={isAddLabourModalOpen}
+            onClose={() => setIsAddLabourModalOpen(false)}
+            refreshData={() => {}}
+            contactCategory={null} // Adding new
+            labourOnly={true}
+            onSave={(newCategory) => {
+              handleAddLabourType(newCategory);
+              setIsAddLabourModalOpen(false);
+            }}
+          />
+        )}
+
+        <AddVendor
+          isModalOpen={isAddVendorOpen}
+          filterType="labour"
+          setIsModalOpen={setIsAddVendorOpen}
+          refreshData={() => {}}
+        />
 
         <MenuReport
           isModalOpen={isMenuReport}
@@ -783,26 +874,52 @@ const LabourTable = ({
   onViewDetails,
   onAddNotes,
   onSave,
+  onOpenAddLabourModal,
+  onOpenAddVendor,
 }) => (
-  <div className="card">
+  <div className="card shadow-sm rounded-lg overflow-hidden">
     <div className="card-body p-0">
-      <div className="overflow-x-hidden">
-        <table className="table table-auto w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="text-center w-[50px]">#</th>
-              <th className="w-[3%]">Labour Type</th>
-              <th className="w-[3%]">Vendors</th>
-              <th className="w-[20%]">Labour Shift</th>
-              <th className="w-[25%]">Date Time</th>
-              <th className="w-[15%]">Price</th>
-              <th className="w-[15%]">Qty</th>
-              <th className="w-[10%]">Total Price</th>
-              <th className="w-[25%]">Place</th>
-              <th className="text-center w-[5%]">Actions</th>
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full text-sm text-gray-700">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="text-center px-3 py-2 w-12">#</th>
+              <th className="px-3 py-2">
+                <div className="flex items-center justify-between">
+                  Labour Type
+                  <button
+                    type="button"
+                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
+                    title="Add Labour Type"
+                    onClick={onOpenAddLabourModal}
+                  >
+                    +
+                  </button>
+                </div>
+              </th>
+              <th className="px-3 py-2 w-24">
+                <div className="flex items-center justify-between">
+                  Vendors
+                  <button
+                    type="button"
+                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
+                    title="Add Vendor"
+                    onClick={onOpenAddVendor}
+                  >
+                    +
+                  </button>
+                </div>
+              </th>
+              <th className="px-3 py-2 w-36">Labour Shift</th>
+              <th className="px-3 py-2 w-40">Date & Time</th>
+              <th className="px-3 py-2 w-24">Price</th>
+              <th className="px-3 py-2 w-24">Qty</th>
+              <th className="px-3 py-2 w-28">Total Price</th>
+              <th className="px-3 py-2 w-32">Place</th>
+              <th className="px-3 py-2 text-center w-28">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {data.map((row, index) => (
               <LabourRow
                 key={row.id}
@@ -823,10 +940,11 @@ const LabourTable = ({
           </tbody>
         </table>
       </div>
-      <div className="p-4 border-t flex justify-between items-center">
+
+      <div className="p-4 border-t flex flex-col md:flex-row justify-between items-center gap-3">
         <button
           onClick={onAddRow}
-          className="flex items-center gap-2 btn-primary text-white-700 text-sm font-medium px-3 py-2 rounded-md transition"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
         >
           <i className="ki-filled ki-plus text-white"></i>
           Add Another Labour Type
@@ -834,7 +952,7 @@ const LabourTable = ({
 
         <button
           onClick={onSave}
-          className="btn-primary hover:bg-[#004A8C] text-white text-sm font-medium px-3 py-2 rounded-md transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
         >
           Save
         </button>
@@ -1002,5 +1120,8 @@ const LabourRow = ({
     </td>
   </tr>
 );
+
+
+
 
 export default LabourOtherManagementPage;

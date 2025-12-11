@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
 import { TableComponent } from "@/components/table/TableComponent";
+import { GetSuperalladmininvoice } from "@/services/apiServices";
 
 const SuperadminInvoice = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const SuperadminInvoice = () => {
       icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
     },
     {
-      title: "Due Today",
+      title: "Total Remaining",
       value: `₹ ${totals.dueToday.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -36,7 +37,7 @@ const SuperadminInvoice = () => {
       icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
     },
     {
-      title: "Due within 30 days",
+      title: "Total Amount",
       value: `₹ ${totals.dueWithin30Days.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -47,6 +48,48 @@ const SuperadminInvoice = () => {
 
   const handleAddInvoice = () => {
     navigate("/addInvoice");
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      const response = await GetSuperalladmininvoice();
+      console.log("API RESPONSE:", response);
+
+      const apiData = response?.data?.data || response?.data;
+      if (!apiData) return;
+
+      const list =
+        apiData?.["Admin Invoice Details"] ||
+        apiData?.adminInvoiceDetails ||
+        apiData?.invoiceDetails ||
+        apiData ||
+        [];
+
+      const invoiceList = list.map((item) => ({
+        id: item.id, // <-- required for preview routing
+        Invoice: `INV-${String(item.id).padStart(4, "0")}`,
+        CustomerName: item.userName || "-",
+        plan: item.planName || "-",
+        Amount: `₹ ${item.totalPaid?.toLocaleString("en-IN") || 0}`,
+        BalanceDue: `₹ ${item.dueBalance?.toLocaleString("en-IN") || 0}`,
+      }));
+
+      setTableData(invoiceList);
+
+      setTotals({
+        receivable: apiData["Total Received"] || 0,
+        dueToday: apiData["Total Remaining"] || 0,
+        dueWithin30Days: apiData["Total Amount"] || 0,
+        overDue: 0,
+        avgPaymentDays: 7,
+      });
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    }
   };
 
   return (

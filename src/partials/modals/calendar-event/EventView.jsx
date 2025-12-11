@@ -26,16 +26,28 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
+  console.log(eventDataAll);
+
+  const eventFunctionId = 108;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
+
   const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
+  console.log("🔵 EVENT DATA RAW =>", eventData);
+  console.log("🟢 eventDataAll =>", eventDataAll);
+  console.log("🟡 safeEventId =>", safeEventId);
+  console.log("🟣 Event Type Id =>", eventTypeId);
+  console.log("🏠 Venue =>", eventDataAll?.venue);
+  console.log("🏠 Venue Name =>", eventDataAll?.venue?.nameEnglish);
 
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
+  const [translatedAddress, setTranslatedAddress] = useState("");
   const [isSelectMenuReport, setIsSelectMenuReport] = useState(false);
+
   useEffect(() => {
     const translateText = async (text) => {
       if (!text) {
@@ -78,7 +90,7 @@ const EventViewModal = ({
             const resGujarati = await TranslateGujarati({ text });
 
             const translatedTextGu =
-              resGujarati?.data?.text || // Same structure as Hindi API
+              resGujarati?.data?.text ||
               resGujarati?.data?.translatedText ||
               resGujarati?.translatedText ||
               resGujarati?.data?.translated_text ||
@@ -97,30 +109,35 @@ const EventViewModal = ({
 
     const doTranslate = async () => {
       const title = eventData?.event?._def?.title || "";
+      const address = eventData?.event?._def?.extendedProps?.address || "";
 
-      if (!title) {
-        console.log("⚠️ No title found, setting empty string");
+      if (title) {
+        const translatedTitleResult = await translateText(title);
+        setTranslatedTitle(translatedTitleResult);
+      } else {
         setTranslatedTitle("");
-        return;
       }
 
-      const result = await translateText(title);
-
-      setTranslatedTitle(result);
+      if (address) {
+        const translatedAddressResult = await translateText(address);
+        setTranslatedAddress(translatedAddressResult);
+      } else {
+        setTranslatedAddress("");
+      }
     };
 
-    const shouldTranslate = isModalOpen && eventData?.event?._def?.title;
+    const shouldTranslate = isModalOpen && eventData?.event;
 
     if (shouldTranslate) {
       doTranslate();
     } else {
-      console.log("❌ Conditions not met, translation skipped");
+      setTranslatedTitle("");
+      setTranslatedAddress("");
     }
   }, [eventData, isModalOpen]);
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    window.history.back(); // go back one step in browser history
   };
 
   const openMenuReport = (eventId) => {
@@ -217,6 +234,7 @@ const EventViewModal = ({
             defaultMessage="Event View"
           />
         }
+        className="calendar-event-modal "
         width={1100}
       >
         <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -262,9 +280,7 @@ const EventViewModal = ({
                 />
               </p>
               <h3 className="font-semibold text-base mb-2">
-                {translatedTitle ||
-                  eventData?.event?._def?.address ||
-                  "Loading..."}
+                {translatedAddress || eventDataAll?.address || "N/A"}
               </h3>
             </div>
 
@@ -410,7 +426,23 @@ const EventViewModal = ({
                 ),
                 icon: "/media/eventviewicon/invoice.png",
                 onClick: () =>
-                  navigate("/add-invoice", {
+                  navigate(`/add-invoice/${safeEventId}`, {
+                    state: {
+                      eventId: safeEventId,
+                      eventTypeId: eventTypeId,
+                    },
+                  }),
+              },
+              {
+                label: (
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_INVOICE"
+                    defaultMessage="Expense"
+                  />
+                ),
+                icon: "/media/eventviewicon/icon.png",
+                onClick: () =>
+                  navigate("/expense-management", {
                     state: {
                       eventId: safeEventId,
                       eventTypeId: eventTypeId,
@@ -472,8 +504,8 @@ const EventViewModal = ({
         </div>
         <SelectMenureport
           eventId={safeEventId}
-          isSelectMenureport={isSelectMenuReport} // keep the original prop name
-          setIsSelectMenuReport={setIsSelectMenuReport} // fix the prop name
+          isSelectMenureport={isSelectMenuReport}
+          setIsSelectMenuReport={setIsSelectMenuReport}
           onConfirm={() => {
             setIsSelectMenuReport(false);
             setMenuReportEventId(safeEventId);
@@ -482,6 +514,7 @@ const EventViewModal = ({
         />
 
         <MenuReport
+          eventFunctionId={eventFunctionId}
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}

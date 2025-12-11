@@ -202,15 +202,6 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MENU_ITEM_SUB_CATEGORY"
-            defaultMessage="Menu Item Sub Category"
-          />
-        ),
-        path: "/master/menu-sub-category",
-      },
-      {
-        title: (
-          <FormattedMessage
             id="COMMON.MENU_ITEM_CATEGORY"
             defaultMessage="Menu Item Category"
           />
@@ -220,12 +211,22 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.KITCHEN_AREA"
-            defaultMessage="Kitchen Area"
+            id="COMMON.MENU_ITEM_SUB_CATEGORY"
+            defaultMessage="Menu Item Sub Category"
           />
         ),
-        path: "/master/menu-kitchan-area",
+        path: "/master/menu-sub-category",
       },
+
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.KITCHEN_AREA"
+      //       defaultMessage="Kitchen Area"
+      //     />
+      //   ),
+      //   path: "/master/menu-kitchan-area",
+      // },
       {
         title: (
           <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />
@@ -441,6 +442,15 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-unit-master",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
+            defaultMessage="Template Name Master"
+          />
+        ),
+        path: "super-template-name-master",
       },
       {
         title: (

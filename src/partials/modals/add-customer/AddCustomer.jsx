@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
+import Select from "react-select"; // inside your form
+
 import Swal from "sweetalert2";
 import {
   AddCustomerapi,
@@ -35,9 +37,7 @@ const AddCustomer = ({
     mobileno: Yup.string()
       .required("Mobile number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-    email: Yup.string()
-      .required("Email is required")
-      .email("Please enter a valid email address"),
+
     contactCategoryId: Yup.string().required("Contact category is required"),
   });
 
@@ -177,9 +177,10 @@ const AddCustomer = ({
 
   const fetchCategories = async () => {
     try {
+      const concatId = 1;
       const {
         data: { data },
-      } = await GetAllContactCategorybycontacttype(Id);
+      } = await GetAllContactCategorybycontacttype(concatId, Id);
 
       // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
@@ -190,13 +191,16 @@ const AddCustomer = ({
       setCategories(allCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch categories. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
+      // Only show warning if modal is not open
+      if (!isModalOpen) {
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Please add at least one customer category.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
     }
   };
 
@@ -505,33 +509,33 @@ const AddCustomer = ({
                 </span>
               </label>
               <div className="flex items-center gap-2">
-                <select
-                  className={`border rounded-lg p-2 w-full ${
-                    errors.contactCategoryId
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  name="contactCategoryId"
+                <Select
+                  options={categories.map((cat) => ({
+                    value: cat.id,
+                    label: cat.nameEnglish,
+                  }))}
+                  value={
+                    formData.contactCategoryId
+                      ? {
+                          value: formData.contactCategoryId,
+                          label: categories.find(
+                            (c) => c.id === formData.contactCategoryId
+                          )?.nameEnglish,
+                        }
+                      : null
+                  }
+                  onChange={(selected) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contactCategoryId: selected?.value || "",
+                    }))
+                  }
                   placeholder={intl.formatMessage({
-                    id: "USER.MASTER.CONTACT_CATEGORY",
-                    defaultMessage: "Contact Category",
+                    id: "USER.MASTER.SELECT_CATEGORY",
+                    defaultMessage: "-- Select Category --",
                   })}
-                  value={formData.contactCategoryId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">
-                    <FormattedMessage
-                      id="USER.MASTER.SELECT_CATEGORY"
-                      defaultMessage="-- Select Category --"
-                    />
-                  </option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nameEnglish}
-                    </option>
-                  ))}
-                </select>
+                  className={`w-full ${errors.contactCategoryId ? "border-red-500" : ""}`}
+                />
                 <button
                   type="button"
                   className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none"
@@ -564,7 +568,7 @@ const AddCustomer = ({
                 })}
                 value={formData.email}
                 onChange={handleChange}
-                required
+                required={true}
                 error={errors.email}
               />
               {errors.email && (
@@ -802,7 +806,7 @@ const InputSimple = ({
   <div>
     <label className="block text-gray-600 mb-1">
       {label}
-      {required && (
+      {required && type !== "email" && (
         <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
           *
         </span>

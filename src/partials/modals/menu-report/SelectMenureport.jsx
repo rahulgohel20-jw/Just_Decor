@@ -7,25 +7,27 @@ import { toAbsoluteUrl } from "@/utils";
 import { GetEventMasterById } from "@/services/apiServices";
 
 export default function SelectMenureport({
+  eventId,
   isSelectMenureport,
   setIsSelectMenuReport,
   onConfirm,
-
   activeFunctionName,
 }) {
   const navigate = useNavigate();
-  const { eventId } = useParams();
+
+  const params = useParams();
+  const finalEventId = eventId || params?.eventId;
+
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
-      if (!eventId) return;
-
+      if (!finalEventId) return;
       try {
         setLoading(true);
-        const res = await GetEventMasterById(eventId);
+        const res = await GetEventMasterById(finalEventId);
 
         if (res?.data?.data?.["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
@@ -39,7 +41,7 @@ export default function SelectMenureport({
     };
 
     fetchEventData();
-  }, [eventId]);
+  }, [finalEventId]);
 
   const cards = [
     {

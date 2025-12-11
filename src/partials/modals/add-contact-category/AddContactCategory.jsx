@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Select from "react-select";
 import {
   Addcontactcategory,
   EditContactCategory,
@@ -15,6 +16,7 @@ const AddContactCategory = ({
   onClose,
   contactCategory,
   refreshData,
+  labourOnly = false,
   excludeCustomerType = false, // New prop to control filtering
 }) => {
   if (!isOpen) return null;
@@ -24,7 +26,7 @@ const AddContactCategory = ({
     nameGujarati: "",
     nameHindi: "",
     sequence: "",
-    contcatTypeId: "",
+    contcatTypeId: labourOnly ? "" : "",
   };
   const intl = useIntl();
 
@@ -32,31 +34,28 @@ const AddContactCategory = ({
   const Id = JSON.parse(localStorage.getItem("userId"));
 
   // ✅ Fetch dropdown values
-  useEffect(() => {
-    if (Id) {
-      GetAllContactType(1)
-        .then((res) => {
-          const allTypes = res?.data?.data?.["Contact Type Details"] || [];
+ useEffect(() => {
+   if (Id) {
+     GetAllContactType(1)
+       .then((res) => {
+         let allTypes = res?.data?.data?.["Contact Type Details"] || [];
 
-          const filteredTypes = excludeCustomerType
-            ? allTypes.filter((type) => type.id != 2)
-            : allTypes;
+         if (labourOnly) {
+           // Show only Labour type
+           allTypes = allTypes.filter((type) => type.nameEnglish === "Labour");
+         }
 
-          setContactTypes(filteredTypes);
-        })
-        .catch((err) => {
-          console.error("Error fetching contact types:", err);
-        });
-    }
-  }, [Id, excludeCustomerType]);
+         setContactTypes(allTypes);
+       })
+       .catch((err) => console.error(err));
+   }
+ }, [Id, labourOnly]);
+
 
   // ✅ Validation schema
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name is required"),
     contcatTypeId: Yup.string().required("Contact Type is required"),
-    sequence: Yup.number()
-      .typeError("Priority must be a number")
-      .required("Priority is required"),
   });
 
   // ✅ Submit handler
@@ -249,6 +248,7 @@ const AddContactCategory = ({
                       id: "USER.MASTER.PRIORITY",
                       defaultMessage: "Priority",
                     })}
+                    required={false}
                   />
                 </div>
 
@@ -291,23 +291,33 @@ const AddContactCategory = ({
   );
 };
 
-const InputWithFormik = ({ label, name, type = "text", placeholder }) => (
+const InputWithFormik = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  required = true,
+}) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">
       {label}
-      <span className="text-red-500">*</span>
+      {required && <span className="text-red-500">*</span>}
     </label>
+
     <Field
       type={type}
       name={name}
       placeholder={placeholder}
       className="border border-gray-300 rounded-lg p-2 w-full"
     />
-    <ErrorMessage
-      name={name}
-      component="div"
-      className="text-red-500 text-sm mt-1"
-    />
+
+    {required && (
+      <ErrorMessage
+        name={name}
+        component="div"
+        className="text-red-500 text-sm mt-1"
+      />
+    )}
   </div>
 );
 

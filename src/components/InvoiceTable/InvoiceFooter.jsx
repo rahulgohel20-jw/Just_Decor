@@ -17,6 +17,7 @@ const InvoiceFooter = ({
   footerData,
   onFooterDataChange,
   onSave,
+  isEdited,
   isNewInvoice,
 }) => {
   const [notes, setNotes] = useState("");
@@ -350,7 +351,11 @@ const InvoiceFooter = ({
         <button className="btn btn-light">
           <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
         </button>
-        <button className="btn btn-primary" onClick={onSave}>
+        <button
+          className="btn btn-primary"
+          onClick={onSave}
+          disabled={!isEdited}
+        >
           <i className="ki-outline ki-paper-plane"></i>
 
           <FormattedMessage id="COMMON.SAVE_AND_SEND" defaultMessage="Save " />

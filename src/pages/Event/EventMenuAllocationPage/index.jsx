@@ -6,17 +6,20 @@ import Swal from "sweetalert2";
 import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
+import SidebarInsideModal from "../../../components/SidebarInsidemodal/SidebarInsideModal ";
 import WhatsappSidebarMenu from "../whatsappsidebar/WhatsappSidebarMenu";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-
+import SummaryItemModalchefoutside from "@/components/sidebarchefoutsidemodal/SummaryItemModalchefoutside";
+import SummaryItemModalOutsideAgency from "@/components/sidebarOutSideAgency/SummaryItemModalOutSideAgency";
+import SummaryItemModalInHousecook from "@/components/sidebarmodalinhousecook/SummaryItemModalInHousecook";
 import {
   GetEventMasterById,
   GetMenuAllocation,
   SelectedItemNameMenuAllocation,
   MenuAllocationSave,
 } from "@/services/apiServices";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 
 const TopTabs = ({ value, onChange, functions }) => {
@@ -110,7 +113,7 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
                   </div>
                   <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
                     {g.items.map((it, ii) => (
-                      <Fragment key={ii}>
+                      <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
                           onClick={() => onItemClick(it, g)}
@@ -212,6 +215,9 @@ const TableRow = ({ row, onChange }) => {
       if (type === "chef" && row.openChefSidebar) {
         row.openChefSidebar();
       }
+      if (type === "inside" && row.openInsideSidebar) {
+        row.openInsideSidebar();
+      }
     }
   };
 
@@ -258,11 +264,21 @@ const TableRow = ({ row, onChange }) => {
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center">
+      <div className="col-span-2 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.inside}
           onChange={(e) => handleCheckboxChange("inside", e.target.checked)}
         />
+        {row.inside && (
+          <button
+            type="button"
+            onClick={() => row.openInsideSidebar && row.openInsideSidebar()}
+            className="text-blue-500 hover:text-blue-700"
+            title="Edit Inside Details"
+          >
+            <i className="ki-filled ki-notepad-edit text-primary"></i>
+          </button>
+        )}
       </div>
 
       <div className="col-span-1 flex justify-center">
@@ -303,7 +319,8 @@ const TableRow = ({ row, onChange }) => {
 };
 
 const EventMenuAllocationPage = () => {
-  const { eventId } = useParams();
+  let { eventId } = useParams();
+  const navigate = useNavigate();
   const [activeFunction, setActiveFunction] = useState(null);
   const [rows, setRows] = useState([]);
   const [orderSummaryGroups, setOrderSummaryGroups] = useState([]);
@@ -320,8 +337,13 @@ const EventMenuAllocationPage = () => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
+    useState(false);
+  const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
+  const [isInsideModal, setIsInsideModal] = useState(false);
   const intl = useIntl();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -357,16 +379,6 @@ const EventMenuAllocationPage = () => {
       const eventFunctionId = activeFunction?.id || 1;
       const menuItemId = item.menuItemId || item.id;
 
-      const categoryKey = `${menuItemId}-category`;
-      const storedCategory = allocationData[categoryKey];
-      console.log(storedCategory?.response?.isFromNewTable, "data");
-
-      const isFromNewTable =
-        storedCategory?.response?.isFromNewTable ??
-        storedCategory?.isFromNewTable ??
-        item.isFromNewTable ??
-        false;
-
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -377,7 +389,6 @@ const EventMenuAllocationPage = () => {
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
-
         menuItemId
       );
 
@@ -501,11 +512,8 @@ const EventMenuAllocationPage = () => {
 
         const updatedRowsPromises = transformedRows.map(async (row) => {
           try {
-            const isFromNewTable = itemFlagMap.get(row.menuItemId) || false;
-
             const res = await SelectedItemNameMenuAllocation(
               eventFunctionId,
-              isFromNewTable,
               row.menuItemId
             );
 
@@ -585,31 +593,77 @@ const EventMenuAllocationPage = () => {
     setPercentage("");
   };
 
-  const filtered = useMemo(
-    () =>
-      rows.map((r) => ({
-        ...r,
-        openSidebar: () => {
-          setIsChefModal(false);
-          setSelectedRow({
+  const filtered = useMemo(() => {
+    const filteredRows = rows.filter((r) => {
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        r.itemName.toLowerCase().includes(term) ||
+        r.categoryName?.toLowerCase().includes(term)
+      );
+    });
+
+    return filteredRows.map((r) => ({
+      ...r,
+      openSidebar: () => {
+        setIsChefModal(false);
+        setOpen(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setOpen(true), 0);
+      },
+      openChefSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setIsChefModal(true), 0);
+      },
+      openInsideSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setTimeout(() => setIsInsideModal(true), 0);
+      },
+    }));
+  }, [rows, eventId, activeFunction, searchTerm]);
+
+  const handleInsideSave = (saveData) => {
+    setAllocationData((prev) => ({
+      ...prev,
+      [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
+    }));
+
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((r) => {
+        if (
+          r.menuItemId === saveData.menuItemId &&
+          r.menuCategoryId === saveData.menuCategoryId
+        ) {
+          return {
             ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-          setOpen(true);
-        },
-        openChefSidebar: () => {
-          setOpen(false);
-          setIsChefModal(true);
-          setSelectedRow({
-            ...r,
-            eventId,
-            eventFunctionId: activeFunction?.id || null,
-          });
-        },
-      })),
-    [rows, eventId, activeFunction]
-  );
+            eventFunctionMenuAllocations: [
+              ...(r.eventFunctionMenuAllocations || []).filter(
+                (a) => !a.isInside
+              ),
+              ...saveData.allocations.map((alloc) => ({
+                ...alloc,
+                isInside: true,
+              })),
+            ],
+          };
+        }
+        return r;
+      });
+
+      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
+
+      return updatedRows;
+    });
+
+    setIsInsideModal(false);
+  };
 
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
@@ -846,9 +900,10 @@ const EventMenuAllocationPage = () => {
         const rawMaterialsFromRow = r.menuItemRawMaterials || [];
 
         const rawMaterialsSource =
-          rawMaterialsFromRow.length > 0
-            ? rawMaterialsFromRow
-            : rawMaterialsFromAllocation;
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials &&
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials.length > 0
+            ? allocationData[`${r.menuItemId}-category`].rawMaterials
+            : r.menuItemRawMaterials || [];
 
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
           let partyId = 0;
@@ -971,22 +1026,69 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
+  const openSummaryItemModalchefoutside = () => {
+    setIsModalOpen(true);
+  };
+
+  const openSummaryItemModalOustsideAgency = () => {
+    setIsOutsideAgencyModalOpen(true);
+  };
+
+  const openSummaryItemModalInHouseCook = () => {
+    setIsInHouseCookModalOpen(true);
+  };
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.MENU_ALLOCATION"
-                    defaultMessage="Menu Allocation"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className="flex justify-between items-center mb-4">
+          {/* LEFT: Page Title + 3 Custom Buttons */}
+          <div className="flex items-center gap-6">
+            <h2 className="text-xl text-black font-semibold">
+              3. Menu Allocation
+            </h2>
+
+            {/* ONLY FOR THIS SCREEN */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+              >
+                <i
+                  className="ki-filled ki-menu "
+                  style={{ color: "white" }}
+                ></i>{" "}
+                2. Menu Planning
+              </button>
+
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                onClick={() =>
+                  navigate("/raw-material-allocation", {
+                    state: {
+                      eventId: eventId,
+                      eventTypeId: eventData?.eventType?.id,
+                    },
+                  })
+                }
+              >
+                <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
+                4. Raw Material Allocation
+              </button>
+
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                onClick={() =>
+                  navigate(`/labour-and-other-management/${eventId}`)
+                }
+              >
+                <i
+                  className="ki-filled ki-gift hover:!text-gray-400"
+                  style={{ color: "white" }}
+                ></i>{" "}
+                5. Agency Distribution
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Event Details */}
@@ -1188,10 +1290,42 @@ const EventMenuAllocationPage = () => {
                         defaultMessage: "Search item",
                       })}
                       type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-start gap-5 md:justify-end">
+                  <button
+                    onClick={openSummaryItemModalchefoutside}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="Chef Labour"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="Chef Labour"
+                    />
+                  </button>
+                  <button
+                    onClick={openSummaryItemModalOustsideAgency}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="Outside Agency"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="Outside Agency"
+                    />
+                  </button>
+                  <button
+                    onClick={openSummaryItemModalInHouseCook}
+                    className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
+                    title="In House Cook"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      defaultMessage="In House Cook"
+                    />
+                  </button>
                   <button
                     onClick={openSelectMenureport}
                     className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
@@ -1222,9 +1356,9 @@ const EventMenuAllocationPage = () => {
                       </div>
                     ) : (
                       <div className="divide-y">
-                        {filtered.map((row) => (
+                        {filtered.map((row, index) => (
                           <TableRow
-                            key={row.key}
+                            key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                             row={row}
                             onChange={updateRow}
                           />
@@ -1256,6 +1390,7 @@ const EventMenuAllocationPage = () => {
           functionName={activeFunction?.function?.nameEnglish}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleOutsideSave}
+          personCount={selectedRow?.personCount}
         />
 
         <SidebarChefModal
@@ -1268,7 +1403,17 @@ const EventMenuAllocationPage = () => {
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleChefLabourSave}
         />
-
+        <SidebarInsideModal
+          open={isInsideModal}
+          onClose={() => setIsInsideModal(false)}
+          eventId={selectedRow?.eventId}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          row={selectedRow}
+          functionName={activeFunction?.function?.nameEnglish}
+          functionDateTime={activeFunction?.functionStartDateTime}
+          onSave={handleInsideSave}
+          personCount={selectedRow?.personCount}
+        />
         <CategorySidebarModal
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
@@ -1293,6 +1438,18 @@ const EventMenuAllocationPage = () => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
+        />
+        <SummaryItemModalchefoutside
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+        <SummaryItemModalOutsideAgency
+          open={isOutsideAgencyModalOpen}
+          onClose={() => setIsOutsideAgencyModalOpen(false)}
+        />
+        <SummaryItemModalInHousecook
+          open={isInHouseCookModalOpen}
+          onClose={() => setIsInHouseCookModalOpen(false)}
         />
       </Container>
     </Fragment>

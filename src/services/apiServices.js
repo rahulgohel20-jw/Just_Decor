@@ -82,8 +82,10 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
-export const GetAllContactCategorybycontacttype = (Id) => {
-  return GET(`/contactcategory/getallbycatid?conCatId=1&userId=${Id}`);
+export const GetAllContactCategorybycontacttype = (concatId, Id) => {
+  return GET(
+    `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`
+  );
 };
 
 //search ContactCategory
@@ -109,6 +111,10 @@ export const DeleteContactCategory = (Id) => {
 //Contact Type
 export const GetAllContactType = (Id) => {
   return GET(`/contacttype/getallbyuserid?userId=${Id}`);
+};
+
+export const GetAllContactTypeById = (Id) => {
+  return GET(`contacttype/getbyid?id=${Id}`);
 };
 
 // Add Contact Type
@@ -153,6 +159,13 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+
+export const GetAllQuotationByFilter = (enddate, startdate, id) => {
+  return GET(
+    `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+  );
+};
+
 export const GetRawmaterialwithcatID = (catID, id) => {
   return GET(
     `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`
@@ -160,6 +173,10 @@ export const GetRawmaterialwithcatID = (catID, id) => {
 };
 export const SelectedRawMenuallocation = (data) => {
   return POST(`/menuallocation/addorupdatemenuitemrawmat`, data);
+};
+
+export const GetRawmaterialforitem = (userid) => {
+  return GET(`/rawmaterial/getbyuserid?isActive=true&userid=${userid}`);
 };
 
 // Get All Supllier Vendors
@@ -208,10 +225,7 @@ export const RawMaterialName = (Id, name) => {
   );
 };
 
-export const SelectedItemNameMenuAllocation = (
-  eventfunctionid,
-  menuitemid
-) => {
+export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
   return GET(
     `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
@@ -219,6 +233,12 @@ export const SelectedItemNameMenuAllocation = (
 export const ContactNameItem = (Id, name) => {
   return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
 };
+export const OutsideContactName = (cattypeid, userid) => {
+  return GET(
+    `/partymaster/getallbycattypeid?catTypeId=${cattypeid}&userId=${userid}`
+  );
+};
+
 export const StatusChange = (Id, name) => {
   return PUT(`/eventmaster/changeeventstatus?eventId=${Id}&status=${name}`);
 };
@@ -394,6 +414,12 @@ export const GetAllCategoryformenu = (id) => {
   return GET(`/menucategory/getallbyuserid?isActive=true&userid=${id}`);
 };
 
+export const Getmenusubcategory = (menucategoryid, userId) => {
+  return GET(
+    `/menusubcategory/getallbyuserid?isActive=true&menuCategoryId=${menucategoryid}&userid=${userId}`
+  );
+};
+
 //Get menu preparation items
 export const Getmenuprep = (
   eventFunId,
@@ -432,6 +458,10 @@ export const AddMenuprep = (data) => {
   return POST(`/menupreparation/addOrUpdate`, data);
 };
 
+export const UpdateEventPax = (eventId, data) => {
+  return PUT(`/eventmaster/updatealleventfunction?id=${eventId}`, data);
+};
+
 //Add category Type
 export const AddCategory = (data) => {
   return POST(`/menucategory/add`, data);
@@ -439,14 +469,17 @@ export const AddCategory = (data) => {
 
 //Add category Type
 export const MenuReportData = (
+  eventFunctionId,
   eventId,
   catImg,
   catIns,
   catSlogan,
-  itemSlogan
+  itemSlogan,
+  itemIns,
+  lang
 ) => {
   return GET(
-    `/menupreparation/generateexclusivereport?eventFunctionId=-1&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemSlogan=${itemSlogan}`
+    `/menupreparation/generateexclusivereport2?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemInstruction=${itemIns}&isItemSlogan=${itemSlogan}&lang=${lang}`
   );
 };
 
@@ -548,6 +581,12 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
+export const uploadFileformenu = (formData, params) => {
+  return UPLOAD(`/file/uploadfile`, formData, {
+    params: params,
+  });
+};
+
 //upload Image
 export const uploadProfileImage = (data, queryParams) => {
   return UPLOAD(`/file/uploadfile?${queryParams}`, data);
@@ -557,10 +596,11 @@ export const uploadProfileImage = (data, queryParams) => {
 export const GetAllMenuItems = ({
   userId,
   itemName = "",
+  subCategoryId,
   page = 1,
   size = 10,
 }) => {
-  const query = `?userId=${userId}&itemName=${itemName}&page=${page}&size=${size}`;
+  const query = `?userId=${userId}&itemName=${itemName}&menuSubCatId=${subCategoryId}&page=${page}&size=${size}`;
   return GET(`/menuitems/getallbyuserid${query}`);
 };
 
@@ -662,9 +702,7 @@ export const GetRawMaterialcategory = (id) => {
 };
 
 export const UpdateSequence = (data) => {
-  return PUT(
-    `/rawmaterial/updatesequence`, data
-  );
+  return PUT(`/rawmaterial/updatesequence`, data);
 };
 
 export const DeleteRawMaterialcategory = (id) => {
@@ -991,8 +1029,10 @@ export const TranslateHindi = (data) => {
   return POST(`/transliterate/to-hindi`, data);
 };
 
-export const deleteRawmatrialcatidInmenuitem = (id) => {
-  return DELETE(`/menuitems/deleteitemrawmaterialbyid?id=${id}`);
+export const deleteRawmatrialcatidInmenuitem = (data) => {
+  return DELETE(`/menuitems/deleteitemrawmaterialbyid `, {
+    data: data,
+  });
 };
 
 export const deleteFunction = (id) => {
@@ -1001,21 +1041,63 @@ export const deleteFunction = (id) => {
 
 export const SuperAdminDashboardPlanWiseTotal = () => {
   return GET(`/dashboard/superadmin/planWiseTotal`);
-}
-
+};
 
 export const SuperAdminDashboardTotalUserAndPlan = () => {
   return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
-}
+};
 
-export const SuperAdminDashboardMonthWiseData = (endDate, planId, startDate) => {
-  return GET(`/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`);
-}
+export const GetRawmaterialItemByRecipe = (menuId, id) => {
+  return GET(
+    `/menuitems/getmenuitemrawmaterialbymenuid?menuItemId=${menuId}&userId=${id}`
+  );
+};
 
+export const SuperAdminDashboardMonthWiseData = (
+  endDate,
+  planId,
+  startDate
+) => {
+  return GET(
+    `/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`
+  );
+};
 
 export const DeleteRawMaterialItem = (Id) => {
   return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${Id}`);
 };
+export const GetSuperalladmininvoice = () => {
+  return GET(`/invoice-operations/getAllAdminInvoice`);
+};
+
+export const GetAdminInvoiceById = (id) => {
+  return GET(`/invoice-operations/getadmininvoicebyid?id=${id}`);
+};
+
+export const deleteMenuItemRawMaterial = (id) => {
+  return DELETE(`/menuallocation/deletemenuitemrawmaterial?id=${id}`);
+};
+
+export const deleteDownPayment = (id) => {
+  return DELETE(`/user/deleteuserdownpaymentbyid?id=${id}`);
+};
+
+export const Addtemplate = (data) => {
+  return POST(`/templatemodulemaster/add`, data);
+};
+
+export const GettemplatebyuserId = () => {
+  return GET(`templatemodulemaster/getall`);
+};
+
+export const Deletetemplatebyid = (id) => {
+  return DELETE(`/templatemodulemaster/deletebyid?id=${id}`);
+};
+
+export const Edittemplatebyid = (id, data) => {
+  return PUT(`/templatemodulemaster/update?id=${id}`, data);
+};
+
 
 export const GetAllTicketsByUserId = (id) => {
   return GET(`/ticket/getallbyuserid?userId=${id}`);

@@ -378,29 +378,44 @@ const FunctionsDetails = ({
       sortorder: index + 1,
     }));
   };
+  // Find this function in your FunctionsDetails component (around line 240)
+  // REPLACE the entire handleFunctionSelect function with this:
+
   const handleFunctionSelect = (index, functionId) => {
     const selected = options.find((opt) => opt.value === functionId);
     const updatedArray = [...formData.eventFunction];
     if (!selected) return;
 
     const currentRow = updatedArray[index];
-    if (!currentRow.functionStartDateTime && !currentRow.functionEndDateTime) {
-      const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
-      const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
-      const startTime = dayjs(selected.functionstartTime, "HH:mm");
-      const endTime = dayjs(selected.functionendTime, "HH:mm");
 
-      updatedArray[index].functionStartDateTime = eventStartDate
-        .hour(startTime.hour())
-        .minute(startTime.minute())
-        .format("DD/MM/YYYY hh:mm A");
-      updatedArray[index].functionEndDateTime = eventEndDate
-        .hour(endTime.hour())
-        .minute(endTime.minute())
-        .format("DD/MM/YYYY hh:mm A");
-    }
+    // Always update the times when a function is selected
+    const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
+    const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
+    const startTime = dayjs(selected.functionstartTime, "HH:mm");
+    const endTime = dayjs(selected.functionendTime, "HH:mm");
+
+    // Use existing date if available, otherwise use event date
+    const baseStartDate = currentRow.functionStartDateTime
+      ? dayjs(currentRow.functionStartDateTime, "DD/MM/YYYY hh:mm A")
+      : eventStartDate;
+
+    const baseEndDate = currentRow.functionEndDateTime
+      ? dayjs(currentRow.functionEndDateTime, "DD/MM/YYYY hh:mm A")
+      : eventEndDate;
+
+    // Update with new function times while preserving the date
+    updatedArray[index].functionStartDateTime = baseStartDate
+      .hour(startTime.hour())
+      .minute(startTime.minute())
+      .format("DD/MM/YYYY hh:mm A");
+
+    updatedArray[index].functionEndDateTime = baseEndDate
+      .hour(endTime.hour())
+      .minute(endTime.minute())
+      .format("DD/MM/YYYY hh:mm A");
 
     updatedArray[index].functionId = functionId;
+
     setFormData({
       ...formData,
       eventFunction: sortFunctionsByDateTime(updatedArray),
@@ -465,8 +480,8 @@ const FunctionsDetails = ({
         <table className="w-full text-sm text-left border-gray-200 border-t">
           <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
             <tr>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-10"></th>
-              <th className="text-sm font-semibold text-gray-900 p-3">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-5"></th>
+              <th className="text-sm font-semibold text-gray-900 p-3 ">
                 <div className="flex items-center gap-2">
                   <span className="flex items-center">
                     <FormattedMessage
@@ -487,7 +502,7 @@ const FunctionsDetails = ({
                   </button>
                 </div>
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-30">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
                   defaultMessage="Start Date"
@@ -546,7 +561,7 @@ const FunctionsDetails = ({
                   return (
                     <SortableRow key={func.id || index} id={func.id || index}>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-10`}
                       >
                         <FunctionTypeDropdown
                           value={func.functionId || undefined}
@@ -576,7 +591,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <DatePicker
                           style={{
@@ -668,12 +683,12 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-24`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <Input
                           className="w-full text-center"
                           value={func.pax}
-                          type="number"
+                          type="text"
                           onChange={(e) =>
                             handleInputChange(index, "pax", e.target.value)
                           }
@@ -686,12 +701,12 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-24`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <Input
                           className="w-full text-center"
                           value={func.rate}
-                          type="number"
+                          type="text"
                           placeholder="Rate"
                           onChange={(e) =>
                             handleInputChange(index, "rate", e.target.value)

@@ -89,7 +89,6 @@ const MenuSubCategory = () => {
     FetchSubCategoryData();
   }, [searchQuery]);
 
-  // 🔍 Debounced search API call
   useEffect(() => {
     const delay = setTimeout(() => {
       FetchSubCategoryData();
@@ -98,7 +97,6 @@ const MenuSubCategory = () => {
     return () => clearTimeout(delay);
   }, [searchQuery]);
 
-  // 🌍 Language-based mapping + local filter
   useEffect(() => {
     const language = localStorage.getItem("lang");
 
@@ -114,14 +112,15 @@ const MenuSubCategory = () => {
       ...item,
       sr_no: index + 1,
       nameEnglish: item[field] || "-",
+      category: item.menuCategory ? item.menuCategory[field] : "-",
     }));
 
-    // Optional extra filtering (Frontend backup search)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       mapped = mapped.filter(
         (item) =>
           item[field]?.toLowerCase().includes(q) ||
+          item.menuCategory?.[field]?.toLowerCase().includes(q) ||
           item.sequence?.toString().includes(q)
       );
     }

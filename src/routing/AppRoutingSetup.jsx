@@ -177,7 +177,7 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import ReportCustomTheme from "@/pages/Reportcustomethemes";
 import Database from "../pages/master/superadmindatabase";
 import Plan from "../components/plan/Plan";
-import SuperadminInvoice from "../components/superadmininvoice/SuperadminInvoice";
+import SuperadminInvoice from "../components/superadminInvoice/SuperadminInvoice";
 import Addinvoice from "../components/superadminInvoice/Addinvoice";
 import RenewalCustomer from "../pages/renewalcustomer/RenewalCustomer";
 import SuperCalendarPage from "../pages/super-admin/calender";
@@ -191,6 +191,10 @@ import SuperContactTypeMaster from "../pages/super-admin/master/contact-master";
 import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type";
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
+import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
+import TemplateName from "../pages/super-admin/master/template-name";
+import ExpenseMainPage from "../pages/Event/ExpensePage";
+import MenuItemMaster from "../pages/master/MenuItemMaster";
 import InteractionMaster from "../pages/super-admin/master/interaction-master";
 
 const AppRoutingSetup = () => {
@@ -220,6 +224,7 @@ const AppRoutingSetup = () => {
           <Route path="/team/seals-team" element={<SalesTeamList />} />
           <Route path="/team/all-members" element={<MemberList />} />
           <Route path="/database" element={<Database />} />
+          <Route path="/master/menu-items" element={<MenuItemMaster />} />
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
           <Route
@@ -238,6 +243,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/menu-preparation" element={<EventPlanningPage />} />
           <Route path="/admin-invoice" element={<SuperadminInvoice />} />
+          <Route
+            path="/super/invoice-preview/:id"
+            element={<InvoicePreview />}
+          />
           <Route path="/user-rights" element={<UserRights />} />
 
           <Route path="/renewal-history" element={<RenewalCustomer />} />
@@ -266,6 +275,7 @@ const AppRoutingSetup = () => {
             path="/labour-and-other-management/:eventId"
             element={<LabourOtherManagementPage mode="labour" />}
           />
+          <Route path="/expense-management" element={<ExpenseMainPage />} />
           <Route
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
@@ -277,7 +287,7 @@ const AppRoutingSetup = () => {
           <Route path="/event-invoice" element={<EventInvoicePage />} />
           <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
           <Route path="/invoice-dashboard" element={<EventInvoicePage />} />
-          <Route path="/add-invoice" element={<AddInvoicePage />} />
+          <Route path="/add-invoice/:id" element={<AddInvoicePage />} />
           <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/report-themes" element={<ReportThemes />} />
@@ -342,6 +352,10 @@ const AppRoutingSetup = () => {
             element={<SuperRawMaterialType />}
           />
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
+          <Route
+            path="/super-template-name-master"
+            element={<TemplateName />}
+          />
           <Route path="/interaction-master" element={<InteractionMaster />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route

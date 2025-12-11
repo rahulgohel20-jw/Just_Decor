@@ -4,6 +4,9 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import AddSupplier from "../add-supplier/AddSupplier";
+import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
+import Select from "react-select";
+
 import AddRawMaterialCategory from "@/partials/modals/raw-material-category/AddRawMaterial";
 
 import {
@@ -48,6 +51,9 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isRawCategoryModalOpen, setIsRawCategoryModalOpen] = useState(false);
+  const [isVendorOpen, setIsVendorOpen] = useState(false);
+  const [isSupplierOpen, setIsSupplierOpen] = useState(false);
+
   const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
     useState(null);
   const intl = useIntl();
@@ -354,6 +360,15 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const filteredTableData = tableData.filter((supplier) =>
     supplier.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const openSupplier = () => {
+    setIsVendorOpen(false);
+    setTimeout(() => setIsSupplierOpen(true), 150); // delay prevents race condition
+  };
+
+  const openVendor = () => {
+    setIsSupplierOpen(false);
+    setTimeout(() => setIsVendorOpen(true), 150);
+  };
 
   return (
     isOpen && (
@@ -467,25 +482,28 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             </label>
 
             <div className="flex items-center gap-2">
-              <select
-                className="select flex-1"
-                name="rawCategoryId"
-                value={formik.values.rawCategoryId}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="USER.RAWMATERIAL.SELECT_CATEGORY"
-                    defaultMessage="Select Raw Material Category"
-                  />
-                </option>
-                {rawCategory.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1">
+                <Select
+                  options={rawCategory} // [{ label, value }]
+                  value={
+                    rawCategory.find(
+                      (c) => c.value === formik.values.rawCategoryId
+                    ) || null
+                  }
+                  onChange={(selected) =>
+                    formik.setFieldValue("rawCategoryId", selected?.value || "")
+                  }
+                  placeholder={intl.formatMessage({
+                    id: "USER.RAWMATERIAL.SELECT_CATEGORY",
+                    defaultMessage: "Select Raw Material Category",
+                  })}
+                  isClearable
+                  styles={{
+                    control: (base) => ({ ...base, minHeight: "38px" }), // match your input height
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                />
+              </div>
 
               {/* + Button to open modal */}
               <button
@@ -516,26 +534,34 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             </label>
 
             <div className="flex items-center gap-2">
-              <select
-                className="select flex-1"
-                name="unitid"
-                value={formik.values.unitid}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="COMMON.SELECT_UNIT"
-                    defaultMessage="Select Unit"
-                  />
-                </option>
-
-                {unitList.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.nameEnglish} ({unit.symbolEnglish})
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1">
+                <Select
+                  options={unitList.map((u) => ({
+                    value: u.id,
+                    label: `${u.nameEnglish} (${u.symbolEnglish})`,
+                  }))}
+                  value={
+                    unitList
+                      .map((u) => ({
+                        value: u.id,
+                        label: `${u.nameEnglish} (${u.symbolEnglish})`,
+                      }))
+                      .find((u) => u.value === formik.values.unitid) || null
+                  }
+                  onChange={(selected) =>
+                    formik.setFieldValue("unitid", selected?.value || "")
+                  }
+                  placeholder={intl.formatMessage({
+                    id: "COMMON.SELECT_UNIT",
+                    defaultMessage: "Select Unit",
+                  })}
+                  isClearable
+                  styles={{
+                    control: (base) => ({ ...base, minHeight: "38px" }),
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                />
+              </div>
 
               {/* + Button to open modal */}
             </div>
@@ -553,7 +579,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               <label className="form-label">
                 <FormattedMessage
                   id="COMMON.SUPPLIER_RATE"
-                  defaultMessage="Supplier Rate"
+                  defaultMessage="Rate"
                 />
               </label>
               <input
@@ -668,7 +694,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   className="btn btn-primary"
                   type="button"
                   onClick={() => {
-                    setIsSupplierModalOpen(true);
+                    openSupplier();
                     setEditingSupplier(null);
                   }}
                   title="Add Supplier"
@@ -696,13 +722,22 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
 
         {/* Supplier Modal */}
         <AddSupplier
-          isOpen={isSupplierModalOpen}
+          isOpen={isSupplierOpen}
           onClose={() => {
-            setIsSupplierModalOpen(false);
+            setIsSupplierOpen(false);
             setEditingSupplier(null);
           }}
           onAddSupplier={handleSupplierAction}
           supplierData={editingSupplier}
+          onOpenVendor={() => openVendor()}
+        />
+
+        <AddVendor
+          isOpen={isVendorOpen}
+          onClose={() => {
+            setIsVendorOpen(false);
+            openSupplier(); // <--- return back to supplier
+          }}
         />
 
         <AddRawMaterialCategory

@@ -105,7 +105,10 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {rawdata ? (
-              <FormattedMessage id="USER.MASTER.EDIT_RAW_MATERIAL_TYPE" />
+              <FormattedMessage
+                id="USER.MASTER.EDIT_RAW_MATERIAL_TYPE"
+                defaultMessage="Edit Raw Material type"
+              />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_RAW_MATERIAL_TYPE "
@@ -245,7 +248,10 @@ const AddRawMaterialType = ({ isOpen, onClose, rawdata, refreshData }) => {
                     onClick={() => onClose(false)}
                     className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100"
                   >
-                    <FormattedMessage id="COMMON.CANCEL" />
+                    <FormattedMessage
+                      id="COMMON.CANCEL"
+                      defaultMessage="cancel"
+                    />
                   </button>
                   <button
                     type="submit"

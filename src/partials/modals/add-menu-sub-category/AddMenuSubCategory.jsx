@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import Select from "react-select";
+
 import {
   editSubCategory,
   AddSubCategory,
   Translateapi,
+  GetAllCategoryformenu,
 } from "@/services/apiServices";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
@@ -22,11 +25,13 @@ const AddMenuSubCategory = ({
     nameGujarati: "",
     nameHindi: "",
   };
+  let Userid = localStorage.getItem("userId");
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const requiredFields = ["nameEnglish"];
   const [debounceTimer, setDebounceTimer] = useState(null);
-
+  const [categoryList, setCategoryList] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const intl = useIntl();
 
   useEffect(() => {
@@ -49,15 +54,38 @@ const AddMenuSubCategory = ({
     }
   }, [formData.nameEnglish]);
 
+  useEffect(() => {
+    fetchmenucategory();
+  }, []);
+  const fetchmenucategory = async () => {
+    try {
+      const res = await GetAllCategoryformenu(Userid);
+      const data = res.data.data["Menu Category Details"] || [];
+
+      const menucategorydata = data.map((item) => ({
+        menuid: item.id,
+        menuName: item.nameEnglish,
+        menunamegujarati: item.nameGujarati,
+        menunameHindi: item.nameHindi,
+      }));
+      setCategoryList(menucategorydata);
+    } catch {
+      console.log("error");
+    }
+  };
+
   const handleSubmit = () => {
     if (checkErrors()) {
-      const Userid = localStorage.getItem("userId");
       if (!Userid) {
         Swal.fire("Error", "User data not found", "error");
         return;
       }
 
-      const payload = { ...formData, userId: Userid };
+      const payload = {
+        ...formData,
+        menuCatId: selectedCategory,
+        userId: Userid,
+      };
 
       if (editData) {
         editSubCategory(editData.id, payload)
@@ -119,11 +147,18 @@ const AddMenuSubCategory = ({
         nameGujarati: editData.nameGujarati || "",
         nameHindi: editData.nameHindi || "",
       });
+      setSelectedCategory(editData.menuCategory || "");
     } else if (isModalOpen) {
       setFormData(initialFormState);
       setErrors({});
+      setSelectedCategory("");
     }
   }, [editData, isModalOpen]);
+
+  const categoryOptions = categoryList.map((item) => ({
+    value: item.menuid,
+    label: `${item.menuName} — ${item.menunamegujarati} — ${item.menunameHindi}`,
+  }));
 
   return (
     <CustomModal
@@ -179,6 +214,37 @@ const AddMenuSubCategory = ({
           error={errors.nameEnglish}
           required
         />
+        {/* Menu Category Dropdown */}
+        <div className="flex flex-col">
+          <label className="text-[#6A7C94] text-base font-medium mb-1">
+            {intl.formatMessage({
+              id: "MENU_CATEGORY",
+              defaultMessage: "Menu Category",
+            })}
+          </label>
+
+          <Select
+            options={categoryOptions}
+            value={
+              categoryOptions.find((opt) => opt.value === selectedCategory) ||
+              null
+            }
+            onChange={(selected) => setSelectedCategory(selected?.value || "")}
+            isSearchable
+            isClearable
+            placeholder="Select Category"
+            styles={{
+              menu: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base) => ({
+                ...base,
+                minHeight: "38px",
+                borderColor: "#d1d5db",
+                boxShadow: "none",
+                "&:hover": { borderColor: "#9ca3af" },
+              }),
+            }}
+          />
+        </div>
       </div>
     </CustomModal>
   );
