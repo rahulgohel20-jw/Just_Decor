@@ -164,6 +164,33 @@ const RawMaterialAllocation = () => {
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
+
+    // If finalQty is being changed, calculate the difference
+    if (field === "finalQty") {
+      const oldFinalQty = parseFloat(updated[index].finalQty) || 0;
+      const newFinalQty = parseFloat(value) || 0;
+      const oldQty = parseFloat(updated[index].qty) || 0; // 🔥 Get the original qty
+
+      // 🔥 Calculate difference between new finalQty and OLD finalQty (not qty)
+      const difference = newFinalQty - oldFinalQty;
+
+      console.log("🔍 Debug:", {
+        oldFinalQty,
+        newFinalQty,
+        oldQty,
+        difference,
+      });
+
+      // If there's an increase, mark it for adding an "Extra" row in sidebar
+      if (difference > 0) {
+        updated[index].extraQty = difference; // 🔥 This should be just the difference
+        updated[index].needsExtraRow = true;
+      } else {
+        updated[index].extraQty = 0;
+        updated[index].needsExtraRow = false;
+      }
+    }
+
     updated[index][field] = value;
     setData(updated);
     setHasUnsavedChanges(true);
@@ -197,6 +224,7 @@ const RawMaterialAllocation = () => {
             eventFunctionId: fn.eventFunctionId || 0,
             functionId: fn.functionId || 0,
             functiondatetime: fn.functiondatetime || "",
+            isExtraField: fn.isExtraField === true, // 🔥 ADDED: Include isExtraField
             itemName: fn.itemName || item.material || "",
             place: fn.place || item.place || "",
             price: parseFloat(fn.price) || 0,

@@ -452,6 +452,15 @@ export const superAdminMenuItems = [
         ),
         path: "super-template-name-master",
       },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
+            defaultMessage="Interaction Master"
+          />
+        ),
+        path: "/interaction-master",
+      },
     ],
   },
 ];
