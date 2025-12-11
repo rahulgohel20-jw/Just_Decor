@@ -98,47 +98,45 @@ const Addticket = ({ isModalOpen, setIsModalOpen, editData }) => {
           </div>
         );
 
-    
-       case "tab_2":
-  return (
-    <div className="tab-content mb-2">
-      <div className="flex flex-col space-y-4">
-        <label className="form-label">Upload Screenshot</label>
-        <div className="border border-dashed border-gray-400 p-4 rounded-lg text-center bg-gray-50">
-          <FileUp className="text-gray-500 mx-auto mb-2" size={28} />
-          <p className="text-gray-600 text-sm mb-2">
-            Drag & drop your image or click below
-          </p>
-          <input
-            type="file"
-            accept="image/*"
-            id="image-upload"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <label
-            htmlFor="image-upload"
-            className="btn btn-light cursor-pointer"
-          >
-            Browse Files
-          </label>
-          {formData?.image && (
-            <>
-              <div className="mt-2 text-sm text-green-600">
-                File selected: {formData.image.name}
+      case "tab_2":
+        return (
+          <div className="tab-content mb-2">
+            <div className="flex flex-col space-y-4">
+              <label className="form-label">Upload Screenshot</label>
+              <div className="border border-dashed border-gray-400 p-4 rounded-lg text-center bg-gray-50">
+                <FileUp className="text-gray-500 mx-auto mb-2" size={28} />
+                <p className="text-gray-600 text-sm mb-2">
+                  Drag & drop your image or click below
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="image-upload"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="btn btn-light cursor-pointer"
+                >
+                  Browse Files
+                </label>
+                {formData?.image && (
+                  <>
+                    <div className="mt-2 text-sm text-green-600">
+                      File selected: {formData.image.name}
+                    </div>
+                    <img
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Preview"
+                      className="mt-2 mx-auto max-h-40 rounded border"
+                    />
+                  </>
+                )}
               </div>
-              <img
-                src={URL.createObjectURL(formData.image)}
-                alt="Preview"
-                className="mt-2 mx-auto max-h-40 rounded border"
-              />
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
+            </div>
+          </div>
+        );
 
       default:
         return null;
@@ -149,7 +147,9 @@ const Addticket = ({ isModalOpen, setIsModalOpen, editData }) => {
     if (isModalOpen) {
       setFormData({
         ...editData,
-        product_data: editData?.product_data || [{ productId: "", quantity: "" }],
+        product_data: editData?.product_data || [
+          { productId: "", quantity: "" },
+        ],
       });
     } else {
       setFormData(null);

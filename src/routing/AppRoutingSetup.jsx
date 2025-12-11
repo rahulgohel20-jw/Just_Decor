@@ -191,6 +191,7 @@ import SuperContactTypeMaster from "../pages/super-admin/master/contact-master";
 import SuperRawMaterialType from "../pages/super-admin/master/Raw-material-type";
 import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
+import InteractionMaster from "../pages/super-admin/master/interaction-master";
 
 const AppRoutingSetup = () => {
   return (
@@ -341,6 +342,7 @@ const AppRoutingSetup = () => {
             element={<SuperRawMaterialType />}
           />
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
+          <Route path="/interaction-master" element={<InteractionMaster />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"
