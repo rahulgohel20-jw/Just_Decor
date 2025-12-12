@@ -2,12 +2,14 @@ import { useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-
+import AddTheme from "./components/AddTheme";
 const ReportcustomeTheme = () => {
   const [showMore, setShowMore] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const themes = [
@@ -22,10 +24,6 @@ const ReportcustomeTheme = () => {
   ];
 
   const allThemes = showMore ? [...themes, ...themes] : themes;
-
-  const handleCardClick = (theme) => {
-    navigate("/report-themes/editor", { state: { theme } });
-  };
 
   const generatePDF = async (theme) => {
     setIsGenerating(true);
@@ -100,9 +98,6 @@ const ReportcustomeTheme = () => {
     setSelectedTheme(null);
   };
 
-  const handlePreviewClick = () => alert("Preview button clicked!");
-  const handlePushClick = () => alert("Push button clicked!");
-
   return (
     <Fragment>
       <Container className="flex flex-col min-h-screen">
@@ -113,30 +108,12 @@ const ReportcustomeTheme = () => {
           </p>
 
           <div className="flex justify-end gap-3 mt-3">
-            <button className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#004C8C] transition">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-              Preview
-            </button>
-
-            <button className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#008B5A] transition">
+            <button
+              className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1  shadow hover:bg-[#008B5A] transition"
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+            >
               <img
                 src={`${import.meta.env.BASE_URL}images/pushicon.png`}
                 alt="icon"
@@ -151,7 +128,6 @@ const ReportcustomeTheme = () => {
           {allThemes.map((theme, index) => (
             <div
               key={index}
-              onClick={() => handleCardClick(theme)}
               className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
             >
               <button
@@ -256,6 +232,8 @@ const ReportcustomeTheme = () => {
           </div>
         </div>
       )}
+
+      <AddTheme isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
 };

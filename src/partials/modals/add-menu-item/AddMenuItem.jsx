@@ -9,7 +9,8 @@ import {
   uploadFile,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
-
+import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
+import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
 const { Dragger } = Upload;
 
 const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
@@ -18,7 +19,8 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
   const userId = localStorage.getItem("userId");
-
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
   const fetchCategories = async () => {
     try {
       const res = await GetAllCategoryformenu(userId);
@@ -85,12 +87,13 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values);
 
       const file = values?.image?.file || null;
 
       const payload = {
         userId: Number(userId),
-        menuCategoryId: values.menuCategory || 0,
+        menuCategoryId: values.menuCategory,
         menuSubCategoryId: values.menuSubCategory || "",
         nameEnglish: values.nameEnglish || "",
         nameGujarati: values.nameGujarati || "",
@@ -143,7 +146,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       title={
         <span className="text-black text-base font-medium">Add Menu Item</span>
       }
-      width={800}
+      width={1000}
       className="add-menu-modal"
       footer={
         <div className="flex justify-end gap-2 py-2">
@@ -169,6 +172,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
               </span>
             }
             name="nameEnglish"
+            rules={[{ required: true, message: "Please enter Name (English)" }]}
           >
             <Input
               className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
@@ -253,37 +257,58 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           <Form.Item
             label={
               <span className="text-[#6A7C94] text-base font-medium">
-                Menu Item Category
+                Menu Item Category <span className="text-red-500">*</span>
               </span>
             }
-            name="menuCategory"
+            required
           >
-            <Select
-              placeholder="Select Menu Category"
-              getPopupContainer={() => document.body}
-              allowClear
-              options={categoryOptions}
-              onChange={handleCategoryChange}
-              className="bg-[#F8FAFC] h-10 border-r-0 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-            />
+            <div className="flex gap-3 w-full">
+              <Form.Item
+                name="menuCategory"
+                rules={[
+                  { required: true, message: "Please select Menu Category" },
+                ]}
+                noStyle
+              >
+                <Select
+                  placeholder="Select Menu Category"
+                  allowClear
+                  options={categoryOptions}
+                  onChange={handleCategoryChange}
+                  className="bg-[#F8FAFC] h-10 w-full"
+                />
+              </Form.Item>
+
+              <button
+                type="button"
+                className="p-1 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow"
+                onClick={() => setIsCategoryModalOpen(true)}
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
           </Form.Item>
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Menu Item Sub Category
-              </span>
-            }
-            name="menuSubCategory"
-          >
-            <Select
-              placeholder="Select Menu Sub Category"
-              getPopupContainer={() => document.body}
-              allowClear
-              options={subCategoryOptions}
-              loading={loadingSubCategories}
-              disabled={!form.getFieldValue("menuCategory")}
-              className="bg-[#F8FAFC] h-10 border-r-0 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-            />
+
+          <Form.Item label="Menu Item Sub Category">
+            <div className="flex gap-3">
+              <Form.Item name="menuSubCategory" noStyle>
+                <Select
+                  placeholder="Select Menu Sub Category"
+                  options={subCategoryOptions}
+                  loading={loadingSubCategories}
+                  disabled={!form.getFieldValue("menuCategory")}
+                  className="bg-[#F8FAFC] h-10 w-full"
+                />
+              </Form.Item>
+
+              <button
+                type="button"
+                className="p-1 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow"
+                onClick={() => setIsSubCategoryModalOpen(true)}
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
+            </div>
           </Form.Item>
         </div>
 
@@ -340,6 +365,16 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           />
         </Form.Item>
       </Form>
+      <AddMenuCategory
+        isModalOpen={isCategoryModalOpen}
+        setIsModalOpen={setIsCategoryModalOpen}
+        refreshData={refreshData}
+      />
+      <AddMenuSubCategory
+        isModalOpen={isSubCategoryModalOpen}
+        setIsModalOpen={setIsSubCategoryModalOpen}
+        refreshData={refreshData}
+      />
     </CustomModal>
   );
 };

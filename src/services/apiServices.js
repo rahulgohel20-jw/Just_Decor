@@ -624,6 +624,11 @@ export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
 };
 
+export const SyncRawmaterialMenuallocation = (id) => {
+  return DELETE(`
+menuallocation/syncrawmaterialitems?eventFunctionid=${id}`);
+};
+
 // Change Password
 
 export const ChangePassword = (data) => {

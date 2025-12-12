@@ -245,7 +245,7 @@ const SelectedItems = ({
                                                     Rate:
                                                   </span>
                                                   <input
-                                                    type="number"
+                                                    type="text"
                                                     value={item.rate}
                                                     min={0}
                                                     onChange={(e) =>
