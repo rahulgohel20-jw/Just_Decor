@@ -1,23 +1,45 @@
-import React, { useState } from "react";
-import { Modal, Select, Input, DatePicker, TimePicker, Button } from "antd";
+import React, { useState, useEffect } from "react";
+import { Modal, Select, Input, DatePicker, Button } from "antd";
+import dayjs from "dayjs";
 
-export default function FollowUpModal({ isOpen, onClose, onSave }) {
+export default function FollowUpModal({ isOpen, onClose, onSave, clientName }) {
+  const [customerName, setCustomerName] = useState("");
+  const [description, setDescription] = useState("");
   const [followType, setFollowType] = useState("Call");
-  const [reminders, setReminders] = useState([{ type: "Call", time: null }]);
+  const [followupDate, setFollowupDate] = useState(null);
 
-  const addReminder = () => {
-    setReminders([...reminders, { type: "Call", time: null }]);
-  };
+  // Set customerName whenever modal opens or clientName changes
+  useEffect(() => {
+    if (clientName) {
+      setCustomerName(clientName);
+    }
+  }, [clientName, isOpen]);
 
-  const updateReminder = (index, field, value) => {
-    const updated = [...reminders];
-    updated[index][field] = value;
-    setReminders(updated);
+  const handleSave = () => {
+    if (!customerName || !followupDate) {
+      alert("Customer Name and Followup Date are required");
+      return;
+    }
+
+    onSave({
+      customerName,
+      description,
+      followType,
+      followupDate: dayjs(followupDate).format("DD/MM/YYYY hh:mm A"),
+    });
+
+    // Reset modal state
+    setCustomerName("");
+    setDescription("");
+    setFollowType("Call");
+    setFollowupDate(null);
+
+    onClose(false);
   };
 
   return (
     <Modal
-      title={<span className="text-lg font-semibold">Add Follow Up</span>}
+      title="Add Follow Up"
       open={isOpen}
       onCancel={() => onClose(false)}
       footer={null}
@@ -25,16 +47,24 @@ export default function FollowUpModal({ isOpen, onClose, onSave }) {
       width={700}
     >
       <div className="space-y-5 p-2">
-        {/* Customer Select */}
-        <Select placeholder="Select customer" className="w-full" size="large" />
+        <div className="flex flex-col">
+          <label className="form-label mb-1">Customer Name</label>
+          <Input
+            placeholder="Enter customer name"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+        </div>
 
-        {/* Follow Up Description */}
-        <Input.TextArea rows={4} placeholder="Follow Up Description" />
+        <Input.TextArea
+          rows={4}
+          placeholder="Follow Up Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-        {/* Follow Up Type Buttons */}
         <div>
           <p className="text-gray-700 mb-2">Follow Up Type</p>
-
           <div className="grid grid-cols-3 gap-3">
             {["Call", "WhatsApp", "Email"].map((type) => (
               <button
@@ -52,23 +82,21 @@ export default function FollowUpModal({ isOpen, onClose, onSave }) {
           </div>
         </div>
 
-        {/* Followup Date */}
         <div>
           <p className="text-gray-700 mb-2">Followup Date</p>
           <DatePicker
             className="w-full h-11"
-            placeholder="mm/dd/yyyy"
-            size="large"
+            showTime={{ format: "hh:mm A" }}
+            format="DD/MM/YYYY hh:mm A"
+            placeholder="Select date & time"
+            value={followupDate}
+            onChange={setFollowupDate}
           />
         </div>
 
-     
-
-        {/* Footer Buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <Button onClick={() => onClose(false)}>Cancel</Button>
-
-          <Button type="primary" onClick={() => onSave()}>
+          <Button type="primary" onClick={handleSave}>
             Save
           </Button>
         </div>

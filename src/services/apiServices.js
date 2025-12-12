@@ -138,7 +138,6 @@ export const updateContactTypeStatus = (Id, statusId) => {
 };
 
 // Get All Raw Material
-
 export const GetAllRawMaterial = (Id) => {
   return GET(
     `rawmaterial/getallbyuserid?pageNo=1&pageSize=10000&rawMateriaCatlId=0&unitid=0&userid=${Id}`
@@ -1102,3 +1101,29 @@ export const Edittemplatebyid = (id, data) => {
 export const AddLead =(data) => {
   return POST (`/leadmaster/add`,data);
 }
+
+export const GetAllleadmaster  = () => {
+  return GET(`/leadmaster/getAll`);
+}
+
+export const GetLeadCode = () => {
+  return GET(`/leadmaster/generateLeadCode`);
+};
+
+
+export const DeleteLeadbyID = (id) => {
+  return DELETE(`/leadmaster/deleteById?id=${id}`); // ✅ Correct query param
+};
+
+export const UpdateleadbyID = (id, payload) => {
+  return PUT(`/leadmaster/update?id=${id}`, payload);
+}
+export const GetLeadByID = (id) => {
+  return GET(`/leadmaster/getById?id=${id}`);
+}
+
+export const GetFilteredFollowUps = ({ startDate, endDate, isCreated, leadId }) => {
+  return GET(
+    `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`
+  );
+};
