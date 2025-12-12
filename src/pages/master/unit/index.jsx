@@ -40,7 +40,7 @@ const UnitMaster = () => {
     };
   }, []);
 
-  let Id = 1;
+  let Id = localStorage.getItem("userId");
 
   // 🔥 Helper to get unit name based on language
   const getUnitNameByLang = (unit) => {
@@ -73,12 +73,14 @@ const UnitMaster = () => {
   const Fetchunit = () => {
     Getunit(Id)
       .then((res) => {
+        console.log(res);
+
         if (res?.data?.data?.["Unit Details"]) {
           const formatted = res.data.data["Unit Details"].map(
             (cust, index) => ({
               sr_no: index + 1,
-              unit: getUnitNameByLang(cust), // 🔥 Language-based name
-              symbol: getSymbolByLang(cust), // 🔥 Language-based symbol
+              unit: getUnitNameByLang(cust),
+              symbol: getSymbolByLang(cust),
               unitId: cust.id,
               isActive: cust.isActive,
               // Store all language versions for editing
@@ -120,11 +122,10 @@ const UnitMaster = () => {
           if (data && data["Unit Details"]) {
             const formatted = data["Unit Details"].map((cust, index) => ({
               sr_no: index + 1,
-              unit: getUnitNameByLang(cust), // 🔥 Language-based name
-              symbol: getSymbolByLang(cust), // 🔥 Language-based symbol
+              unit: getUnitNameByLang(cust),
+              symbol: getSymbolByLang(cust),
               unitId: cust.id,
               isActive: cust.isActive,
-              // Store all language versions for editing
               nameEnglish: cust.nameEnglish,
               nameHindi: cust.nameHindi,
               nameGujarati: cust.nameGujarati,
@@ -144,7 +145,7 @@ const UnitMaster = () => {
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [searchQuery]); // Don't include lang here to avoid duplicate calls
+  }, [searchQuery]);
 
   const DeleteUnitrow = (unitId) => {
     Swal.fire({
@@ -300,6 +301,25 @@ const UnitMaster = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setIsEventTypeModalOpen(true);
+                setSelectedUnit(null);
+              }}
+              title={intl.formatMessage({
+                id: "USER.MASTER.ADD_UNIT",
+                defaultMessage: "Add Unit",
+              })}
+            >
+              <i className="ki-filled ki-plus"></i>{" "}
+              <FormattedMessage
+                id="USER.MASTER.ADD_UNIT"
+                defaultMessage="Add Unit"
+              />
+            </button>
           </div>
         </div>
 

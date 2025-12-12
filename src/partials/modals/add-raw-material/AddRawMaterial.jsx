@@ -203,7 +203,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   };
 
   const FetchUnit = () => {
-    GetUnitData(1).then((response) => {
+    GetUnitData(id).then((response) => {
       const data = response?.data?.data["Unit Details"];
       setUnitList(
         data.map((item) => ({
