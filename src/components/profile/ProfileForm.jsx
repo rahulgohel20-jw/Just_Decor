@@ -97,7 +97,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           companyEmail: user.userBasicDetails?.companyEmail,
           address: user.userBasicDetails?.address,
           role: user.userBasicDetails?.role?.id,
-          plan: user?.plan?.id,
+          plan: user?.plan?.id || null,
           officePhone: user.userBasicDetails?.officeNo,
           country: {
             value: user.userBasicDetails?.country?.id,
@@ -142,7 +142,9 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     const planId = initialValues.plan;
     const roleId = initialValues.role;
 
-    if (!planId || !roleId) return message.error("Missing Plan or Role ID.");
+    console.log(planId, roleId);
+
+    if (!planId && !roleId) return message.error("Missing Plan or Role ID.");
 
     // Validate required location fields
     if (!values.country?.value) {

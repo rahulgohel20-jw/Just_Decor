@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ContactNameItem } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
+import { ContactNameItem } from "../../services/apiServices";
 
 const WhatsAppIcon = () => (
   <svg
@@ -42,24 +42,41 @@ export default function SidebarInsideModal({
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
+  const [showRawMaterials, setShowRawMaterials] = useState(false);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
+  const [contactsError, setContactsError] = useState(null);
   const intl = useIntl();
-  const userId = localStorage.getItem("userId");
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
   useEffect(() => {
     if (!open || !row) return;
-    const allocations = row.eventFunctionMenuAllocations || [];
+
+    const allocations = row?.eventFunctionMenuAllocations || [];
+
+    console.log("RAW ALLOCATIONS =>", allocations);
+
+    const isInsideRow = row?.inside === true;
+
     const insideAllocations = allocations
-      .filter((alloc) => alloc.isInside === true)
+      .filter((alloc) => {
+        if (isInsideRow) return true;
+
+        return alloc.isOutside === false;
+      })
       .map((alloc) => ({
-        partyId: alloc.partyId || 0,
+        partyId: alloc.partyId || null,
         partyName: alloc.partyName || "",
-        contactNumber: alloc.contactNumber || "",
-        person: alloc.person || "",
+        number: alloc.number || "",
+        person: alloc.pax || 0,
         remarks: alloc.remarks || "",
         isInside: true,
       }));
 
+    console.log("FILTERED insideAllocations =>", insideAllocations);
+
     if (insideAllocations.length === 0) {
+      console.log("NO inside allocations found — using empty default row");
       setMenuAllocations([
         {
           partyId: null,
@@ -76,14 +93,18 @@ export default function SidebarInsideModal({
   }, [open, row]);
 
   useEffect(() => {
-    const FetchContactName = async () => {
-      try {
-        if (!userId) {
-          console.error("User ID not found");
-          return;
-        }
+    const fetchContactNames = async () => {
+      if (!userId) {
+        console.error("User ID not found");
+        setContactsError("User ID not found");
+        return;
+      }
 
-        const res = await ContactNameItem(userId, "In House Cook");
+      setIsLoadingContacts(true);
+      setContactsError(null);
+
+      try {
+        const res = await ContactNameItem(userId, "Inside Cook");
 
         if (res?.data?.data) {
           const formattedContacts = res.data.data["Party Details"].map(
@@ -95,16 +116,23 @@ export default function SidebarInsideModal({
           );
 
           setContactNames(formattedContacts);
+        } else {
+          console.warn("No contact data received");
+          setContactNames([]);
         }
       } catch (error) {
-        console.error("Error fetching contact name:", error);
+        console.error("Error fetching contact names:", error);
+        setContactsError("Failed to load contacts");
+        setContactNames([]);
+      } finally {
+        setIsLoadingContacts(false);
       }
     };
 
     if (open) {
-      FetchContactName();
+      fetchContactNames();
     }
-  }, [open]);
+  }, [open, userId]);
 
   const handleAddRow = () => {
     setMenuAllocations((prev) => [
@@ -163,6 +191,18 @@ export default function SidebarInsideModal({
     setMenuAllocations((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleWhatsAppShare = (allocation) => {
+    const message = `Hello ${allocation.partyName},%0A%0AYou have been assigned for:%0AItem: ${row?.itemName}%0ACategory: ${row?.categoryName}%0APerson Count: ${allocation.person}%0ARemarks: ${allocation.remarks || "N/A"}%0A%0AThank you!`;
+    const whatsappUrl = `https://wa.me/${allocation.contactNumber}?text=${message}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const rawMaterials = row?.menuItemRawMaterials || [];
+  const totalRawMaterialCost = rawMaterials.reduce(
+    (sum, item) => sum + (item.rate || 0),
+    0
+  );
+
   return (
     <AnimatePresence>
       {open && (
@@ -196,6 +236,12 @@ export default function SidebarInsideModal({
                   <div className="text-[13px] text-gray-600 mt-1">
                     {row?.categoryName} - {row?.itemName}
                   </div>
+                  {row?.totalRate > 0 && (
+                    <div className="text-[12px] text-blue-600 mt-0.5">
+                      Total Rate: ₹{row.totalRate} | Cost: ₹
+                      {row.dishCosting || 0}
+                    </div>
+                  )}
                 </div>
                 <button
                   className="h-9 px-3 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -207,7 +253,7 @@ export default function SidebarInsideModal({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
-                <div className="flex items-end gap-4">
+                <div className="flex items-end gap-4 flex-wrap">
                   <div className="flex items-center gap-2">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center">
                       {functionName || "Function"}
@@ -232,7 +278,7 @@ export default function SidebarInsideModal({
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="flex flex-col w-[50px] gap-1">
+                    <div className="flex flex-col w-[80px] gap-1">
                       <div className="text-[12px] text-gray-600">
                         <FormattedMessage
                           id="SIDEBAR_MODAL.PERSON"
@@ -241,7 +287,7 @@ export default function SidebarInsideModal({
                       </div>
                       <div className="flex gap-3">
                         <input
-                          className="input"
+                          className="h-9 px-3 rounded-md border border-gray-300 text-sm w-full"
                           type="text"
                           value={personCount || ""}
                           readOnly
@@ -257,7 +303,81 @@ export default function SidebarInsideModal({
                       />
                     </button>
                   </div>
+                  {rawMaterials.length > 0 && (
+                    <div className="flex items-center gap-2 ml-auto">
+                      <button
+                        className="btn btn-sm btn-light border border-gray-300"
+                        onClick={() => setShowRawMaterials(!showRawMaterials)}
+                      >
+                        {showRawMaterials ? "Hide" : "Show"} Raw Materials (
+                        {rawMaterials.length})
+                      </button>
+                    </div>
+                  )}
                 </div>
+
+                {showRawMaterials && rawMaterials.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 rounded-xl border border-blue-200 bg-blue-50/30 overflow-hidden"
+                  >
+                    <div className="px-4 py-2 bg-blue-100/50 border-b border-blue-200">
+                      <h3 className="text-[14px] font-semibold text-blue-900">
+                        Raw Materials Required
+                      </h3>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 text-[12px] font-medium text-gray-700 mb-2 pb-2 border-b border-blue-200">
+                        <div>Material Name</div>
+                        <div className="text-right">Weight</div>
+                        <div className="text-right">Unit</div>
+                        <div className="text-right">Rate</div>
+                      </div>
+                      {rawMaterials.map((material, idx) => (
+                        <div
+                          key={idx}
+                          className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 text-[13px] py-2 border-b border-blue-100 last:border-0"
+                        >
+                          <div className="text-gray-800">
+                            {material.rawMaterial?.nameEnglish || "N/A"}
+                            <span className="text-[11px] text-gray-500 ml-2">
+                              (
+                              {material.rawMaterial?.rawMaterialCat
+                                ?.nameEnglish || ""}
+                              )
+                            </span>
+                          </div>
+                          <div className="text-right text-gray-700">
+                            {material.weight || 0}
+                          </div>
+                          <div className="text-right text-gray-700">
+                            {material.unit?.symbolEnglish || "N/A"}
+                          </div>
+                          <div className="text-right text-gray-700">
+                            ₹{material.rate || 0}
+                          </div>
+                        </div>
+                      ))}
+                      {totalRawMaterialCost > 0 && (
+                        <div className="mt-2 pt-2 border-t-2 border-blue-300 flex justify-end">
+                          <div className="text-[14px] font-semibold text-blue-900">
+                            Total Cost: ₹{totalRawMaterialCost.toFixed(2)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
+                {contactsError && (
+                  <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200">
+                    <div className="text-[13px] text-red-800">
+                      {contactsError}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-end mt-3">
                   <button
@@ -305,7 +425,7 @@ export default function SidebarInsideModal({
                     </div>
                   </div>
 
-                  {menuAllocations.map((row, idx) => (
+                  {menuAllocations.map((allocation, idx) => (
                     <div
                       key={idx}
                       className="grid grid-cols-[64px_2fr_1.5fr_1fr_2fr_88px] items-start gap-3 px-4 py-3 border-t border-gray-100"
@@ -316,16 +436,23 @@ export default function SidebarInsideModal({
 
                       <div>
                         <BaseSelect
-                          value={row.partyName}
+                          value={allocation.partyName}
                           onChange={(e) =>
                             handlePartyChange(idx, e.target.value)
                           }
+                          disabled={isLoadingContacts}
                         >
                           <option value="">
-                            <FormattedMessage
-                              id="COMMON.SELECT_NAME"
-                              defaultMessage="Select Name"
-                            />
+                            {isLoadingContacts ? (
+                              "Loading..."
+                            ) : contactsError ? (
+                              "Error loading contacts"
+                            ) : (
+                              <FormattedMessage
+                                id="COMMON.SELECT_NAME"
+                                defaultMessage="Select Name"
+                              />
+                            )}
                           </option>
                           {contactNames.map((c) => (
                             <option key={c.id} value={c.partyName}>
@@ -342,13 +469,9 @@ export default function SidebarInsideModal({
                             id: "COMMON.NUMBER",
                             defaultMessage: "Number",
                           })}
-                          value={row.contactNumber}
+                          value={allocation.number}
                           onChange={(e) =>
-                            handleInputChange(
-                              idx,
-                              "contactNumber",
-                              e.target.value
-                            )
+                            handleInputChange(idx, "number", e.target.value)
                           }
                         />
                       </div>
@@ -360,7 +483,7 @@ export default function SidebarInsideModal({
                             id: "COMMON.PERSON",
                             defaultMessage: "Person",
                           })}
-                          value={row.person}
+                          value={allocation.person}
                           onChange={(e) =>
                             handleInputChange(idx, "person", e.target.value)
                           }
@@ -374,17 +497,17 @@ export default function SidebarInsideModal({
                             id: "COMMON.REMARKS",
                             defaultMessage: "Remarks",
                           })}
-                          value={row.remarks}
+                          value={allocation.remarks}
                           onChange={(e) =>
                             handleInputChange(idx, "remarks", e.target.value)
                           }
                         />
                       </div>
 
-                      <div className="flex items-center justify-center pt-1">
+                      <div className="flex items-center justify-center gap-1 pt-1">
                         <button
                           type="button"
-                          className="btn btn-sm btn-icon btn-clear"
+                          className="btn btn-sm btn-icon btn-clear hover:bg-red-50"
                           title="Remove Row"
                           onClick={() => handleRemoveRow(idx)}
                         >
@@ -392,8 +515,12 @@ export default function SidebarInsideModal({
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Share on WhatsApp"
+                          onClick={() => handleWhatsAppShare(allocation)}
+                          disabled={
+                            !allocation.contactNumber || !allocation.partyName
+                          }
                         >
                           <WhatsAppIcon />
                         </button>
@@ -401,6 +528,17 @@ export default function SidebarInsideModal({
                     </div>
                   ))}
                 </div>
+
+                {row?.remarks && (
+                  <div className="mt-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                    <div className="text-[12px] font-medium text-yellow-800 mb-1">
+                      Item Remarks:
+                    </div>
+                    <div className="text-[13px] text-yellow-900">
+                      {row.remarks}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between gap-2">

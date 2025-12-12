@@ -485,7 +485,13 @@ const EventMenuAllocationPage = () => {
             menuCategoryId: item.menuCategoryId,
             menuItemId: item.menuItemId,
             eventFunctionMenuAllocations:
-              item.eventFunctionMenuAllocations || [],
+              item.eventFunctionMenuAllocations?.map((alloc) => ({
+                partyId: alloc.partyId || null,
+                partyName: alloc.partyName || "",
+                number: alloc.number || "",
+                person: alloc.person || "",
+                remarks: alloc.remarks || "",
+              })) || [],
             menuItemRawMaterials: [],
           })) || [];
 
@@ -631,6 +637,8 @@ const EventMenuAllocationPage = () => {
   }, [rows, eventId, activeFunction, searchTerm]);
 
   const handleInsideSave = (saveData) => {
+    console.log(saveData, "inside save data");
+
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
@@ -903,9 +911,29 @@ const EventMenuAllocationPage = () => {
               };
             }) || [];
 
+        const insideAllocations =
+          r.eventFunctionMenuAllocations
+            ?.filter((a) => a.isInside)
+            .map((alloc) => ({
+              counterPrice: alloc.counterPrice || 0,
+              counterQuantity: alloc.counterQuantity || 0,
+              helperPrice: alloc.helperPrice || 0,
+              helperQuantity: alloc.helperQuantity || 0,
+              id: alloc.id || 0,
+              isInside: true,
+              number: alloc.number || "",
+              remarks: alloc.remarks || "",
+              partyId: alloc.partyId || 0,
+              price: alloc.price || 0,
+              quantity: alloc.quantity || 0,
+              serviceType: alloc.serviceType || "",
+              totalPrice: alloc.totalPrice || 0,
+              unitId: alloc.unitId || 0,
+            })) || [];
         const menuAllocationOrders = [
           ...outsideAllocations,
           ...chefLabourAllocations,
+          ...insideAllocations,
         ];
 
         const rawMaterialsFromAllocation =
