@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState, useCallback } from "react";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { toAbsoluteUrl } from "@/utils";
 import MenuItemGrid from "./components/MenuItemGrid";
 import SelectedItems from "./components/SelectedItems";
@@ -65,6 +64,8 @@ const EventPlanningPage = () => {
   const [categoryNotes, setCategoryNotes] = useState("");
   const userId = localStorage.getItem("userId");
   const [editPax, setEditPax] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+
   const fetchEventData = async () => {
     try {
       setLoading(true);
@@ -236,32 +237,6 @@ const EventPlanningPage = () => {
     loadSavedMenuPrep();
   }, [selectedFunction, loadSavedMenuPrep]);
 
-  useEffect(() => {
-    if (!selectedFunction) return;
-    if (defaultRate === "" || defaultRate === null) return;
-
-    setSelectedByFunction((prev) => {
-      const bucket = prev[selectedFunction];
-      if (!bucket) return prev;
-
-      const updatedCat = {};
-      Object.keys(bucket.categories).forEach((c) => {
-        updatedCat[c] = bucket.categories[c].map((it) => ({
-          ...it,
-          rate: Number(defaultRate),
-        }));
-      });
-
-      return {
-        ...prev,
-        [selectedFunction]: {
-          ...bucket,
-          categories: updatedCat,
-        },
-      };
-    });
-  }, [defaultRate, selectedFunction]);
-
   const getSelectedIdsForFunction = useCallback(
     (functionId) => {
       const bucket = selectedByFunction[functionId];
@@ -278,6 +253,7 @@ const EventPlanningPage = () => {
 
   const onToggleSelectItem = useCallback(
     (menuItem, overrideCategoryName) => {
+      setIsDirty(true);
       const functionId = selectedFunction;
       if (!functionId) return;
 
@@ -321,10 +297,7 @@ const EventPlanningPage = () => {
           };
         }
 
-        const appliedRate =
-          defaultRate !== ""
-            ? Number(defaultRate)
-            : Number(menuItem.itemPrice ?? 0);
+        const appliedRate = Number(menuItem.itemPrice ?? menuItem.rate ?? 0);
 
         list.push({
           id: itemId,
@@ -357,6 +330,7 @@ const EventPlanningPage = () => {
 
   const onRemoveSelectedItem = useCallback(
     (functionId, categoryName, itemId) => {
+      setIsDirty(true);
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -384,6 +358,7 @@ const EventPlanningPage = () => {
   );
 
   const onDragEndSelected = useCallback((functionId, newState) => {
+    setIsDirty(true);
     setSelectedByFunction((prev) => ({
       ...prev,
       [functionId]: newState,
@@ -392,6 +367,8 @@ const EventPlanningPage = () => {
 
   const onRateChange = useCallback(
     (functionId, categoryName, itemId, newRate) => {
+      setIsDirty(true);
+
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -624,6 +601,7 @@ const EventPlanningPage = () => {
       }
 
       const resp = await AddMenuprep(payload);
+      setIsDirty(false);
       const newId = resp?.data?.data?.id || payload.id;
 
       setSelectedByFunction((prev) => ({
@@ -657,6 +635,8 @@ const EventPlanningPage = () => {
   // Add this new handler after onRateChange
   const onInstructionsChange = useCallback(
     (functionId, categoryName, itemId, newInstructions) => {
+      setIsDirty(true);
+
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -719,6 +699,7 @@ const EventPlanningPage = () => {
 
   const handleNoteSave = (updatedSlogan) => {
     if (!selectedFunction || !currentItemForNotes) return;
+    setIsDirty(true);
 
     setSelectedByFunction((prev) => {
       const bucket = prev[selectedFunction];
@@ -749,6 +730,7 @@ const EventPlanningPage = () => {
 
   const handleCategoryNoteSave = ({ notes, slogan }) => {
     if (!selectedFunction || !currentCategoryForNotes) return;
+    setIsDirty(true);
 
     setSelectedByFunction((prev) => {
       const bucket = prev[selectedFunction] || {};
@@ -1004,7 +986,7 @@ const EventPlanningPage = () => {
                       Rate:
                     </span>
                     <input
-                      type="number"
+                      type="text"
                       min={0}
                       className="input input-sm w-28"
                       value={defaultRate}
@@ -1229,7 +1211,7 @@ const EventPlanningPage = () => {
             <button
               type="button"
               onClick={handleSaveOrUpdate}
-              disabled={isSaving}
+              disabled={isSaving || !isDirty}
               className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (

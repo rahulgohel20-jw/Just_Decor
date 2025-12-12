@@ -62,6 +62,7 @@ export default function SidebarModal({
           price: alloc.price || "",
           quantity: alloc.quantity || "",
           unitName: alloc.unitName || "Nos",
+          unitId: alloc.unitId || null,
           totalPrice: totalPrice,
           isOutside: alloc.isOutside,
         };
@@ -75,6 +76,7 @@ export default function SidebarModal({
           price: "",
           quantity: "",
           unitName: "Nos",
+          unitId: null,
           totalPrice: "",
           isOutside: true,
         },
@@ -145,6 +147,7 @@ export default function SidebarModal({
         price: "",
         quantity: "",
         unitName: "Nos",
+        unitId: null,
         totalPrice: "",
         isOutside: true,
       },
@@ -172,6 +175,17 @@ export default function SidebarModal({
     setMenuAllocations(updated);
   };
 
+  const handleUnitChange = (index, unitId) => {
+    const updated = [...menuAllocations];
+
+    const selectedUnit = unit.find((u) => u.id === unitId);
+
+    updated[index].unitId = unitId;
+    updated[index].unitName = selectedUnit?.unitName || "";
+
+    setMenuAllocations(updated);
+  };
+
   const handleSave = () => {
     const saveData = {
       eventId,
@@ -179,12 +193,23 @@ export default function SidebarModal({
       menuItemId: row?.menuItemId,
       menuCategoryId: row?.menuCategoryId,
       allocationType: "outside",
-      allocations: menuAllocations.filter(
-        (alloc) => alloc.partyId && (alloc.price || alloc.quantity)
-      ),
+      allocations: menuAllocations
+        .filter((alloc) => alloc.partyId && (alloc.price || alloc.quantity))
+        .map((alloc) => ({
+          partyId: alloc.partyId,
+          partyName: alloc.partyName,
+          price: alloc.price,
+          quantity: alloc.quantity,
+          unitId: alloc.unitId,
+          unitName: alloc.unitName,
+          totalPrice: alloc.totalPrice,
+          isOutside: true,
+        })),
     };
 
     if (onSave) {
+      console.log(saveData);
+
       onSave(saveData);
     }
 
@@ -281,8 +306,7 @@ export default function SidebarModal({
                         <input
                           className="input"
                           type="text"
-                         
-                          value={personCount || ""} 
+                          value={personCount || ""}
                           readOnly
                         />
                       </div>
@@ -410,20 +434,21 @@ export default function SidebarModal({
 
                       <div>
                         <BaseSelect
-                          value={row.unitName}
+                          value={row.unitId || ""}
                           onChange={(e) =>
-                            handleInputChange(idx, "unitName", e.target.value)
+                            handleUnitChange(idx, Number(e.target.value))
                           }
                         >
                           <option value="">
                             <FormattedMessage
                               id="COMMON.SELECT_NAME"
-                              defaultMessage="Select Name"
+                              defaultMessage="Select Unit"
                             />
                           </option>
-                          {unit.map((c) => (
-                            <option key={c.id} value={c.unitName}>
-                              {c.unitName}
+
+                          {unit.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.unitName}
                             </option>
                           ))}
                         </BaseSelect>

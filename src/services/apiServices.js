@@ -578,6 +578,7 @@ export const UpdateStatusKitchenArea = (id, isActive = true) => {
 // file upload
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
+
 };
 
 export const uploadFileformenu = (formData, params) => {
@@ -621,6 +622,11 @@ export const UpdateMenuItem = (id, data) => {
 //stautsmeniitem
 export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
+};
+
+export const SyncRawmaterialMenuallocation = (id) => {
+  return DELETE(`
+menuallocation/syncrawmaterialitems?eventFunctionid=${id}`);
 };
 
 // Change Password
