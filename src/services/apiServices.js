@@ -579,6 +579,7 @@ export const UpdateStatusKitchenArea = (id, isActive = true) => {
 // file upload
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
+
 };
 
 export const uploadFileformenu = (formData, params) => {
@@ -1119,3 +1120,7 @@ export const DeleteTicket = (Id) => {
   return DELETE(`/ticket/delete?id=${Id}`);
 };
 
+
+export const AddTickets = (data) => {
+  return POST(`/ticket/add`, data);
+};
