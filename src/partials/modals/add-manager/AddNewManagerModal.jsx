@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import {
+  Fetchmanager,
+  fetchStatesByCountry,
+  fetchCitiesByState,
+} from "@/services/apiServices";
 export default function AddNewManagerModal({ open, onClose }) {
   const [form, setForm] = useState({
     manager: "",
@@ -13,6 +17,14 @@ export default function AddNewManagerModal({ open, onClose }) {
     remarks: "",
     image: null,
   });
+  const [showGST, setShowGST] = useState(false);
+  const [managers, setManagers] = useState([]);
+
+  useEffect(() => {
+    if (open) {
+      FetchManager();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -21,12 +33,66 @@ export default function AddNewManagerModal({ open, onClose }) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open, onClose]);
 
+  useEffect(() => {
+    const loadStates = async () => {
+      try {
+        const stateRes = await fetchStatesByCountry(1);
+        const stateArray = stateRes?.data?.data?.["state Details"];
+        if (Array.isArray(stateArray)) {
+          setStates(stateArray);
+        } else {
+          setStates([]);
+        }
+      } catch (err) {
+        console.error("Failed to load states:", err);
+        setStates([]);
+      }
+    };
+    loadStates();
+  }, []);
+
+  const handleStateChange = async (stateId) => {
+    const numericStateId = Number(stateId);
+    setLeadData((prev) => ({ ...prev, state: numericStateId }));
+
+    try {
+      const cityRes = await fetchCitiesByState(numericStateId);
+      const cityArray = cityRes?.data?.data?.["City Details"] || [];
+
+      if (Array.isArray(cityArray)) {
+        setCities(cityArray);
+      } else {
+        setCities([]);
+      }
+    } catch (err) {
+      console.error("Failed to load cities:", err);
+      setCities([]);
+    }
+  };
+
   const handleInput = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleFile = (e) => {
     setForm({ ...form, image: e.target.files[0] });
+  };
+
+  const FetchManager = () => {
+    Fetchmanager(1)
+      .then((res) => {
+        if (res?.data?.data?.userDetails) {
+          const managerList = res.data.data.userDetails.map((man) => ({
+            value: man.id,
+            label: man.firstName || "-",
+          }));
+          setManagers(managerList);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch managers:", err);
+        setManagers([]);
+      });
   };
 
   return (
@@ -83,11 +149,15 @@ export default function AddNewManagerModal({ open, onClose }) {
                       name="manager"
                       value={form.manager}
                       onChange={handleInput}
-                      className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2"
                     >
                       <option value="">Select a manager</option>
-                      <option value="1">Manager 1</option>
-                      <option value="2">Manager 2</option>
+
+                      {managers.map((mgr) => (
+                        <option key={mgr.value} value={mgr.value}>
+                          {mgr.label}
+                        </option>
+                      ))}
                     </select>
 
                     {/* Custom dropdown arrow */}
@@ -180,6 +250,7 @@ export default function AddNewManagerModal({ open, onClose }) {
                       <option value="">Select payment type</option>
                       <option value="cash">Cash</option>
                       <option value="online">Online</option>
+                      <option value="upi">UPI</option>
                     </select>
                     <svg
                       className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -223,6 +294,115 @@ export default function AddNewManagerModal({ open, onClose }) {
                     placeholder="Add any notes here..."
                     className="mt-1 w-full h-24 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="text-blue-600 text-sm underline"
+                    onClick={() => setShowGST(!showGST)}
+                  >
+                    {showGST
+                      ? "Hide GST & Address"
+                      : "Add GST & Address (Optional)"}
+                  </button>
+
+                  {showGST && (
+                    <div className="mt-4 space-y-6">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          GSTIN
+                        </label>
+                        <input
+                          type="text"
+                          name="gst"
+                          value={form.gst}
+                          onChange={handleInput}
+                          placeholder="GSTIN"
+                          className="input mt-1 w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">
+                          Billing address
+                        </label>
+
+                        <div className="grid grid-cols-2 gap-4 mt-2">
+                          <input
+                            type="text"
+                            name="billFlat"
+                            value={form.billFlat || ""}
+                            onChange={handleInput}
+                            placeholder="Flat / Building Number"
+                            className="input w-full"
+                          />
+
+                          <input
+                            type="text"
+                            name="billArea"
+                            value={form.billArea || ""}
+                            onChange={handleInput}
+                            placeholder="Area / Locality"
+                            className="input w-full"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mt-4">
+                          <input
+                            type="text"
+                            name="billPincode"
+                            value={form.billPincode || ""}
+                            onChange={handleInput}
+                            placeholder="Pincode"
+                            className="input w-full"
+                          />
+                          <input
+                            type="text"
+                            name="billCity"
+                            value={form.billCity || ""}
+                            onChange={handleInput}
+                            placeholder="City"
+                            className="input w-full"
+                          />
+                        </div>
+
+                        <input
+                          type="text"
+                          name="billState"
+                          value={form.billState || ""}
+                          onChange={handleInput}
+                          placeholder="State"
+                          className="input mt-4 w-full"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={form.sameShipping || false}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setForm((prev) => ({
+                              ...prev,
+                              sameShipping: checked,
+                              ...(checked
+                                ? {
+                                    shipFlat: prev.billFlat,
+                                    shipArea: prev.billArea,
+                                    shipPincode: prev.billPincode,
+                                    shipCity: prev.billCity,
+                                    shipState: prev.billState,
+                                  }
+                                : {}),
+                            }));
+                          }}
+                        />
+                        <span className="text-sm text-gray-700">
+                          Shipping address same as billing address?
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Image Upload */}

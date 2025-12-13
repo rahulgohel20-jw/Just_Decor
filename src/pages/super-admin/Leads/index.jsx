@@ -80,8 +80,6 @@ const SuperLeads = () => {
       const response = await GetLeadByID(lead.leadId);
       Swal.close();
 
-      console.log("=== API RESPONSE ===", response);
-
       const dataArray = response?.data?.data;
       if (!dataArray || !Array.isArray(dataArray) || dataArray.length === 0) {
         console.error("No lead data returned from API");
@@ -90,17 +88,14 @@ const SuperLeads = () => {
       }
 
       const fullLeadData = dataArray[0];
-      console.log("=== FULL LEAD DATA ===", fullLeadData);
-
       const mappedFollowUps = (fullLeadData.followUpDetails || []).map(
         (fu) => ({
           id: fu.id,
-          followUpType: fu.followUpType,
-          followUpDate: fu.followUpDate,
-          // clientRemarks: fu.clientRemarks || "",
-          // employeeRemarks: fu.employeeRemarks || "",
-          // emailId: fullLeadData.emailId || "",
-          // contactNumber: fullLeadData.contactNumber || "",
+          followUpType: fu.followUpType || "",
+          followUpStatus: fu.followUpStatus || "Open", // ✅ ADD
+          followUpDate: fu.followUpDate || "",
+          clientRemarks: fu.clientRemarks || "",
+          employeeRemarks: fu.employeeRemarks || "",
         })
       );
 
@@ -125,8 +120,6 @@ const SuperLeads = () => {
         productType: fullLeadData.planId,
         followUpDetails: mappedFollowUps,
       };
-
-      console.log("=== MAPPED DATA TO NAVIGATE ===", mappedData);
 
       navigate("/super-leads/addlead", { state: { leadData: mappedData } });
     } catch (error) {
@@ -153,11 +146,14 @@ const SuperLeads = () => {
             leadType: item.leadType,
             leadStatus: item.leadStatus,
             leadSource: item.leadSource,
-            leadAssign: item.leadAssignId,
-            productType: item.productType,
+            leadAssign: item.leadAssignName || "-", // 👈 name shown
+            productType: item.planName || "-",
+
             clientName: item.clientName,
             contactNumber: item.contactNumber,
-            city: item.cityId,
+
+            cityId: item.cityId,
+            cityName: item.cityName || "-",
             createdAt: item.createdAt?.split("T")[0],
           }));
 

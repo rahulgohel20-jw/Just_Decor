@@ -2,13 +2,18 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/container";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import FollowUpModal from "../../../../partials/modals/add-followup-lead/FollowUpModal";
-import { Select, Input, Button } from "antd";
+import { Select, Input } from "antd";
 import { Fragment } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toAbsoluteUrl } from "@/utils";
+import { EyeIcon } from "lucide-react";
+
 import dayjs from "dayjs";
+const { Option } = Select;
+
 import {
   AddLead,
   fetchStatesByCountry,
@@ -22,21 +27,30 @@ import {
 import Swal from "sweetalert2";
 
 export default function AddLeadPage() {
-  const location = useLocation(); // ADDED THIS
-  const navigate = useNavigate(); // ADDED THIS
+  const location = useLocation();
+  const navigate = useNavigate();
   const editData = location.state?.leadData;
   const isEditMode = !!editData;
 
   const [isFollowUpOpen, setIsFollowUpOpen] = useState(false);
-  const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [managers, setManagers] = useState([]);
   const [plans, setPlans] = useState([]);
   const [followUps, setFollowUps] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+  const [viewingFollowUp, setViewingFollowUp] = useState("");
+  const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
+  const [selectedGetLead, setSelectedGetLead] = useState("");
+  const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
+    start: "",
+    end: "",
+  });
+  const [customRangeGetLead, setCustomRangeGetLead] = useState({
+    start: "",
+    end: "",
+  });
+
   const [totalLeads, setTotalLeads] = useState(0);
 
   const [leadData, setLeadData] = useState({
@@ -47,6 +61,7 @@ export default function AddLeadPage() {
     leadSource: "",
     leadRemark: "",
     leadAssign: "",
+    leadAssignName: "",
     selectPrefix: "",
     clientName: "",
     emailId: "",
@@ -54,63 +69,151 @@ export default function AddLeadPage() {
     address: "",
     pinCode: "",
     city: "",
+    cityName: "",
     state: "",
+    stateName: "",
     overallRemark: "",
     plan: "",
+    planName: "",
     followUpDetails: [],
   });
 
-  const fetchRenewalData = async (value) => {
+  const getDisplayNames = () => {
+    const stateName =
+      leadData.stateName ||
+      states.find((s) => s.id === leadData.state)?.name ||
+      "";
+    const cityName =
+      leadData.cityName ||
+      cities.find((c) => c.id === leadData.city)?.name ||
+      "";
+    const managerName =
+      leadData.leadAssignName ||
+      managers.find((m) => m.value === leadData.leadAssign)?.label ||
+      "";
+    const planName =
+      leadData.planName ||
+      plans.find((p) => p.value === leadData.plan)?.label ||
+      "";
+
+    return { stateName, cityName, managerName, planName };
+  };
+
+  const fetchCreatedAtData = async (value) => {
     try {
-      let start = "";
-      let end = "";
+      let start = null;
+      let end = null;
 
       if (value === "1") {
-        const today = dayjs();
-        start = today.format("DD/MM/YYYY");
-        end = today.format("DD/MM/YYYY");
+        start = dayjs().format("DD/MM/YYYY");
       } else if (value === "2") {
-        const today = dayjs();
-        start = today.format("DD/MM/YYYY");
-        end = today.add(1, "month").format("DD/MM/YYYY");
+        start = dayjs().format("DD/MM/YYYY");
+        end = dayjs().add(1, "month").format("DD/MM/YYYY");
+      } else if (value === "4") {
+        start = dayjs().subtract(1, "month").format("DD/MM/YYYY");
+        end = dayjs().format("DD/MM/YYYY");
       } else if (value === "3") {
-        start = dayjs(customRange.start).format("DD/MM/YYYY");
-        end = dayjs(customRange.end).format("DD/MM/YYYY");
-      } else {
-        start = null;
-        end = null;
+        start = dayjs(customRangeCreatedAt.start).format("DD/MM/YYYY");
+        end = dayjs(customRangeCreatedAt.end).format("DD/MM/YYYY");
       }
 
-      // Only include leadId if it exists
       const payload = {
         startDate: start,
         endDate: end,
-        isCreated: true,
+        isCreated: false, // ✅ followUpDate filter
+        leadId: leadData.id || null, // optional
       };
-      if (leadData.id && leadData.id > 0) {
-        payload.leadId = leadData.id;
-      }
 
       const res = await GetFilteredFollowUps(payload);
 
-      if (res?.data?.data) {
-        setFollowUps(res.data.data);
-        setTotalLeads(res.data.data.length);
-      } else {
-        setFollowUps([]);
-        setTotalLeads(0);
-      }
+      setFollowUps(res?.data?.data || []);
+      setTotalLeads(res?.data?.data?.length || 0);
     } catch (err) {
-      console.error("Failed to fetch follow-ups:", err);
+      console.error(err);
+      setFollowUps([]);
+      setTotalLeads(0);
+    }
+  };
+
+  const fetchGetLeadData = async (value) => {
+    try {
+      let start = null;
+      let end = null;
+
+      if (value === "1") {
+        // Today
+        start = dayjs().format("DD/MM/YYYY");
+        end = dayjs().format("DD/MM/YYYY");
+      } else if (value === "2") {
+        // Next 1 Month
+        start = dayjs().format("DD/MM/YYYY");
+        end = dayjs().add(1, "month").format("DD/MM/YYYY");
+      } else if (value === "4") {
+        // ✅ Last Month (FIX)
+        start = dayjs().subtract(1, "month").format("DD/MM/YYYY");
+        end = dayjs().format("DD/MM/YYYY");
+      } else if (value === "3") {
+        // Custom
+        start = dayjs(customRangeGetLead.start).format("DD/MM/YYYY");
+        end = dayjs(customRangeGetLead.end).format("DD/MM/YYYY");
+      }
+
+      const payload = {
+        startDate: start,
+        endDate: end,
+        isCreated: true, // 🔥 lead.createdAt
+        leadId: leadData.id || null,
+      };
+
+      const res = await GetFilteredFollowUps(payload);
+
+      setFollowUps(res?.data?.data || []);
+      setTotalLeads(res?.data?.data?.length || 0);
+    } catch (err) {
+      console.error("Get Lead error:", err);
       setFollowUps([]);
       setTotalLeads(0);
     }
   };
 
   useEffect(() => {
-    if (isEditMode && editData) {
-      console.log("Edit Mode - Received Data:", editData);
+    if (isEditMode && editData && managers.length > 0) {
+      setLeadData((prev) => ({
+        ...prev,
+        leadAssign: editData.leadAssignId || editData.leadAssign || undefined,
+      }));
+    }
+  }, [managers, isEditMode, editData]);
 
+  useEffect(() => {
+    if (isEditMode && editData && plans.length > 0) {
+      setLeadData((prev) => ({
+        ...prev,
+        plan: editData.planId || editData.productType || undefined,
+      }));
+    }
+  }, [plans, isEditMode, editData]);
+
+  useEffect(() => {
+    if (isEditMode && editData) {
+      const stateIdToUse = editData.stateId || editData.state;
+      if (stateIdToUse) {
+        handleStateChange(stateIdToUse);
+      }
+    }
+  }, [isEditMode, editData]);
+
+  useEffect(() => {
+    if (isEditMode && editData && cities.length > 0) {
+      setLeadData((prev) => ({
+        ...prev,
+        city: editData.cityId || editData.city || undefined,
+      }));
+    }
+  }, [cities, isEditMode, editData]);
+
+  useEffect(() => {
+    if (isEditMode && editData) {
       setLeadData({
         id: editData.id || 0,
         leadCode: editData.leadCode || "",
@@ -118,50 +221,40 @@ export default function AddLeadPage() {
         leadStatus: editData.leadStatus || "",
         leadSource: editData.leadSource || "",
         leadRemark: editData.leadRemark || "",
-
-        // FIXED KEYS
-        leadAssign: editData.leadAssignId || 0,
+        leadAssign: editData.leadAssignId || editData.leadAssign || 0,
+        leadAssignName: editData.leadAssignName || "",
         selectPrefix: editData.selectPrefix || "",
         clientName: editData.clientName || "",
         emailId: editData.emailId || "",
         contactNumber: editData.contactNumber || "",
         address: editData.address || "",
         pinCode: editData.pinCode || "",
-
-        // FIXED KEYS from backend
-        city: editData.cityId || 0,
-        state: editData.stateId || 0,
-        plan: editData.planId || 0,
-
+        city: editData.cityId || editData.city || 0,
+        cityName: editData.cityName || "",
+        state: editData.stateId || editData.state || 0,
+        stateName: editData.stateName || "",
+        plan: editData.planId || editData.productType || 0,
+        planName: editData.planName || "",
         overallRemark: editData.overallRemark || "",
         followUpDetails: editData.followUpDetails || [],
       });
 
-      // Load cities for the selected state
-      if (editData.state) {
-        handleStateChange(editData.state);
-      }
-
-      // Set follow-ups if they exist
       if (editData.followUpDetails && editData.followUpDetails.length > 0) {
-        const normalized = editData.followUpDetails.map((item) => ({
-          id: item.id,
-          followUpType: item.followUpType || item.followType || "",
-          followUpDate: item.followUpDate || item.followupDate || "",
-          clientRemarks: item.clientRemarks || "",
-          employeeRemarks: item.employeeRemarks || "",
+        const normalized = editData.followUpDetails.map((fu) => ({
+          id: fu.id || 0,
+          followUpType: fu.followUpType || fu.followType || "",
+          followUpStatus: fu.followUpStatus || "Open",
+          followUpDate: fu.followUpDate || "",
+          clientRemarks: fu.clientRemarks || "",
+          employeeRemarks: fu.employeeRemarks || "",
         }));
 
-        console.log("NORMALIZED SAVED FOLLOW-UPS:", normalized);
         setFollowUps(normalized);
       }
     } else {
-      // ADD MODE: Load new lead code
       const loadLeadCode = async () => {
         try {
           const res = await GetLeadCode();
-          console.log("Lead Code from backend:", res);
-
           if (res?.data?.data) {
             const leadCode = String(res.data.data).trim();
             setLeadData((prev) => ({ ...prev, leadCode }));
@@ -235,27 +328,20 @@ export default function AddLeadPage() {
   };
 
   const handleSaveFollowUp = (followUp) => {
-    console.log("RAW NEW FOLLOW-UP FROM MODAL:", followUp);
-
     const normalized = {
       id: followUp.id || 0,
       followUpType: followUp.followType || followUp.followUpType || "",
+      followUpStatus: followUp.followUpStatus || "Open",
       followUpDate: followUp.followupDate || followUp.followUpDate || "",
       clientRemarks: followUp.clientRemarks || "",
       employeeRemarks: followUp.employeeRemarks || "",
     };
-
-    console.log("NORMALIZED FOLLOW-UP:", normalized);
 
     setFollowUps((prev) => [...prev, normalized]);
   };
 
   const handleSaveLead = async () => {
     try {
-      console.log("🔥 Saving Lead — Current leadData:", leadData);
-      console.log("🔥 followUps:", followUps);
-
-      // IMPORTANT FIX — ensure leadData.id exists
       const finalLeadId = isEditMode ? Number(leadData.id) : 0;
 
       const payload = {
@@ -276,43 +362,43 @@ export default function AddLeadPage() {
         selectPrefix: leadData.selectPrefix || "",
         stateId: leadData.state ? Number(leadData.state) : 0,
 
-        // 🟩 FIXED FOLLOW UP PAYLOAD
         followUpDetails: followUps.map((fu) => ({
           id: fu.id ? Number(fu.id) : 0,
-
-          // FIXED — Backend requires this EXACT key
           leadId: finalLeadId,
-
           followUpType: fu.followUpType || fu.followType || "",
-
+          followUpStatus: fu.followUpStatus || "Open",
           followUpDate: fu.followUpDate || fu.followupDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
         })),
       };
 
-      console.log("📦 FINAL PAYLOAD SENT TO API:", payload);
-
       let response;
       if (isEditMode) {
-        // -------- UPDATE API --------
         response = await UpdateleadbyID(finalLeadId, payload);
+        const apiData = response?.data || response;
+        const isSuccess = apiData?.success === true;
 
-        if (response?.success || response?.status === "success") {
-          Swal.fire("Success", "Lead updated successfully!", "success");
+        if (isSuccess) {
+          const successMsg = apiData?.msg || "Lead updated successfully!";
+          Swal.fire("Success", successMsg, "success");
           navigate("/super-leads");
         } else {
-          Swal.fire("Error", response.msg || "Failed to update lead!", "error");
+          const errorMsg = apiData?.msg || "Failed to update lead!";
+          Swal.fire("Error", errorMsg, "error");
         }
       } else {
-        // -------- ADD API --------
         response = await AddLead(payload);
+        const apiData = response?.data || response;
+        const isSuccess = apiData?.success === true;
 
-        if (response?.success || response?.status === "success") {
-          Swal.fire("Success", "Lead added successfully!", "success");
+        if (isSuccess) {
+          const successMsg = apiData?.msg || "Lead added successfully!";
+          Swal.fire("Success", successMsg, "success");
           navigate("/super-leads");
         } else {
-          Swal.fire("Error", response.msg || "Something went wrong!", "error");
+          const errorMsg = apiData?.msg || "Something went wrong!";
+          Swal.fire("Error", errorMsg, "error");
         }
       }
     } catch (error) {
@@ -672,36 +758,37 @@ export default function AddLeadPage() {
                     />
                   </div>
 
+                  {/* ✅ CREATED AT FILTER (isCreated: false, filters by followUpDate) */}
                   <div className="filItems relative">
                     <select
                       className="select pe-7.5"
-                      value={selectedMonth}
+                      value={selectedCreatedAt}
                       onChange={(e) => {
                         const value = e.target.value;
-                        setSelectedMonth(value);
-                        fetchRenewalData(value); // call fetch for all options
+                        setSelectedCreatedAt(value);
+                        // setSelectedGetLead(""); // Reset other filter
+                        if (value && value !== "3") {
+                          fetchCreatedAtData(value);
+                        }
                       }}
                     >
-                      <option value="">Get Lead</option>
-                      <option value="1">Today</option> {/* ✅ Added */}
+                      <option value="">Created At</option>
+                      <option value="1">Today</option>
                       <option value="2">Next 1 Month</option>
+                      <option value="4">Last Month</option>
                       <option value="3">Custom Date</option>
                     </select>
-
-                    {totalLeads > 0 && (
-                      <span className="text-gray-600 text-sm">
-                        Total: {totalLeads}
-                      </span>
-                    )}
                   </div>
-                  {selectedMonth === "3" && (
+
+                  {/* Custom Date Range for Created At */}
+                  {selectedCreatedAt === "3" && (
                     <div className="flex items-center gap-2">
                       <input
                         type="date"
                         className="input"
-                        value={customRange.start}
+                        value={customRangeCreatedAt.start}
                         onChange={(e) =>
-                          setCustomRange((prev) => ({
+                          setCustomRangeCreatedAt((prev) => ({
                             ...prev,
                             start: e.target.value,
                           }))
@@ -710,9 +797,9 @@ export default function AddLeadPage() {
                       <input
                         type="date"
                         className="input"
-                        value={customRange.end}
+                        value={customRangeCreatedAt.end}
                         onChange={(e) =>
-                          setCustomRange((prev) => ({
+                          setCustomRangeCreatedAt((prev) => ({
                             ...prev,
                             end: e.target.value,
                           }))
@@ -720,12 +807,81 @@ export default function AddLeadPage() {
                       />
                       <button
                         className="btn btn-primary"
-                        disabled={!customRange.start || !customRange.end}
-                        onClick={() => fetchRenewalData("3")}
+                        disabled={
+                          !customRangeCreatedAt.start ||
+                          !customRangeCreatedAt.end
+                        }
+                        onClick={() => fetchCreatedAtData("3")}
                       >
                         Apply
                       </button>
                     </div>
+                  )}
+
+                  {/* ✅ GET LEAD FILTER (isCreated: true) */}
+                  <div className="filItems relative">
+                    <select
+                      className="select pe-7.5"
+                      value={selectedGetLead}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSelectedGetLead(value);
+                        // setSelectedCreatedAt(""); // Reset other filter
+                        if (value && value !== "3") {
+                          fetchGetLeadData(value);
+                        }
+                      }}
+                    >
+                      <option value="">Get Lead</option>
+                      <option value="1">Today</option>
+                      <option value="2">Next 1 Month</option>
+                      <option value="4">Last Month</option>
+                      <option value="3">Custom Date</option>
+                    </select>
+                  </div>
+
+                  {/* Custom Date Range for Get Lead */}
+                  {selectedGetLead === "3" && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="date"
+                        className="input"
+                        value={customRangeGetLead.start}
+                        onChange={(e) =>
+                          setCustomRangeGetLead((prev) => ({
+                            ...prev,
+                            start: e.target.value,
+                          }))
+                        }
+                      />
+                      <input
+                        type="date"
+                        className="input"
+                        value={customRangeGetLead.end}
+                        onChange={(e) =>
+                          setCustomRangeGetLead((prev) => ({
+                            ...prev,
+                            end: e.target.value,
+                          }))
+                        }
+                      />
+                      <button
+                        className="btn btn-primary"
+                        disabled={
+                          !customRangeGetLead.start || !customRangeGetLead.end
+                        }
+                        onClick={() => fetchGetLeadData("3")}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Total Leads Count */}
+                  {totalLeads > 0 && (
+                    <span className="text-gray-600 text-sm font-medium">
+                      Total: {totalLeads}
+                    </span>
                   )}
 
                   {/* Buttons pushed to right end */}
@@ -741,8 +897,13 @@ export default function AddLeadPage() {
 
                 <div className="space-y-4">
                   {followUps.length === 0 ? (
-                    <div className="text-center py-6 text-gray-500 text-sm">
-                      No Follow-Up Found
+                    <div className="flex flex-col items-center justify-center py-6 text-gray-500 text-sm">
+                      <img
+                        src={toAbsoluteUrl("/media/illustrations/nofound.jpg")}
+                        alt="No Follow-Up"
+                        className="w-48 h-48 mb-4"
+                      />
+                      <span>No Follow-Up Found</span>
                     </div>
                   ) : (
                     followUps.map((item, index) => (
@@ -758,16 +919,13 @@ export default function AddLeadPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            {/* HEADER */}
                             <div className="flex items-start justify-between mb-3">
-                              {/* LEFT SIDE */}
                               <div>
                                 <h3 className="font-semibold text-gray-900 text-sm">
                                   {leadData.clientName}
                                 </h3>
                               </div>
 
-                              {/* FOLLOW-UP TYPE + DATE */}
                               <div className="text-right ml-4">
                                 <div className="flex items-center gap-1 text-base font-medium">
                                   <span className="text-gray-500 text-sm">
@@ -788,20 +946,63 @@ export default function AddLeadPage() {
                                 </div>
                               </div>
                               <Select
-                                placeholder="-- Select Lead  Status --"
-                                className="w-[200px] placeholder-black text-black"
+                                value={item.followUpStatus}
+                                className="w-[120px]"
+                                optionLabelProp="label" // ✅ ensures selected value shows colored label
+                                onChange={(value) => {
+                                  setFollowUps((prev) =>
+                                    prev.map((fu, i) =>
+                                      i === index
+                                        ? { ...fu, followUpStatus: value }
+                                        : fu
+                                    )
+                                  );
+                                }}
                               >
-                                <Option value="type1">open</Option>
-                                <Option value="type2">close</Option>
-                                <Option value="type3"> Pending</Option>
+                                <Option
+                                  value="Open"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-green-500">
+                                      Open
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-green-500">
+                                    Open
+                                  </span>
+                                </Option>
+
+                                <Option
+                                  value="Closed"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-red-500">
+                                      Closed
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-red-500">
+                                    Closed
+                                  </span>
+                                </Option>
+
+                                <Option
+                                  value="Pending"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                      Pending
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                    Pending
+                                  </span>
+                                </Option>
                               </Select>
                             </div>
 
                             <hr className="my-3 border-gray-300" />
 
-                            {/* BOTTOM DETAILS */}
                             <div className="flex items-center gap-6 text-xs text-gray-600 flex-wrap">
-                              {/* Name */}
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
@@ -821,7 +1022,6 @@ export default function AddLeadPage() {
                                 </span>
                               </div>
 
-                              {/* Email */}
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
@@ -843,7 +1043,6 @@ export default function AddLeadPage() {
                                 </span>
                               </div>
 
-                              {/* Phone */}
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
@@ -865,22 +1064,14 @@ export default function AddLeadPage() {
                                 </span>
                               </div>
 
-                              {/* DELETE & MORE */}
                               <div className="ml-auto flex items-center gap-2">
-                                <button className="text-blue-500 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50">
-                                  <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                                    />
-                                  </svg>
+                                <button
+                                  onClick={() => {
+                                    setViewingFollowUp(null); // the specific follow-up
+                                    setIsFollowUpOpen(true);
+                                  }}
+                                >
+                                  <EyeIcon /> {/* your eye button */}
                                 </button>
 
                                 <button
@@ -944,9 +1135,13 @@ export default function AddLeadPage() {
       </Container>
       <FollowUpModal
         isOpen={isFollowUpOpen}
-        onClose={setIsFollowUpOpen}
+        onClose={(val) => {
+          setIsFollowUpOpen(val);
+          setViewingFollowUp(null);
+        }}
         onSave={handleSaveFollowUp}
         clientName={leadData.clientName}
+        viewOnlyFollowUp={viewingFollowUp}
       />
     </Fragment>
   );

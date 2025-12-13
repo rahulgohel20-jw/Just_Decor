@@ -28,6 +28,7 @@ export const columns = (onEdit, onDelete, onStatus, onView) => [
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
+    id: "action",
     accessorKey: "leadStatus",
     header: "Lead Status",
     cell: ({ row }) => {

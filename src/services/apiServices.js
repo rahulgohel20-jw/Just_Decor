@@ -1104,6 +1104,32 @@ export const Edittemplatebyid = (id, data) => {
 };
 
 
+
+export const GetAllTicketsByUserId = (id) => {
+  return GET(`/ticket/getallbyuserid?userId=${id}`);
+}
+
+export const GetAllInteraction = () => {
+  return GET(`/interaction/getall`);
+}
+
+export const AddInteraction = (data) => {
+  return POST(`/interaction/add`, data);
+};
+
+export const EditInteraction = (id, data) => {
+  return PUT(`/interaction/update?id=${id}`, data);
+};
+
+export const DeleteTicket = (Id) => {
+  return DELETE(`/ticket/delete?id=${Id}`);
+};
+
+
+export const AddTickets = (data) => {
+  return POST(`/ticket/add`, data);
+};
+
 export const AddLead =(data) => {
   return POST (`/leadmaster/add`,data);
 }
@@ -1118,7 +1144,7 @@ export const GetLeadCode = () => {
 
 
 export const DeleteLeadbyID = (id) => {
-  return DELETE(`/leadmaster/deleteById?id=${id}`); // ✅ Correct query param
+  return DELETE(`/leadmaster/deleteById?id=${id}`);
 };
 
 export const UpdateleadbyID = (id, payload) => {
