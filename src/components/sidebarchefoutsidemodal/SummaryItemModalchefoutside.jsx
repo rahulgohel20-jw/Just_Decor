@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FormattedMessage } from "react-intl";
 import { toAbsoluteUrl } from "@/utils";
+import { GetOutsideSummary } from "@/services/apiServices";
 
 const WhatsAppIcon = () => (
   <svg
@@ -31,6 +32,24 @@ export default function SummaryItemModalchefoutside({
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [open, onClose]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await GetOutsideSummary(
+          eventFunctionId,
+          eventId,
+          type
+        );
+        const data =
+          response.data.data["Menu Allocation Details"].agencyResponse;
+        console.log("Fetched summary data:", data);
+      } catch (error) {
+        console.error("Error fetching summary data:", error);
+      }
+    };
+    fetchData();
+  }, [open]);
 
   // Extract data from the API response
   const eventFunction = chefsummary?.eventFunction || {};
@@ -132,20 +151,20 @@ export default function SummaryItemModalchefoutside({
                       </div>
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-semibold text-gray-700">
-                          Total Quantity
+                          Counter
                         </span>
                         <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Counter</span>
-                          <span>Helper</span>
+                          <span>Quantity</span>
+                          <span>Price</span>
                         </div>
                       </div>
                       <div className="flex flex-col items-center">
                         <span className="text-sm font-semibold text-gray-700">
-                          Total Price
+                          Helper
                         </span>
                         <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Counter</span>
-                          <span>Helper</span>
+                          <span>Quantity</span>
+                          <span>Price</span>
                         </div>
                       </div>
                       <div className="text-sm font-semibold text-gray-700 text-center">

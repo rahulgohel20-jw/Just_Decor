@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState, useCallback } from "react";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { toAbsoluteUrl } from "@/utils";
 import MenuItemGrid from "./components/MenuItemGrid";
 import SelectedItems from "./components/SelectedItems";
@@ -7,7 +6,6 @@ import FunctionCard from "./components/FunctionCard";
 import CategoryList from "./components/CategoryList";
 import SearchInput from "./components/SearchInput";
 import { Mic, Eye, EyeOff } from "lucide-react";
-
 import Swal from "sweetalert2";
 import { Tooltip } from "antd";
 import {
@@ -65,6 +63,8 @@ const EventPlanningPage = () => {
   const [categoryNotes, setCategoryNotes] = useState("");
   const userId = localStorage.getItem("userId");
   const [editPax, setEditPax] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+
   const fetchEventData = async () => {
     try {
       setLoading(true);
@@ -118,8 +118,6 @@ const EventPlanningPage = () => {
       if (!data) return;
 
       const selectedCats = data.selectedMenuPreparationItems || [];
-      console.log(selectedCats);
-
       const flatItems = data.menuPreparationItems || [];
 
       const categories = {};
@@ -127,6 +125,8 @@ const EventPlanningPage = () => {
 
       selectedCats.forEach((cat) => {
         const catName = cat.menuCategoryName || "Uncategorized";
+        const catNameHindi = cat.menuCategoryNameHindi || catName;
+        const catNameGujarati = cat.menuCategoryNameGujarati || catName;
 
         const mappedItems = cat.selectedMenuPreparationItems.map((it) => {
           const flat = flatItems.find(
@@ -135,15 +135,19 @@ const EventPlanningPage = () => {
 
           return {
             id: Number(it.menuItemId),
-            nameEnglish: it.menuItemName,
+            nameEnglish: it.menuItemName || "",
+            nameHindi: it.menuItemNameHindi || it.menuItemName || "",
+            nameGujarati: it.menuItemNameGujarati || it.menuItemName || "",
             imagePath: flat?.imagePath || "",
             rate: Number(it.itemPrice),
             menuCategoryName: catName,
+            menuCategoryNameHindi: catNameHindi,
+            menuCategoryNameGujarati: catNameGujarati,
             catId: Number(cat.menuCategoryId || 0),
             itemSlogan: it.itemSlogan || "",
             itemNotes: it.itemNotes || "",
 
-            // ⭐ Package metadata restored from API response
+            // Package metadata
             isPackageItem: data?.menuPreparation?.isPackage || false,
             packageId: data?.menuPreparation?.packageId || 0,
             packageName: data?.menuPreparation?.packageName || "",
@@ -159,9 +163,6 @@ const EventPlanningPage = () => {
 
       const menuPrepId = data?.menuPreparation?.id || 0;
 
-      // -------------------------------
-      // ⭐ Save selected categories/items
-      // -------------------------------
       setSelectedByFunction((prev) => ({
         ...prev,
         [selectedFunction]: {
@@ -171,9 +172,7 @@ const EventPlanningPage = () => {
         _menuPrepId: menuPrepId,
       }));
 
-      // ---------------------------------
-      // ⭐ RESTORE PACKAGE STATE ON RELOAD
-      // ---------------------------------
+      // Restore package state
       const isPkg = data?.menuPreparation?.isPackage || false;
 
       if (isPkg) {
@@ -195,25 +194,23 @@ const EventPlanningPage = () => {
           [selectedFunction]: true,
         }));
 
-        // 1️⃣ mark function as package applied
-        setPackageAppliedForFunction((prev) => ({
-          ...prev,
-          [selectedFunction]: true,
-        }));
-
-        // 2️⃣ restore package categories
         setPackageCategoriesByFunction((prev) => ({
           ...prev,
-          [selectedFunction]: order, // the API categories order
+          [selectedFunction]: order,
         }));
 
-        // 3️⃣ restore package items
         const pkgItems = flatItems.map((f) => ({
           id: Number(f.menuItemId),
-          nameEnglish: f.menuItemName,
+          nameEnglish: f.menuItemName || "",
+          nameHindi: f.menuItemNameHindi || f.menuItemName || "",
+          nameGujarati: f.menuItemNameGujarati || f.menuItemName || "",
           imagePath: f.imagePath || "",
           rate: Number(f.itemPrice),
-          menuCategoryName: f.menuCategoryName,
+          menuCategoryName: f.menuCategoryName || "",
+          menuCategoryNameHindi:
+            f.menuCategoryNameHindi || f.menuCategoryName || "",
+          menuCategoryNameGujarati:
+            f.menuCategoryNameGujarati || f.menuCategoryName || "",
           catId: Number(f.menuCategoryId || 0),
           isPackageItem: true,
           packageId: pkgId,
@@ -236,32 +233,6 @@ const EventPlanningPage = () => {
     loadSavedMenuPrep();
   }, [selectedFunction, loadSavedMenuPrep]);
 
-  useEffect(() => {
-    if (!selectedFunction) return;
-    if (defaultRate === "" || defaultRate === null) return;
-
-    setSelectedByFunction((prev) => {
-      const bucket = prev[selectedFunction];
-      if (!bucket) return prev;
-
-      const updatedCat = {};
-      Object.keys(bucket.categories).forEach((c) => {
-        updatedCat[c] = bucket.categories[c].map((it) => ({
-          ...it,
-          rate: Number(defaultRate),
-        }));
-      });
-
-      return {
-        ...prev,
-        [selectedFunction]: {
-          ...bucket,
-          categories: updatedCat,
-        },
-      };
-    });
-  }, [defaultRate, selectedFunction]);
-
   const getSelectedIdsForFunction = useCallback(
     (functionId) => {
       const bucket = selectedByFunction[functionId];
@@ -278,6 +249,7 @@ const EventPlanningPage = () => {
 
   const onToggleSelectItem = useCallback(
     (menuItem, overrideCategoryName) => {
+      setIsDirty(true);
       const functionId = selectedFunction;
       if (!functionId) return;
 
@@ -297,16 +269,13 @@ const EventPlanningPage = () => {
         };
 
         const categories = { ...bucket.categories };
-
         const list = categories[categoryName]
           ? [...categories[categoryName]]
           : [];
-
         const already = list.findIndex((i) => Number(i.id) === itemId);
 
         if (already > -1) {
           list.splice(already, 1);
-
           if (list.length === 0) delete categories[categoryName];
           else categories[categoryName] = list;
 
@@ -321,17 +290,36 @@ const EventPlanningPage = () => {
           };
         }
 
-        const appliedRate =
-          defaultRate !== ""
-            ? Number(defaultRate)
-            : Number(menuItem.itemPrice ?? 0);
+        const appliedRate = Number(menuItem.itemPrice ?? menuItem.rate ?? 0);
 
+        // ⭐ Store all language fields for items
         list.push({
           id: itemId,
-          nameEnglish: menuItem.nameEnglish || menuItem.menuItemName,
+          nameEnglish: menuItem.nameEnglish || menuItem.menuItemName || "",
+          nameHindi:
+            menuItem.nameHindi ||
+            menuItem.menuItemNameHindi ||
+            menuItem.nameEnglish ||
+            menuItem.menuItemName ||
+            "",
+          nameGujarati:
+            menuItem.nameGujarati ||
+            menuItem.menuItemNameGujarati ||
+            menuItem.nameEnglish ||
+            menuItem.menuItemName ||
+            "",
           imagePath: menuItem.imagePath || "",
           rate: appliedRate,
           menuCategoryName: categoryName,
+          // ⭐ Store category translations too
+          menuCategoryNameHindi:
+            menuItem.menuCategory?.nameHindi ||
+            menuItem.menuCategoryNameHindi ||
+            categoryName,
+          menuCategoryNameGujarati:
+            menuItem.menuCategory?.nameGujarati ||
+            menuItem.menuCategoryNameGujarati ||
+            categoryName,
           catId: Number(
             menuItem.menuCategory?.id || menuItem.menuCategoryId || 0
           ),
@@ -357,6 +345,7 @@ const EventPlanningPage = () => {
 
   const onRemoveSelectedItem = useCallback(
     (functionId, categoryName, itemId) => {
+      setIsDirty(true);
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -384,6 +373,7 @@ const EventPlanningPage = () => {
   );
 
   const onDragEndSelected = useCallback((functionId, newState) => {
+    setIsDirty(true);
     setSelectedByFunction((prev) => ({
       ...prev,
       [functionId]: newState,
@@ -392,6 +382,8 @@ const EventPlanningPage = () => {
 
   const onRateChange = useCallback(
     (functionId, categoryName, itemId, newRate) => {
+      setIsDirty(true);
+
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -442,22 +434,27 @@ const EventPlanningPage = () => {
         return;
       }
 
-      // Map package menus to the selectedByFunction structure
       const categories = {};
       const order = [];
-      const packageItemsFlat = []; // flat list for grid usage (optional)
+      const packageItemsFlat = [];
 
       (pkg.customPackageDetails || []).forEach((menu) => {
         const catName = menu.menuName || `Menu ${menu.menuId || ""}`;
+        const catNameHindi = menu.menuNameHindi || catName;
+        const catNameGujarati = menu.menuNameGujarati || catName;
         const catId = Number(menu.menuId || 0);
 
         const items = (menu.customPackageMenuItemDetails || []).map((it) => {
           const mapped = {
             id: Number(it.menuItemId || it.id || 0),
             nameEnglish: it.itemName || "",
-            imagePath: "", // API doesn't include images in package payload
+            nameHindi: it.itemNameHindi || it.itemName || "",
+            nameGujarati: it.itemNameGujarati || it.itemName || "",
+            imagePath: "",
             rate: Number(it.itemPrice || 0),
             menuCategoryName: catName,
+            menuCategoryNameHindi: catNameHindi,
+            menuCategoryNameGujarati: catNameGujarati,
             catId,
             isPackageItem: true,
             packageId: pkg.id,
@@ -472,12 +469,12 @@ const EventPlanningPage = () => {
           order.push(catName);
         }
       });
+
       setPackageAppliedForFunction((prev) => ({
         ...prev,
         [selectedFunction]: true,
       }));
 
-      // Save package categories and items per function
       setPackageCategoriesByFunction((prev) => ({
         ...prev,
         [selectedFunction]: order,
@@ -546,11 +543,17 @@ const EventPlanningPage = () => {
       (catName, catIndex) => {
         const items = bucket.categories[catName] || [];
 
+        const firstItem = items[0] || {};
+        const catNameHindi = firstItem.menuCategoryNameHindi || catName;
+        const catNameGujarati = firstItem.menuCategoryNameGujarati || catName;
+
         return {
           menuCategoryId: items[0]?.catId || 0,
           menuCategoryName: catName,
+          menuCategoryNameHindi: catNameHindi,
+          menuCategoryNameGujarati: catNameGujarati,
           menuNotes: bucket.categoryNotes?.[catName] || "",
-          menuSlogan: "",
+          menuSlogan: bucket.categorySlogans?.[catName] || "",
           menuSortOrder: catIndex,
           startTime: "",
           selectedMenuPreparationItems: items.map((item, itemIndex) => ({
@@ -560,7 +563,9 @@ const EventPlanningPage = () => {
             itemSortOrder: itemIndex,
             itemPrice: Number(item.rate),
             menuItemId: Number(item.id),
-            menuItemName: item.nameEnglish,
+            menuItemName: item.nameEnglish || "",
+            menuItemNameHindi: item.nameHindi || item.nameEnglish || "",
+            menuItemNameGujarati: item.nameGujarati || item.nameEnglish || "",
           })),
         };
       }
@@ -611,7 +616,6 @@ const EventPlanningPage = () => {
       selectedMenuPreparation: categoriesPayload,
     };
   };
-
   const handleSaveOrUpdate = async () => {
     try {
       setIsSaving(true);
@@ -624,6 +628,7 @@ const EventPlanningPage = () => {
       }
 
       const resp = await AddMenuprep(payload);
+      setIsDirty(false);
       const newId = resp?.data?.data?.id || payload.id;
 
       setSelectedByFunction((prev) => ({
@@ -654,9 +659,10 @@ const EventPlanningPage = () => {
     }
   };
 
-  // Add this new handler after onRateChange
   const onInstructionsChange = useCallback(
     (functionId, categoryName, itemId, newInstructions) => {
+      setIsDirty(true);
+
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
@@ -719,6 +725,7 @@ const EventPlanningPage = () => {
 
   const handleNoteSave = (updatedSlogan) => {
     if (!selectedFunction || !currentItemForNotes) return;
+    setIsDirty(true);
 
     setSelectedByFunction((prev) => {
       const bucket = prev[selectedFunction];
@@ -749,6 +756,7 @@ const EventPlanningPage = () => {
 
   const handleCategoryNoteSave = ({ notes, slogan }) => {
     if (!selectedFunction || !currentCategoryForNotes) return;
+    setIsDirty(true);
 
     setSelectedByFunction((prev) => {
       const bucket = prev[selectedFunction] || {};
@@ -810,7 +818,6 @@ const EventPlanningPage = () => {
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 overflow-auto px-4 py-2">
           <div className="flex justify-between items-center mb-4">
-            {/* LEFT: Page Title + 3 Custom Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
                 2. Menu Planning
@@ -1004,7 +1011,7 @@ const EventPlanningPage = () => {
                       Rate:
                     </span>
                     <input
-                      type="number"
+                      type="text"
                       min={0}
                       className="input input-sm w-28"
                       value={defaultRate}
@@ -1229,7 +1236,7 @@ const EventPlanningPage = () => {
             <button
               type="button"
               onClick={handleSaveOrUpdate}
-              disabled={isSaving}
+              disabled={isSaving || !isDirty}
               className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (

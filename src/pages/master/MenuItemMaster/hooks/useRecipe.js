@@ -64,8 +64,8 @@ export default function useRecipe(rawmaterialList, initialData = []) {
         row.sr_no === editingRowId
           ? {
               ...row,
-              category: raw.rawMaterialCat?.nameEnglish,
-              name: raw.nameEnglish,
+              category: raw.category, // ← Fixed: use raw.category instead of raw.rawMaterialCat?.nameEnglish
+              name: raw.name, // ← Fixed: use raw.name instead of raw.nameEnglish
               weight,
               unit: unitName,
               unitId: unit,
@@ -81,8 +81,8 @@ export default function useRecipe(rawmaterialList, initialData = []) {
     } else {
       const newRow = {
         sr_no: rowCounter,
-        category: raw.rawMaterialCat?.nameEnglish,
-        name: raw.nameEnglish,
+        category: raw.category,
+        name: raw.name,
         weight,
         unit: unitName,
         unitId: unit,
@@ -97,7 +97,6 @@ export default function useRecipe(rawmaterialList, initialData = []) {
       message.success("Recipe added");
     }
 
-    // reset inputs
     setSelectedRaw(null);
     setWeight("");
     setUnit(null);

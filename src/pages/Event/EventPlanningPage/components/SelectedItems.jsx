@@ -11,11 +11,43 @@ const SelectedItems = ({
   onRateChange = () => {},
   onOpenItemNotes = () => {},
   onOpenCategoryNotes = () => {},
-  onInstructionsChange = () => {}, // NEW PROP
+  onInstructionsChange = () => {},
 }) => {
   const { categoriesOrder = [], categories = {} } = data;
 
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [currentLanguage, setCurrentLanguage] = useState(
+    localStorage.getItem("lang") || "en"
+  );
+
+  // Listen for language changes
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      console.log("SelectedItems - Language changed to:", newLang);
+      setCurrentLanguage(newLang);
+    };
+
+    window.addEventListener("languageChange", handleLanguageChange);
+    window.addEventListener("storage", handleLanguageChange);
+
+    const intervalId = setInterval(() => {
+      const currentLang = localStorage.getItem("lang") || "en";
+      if (currentLang !== currentLanguage) {
+        console.log(
+          "SelectedItems - Language detected via polling:",
+          currentLang
+        );
+        setCurrentLanguage(currentLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("languageChange", handleLanguageChange);
+      window.removeEventListener("storage", handleLanguageChange);
+      clearInterval(intervalId);
+    };
+  }, [currentLanguage]);
 
   useEffect(() => {
     const defaults = {};
@@ -24,6 +56,38 @@ const SelectedItems = ({
     });
     setExpandedCategories(defaults);
   }, [categoriesOrder]);
+
+  // Helper function to get localized item name
+  const getLocalizedItemName = useMemo(() => {
+    return (item) => {
+      const languageMap = {
+        en: "nameEnglish",
+        hi: "nameHindi",
+        gu: "nameGujarati",
+      };
+
+      const field = languageMap[currentLanguage] || "nameEnglish";
+
+      // Try multiple possible field names
+      return (
+        item[field] ||
+        item.nameEnglish ||
+        item.menuItemName ||
+        item.menuItemNameEnglish ||
+        ""
+      );
+    };
+  }, [currentLanguage]);
+
+  // Helper function to get localized category name
+  const getLocalizedCategoryName = useMemo(() => {
+    return (categoryName) => {
+      // For saved categories, we need to check if we have translation data
+      // Since categories are stored by their English name, we'll display as-is
+      // unless we have translation mapping
+      return categoryName;
+    };
+  }, [currentLanguage]);
 
   const toggleCategory = (catName) => {
     setExpandedCategories((prev) => ({
@@ -133,6 +197,7 @@ const SelectedItems = ({
             >
               {categoriesOrder.map((catName, catIdx) => {
                 const items = categories[catName] || [];
+                const displayCategoryName = getLocalizedCategoryName(catName);
 
                 return (
                   <Draggable
@@ -154,7 +219,7 @@ const SelectedItems = ({
                             >
                               ⋮⋮
                             </span>
-                            <p className="font-medium">{catName}</p>
+                            <p className="font-medium">{displayCategoryName}</p>
                           </div>
 
                           <div className="flex items-center gap-1 text-gray-500">
@@ -194,128 +259,133 @@ const SelectedItems = ({
                                   snapshot.isDraggingOver ? "bg-blue-50" : ""
                                 }`}
                               >
-                                {items.map((item, idx) => (
-                                  <Draggable
-                                    key={item.id}
-                                    draggableId={getItemDraggableId(item.id)}
-                                    index={idx}
-                                  >
-                                    {(provItem, snap) => (
-                                      <div
-                                        ref={provItem.innerRef}
-                                        {...provItem.draggableProps}
-                                        className={`relative bg-[#EEF3F7] p-2 rounded-lg transition-shadow ${
-                                          snap.isDragging
-                                            ? "shadow-lg ring-2 ring-blue-400"
-                                            : ""
-                                        }`}
-                                      >
-                                        {/* TOP ROW */}
+                                {items.map((item, idx) => {
+                                  const displayItemName =
+                                    getLocalizedItemName(item);
+
+                                  return (
+                                    <Draggable
+                                      key={item.id}
+                                      draggableId={getItemDraggableId(item.id)}
+                                      index={idx}
+                                    >
+                                      {(provItem, snap) => (
                                         <div
-                                          {...provItem.dragHandleProps}
-                                          className="flex items-center justify-between"
+                                          ref={provItem.innerRef}
+                                          {...provItem.draggableProps}
+                                          className={`relative bg-[#EEF3F7] p-2 rounded-lg transition-shadow ${
+                                            snap.isDragging
+                                              ? "shadow-lg ring-2 ring-blue-400"
+                                              : ""
+                                          }`}
                                         >
-                                          {/* LEFT AREA: Icon + Title + (Rate if enabled) */}
-                                          <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
+                                          {/* TOP ROW */}
+                                          <div
+                                            {...provItem.dragHandleProps}
+                                            className="flex items-center justify-between"
+                                          >
+                                            {/* LEFT AREA: Icon + Title + (Rate if enabled) */}
+                                            <div className="flex items-center gap-3">
+                                              <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
+                                                <img
+                                                  src={
+                                                    item.imagePath &&
+                                                    /\.(jpg|jpeg|png|webp|gif)$/i.test(
+                                                      item.imagePath
+                                                    )
+                                                      ? item.imagePath
+                                                      : toAbsoluteUrl(
+                                                          "/media/menu/noImage.jpg"
+                                                        )
+                                                  }
+                                                  alt={displayItemName}
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              </div>
+
+                                              <div className="flex flex-col">
+                                                <span className="text-md text-black">
+                                                  {displayItemName}
+                                                </span>
+
+                                                {showRates && (
+                                                  <label className="flex items-center gap-1 mt-1">
+                                                    <span className="text-gray-500 text-xs">
+                                                      Rate:
+                                                    </span>
+                                                    <input
+                                                      type="text"
+                                                      value={item.rate}
+                                                      min={0}
+                                                      onChange={(e) =>
+                                                        onRateChange(
+                                                          functionId,
+                                                          catName,
+                                                          item.id,
+                                                          Number(e.target.value)
+                                                        )
+                                                      }
+                                                      onClick={(e) =>
+                                                        e.stopPropagation()
+                                                      }
+                                                      className="w-16 h-6 rounded border border-gray-300 bg-white text-xs p-1"
+                                                    />
+                                                  </label>
+                                                )}
+                                              </div>
+                                            </div>
+
+                                            {/* RIGHT AREA: Notes & Delete */}
+                                            <div className="flex items-center gap-1 text-gray-600">
                                               <img
-                                                src={
-                                                  item.imagePath &&
-                                                  /\.(jpg|jpeg|png|webp|gif)$/i.test(
-                                                    item.imagePath
-                                                  )
-                                                    ? item.imagePath
-                                                    : toAbsoluteUrl(
-                                                        "/media/menu/noImage.jpg"
-                                                      )
-                                                }
-                                                alt={item.nameEnglish}
-                                                className="w-full h-full object-cover"
+                                                className="w-4 h-4 cursor-pointer"
+                                                src={toAbsoluteUrl(
+                                                  "/media/menu/notes.png"
+                                                )}
+                                                alt="notes"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  onOpenItemNotes(item.id);
+                                                }}
                                               />
-                                            </div>
-
-                                            <div className="flex flex-col">
-                                              <span className="text-md text-black">
-                                                {item.nameEnglish}
-                                              </span>
-
-                                              {showRates && (
-                                                <label className="flex items-center gap-1 mt-1">
-                                                  <span className="text-gray-500 text-xs">
-                                                    Rate:
-                                                  </span>
-                                                  <input
-                                                    type="number"
-                                                    value={item.rate}
-                                                    min={0}
-                                                    onChange={(e) =>
-                                                      onRateChange(
-                                                        functionId,
-                                                        catName,
-                                                        item.id,
-                                                        Number(e.target.value)
-                                                      )
-                                                    }
-                                                    onClick={(e) =>
-                                                      e.stopPropagation()
-                                                    }
-                                                    className="w-16 h-6 rounded border border-gray-300 bg-white text-xs p-1"
-                                                  />
-                                                </label>
-                                              )}
+                                              <button
+                                                type="button"
+                                                className="text-red-500 hover:bg-gray-200 rounded p-1"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  onRemove(
+                                                    functionId,
+                                                    catName,
+                                                    item.id
+                                                  );
+                                                }}
+                                              >
+                                                <i className="ki-filled ki-trash text-[18px]" />
+                                              </button>
                                             </div>
                                           </div>
 
-                                          {/* RIGHT AREA: Notes & Delete */}
-                                          <div className="flex items-center gap-1 text-gray-600">
-                                            <img
-                                              className="w-4 h-4 cursor-pointer"
-                                              src={toAbsoluteUrl(
-                                                "/media/menu/notes.png"
-                                              )}
-                                              alt="notes"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                onOpenItemNotes(item.id);
-                                              }}
-                                            />
-                                            <button
-                                              type="button"
-                                              className="text-red-500 hover:bg-gray-200 rounded p-1"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                onRemove(
-                                                  functionId,
-                                                  catName,
-                                                  item.id
-                                                );
-                                              }}
-                                            >
-                                              <i className="ki-filled ki-trash text-[18px]" />
-                                            </button>
-                                          </div>
+                                          {/* INSTRUCTIONS FIELD */}
+                                          <textarea
+                                            rows={2}
+                                            placeholder="Add instructions..."
+                                            value={item.itemNotes || ""}
+                                            onChange={(e) => {
+                                              onInstructionsChange(
+                                                functionId,
+                                                catName,
+                                                item.id,
+                                                e.target.value
+                                              );
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm outline-none focus:outline-none focus:ring-0 resize-none"
+                                          />
                                         </div>
-
-                                        {/* INSTRUCTIONS FIELD */}
-                                        <textarea
-                                          rows={2}
-                                          placeholder="Add instructions..."
-                                          value={item.itemNotes || ""}
-                                          onChange={(e) => {
-                                            onInstructionsChange(
-                                              functionId,
-                                              catName,
-                                              item.id,
-                                              e.target.value
-                                            );
-                                          }}
-                                          onClick={(e) => e.stopPropagation()}
-                                          className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm outline-none focus:outline-none focus:ring-0 resize-none"
-                                        />
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
+                                      )}
+                                    </Draggable>
+                                  );
+                                })}
                                 {provItems.placeholder}
                               </div>
                             )}
@@ -342,6 +412,9 @@ const SelectedItems = ({
     showRates,
     onRateChange,
     onInstructionsChange,
+    currentLanguage,
+    getLocalizedItemName,
+    getLocalizedCategoryName,
   ]);
 
   return (

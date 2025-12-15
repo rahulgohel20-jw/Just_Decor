@@ -22,15 +22,94 @@ const MenuItemGrid = ({
   const [displayCount, setDisplayCount] = useState(pageSize);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(
+    localStorage.getItem("lang") || "en"
+  );
   const userId = localStorage.getItem("userId");
   const sentinelRef = useRef();
   const observerRef = useRef();
+
+  // Listen for language changes - Multiple methods to catch it
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      console.log("Language changed to:", newLang); // Debug log
+      setCurrentLanguage(newLang);
+    };
+
+    // Method 1: Custom event
+    window.addEventListener("languageChange", handleLanguageChange);
+
+    // Method 2: Storage event (for other tabs)
+    window.addEventListener("storage", handleLanguageChange);
+
+    // Method 3: Polling (check every 500ms as fallback)
+    const intervalId = setInterval(() => {
+      const currentLang = localStorage.getItem("lang") || "en";
+      if (currentLang !== currentLanguage) {
+        console.log("Language detected via polling:", currentLang);
+        setCurrentLanguage(currentLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("languageChange", handleLanguageChange);
+      window.removeEventListener("storage", handleLanguageChange);
+      clearInterval(intervalId);
+    };
+  }, [currentLanguage]);
+
+  // Add this useEffect to force re-render when language changes
+  useEffect(() => {
+    console.log("Current language:", currentLanguage); // Debug log
+    // This will trigger useMemo recalculation
+  }, [currentLanguage]);
+
+  // Helper function to get the appropriate name based on language
+  // Using useMemo instead of useCallback to ensure proper re-rendering
+  const getLocalizedName = useMemo(() => {
+    return (item) => {
+      const languageMap = {
+        en: "menuItemName",
+        hi: "menuItemNameHindi",
+        gu: "menuItemNameGujarati",
+      };
+
+      const field = languageMap[currentLanguage] || "menuItemName";
+
+      // Try different possible field names from API
+      return item[field] || item.menuItemName || "";
+    };
+  }, [currentLanguage]);
+
+  // Helper function to get localized category name
+  // Using useMemo instead of useCallback to ensure proper re-rendering
+  const getLocalizedCategoryName = useMemo(() => {
+    return (item) => {
+      const languageMap = {
+        en: "menuCategoryName",
+        hi: "menuCategoryNameHindi",
+        gu: "menuCategoryNameGujarati",
+      };
+
+      const field = languageMap[currentLanguage] || "menuCategoryName";
+
+      if (item.menuCategory) {
+        return (
+          item.menuCategory[field] ||
+          item.menuCategory.nameEnglish ||
+          item.menuCategory.name
+        );
+      }
+
+      return item[field] || item.menuCategoryName || "Uncategorized";
+    };
+  }, [currentLanguage]);
 
   const getItemWithSlogan = useCallback(
     (item) => {
       const itemId = Number(item.menuItemId || item.id);
 
-      // Search through selected items to find matching item with slogan
       if (selectedItemsData?.categories) {
         for (const categoryItems of Object.values(
           selectedItemsData.categories
@@ -53,9 +132,6 @@ const MenuItemGrid = ({
     [selectedItemsData]
   );
 
-  // -----------------------------------------------------
-  // 🔵 FETCH ITEMS (category based)
-  // -----------------------------------------------------
   const fetchMenuItems = useCallback(async () => {
     if (!selectedFunctionId || !userId) return;
 
@@ -90,9 +166,6 @@ const MenuItemGrid = ({
     }
   }, [selectedFunctionId, userId, categoryId]);
 
-  // -----------------------------------------------------
-  // 🔍 SEARCH ITEMS
-  // -----------------------------------------------------
   const searchMenuItems = useCallback(
     async (searchQuery) => {
       if (!selectedFunctionId || !userId) return;
@@ -131,12 +204,9 @@ const MenuItemGrid = ({
   );
 
   useEffect(() => {
-    fetchMenuItems(); // re-fetch category or item list
+    fetchMenuItems();
   }, [refreshKey]);
 
-  // -----------------------------------------------------
-  // APPLY CATEGORY / SEARCH
-  // -----------------------------------------------------
   useEffect(() => {
     if (searchTerm.trim()) {
       const timer = setTimeout(() => searchMenuItems(searchTerm), 400);
@@ -150,9 +220,6 @@ const MenuItemGrid = ({
     setDisplayCount(pageSize);
   }, [allMenuItems, pageSize]);
 
-  // -----------------------------------------------------
-  // ⭐ SORTING LOGIC (package items first + package categories first)
-  // -----------------------------------------------------
   const sortedItems = useMemo(() => {
     return [...allMenuItems].sort((a, b) => {
       // 🔥 1) Package items first
@@ -162,8 +229,8 @@ const MenuItemGrid = ({
 
       // 🔥 2) If both are package items OR both are normal,
       // move package categories to top
-      const aCat = a.menuCategoryName || "";
-      const bCat = b.menuCategoryName || "";
+      const aCat = getLocalizedCategoryName(a);
+      const bCat = getLocalizedCategoryName(b);
 
       const aIdx = packageCategories.indexOf(aCat);
       const bIdx = packageCategories.indexOf(bCat);
@@ -174,18 +241,20 @@ const MenuItemGrid = ({
 
       return 0;
     });
-  }, [allMenuItems, packageCategories]);
+  }, [
+    allMenuItems,
+    packageCategories,
+    getLocalizedCategoryName,
+    currentLanguage,
+  ]); // Added currentLanguage dependency
 
   const displayedItems = useMemo(
     () => sortedItems.slice(0, displayCount),
-    [sortedItems, displayCount]
+    [sortedItems, displayCount, currentLanguage] // Added currentLanguage
   );
 
   const hasMore = displayCount < allMenuItems.length;
 
-  // -----------------------------------------------------
-  // ♾️ INFINITE SCROLL
-  // -----------------------------------------------------
   useEffect(() => {
     if (!sentinelRef.current) return;
 
@@ -206,33 +275,21 @@ const MenuItemGrid = ({
     return () => observerRef.current?.disconnect();
   }, [loading, hasMore, pageSize]);
 
-  // -----------------------------------------------------
-  // CLICK ITEM
-  // -----------------------------------------------------
-  const onItemClick = useCallback(
-    (item) => {
+  const onItemClick = useMemo(() => {
+    return (item) => {
       const catName =
-        category !== "All"
-          ? category
-          : item.menuCategory?.nameEnglish ||
-            item.menuCategory?.name ||
-            item.menuCategoryName ||
-            "Uncategorized";
+        category !== "All" ? category : getLocalizedCategoryName(item);
 
       onToggleSelect(item, catName);
-    },
-    [onToggleSelect, category]
-  );
+    };
+  }, [onToggleSelect, category, getLocalizedCategoryName, currentLanguage]);
 
   const handleViewDetails = (item) => {
-    const itemWithSlogan = getItemWithSlogan(item); // 🆕 Get item with updated slogan
+    const itemWithSlogan = getItemWithSlogan(item);
     setSelectedItem(itemWithSlogan);
     setIsModalOpen(true);
   };
 
-  // -----------------------------------------------------
-  // UI STATES
-  // -----------------------------------------------------
   if (loading && allMenuItems.length === 0) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -259,15 +316,12 @@ const MenuItemGrid = ({
     );
   }
 
-  // -----------------------------------------------------
-  // 🟩 RENDER GRID
-  // -----------------------------------------------------
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {displayedItems.map((item) => {
           const id = item.menuItemId || item.id;
-          const name = item.nameEnglish || item.menuItemName || "";
+          const name = getLocalizedName(item);
           const numericId = Number(id);
 
           const isSelected =
@@ -311,7 +365,7 @@ const MenuItemGrid = ({
                         ? item.imagePath
                         : toAbsoluteUrl("/media/menu/noImage.jpg")
                     }
-                    alt={item.nameEnglish}
+                    alt=""
                     className="w-full h-full object-cover"
                   />
                 ) : (

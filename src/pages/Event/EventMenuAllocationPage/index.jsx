@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
 import Swal from "sweetalert2";
 import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
@@ -18,6 +17,7 @@ import {
   GetMenuAllocation,
   SelectedItemNameMenuAllocation,
   MenuAllocationSave,
+  SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
 } from "@/services/apiServices";
 import { useParams, useNavigate } from "react-router-dom";
@@ -285,9 +285,10 @@ const TableRow = ({ row, onChange }) => {
       <div className="col-span-1 flex justify-center">
         <Input
           min={0}
+          type="text"
           value={row.personCount}
-          onChange={(val) =>
-            onChange({ ...row, personCount: Number(val || 0) })
+          onChange={(e) =>
+            onChange({ ...row, personCount: Number(e.target.value) || 0 })
           }
           className="w-30 p-1"
         />
@@ -779,6 +780,7 @@ const EventMenuAllocationPage = () => {
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isOutside: true,
+                originalType: "outside",
               })),
             ],
           };
@@ -815,6 +817,7 @@ const EventMenuAllocationPage = () => {
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isChefLabour: true,
+                originalType: "chef",
               })),
             ],
           };
@@ -893,38 +896,48 @@ const EventMenuAllocationPage = () => {
         const outsideAllocations =
           r.eventFunctionMenuAllocations
             ?.filter((a) => a.isOutside)
-            .map((alloc) => ({
-              counterPrice: alloc.counterPrice || 0,
-              counterQuantity: alloc.counterQuantity || 0,
-              helperPrice: alloc.helperPrice || 0,
-              helperQuantity: alloc.helperQuantity || 0,
-              id: alloc.id || 0,
-              isOutside: true,
-              partyId: alloc.partyId || 0,
-              price: alloc.price || 0,
-              quantity: alloc.quantity || 0,
-              serviceType: alloc.serviceType || "",
-              totalPrice: alloc.totalPrice || 0,
-              unitId: alloc.unitId || 0,
-            })) || [];
+            .map((alloc) => {
+              const shouldPreserveId =
+                alloc.id && alloc.id > 0 && alloc.originalType === "outside";
+
+              return {
+                counterPrice: alloc.counterPrice ?? 0,
+                counterQuantity: alloc.counterQuantity ?? 0,
+                helperPrice: alloc.helperPrice ?? 0,
+                helperQuantity: alloc.helperQuantity ?? 0,
+                id: shouldPreserveId ? alloc.id : 0,
+                isOutside: true,
+                partyId: alloc.partyId ?? 0,
+                price: alloc.price ?? 0,
+                quantity: alloc.quantity ?? 0,
+                serviceType: alloc.serviceType || "",
+                totalPrice: alloc.totalPrice ?? 0,
+                unitId: alloc.unitId ?? 0,
+              };
+            }) || [];
 
         const chefLabourAllocations =
           r.eventFunctionMenuAllocations
             ?.filter((a) => a.isChefLabour)
-            .map((alloc) => ({
-              counterPrice: alloc.counterPrice || 0,
-              counterQuantity: alloc.counterQuantity || 0,
-              helperPrice: alloc.helperPrice || 0,
-              helperQuantity: alloc.helperQuantity || 0,
-              id: alloc.id || 0,
-              isOutside: false,
-              partyId: alloc.partyId || 0,
-              price: alloc.price || 0,
-              quantity: alloc.quantity || 0,
-              serviceType: alloc.serviceType || "",
-              totalPrice: alloc.totalPrice || 0,
-              unitId: alloc.unitId || 0,
-            })) || [];
+            .map((alloc) => {
+              const shouldPreserveId =
+                alloc.id && alloc.id > 0 && alloc.originalType === "chef";
+
+              return {
+                counterPrice: alloc.counterPrice ?? 0,
+                counterQuantity: alloc.counterQuantity ?? 0,
+                helperPrice: alloc.helperPrice ?? 0,
+                helperQuantity: alloc.helperQuantity ?? 0,
+                id: shouldPreserveId ? alloc.id : 0,
+                isOutside: false,
+                partyId: alloc.partyId ?? 0,
+                price: alloc.price ?? 0,
+                quantity: alloc.quantity ?? 0,
+                serviceType: alloc.serviceType || "",
+                totalPrice: alloc.totalPrice ?? 0,
+                unitId: alloc.unitId ?? 0,
+              };
+            }) || [];
 
         const insideAllocations =
           r.eventFunctionMenuAllocations
@@ -1114,6 +1127,50 @@ const EventMenuAllocationPage = () => {
     setinsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsInHouseCookModalOpen(true);
   };
+
+  const handleSyncRawMaterial = async () => {
+    try {
+      const eventFunctionId = activeFunction?.id;
+      console.log(eventFunctionId);
+
+      if (!eventFunctionId) {
+        Swal.fire({
+          icon: "error",
+          title: "Missing data",
+          text: "Event, function or user information missing",
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: "Syncing Raw Materials...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await SyncRawmaterialMenuallocation(eventFunctionId);
+
+      if (res?.data?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Synced",
+          text: "Raw materials synced successfully",
+        });
+
+        // ✅ refresh menu allocation
+        fetchMenuAllocation(eventFunctionId);
+      } else {
+        throw new Error(res?.data?.message || "Sync failed");
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Failed to sync raw materials",
+      });
+    }
+  };
+
   return (
     <Fragment>
       <Container>
@@ -1272,16 +1329,11 @@ const EventMenuAllocationPage = () => {
               <button
                 className="btn btn-sm btn-primary"
                 title="Sync Raw Material"
+                onClick={handleSyncRawMaterial}
               >
                 <FormattedMessage
                   id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
                   defaultMessage="Sync Raw Material"
-                />
-              </button>
-              <button className="btn btn-sm btn-primary" title="Sync Agency">
-                <FormattedMessage
-                  id="EVENT_MENU_ALLOCATION.SYNC_AGENCY"
-                  defaultMessage="Sync Agency"
                 />
               </button>
             </div>

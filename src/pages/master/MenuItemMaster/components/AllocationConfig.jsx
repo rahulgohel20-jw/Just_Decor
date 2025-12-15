@@ -317,6 +317,12 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     }
   };
 
+  const blurActiveElement = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   const chefFields = allocationTabsConfig.chef.map((f) =>
     f.name === "chef_contactName"
       ? {
@@ -423,7 +429,14 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         </Tabs>
 
         <div className="flex justify-between pt-4 mb-6">
-          <Button onClick={onPrev}>Previous</Button>
+          <Button
+            onClick={() => {
+              blurActiveElement();
+              onPrev();
+            }}
+          >
+            Previous
+          </Button>
           <Button
             type="primary"
             onClick={() => {

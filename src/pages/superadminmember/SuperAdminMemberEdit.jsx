@@ -416,15 +416,9 @@ const SuperAdminMemberEdit = () => {
       setSubmitting(true);
 
       const formData = new FormData();
-
-      // Add userId as required by API
       formData.append("userId", id);
-
-      // Add member details (only non-empty values)
       formData.append("firstName", memberDetails.firstName);
       formData.append("lastName", memberDetails.lastName);
-      // Check if any file exists in KYC or Down Payment
-      // Check if any file exists in KYC, Down Payment, or Call File
       const anyFileAttached =
         kycDetails.some((k) => k.docPath instanceof File) ||
         downPayments.some((d) => d.docPath instanceof File) ||
@@ -601,7 +595,6 @@ const SuperAdminMemberEdit = () => {
   }
 
   const handleDeleteDownPayment = async (index, paymentId) => {
-    // If the payment doesn't have an ID, it's not saved yet - just remove from state
     if (!paymentId) {
       removeDownPayment(index);
       return;
@@ -652,18 +645,17 @@ const SuperAdminMemberEdit = () => {
         </div>
 
         <div className="bg-white shadow rounded-md p-4 space-y-6">
-          {/* Member Details */}
+          {/* MEMBER DETAILS */}
           <section className="border rounded-md">
             <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               Member Details
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+              {/* Prefix */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Prefix
-                </label>
+                <label className="block mb-1 text-sm">Prefix</label>
                 <Select
-                  placeholder="Select Prefix"
                   value={memberDetails.preFix}
                   onChange={(v) => handleMemberChange("preFix", v)}
                   options={[
@@ -675,12 +667,10 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
+              {/* First Name */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  First Name *
-                </label>
+                <label className="block mb-1 text-sm">First Name *</label>
                 <Input
-                  placeholder="Enter first name"
                   value={memberDetails.firstName}
                   onChange={(e) =>
                     handleMemberChange("firstName", e.target.value)
@@ -688,12 +678,10 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
+              {/* Last Name */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Last Name *
-                </label>
+                <label className="block mb-1 text-sm">Last Name *</label>
                 <Input
-                  placeholder="Enter last name"
                   value={memberDetails.lastName}
                   onChange={(e) =>
                     handleMemberChange("lastName", e.target.value)
@@ -701,12 +689,10 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
+              {/* Contact */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Contact Number
-                </label>
+                <label className="block mb-1 text-sm">Contact Number</label>
                 <Input
-                  placeholder="Enter contact number"
                   value={memberDetails.contactNo}
                   onChange={(e) =>
                     handleMemberChange("contactNo", e.target.value)
@@ -714,12 +700,10 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Address
-                </label>
+              {/* Address */}
+              <div className="sm:col-span-2 md:col-span-2 lg:col-span-1">
+                <label className="block mb-1 text-sm">Address</label>
                 <Input
-                  placeholder="Enter address"
                   value={memberDetails.address}
                   onChange={(e) =>
                     handleMemberChange("address", e.target.value)
@@ -727,47 +711,42 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
+              {/* State */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  State
-                </label>
+                <label className="block mb-1 text-sm">State</label>
                 <Select
-                  placeholder="Select State"
                   value={selectedState}
                   onChange={handleStateChange}
                   options={states}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
                   className="w-full"
                 />
               </div>
 
+              {/* City */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  City *
-                </label>
+                <label className="block mb-1 text-sm">City *</label>
                 <Select
-                  placeholder="Select City"
                   value={memberDetails.cityId}
                   onChange={handleCityChange}
                   options={cities}
                   disabled={!selectedState}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
                   className="w-full"
                 />
               </div>
 
+              {/* Member Type */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Member Type
-                </label>
+                <label className="block mb-1 text-sm">Member Type</label>
                 <Input
-                  placeholder="Enter member type"
+                  value={memberDetails.memberType}
+                  onChange={(e) =>
+                    handleMemberChange("memberType", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm">Profile Type</label>
+                <Input
                   value={memberDetails.memberType}
                   onChange={(e) =>
                     handleMemberChange("memberType", e.target.value)
@@ -775,62 +754,300 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
+              {/* Plan */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Plan
-                </label>
+                <label className="block mb-1 text-sm">Plan</label>
                 <Select
-                  placeholder="Select Plan"
                   value={memberDetails.planId}
                   onChange={(v) => handleMemberChange("planId", v)}
                   options={plans}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
-                  className="w-full"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Reporting Manager
-                </label>
-                <Select
-                  placeholder="Select Reporting Manager"
-                  value={memberDetails.reportingManagerId}
-                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
-                  options={managers}
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
                   className="w-full"
                 />
               </div>
             </div>
           </section>
 
-          {/* Down Payment Details */}
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span>Other Details</span>
+            </div>
+
+            <div className="flex p-4 w-full gap-3">
+              <div className="w-full md:w-1/2">
+                <label className="block mb-1 text-sm">Sales </label>
+                <Select
+                  value={memberDetails.reportingManagerId}
+                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
+                  options={managers}
+                  className="w-full"
+                />
+              </div>
+              <div className="w-full md:w-1/2">
+                <label className="block mb-1 text-sm">Reporting Manager</label>
+                <Select
+                  value={memberDetails.reportingManagerId}
+                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
+                  options={managers}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span>Remarks</span>
+            </div>
+
+            <div className="flex p-4 w-full gap-3 ">
+              <div className="w-full md:w-1/2">
+                <label className="block mb-1 text-sm">Manager Remarks</label>
+                <textarea
+                  rows={3}
+                  className="textarea w-full mb-3"
+                  placeholder="Add Remarks here"
+                />
+                <Input
+                  className=""
+                  type="file"
+                  onChange={(e) => setCallFile(e.target.files[0])}
+                />
+              </div>
+
+              <div className="w-full md:w-1/2">
+                <label className="block mb-1 text-sm">Sales Remarks</label>
+                <textarea
+                  rows={3}
+                  className="textarea w-full mb-3"
+                  placeholder="Add Remarks here"
+                />
+                <Input
+                  className=""
+                  type="file"
+                  onChange={(e) => setCallFile(e.target.files[0])}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* DOWN PAYMENT DETAILS */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Down Payment Details</span>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                className="bg-primary p-4 hover:bg-blue-500"
                 size="small"
                 onClick={addDownPayment}
               >
                 Add New
               </Button>
             </div>
-            <div className="p-4 space-y-3">
-              {downPayments.map((row, index) => (
-                <div key={index} className="grid grid-cols-8 gap-4 items-end">
+
+            {downPayments.map((row, index) => (
+              <div
+                key={index}
+                className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
+                {/* Payment Type */}
+                <div>
+                  <label className="text-sm">Payment Type</label>
+                  <Select
+                    value={row.paymentType}
+                    onChange={(v) =>
+                      handleDownPaymentChange(index, "paymentType", v)
+                    }
+                    options={[
+                      { label: "Cash", value: "cash" },
+                      { label: "Cheque", value: "cheque" },
+                      { label: "Online", value: "online" },
+                      { label: "Other", value: "other" },
+                    ]}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <label className="text-sm">Amount</label>
+                  <Input
+                    type="number"
+                    value={row.amount}
+                    onChange={(e) =>
+                      handleDownPaymentChange(index, "amount", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Paid Amount */}
+                <div>
+                  <label className="text-sm">Paid Amount</label>
+                  <Input
+                    type="number"
+                    value={row.paidAmount}
+                    onChange={(e) =>
+                      handleDownPaymentChange(
+                        index,
+                        "paidAmount",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                {/* Payment ID */}
+                <div>
+                  <label className="text-sm">Payment ID</label>
+                  <Input
+                    value={row.payid}
+                    onChange={(e) =>
+                      handleDownPaymentChange(index, "payid", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Date */}
+                <div>
+                  <label className="text-sm">Transaction Date</label>
+                  <Input
+                    type="date"
+                    value={row.transactionDate}
+                    onChange={(e) =>
+                      handleDownPaymentChange(
+                        index,
+                        "transactionDate",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                {/* Remarks */}
+                <div>
+                  <label className="text-sm">Remarks</label>
+                  <Input
+                    value={row.remarks}
+                    onChange={(e) =>
+                      handleDownPaymentChange(index, "remarks", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Upload */}
+                <div className="flex flex-col">
+                  <label className="text-sm">Document</label>
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      handleDownPaymentFile(index, e.target.files[0])
+                    }
+                  />
+                </div>
+
+                {/* Delete */}
+                <div className="flex justify-end">
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleDeleteDownPayment(index, row.id)}
+                  />
+                </div>
+              </div>
+            ))}
+          </section>
+
+          {/* KYC SECTION */}
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold">
+              KYC Information
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                size="small"
+                onClick={addKyc}
+              >
+                Add New
+              </Button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {kycDetails.map((kyc, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4  "
+                >
+                  {/* KYC TYPE */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Payment Type
+                    <label className="text-sm">KYC Type</label>
+                    <Select
+                      value={kyc.kycType}
+                      onChange={(v) => handleKycChange(index, "kycType", v)}
+                      options={[
+                        { label: "Aadhar", value: "aadhar" },
+                        { label: "PAN", value: "pan" },
+                        { label: "Passport", value: "passport" },
+                        { label: "Voter ID", value: "voter_id" },
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* KYC NUMBER */}
+                  <div>
+                    <label className="text-sm">KYC Document Number</label>
+                    <Input
+                      value={kyc.kycNo}
+                      onChange={(e) =>
+                        handleKycChange(index, "kycNo", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  {/* FILE */}
+                  <div className="flex flex-col">
+                    <label className="text-sm">Upload Document</label>
+                    <Input
+                      type="file"
+                      onChange={(e) => handleKycFile(index, e.target.files[0])}
+                    />
+                  </div>
+
+                  {/* DELETE */}
+                  <div className="flex justify-end">
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => removeKyc(index)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span>AMC Details</span>
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                size="small"
+                onClick={addDownPayment}
+              >
+                Add New
+              </Button>
+            </div>
+
+            <div className="p-4 space-y-6">
+              {downPayments.map((row, index) => (
+                <div
+                  key={index}
+                  className=" rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                >
+                  {/* AMC Type */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      AMC Type
                     </label>
                     <Select
                       value={row.paymentType}
@@ -843,57 +1060,28 @@ const SuperAdminMemberEdit = () => {
                         { label: "Online", value: "online" },
                         { label: "Other", value: "other" },
                       ]}
-                      placeholder="Select type"
                       className="w-full"
                     />
                   </div>
 
+                  {/* Amount */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                    <label className="block mb-1 text-sm font-medium">
                       Amount
                     </label>
                     <Input
+                      type="number"
                       value={row.amount}
                       onChange={(e) =>
                         handleDownPaymentChange(index, "amount", e.target.value)
                       }
-                      placeholder="Enter amount"
-                      type="number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-xs font-medium text-gray-700">
-                      Paid Amount
-                    </label>
-                    <Input
-                      value={row.paidAmount}
-                      onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "paidAmount",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter amount"
-                      type="number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Payment ID
-                    </label>
-                    <Input
-                      value={row.payid}
-                      onChange={(e) =>
-                        handleDownPaymentChange(index, "payid", e.target.value)
-                      }
-                      placeholder="Enter payment ID"
                     />
                   </div>
 
+                  {/* AMC Date */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Transaction Date
+                    <label className="block mb-1 text-sm font-medium">
+                      AMC Date
                     </label>
                     <Input
                       type="date"
@@ -908,12 +1096,63 @@ const SuperAdminMemberEdit = () => {
                     />
                   </div>
 
+                  {/* Receivable Amount */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                    <label className="block mb-1 text-sm font-medium">
+                      Receivable Amount
+                    </label>
+                    <Input
+                      type="number"
+                      value={row.amount}
+                      onChange={(e) =>
+                        handleDownPaymentChange(index, "amount", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  {/* Receivable Date */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Receivable Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={row.transactionDate}
+                      onChange={(e) =>
+                        handleDownPaymentChange(
+                          index,
+                          "transactionDate",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Status
+                    </label>
+                    <Select
+                      value={row.paymentType}
+                      onChange={(v) =>
+                        handleDownPaymentChange(index, "paymentType", v)
+                      }
+                      options={[
+                        { label: "Pending", value: "pending" },
+                        { label: "Completed", value: "completed" },
+                        { label: "Cancelled", value: "cancelled" },
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Remarks */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
                       Remarks
                     </label>
                     <Input
-                      placeholder="Enter remarks"
                       value={row.remarks}
                       onChange={(e) =>
                         handleDownPaymentChange(
@@ -925,41 +1164,25 @@ const SuperAdminMemberEdit = () => {
                     />
                   </div>
 
+                  {/* Upload Document */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                    <label className="block mb-1 text-sm font-medium">
                       Upload Document
                     </label>
-                    <div className="flex gap-2 w-[200px]">
-                      <Input
-                        type="file"
-                        onChange={(e) =>
-                          handleDownPaymentFile(index, e.target.files[0])
-                        }
-                        className="flex-1"
-                      />
-                      {row.existingDocPath && (
-                        <Button
-                          type="default"
-                          size="small"
-                          onClick={() =>
-                            handleViewDocument(row.existingDocPath)
-                          }
-                          className="whitespace-nowrap"
-                        >
-                          View Doc
-                        </Button>
-                      )}
-                    </div>
+                    <Input
+                      type="file"
+                      onChange={(e) =>
+                        handleDownPaymentFile(index, e.target.files[0])
+                      }
+                    />
                   </div>
 
-                  <div className="mb-2 flex justify-end">
+                  {/* Delete Button */}
+                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 flex justify-end mt-3">
                     <Button
-                      icon={<DeleteOutlined />}
                       danger
+                      icon={<DeleteOutlined />}
                       onClick={() => handleDeleteDownPayment(index, row.id)}
-                      size="small"
-                      className="mt-6"
-                      title={row.id ? "Delete from database" : "Remove entry"}
                     />
                   </div>
                 </div>
@@ -967,149 +1190,171 @@ const SuperAdminMemberEdit = () => {
             </div>
           </section>
 
-          {/* KYC Information */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
-              <span>KYC Information</span>
+              <span>Refund Details</span>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                className="bg-primary p-4 hover:bg-blue-500"
                 size="small"
-                onClick={addKyc}
+                onClick={addDownPayment}
               >
                 Add New
               </Button>
             </div>
-            <div className="p-4 space-y-3">
-              {kycDetails.map((kyc, index) => (
-                <div key={index} className="grid grid-cols-4 gap-3 items-end">
+
+            <div className="p-4 space-y-6">
+              {downPayments.map((row, index) => (
+                <div
+                  key={index}
+                  className=" rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                >
+                  {/* AMC Type */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      KYC Type
+                    <label className="block mb-1 text-sm font-medium">
+                      Refund Type
                     </label>
                     <Select
-                      placeholder="Select KYC Type"
-                      value={kyc.kycType}
-                      onChange={(v) => handleKycChange(index, "kycType", v)}
+                      value={row.paymentType}
+                      onChange={(v) =>
+                        handleDownPaymentChange(index, "paymentType", v)
+                      }
                       options={[
-                        { label: "Aadhar", value: "aadhar" },
-                        { label: "PAN", value: "pan" },
-                        { label: "Passport", value: "passport" },
-                        { label: "Voter ID", value: "voter_id" },
+                        { label: "Cash", value: "cash" },
+                        { label: "Cheque", value: "cheque" },
+                        { label: "Online", value: "online" },
+                        { label: "Other", value: "other" },
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Amount */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Amount
+                    </label>
+                    <Input
+                      type="number"
+                      value={row.amount}
+                      onChange={(e) =>
+                        handleDownPaymentChange(index, "amount", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  {/* AMC Date */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Refund Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={row.transactionDate}
+                      onChange={(e) =>
+                        handleDownPaymentChange(
+                          index,
+                          "transactionDate",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Refund Payment Mode
+                    </label>
+                    <Select
+                      value={row.paymentType}
+                      onChange={(v) =>
+                        handleDownPaymentChange(index, "paymentType", v)
+                      }
+                      options={[
+                        { label: "Cash", value: "cash" },
+                        { label: "Cheque", value: "cheque" },
+                        { label: "Online", value: "online" },
+                        { label: "Other", value: "other" },
                       ]}
                       className="w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      KYC Document Number
+                    <label className="block mb-1 text-sm font-medium">
+                      Refund Details
                     </label>
                     <Input
-                      placeholder="Enter document number"
-                      value={kyc.kycNo}
+                      value={row.remarks}
                       onChange={(e) =>
-                        handleKycChange(index, "kycNo", e.target.value)
+                        handleDownPaymentChange(
+                          index,
+                          "remarks",
+                          e.target.value
+                        )
                       }
                     />
                   </div>
 
+                  {/* Remarks */}
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Upload Document
+                    <label className="block mb-1 text-sm font-medium">
+                      Remarks
                     </label>
-                    <div className="flex   w-[200px]">
-                      <Input
-                        type="file"
-                        onChange={(e) =>
-                          handleKycFile(index, e.target.files[0])
-                        }
-                        className="flex-1"
-                      />
-                      {kyc.existingDocPath && (
-                        <Button
-                          type="default"
-                          size="small"
-                          onClick={() =>
-                            handleViewDocument(kyc.existingDocPath)
-                          }
-                          className="whitespace-nowrap"
-                        >
-                          View Doc
-                        </Button>
-                      )}
-                    </div>
+                    <Input
+                      value={row.remarks}
+                      onChange={(e) =>
+                        handleDownPaymentChange(
+                          index,
+                          "remarks",
+                          e.target.value
+                        )
+                      }
+                    />
                   </div>
 
+                  {/* Upload Document */}
                   <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Upload Document
+                    </label>
+                    <Input
+                      type="file"
+                      onChange={(e) =>
+                        handleDownPaymentFile(index, e.target.files[0])
+                      }
+                    />
+                  </div>
+
+                  {/* Delete Button */}
+                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 flex justify-end mt-3">
                     <Button
-                      icon={<DeleteOutlined />}
                       danger
-                      onClick={() => removeKyc(index)}
-                      className="w-full"
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteDownPayment(index, row.id)}
                     />
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t">
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Import Call File
-              </label>
+          </section>
+
+          {/* CALL FILE */}
+          <section className="border rounded-md ">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span> Import Call File</span>
+            </div>
+            <div className="p-3">
               <Input
+                className="p-3"
                 type="file"
                 onChange={(e) => setCallFile(e.target.files[0])}
               />
             </div>
           </section>
-          {updateResponse?.data?.length > 0 && (
-            <section className="border rounded-md p-4 mt-4">
-              <h3 className="font-semibold mb-2">Uploaded Files</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {updateResponse.data.map((file, index) => {
-                  const url = getDocumentUrl(
-                    file.moduleName,
-                    file.moduleId,
-                    file.fileType
-                  );
 
-                  return (
-                    <div key={index} className="border p-2 rounded">
-                      <p className="font-medium">
-                        {getModuleDisplayName(file.moduleName)}
-                      </p>
-                      {file.fileType === "img" ? (
-                        <img
-                          src={url}
-                          alt={file.moduleName}
-                          className="w-full h-40 object-cover rounded"
-                        />
-                      ) : (
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          View Document
-                        </a>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* Footer Buttons */}
-          <div className="flex justify-end gap-3 mt-6">
-            <Button
-              type="primary"
-              className="bg-primary"
-              onClick={handleSubmit}
-              loading={submitting}
-            >
+          {/* FOOTER BUTTONS */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+            <Button type="primary" onClick={handleSubmit} loading={submitting}>
               Update
             </Button>
             <Button onClick={() => navigate(-1)}>Cancel</Button>

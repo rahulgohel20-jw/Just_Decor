@@ -579,7 +579,6 @@ export const UpdateStatusKitchenArea = (id, isActive = true) => {
 // file upload
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
-
 };
 
 export const uploadFileformenu = (formData, params) => {
@@ -623,6 +622,11 @@ export const UpdateMenuItem = (id, data) => {
 //stautsmeniitem
 export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
+};
+
+export const SyncRawmaterialMenuallocation = (id) => {
+  return DELETE(`
+menuallocation/syncrawmaterialitems?eventFunctionid=${id}`);
 };
 
 // Change Password
@@ -1099,14 +1103,13 @@ export const Edittemplatebyid = (id, data) => {
   return PUT(`/templatemodulemaster/update?id=${id}`, data);
 };
 
-
 export const GetAllTicketsByUserId = (id) => {
   return GET(`/ticket/getallbyuserid?userId=${id}`);
-}
+};
 
 export const GetAllInteraction = () => {
   return GET(`/interaction/getall`);
-}
+};
 
 export const AddInteraction = (data) => {
   return POST(`/interaction/add`, data);
@@ -1120,9 +1123,14 @@ export const DeleteTicket = (Id) => {
   return DELETE(`/ticket/delete?id=${Id}`);
 };
 
-
 export const AddTickets = (data) => {
   return POST(`/ticket/add`, data);
+};
+
+export const GetOutsideSummary = (eventfunID, eventId, type) => {
+  return GET(
+    `/menuallocation/getagencywithitemsbytype?eventFunctionId=${eventfunID}&eventId=${eventId}&type=${type}`
+  );
 };
 
 

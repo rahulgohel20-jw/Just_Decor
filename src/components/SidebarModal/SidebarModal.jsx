@@ -66,6 +66,7 @@ export default function SidebarModal({
           quantity: alloc.quantity || "",
           unitId: alloc.unitId || null, // ADD THIS
           unitName: alloc.unitName || "Nos",
+          unitId: alloc.unitId || null,
           totalPrice: totalPrice,
           isOutside: alloc.isOutside,
         };
@@ -80,6 +81,7 @@ export default function SidebarModal({
           quantity: "",
           unitId: null, // ADD THIS
           unitName: "Nos",
+          unitId: null,
           totalPrice: "",
           isOutside: true,
         },
@@ -151,6 +153,7 @@ export default function SidebarModal({
         quantity: "",
         unitId: null, // ADD THIS
         unitName: "Nos",
+        unitId: null,
         totalPrice: "",
         isOutside: true,
       },
@@ -184,6 +187,17 @@ export default function SidebarModal({
     setMenuAllocations(updated);
   };
 
+  const handleUnitChange = (index, unitId) => {
+    const updated = [...menuAllocations];
+
+    const selectedUnit = unit.find((u) => u.id === unitId);
+
+    updated[index].unitId = unitId;
+    updated[index].unitName = selectedUnit?.unitName || "";
+
+    setMenuAllocations(updated);
+  };
+
   const handleSave = () => {
     const saveData = {
       eventId,
@@ -208,6 +222,8 @@ export default function SidebarModal({
     console.log("Save Data with Unit IDs:", saveData); // Debug log
 
     if (onSave) {
+      console.log(saveData);
+
       onSave(saveData);
     }
 
@@ -432,20 +448,21 @@ export default function SidebarModal({
 
                       <div>
                         <BaseSelect
-                          value={row.unitName}
+                          value={row.unitId || ""}
                           onChange={(e) =>
-                            handleInputChange(idx, "unitName", e.target.value)
+                            handleUnitChange(idx, Number(e.target.value))
                           }
                         >
                           <option value="">
                             <FormattedMessage
                               id="COMMON.SELECT_NAME"
-                              defaultMessage="Select Name"
+                              defaultMessage="Select Unit"
                             />
                           </option>
-                          {unit.map((c) => (
-                            <option key={c.id} value={c.unitName}>
-                              {c.unitName}
+
+                          {unit.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.unitName}
                             </option>
                           ))}
                         </BaseSelect>
