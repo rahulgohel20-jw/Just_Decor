@@ -45,9 +45,12 @@ export default function SidebarModal({
   const [unit, setUnit] = useState([]);
   const intl = useIntl();
   const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     if (!open || !row) return;
     const allocations = row.eventFunctionMenuAllocations || [];
+    console.log("aloocationn", allocations);
+
     const outsideAllocations = allocations
       .filter((alloc) => alloc.isOutside === true)
       .map((alloc) => {
@@ -61,6 +64,7 @@ export default function SidebarModal({
           partyName: alloc.partyName || "",
           price: alloc.price || "",
           quantity: alloc.quantity || "",
+          unitId: alloc.unitId || null, // ADD THIS
           unitName: alloc.unitName || "Nos",
           totalPrice: totalPrice,
           isOutside: alloc.isOutside,
@@ -74,6 +78,7 @@ export default function SidebarModal({
           partyName: "",
           price: "",
           quantity: "",
+          unitId: null, // ADD THIS
           unitName: "Nos",
           totalPrice: "",
           isOutside: true,
@@ -144,6 +149,7 @@ export default function SidebarModal({
         partyName: "",
         price: "",
         quantity: "",
+        unitId: null, // ADD THIS
         unitName: "Nos",
         totalPrice: "",
         isOutside: true,
@@ -154,6 +160,12 @@ export default function SidebarModal({
   const handleInputChange = (index, field, value) => {
     const updated = [...menuAllocations];
     updated[index][field] = value;
+
+    // If unit is changed, also update the unitId
+    if (field === "unitName") {
+      const selectedUnit = unit.find((u) => u.unitName === value);
+      updated[index].unitId = selectedUnit?.id || null;
+    }
 
     if (field === "price" || field === "quantity") {
       const price = parseFloat(updated[index].price) || 0;
@@ -179,10 +191,21 @@ export default function SidebarModal({
       menuItemId: row?.menuItemId,
       menuCategoryId: row?.menuCategoryId,
       allocationType: "outside",
-      allocations: menuAllocations.filter(
-        (alloc) => alloc.partyId && (alloc.price || alloc.quantity)
-      ),
+      allocations: menuAllocations
+        .filter((alloc) => alloc.partyId && (alloc.price || alloc.quantity))
+        .map((alloc) => ({
+          partyId: alloc.partyId,
+          partyName: alloc.partyName,
+          price: alloc.price,
+          quantity: alloc.quantity,
+          unitId: alloc.unitId, // ADD THIS
+          unitName: alloc.unitName,
+          totalPrice: alloc.totalPrice,
+          isOutside: alloc.isOutside,
+        })),
     };
+
+    console.log("Save Data with Unit IDs:", saveData); // Debug log
 
     if (onSave) {
       onSave(saveData);
@@ -281,8 +304,7 @@ export default function SidebarModal({
                         <input
                           className="input"
                           type="text"
-                         
-                          value={personCount || ""} 
+                          value={personCount || ""}
                           readOnly
                         />
                       </div>

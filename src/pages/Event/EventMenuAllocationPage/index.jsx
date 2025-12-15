@@ -18,6 +18,7 @@ import {
   GetMenuAllocation,
   SelectedItemNameMenuAllocation,
   MenuAllocationSave,
+  MenuAllocationTypeSummary,
 } from "@/services/apiServices";
 import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -344,6 +345,9 @@ const EventMenuAllocationPage = () => {
   const [isInsideModal, setIsInsideModal] = useState(false);
   const intl = useIntl();
   const [searchTerm, setSearchTerm] = useState("");
+  const [chefsummary, setchefsummary] = useState([]);
+  const [outsidesummary, setoutsidesummary] = useState([]);
+  const [insidesummary, setinsidesummary] = useState([]);
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -485,11 +489,35 @@ const EventMenuAllocationPage = () => {
             menuItemId: item.menuItemId,
             eventFunctionMenuAllocations:
               item.eventFunctionMenuAllocations?.map((alloc) => ({
-                partyId: alloc.partyId || null,
-                partyName: alloc.partyName || "",
-                number: alloc.number || "",
-                person: alloc.person || "",
-                remarks: alloc.remarks || "",
+                id: alloc.id || null,
+
+                partyId: alloc.partyId,
+                partyName: alloc.partyName,
+
+                menuAllocationId: item.id, // IMPORTANT
+
+                price: Number(alloc.price) || 0,
+                quantity: Number(alloc.quantity) || 0,
+
+                unitId: alloc.unitId ?? null,
+                unitName: alloc.unitName ?? null,
+
+                serviceType: alloc.serviceType || "",
+
+                counterQuantity: alloc.counterQuantity || 0,
+                helperQuantity: alloc.helperQuantity || 0,
+
+                counterPrice: alloc.counterPrice || 0,
+                helperPrice: alloc.helperPrice || 0,
+
+                totalPrice:
+                  (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0),
+
+                isOutside: item.outside || false,
+
+                number: alloc.number ?? null,
+                remarks: alloc.remarks ?? null,
+                pax: alloc.pax ?? null,
               })) || [],
             menuItemRawMaterials: [],
           })) || [];
@@ -1054,15 +1082,36 @@ const EventMenuAllocationPage = () => {
     setIsSelectMenuReport(true);
   }
 
-  const openSummaryItemModalchefoutside = () => {
+  const openSummaryItemModalchefoutside = async () => {
+    const res = await MenuAllocationTypeSummary(
+      activeFunction?.id,
+      eventId,
+      "Chef"
+    );
+    console.log(res);
+    setchefsummary(res.data.data["Menu Allocation Details"] || []);
     setIsModalOpen(true);
   };
 
-  const openSummaryItemModalOustsideAgency = () => {
+  const openSummaryItemModalOustsideAgency = async () => {
+    const res = await MenuAllocationTypeSummary(
+      activeFunction?.id,
+      eventId,
+      "Outside"
+    );
+    console.log(res);
+    setoutsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsOutsideAgencyModalOpen(true);
   };
 
   const openSummaryItemModalInHouseCook = () => {
+    const res = MenuAllocationTypeSummary(
+      activeFunction?.id,
+      eventId,
+      "Inside"
+    );
+    console.log(res);
+    setinsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsInHouseCookModalOpen(true);
   };
   return (
@@ -1470,14 +1519,17 @@ const EventMenuAllocationPage = () => {
         <SummaryItemModalchefoutside
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          chefsummary={chefsummary}
         />
         <SummaryItemModalOutsideAgency
           open={isOutsideAgencyModalOpen}
           onClose={() => setIsOutsideAgencyModalOpen(false)}
+          outsidesummary={outsidesummary}
         />
         <SummaryItemModalInHousecook
           open={isInHouseCookModalOpen}
           onClose={() => setIsInHouseCookModalOpen(false)}
+          insidesummary={insidesummary}
         />
       </Container>
     </Fragment>

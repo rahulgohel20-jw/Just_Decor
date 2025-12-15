@@ -4,6 +4,7 @@ import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Form } from "antd";
 import AddVendor from "@/partials/modals/add-vendor/AddVendor";
+import { Plus } from "lucide-react";
 
 const WhatsAppIcon = () => (
   <svg
@@ -443,7 +444,9 @@ export default function SidebarChefModal({
                         id="SIDEBAR_MODAL.CONTACT_NAME"
                         defaultMessage="Contact Name"
                       />
-                      <button onClick={() => setIsModalOpen(true)}>Add</button>
+                      <button onClick={() => setIsModalOpen(true)}>
+                        <Plus className="w-6 h-6  text-white bg-blue-700 rounded-full p-1" />
+                      </button>
                     </div>
 
                     <div>
@@ -1038,7 +1041,10 @@ export default function SidebarChefModal({
           </div>
         </div>
       )}
-      <AddVendor open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AddVendor
+        isModalOpen={isModalOpen}
+        isModalClose={() => setIsModalOpen(false)}
+      />
     </AnimatePresence>
   );
 }
