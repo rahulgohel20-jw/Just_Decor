@@ -172,7 +172,6 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
               </span>
             }
             name="nameEnglish"
-            rules={[{ required: true, message: "Please enter Name (English)" }]}
           >
             <Input
               className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
@@ -260,16 +259,9 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
                 Menu Item Category <span className="text-red-500">*</span>
               </span>
             }
-            required
           >
             <div className="flex gap-3 w-full">
-              <Form.Item
-                name="menuCategory"
-                rules={[
-                  { required: true, message: "Please select Menu Category" },
-                ]}
-                noStyle
-              >
+              <Form.Item name="menuCategory" noStyle>
                 <Select
                   placeholder="Select Menu Category"
                   allowClear

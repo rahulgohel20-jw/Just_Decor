@@ -1522,6 +1522,9 @@ const EventMenuAllocationPage = () => {
         <SummaryItemModalchefoutside
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          eventFunctionId={activeFunction?.id}
+          eventId={eventId}
+          type="chef"
         />
         <SummaryItemModalOutsideAgency
           open={isOutsideAgencyModalOpen}
