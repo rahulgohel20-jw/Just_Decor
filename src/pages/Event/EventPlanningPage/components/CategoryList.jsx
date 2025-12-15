@@ -3,15 +3,67 @@ import { GetAllCategoryformenu } from "@/services/apiServices";
 
 const CategoryList = ({
   refreshKey,
-  selectedCategoryId = 0, // ⭐ Highlight by ID
+  selectedCategoryId = 0,
   onCategoryChange = () => {},
   searchTerm = "",
-  packageCategories = [], // ["WELCOME DRINKS", "BAR BE QUE"]
-  savedCategoriesOrder = [], // e.g. ["WELCOME DRINKS", "BAR BE QUE"]
+  packageCategories = [],
+  savedCategoriesOrder = [],
 }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentLanguage, setCurrentLanguage] = useState(
+    localStorage.getItem("lang") || "en"
+  );
   const userId = localStorage.getItem("userId");
+
+  // Listen for language changes - Multiple methods to catch it
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      console.log("CategoryList - Language changed to:", newLang); // Debug log
+      setCurrentLanguage(newLang);
+    };
+
+    // Method 1: Custom event
+    window.addEventListener("languageChange", handleLanguageChange);
+
+    // Method 2: Storage event (for other tabs)
+    window.addEventListener("storage", handleLanguageChange);
+
+    // Method 3: Polling (check every 500ms as fallback)
+    const intervalId = setInterval(() => {
+      const currentLang = localStorage.getItem("lang") || "en";
+      if (currentLang !== currentLanguage) {
+        console.log(
+          "CategoryList - Language detected via polling:",
+          currentLang
+        );
+        setCurrentLanguage(currentLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("languageChange", handleLanguageChange);
+      window.removeEventListener("storage", handleLanguageChange);
+      clearInterval(intervalId);
+    };
+  }, [currentLanguage]);
+
+  // Helper function to get localized category name
+  const getLocalizedCategoryName = useMemo(() => {
+    return (cat) => {
+      const languageMap = {
+        en: "nameEnglish",
+        hi: "nameHindi",
+        gu: "nameGujarati",
+      };
+
+      const field = languageMap[currentLanguage] || "nameEnglish";
+
+      // Return localized name or fallback to nameEnglish or name
+      return cat[field] || cat.nameEnglish || cat.name || "";
+    };
+  }, [currentLanguage]);
 
   const fetchCategories = async () => {
     try {
@@ -21,11 +73,21 @@ const CategoryList = ({
       if (response?.data) {
         const categoryData = response.data.data["Menu Category Details"] || [];
 
+        // Debug: Log first category to see available fields
+        if (categoryData.length > 0) {
+          console.log("Sample category fields:", Object.keys(categoryData[0]));
+          console.log("Sample category:", categoryData[0]);
+        }
+
         const categoryList = [
-          { id: 0, name: "All" },
+          { id: 0, nameEnglish: "All", nameHindi: "सभी", nameGujarati: "બધા" },
           ...categoryData.map((cat) => ({
             id: cat.id,
-            name: cat.nameEnglish || cat.name,
+            nameEnglish: cat.nameEnglish || cat.name,
+            nameHindi: cat.nameHindi || cat.nameEnglish || cat.name,
+            nameGujarati: cat.nameGujarati || cat.nameEnglish || cat.name,
+            // Keep original object for any other fields
+            ...cat,
           })),
         ];
 
@@ -37,58 +99,67 @@ const CategoryList = ({
       }
     } catch (error) {
       console.error("Error loading categories:", error);
-      setCategories([{ id: 0, name: "All" }]);
+      setCategories([
+        { id: 0, nameEnglish: "All", nameHindi: "सभी", nameGujarati: "બધા" },
+      ]);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchCategories();
   }, []);
+
   useEffect(() => {
     fetchCategories();
   }, [refreshKey]);
 
-  // -------------------------------------------------------
-  // ⭐ CATEGORY SORTING PRIORITY:
-  // 1) All
-  // 2) Saved order from API (menuSortOrder)
-  // 3) Package categories (PKG applied)
-  // 4) Normal categories
-  // -------------------------------------------------------
   const sortedCategories = useMemo(() => {
     const cats = [...categories];
 
-    const allCat = cats.find((c) => c.name === "All");
+    // Find "All" category
+    const allCat = cats.find((c) => c.id === 0);
 
+    // Get the localized names for comparison
+    const getDisplayName = (cat) => getLocalizedCategoryName(cat);
+
+    // Map saved order using localized names
     const savedOrderedCats = savedCategoriesOrder
-      .map((catName) => cats.find((c) => c.name === catName))
+      .map((catName) => cats.find((c) => getDisplayName(c) === catName))
       .filter(Boolean);
 
     const remaining = cats.filter(
-      (c) => c.name !== "All" && !savedCategoriesOrder.includes(c.name)
+      (c) => c.id !== 0 && !savedCategoriesOrder.includes(getDisplayName(c))
     );
 
     const packageCats = remaining.filter((c) =>
-      packageCategories.includes(c.name)
+      packageCategories.includes(getDisplayName(c))
     );
 
     const normalCats = remaining.filter(
-      (c) => !packageCategories.includes(c.name)
+      (c) => !packageCategories.includes(getDisplayName(c))
     );
 
     return [allCat, ...savedOrderedCats, ...packageCats, ...normalCats].filter(
       Boolean
     );
-  }, [categories, savedCategoriesOrder, packageCategories]);
+  }, [
+    categories,
+    savedCategoriesOrder,
+    packageCategories,
+    getLocalizedCategoryName,
+    currentLanguage,
+  ]);
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm) return sortedCategories;
     const lower = searchTerm.toLowerCase();
-    return sortedCategories.filter((cat) =>
-      cat.name.toLowerCase().includes(lower)
-    );
-  }, [sortedCategories, searchTerm]);
+    return sortedCategories.filter((cat) => {
+      const displayName = getLocalizedCategoryName(cat);
+      return displayName.toLowerCase().includes(lower);
+    });
+  }, [sortedCategories, searchTerm, getLocalizedCategoryName, currentLanguage]);
 
   if (loading) {
     return (
@@ -102,12 +173,13 @@ const CategoryList = ({
     <div className="w-full">
       <div className="flex flex-col gap-2">
         {filteredCategories.map((cat) => {
-          const isPkgCat = packageCategories.includes(cat.name);
+          const displayName = getLocalizedCategoryName(cat);
+          const isPkgCat = packageCategories.includes(displayName);
 
           return (
             <div
               key={cat.id}
-              onClick={() => onCategoryChange(cat.name, cat.id)}
+              onClick={() => onCategoryChange(displayName, cat.id)}
               className={`cursor-pointer px-3 py-2 rounded transition-all relative
                 ${
                   selectedCategoryId === cat.id
@@ -123,7 +195,7 @@ const CategoryList = ({
                   PKG
                 </span>
               )}
-              {cat.name}
+              {displayName}
             </div>
           );
         })}

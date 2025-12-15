@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FormattedMessage } from "react-intl";
-import { toAbsoluteUrl } from "@/utils";
 
 const WhatsAppIcon = () => (
   <svg
@@ -13,8 +11,28 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-export default function SummaryItemModalOutsideAgency({ open, onClose }) {
-  const [activeTab, setActiveTab] = useState("dinner");
+const DownloadIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
+  </svg>
+);
+
+export default function SummaryItemModalOutsideAgency({
+  open,
+  onClose,
+  outsidesummary,
+}) {
   const [showItems, setShowItems] = useState(false);
 
   useEffect(() => {
@@ -26,42 +44,109 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [open, onClose]);
 
+  // Sample data structure matching the API response
+  const sampleData = {
+    msg: "Menu Allocation Found Successfully",
+    data: {
+      "Menu Allocation Details": {
+        eventFunction: {
+          id: 3,
+          function: {
+            id: 1,
+            nameEnglish: "Dinner",
+            nameHindi: "डिनर",
+            nameGujarati: "ડિનર",
+            startTime: "00:00 AM",
+            endTime: "02:00 AM",
+            createdAt: "2025-12-11T12:07:58",
+            userId: null,
+          },
+          functionStartDateTime: "12/12/2025 12:00 am",
+          functionEndDateTime: "12/12/2025 02:00 am",
+          pax: 100,
+          rate: 0.0,
+          function_venue: "Ahmedabad",
+          notesEnglish: "",
+          notesHindi: "",
+          notesGujarati: "",
+          eventId: 3,
+          sortorder: 1,
+          createdAt: "12/12/2025",
+        },
+        agencyResponse: [
+          {
+            contactId: 4,
+            contactName: "Parth",
+            totalPax: 100,
+            totalPrice: 1000.0,
+            type: "Outside",
+            number: "6597445585",
+            remarks: null,
+            totalQty: null,
+            allocationItems: [
+              {
+                itemId: 2194,
+                itemName: "AMRITSARI PARAATHA",
+                pax: 100,
+                notes: null,
+                remarks: "",
+                unitId: 81,
+                unitName: "PKT(S)",
+                price: 1000,
+                qty: 10,
+                counterQty: 0,
+                counterPrice: 0,
+                helperQty: 0,
+                helperPrice: 0,
+              },
+            ],
+            totalHeplerPrice: 0,
+            totalCounterPrice: 0,
+            totalHelperQty: 0,
+            totalCounterQty: 0,
+          },
+        ],
+      },
+    },
+    success: true,
+  };
+
+  // Use provided data or sample data
+  const responseData = outsidesummary || sampleData;
+
+  // Extract data from API response
+  const menuDetails = responseData?.data?.["Menu Allocation Details"];
+  const eventFunction = menuDetails?.eventFunction;
+  const agencyData = menuDetails?.agencyResponse?.[0] || {};
+
   const summaryData = {
-    contactName: "AMZAD KHAN",
-    price: 1000,
-    quantity: 12,
-    totalPrice: "12000 INR",
-    date: "27/11/2025 08:00 pm",
-    items: [
-      {
-        id: 1,
-        name: "STRAWBERRY BLACK GRAPES JUICE",
-        dateTime: "02.10.2025 9:00 AM",
-        person: 450,
-        place: "At venue",
-      },
-      {
-        id: 2,
-        name: "MANGO SHAKE",
-        dateTime: "02.10.2025 2:30 PM",
-        person: 300,
-        place: "Outdoor Stall",
-      },
-      {
-        id: 3,
-        name: "BLUEBERRY MOCKTAIL",
-        dateTime: "03.10.2025 11:00 AM",
-        person: 500,
-        place: "At venue",
-      },
-      {
-        id: 3,
-        name: "BLUEBERRY MOCKTAIL",
-        dateTime: "03.10.2025 11:00 AM",
-        person: 500,
-        place: "At venue",
-      },
-    ],
+    contactName: agencyData.contactName || "N/A",
+    contactNumber: agencyData.number || "N/A",
+    totalPax: agencyData.totalPax || 0,
+    quantity:
+      agencyData.totalQty ||
+      agencyData.allocationItems?.reduce(
+        (sum, item) => sum + (item.qty || 0),
+        0
+      ) ||
+      0,
+    totalPrice: agencyData.totalPrice
+      ? `${agencyData.totalPrice.toFixed(2)} INR`
+      : "0.00 INR",
+    date: eventFunction?.functionStartDateTime || "N/A",
+    functionName: eventFunction?.function?.nameEnglish || "Dinner",
+    venue: eventFunction?.function_venue || "N/A",
+    items:
+      agencyData.allocationItems?.map((item, index) => ({
+        id: index + 1,
+        itemId: item.itemId,
+        name: item.itemName || "N/A",
+        person: item.pax || 0,
+        quantity: item.qty || 0,
+        unit: item.unitName || "N/A",
+        price: item.price || 0,
+        notes: item.notes || item.remarks || "-",
+      })) || [],
   };
 
   return (
@@ -80,16 +165,17 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[1200px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[1200px] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col"
               initial={{ x: "110%" }}
               animate={{ x: 0 }}
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
-              <div className="bg-white border-b border-gray-200 px-6 py-4">
+              {/* Header */}
+              <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Summary Itemmmm - Outside Agency
+                    Summary Item - Outside Agency
                   </h2>
                   <button
                     onClick={onClose}
@@ -112,192 +198,193 @@ export default function SummaryItemModalOutsideAgency({ open, onClose }) {
                 </div>
               </div>
 
-              <div className="overflow-y-hidden max-h-[calc(90vh-80px)]">
+              {/* Content */}
+              <div className="overflow-y-auto flex-1">
                 <div className="p-6">
-                  <div className="flex items-center gap-6 ">
-                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
-                      Dinner
-                    </button>
+                  {/* Function Name and Date */}
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold">
+                      {summaryData.functionName}
+                    </div>
 
-                    <div className="flex flex-col mb-4 ">
-                      <div className="text-[12px]  text-gray-600">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.DATE_TIME"
-                          defaultMessage="Date and Time No."
-                        />
+                    <div className="flex flex-col">
+                      <div className="text-xs text-gray-600 mb-1">
+                        Date and Time
                       </div>
-                      <div>
-                        <input
-                          className="input"
-                          type="text"
-                          value="27/11/2025 08:00 pm"
-                          readOnly
-                        />
+                      <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                        {summaryData.date}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-xs text-gray-600 mb-1">Venue</div>
+                      <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                        {summaryData.venue}
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    <div className="grid grid-cols-6 gap-12 mb-3 pb-2 border-b border-gray-300">
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
+                  {/* Summary Table */}
+                  <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                    {/* Table Header */}
+                    <div className="grid grid-cols-6 gap-4 mb-3 pb-3 border-b border-gray-300">
+                      <div className="text-sm font-semibold text-gray-700">
                         #
                       </div>
-                      <div className="text-sm font-semibold text-gray-700 ">
+                      <div className="text-sm font-semibold text-gray-700">
                         Contact Name
                       </div>
-                      <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3  ">
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         Total Person
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         Total Quantity
                       </div>
-
-                      <div className="text-sm font-semibold text-gray-700">
+                      <div className="text-sm font-semibold text-gray-700 text-center">
                         Total Price
                       </div>
-                      <div className="text-sm font-semibold text-gray-700">
-                        Action
+                      <div className="text-sm font-semibold text-gray-700 text-center">
+                        Actions
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-6 mt-3 gap-4 items-center bg-white p-3 rounded-lg shadow-sm">
-                      <div className="text-sm text-gray-800">1</div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {summaryData.contactName}
+                    {/* Table Row */}
+                    <div className="grid grid-cols-6 gap-4 items-center bg-white p-4 rounded-lg shadow-sm">
+                      <div className="text-sm text-gray-800 font-medium">1</div>
+                      <div className="flex flex-col">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {summaryData.contactName}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {summaryData.contactNumber}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
-                        {summaryData.price}
+                      <div className="text-sm text-gray-800 text-center font-medium">
+                        {summaryData.totalPax}
                       </div>
-                      <div className="text-sm text-gray-800 flex justify-center pe-8 ">
-                        {summaryData.quantity}{" "}
-                        <span className="text-gray-500">
-                          {summaryData.unit}
-                        </span>
+                      <div className="text-sm text-gray-800 text-center font-medium">
+                        {summaryData.quantity}
                       </div>
-
-                      <div className="text-sm font-semibold text-gray-900 flex justify-start ps-8">
+                      <div className="text-sm font-semibold text-gray-900 text-center">
                         {summaryData.totalPrice}
                       </div>
 
-                      <div
-                        className={`flex justify-start gap-5 p-2 rounded-md transition-all duration-300 
-                         `}
-                      >
-                        <div className="flex gap-2">
-                          <button
-                            className="p-1.5 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
-                            title="Send via WhatsApp"
-                          >
-                            <WhatsAppIcon />
-                          </button>
+                      {/* Action Buttons */}
+                      <div className="flex justify-center gap-2">
+                        <button
+                          className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
+                          title="Send via WhatsApp"
+                        >
+                          <WhatsAppIcon />
+                        </button>
 
-                          <button
-                            className="p-1.1 text-white transition-colors flex items-center justify-center"
-                            title="Download PDF"
+                        <button
+                          className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors"
+                          title="Download PDF"
+                        >
+                          <DownloadIcon />
+                        </button>
+
+                        <button
+                          onClick={() => setShowItems(!showItems)}
+                          className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                          title="Toggle Items"
+                        >
+                          <motion.svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            animate={{ rotate: showItems ? 180 : 0 }}
+                            transition={{ duration: 0.3 }}
                           >
-                            <img
-                              src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
-                              alt="PDF Icon"
-                              className="w-6 h-6 object-contain"
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
                             />
-                          </button>
-                          <button
-                            onClick={() => setShowItems(!showItems)}
-                            className="text-blue-600 hover:text-gray-600 transition-transform"
-                          >
-                            <motion.svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              animate={{ rotate: showItems ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </motion.svg>
-                          </button>
-                        </div>
+                          </motion.svg>
+                        </button>
                       </div>
                     </div>
+
+                    {/* Expandable Items Section */}
                     <AnimatePresence>
                       {showItems && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
+                          className="mt-6 overflow-hidden"
                         >
-                          {/* Table Header */}
-                          <div className="grid grid-cols-8 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
-                            <div className="text-sm font-semibold text-gray-700">
-                              #
+                          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                            {/* Items Header */}
+                            <div className="grid grid-cols-8 gap-4 bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200">
+                              <div className="text-sm font-semibold text-gray-700">
+                                #
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 col-span-2">
+                                Menu Item Name
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 text-center">
+                                Person
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 text-center">
+                                Quantity
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 text-center">
+                                Unit
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 text-center">
+                                Price
+                              </div>
+                              <div className="text-sm font-semibold text-gray-700 text-center">
+                                Notes
+                              </div>
                             </div>
-                            <div className="text-sm font-semibold text-gray-700 col-span-2">
-                              Menu Item Name
+
+                            {/* Items List */}
+                            <div className="max-h-[250px] overflow-y-auto">
+                              {summaryData.items.length > 0 ? (
+                                summaryData.items.map((item, index) => (
+                                  <motion.div
+                                    key={item.itemId + "-" + index}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className="grid grid-cols-8 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-blue-50 transition-colors"
+                                  >
+                                    <div className="text-sm text-gray-700 font-medium">
+                                      {item.id}
+                                    </div>
+                                    <div className="text-sm font-medium text-gray-900 col-span-2">
+                                      {item.name}
+                                    </div>
+                                    <div className="text-sm text-gray-700 text-center">
+                                      {item.person}
+                                    </div>
+                                    <div className="text-sm text-gray-700 text-center">
+                                      {item.quantity}
+                                    </div>
+                                    <div className="text-sm text-gray-700 text-center">
+                                      {item.unit}
+                                    </div>
+                                    <div className="text-sm text-gray-700 text-center font-semibold">
+                                      ₹{item.price}
+                                    </div>
+                                    <div className="text-sm text-gray-500 text-center">
+                                      {item.notes}
+                                    </div>
+                                  </motion.div>
+                                ))
+                              ) : (
+                                <div className="px-5 py-8 text-center text-gray-500">
+                                  No items found
+                                </div>
+                              )}
                             </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              Person
-                            </div>
-                            <div className="text-sm font-semibold text-gray-700 ">
-                              Quantity
-                            </div>
-                            <div className="text-sm font-semibold flex justify-center text-gray-700  pe-12">
-                              Unit
-                            </div>{" "}
-                            <div className="text-sm font-semibold text-gray-700 ">
-                              Price
-                            </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              Notes
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              maxHeight:
-                                summaryData.items.length > 3 ? "150px" : "auto",
-                              overflowY: "auto",
-                              scrollbarWidth: "none", // Firefox
-                              msOverflowStyle: "none", // IE/Edge
-                            }}
-                            className="scroll-hidden"
-                          >
-                            {summaryData.items.map((item, index) => (
-                              <motion.div
-                                key={item.id + index}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 10 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-8 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                              >
-                                <div className="text-sm text-gray-700">
-                                  {item.id}
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 col-span-2">
-                                  {item.name}
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start ps-2">
-                                  {item.person}
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start ps-3">
-                                  20
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start ps-3">
-                                  Packs
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start pe-3">
-                                  1000
-                                </div>
-                                <div className="text-sm text-gray-700">
-                                  Notes
-                                </div>
-                              </motion.div>
-                            ))}
                           </div>
                         </motion.div>
                       )}

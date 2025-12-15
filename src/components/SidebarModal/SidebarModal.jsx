@@ -45,9 +45,12 @@ export default function SidebarModal({
   const [unit, setUnit] = useState([]);
   const intl = useIntl();
   const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     if (!open || !row) return;
     const allocations = row.eventFunctionMenuAllocations || [];
+    console.log("aloocationn", allocations);
+
     const outsideAllocations = allocations
       .filter((alloc) => alloc.isOutside === true)
       .map((alloc) => {
@@ -61,6 +64,7 @@ export default function SidebarModal({
           partyName: alloc.partyName || "",
           price: alloc.price || "",
           quantity: alloc.quantity || "",
+          unitId: alloc.unitId || null, // ADD THIS
           unitName: alloc.unitName || "Nos",
           unitId: alloc.unitId || null,
           totalPrice: totalPrice,
@@ -75,6 +79,7 @@ export default function SidebarModal({
           partyName: "",
           price: "",
           quantity: "",
+          unitId: null, // ADD THIS
           unitName: "Nos",
           unitId: null,
           totalPrice: "",
@@ -146,6 +151,7 @@ export default function SidebarModal({
         partyName: "",
         price: "",
         quantity: "",
+        unitId: null, // ADD THIS
         unitName: "Nos",
         unitId: null,
         totalPrice: "",
@@ -157,6 +163,12 @@ export default function SidebarModal({
   const handleInputChange = (index, field, value) => {
     const updated = [...menuAllocations];
     updated[index][field] = value;
+
+    // If unit is changed, also update the unitId
+    if (field === "unitName") {
+      const selectedUnit = unit.find((u) => u.unitName === value);
+      updated[index].unitId = selectedUnit?.id || null;
+    }
 
     if (field === "price" || field === "quantity") {
       const price = parseFloat(updated[index].price) || 0;
@@ -200,12 +212,14 @@ export default function SidebarModal({
           partyName: alloc.partyName,
           price: alloc.price,
           quantity: alloc.quantity,
-          unitId: alloc.unitId,
+          unitId: alloc.unitId, // ADD THIS
           unitName: alloc.unitName,
           totalPrice: alloc.totalPrice,
-          isOutside: true,
+          isOutside: alloc.isOutside,
         })),
     };
+
+    console.log("Save Data with Unit IDs:", saveData); // Debug log
 
     if (onSave) {
       console.log(saveData);

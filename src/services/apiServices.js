@@ -578,7 +578,6 @@ export const UpdateStatusKitchenArea = (id, isActive = true) => {
 // file upload
 export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
-
 };
 
 export const uploadFileformenu = (formData, params) => {
@@ -1104,14 +1103,13 @@ export const Edittemplatebyid = (id, data) => {
 };
 
 
-
 export const GetAllTicketsByUserId = (id) => {
   return GET(`/ticket/getallbyuserid?userId=${id}`);
-}
+};
 
 export const GetAllInteraction = () => {
   return GET(`/interaction/getall`);
-}
+};
 
 export const AddInteraction = (data) => {
   return POST(`/interaction/add`, data);
@@ -1125,11 +1123,42 @@ export const DeleteTicket = (Id) => {
   return DELETE(`/ticket/delete?id=${Id}`);
 };
 
-
 export const AddTickets = (data) => {
   return POST(`/ticket/add`, data);
 };
 
+export const GetOutsideSummary = (eventfunID, eventId, type) => {
+  return GET(
+    `/menuallocation/getagencywithitemsbytype?eventFunctionId=${eventfunID}&eventId=${eventId}&type=${type}`
+  );
+};
+
+
+export const AddComments = (data) => {
+  return POST(`/ticketcomment/add`, data);
+};
+
+export const GetCommentsByTicketId = (id) => {
+  return GET(`/ticketcomment/getallbyticketid?ticketId=${id}`);
+}
+
+export const DeleteComment = (Id) => {
+  return DELETE(`/ticketcomment/delete?id=${Id}`);
+};
+
+export const EditComment = (id, data) => {
+  return POST(`/ticketcomment/update?id=${id}`, data);
+};
+
+
+export const EditTicket = (id, data) => {
+  return PUT(`/ticket/update?id=${id}`, data);
+};
+
+
+export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
+  return GET(`menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
+}
 export const AddLead =(data) => {
   return POST (`/leadmaster/add`,data);
 }

@@ -24,6 +24,9 @@ const MemberProfile = () => {
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
 
+  const [editTicketData, setEditTicketData] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
   useEffect(() => {
     const fetchMemberDetails = async () => {
       try {
@@ -127,6 +130,12 @@ const MemberProfile = () => {
     } catch (error) {
       console.error("Error deleting ticket:", error);
     }
+  };
+
+  const handleEditTicket = (ticket) => {
+    setEditTicketData(ticket);
+    setIsEditMode(true);
+    setShowAddTicketModal(true);
   };
 
   const getStatusColor = (status) => {
@@ -349,7 +358,7 @@ const MemberProfile = () => {
                             </h3>
                             <div className="flex gap-3">
                               <button
-                                onClick={() => handleDeleteTicket(ticket.id)}
+                                onClick={() => handleEditTicket(ticket)}
                                 className="text-purple-700 hover:text-purple-900 transition-colors"
                               >
                                 <Edit size={16} />
@@ -849,9 +858,32 @@ const MemberProfile = () => {
       {/* Add Ticket Modal */}
       <AddTicketModal
         isOpen={showAddTicketModal}
-        onClose={() => setShowAddTicketModal(false)}
+        onClose={() => {
+          setShowAddTicketModal(false);
+          setIsEditMode(false);
+          setEditTicketData(null);
+        }}
         onSave={handleSaveTicket}
-        ticketNumber={`T-1-${tickets.length + 1}`}
+        ticketNumber={
+          isEditMode ? editTicketData?.ticketcode : `T-1-${tickets.length + 1}`
+        }
+        userId={id || 1}
+        onRefresh={() => {
+          // Refresh tickets list
+          if (showTickets && id) {
+            const fetchTickets = async () => {
+              const response = await GetAllTicketsByUserId(id);
+              if (response.data.success) {
+                const ticketDetails =
+                  response?.data?.data?.["Ticket Details"] || [];
+                setTickets(ticketDetails);
+              }
+            };
+            fetchTickets();
+          }
+        }}
+        editMode={isEditMode}
+        ticketData={editTicketData}
       />
     </Fragment>
   );
