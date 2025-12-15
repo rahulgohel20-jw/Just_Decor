@@ -1132,3 +1132,30 @@ export const GetOutsideSummary = (eventfunID, eventId, type) => {
     `/menuallocation/getagencywithitemsbytype?eventFunctionId=${eventfunID}&eventId=${eventId}&type=${type}`
   );
 };
+
+
+export const AddComments = (data) => {
+  return POST(`/ticketcomment/add`, data);
+};
+
+export const GetCommentsByTicketId = (id) => {
+  return GET(`/ticketcomment/getallbyticketid?ticketId=${id}`);
+}
+
+export const DeleteComment = (Id) => {
+  return DELETE(`/ticketcomment/delete?id=${Id}`);
+};
+
+export const EditComment = (id, data) => {
+  return POST(`/ticketcomment/update?id=${id}`, data);
+};
+
+
+export const EditTicket = (id, data) => {
+  return PUT(`/ticket/update?id=${id}`, data);
+};
+
+
+export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
+  return GET(`menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
+}

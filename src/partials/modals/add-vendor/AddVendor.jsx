@@ -14,6 +14,7 @@ import Select from "react-select"; // inside your form
 
 const AddVendor = ({
   isModalOpen,
+  isModalClose,
   setIsModalOpen,
   selectedCustomer,
   filterType = "all",
@@ -174,43 +175,42 @@ const AddVendor = ({
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
 
-const fetchCategories = async () => {
-  try {
-    const {
-      data: { data },
-    } = await GetAllContactCategory(userData);
+  const fetchCategories = async () => {
+    try {
+      const {
+        data: { data },
+      } = await GetAllContactCategory(userData);
 
-    const allCategories = data["Contact Category Details"] || [];
+      const allCategories = data["Contact Category Details"] || [];
 
-    let filteredCategories = allCategories;
+      let filteredCategories = allCategories;
 
-    if (filterType === "labour") {
-      // Show only Labour categories
-      filteredCategories = allCategories.filter(
-        (cat) => cat.contactType?.id === 2 // <-- use Labour ID
-      );
-    } else {
-      // Exclude system type if needed
-      filteredCategories = allCategories.filter(
-        (cat) => cat.contactType?.id !== 1
-      );
+      if (filterType === "labour") {
+        // Show only Labour categories
+        filteredCategories = allCategories.filter(
+          (cat) => cat.contactType?.id === 2 // <-- use Labour ID
+        );
+      } else {
+        // Exclude system type if needed
+        filteredCategories = allCategories.filter(
+          (cat) => cat.contactType?.id !== 1
+        );
+      }
+
+      setCategories(filteredCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      if (!isModalOpen) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch categories. Please try again.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
     }
-
-    setCategories(filteredCategories);
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    if (!isModalOpen) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch categories. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-    }
-  }
-};
-
+  };
 
   const handleIconClick = () => {
     fileInputRef.current?.click();
@@ -320,7 +320,7 @@ const fetchCategories = async () => {
 
   const handleModalClose = (force = false) => {
     const closeModal = () => {
-      setIsModalOpen(false);
+      isModalClose(false);
       setFormData(initialFormState);
       setImagePreview(null);
       setErrors({});
