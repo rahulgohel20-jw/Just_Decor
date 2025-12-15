@@ -1159,3 +1159,17 @@ export const GetFilteredFollowUps = ({ startDate, endDate, isCreated, leadId }) 
     `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`
   );
 };
+export const AddExpensemanagement = (data) => {
+  return POST("/expensemanagement/add", data);
+};
+
+
+export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
+  return GET(
+    `/expensemanagement/getexpensebyusertype?eventId=${eventId}&userId=${userId}&userType=${userType}`
+  );
+};
+
+export const DeleteByExpenseID = (id) => {
+  return DELETE(`/expensemanagement/deletebyid?expenseId=${id}`);
+};

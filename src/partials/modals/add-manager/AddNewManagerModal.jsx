@@ -4,8 +4,15 @@ import {
   Fetchmanager,
   fetchStatesByCountry,
   fetchCitiesByState,
+  AddExpensemanagement,
 } from "@/services/apiServices";
-export default function AddNewManagerModal({ open, onClose }) {
+
+export default function AddNewManagerModal({
+  open,
+  onClose,
+  eventId,
+  eventData,
+}) {
   const [form, setForm] = useState({
     manager: "",
     role: "",
@@ -19,12 +26,20 @@ export default function AddNewManagerModal({ open, onClose }) {
   });
   const [showGST, setShowGST] = useState(false);
   const [managers, setManagers] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [leadData, setLeadData] = useState({});
+  const [partyId, setPartyId] = useState(null);
 
+  const userId = Number(localStorage.getItem("userId"));
+
+  // Log eventId when modal opens
   useEffect(() => {
     if (open) {
+      console.log("AddNewManagerModal opened with eventId:", eventId);
       FetchManager();
     }
-  }, [open]);
+  }, [open, eventId]);
 
   useEffect(() => {
     if (!open) return;
@@ -79,20 +94,89 @@ export default function AddNewManagerModal({ open, onClose }) {
   };
 
   const FetchManager = () => {
-    Fetchmanager(1)
+    if (!userId) return;
+
+    Fetchmanager(userId)
       .then((res) => {
         if (res?.data?.data?.userDetails) {
           const managerList = res.data.data.userDetails.map((man) => ({
             value: man.id,
             label: man.firstName || "-",
+            roleName: man.userBasicDetails?.role?.name || "",
+            roleId: man.userBasicDetails?.role?.id || 0,
           }));
           setManagers(managerList);
+        } else {
+          setManagers([]);
         }
       })
       .catch((err) => {
         console.error("Failed to fetch managers:", err);
         setManagers([]);
       });
+  };
+
+  const handleManagerChange = (e) => {
+    const selectedManagerId = e.target.value;
+
+    const selectedManager = managers.find(
+      (m) => String(m.value) === String(selectedManagerId)
+    );
+
+    setForm((prev) => ({
+      ...prev,
+      manager: selectedManagerId,
+      role: selectedManager?.roleName || "",
+      roleId: selectedManager?.roleId || 0,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      console.log("Submitting with eventId:", eventId);
+
+      const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
+      };
+
+      const payload = {
+        amount: Number(form.amount),
+        date: formatDate(form.date),
+        description: form.description,
+        remark: form.remarks,
+        paymentType: form.paymentType,
+        mobileNo: form.mobile,
+        userId: userId,
+        roleId: form.roleId,
+        gstin: form.gst || "",
+        buildingAddress: form.billFlat || "",
+        area: form.billArea || "",
+        city: form.billCity || "",
+        state: form.billState || "",
+        pincode: form.billPincode || "",
+        countryCode: "+91",
+        expenseId: -1,
+        eventId: Number(eventId),
+        partyId: Number(form.manager),
+        userType: "MANAGER",
+      };
+
+      console.log("Payload being sent:", payload);
+
+      const res = await AddExpensemanagement(payload);
+
+      console.log("Expense added:", res?.data);
+
+      if (res?.data?.data) {
+        onClose(res.data.data);
+      } else {
+        onClose();
+      }
+    } catch (err) {
+      console.error("Failed to add expense", err);
+    }
   };
 
   return (
@@ -118,6 +202,11 @@ export default function AddNewManagerModal({ open, onClose }) {
               <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
                   Add New Manager
+                  {eventData && (
+                    <span className="text-sm font-normal text-gray-500 ml-2">
+                      (Event: {eventData.eventNo})
+                    </span>
+                  )}
                 </h2>
                 <button
                   onClick={onClose}
@@ -148,19 +237,16 @@ export default function AddNewManagerModal({ open, onClose }) {
                     <select
                       name="manager"
                       value={form.manager}
-                      onChange={handleInput}
+                      onChange={handleManagerChange}
                       className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2"
                     >
                       <option value="">Select a manager</option>
-
                       {managers.map((mgr) => (
                         <option key={mgr.value} value={mgr.value}>
                           {mgr.label}
                         </option>
                       ))}
                     </select>
-
-                    {/* Custom dropdown arrow */}
                     <svg
                       className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
                       fill="none"
@@ -184,14 +270,13 @@ export default function AddNewManagerModal({ open, onClose }) {
                       name="role"
                       type="text"
                       value={form.role}
-                      onChange={handleInput}
                       placeholder="Enter role"
+                      readOnly
                       className="input mt-1"
                     />
                   </div>
                 </div>
 
-                {/* Row 2 */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
@@ -221,7 +306,6 @@ export default function AddNewManagerModal({ open, onClose }) {
                   </div>
                 </div>
 
-                {/* Row 3 */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
@@ -268,7 +352,6 @@ export default function AddNewManagerModal({ open, onClose }) {
                   </div>
                 </div>
 
-                {/* Description */}
                 <div>
                   <label className="text-sm font-medium text-gray-600">
                     Description
@@ -282,7 +365,6 @@ export default function AddNewManagerModal({ open, onClose }) {
                   />
                 </div>
 
-                {/* Remarks */}
                 <div>
                   <label className="text-sm font-medium text-gray-600">
                     Remarks
@@ -295,6 +377,7 @@ export default function AddNewManagerModal({ open, onClose }) {
                     className="mt-1 w-full h-24 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <button
                     type="button"
@@ -405,7 +488,6 @@ export default function AddNewManagerModal({ open, onClose }) {
                   )}
                 </div>
 
-                {/* Image Upload */}
                 <div>
                   <label className="text-sm font-medium text-gray-600">
                     Image
@@ -453,9 +535,11 @@ export default function AddNewManagerModal({ open, onClose }) {
                 </div>
               </div>
 
-              {/* Footer */}
               <div className="p-4 border-t bg-white flex justify-end">
-                <button className="btn btn-primary w-half  py-3">
+                <button
+                  className="btn btn-primary w-half py-3"
+                  onClick={handleSubmit}
+                >
                   Add Manager
                 </button>
               </div>

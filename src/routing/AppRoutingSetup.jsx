@@ -193,10 +193,10 @@ import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
 import TemplateName from "../pages/super-admin/master/template-name";
-import ExpenseMainPage from "../pages/Event/ExpensePage";
+
 import MenuItemMaster from "../pages/master/MenuItemMaster";
 import InteractionMaster from "../pages/super-admin/master/interaction-master";
-
+import ExpenseDetails from "../pages/Event/ExpensePage";
 import SuperLeads from "../pages/super-admin/Leads";
 import AddLeadPage from "@/pages/super-admin/Leads/AddLead/AddLeadPage";
 const AppRoutingSetup = () => {
@@ -250,10 +250,8 @@ const AppRoutingSetup = () => {
             element={<InvoicePreview />}
           />
           <Route path="/user-rights" element={<UserRights />} />
-
           <Route path="/renewal-history" element={<RenewalCustomer />} />
           <Route path="/addInvoice" element={<Addinvoice />} />
-
           <Route
             path="/menu-preparation/:eventId"
             element={<EventPlanningPage mode="menu" />}
@@ -264,6 +262,10 @@ const AppRoutingSetup = () => {
           />
           <Route
             path="/raw-material-allocation"
+            element={<RawMaterialAllocationPage />}
+          />
+          <Route
+            path="/raw-material-allocation/:eventId"
             element={<RawMaterialAllocationPage />}
           />
           <Route path="/custom-package" element={<CustomPackage />} />
@@ -277,13 +279,16 @@ const AppRoutingSetup = () => {
             path="/labour-and-other-management/:eventId"
             element={<LabourOtherManagementPage mode="labour" />}
           />
-          <Route path="/expense-management" element={<ExpenseMainPage />} />
+          <Route path="/expense-management/" element={<ExpenseDetails />} />
+          <Route
+            path="/expense-management/:eventId"
+            element={<ExpenseDetails />}
+          />
           <Route
             path="/order-booking-reports"
             element={<OrderBookingReportsPage />}
           />
           <Route path="/dish-costing/:eventId" element={<DishCostingPage />} />
-
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/quotation/:eventId" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />
@@ -339,7 +344,6 @@ const AppRoutingSetup = () => {
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
-
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route
             path="/Superadmin-member-edit/:id"
@@ -386,7 +390,6 @@ const AppRoutingSetup = () => {
             path="/master/custom-package/addpackage"
             element={<AddCustomPackage />}
           />
-
           <Route path="/master/labour-shift" element={<Labourshiftmaster />} />
           {/* Tasks routes */}
           <Route path="/tasks/dashboard" element={<TaskDashboard />}></Route>
