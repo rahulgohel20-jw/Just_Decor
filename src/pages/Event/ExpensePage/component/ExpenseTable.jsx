@@ -1,10 +1,11 @@
-import { Eye, Plus } from "lucide-react";
+import { Eye, Plus, Trash } from "lucide-react";
 
 export default function ExpenseTable({
   activeTab,
   data,
   onAddExpense,
   onView,
+  onDelete,
 }) {
   return (
     <div className="overflow-x-auto">
@@ -98,6 +99,10 @@ export default function ExpenseTable({
                   <Plus
                     className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
                     onClick={() => onAddExpense(expense.name)}
+                  />
+                  <Trash
+                    className="w-5 h-5 text-gray-400 hover:text-red-600 cursor-pointer"
+                    onClick={() => onDelete(expense.id)}
                   />
                 </td>
               )}

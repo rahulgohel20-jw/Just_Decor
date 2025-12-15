@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GetAllCustomer, AddExpensemanagement } from "@/services/apiServices";
 
-export default function AddSupplierCustomerModal({ open, onClose, type }) {
+export default function AddSupplierCustomerModal({
+  open,
+  onClose,
+  type,
+  eventId,
+}) {
+  const [partyList, setPartyList] = useState([]);
+  const [selectedParty, setSelectedParty] = useState("");
+
   const [form, setForm] = useState({
     type: type || "Supplier",
     name: "",
@@ -12,6 +21,8 @@ export default function AddSupplierCustomerModal({ open, onClose, type }) {
     gst: "",
     address: "",
   });
+
+  const userId = Number(localStorage.getItem("userId"));
 
   const [showGST, setShowGST] = useState(false);
   useEffect(() => {
@@ -27,6 +38,115 @@ export default function AddSupplierCustomerModal({ open, onClose, type }) {
 
   const handleInput = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  useEffect(() => {
+    if (!open || !userId) return;
+
+    console.log("Calling GetAllCustomer API...");
+
+    GetAllCustomer(userId)
+      .then((res) => {
+        console.log("API RESPONSE", res);
+        const list = res?.data?.data?.["Party Details"] || [];
+
+        // Filter based on type
+        const filteredList = list.filter((cust) => {
+          const typeName =
+            cust.contact?.contactType?.nameEnglish?.toLowerCase();
+          if (form.type === "Supplier") {
+            return typeName !== "customer"; // exclude customers
+          } else if (form.type === "Customer") {
+            return typeName === "customer"; // include only customers
+          }
+          return true;
+        });
+
+        setPartyList(filteredList);
+        setSelectedParty(""); // reset selection when type changes
+        setForm((prev) => ({
+          ...prev,
+          name: "",
+          mobile: "",
+          gst: "",
+          address: "",
+        })); // reset prefilled fields
+      })
+      .catch((err) => {
+        console.error("Failed to fetch parties", err);
+      });
+  }, [open, userId, form.type]); // re-run when modal opens or type changes
+  // ✅ add form.type to dependency so it refetches on type change
+
+  const handlePartySelect = (e) => {
+    const id = Number(e.target.value);
+    setSelectedParty(id);
+
+    const party = partyList.find((p) => p.id === id);
+    if (!party) return;
+
+    setForm((prev) => ({
+      ...prev,
+      name: party.nameEnglish || "",
+      mobile: party.mobileno || "",
+      gst: party.gst || "",
+      address: party.addressEnglish || "",
+      countryCode: "+91",
+
+      roleId: party?.contact?.contactType?.id || null, // ✅ FIX
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!selectedParty || !form.amount) {
+        console.warn("Party or amount missing");
+        return;
+      }
+
+      const formatDate = () => {
+        const d = new Date();
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      const payload = {
+        amount: Number(form.amount),
+        date: formatDate(),
+        description: form.remarks,
+        remark: form.remarks,
+        paymentType: form.paymentType,
+        mobileNo: form.mobile,
+        userId: userId,
+        roleId: 0,
+
+        gstin: form.gst || "",
+        buildingAddress: form.billFlat || "",
+        area: form.billArea || "",
+        city: form.billCity || "",
+        state: form.billState || "",
+        pincode: form.billPincode || "",
+        countryCode: "+91",
+
+        expenseId: -1,
+        eventId: Number(eventId),
+
+        partyId: Number(selectedParty),
+        userType: form.type.toUpperCase(), // SUPPLIER / CUSTOMER
+      };
+
+      console.log("Submitting payload 👉", payload);
+
+      const res = await AddExpensemanagement(payload);
+
+      console.log("Expense added:", res?.data);
+
+      onClose(res?.data?.data || null);
+    } catch (err) {
+      console.error("Failed to add supplier/customer expense", err);
+    }
   };
 
   return (
@@ -97,16 +217,23 @@ export default function AddSupplierCustomerModal({ open, onClose, type }) {
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    {form.type} Name
+                    Select Existing {form.type}
                   </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleInput}
-                    placeholder={`Enter ${form.type.toLowerCase()}'s name`}
+
+                  <select
+                    value={selectedParty}
+                    onChange={handlePartySelect}
                     className="input mt-1 w-full"
-                  />
+                  >
+                    <option value="">Select {form.type}</option>
+
+                    {partyList.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nameEnglish}
+                        {p.mobileno ? ` (${p.mobileno})` : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -303,7 +430,14 @@ export default function AddSupplierCustomerModal({ open, onClose, type }) {
               </div>
 
               <div className="p-4 border-t bg-white flex justify-end">
-                <button className="btn btn-primary py-3 px-6">{`Add ${form.type}`}</button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="btn btn-primary py-3 px-6"
+                  disabled={!selectedParty || !form.amount}
+                >
+                  {`Add ${form.type}`}
+                </button>
               </div>
             </motion.div>
           </div>

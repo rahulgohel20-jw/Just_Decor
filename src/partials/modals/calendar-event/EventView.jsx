@@ -26,7 +26,6 @@ const EventViewModal = ({
   const navigate = useNavigate();
 
   const eventDataAll = eventData?.event?._def?.extendedProps || {};
-  console.log(eventDataAll);
 
   const eventFunctionId = 108;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
@@ -35,12 +34,6 @@ const EventViewModal = ({
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
 
   const [statusId, setStatusId] = useState(eventDataAll?.statusCode ?? "0");
-  console.log("🔵 EVENT DATA RAW =>", eventData);
-  console.log("🟢 eventDataAll =>", eventDataAll);
-  console.log("🟡 safeEventId =>", safeEventId);
-  console.log("🟣 Event Type Id =>", eventTypeId);
-  console.log("🏠 Venue =>", eventDataAll?.venue);
-  console.log("🏠 Venue Name =>", eventDataAll?.venue?.nameEnglish);
 
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
@@ -442,7 +435,7 @@ const EventViewModal = ({
                 ),
                 icon: "/media/eventviewicon/icon.png",
                 onClick: () =>
-                  navigate("/expense-management", {
+                  navigate(`/expense-management/${safeEventId}`, {
                     state: {
                       eventId: safeEventId,
                       eventTypeId: eventTypeId,
