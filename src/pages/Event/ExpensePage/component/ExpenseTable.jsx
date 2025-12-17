@@ -39,11 +39,9 @@ export default function ExpenseTable({
               Payment Type
             </th>
 
-            {activeTab === "manager" && (
-              <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
-                Action
-              </th>
-            )}
+            <th className="pb-3 text-xs font-semibold text-gray-600 uppercase">
+              Action
+            </th>
           </tr>
         </thead>
 
@@ -87,25 +85,28 @@ export default function ExpenseTable({
                   {expense.paymentType}
                 </span>
               </td>
+              <td className="py-7 flex gap-2">
+                {/* MANAGER ACTIONS */}
+                {activeTab === "manager" && (
+                  <>
+                    <Eye
+                      className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      onClick={() => onView(expense)}
+                    />
 
-              {activeTab === "manager" && (
-                <td className="py-7 flex gap-2">
-                  {/* VIEW BUTTON */}
-                  <Eye
-                    className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
-                    onClick={() => onView(expense)}
-                  />
+                    <Plus
+                      className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      onClick={() => onAddExpense(expense.name, expense.id)}
+                    />
+                  </>
+                )}
 
-                  <Plus
-                    className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
-                    onClick={() => onAddExpense(expense.name)}
-                  />
-                  <Trash
-                    className="w-5 h-5 text-gray-400 hover:text-red-600 cursor-pointer"
-                    onClick={() => onDelete(expense.id)}
-                  />
-                </td>
-              )}
+                {/* DELETE FOR ALL (manager, supplier, customer) */}
+                <Trash
+                  className="w-5 h-5  text-gray-400 hover:text-red-600 cursor-pointer"
+                  onClick={() => onDelete(expense.id)}
+                />
+              </td>
             </tr>
           ))}
         </tbody>

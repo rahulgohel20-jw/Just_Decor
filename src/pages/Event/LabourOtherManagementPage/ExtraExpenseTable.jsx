@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toAbsoluteUrl } from "@/utils";
 
 const ExtraExpenseTable = ({ data, onEdit, onDelete, onAddExpense }) => {
   return (
@@ -38,8 +39,19 @@ const ExtraExpenseTable = ({ data, onEdit, onDelete, onAddExpense }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-3 text-gray-500">
-                    No extra expenses found.
+                  <td colSpan="6" className="relative py-10">
+                    {/* Absolute Image */}
+                    <img
+                      src={toAbsoluteUrl(
+                        "/media/illustrations/nodatafound.png"
+                      )} // replace with your image path
+                      alt="No Data"
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 max-h-[120px] dark:hidden"
+                    />
+                    {/* Text */}
+                    <span className="relative z-10 text-gray-500 block text-center">
+                      No extra expenses found.
+                    </span>
                   </td>
                 </tr>
               )}

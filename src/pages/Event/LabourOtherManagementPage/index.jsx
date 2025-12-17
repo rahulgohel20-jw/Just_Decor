@@ -60,7 +60,6 @@ const createEmptyLabourRow = (labourType = "") => ({
   notesHindi: "",
 });
 
-
 const LabourOtherManagementPage = () => {
   let { eventId } = useParams();
   const navigate = useNavigate();
@@ -70,9 +69,8 @@ const LabourOtherManagementPage = () => {
     []
   );
   const [activeFunctionName, setActiveFunctionName] = useState("");
-const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
-const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
-
+  const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
 
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -529,33 +527,31 @@ const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
     );
   }
 
-const handleAddLabourType = async (newCategory) => {
-  const category = {
-    id: newCategory.id || Date.now(), // ID returned by API
-    nameEnglish: newCategory.nameEnglish,
-    contactType: { nameEnglish: LABOUR_TYPE },
+  const handleAddLabourType = async (newCategory) => {
+    const category = {
+      id: newCategory.id || Date.now(), // ID returned by API
+      nameEnglish: newCategory.nameEnglish,
+      contactType: { nameEnglish: LABOUR_TYPE },
+    };
+
+    setLabourCategories((prev) => [...prev, category]);
+
+    // Fetch contacts for this new category
+    try {
+      const res = await GetPartyMasterByCatId(category.id, userId);
+      const contacts = res?.data?.data?.["Party Details"] || [];
+      setAllContacts((prev) => ({ ...prev, [category.id]: contacts }));
+    } catch (err) {
+      console.error("Failed to fetch contacts for new category", err);
+      setAllContacts((prev) => ({ ...prev, [category.id]: [] }));
+    }
+
+    // Add new row with this category pre-selected
+    setLabourData((prev) => [
+      ...prev,
+      createEmptyLabourRow(category.nameEnglish),
+    ]);
   };
-
-  setLabourCategories((prev) => [...prev, category]);
-
-  // Fetch contacts for this new category
-  try {
-    const res = await GetPartyMasterByCatId(category.id, userId);
-    const contacts = res?.data?.data?.["Party Details"] || [];
-    setAllContacts((prev) => ({ ...prev, [category.id]: contacts }));
-  } catch (err) {
-    console.error("Failed to fetch contacts for new category", err);
-    setAllContacts((prev) => ({ ...prev, [category.id]: [] }));
-  }
-
-  // Add new row with this category pre-selected
-  setLabourData((prev) => [
-    ...prev,
-    createEmptyLabourRow(category.nameEnglish),
-  ]);
-};
-
-
 
   return (
     <Fragment>
@@ -1120,8 +1116,5 @@ const LabourRow = ({
     </td>
   </tr>
 );
-
-
-
 
 export default LabourOtherManagementPage;
