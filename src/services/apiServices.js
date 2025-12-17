@@ -1219,46 +1219,35 @@ export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
     `/expenseitem/getbyexpenseandevent?eventId=${eventId}&expenseId=${expenseId}`
   );
 
-export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => { 
+export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   if (!cat_id_list || cat_id_list.length === 0) {
-    console.warn("⚠️ No category IDs provided to API");
     return Promise.resolve({ data: { data: [] } });
   }
   const catIdParams = cat_id_list.map(id => `cat_id_list=${id}`).join('&');
   return GET(`/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`);
 }
 
-export const UpdateRawMaterialCategory = (current_cat_id_list = [], new_cat_id, userId) => {
-  // Validate inputs
-  if (!current_cat_id_list || current_cat_id_list.length === 0) {
-    console.warn("⚠️ No current category IDs provided");
-    return Promise.reject(new Error("Current category IDs are required"));
-  }
-  
-  if (!new_cat_id) {
-    console.warn("⚠️ No new category ID provided");
-    return Promise.reject(new Error("New category ID is required"));
-  }
-  
-  if (!userId) {
-    console.warn("⚠️ No user ID provided");
-    return Promise.reject(new Error("User ID is required"));
-  }
-  
-  // Build query parameters
-  const params = new URLSearchParams();
-  
-  // Add each current category ID as separate parameter
-  current_cat_id_list.forEach(id => {
-    params.append('current_cat_id_list', id);
-  });
-  
-  // Add new category and user ID
-  params.append('new_cat_id', new_cat_id);
-  params.append('userId', userId);
-  
-  const queryString = params.toString();
-  console.log("🔗 Update API URL:", `/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
-  
+// export const UpdateRawMaterialCategory = (
+//   raw_material_id_list = [],
+//   new_cat_id,
+//   userId
+// ) => {
+//   const params = new URLSearchParams();
+
+//   params.append("new_cat_id", new_cat_id);
+
+//   raw_material_id_list.forEach((id) => {
+//     params.append("raw_material_id_list", id);
+//   });
+
+//   params.append("userId", userId);
+
+//   return PUT(
+//     `/rawmaterial/updaterawmaterialitemcategory?${params.toString()}`
+//   );
+// };
+
+
+export const UpdateRawMaterialCategory = (queryString) => {
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
 };

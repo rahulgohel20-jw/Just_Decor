@@ -49,7 +49,6 @@ export default function ExpenseDetails() {
   useEffect(() => {
     const fetchEventData = async () => {
       if (!eventId) {
-        console.log("No eventId provided");
         return;
       }
 
@@ -57,15 +56,12 @@ export default function ExpenseDetails() {
       setError(null);
 
       try {
-        console.log("Fetching event data for eventId:", eventId);
-
         const response = await GetEventMasterById(eventId);
         let data = response?.data?.data || response?.data || response;
-        // Extract data from response - adjust based on your API structure
+
         if (data["Event Details"]?.length) {
-          data = data["Event Details"][0]; // pick the first object
+          data = data["Event Details"][0];
         }
-        console.log("Event data fetched:", data);
 
         setEventData(data);
       } catch (err) {
@@ -86,9 +82,7 @@ export default function ExpenseDetails() {
       remaining: 0,
     });
 
-    // Reset table also (optional but recommended)
     setExpenses([]);
-    console.log("CARD TOTALS:", totals, "TAB:", activeTab);
   }, [activeTab]);
 
   useEffect(() => {

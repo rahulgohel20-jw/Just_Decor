@@ -10,9 +10,12 @@ import {
   Getrawmaterialitembycat,
   UpdateRawMaterialCategory,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
+import NoData from "../../../components/Nodata";
 
 const ChangeRawMaterialCategoryPage = () => {
   const intl = useIntl();
+  const [activeCategory, setActiveCategory] = useState("");
 
   const [fromCategory, setFromCategory] = useState("");
   const [toCategory, setToCategory] = useState("");
@@ -30,23 +33,16 @@ const ChangeRawMaterialCategoryPage = () => {
       setCategoriesLoading(true);
       try {
         const userId = localStorage.getItem("userId");
-        console.log("🔹 User ID:", userId);
 
         const response = await GetRawMaterialcategory(userId);
 
-        console.log("✅ Raw API Response:", response);
-
         const categoriesData =
           response?.data?.data?.["Raw Material Category Details"] || [];
-
-        console.log("📊 Categories Array Before Mapping:", categoriesData);
 
         const categories = categoriesData.map((cat) => ({
           id: cat.id,
           name: cat.nameEnglish?.trim(),
         }));
-
-        console.log("🎯 Final Mapped Categories:", categories);
 
         setCategoryList(categories);
       } catch (error) {
@@ -61,45 +57,23 @@ const ChangeRawMaterialCategoryPage = () => {
 
   useEffect(() => {
     const fetchRawMaterials = async () => {
-      if (!fromCategory) {
+      if (!activeCategory) {
         setTableData([]);
         return;
       }
 
-      // Don't fetch if categories haven't loaded yet and "All" is selected
-      if (fromCategory === "all" && categoryList.length === 0) {
-        console.log("⏳ Waiting for categories to load...");
-        return;
-      }
+      if (activeCategory === "all" && categoryList.length === 0) return;
 
       setLoading(true);
       try {
         const userId = localStorage.getItem("userId");
-        console.log("🔹 Fetching raw materials for category:", fromCategory);
 
-        let cat_id_list = [];
-
-        // If "All Categories" is selected, fetch all category IDs
-        if (fromCategory === "all") {
-          cat_id_list = categoryList.map((cat) => cat.id);
-          console.log("📋 Fetching ALL categories:", cat_id_list);
-        } else {
-          // Single category - ensure it's in an array
-          cat_id_list = [fromCategory];
-          console.log("📋 Fetching single category:", cat_id_list);
-        }
-
-        // Don't make API call if no valid categories
-        if (cat_id_list.length === 0) {
-          console.log("⚠️ No valid category IDs to fetch");
-          setTableData([]);
-          setLoading(false);
-          return;
-        }
+        let cat_id_list =
+          activeCategory === "all"
+            ? categoryList.map((cat) => cat.id)
+            : [activeCategory];
 
         const response = await Getrawmaterialitembycat(cat_id_list, userId);
-
-        console.log("✅ Raw Materials API Response:", response);
 
         const rawMaterialsData = response?.data?.data || [];
 
@@ -110,19 +84,8 @@ const ChangeRawMaterialCategoryPage = () => {
           category: item.rawMaterialCatNameEnglish?.trim() || "N/A",
         }));
 
-        console.log("🎯 Final Formatted Table Data:", formattedData);
-
         setTableData(formattedData);
       } catch (error) {
-        console.error("❌ Error fetching raw materials:", error);
-
-        // Better error handling
-        if (error.code === "ERR_NETWORK") {
-          console.error(
-            "🚫 CORS Error: Backend needs to enable CORS for localhost:5173"
-          );
-        }
-
         setTableData([]);
       } finally {
         setLoading(false);
@@ -130,77 +93,58 @@ const ChangeRawMaterialCategoryPage = () => {
     };
 
     fetchRawMaterials();
-  }, [fromCategory, categoryList]);
+  }, [activeCategory, categoryList]);
 
   const combinedCategories = [...staticCategories, ...categoryList];
 
   const handleSaveChanges = async () => {
-    if (!toCategory || selectedRows.length === 0) {
-      console.warn("⚠️ Missing required data for save");
-      return;
-    }
+    if (!toCategory || selectedRows.length === 0) return;
 
     setIsSaving(true);
+
     try {
       const userId = localStorage.getItem("userId");
 
-      console.log("💾 Saving changes:");
-      console.log("   Selected Items:", selectedRows);
-      console.log("   To Category:", toCategory);
+      const params = new URLSearchParams();
 
-      // Extract category IDs from selected rows
-      const currentCategoryIds = selectedRows.map((row) => row.categoryId);
+      params.append("new_cat_id", toCategory);
+      params.append("userId", userId);
 
-      // Get unique category IDs (in case multiple items have same category)
-      const uniqueCategoryIds = [...new Set(currentCategoryIds)];
+      selectedRows.forEach((row) => {
+        params.append("raw_material_id_list", row.id);
+      });
 
-      console.log("   Current Category IDs:", uniqueCategoryIds);
+      const response = await UpdateRawMaterialCategory(params.toString());
 
-      // Call the update API
-      const response = await UpdateRawMaterialCategory(
-        uniqueCategoryIds, // current_cat_id_list (category IDs, not item IDs)
-        toCategory, // new_cat_id
-        userId // userId
-      );
+      const successMsg = response?.data?.msg || "Category updated successfully";
 
-      console.log("✅ Update successful:", response);
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: successMsg,
+        confirmButtonColor: "#2563eb",
+      });
 
-      // Show success message
-      alert("Categories updated successfully!");
+      setActiveCategory(toCategory);
 
-      // Reset and refresh
       setSelectedRows([]);
+      setFromCategory("");
       setToCategory("");
-
-      // Refresh the table data
-      if (fromCategory) {
-        const fetchResponse = await Getrawmaterialitembycat(
-          fromCategory === "all"
-            ? categoryList.map((cat) => cat.id)
-            : [fromCategory],
-          userId
-        );
-
-        const rawMaterialsData = fetchResponse?.data?.data || [];
-        const formattedData = rawMaterialsData.map((item, index) => ({
-          id: item.id || index,
-          categoryId: item.rawMaterialCatId || item.category_id,
-          rawMaterial: item.nameEnglish?.trim() || "N/A",
-          category: item.rawMaterialCatNameEnglish?.trim() || "N/A",
-        }));
-
-        setTableData(formattedData);
-      }
     } catch (error) {
-      console.error("❌ Error updating categories:", error);
-      alert(
-        error.response?.data?.message ||
-          "Failed to update categories. Please try again."
-      );
+      const errorMsg =
+        error?.response?.data?.msg || "Failed to update raw material category";
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMsg,
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
       setIsSaving(false);
     }
   };
+
   return (
     <Fragment>
       <Container>
@@ -233,7 +177,10 @@ const ChangeRawMaterialCategoryPage = () => {
 
               <FromCategoryDropdown
                 value={fromCategory}
-                onChange={setFromCategory}
+                onChange={(val) => {
+                  setFromCategory(val);
+                  setActiveCategory(val); // 👈 table loads
+                }}
                 options={combinedCategories}
                 disabled={categoriesLoading}
               />
@@ -302,19 +249,20 @@ const ChangeRawMaterialCategoryPage = () => {
               </div>
             </div>
           ) : tableData.length === 0 && fromCategory ? (
-            <div className="text-center py-10 text-gray-500">
-              <FormattedMessage
-                id="RAW_MATERIAL.NO_DATA"
-                defaultMessage="No raw materials found for this category"
-              />
-            </div>
+            <NoData
+              text={intl.formatMessage({
+                id: "RAW_MATERIAL.SELECT_CATEGORY",
+                defaultMessage: "No raw materials found for this category",
+              })}
+            />
           ) : tableData.length === 0 ? (
-            <div className="text-center py-10 text-gray-500">
-              <FormattedMessage
-                id="RAW_MATERIAL.SELECT_CATEGORY"
-                defaultMessage="Please select a category to view raw materials"
-              />
-            </div>
+            <NoData
+              text={intl.formatMessage({
+                id: "RAW_MATERIAL.SELECT_CATEGORY",
+                defaultMessage:
+                  "Please select a category to view raw materials",
+              })}
+            />
           ) : (
             <TableComponent
               columns={columns({
