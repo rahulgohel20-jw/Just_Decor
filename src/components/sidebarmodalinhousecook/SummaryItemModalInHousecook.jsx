@@ -13,9 +13,14 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-export default function SummaryItemModalInHousecook({ open, onClose }) {
-  const [activeTab, setActiveTab] = useState("dinner");
-  const [showItems, setShowItems] = useState(false);
+export default function SummaryItemModalInHousecook({
+  open,
+  onClose,
+  insidesummary,
+}) {
+  console.log(insidesummary);
+
+  const [expandedRows, setExpandedRows] = useState({});
 
   useEffect(() => {
     if (!open) return;
@@ -26,44 +31,22 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [open, onClose]);
 
-  const summaryData = {
-    contactName: "AMZAD KHAN",
-    price: 1000,
-    quantity: 12,
-    unit: "Kilogram",
-    totalPrice: "12000 INR",
-    date: "27/11/2025 08:00 pm",
-    items: [
-      {
-        id: 1,
-        name: "STRAWBERRY BLACK GRAPES JUICE",
-        dateTime: "02.10.2025 9:00 AM",
-        person: 450,
-        place: "At venue",
-      },
-      {
-        id: 2,
-        name: "MANGO SHAKE",
-        dateTime: "02.10.2025 2:30 PM",
-        person: 300,
-        place: "Outdoor Stall",
-      },
-      {
-        id: 3,
-        name: "BLUEBERRY MOCKTAIL",
-        dateTime: "03.10.2025 11:00 AM",
-        person: 500,
-        place: "At venue",
-      },
-      {
-        id: 3,
-        name: "BLUEBERRY MOCKTAIL",
-        dateTime: "03.10.2025 11:00 AM",
-        person: 500,
-        place: "At venue",
-      },
-    ],
+  // Toggle individual row expansion
+  const toggleRowExpansion = (index) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
   };
+
+  // Extract data from insidesummary
+  const functionName =
+    insidesummary?.eventFunction?.function?.nameEnglish || "N/A";
+  const functionStartDateTime =
+    insidesummary?.eventFunction?.functionStartDateTime || "N/A";
+  const functionEndDateTime =
+    insidesummary?.eventFunction?.functionEndDateTime || "N/A";
+  const agencyData = insidesummary?.agencyResponse || [];
 
   return (
     <AnimatePresence>
@@ -113,25 +96,25 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                 </div>
               </div>
 
-              <div className="overflow-y-hidden max-h-[calc(90vh-80px)]">
+              <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
                 <div className="p-6">
                   <div className="flex items-center gap-6 ">
                     <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
-                      Dinnerrrr
+                      {functionName}
                     </button>
 
                     <div className="flex flex-col mb-4 ">
                       <div className="text-[12px]  text-gray-600">
                         <FormattedMessage
                           id="SIDEBAR_MODAL.DATE_TIME"
-                          defaultMessage="Date and Time No."
+                          defaultMessage="Date and Time"
                         />
                       </div>
                       <div>
                         <input
                           className="input"
                           type="text"
-                          value="27/11/2025 08:00 pm"
+                          value={`${functionStartDateTime} `}
                           readOnly
                         />
                       </div>
@@ -150,7 +133,7 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                         Number
                       </div>
                       <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
-                        person
+                        Person
                       </div>
                       <div className="text-sm font-semibold text-gray-700 flex justify-start ps-3 ">
                         Remark
@@ -160,127 +143,142 @@ export default function SummaryItemModalInHousecook({ open, onClose }) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
-                      <div className="text-sm text-gray-800">1</div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {summaryData.contactName}
-                      </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-2 ">
-                        1234567890
-                      </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
-                        100
-                      </div>
-                      <div className="text-sm text-gray-800 flex justify-start ps-8 ">
-                        remarks
-                      </div>
-                      <div
-                        className={`flex justify-start gap-5 p-2 rounded-md transition-all duration-300 
-                         `}
-                      >
-                        <div className="flex gap-2">
-                          <button
-                            className="p-1.5 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
-                            title="Send via WhatsApp"
-                          >
-                            <WhatsAppIcon />
-                          </button>
-
-                          <button
-                            className="p-1.1 text-white transition-colors flex items-center justify-center"
-                            title="Download PDF"
-                          >
-                            <img
-                              src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
-                              alt="PDF Icon"
-                              className="w-6 h-6 object-contain"
-                            />
-                          </button>
-                          <button
-                            onClick={() => setShowItems(!showItems)}
-                            className="text-blue-600 hover:text-gray-600 transition-transform"
-                          >
-                            <motion.svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              animate={{ rotate: showItems ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </motion.svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <AnimatePresence>
-                      {showItems && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
-                        >
-                          <div className="grid grid-cols-5 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
-                            <div className="text-sm font-semibold text-gray-700">
-                              #
+                    {agencyData.length > 0 ? (
+                      agencyData.map((contact, index) => (
+                        <div key={index}>
+                          <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
+                            <div className="text-sm text-gray-800">
+                              {index + 1}
                             </div>
-                            <div className="text-sm font-semibold text-gray-700 col-span-2">
-                              Menu Item Name
+                            <div className="text-sm font-medium text-gray-900">
+                              {contact.contactName}
                             </div>
-
-                            <div className="text-sm font-semibold text-gray-700">
-                              Person
+                            <div className="text-sm text-gray-800 flex justify-start ps-2 ">
+                              {contact.number}
                             </div>
+                            <div className="text-sm text-gray-800 flex justify-start ps-8 ">
+                              {contact.totalPax}
+                            </div>
+                            <div className="text-sm text-gray-800 flex justify-start ps-8 ">
+                              {contact.remarks || "N/A"}
+                            </div>
+                            <div className="flex justify-start gap-5 p-2 rounded-md transition-all duration-300">
+                              <div className="flex gap-2">
+                                <button
+                                  className="p-1.5 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors"
+                                  title="Send via WhatsApp"
+                                >
+                                  <WhatsAppIcon />
+                                </button>
 
-                            <div className="text-sm font-semibold text-gray-700">
-                              Notes
+                                <button
+                                  className="p-1.1 text-white transition-colors flex items-center justify-center"
+                                  title="Download PDF"
+                                >
+                                  <img
+                                    src={toAbsoluteUrl(
+                                      "/media/icons/PDFIcon.png"
+                                    )}
+                                    alt="PDF Icon"
+                                    className="w-6 h-6 object-contain"
+                                  />
+                                </button>
+                                <button
+                                  onClick={() => toggleRowExpansion(index)}
+                                  className="text-blue-600 hover:text-gray-600 transition-transform"
+                                >
+                                  <motion.svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    animate={{
+                                      rotate: expandedRows[index] ? 180 : 0,
+                                    }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </motion.svg>
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          <div
-                            style={{
-                              maxHeight:
-                                summaryData.items.length > 3 ? "150px" : "auto",
-                              overflowY: "auto",
-                              scrollbarWidth: "none",
-                              msOverflowStyle: "none",
-                            }}
-                            className="scroll-hidden"
-                          >
-                            {summaryData.items.map((item, index) => (
-                              <motion.div
-                                key={item.id + index}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 10 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="grid grid-cols-5 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                              >
-                                <div className="text-sm text-gray-700">
-                                  {item.id}
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 col-span-2">
-                                  {item.name}
-                                </div>
-                                <div className="text-sm text-gray-700 flex justify-start ps-2">
-                                  {item.person}
-                                </div>
 
-                                <div className="text-sm text-gray-700">
-                                  Notes
+                          <AnimatePresence>
+                            {expandedRows[index] && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
+                              >
+                                <div className="grid grid-cols-5 gap-4 bg-gray-50 px-5 py-3  border-[#ffffff]">
+                                  <div className="text-sm font-semibold text-gray-700">
+                                    #
+                                  </div>
+                                  <div className="text-sm font-semibold text-gray-700 col-span-2">
+                                    Menu Item Name
+                                  </div>
+                                  <div className="text-sm font-semibold text-gray-700">
+                                    Person
+                                  </div>
+                                  <div className="text-sm font-semibold text-gray-700">
+                                    Notes
+                                  </div>
+                                </div>
+                                <div
+                                  style={{
+                                    maxHeight:
+                                      contact.allocationItems.length > 3
+                                        ? "150px"
+                                        : "auto",
+                                    overflowY: "auto",
+                                    scrollbarWidth: "none",
+                                    msOverflowStyle: "none",
+                                  }}
+                                  className="scroll-hidden"
+                                >
+                                  {contact.allocationItems.map(
+                                    (item, itemIndex) => (
+                                      <motion.div
+                                        key={itemIndex}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        transition={{ delay: itemIndex * 0.05 }}
+                                        className="grid grid-cols-5 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                      >
+                                        <div className="text-sm text-gray-700">
+                                          {itemIndex + 1}
+                                        </div>
+                                        <div className="text-sm font-medium text-gray-900 col-span-2">
+                                          {item.itemName}
+                                        </div>
+                                        <div className="text-sm text-gray-700 flex justify-start ps-2">
+                                          {item.pax}
+                                        </div>
+                                        <div className="text-sm text-gray-700">
+                                          {item.notes || "N/A"}
+                                        </div>
+                                      </motion.div>
+                                    )
+                                  )}
                                 </div>
                               </motion.div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No data available
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

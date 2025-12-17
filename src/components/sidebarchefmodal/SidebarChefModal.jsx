@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GetMenuAllocation, ContactNameItem } from "@/services/apiServices";
+import {
+  GetMenuAllocation,
+  ContactNameItem,
+  Getunit,
+} from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Form } from "antd";
 import AddVendor from "@/partials/modals/add-vendor/AddVendor";
 import { Plus } from "lucide-react";
 
@@ -44,6 +47,7 @@ export default function SidebarChefModal({
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
+  const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [extraRows, setExtraRows] = useState([]);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
@@ -64,23 +68,40 @@ export default function SidebarChefModal({
           ...allocation,
           eventFunctionMenuAllocations:
             allocation.eventFunctionMenuAllocations?.map((alloc) => {
-              const counterQty = parseFloat(alloc.counterQuantity) || 0;
-              const helperQty = parseFloat(alloc.helperQuantity) || 0;
-              const counterPrice = parseFloat(alloc.counterPrice) || 0;
-              const helperPrice = parseFloat(alloc.helperPrice) || 0;
+              // For Plate Wise, use quantity * price
+              if (alloc.serviceType === "Plate Wise") {
+                const qty = parseFloat(alloc.quantity) || 0;
+                const price = parseFloat(alloc.price) || 0;
+                const calculatedTotal = qty * price;
 
-              const calculatedTotal =
-                counterQty * counterPrice + helperQty * helperPrice;
+                return {
+                  ...alloc,
+                  totalPrice:
+                    alloc.totalPrice && alloc.totalPrice > 0
+                      ? alloc.totalPrice
+                      : calculatedTotal,
+                  // Map quantity to counterQuantity for display purposes
+                  counterQuantity: alloc.quantity || 0,
+                  counterPrice: alloc.price || 0,
+                };
+              } else {
+                // For Counter Wise
+                const counterQty = parseFloat(alloc.counterQuantity) || 0;
+                const helperQty = parseFloat(alloc.helperQuantity) || 0;
+                const counterPrice = parseFloat(alloc.counterPrice) || 0;
+                const helperPrice = parseFloat(alloc.helperPrice) || 0;
 
-              const totalPrice =
-                alloc.totalPrice && alloc.totalPrice > 0
-                  ? alloc.totalPrice
-                  : calculatedTotal;
+                const calculatedTotal =
+                  counterQty * counterPrice + helperQty * helperPrice;
 
-              return {
-                ...alloc,
-                totalPrice,
-              };
+                return {
+                  ...alloc,
+                  totalPrice:
+                    alloc.totalPrice && alloc.totalPrice > 0
+                      ? alloc.totalPrice
+                      : calculatedTotal,
+                };
+              }
             }),
         }));
 
@@ -92,6 +113,8 @@ export default function SidebarChefModal({
             m.menuCategoryId === row?.menuCategoryId &&
             m.chefLabour === true
         );
+
+        console.log("📥 Fetched allocation data for item:", currentItem);
       } catch (error) {
         console.error("Error fetching event details:", error);
       } finally {
@@ -112,11 +135,30 @@ export default function SidebarChefModal({
       }
     };
 
+    const FetchUnits = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+
+        const res = await Getunit(userId);
+
+        const units =
+          res?.data?.data["Unit Details"]?.map((item) => ({
+            unitId: item.id,
+            unitName: item.nameEnglish,
+          })) || [];
+
+        setUnits(units);
+      } catch (error) {
+        console.error("Error fetching units:", error);
+      }
+    };
+
     if (eventId && eventFunctionId && open) {
       FetchDetails();
       FetchContactName();
+      FetchUnits();
     }
-  }, [eventId, eventFunctionId, open]);
+  }, [eventId, eventFunctionId, open, row?.menuItemId, row?.menuCategoryId]);
 
   useEffect(() => {
     if (!open) return;
@@ -124,6 +166,7 @@ export default function SidebarChefModal({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
   const [defaultRow, setDefaultRow] = useState({
     partyId: "",
     serviceType: "",
@@ -131,6 +174,8 @@ export default function SidebarChefModal({
     helperQuantity: "",
     counterPrice: "",
     helperPrice: "",
+    unit: "",
+    unitId: "",
     totalPrice: 0,
   });
 
@@ -145,6 +190,8 @@ export default function SidebarChefModal({
         helperQuantity: "",
         counterPrice: "",
         helperPrice: "",
+        unit: "",
+        unitId: "",
         totalPrice: 0,
       },
     ]);
@@ -163,7 +210,14 @@ export default function SidebarChefModal({
       const counterPrice = parseFloat(updated.counterPrice) || 0;
       const helperPrice = parseFloat(updated.helperPrice) || 0;
 
-      updated.totalPrice = counterQty * counterPrice + helperQty * helperPrice;
+      // For Plate Wise, only use counterQuantity * counterPrice
+      if (updated.serviceType === "Plate Wise") {
+        updated.totalPrice = counterQty * counterPrice;
+      } else {
+        // For Counter Wise, use both counter and helper
+        updated.totalPrice =
+          counterQty * counterPrice + helperQty * helperPrice;
+      }
 
       return updated;
     });
@@ -183,8 +237,14 @@ export default function SidebarChefModal({
       const counterPrice = parseFloat(updated[index].counterPrice) || 0;
       const helperPrice = parseFloat(updated[index].helperPrice) || 0;
 
-      updated[index].totalPrice =
-        counterQty * counterPrice + helperQty * helperPrice;
+      // For Plate Wise, only use counterQuantity * counterPrice
+      if (updated[index].serviceType === "Plate Wise") {
+        updated[index].totalPrice = counterQty * counterPrice;
+      } else {
+        // For Counter Wise, use both counter and helper
+        updated[index].totalPrice =
+          counterQty * counterPrice + helperQty * helperPrice;
+      }
 
       console.log(`✅ Extra Row ${index + 1} Calculation:`, {
         field,
@@ -214,12 +274,20 @@ export default function SidebarChefModal({
         currentItem.eventFunctionMenuAllocations[allocIndex][field] = value;
 
         const alloc = currentItem.eventFunctionMenuAllocations[allocIndex];
+
         const counterQty = parseFloat(alloc.counterQuantity) || 0;
         const helperQty = parseFloat(alloc.helperQuantity) || 0;
         const counterPrice = parseFloat(alloc.counterPrice) || 0;
         const helperPrice = parseFloat(alloc.helperPrice) || 0;
 
-        alloc.totalPrice = counterQty * counterPrice + helperQty * helperPrice;
+        // For Plate Wise, only use counterQuantity * counterPrice
+        if (alloc.serviceType === "Plate Wise") {
+          alloc.totalPrice = counterQty * counterPrice;
+        } else {
+          // For Counter Wise, use both counter and helper
+          alloc.totalPrice =
+            counterQty * counterPrice + helperQty * helperPrice;
+        }
 
         console.log(`✅ Existing Row ${allocIndex + 1} Calculation:`, {
           field,
@@ -237,6 +305,7 @@ export default function SidebarChefModal({
   };
 
   const handleSave = async () => {
+    // Only get the current item being edited
     const currentItem = menuAllocations.find(
       (m) =>
         m.menuItemId === row?.menuItemId &&
@@ -244,25 +313,67 @@ export default function SidebarChefModal({
         m.chefLabour === true
     );
 
+    // Get existing allocations for THIS specific item only
     const existingAllocations = currentItem?.eventFunctionMenuAllocations || [];
 
+    // Process default row if it has data
     const defaultRowData = [];
     if (
       defaultRow.partyId &&
       (defaultRow.counterQuantity || defaultRow.helperQuantity)
     ) {
-      defaultRowData.push({
-        ...defaultRow,
+      const defaultRowToSave = {
+        partyId: defaultRow.partyId,
+        serviceType: defaultRow.serviceType,
         isChefLabour: true,
-        totalPrice:
-          defaultRow.totalPrice ||
+      };
+
+      // For Plate Wise, only include relevant fields
+      if (defaultRow.serviceType === "Plate Wise") {
+        defaultRowToSave.quantity = defaultRow.counterQuantity;
+        defaultRowToSave.price = defaultRow.counterPrice;
+        defaultRowToSave.unit = defaultRow.unit;
+        defaultRowToSave.unitId = defaultRow.unitId;
+        defaultRowToSave.totalPrice =
+          (parseFloat(defaultRow.counterQuantity) || 0) *
+          (parseFloat(defaultRow.counterPrice) || 0);
+
+        console.log("🔍 Default Row - Plate Wise Data:", {
+          quantity: defaultRowToSave.quantity,
+          price: defaultRowToSave.price,
+          unit: defaultRowToSave.unit,
+          unitId: defaultRowToSave.unitId,
+          totalPrice: defaultRowToSave.totalPrice,
+        });
+
+        // Set Counter Wise fields to 0 for Plate Wise
+        defaultRowToSave.counterQuantity = 0;
+        defaultRowToSave.counterPrice = 0;
+        defaultRowToSave.helperQuantity = 0;
+        defaultRowToSave.helperPrice = 0;
+      } else {
+        // For Counter Wise
+        defaultRowToSave.counterQuantity = defaultRow.counterQuantity;
+        defaultRowToSave.counterPrice = defaultRow.counterPrice;
+        defaultRowToSave.helperQuantity = defaultRow.helperQuantity;
+        defaultRowToSave.helperPrice = defaultRow.helperPrice;
+        defaultRowToSave.totalPrice =
           (parseFloat(defaultRow.counterQuantity) || 0) *
             (parseFloat(defaultRow.counterPrice) || 0) +
-            (parseFloat(defaultRow.helperQuantity) || 0) *
-              (parseFloat(defaultRow.helperPrice) || 0),
-      });
+          (parseFloat(defaultRow.helperQuantity) || 0) *
+            (parseFloat(defaultRow.helperPrice) || 0);
+
+        // Set Plate Wise fields to 0/empty for Counter Wise
+        defaultRowToSave.quantity = 0;
+        defaultRowToSave.price = 0;
+        defaultRowToSave.unit = "";
+        defaultRowToSave.unitId = "";
+      }
+
+      defaultRowData.push(defaultRowToSave);
     }
 
+    // Process all allocations for THIS item only
     const allAllocations = [
       ...existingAllocations,
       ...defaultRowData,
@@ -272,28 +383,72 @@ export default function SidebarChefModal({
         const hasParty = alloc.partyId && alloc.partyId !== "";
         const hasQuantity =
           (alloc.counterQuantity && parseFloat(alloc.counterQuantity) > 0) ||
-          (alloc.helperQuantity && parseFloat(alloc.helperQuantity) > 0);
+          (alloc.helperQuantity && parseFloat(alloc.helperQuantity) > 0) ||
+          (alloc.quantity && parseFloat(alloc.quantity) > 0);
 
         return hasParty && hasQuantity;
       })
-      .map((alloc) => ({
-        ...alloc,
-        isChefLabour: true,
-        totalPrice:
-          alloc.totalPrice ||
-          (parseFloat(alloc.counterQuantity) || 0) *
-            (parseFloat(alloc.counterPrice) || 0) +
-            (parseFloat(alloc.helperQuantity) || 0) *
-              (parseFloat(alloc.helperPrice) || 0),
-      }));
+      .map((alloc) => {
+        const allocToSave = {
+          partyId: alloc.partyId,
+          serviceType: alloc.serviceType,
+          isChefLabour: true,
+        };
 
-    console.log("💾 Saving Chef Labour Data:", {
+        // For Plate Wise, format the data correctly
+        if (alloc.serviceType === "Plate Wise") {
+          allocToSave.quantity = alloc.counterQuantity || alloc.quantity;
+          allocToSave.price = alloc.counterPrice || alloc.price;
+          allocToSave.unit = alloc.unit || "";
+          allocToSave.unitId = alloc.unitId || "";
+          allocToSave.totalPrice =
+            (parseFloat(allocToSave.quantity) || 0) *
+            (parseFloat(allocToSave.price) || 0);
+
+          console.log("🔍 Allocation - Plate Wise Data:", {
+            partyId: allocToSave.partyId,
+            quantity: allocToSave.quantity,
+            price: allocToSave.price,
+            unit: allocToSave.unit,
+            unitId: allocToSave.unitId,
+            totalPrice: allocToSave.totalPrice,
+          });
+
+          // Set Counter Wise fields to 0 for Plate Wise
+          allocToSave.counterQuantity = 0;
+          allocToSave.counterPrice = 0;
+          allocToSave.helperQuantity = 0;
+          allocToSave.helperPrice = 0;
+        } else {
+          // For Counter Wise, calculate total price
+          allocToSave.counterQuantity = alloc.counterQuantity || 0;
+          allocToSave.counterPrice = alloc.counterPrice || 0;
+          allocToSave.helperQuantity = alloc.helperQuantity || 0;
+          allocToSave.helperPrice = alloc.helperPrice || 0;
+          allocToSave.totalPrice =
+            (parseFloat(allocToSave.counterQuantity) || 0) *
+              (parseFloat(allocToSave.counterPrice) || 0) +
+            (parseFloat(allocToSave.helperQuantity) || 0) *
+              (parseFloat(allocToSave.helperPrice) || 0);
+
+          // Set Plate Wise fields to 0/empty for Counter Wise
+          allocToSave.quantity = 0;
+          allocToSave.price = 0;
+          allocToSave.unit = "";
+          allocToSave.unitId = "";
+        }
+
+        return allocToSave;
+      });
+
+    console.log("💾 Saving Chef Labour Data for THIS ITEM ONLY:", {
       menuItemId: row?.menuItemId,
       menuCategoryId: row?.menuCategoryId,
       allocations: allAllocations,
       totalCount: allAllocations.length,
     });
 
+    // Prepare save data for THIS specific item only
     const saveData = {
       eventId,
       eventFunctionId,
@@ -304,12 +459,57 @@ export default function SidebarChefModal({
     };
 
     if (onSave) {
-      onSave(saveData);
+      await onSave(saveData);
     }
 
-    setExtraRows([]);
+    // Update menuAllocations state to persist the data for THIS item only
+    setMenuAllocations((prev) => {
+      const updated = [...prev];
+      const itemIndex = updated.findIndex(
+        (m) =>
+          m.menuItemId === row?.menuItemId &&
+          m.menuCategoryId === row?.menuCategoryId &&
+          m.chefLabour === true
+      );
 
-    console.log("✅ Data saved and will persist on reopen");
+      if (itemIndex !== -1) {
+        // Update existing item - only update THIS specific item
+        updated[itemIndex] = {
+          ...updated[itemIndex],
+          eventFunctionMenuAllocations: allAllocations,
+        };
+      } else {
+        // Add new item
+        updated.push({
+          menuItemId: row?.menuItemId,
+          menuCategoryId: row?.menuCategoryId,
+          chefLabour: true,
+          eventFunctionMenuAllocations: allAllocations,
+        });
+      }
+
+      return updated;
+    });
+
+    // Clear extra rows and reset default row
+    setExtraRows([]);
+    setDefaultRow({
+      partyId: "",
+      serviceType: "",
+      counterQuantity: "",
+      helperQuantity: "",
+      counterPrice: "",
+      helperPrice: "",
+      unit: "",
+      unitId: "",
+      totalPrice: 0,
+    });
+
+    console.log(
+      "✅ Data saved for menuItemId:",
+      row?.menuItemId,
+      "and will persist on reopen"
+    );
 
     onClose();
   };
@@ -552,12 +752,7 @@ export default function SidebarChefModal({
                                     defaultMessage="Counter Wise"
                                   />
                                 </option>
-                                <option value="Day Wise">
-                                  <FormattedMessage
-                                    id="SIDEBAR_MODAL.DAY_WISE"
-                                    defaultMessage="Day Wise"
-                                  />
-                                </option>
+
                                 <option value="Plate Wise">
                                   <FormattedMessage
                                     id="SIDEBAR_MODAL.PLATE_WISE"
@@ -567,67 +762,144 @@ export default function SidebarChefModal({
                               </BaseSelect>
                             </div>
 
-                            <div className="flex gap-2">
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.COUNTER",
-                                  defaultMessage: "Counter",
-                                })}
-                                value={defaultRow.counterQuantity}
-                                onChange={(e) =>
-                                  handleDefaultRowChange(
-                                    "counterQuantity",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.HELPER",
-                                  defaultMessage: "Helper",
-                                })}
-                                value={defaultRow.helperQuantity}
-                                onChange={(e) =>
-                                  handleDefaultRowChange(
-                                    "helperQuantity",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
+                            {defaultRow.serviceType === "Plate Wise" ? (
+                              <>
+                                <div className="flex flex-col gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.QUANTITY",
+                                      defaultMessage: "Quantity",
+                                    })}
+                                    value={defaultRow.counterQuantity}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "counterQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseSelect
+                                    value={defaultRow.unit || ""}
+                                    onChange={(e) => {
+                                      const selectedUnitName = e.target.value;
+                                      const selectedUnit = units.find(
+                                        (u) => u.unitName === selectedUnitName
+                                      );
+                                      handleDefaultRowChange(
+                                        "unit",
+                                        selectedUnitName
+                                      );
+                                      if (selectedUnit) {
+                                        handleDefaultRowChange(
+                                          "unitId",
+                                          selectedUnit.unitId
+                                        );
+                                      }
+                                      console.log("Selected unit:", {
+                                        unitName: selectedUnitName,
+                                        unitId: selectedUnit?.unitId,
+                                      });
+                                    }}
+                                  >
+                                    <option value="">
+                                      <FormattedMessage
+                                        id="SIDEBAR_MODAL.SELECT_UNIT"
+                                        defaultMessage="Select Unit"
+                                      />
+                                    </option>
+                                    {units.map((unit) => (
+                                      <option
+                                        key={unit.unitId}
+                                        value={unit.unitName}
+                                      >
+                                        {unit.unitName}
+                                      </option>
+                                    ))}
+                                  </BaseSelect>
+                                </div>
+                                <div>
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.PRICE",
+                                      defaultMessage: "Price",
+                                    })}
+                                    value={defaultRow.counterPrice}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "counterPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.COUNTER",
+                                      defaultMessage: "Counter",
+                                    })}
+                                    value={defaultRow.counterQuantity}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "counterQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.HELPER",
+                                      defaultMessage: "Helper",
+                                    })}
+                                    value={defaultRow.helperQuantity}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "helperQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
 
-                            <div className="flex gap-2">
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.COUNTER_PRICE",
-                                  defaultMessage: "Counter Price",
-                                })}
-                                value={defaultRow.counterPrice}
-                                onChange={(e) =>
-                                  handleDefaultRowChange(
-                                    "counterPrice",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.HELPER_PRICE",
-                                  defaultMessage: "Helper Price",
-                                })}
-                                value={defaultRow.helperPrice}
-                                onChange={(e) =>
-                                  handleDefaultRowChange(
-                                    "helperPrice",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
+                                <div className="flex gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.COUNTER_PRICE",
+                                      defaultMessage: "Counter Price",
+                                    })}
+                                    value={defaultRow.counterPrice}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "counterPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.HELPER_PRICE",
+                                      defaultMessage: "Helper Price",
+                                    })}
+                                    value={defaultRow.helperPrice}
+                                    onChange={(e) =>
+                                      handleDefaultRowChange(
+                                        "helperPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </>
+                            )}
 
                             <div>
                               <BaseInput
@@ -719,12 +991,7 @@ export default function SidebarChefModal({
                                     defaultMessage="Counter Wise"
                                   />
                                 </option>
-                                <option value="Day Wise">
-                                  <FormattedMessage
-                                    id="SIDEBAR_MODAL.DAY_WISE"
-                                    defaultMessage="Day Wise"
-                                  />
-                                </option>
+
                                 <option value="Plate Wise">
                                   <FormattedMessage
                                     id="SIDEBAR_MODAL.PLATE_WISE"
@@ -733,70 +1000,150 @@ export default function SidebarChefModal({
                                 </option>
                               </BaseSelect>
                             </div>
-                            <div className="flex gap-2">
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.COUNTER",
-                                  defaultMessage: "Counter",
-                                })}
-                                value={alloc.counterQuantity || ""}
-                                onChange={(e) =>
-                                  handleExistingRowChange(
-                                    idx,
-                                    "counterQuantity",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.HELPER",
-                                  defaultMessage: "Helper",
-                                })}
-                                value={alloc.helperQuantity || ""}
-                                onChange={(e) =>
-                                  handleExistingRowChange(
-                                    idx,
-                                    "helperQuantity",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.COUNTER",
-                                  defaultMessage: "Counter",
-                                })}
-                                value={alloc.counterPrice || ""}
-                                onChange={(e) =>
-                                  handleExistingRowChange(
-                                    idx,
-                                    "counterPrice",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <BaseInput
-                                type="number"
-                                placeholder={intl.formatMessage({
-                                  id: "SIDEBAR_MODAL.HELPER",
-                                  defaultMessage: "Helper",
-                                })}
-                                value={alloc.helperPrice || ""}
-                                onChange={(e) =>
-                                  handleExistingRowChange(
-                                    idx,
-                                    "helperPrice",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
+
+                            {alloc.serviceType === "Plate Wise" ? (
+                              <>
+                                <div className="flex flex-col gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.QUANTITY",
+                                      defaultMessage: "Quantity",
+                                    })}
+                                    value={alloc.counterQuantity || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "counterQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseSelect
+                                    value={alloc.unitId || ""}
+                                    onChange={(e) => {
+                                      const selectedUnitId = e.target.value;
+                                      const selectedUnit = units.find(
+                                        (u) =>
+                                          String(u.unitId) ===
+                                          String(selectedUnitId)
+                                      );
+
+                                      handleExistingRowChange(
+                                        idx,
+                                        "unitId",
+                                        selectedUnitId
+                                      );
+                                      handleExistingRowChange(
+                                        idx,
+                                        "unit",
+                                        selectedUnit?.unitName || ""
+                                      );
+                                    }}
+                                  >
+                                    <option value="">
+                                      <FormattedMessage
+                                        id="SIDEBAR_MODAL.SELECT_UNIT"
+                                        defaultMessage="Select Unit"
+                                      />
+                                    </option>
+                                    {units.map((unit) => (
+                                      <option
+                                        key={unit.unitId}
+                                        value={unit.unitId}
+                                      >
+                                        {unit.unitName}
+                                      </option>
+                                    ))}
+                                  </BaseSelect>
+                                </div>
+                                <div>
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.PRICE",
+                                      defaultMessage: "Price",
+                                    })}
+                                    value={alloc.counterPrice || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "counterPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.COUNTER",
+                                      defaultMessage: "Counter",
+                                    })}
+                                    value={alloc.counterQuantity || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "counterQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.HELPER",
+                                      defaultMessage: "Helper",
+                                    })}
+                                    value={alloc.helperQuantity || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "helperQuantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.COUNTER",
+                                      defaultMessage: "Counter",
+                                    })}
+                                    value={alloc.counterPrice || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "counterPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <BaseInput
+                                    type="number"
+                                    placeholder={intl.formatMessage({
+                                      id: "SIDEBAR_MODAL.HELPER",
+                                      defaultMessage: "Helper",
+                                    })}
+                                    value={alloc.helperPrice || ""}
+                                    onChange={(e) =>
+                                      handleExistingRowChange(
+                                        idx,
+                                        "helperPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </>
+                            )}
+
                             <div>
                               <BaseInput
                                 type="number"
@@ -899,12 +1246,7 @@ export default function SidebarChefModal({
                               defaultMessage="Counter Wise"
                             />
                           </option>
-                          <option value="Day Wise">
-                            <FormattedMessage
-                              id="SIDEBAR_MODAL.DAY_WISE"
-                              defaultMessage="Day Wise"
-                            />
-                          </option>
+
                           <option value="Plate Wise">
                             <FormattedMessage
                               id="SIDEBAR_MODAL.PLATE_WISE"
@@ -914,71 +1256,149 @@ export default function SidebarChefModal({
                         </BaseSelect>
                       </div>
 
-                      <div className="flex gap-2">
-                        <BaseInput
-                          type="number"
-                          placeholder={intl.formatMessage({
-                            id: "SIDEBAR_MODAL.COUNTER",
-                            defaultMessage: "Counter",
-                          })}
-                          value={extraRow.counterQuantity}
-                          onChange={(e) =>
-                            handleExtraRowChange(
-                              idx,
-                              "counterQuantity",
-                              e.target.value
-                            )
-                          }
-                        />
-                        <BaseInput
-                          type="number"
-                          placeholder={intl.formatMessage({
-                            id: "SIDEBAR_MODAL.HELPER",
-                            defaultMessage: "Helper",
-                          })}
-                          value={extraRow.helperQuantity}
-                          onChange={(e) =>
-                            handleExtraRowChange(
-                              idx,
-                              "helperQuantity",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
+                      {extraRow.serviceType === "Plate Wise" ? (
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.QUANTITY",
+                                defaultMessage: "Quantity",
+                              })}
+                              value={extraRow.counterQuantity}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "counterQuantity",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <BaseSelect
+                              value={extraRow.unit || ""}
+                              onChange={(e) => {
+                                const selectedUnitName = e.target.value;
+                                const selectedUnit = units.find(
+                                  (u) => u.unitName === selectedUnitName
+                                );
+                                handleExtraRowChange(
+                                  idx,
+                                  "unit",
+                                  selectedUnitName
+                                );
+                                if (selectedUnit) {
+                                  handleExtraRowChange(
+                                    idx,
+                                    "unitId",
+                                    selectedUnit.unitId
+                                  );
+                                }
+                                console.log("Extra row - Selected unit:", {
+                                  unitName: selectedUnitName,
+                                  unitId: selectedUnit?.unitId,
+                                });
+                              }}
+                            >
+                              <option value="">
+                                <FormattedMessage
+                                  id="SIDEBAR_MODAL.SELECT_UNIT"
+                                  defaultMessage="Select Unit"
+                                />
+                              </option>
+                              {units.map((unit) => (
+                                <option key={unit.unitId} value={unit.unitName}>
+                                  {unit.unitName}
+                                </option>
+                              ))}
+                            </BaseSelect>
+                          </div>
+                          <div>
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.PRICE",
+                                defaultMessage: "Price",
+                              })}
+                              value={extraRow.counterPrice}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "counterPrice",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex gap-2">
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.COUNTER",
+                                defaultMessage: "Counter",
+                              })}
+                              value={extraRow.counterQuantity}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "counterQuantity",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.HELPER",
+                                defaultMessage: "Helper",
+                              })}
+                              value={extraRow.helperQuantity}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "helperQuantity",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
 
-                      <div className="flex gap-2">
-                        <BaseInput
-                          type="number"
-                          placeholder={intl.formatMessage({
-                            id: "SIDEBAR_MODAL.COUNTER_PRICE",
-                            defaultMessage: "Counter Price",
-                          })}
-                          value={extraRow.counterPrice}
-                          onChange={(e) =>
-                            handleExtraRowChange(
-                              idx,
-                              "counterPrice",
-                              e.target.value
-                            )
-                          }
-                        />
-                        <BaseInput
-                          type="number"
-                          placeholder={intl.formatMessage({
-                            id: "SIDEBAR_MODAL.HELPER_PRICE",
-                            defaultMessage: "Helper Price",
-                          })}
-                          value={extraRow.helperPrice}
-                          onChange={(e) =>
-                            handleExtraRowChange(
-                              idx,
-                              "helperPrice",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
+                          <div className="flex gap-2">
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.COUNTER_PRICE",
+                                defaultMessage: "Counter Price",
+                              })}
+                              value={extraRow.counterPrice}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "counterPrice",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <BaseInput
+                              type="number"
+                              placeholder={intl.formatMessage({
+                                id: "SIDEBAR_MODAL.HELPER_PRICE",
+                                defaultMessage: "Helper Price",
+                              })}
+                              value={extraRow.helperPrice}
+                              onChange={(e) =>
+                                handleExtraRowChange(
+                                  idx,
+                                  "helperPrice",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        </>
+                      )}
 
                       <div>
                         <BaseInput
