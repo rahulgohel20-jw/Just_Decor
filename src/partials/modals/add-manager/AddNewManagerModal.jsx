@@ -6,6 +6,7 @@ import {
   fetchCitiesByState,
   AddExpensemanagement,
 } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 export default function AddNewManagerModal({
   open,
@@ -22,6 +23,8 @@ export default function AddNewManagerModal({
     paymentType: "",
     description: "",
     remarks: "",
+    stateId: "",
+    cityId: "",
     image: null,
   });
   const [showGST, setShowGST] = useState(false);
@@ -66,24 +69,36 @@ export default function AddNewManagerModal({
     loadStates();
   }, []);
 
-  const handleStateChange = async (stateId) => {
-    const numericStateId = Number(stateId);
-    setLeadData((prev) => ({ ...prev, state: numericStateId }));
+  const handleStateChange = async (e) => {
+    const stateId = e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      stateId,
+      cityId: "", // reset city when state changes
+    }));
+
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
 
     try {
-      const cityRes = await fetchCitiesByState(numericStateId);
-      const cityArray = cityRes?.data?.data?.["City Details"] || [];
-
-      if (Array.isArray(cityArray)) {
-        setCities(cityArray);
-      } else {
-        setCities([]);
-      }
+      const res = await fetchCitiesByState(Number(stateId));
+      const cityArray = res?.data?.data?.["City Details"] || [];
+      setCities(Array.isArray(cityArray) ? cityArray : []);
     } catch (err) {
       console.error("Failed to load cities:", err);
       setCities([]);
     }
   };
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result.split(",")[1]); // only Base64 string
+      reader.onerror = (error) => reject(error);
+    });
 
   const handleInput = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -101,10 +116,19 @@ export default function AddNewManagerModal({
         if (res?.data?.data?.userDetails) {
           const managerList = res.data.data.userDetails.map((man) => ({
             value: man.id,
-            label: man.firstName || "-",
+            label: `${man.firstName || ""} ${man.lastName || ""}`.trim(),
             roleName: man.userBasicDetails?.role?.name || "",
             roleId: man.userBasicDetails?.role?.id || 0,
+
+            // 👇 AUTO FILL DATA
+            mobile: man.contactNo || "",
+            gst: man.userBasicDetails?.gstin || "",
+            billFlat: man.userBasicDetails?.address || "",
+            stateId: man.userBasicDetails?.state?.id || "",
+            cityId: man.userBasicDetails?.city?.id || "",
+            billPincode: man.userBasicDetails?.pincode || "",
           }));
+
           setManagers(managerList);
         } else {
           setManagers([]);
@@ -125,58 +149,126 @@ export default function AddNewManagerModal({
 
     setForm((prev) => ({
       ...prev,
+
+      // IDs
       manager: selectedManagerId,
       role: selectedManager?.roleName || "",
       roleId: selectedManager?.roleId || 0,
+
+      // 👇 AUTO FILLED FIELDS
+      mobile: selectedManager?.mobile || "",
+      gst: selectedManager?.gst || "",
+      billFlat: selectedManager?.billFlat || "",
+      billCity: selectedManager?.billCity || "",
+      billState: selectedManager?.billState || "",
+      billPincode: selectedManager?.billPincode || "",
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      console.log("Submitting with eventId:", eventId);
+  const initialFormState = {
+    manager: "",
+    role: "",
+    roleId: 0,
+    mobile: "",
+    date: "",
+    amount: "",
+    paymentType: "",
+    description: "",
+    remarks: "",
+    gst: "",
+    billFlat: "",
+    billArea: "",
+    billPincode: "",
+    stateId: "",
+    cityId: "",
+    image: null,
+    mangerId: "",
+    sameShipping: false,
+  };
 
+  const resetForm = () => {
+    setForm(initialFormState);
+    setShowGST(false);
+    setCities([]);
+  };
+
+  const handleSubmit = async () => {
+    const error = validateForm();
+
+    if (error) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: error,
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    }
+
+    try {
       const formatDate = (dateString) => {
         if (!dateString) return "";
         const [year, month, day] = dateString.split("-");
         return `${day}/${month}/${year}`;
       };
-
+      let documentBase64 = "";
+      if (form.image) {
+        documentBase64 = await getBase64(form.image);
+      }
       const payload = {
-        amount: Number(form.amount),
+        amount: Number(form.amount || 0),
         date: formatDate(form.date),
-        description: form.description,
-        remark: form.remarks,
-        paymentType: form.paymentType,
-        mobileNo: form.mobile,
-        userId: userId,
-        roleId: form.roleId,
+        description: form.description || "",
+        remark: form.remarks || "",
+        paymentType: form.paymentType || "",
+        mobileNo: form.mobile || "",
+        managerId: Number(form.manager || 0),
+        userId,
+        roleId: form.roleId || 0,
         gstin: form.gst || "",
         buildingAddress: form.billFlat || "",
         area: form.billArea || "",
-        city: form.billCity || "",
-        state: form.billState || "",
+        city: form.cityId || "",
+        state: form.stateId || "",
         pincode: form.billPincode || "",
         countryCode: "+91",
         expenseId: -1,
         eventId: Number(eventId),
-        partyId: Number(form.manager),
+        partyId: 0,
         userType: "MANAGER",
+        // document: documentBase64,
       };
-
-      console.log("Payload being sent:", payload);
 
       const res = await AddExpensemanagement(payload);
 
-      console.log("Expense added:", res?.data);
-
-      if (res?.data?.data) {
-        onClose(res.data.data);
-      } else {
-        onClose();
-      }
+      // ✅ SUCCESS MESSAGE
+      Swal.fire({
+        icon: "success",
+        title: "Saved Successfully",
+        text: res?.data?.message || "Manager expense added successfully",
+        confirmButtonColor: "#3085d6",
+      }).then(() => {
+        resetForm();
+        onClose(res?.data?.data);
+      });
     } catch (err) {
       console.error("Failed to add expense", err);
+
+      // ❌ ERROR MESSAGE
+      Swal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text:
+          err?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+        confirmButtonColor: "#d33",
+      });
     }
+  };
+
+  const validateForm = () => {
+    if (!form.date) return "Date is required";
+    return null;
   };
 
   return (
@@ -202,11 +294,6 @@ export default function AddNewManagerModal({
               <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
                   Add New Manager
-                  {eventData && (
-                    <span className="text-sm font-normal text-gray-500 ml-2">
-                      (Event: {eventData.eventNo})
-                    </span>
-                  )}
                 </h2>
                 <button
                   onClick={onClose}
@@ -294,7 +381,7 @@ export default function AddNewManagerModal({
 
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Date
+                      Date<span className="text-red-500">*</span>
                     </label>
                     <input
                       name="date"
@@ -439,24 +526,41 @@ export default function AddNewManagerModal({
                             placeholder="Pincode"
                             className="input w-full"
                           />
-                          <input
-                            type="text"
-                            name="billCity"
-                            value={form.billCity || ""}
-                            onChange={handleInput}
-                            placeholder="City"
-                            className="input w-full"
-                          />
+                          <div>
+                            <select
+                              value={form.stateId}
+                              onChange={handleStateChange}
+                              className="input  w-full"
+                            >
+                              <option value="">Select State</option>
+                              {states.map((state) => (
+                                <option key={state.id} value={state.id}>
+                                  {state.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <select
+                              value={form.cityId}
+                              onChange={(e) =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  cityId: e.target.value,
+                                }))
+                              }
+                              disabled={!form.stateId}
+                              className="input  w-full"
+                            >
+                              <option value="">Select City</option>
+                              {cities.map((city) => (
+                                <option key={city.id} value={city.id}>
+                                  {city.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
-
-                        <input
-                          type="text"
-                          name="billState"
-                          value={form.billState || ""}
-                          onChange={handleInput}
-                          placeholder="State"
-                          className="input mt-4 w-full"
-                        />
                       </div>
 
                       <div className="flex items-center gap-2">

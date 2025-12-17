@@ -9,7 +9,7 @@ import AddSupplierCustomerModal from "@/partials/modals/add-supplier-customer-mo
 import AddExpenseModal from "../../../partials/modals/add-Expense-Modal/AddExpenseModal";
 import ViewExpenseDetailsModal from "@/partials/modals/view-expense-modal/ViewExpenseDetailsModal";
 import Swal from "sweetalert2";
-
+import NoData from "../../../components/Nodata";
 import {
   GETExpenseBYUserType,
   GetEventMasterById,
@@ -18,14 +18,13 @@ import {
 
 export default function ExpenseDetails() {
   const { eventId } = useParams();
-
   const [activeTab, setActiveTab] = useState("manager");
   const [searchQuery, setSearchQuery] = useState("");
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [eventDataLoading, setEventDataLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null);
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
   const [contactType, setContactType] = useState("Supplier");
   const [openExpenseModal, setOpenExpenseModal] = useState(false);
@@ -93,89 +92,74 @@ export default function ExpenseDetails() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (!eventId || !userId) {
-      return;
-    }
+    fetchExpenses();
+  }, [activeTab, eventId, userId]);
 
-    const fetchExpenses = async () => {
-      setLoading(true);
-      const userType = activeTab.toUpperCase();
+  const fetchExpenses = async () => {
+    if (!eventId || !userId) return;
 
-      try {
-        const res = await GETExpenseBYUserType({
-          eventId,
+    setLoading(true);
+    const userType = activeTab.toUpperCase();
 
-          userId,
-          userType,
-        });
+    try {
+      const res = await GETExpenseBYUserType({
+        eventId,
+        userId,
+        userType,
+      });
 
-        const apiData = res?.data?.data || {};
-        const list = apiData.data || [];
+      const apiData = res?.data?.data || {};
+      const list = apiData.data || [];
 
-        const normalized = list.map((e) => ({
+      const normalized = list.map((e) => {
+        const managerName =
+          e.managerFirstname && e.managerLastname
+            ? `${e.managerFirstname} ${e.managerLastname}`
+            : e.partyNameEnglish || "-";
+
+        return {
           id: e.expenseId,
-          name: e.partyNameEnglish || "-",
+          name: managerName,
           role: e.roleName || "-",
           mobile: e.mobileNo || "-",
           date: e.date,
           amount: e.amount,
           paymentType: e.paymentType === "cash" ? "Cash" : "Online",
-          initials: (e.partyNameEnglish || "U")[0],
+          initials: (managerName[0] || "U").toUpperCase(),
           bgColor: "bg-blue-100",
           textColor: "text-blue-700",
-        }));
+        };
+      });
 
-        setExpenses(normalized);
+      setExpenses(normalized);
 
-        if (activeTab === "manager") {
-          setTotals({
-            totalGiven: Number(apiData.total_given_amount) || 0,
-            totalUsed:
-              activeTab === "manager"
-                ? Number(apiData.total_used_amount) || 0
-                : 0,
-            remaining:
-              activeTab === "manager"
-                ? Number(apiData.remaining_amount) || 0
-                : 0,
-          });
-        } else {
-          // Customer or Supplier — only totalGiven
-          setTotals({
-            totalGiven: Number(apiData.total_given_amount) || 0,
-            totalUsed: 0,
-            remaining: 0,
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        setExpenses([]);
-      } finally {
-        setLoading(false);
+      if (activeTab === "manager") {
+        setTotals({
+          totalGiven: Number(apiData.total_given_amount) || 0,
+          totalUsed: Number(apiData.total_used_amount) || 0,
+          remaining: Number(apiData.remaining_amount) || 0,
+        });
+      } else {
+        setTotals({
+          totalGiven: Number(apiData.total_given_amount) || 0,
+          totalUsed: 0,
+          remaining: 0,
+        });
       }
-    };
-
-    fetchExpenses();
-  }, [activeTab, eventId, userId]);
+    } catch (err) {
+      console.error(err);
+      setExpenses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleView = (expense) => {
-    setViewData({
-      eventId,
-      eventNo: eventData?.eventNo,
-      manager: expense.name,
-      role: expense.role,
-      contact: expense.mobile,
-      totalAmount: expense.amount,
-      paymentMethod: expense.paymentType,
-      items: expense.items ?? [],
-    });
+    setSelectedExpenseId(expense.id);
     setViewOpen(true);
   };
 
   const getTitle = () => {
-    if (eventData) {
-      return `${eventData.eventNo} - ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Expense Details`;
-    }
     return `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Expense Usage Details`;
   };
 
@@ -188,23 +172,7 @@ export default function ExpenseDetails() {
     setOpenExpenseModal(false);
 
     if (newExpense) {
-      console.log("New expense received from modal:", newExpense);
-
-      setExpenses((prev) => [newExpense, ...prev]);
-
-      // Update partyId after BE saves it
-      if (newExpense?.partyId) {
-        setPartyId(newExpense.partyId); // ✅ store it here
-      }
-
-      // Optionally update eventData for UI
-      setEventData((prev) => ({
-        ...prev,
-        party: {
-          id: newExpense.partyId,
-          nameEnglish: newExpense.partyNameEnglish,
-        },
-      }));
+      fetchExpenses();
     }
   };
 
@@ -286,38 +254,6 @@ export default function ExpenseDetails() {
 
         <h1 className="text-2xl font-bold text-gray-900 mb-8">{getTitle()}</h1>
 
-        {/* Event Info Card */}
-        {eventData && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Event No</p>
-                <p className="font-semibold text-gray-900">
-                  {eventData.eventNo}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Event Type</p>
-                <p className="font-semibold text-gray-900">
-                  {eventData.eventType?.nameEnglish}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Venue</p>
-                <p className="font-semibold text-gray-900">
-                  {eventData.venue?.nameEnglish}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Party</p>
-                <p className="font-semibold text-gray-900">
-                  {eventData.party?.nameEnglish}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Dashboard Cards */}
         <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8">
           <DashboardCards activeTab={activeTab} totals={totals} />
@@ -341,17 +277,21 @@ export default function ExpenseDetails() {
           </div>
 
           <ExpenseTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
+          ) : expenses.length === 0 ? (
+            <NoData
+              text={`No ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} expenses found`}
+            />
           ) : (
             <ExpenseTable
               activeTab={activeTab}
               data={expenses}
-              onAddExpense={(managerName) => {
+              onAddExpense={(managerName, expenseId) => {
                 setSelectedManager(managerName);
+                setSelectedExpenseId(expenseId);
                 setOpenExpenseModal(true);
               }}
               onView={handleView}
@@ -396,13 +336,20 @@ export default function ExpenseDetails() {
           open={openExpenseModal}
           onClose={handleModalClose}
           managerName={selectedManager}
+          expenseId={selectedExpenseId}
           eventId={eventId}
-          eventData={eventData}
+          userId={userId}
+          userType={activeTab.toUpperCase()}
         />
+
         <ViewExpenseDetailsModal
           open={viewOpen}
-          onClose={() => setViewOpen(false)}
-          data={viewData}
+          onClose={() => {
+            setViewOpen(false);
+            setSelectedExpenseId(null);
+          }}
+          expenseId={selectedExpenseId}
+          eventId={eventId}
         />
       </div>
     </div>

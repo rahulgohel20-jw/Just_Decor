@@ -349,6 +349,52 @@ export const allMenuItems = [
       // },
     ],
   },
+  {
+    title: (
+      <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Configuration" />
+    ),
+    icon: "ki-filled ki-setting text-primary",
+    disabled: false,
+    children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.COMPANY_PROFILE"
+            defaultMessage="Change Raw Material Category"
+          />
+        ),
+        path: "/configuration/changerawraterialcategory",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="BREADCRUMBS_USER_RIGHTS"
+            defaultMessage="Change Menu Item Category"
+          />
+        ),
+        path: "/configuration/changemenuitemcategory",
+      },
+
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.SUBSCRIPTION"
+            defaultMessage="Menu Item Allocation"
+          />
+        ),
+        path: "/configuration/confimenuitemallocate",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.PAYMENT_HISTORY"
+            defaultMessage="Allocate Supplier"
+          />
+        ),
+        path: "/configuration/allocationsupplier",
+      },
+    ],
+  },
 ];
 
 export const superAdminMenuItems = [
@@ -418,16 +464,10 @@ export const superAdminMenuItems = [
     children: [
       {
         title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Leads"
-          />
+          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
         ),
         path: "/super-leads",
       },
-      
-      
-      
     ],
   },
   {

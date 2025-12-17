@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GetAllCustomer, AddExpensemanagement } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
 export default function AddSupplierCustomerModal({
   open,
@@ -75,8 +76,7 @@ export default function AddSupplierCustomerModal({
       .catch((err) => {
         console.error("Failed to fetch parties", err);
       });
-  }, [open, userId, form.type]); // re-run when modal opens or type changes
-  // ✅ add form.type to dependency so it refetches on type change
+  }, [open, userId, form.type]);
 
   const handlePartySelect = (e) => {
     const id = Number(e.target.value);
@@ -120,7 +120,7 @@ export default function AddSupplierCustomerModal({
         paymentType: form.paymentType,
         mobileNo: form.mobile,
         userId: userId,
-        roleId: 0,
+        roleId: form.roleId || 0,
 
         gstin: form.gst || "",
         buildingAddress: form.billFlat || "",
@@ -141,11 +141,24 @@ export default function AddSupplierCustomerModal({
 
       const res = await AddExpensemanagement(payload);
 
-      console.log("Expense added:", res?.data);
+      // ✅ Show success alert
+      await Swal.fire({
+        title: "Success!",
+        text: `${form.type} expense added successfully`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
-      onClose(res?.data?.data || null);
+      // ✅ Refresh parent table
+      onClose(res?.data?.data || null); // pass data back to parent (ExpenseDetails)
     } catch (err) {
       console.error("Failed to add supplier/customer expense", err);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to add expense. Please try again.",
+        icon: "error",
+      });
     }
   };
 

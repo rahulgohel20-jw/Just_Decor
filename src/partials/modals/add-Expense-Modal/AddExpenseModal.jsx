@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { AddExpenseItem } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
-export default function AddExpenseModal({ open, onClose, managerName }) {
+export default function AddExpenseModal({
+  open,
+  onClose,
+  managerName,
+  expenseId,
+  eventId,
+  userId,
+  userType = "MANAGER",
+}) {
   const [form, setForm] = useState({
     itemName: "",
     amount: "",
     date: "",
     paymentType: "cash",
+    remarks: "",
   });
 
   const handleInput = (e) => {
@@ -19,6 +30,58 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open, onClose]);
+
+  const formatDateToDDMMYYYY = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleSave = async () => {
+    if (!expenseId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Expense ID",
+        text: "Please select a valid expense row.",
+      });
+      return;
+    }
+
+    const payload = {
+      amount: Number(form.amount),
+      eventId: Number(eventId),
+      expenseId: Number(expenseId),
+      expenseItemId: -1,
+      itemName: form.itemName,
+      document: form.document || "",
+      itemPurchaseDate: formatDateToDDMMYYYY(form.date),
+      paymentType: form.paymentType,
+      remarks: form.remarks,
+      userId: Number(userId),
+      userType: userType,
+    };
+
+    try {
+      await AddExpenseItem(payload);
+
+      Swal.fire({
+        icon: "success",
+        title: "Expense Added",
+        text: "Expense item added successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      onClose(true); // refresh parent table
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Failed to add expense item. Please try again.",
+      });
+      console.error("Failed to add expense item", error);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -161,7 +224,10 @@ export default function AddExpenseModal({ open, onClose, managerName }) {
                 >
                   Cancel
                 </button>
-                <button className="px-6 py-2 rounded-xl bg-blue-500 text-white">
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-2 rounded-xl bg-blue-500 text-white"
+                >
                   Save Expense
                 </button>
               </div>
