@@ -111,11 +111,13 @@ export default function SummaryItemModalOutsideAgency({
     success: true,
   };
 
+  console.log(outsidesummary);
+
   // Use provided data or sample data
   const responseData = outsidesummary || sampleData;
 
   // Extract data from API response
-  const menuDetails = responseData?.data?.["Menu Allocation Details"];
+  const menuDetails = responseData;
   const eventFunction = menuDetails?.eventFunction;
   const agencyData = menuDetails?.agencyResponse?.[0] || {};
 
@@ -131,7 +133,7 @@ export default function SummaryItemModalOutsideAgency({
       ) ||
       0,
     totalPrice: agencyData.totalPrice
-      ? `${agencyData.totalPrice.toFixed(2)} INR`
+      ? `${agencyData.totalPrice.toFixed(2)} `
       : "0.00 INR",
     date: eventFunction?.functionStartDateTime || "N/A",
     functionName: eventFunction?.function?.nameEnglish || "Dinner",
@@ -266,7 +268,7 @@ export default function SummaryItemModalOutsideAgency({
                         {summaryData.quantity}
                       </div>
                       <div className="text-sm font-semibold text-gray-900 text-center">
-                        {summaryData.totalPrice}
+                        ₹{summaryData.totalPrice}
                       </div>
 
                       {/* Action Buttons */}

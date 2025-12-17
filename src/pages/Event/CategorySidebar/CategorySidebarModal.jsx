@@ -4,7 +4,7 @@ import { Tooltip, DatePicker, Form } from "antd";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import {
-  GetAllSupllierVendors,
+  OutsideContactName,
   GetUnitData,
   SelectedRawMenuallocation,
   DeleteRawMaterialItem,
@@ -45,11 +45,15 @@ export default function CategorySidebarModal({
     setLoading(true);
     try {
       const userId = localStorage.getItem("userId");
-      const res = await GetAllSupllierVendors(userId);
+      const res = await OutsideContactName(5, userId);
+      console.log(res);
+
       const supplierData = res?.data?.data?.["Party Details"] || [];
+      console.log(supplierData, "data");
+
       setSuppliers(supplierData);
 
-      const unitRes = await GetUnitData(1);
+      const unitRes = await GetUnitData(userId);
       const unitData = unitRes?.data?.data?.["Unit Details"] || [];
       setUnit(unitData);
     } catch (err) {
