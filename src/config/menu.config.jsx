@@ -413,6 +413,24 @@ export const superAdminMenuItems = [
     path: "/renewal-history",
   },
   {
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Leads"
+          />
+        ),
+        path: "/super-leads",
+      },
+      
+      
+      
+    ],
+  },
+  {
     title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [

@@ -138,7 +138,6 @@ export const updateContactTypeStatus = (Id, statusId) => {
 };
 
 // Get All Raw Material
-
 export const GetAllRawMaterial = (Id) => {
   return GET(
     `rawmaterial/getallbyuserid?pageNo=1&pageSize=10000&rawMateriaCatlId=0&unitid=0&userid=${Id}`
@@ -1157,4 +1156,50 @@ export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
   return GET(
     `menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`
   );
+};
+export const AddLead = (data) => {
+  return POST(`/leadmaster/add`, data);
+};
+
+export const GetAllleadmaster = () => {
+  return GET(`/leadmaster/getAll`);
+};
+
+export const GetLeadCode = () => {
+  return GET(`/leadmaster/generateLeadCode`);
+};
+
+export const DeleteLeadbyID = (id) => {
+  return DELETE(`/leadmaster/deleteById?id=${id}`);
+};
+
+export const UpdateleadbyID = (id, payload) => {
+  return PUT(`/leadmaster/update?id=${id}`, payload);
+};
+export const GetLeadByID = (id) => {
+  return GET(`/leadmaster/getById?id=${id}`);
+};
+
+export const GetFilteredFollowUps = ({
+  startDate,
+  endDate,
+  isCreated,
+  leadId,
+}) => {
+  return GET(
+    `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`
+  );
+};
+export const AddExpensemanagement = (data) => {
+  return POST("/expensemanagement/add", data);
+};
+
+export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
+  return GET(
+    `/expensemanagement/getexpensebyusertype?eventId=${eventId}&userId=${userId}&userType=${userType}`
+  );
+};
+
+export const DeleteByExpenseID = (id) => {
+  return DELETE(`/expensemanagement/deletebyid?expenseId=${id}`);
 };

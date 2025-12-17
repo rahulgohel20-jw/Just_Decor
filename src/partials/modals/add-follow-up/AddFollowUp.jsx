@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { DatePicker as AntDatePicker } from "antd"; 
+import { DatePicker as AntDatePicker } from "antd";
 import dayjs from "dayjs";
 
 const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
@@ -9,6 +9,18 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
   const [followUpType, setFollowUpType] = useState("Call");
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [reminders, setReminders] = useState([{ time: "", type: "Call" }]);
+  const [followUpData, setFollowUpData] = useState({ customerName: "" });
+
+  useEffect(() => {
+    if (isOpen && clientData?.clientName) {
+      setFollowUpData((prev) => ({
+        ...prev,
+        customerName: clientData.clientName || "",
+        email: clientData.emailId || "",
+        phone: clientData.contactNumber || "",
+      }));
+    }
+  }, [isOpen, clientData]);
 
   const handleFollowUpTypeChange = (type) => {
     setFollowUpType(type);
@@ -35,7 +47,15 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   const handleAddFollowUp = () => {
-    alert("Follow-up added successfully!");
+    const followUpObj = {
+      customer: "Customer 1", // Replace with selected customer
+      description: "", // Replace with textarea value
+      type: followUpType,
+      date: followupdate,
+      reminders: reminders,
+    };
+
+    onSave(followUpObj); // pass back to parent
   };
 
   const handleModalClose = () => {
@@ -59,11 +79,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button
-              key="add"
-              className="btn btn btn-success"
-              title="Save"
-            >
+            <button key="add" className="btn btn btn-success" title="Save">
               Save
             </button>
           </div>,
@@ -80,12 +96,21 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
               `}
           </style>
           <div className="flex flex-col">
-            <select className="select pe-7.5">
-              <option value="0">Select customer</option>
-              <option value="1">Customer 1</option>
-              <option value="2">Customer 2</option>
-            </select>
+            <label className="form-label mb-1">Customer Nameeeee</label>
+            <input
+              type="text"
+              className="input"
+              placeholder="Enter customer name"
+              value={followUpData?.customerName || ""} // or a separate state
+              onChange={(e) =>
+                setFollowUpData((prev) => ({
+                  ...prev,
+                  customerName: e.target.value,
+                }))
+              }
+            />
           </div>
+
           <div className="flex flex-col">
             <textarea
               rows={4}
@@ -142,12 +167,14 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
           </div>
           <div className="flex flex-col">
             <label className="form-label">Followup Date</label>
-       <AntDatePicker 
-       className="input w-full"
-       value={followupdate ? dayjs(followupdate) : null}
-        onChange={(date) => setFollowUpDate(date ? date.toISOString() : null)}
-        getPopupContainer={() => document.body} 
-      />
+            <AntDatePicker
+              className="input w-full"
+              value={followupdate ? dayjs(followupdate) : null}
+              onChange={(date) =>
+                setFollowUpDate(date ? date.toISOString() : null)
+              }
+              getPopupContainer={() => document.body}
+            />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-2">
