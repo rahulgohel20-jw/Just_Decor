@@ -57,6 +57,7 @@ const AddCustomer = ({
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -69,7 +70,6 @@ const AddCustomer = ({
 
   // Initial form state
   const initialFormState = {
-    id: "",
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -237,6 +237,7 @@ const AddCustomer = ({
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -282,7 +283,6 @@ const AddCustomer = ({
   };
 
   const CustomerAddApi = async () => {
-    // Validate form before submission
     const isValid = await validateForm();
     if (!isValid) return;
 
@@ -292,35 +292,26 @@ const AddCustomer = ({
         throw new Error("User data not found");
       }
 
-      // Create FormData for file upload
-      const formDataToSend = new FormData();
+      const formDataObj = new FormData();
 
-      // Append all form fields
-      formDataToSend.append("userId", Id);
-      formDataToSend.append("nameEnglish", formData.nameEnglish);
-      formDataToSend.append("nameGujarati", formData.nameGujarati || "");
-      formDataToSend.append("nameHindi", formData.nameHindi || "");
-      formDataToSend.append("addressEnglish", formData.addressEnglish || "");
-      formDataToSend.append("addressGujarati", formData.addressGujarati || "");
-      formDataToSend.append("addressHindi", formData.addressHindi || "");
-      formDataToSend.append("email", formData.email || "");
-      formDataToSend.append("mobileno", formData.mobileno);
-      formDataToSend.append("altMobileno", formData.altMobileno || "");
-      formDataToSend.append("gst", formData.gst || "");
-      formDataToSend.append("bdate", formatDateToDDMMYYYY(formData.bdate));
-      formDataToSend.append("contactCategoryId", formData.contactCategoryId);
-      formDataToSend.append("document", formData.document || "");
+      // ✅ append all form fields
+      Object.entries({
+        ...formData,
+        userId: Id,
+        bdate: formatDateToDDMMYYYY(formData.bdate),
+      }).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formDataObj.append(key, value);
+        }
+      });
 
-      // Append file if selected
+      // ✅ append file
       if (selectedFile) {
-        formDataToSend.append("file", selectedFile);
+        formDataObj.append("file", selectedFile);
       }
 
       if (formData.id) {
-        // For edit, you might need to append the ID
-        formDataToSend.append("id", formData.id);
-        await EditCustomerApi(formData.id, formDataToSend);
-
+        await EditCustomerApi(formData.id, formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -329,8 +320,7 @@ const AddCustomer = ({
           showConfirmButton: false,
         });
       } else {
-        await AddCustomerapi(formDataToSend);
-
+        await AddCustomerapi(formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -345,14 +335,13 @@ const AddCustomer = ({
       setFormData(initialFormState);
       setImagePreview(null);
       setSelectedFile(null);
+      setSelectedFile(null);
       setErrors({});
     } catch (error) {
-      console.error("Error saving customer:", error);
-
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: error.message || "Failed to save customer. Please try again.",
+        text: error.message || "Failed to save customer",
         timer: 3000,
         showConfirmButton: false,
       });
