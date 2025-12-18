@@ -29,6 +29,7 @@ const AddCustomer = ({
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -43,7 +44,6 @@ const AddCustomer = ({
 
   // Initial form state
   const initialFormState = {
-    id: "",
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -211,6 +211,7 @@ const AddCustomer = ({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -258,7 +259,6 @@ const AddCustomer = ({
   };
 
   const CustomerAddApi = async () => {
-    // Validate form before submission
     const isValid = await validateForm();
     if (!isValid) return;
 
@@ -268,16 +268,26 @@ const AddCustomer = ({
         throw new Error("User data not found");
       }
 
-      const payload = {
+      const formDataObj = new FormData();
+
+      // ✅ append all form fields
+      Object.entries({
         ...formData,
         userId: Id,
         bdate: formatDateToDDMMYYYY(formData.bdate),
-      };
+      }).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formDataObj.append(key, value);
+        }
+      });
+
+      // ✅ append file
+      if (selectedFile) {
+        formDataObj.append("file", selectedFile);
+      }
 
       if (formData.id) {
-        await EditCustomerApi(formData.id, payload);
-
-        // Success alert for edit
+        await EditCustomerApi(formData.id, formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -286,9 +296,7 @@ const AddCustomer = ({
           showConfirmButton: false,
         });
       } else {
-        await AddCustomerapi(payload);
-
-        // Success alert for add
+        await AddCustomerapi(formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -302,15 +310,13 @@ const AddCustomer = ({
       refreshData();
       setFormData(initialFormState);
       setImagePreview(null);
+      setSelectedFile(null);
       setErrors({});
     } catch (error) {
-      console.error("Error saving customer:", error);
-
-      // Error alert
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: error.message || "Failed to save customer. Please try again.",
+        text: error.message || "Failed to save customer",
         timer: 3000,
         showConfirmButton: false,
       });

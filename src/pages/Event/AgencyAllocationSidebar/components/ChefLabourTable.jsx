@@ -43,20 +43,14 @@ export default function ChefLabourTable() {
                 Type
               </th>
               <th colSpan={2} className="p-3 text-center border-l">
-                Labour
+                Quantity
               </th>
               <th colSpan={2} className="p-3 text-center border-l">
-                Helper
+                Price
               </th>
               <th rowSpan={2} className="p-3 text-left border-l">
                 Total
               </th>
-            </tr>
-            <tr className="text-gray-500 text-xs">
-              <th className="p-2 border-l text-center">Labour</th>
-              <th className="p-2 text-center">Price</th>
-              <th className="p-2 border-l text-center">Helper</th>
-              <th className="p-2 text-center">Price</th>
             </tr>
           </thead>
 
@@ -87,19 +81,19 @@ export default function ChefLabourTable() {
               </td>
 
               <td className="p-2">
-                <BaseInput placeholder="0" />
+                <BaseInput placeholder="Labour" />
               </td>
 
               <td className="p-2">
-                <BaseInput placeholder="0" />
+                <BaseInput placeholder="Helper" />
               </td>
 
               <td className="p-2">
-                <BaseInput placeholder="0" />
+                <BaseInput placeholder=" price" />
               </td>
 
               <td className="p-2">
-                <BaseInput placeholder="0" />
+                <BaseInput placeholder="Price" />
               </td>
 
               <td className="p-2">
