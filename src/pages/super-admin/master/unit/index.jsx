@@ -302,7 +302,7 @@ const SuperUnitMaster = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          {/* <div className="flex flex-wrap items-center gap-2">
             <button
               className="btn btn-primary"
               onClick={() => {
@@ -320,7 +320,7 @@ const SuperUnitMaster = () => {
                 defaultMessage="Add Unit"
               />
             </button>
-          </div>
+          </div> */}
         </div>
 
         <AddUnit

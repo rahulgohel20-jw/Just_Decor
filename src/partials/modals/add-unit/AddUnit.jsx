@@ -49,16 +49,47 @@ const AddUnit = ({
       decimalLimit: "",
       parentUnit: "",
       equivalent: "",
-      rangeType: "Range",
-      ranges: [{ min: "", max: "", roundOff: "" }],
-      stepWiseRange: "",
+      rangeType: "RANGE",
+      ranges: [{ minValue: "", maxValue: "", roundOffValue: "" }],
+      stepValue: "",
     },
     validationSchema,
     onSubmit: async (values) => {
       const userId = JSON.parse(localStorage.getItem("userId"));
       if (!userId) return Swal.fire("Error", "User data not found", "error");
 
-      const payload = { ...values, userId: userId };
+      // Transform payload to match API requirements
+      const payload = {
+        nameEnglish: values.nameEnglish,
+        nameGujarati: values.nameGujarati,
+        nameHindi: values.nameHindi,
+        symbolEnglish: values.symbolEnglish,
+        symbolGujarati: values.symbolGujarati,
+        symbolHindi: values.symbolHindi,
+        isParentUnit: values.isParentUnit,
+        decimalLimit: parseInt(values.decimalLimit),
+        parent_unit_id: values.isParentUnit
+          ? 0
+          : parseInt(values.parentUnit) || 0,
+        equivalentValue: values.isParentUnit
+          ? 0
+          : parseFloat(values.equivalent) || 0,
+        rangeType: values.rangeType,
+        ranges:
+          values.rangeType === "STEPWISE"
+            ? []
+            : values.ranges.map((range) => ({
+                minValue: parseFloat(range.minValue) || 0,
+                maxValue: parseFloat(range.maxValue) || 0,
+                roundOffValue: parseFloat(range.roundOffValue) || 0,
+              })),
+        stepValue:
+          values.rangeType === "STEPWISE"
+            ? parseFloat(values.stepValue) || 0
+            : 0,
+        userId: userId,
+      };
+
       try {
         const res = selectedUnit
           ? await EditUnit(selectedUnit.unitId, payload)
@@ -92,7 +123,7 @@ const AddUnit = ({
   });
 
   useEffect(() => {
-    if (formik.values.nameEnglish)
+    if (formik.values.nameEnglish && !selectedUnit)
       handleTranslate(formik.values.nameEnglish, {
         gujarati: "nameGujarati",
         hindi: "nameHindi",
@@ -100,37 +131,59 @@ const AddUnit = ({
   }, [formik.values.nameEnglish]);
 
   useEffect(() => {
-    if (formik.values.symbolEnglish)
+    if (formik.values.symbolEnglish && !selectedUnit)
       handleTranslate(formik.values.symbolEnglish, {
         gujarati: "symbolGujarati",
         hindi: "symbolHindi",
       });
   }, [formik.values.symbolEnglish]);
 
+  // ✅ Load selectedUnit data when editing
   useEffect(() => {
     if (selectedUnit) {
+      console.log("Loading unit for edit:", selectedUnit);
+
+      // ✅ Map API ranges format to form format (convert numbers to strings)
+      const mappedRanges =
+        selectedUnit.ranges && selectedUnit.ranges.length > 0
+          ? selectedUnit.ranges.map((range) => ({
+              minValue: range.minValue?.toString() || "",
+              maxValue: range.maxValue?.toString() || "",
+              roundOffValue: range.roundOffValue?.toString() || "",
+            }))
+          : [{ minValue: "", maxValue: "", roundOffValue: "" }];
+
       formik.setValues({
-        nameEnglish: selectedUnit.unit || "",
+        nameEnglish: selectedUnit.nameEnglish || "",
         nameGujarati: selectedUnit.nameGujarati || "",
         nameHindi: selectedUnit.nameHindi || "",
-        symbolEnglish: selectedUnit.symbol || "",
+        symbolEnglish: selectedUnit.symbolEnglish || "",
         symbolGujarati: selectedUnit.symbolGujarati || "",
         symbolHindi: selectedUnit.symbolHindi || "",
         isParentUnit: selectedUnit.isParentUnit || false,
-        decimalLimit: selectedUnit.decimalLimit || "",
-        parentUnit: selectedUnit.parentUnit || "",
-        equivalent: selectedUnit.equivalent || "",
-        rangeType: selectedUnit.rangeType || "Range",
-        ranges: selectedUnit.ranges || [{ min: "", max: "", roundOff: "" }],
-        stepWiseRange: selectedUnit.stepWiseRange || "",
+        decimalLimit: selectedUnit.decimalLimit?.toString() || "",
+        parentUnit: selectedUnit.parentUnit?.toString() || "",
+        equivalent: selectedUnit.equivalentValue?.toString() || "",
+        rangeType: selectedUnit.rangeType || "RANGE",
+        ranges: mappedRanges,
+        stepValue: selectedUnit.stepValue?.toString() || "",
       });
+
+      console.log("Form values set:", {
+        rangeType: selectedUnit.rangeType,
+        ranges: mappedRanges,
+        stepValue: selectedUnit.stepValue,
+      });
+    } else {
+      // ✅ Reset form when modal opens for new unit
+      formik.resetForm();
     }
-  }, [selectedUnit]);
+  }, [selectedUnit, isModalOpen]);
 
   const addRangeRow = () =>
     formik.setFieldValue("ranges", [
       ...formik.values.ranges,
-      { min: "", max: "", roundOff: "" },
+      { minValue: "", maxValue: "", roundOffValue: "" },
     ]);
 
   const removeRangeRow = (index) =>
@@ -162,10 +215,9 @@ const AddUnit = ({
     </div>
   );
 
-  /** ---- Dynamic Range Info Section ---- **/
   const RangeInfoSection = () => {
     const type = formik.values.rangeType;
-    if (type === "Precision Range") {
+    if (type === "PRECISION") {
       return (
         <div className="bg-[#F7FAFF] border rounded-lg p-4 text-sm text-gray-700 leading-relaxed">
           <p className="text-black font-medium">
@@ -183,7 +235,7 @@ const AddUnit = ({
       );
     }
 
-    if (type === "Step Wise Range") {
+    if (type === "STEPWISE") {
       return (
         <div className="bg-[#F7FAFF] border rounded-lg p-4 text-sm text-gray-700 leading-relaxed">
           <p className="text-black font-medium">
@@ -201,14 +253,15 @@ const AddUnit = ({
               Step Wise Range*
             </label>
             <input
-              type="text"
-              name="stepWiseRange"
-              value={formik.values.stepWiseRange}
+              type="number"
+              step="any"
+              name="stepValue"
+              value={formik.values.stepValue}
               onChange={formik.handleChange}
-              className=" border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Enter Step Wise Range"
             />
-            {!formik.values.stepWiseRange && (
+            {!formik.values.stepValue && (
               <p className="text-red-500 text-sm mt-1">
                 Step Wise Range is required.
               </p>
@@ -218,7 +271,6 @@ const AddUnit = ({
       );
     }
 
-    // Default "Range"
     return (
       <div className="bg-[#F7FAFF] border rounded-lg p-4 text-sm text-gray-700 leading-relaxed">
         <p className="text-black font-medium">
@@ -239,8 +291,8 @@ const AddUnit = ({
     const handleChange = (index, field, value) => {
       const updated = [...formik.values.ranges];
       updated[index][field] = value;
-      if (field === "max" && value) {
-        updated[index].roundOff = value;
+      if (field === "maxValue" && value) {
+        updated[index].roundOffValue = value;
       }
       formik.setFieldValue("ranges", updated);
     };
@@ -253,7 +305,7 @@ const AddUnit = ({
     };
 
     return (
-      formik.values.rangeType !== "Step Wise Range" && (
+      formik.values.rangeType !== "STEPWISE" && (
         <div className="border rounded-lg overflow-hidden">
           <table className="w-full text-sm text-black">
             <thead className="bg-[#F7FAFF]">
@@ -278,9 +330,9 @@ const AddUnit = ({
               {formik.values.ranges.map((range, index) => {
                 const prevMax =
                   index > 0
-                    ? parseFloat(formik.values.ranges[index - 1].max)
+                    ? parseFloat(formik.values.ranges[index - 1].maxValue)
                     : null;
-                const currMin = parseFloat(range.min);
+                const currMin = parseFloat(range.minValue);
                 const validationError =
                   prevMax !== null && !isNaN(currMin) && currMin <= prevMax
                     ? `Min must be greater than the ${index} record's Max (${prevMax}).`
@@ -292,10 +344,11 @@ const AddUnit = ({
                     <td className="py-2 px-3">
                       <input
                         type="number"
+                        step="any"
                         className="w-full border rounded-md px-2 py-1 h-10 text-gray-600"
-                        defaultValue={range.min}
-                        onBlur={(e) =>
-                          handleChange(index, "min", e.target.value)
+                        value={range.minValue}
+                        onChange={(e) =>
+                          handleChange(index, "minValue", e.target.value)
                         }
                       />
                       {validationError && (
@@ -307,20 +360,22 @@ const AddUnit = ({
                     <td className="py-2 px-3">
                       <input
                         type="number"
+                        step="any"
                         className="w-full border text-gray-600 rounded-md px-2 py-1 h-10"
-                        defaultValue={range.max}
-                        onBlur={(e) =>
-                          handleChange(index, "max", e.target.value)
+                        value={range.maxValue}
+                        onChange={(e) =>
+                          handleChange(index, "maxValue", e.target.value)
                         }
                       />
                     </td>
                     <td className="py-2 px-3">
                       <input
                         type="number"
+                        step="any"
                         className="w-full border text-gray-600 rounded-md px-2 py-1 h-10 bg-gray-50"
-                        value={range.roundOff}
+                        value={range.roundOffValue}
                         onChange={(e) =>
-                          handleChange(index, "roundOff", e.target.value)
+                          handleChange(index, "roundOffValue", e.target.value)
                         }
                         readOnly
                       />
@@ -346,17 +401,21 @@ const AddUnit = ({
 
   const RangeTypeRadios = () => (
     <div className="flex gap-6">
-      {["Range", "Precision Range", "Step Wise Range"].map((type) => (
-        <label key={type} className="flex items-center gap-2">
+      {[
+        { label: "Range", value: "RANGE" },
+        { label: "Precision Range", value: "PRECISION" },
+        { label: "Step Wise Range", value: "STEPWISE" },
+      ].map((type) => (
+        <label key={type.value} className="flex items-center gap-2">
           <input
             type="radio"
             name="rangeType"
-            value={type}
-            checked={formik.values.rangeType === type}
+            value={type.value}
+            checked={formik.values.rangeType === type.value}
             onChange={formik.handleChange}
             className="accent-blue-600"
           />
-          <span className="text-gray-700">{type}</span>
+          <span className="text-gray-700">{type.label}</span>
         </label>
       ))}
     </div>
@@ -438,6 +497,7 @@ const AddUnit = ({
             </label>
             <span className="text-gray-700 font-medium">Is Parent Unit</span>
           </div>
+
           {/* Conditional fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderSelect("decimalLimit", "Decimal Limit For Quantity*", [
@@ -454,7 +514,8 @@ const AddUnit = ({
                   </label>
                   <input
                     name="equivalent"
-                    type="text"
+                    type="number"
+                    step="any"
                     value={formik.values.equivalent}
                     onChange={formik.handleChange}
                     className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -470,7 +531,7 @@ const AddUnit = ({
           <RangeInfoSection />
           <RangeTable />
 
-          {formik.values.rangeType !== "Step Wise Range" && (
+          {formik.values.rangeType !== "STEPWISE" && (
             <button
               type="button"
               onClick={addRangeRow}
@@ -479,6 +540,7 @@ const AddUnit = ({
               <span className="text-xl">＋</span> Add Range
             </button>
           )}
+
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-4 border-t">
             <button
