@@ -61,9 +61,14 @@ export const GetPartyMasterByCatId = (catTypeId, userId) => {
 };
 
 //Add customer
-export const AddCustomerapi = (data) => {
-  return POST("/partymaster/add", data);
+export const AddCustomerapi = (formData) => {
+  return POST("/partymaster/add", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
+
 
 //Edit customer
 export const EditCustomerApi = (Id, data) => {
@@ -150,6 +155,12 @@ export const DeleteRole = (Id) => {
 export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
+
+
+export const GetUnitById = (Id) => {
+  return GET(`/unit/getbyid?id=${Id}`);
+};
+
 export const GetSuplier = (id) => {
   return GET(
     `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`
@@ -1159,11 +1170,11 @@ export const EditTicket = (id, data) => {
 export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
   return GET(`menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
 }
-export const AddLead =(data) => {
-  return POST (`/leadmaster/add`,data);
+export const AddLead = (data) => {
+  return POST(`/leadmaster/add`, data);
 }
 
-export const GetAllleadmaster  = () => {
+export const GetAllleadmaster = () => {
   return GET(`/leadmaster/getAll`);
 }
 
@@ -1202,3 +1213,12 @@ export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
 export const DeleteByExpenseID = (id) => {
   return DELETE(`/expensemanagement/deletebyid?expenseId=${id}`);
 };
+
+
+export const AddCustomTheme = (formData) => {
+  return POST("/templatemaster/add", formData);
+};
+
+export const GetAllCustomTheme = () => {
+  return GET(`/templatemaster/getall`);
+}

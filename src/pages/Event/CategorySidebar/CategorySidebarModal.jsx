@@ -49,7 +49,7 @@ export default function CategorySidebarModal({
       const supplierData = res?.data?.data?.["Party Details"] || [];
       setSuppliers(supplierData);
 
-      const unitRes = await GetUnitData(1);
+      const unitRes = await GetUnitData(userId);
       const unitData = unitRes?.data?.data?.["Unit Details"] || [];
       setUnit(unitData);
     } catch (err) {

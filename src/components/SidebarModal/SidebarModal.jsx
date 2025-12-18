@@ -122,7 +122,7 @@ export default function SidebarModal({
           return;
         }
 
-        const res = await Getunit(1);
+        const res = await Getunit(userId);
 
         if (res?.data?.data) {
           const unitData = res.data.data["Unit Details"].map((unit) => ({
@@ -151,9 +151,9 @@ export default function SidebarModal({
         partyName: "",
         price: "",
         quantity: "",
-        unitId: null, // ADD THIS
-        unitName: "Nos",
         unitId: null,
+        unitName: "Nos",
+
         totalPrice: "",
         isOutside: true,
       },

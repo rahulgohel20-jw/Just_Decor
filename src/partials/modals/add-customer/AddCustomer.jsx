@@ -1,12 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
-import Select from "react-select"; // inside your form
-
+import Select from "react-select";
 import Swal from "sweetalert2";
+import axios from "axios";
 import {
-  AddCustomerapi,
   GetAllContactCategorybycontacttype,
-  EditCustomerApi,
   Translateapi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
@@ -22,10 +20,40 @@ const AddCustomer = ({
   if (!isModalOpen) return null;
   const intl = useIntl();
 
+  // Define API functions directly in the component
+  const getAuthHeaders = () => {
+    const token =
+      localStorage.getItem("token") || localStorage.getItem("authToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const getBaseURL = () => {
+    // Try to get base URL from existing axios instance or use relative path
+    return "/v1/api";
+  };
+
+  const AddCustomerapi = (formData) => {
+    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
+      headers: {
+        ...getAuthHeaders(),
+        // Don't set Content-Type, let axios set it with boundary
+      },
+    });
+  };
+
+  const EditCustomerApi = (id, formData) => {
+    return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
+  };
+
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
@@ -33,11 +61,9 @@ const AddCustomer = ({
   // Yup validation schema
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name (English) is required"),
-
     mobileno: Yup.string()
       .required("Mobile number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-
     contactCategoryId: Yup.string().required("Contact category is required"),
   });
 
@@ -94,6 +120,7 @@ const AddCustomer = ({
   }, []);
 
   const Id = localStorage.getItem("userId");
+
   const triggerTranslate = (text, fieldType) => {
     if (!text?.trim()) return;
 
@@ -169,8 +196,8 @@ const AddCustomer = ({
       } else {
         setFormData(initialFormState);
         setImagePreview(null);
+        setSelectedFile(null);
       }
-      // Clear errors when modal opens/closes
       setErrors({});
     }
   }, [selectedCustomer, isModalOpen, parseBirthdate]);
@@ -182,7 +209,6 @@ const AddCustomer = ({
         data: { data },
       } = await GetAllContactCategorybycontacttype(concatId, Id);
 
-      // Filter to show ONLY Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
       const filteredCategories = allCategories.filter((cat) => {
         return cat.contactType?.nameEnglish?.toLowerCase() === "customer";
@@ -191,7 +217,6 @@ const AddCustomer = ({
       setCategories(allCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      // Only show warning if modal is not open
       if (!isModalOpen) {
         Swal.fire({
           icon: "warning",
@@ -211,6 +236,7 @@ const AddCustomer = ({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -219,7 +245,6 @@ const AddCustomer = ({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear specific field error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -252,7 +277,6 @@ const AddCustomer = ({
         errorObject[error.path] = error.message;
       });
       setErrors(errorObject);
-
       return false;
     }
   };
@@ -268,16 +292,35 @@ const AddCustomer = ({
         throw new Error("User data not found");
       }
 
-      const payload = {
-        ...formData,
-        userId: Id,
-        bdate: formatDateToDDMMYYYY(formData.bdate),
-      };
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+
+      // Append all form fields
+      formDataToSend.append("userId", Id);
+      formDataToSend.append("nameEnglish", formData.nameEnglish);
+      formDataToSend.append("nameGujarati", formData.nameGujarati || "");
+      formDataToSend.append("nameHindi", formData.nameHindi || "");
+      formDataToSend.append("addressEnglish", formData.addressEnglish || "");
+      formDataToSend.append("addressGujarati", formData.addressGujarati || "");
+      formDataToSend.append("addressHindi", formData.addressHindi || "");
+      formDataToSend.append("email", formData.email || "");
+      formDataToSend.append("mobileno", formData.mobileno);
+      formDataToSend.append("altMobileno", formData.altMobileno || "");
+      formDataToSend.append("gst", formData.gst || "");
+      formDataToSend.append("bdate", formatDateToDDMMYYYY(formData.bdate));
+      formDataToSend.append("contactCategoryId", formData.contactCategoryId);
+      formDataToSend.append("document", formData.document || "");
+
+      // Append file if selected
+      if (selectedFile) {
+        formDataToSend.append("file", selectedFile);
+      }
 
       if (formData.id) {
-        await EditCustomerApi(formData.id, payload);
+        // For edit, you might need to append the ID
+        formDataToSend.append("id", formData.id);
+        await EditCustomerApi(formData.id, formDataToSend);
 
-        // Success alert for edit
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -286,9 +329,8 @@ const AddCustomer = ({
           showConfirmButton: false,
         });
       } else {
-        await AddCustomerapi(payload);
+        await AddCustomerapi(formDataToSend);
 
-        // Success alert for add
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -302,11 +344,11 @@ const AddCustomer = ({
       refreshData();
       setFormData(initialFormState);
       setImagePreview(null);
+      setSelectedFile(null);
       setErrors({});
     } catch (error) {
       console.error("Error saving customer:", error);
 
-      // Error alert
       Swal.fire({
         icon: "error",
         title: "Error!",
@@ -320,7 +362,6 @@ const AddCustomer = ({
   };
 
   const handleModalClose = () => {
-    // Show confirmation dialog if form has data
     const hasFormData = Object.values(formData).some(
       (value) =>
         value &&
@@ -346,6 +387,7 @@ const AddCustomer = ({
           setIsModalOpen(false);
           setFormData(initialFormState);
           setImagePreview(null);
+          setSelectedFile(null);
           setErrors({});
         }
       });
@@ -353,6 +395,7 @@ const AddCustomer = ({
       setIsModalOpen(false);
       setFormData(initialFormState);
       setImagePreview(null);
+      setSelectedFile(null);
       setErrors({});
     }
   };
@@ -406,7 +449,6 @@ const AddCustomer = ({
                 lng="en-US"
                 required
               />
-
               {errors.nameEnglish && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.nameEnglish}
