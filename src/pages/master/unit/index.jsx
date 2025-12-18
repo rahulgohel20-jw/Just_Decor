@@ -9,6 +9,7 @@ import {
   DeleteUnit,
   SearchUnit,
   updateunit,
+  GetUnitById,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -18,19 +19,17 @@ const UnitMaster = () => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoadingUnit, setIsLoadingUnit] = useState(false);
   const intl = useIntl();
 
-  // 🔥 Load language and set up listener for changes
   const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
 
-  // 🔥 Listen for language changes in localStorage
   useEffect(() => {
     const handleStorageChange = () => {
       const newLang = localStorage.getItem("lang") || "en";
       setLang(newLang);
     };
 
-    // Listen for custom language change events
     window.addEventListener("languageChanged", handleStorageChange);
     window.addEventListener("storage", handleStorageChange);
 
@@ -42,7 +41,6 @@ const UnitMaster = () => {
 
   let Id = localStorage.getItem("userId");
 
-  // 🔥 Helper to get unit name based on language
   const getUnitNameByLang = (unit) => {
     if (!unit) return "-";
 
@@ -56,7 +54,6 @@ const UnitMaster = () => {
     }
   };
 
-  // 🔥 Helper to get symbol based on language
   const getSymbolByLang = (unit) => {
     if (!unit) return "-";
 
@@ -83,13 +80,6 @@ const UnitMaster = () => {
               symbol: getSymbolByLang(cust),
               unitId: cust.id,
               isActive: cust.isActive,
-              // Store all language versions for editing
-              nameEnglish: cust.nameEnglish,
-              nameGujarati: cust.nameGujarati,
-              nameHindi: cust.nameHindi,
-              symbolEnglish: cust.symbolEnglish,
-              symbolHindi: cust.symbolHindi,
-              symbolGujarati: cust.symbolGujarati,
             })
           );
 
@@ -104,12 +94,10 @@ const UnitMaster = () => {
       });
   };
 
-  // ✅ Initial load - fetch all (re-fetch when language changes)
   useEffect(() => {
     Fetchunit();
-  }, [lang]); // 🔥 Re-fetch when language changes
+  }, [lang]);
 
-  // SEARCH FUNCTION - ✅ Debounced search
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {
@@ -126,12 +114,6 @@ const UnitMaster = () => {
               symbol: getSymbolByLang(cust),
               unitId: cust.id,
               isActive: cust.isActive,
-              nameEnglish: cust.nameEnglish,
-              nameHindi: cust.nameHindi,
-              nameGujarati: cust.nameGujarati,
-              symbolEnglish: cust.symbolEnglish,
-              symbolHindi: cust.symbolHindi,
-              symbolGujarati: cust.symbolGujarati,
             }));
             setTableData(formatted);
           } else {
@@ -219,9 +201,70 @@ const UnitMaster = () => {
     });
   };
 
-  const handleEdit = (event) => {
-    setSelectedUnit(event);
-    setIsEventTypeModalOpen(true);
+  // ✅ Fetch complete unit details by ID when editing
+  const handleEdit = async (event) => {
+    setIsLoadingUnit(true);
+    try {
+      const response = await GetUnitById(event.unitId);
+      console.log("Fetched Unit Details:", response);
+
+      if (
+        response?.data?.success &&
+        response?.data?.data?.["Unit Details"]?.[0]
+      ) {
+        const unitDetails = response.data.data["Unit Details"][0];
+
+        // Format the unit data for the form
+        const formattedUnit = {
+          unitId: unitDetails.id,
+          nameEnglish: unitDetails.nameEnglish,
+          nameGujarati: unitDetails.nameGujarati,
+          nameHindi: unitDetails.nameHindi,
+          symbolEnglish: unitDetails.symbolEnglish,
+          symbolGujarati: unitDetails.symbolGujarati,
+          symbolHindi: unitDetails.symbolHindi,
+          isParentUnit: unitDetails.isParentUnit,
+          decimalLimit: unitDetails.decimalLimit,
+          parentUnit: unitDetails.parentUnit,
+          equivalentValue: unitDetails.equivalentValue,
+          rangeType: unitDetails.rangeType,
+          ranges: unitDetails.ranges || [],
+          stepValue: unitDetails.stepValue,
+        };
+
+        setSelectedUnit(formattedUnit);
+        setIsEventTypeModalOpen(true);
+      } else {
+        Swal.fire({
+          title: intl.formatMessage({
+            id: "USER.MASTER.ERROR",
+            defaultMessage: "Error!",
+          }),
+          text: intl.formatMessage({
+            id: "USER.MASTER.FETCH_UNIT_FAILED",
+            defaultMessage: "Failed to fetch unit details.",
+          }),
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching unit details:", error);
+      Swal.fire({
+        title: intl.formatMessage({
+          id: "USER.MASTER.ERROR",
+          defaultMessage: "Error!",
+        }),
+        text:
+          error.message ||
+          intl.formatMessage({
+            id: "USER.MASTER.FETCH_UNIT_FAILED",
+            defaultMessage: "Failed to fetch unit details.",
+          }),
+        icon: "error",
+      });
+    } finally {
+      setIsLoadingUnit(false);
+    }
   };
 
   const statusUnit = (unitId, status) => {
@@ -269,7 +312,6 @@ const UnitMaster = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
             items={[
@@ -285,7 +327,6 @@ const UnitMaster = () => {
           />
         </div>
 
-        {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className={`flex flex-wrap items-center gap-2`}>
             <div className="filItems relative">
@@ -322,6 +363,15 @@ const UnitMaster = () => {
             </button>
           </div>
         </div>
+
+        {/* Show loading indicator */}
+        {isLoadingUnit && (
+          <div className="flex justify-center items-center py-4">
+            <div className="spinner-border text-primary" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        )}
 
         <AddUnit
           isModalOpen={isEventTypeModalOpen}
