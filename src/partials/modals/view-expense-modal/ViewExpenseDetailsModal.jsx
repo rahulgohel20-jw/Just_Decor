@@ -1,37 +1,47 @@
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User } from "lucide-react";
+import { GetExpenseItemsByExpenseAndEvent } from "@/services/apiServices";
 
-export default function ViewExpenseDetailsModal({ open, onClose, data }) {
-  if (!data) return null;
+const ViewExpenseDetailsModal = ({ open, onClose, expenseId, eventId }) => {
+  const [data, setData] = useState([]);
+  const [expense, setExpense] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const {
-    manager = "",
-    role = "",
-    contact = "",
-    totalAmount = "",
-    paymentMethod = "",
-  } = data;
+  useEffect(() => {
+    if (!open || !expenseId || !eventId) return;
 
-  const items = [
-    {
-      item: "Chair",
-      date: "23rd Oct, 2023",
-      price: "Rs. 1200",
-      paymentType: "Online",
-    },
-    {
-      item: "Table",
-      date: "24th Oct, 2023",
-      price: "Rs. 4500",
-      paymentType: "Card",
-    },
-    {
-      item: "Laptop Stand",
-      date: "25th Oct, 2023",
-      price: "Rs. 850",
-      paymentType: "Cash",
-    },
-  ];
+    setLoading(true);
+    setData([]);
+    setExpense({});
+
+    GetExpenseItemsByExpenseAndEvent(eventId, expenseId)
+      .then((res) => {
+        if (res?.data?.data && res.data.data.length > 0) {
+          setData(res.data.data); // set full array of items
+          setExpense(res.data.data[0].expense || {}); // take expense details from first item
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [open, expenseId, eventId]);
+
+  if (!open) return null;
+
+  const managerFullName = `${expense.managerFirstname ?? "-"} ${expense.managerLastname ?? ""}`;
+  const roleName = expense.roleName ?? "-";
+  const mobileNo = expense.mobileNo ?? "-";
+  const totalAmount = expense.amount ?? 0;
+  const totalPaymentType = expense.paymentType ?? "-";
+
+  // Map all expense items for table
+  const items = data.map((item) => ({
+    item: item.itemName || "N/A",
+    date: item.itemPurchaseDate || "N/A",
+    price: item.amount ? `Rs. ${item.amount}` : "N/A",
+    paymentType: item.paymentType || "N/A",
+    remarks: item.remarks || "-",
+  }));
 
   return (
     <AnimatePresence>
@@ -53,6 +63,7 @@ export default function ViewExpenseDetailsModal({ open, onClose, data }) {
               exit={{ y: 40, opacity: 0 }}
               transition={{ type: "spring", stiffness: 180, damping: 22 }}
             >
+              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-900">
                   View Details
@@ -65,49 +76,46 @@ export default function ViewExpenseDetailsModal({ open, onClose, data }) {
                 </button>
               </div>
 
+              {/* Manager Info */}
               <div className="p-6 grid grid-cols-3 gap-6 text-sm items-center">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center">
                     <User className="w-6 h-6 text--500" />
                   </div>
-
                   <div>
                     <p className="font-semibold text-gray-800">Manager</p>
-                    <p className="text-gray-700 mt-1">{manager}</p>
+                    <p className="text-gray-700 mt-1">{managerFullName}</p>
                   </div>
                 </div>
-
                 <div>
                   <p className="font-semibold text-gray-800">Role</p>
-                  <p className="text-gray-700 mt-1">{role}</p>
+                  <p className="text-gray-700 mt-1">{roleName}</p>
                 </div>
-
                 <div>
                   <p className="font-semibold text-gray-800">Contact</p>
-                  <p className="text-gray-700 mt-1">{contact}</p>
+                  <p className="text-gray-700 mt-1">{mobileNo}</p>
                 </div>
               </div>
 
+              {/* Total Amount & Payment */}
               <div className="px-6 pb-6 grid grid-cols-3 gap-6 text-sm">
                 <div>
                   <p className="font-semibold text-gray-800">Total Amount</p>
                   <p className="text-gray-700 mt-1 font-medium text-blue-600">
-                    {totalAmount}
+                    Rs. {totalAmount}
                   </p>
                 </div>
-
                 <div>
                   <p className="font-semibold text-gray-800">Payment Method</p>
-                  <p className="text-gray-700 mt-1">{paymentMethod}</p>
+                  <p className="text-gray-700 mt-1">{totalPaymentType}</p>
                 </div>
               </div>
 
-              {/* TABLE */}
+              {/* Item Table */}
               <div className="px-6 pb-6">
                 <h3 className="text-md font-semibold text-gray-800 mb-3">
                   Item Details
                 </h3>
-
                 <table className="w-full border-collapse text-sm text-gray-700">
                   <thead>
                     <tr className="text-left text-gray-600 border-b">
@@ -115,9 +123,9 @@ export default function ViewExpenseDetailsModal({ open, onClose, data }) {
                       <th className="pb-2">Date</th>
                       <th className="pb-2">Price</th>
                       <th className="pb-2">Payment Type</th>
+                      <th className="pb-2">Remarks</th> {/* New Column */}
                     </tr>
                   </thead>
-
                   <tbody>
                     {items.map((item, index) => (
                       <tr key={index} className="border-b">
@@ -125,6 +133,7 @@ export default function ViewExpenseDetailsModal({ open, onClose, data }) {
                         <td>{item.date}</td>
                         <td>{item.price}</td>
                         <td>{item.paymentType}</td>
+                        <td>{item.remarks}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -145,4 +154,6 @@ export default function ViewExpenseDetailsModal({ open, onClose, data }) {
       )}
     </AnimatePresence>
   );
-}
+};
+
+export default ViewExpenseDetailsModal;

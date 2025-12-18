@@ -199,6 +199,10 @@ import InteractionMaster from "../pages/super-admin/master/interaction-master";
 import ExpenseDetails from "../pages/Event/ExpensePage";
 import SuperLeads from "../pages/super-admin/Leads";
 import AddLeadPage from "@/pages/super-admin/Leads/AddLead/AddLeadPage";
+import { ChangeRawMaterialCategoryPage } from "../pages/Configuration/Change-Raw-Material-Category/ChangeRawMaterialCategoryPage";
+import { ChangeMenuItemCategoryPage } from "../pages/Configuration/Change-Menu-Item-Category";
+import ConfigMenuItemPage from "../pages/Configuration/Menu-Item-Allocation/ConfigMenuItemPage";
+import { Allocatesupplier } from "../pages/Configuration/Allocate-supplier/Allocatesupplier";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -426,6 +430,24 @@ const AppRoutingSetup = () => {
           <Route
             path="/settings/notifications"
             element={<NotificationsSettingsPage />}
+          />
+          {/* Configuration */}
+          <Route
+            path="/configuration/changerawraterialcategory"
+            element={<ChangeRawMaterialCategoryPage />}
+          />
+          <Route
+            path="/configuration/changemenuitemcategory"
+            element={<ChangeMenuItemCategoryPage />}
+          />
+
+          <Route
+            path="/configuration/confimenuitemallocate"
+            element={<ConfigMenuItemPage />}
+          />
+          <Route
+            path="/configuration/allocationsupplier"
+            element={<Allocatesupplier />}
           />
           {/* Support routes */}
           <Route path="/support/events" element={<EventsPage />} />

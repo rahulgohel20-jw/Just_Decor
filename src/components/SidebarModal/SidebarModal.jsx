@@ -64,9 +64,9 @@ export default function SidebarModal({
           partyName: alloc.partyName || "",
           price: alloc.price || "",
           quantity: alloc.quantity || "",
-          unitId: alloc.unitId || null, // ADD THIS
-          unitName: alloc.unitName || "Nos",
           unitId: alloc.unitId || null,
+          unitName: alloc.unitName || "Nos",
+
           totalPrice: totalPrice,
           isOutside: alloc.isOutside,
         };
@@ -79,9 +79,8 @@ export default function SidebarModal({
           partyName: "",
           price: "",
           quantity: "",
-          unitId: null, // ADD THIS
-          unitName: "Nos",
           unitId: null,
+          unitName: "Nos",
           totalPrice: "",
           isOutside: true,
         },

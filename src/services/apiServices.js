@@ -1113,7 +1113,6 @@ export const Edittemplatebyid = (id, data) => {
   return PUT(`/templatemodulemaster/update?id=${id}`, data);
 };
 
-
 export const GetAllTicketsByUserId = (id) => {
   return GET(`/ticket/getallbyuserid?userId=${id}`);
 };
@@ -1144,14 +1143,13 @@ export const GetOutsideSummary = (eventfunID, eventId, type) => {
   );
 };
 
-
 export const AddComments = (data) => {
   return POST(`/ticketcomment/add`, data);
 };
 
 export const GetCommentsByTicketId = (id) => {
   return GET(`/ticketcomment/getallbyticketid?ticketId=${id}`);
-}
+};
 
 export const DeleteComment = (Id) => {
   return DELETE(`/ticketcomment/delete?id=${Id}`);
@@ -1161,27 +1159,26 @@ export const EditComment = (id, data) => {
   return POST(`/ticketcomment/update?id=${id}`, data);
 };
 
-
 export const EditTicket = (id, data) => {
   return PUT(`/ticket/update?id=${id}`, data);
 };
 
-
 export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
-  return GET(`menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
-}
+  return GET(
+    `menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`
+  );
+};
 export const AddLead = (data) => {
   return POST(`/leadmaster/add`, data);
-}
+};
 
 export const GetAllleadmaster = () => {
   return GET(`/leadmaster/getAll`);
-}
+};
 
 export const GetLeadCode = () => {
   return GET(`/leadmaster/generateLeadCode`);
 };
-
 
 export const DeleteLeadbyID = (id) => {
   return DELETE(`/leadmaster/deleteById?id=${id}`);
@@ -1189,12 +1186,17 @@ export const DeleteLeadbyID = (id) => {
 
 export const UpdateleadbyID = (id, payload) => {
   return PUT(`/leadmaster/update?id=${id}`, payload);
-}
+};
 export const GetLeadByID = (id) => {
   return GET(`/leadmaster/getById?id=${id}`);
-}
+};
 
-export const GetFilteredFollowUps = ({ startDate, endDate, isCreated, leadId }) => {
+export const GetFilteredFollowUps = ({
+  startDate,
+  endDate,
+  isCreated,
+  leadId,
+}) => {
   return GET(
     `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`
   );
@@ -1202,7 +1204,6 @@ export const GetFilteredFollowUps = ({ startDate, endDate, isCreated, leadId }) 
 export const AddExpensemanagement = (data) => {
   return POST("/expensemanagement/add", data);
 };
-
 
 export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
   return GET(
@@ -1213,6 +1214,66 @@ export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
 export const DeleteByExpenseID = (id) => {
   return DELETE(`/expensemanagement/deletebyid?expenseId=${id}`);
 };
+
+export const GETExpenseBYId = (id) => {
+  return GET(`/expensemanagement/getbyid?expenseId=${id}`);
+};
+
+
+export const AddExpenseItem = (data) => {
+  return POST("/expenseitem/add", data);
+};
+
+
+export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
+  GET(
+    `/expenseitem/getbyexpenseandevent?eventId=${eventId}&expenseId=${expenseId}`
+  );
+
+export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
+  if (!cat_id_list || cat_id_list.length === 0) {
+    console.warn("⚠️ No category IDs provided to API");
+    return Promise.resolve({ data: { data: [] } });
+  }
+  const catIdParams = cat_id_list.map(id => `cat_id_list=${id}`).join('&');
+  return GET(`/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`);
+}
+
+export const UpdateRawMaterialCategory = (current_cat_id_list = [], new_cat_id, userId) => {
+  // Validate inputs
+  if (!current_cat_id_list || current_cat_id_list.length === 0) {
+    console.warn("⚠️ No current category IDs provided");
+    return Promise.reject(new Error("Current category IDs are required"));
+  }
+
+  if (!new_cat_id) {
+    console.warn("⚠️ No new category ID provided");
+    return Promise.reject(new Error("New category ID is required"));
+  }
+
+  if (!userId) {
+    console.warn("⚠️ No user ID provided");
+    return Promise.reject(new Error("User ID is required"));
+  }
+
+  // Build query parameters
+  const params = new URLSearchParams();
+
+  // Add each current category ID as separate parameter
+  current_cat_id_list.forEach(id => {
+    params.append('current_cat_id_list', id);
+  });
+
+  // Add new category and user ID
+  params.append('new_cat_id', new_cat_id);
+  params.append('userId', userId);
+
+  const queryString = params.toString();
+  console.log("🔗 Update API URL:", `/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
+
+  return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
+};
+
 
 
 export const AddCustomTheme = (formData) => {
