@@ -226,6 +226,7 @@ const VendorMaster = () => {
 
         <AddVendor
           isModalOpen={isMemberModalOpen}
+          isModalClose={setIsMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
           selectedCustomer={selectedCustomer}
           refreshData={FetchCustomer}
