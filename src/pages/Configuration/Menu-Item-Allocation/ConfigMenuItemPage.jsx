@@ -1,325 +1,292 @@
-import { Fragment, useEffect, useState, useMemo } from "react";
-import { toAbsoluteUrl } from "@/utils";
-
-import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { FormattedMessage, useIntl } from "react-intl";
+import React, { useEffect, useMemo, useState } from "react";
 import InsideTable from "./tables/InsideTable";
 import OutsideTable from "./tables/OutsideTable";
 import ChefLabourTable from "./tables/ChefLabourTable";
-import { Checkbox } from "@/components/ui/checkbox"; // or use native input
+import { FormattedMessage } from "react-intl";
+import {
+  Getmenuitemsusingcatidconfig,
+  GetMenuCategoryByUserId,
+  GetAllCustomer,
+} from "@/services/apiServices";
 
-import FromCategoryDropdown from "../../../components/form-inputs/FromCategoryDropdown/FromCategoryDropdown";
-
-const ConfigMenuItemPage = () => {
-  const intl = useIntl();
-
+const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
   const [fromCategory, setFromCategory] = useState("");
-  const [toCategory, setToCategory] = useState("");
-  const [TochefLabourType, setToChefLabourType] = useState("");
+
+  const [selectedType, setSelectedType] = useState("");
+  const [vendorList, setVendorList] = useState([]);
+  const [toType, setToType] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
 
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
-  const [chefLabourList, setChefLabourList] = useState([]);
-  const [agencyList, setAgencyList] = useState([]);
+
   const [tableData, setTableData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const checkboxColumn = {
-    id: "select",
-    header: ({ table }) => (
-      <input
-        type="checkbox"
-        className="checkbox"
-        checked={table.getIsAllRowsSelected()}
-        indeterminate={table.getIsSomeRowsSelected()}
-        onChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    cell: ({ row }) => (
-      <input
-        type="checkbox"
-        className="checkbox"
-        checked={row.getIsSelected()}
-        disabled={!row.getCanSelect()}
-        onChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  };
-
-  const CATEGORY_TABLE_MAP = {
-    "pan asian": "Inside",
-    "hot soup counter": "Inside",
-    "welcome drink": "Chef Labour",
-  };
-
-  const resolvedTableType = useMemo(() => {
-    return CATEGORY_TABLE_MAP[fromCategory?.toLowerCase().trim()] || "";
-  }, [fromCategory]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Categories
-    // setCategoryList([
-    //   { id: "INSIDE", name: "Inside" },
-    //   { id: "CHEFLABOUR", name: "Chef Labour" },
-    //   { id: "OUTSIDE", name: "Outside" },
-    // ]);
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await GetMenuCategoryByUserId(userId);
 
-    // Chef Labour List
+        const categoriesData =
+          response?.data?.data?.["Menu Category Details"] || [];
 
-    setChefLabourList([
-      { id: "chef1", name: "MONU CHEF" },
-      { id: "chef2", name: "MANJU BEN FULKA" },
-      { id: "chef3 ", name: "MUSTAFA TANDOOR " },
-    ]);
+        setCategoryList(
+          categoriesData.map((cat) => ({
+            id: cat.id,
+            name: cat.nameEnglish?.trim(),
+          }))
+        );
+      } catch (error) {
+        console.error("❌ Error fetching menu categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
 
-    // Agency List
-    setAgencyList([
-      { id: "agency1", name: "MATUKI SWEET" },
-      { id: "agency2", name: "BHOLA JUICE AND FRUIT" },
-      { id: "agency3", name: "NIMESH BHAI STARTER" },
-    ]);
-
-    // Table Data with different fields
-    setTableData([
-      {
-        id: 1,
-        itemName: "Paneer Tikka",
-        category: "Veg Starters",
-        quantity: "2kg",
-        price: "₹450",
-        type: "counter",
-        counterNo: 2,
-        helperN: 1,
-        counterNP: 200,
-        unit: "kg",
-      },
-      {
-        id: 2,
-        itemName: "Butter Naan",
-        category: "Bread",
-        quantity: "5kg",
-        price: "₹200",
-        type: "plate",
-        counterNo: 3,
-        helperN: 2,
-        counterNP: 150,
-        unit: "plate",
-      },
-      {
-        id: 3,
-        itemName: "Dal Makhani",
-        category: "Main Course",
-        quantity: "10kg",
-        price: "₹600",
-        type: "counter",
-        counterNo: 4,
-        helperN: 1,
-        counterNP: 300,
-        unit: "ltr",
-      },
-      {
-        id: 4,
-        itemName: "Gulab Jamun",
-        category: "Desserts",
-        quantity: "50 pcs",
-        price: "₹720",
-        type: "plate",
-        counterNo: 1,
-        helperN: 0,
-        counterNP: 100,
-        unit: "pcs",
-      },
-    ]);
+    fetchCategories();
   }, []);
 
-  // Reset dependent dropdown when type changes
   useEffect(() => {
     setSelectedItem("");
-  }, [TochefLabourType]);
+    if (toType === "Outside" || toType === "Chef Labour") {
+      const fetchVendors = async () => {
+        try {
+          const userId = localStorage.getItem("userId");
+          const response = await GetAllCustomer(userId);
+          const vendors = response?.data?.data?.["Party Details"] || [];
 
-  const staticCategories = [
-    { id: "all", name: "All Categories" },
-    { id: "pan Asian", name: "Pan Asian" },
-    { id: "welcome drink", name: "welcome drink" },
-    { id: "Hot Soup Counter", name: "Hot Soup Counter" },
-  ];
-  const combinedCategories = [...staticCategories, ...categoryList];
+          let filteredVendors = [];
 
-  // Get label and options based on selected type
-  const getDependentDropdownConfig = () => {
-    switch (TochefLabourType) {
-      case "Inside":
-        return { label: "Chef Labour", options: chefLabourList };
-      case "Outside":
-        return { label: "Agency", options: agencyList };
-      case "chefLabour":
-        return { label: "Chef Labour", options: chefLabourList };
-      default:
-        return { label: "Select Type First", options: [] };
+          if (toType === "Chef Labour") {
+            // Show only Chef Labour (contactType.id = 5) or Labour (id = 2)
+            filteredVendors = vendors.filter(
+              (v) =>
+                v.contact?.contactType?.id === 2 ||
+                v.contact?.contactType?.id === 5
+            );
+          } else if (toType === "Outside") {
+            // Show only Outside Supplier (Food) (contactType.id = 6)
+            filteredVendors = vendors.filter(
+              (v) => v.contact?.contactType?.id === 6
+            );
+          }
+
+          setVendorList(filteredVendors);
+        } catch (err) {
+          console.error("Error fetching vendors", err);
+          setVendorList([]);
+        }
+      };
+      fetchVendors();
+    } else {
+      // Inside: no vendors
+      setVendorList([]);
     }
-  };
+  }, [toType]);
 
-  const dropdownConfig = getDependentDropdownConfig();
+  /* =========================
+     RESET DEPENDENCIES
+  ========================= */
 
-  const filteredData = tableData.filter((item) => {
-    return (
-      !searchQuery ||
-      item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  // Reset vendor when To Type changes
+  useEffect(() => {
+    setSelectedItem("");
+  }, [toType]);
+
+  // Reset everything when category changes
+  useEffect(() => {
+    setSelectedType("");
+    setToType("");
+    setSelectedItem("");
+    setTableData([]);
+  }, [fromCategory]);
+
+  /* =========================
+     API CALL (Type → Table)
+  ========================= */
+
+  useEffect(() => {
+    if (!fromCategory || !selectedType) {
+      setTableData([]);
+      return;
+    }
+
+    const fetchMenuItems = async () => {
+      setLoading(true);
+      try {
+        const userId = localStorage.getItem("userId");
+
+        const response = await Getmenuitemsusingcatidconfig(
+          [fromCategory],
+          userId,
+          selectedType
+        );
+
+        const apiData = response?.data?.darta || [];
+
+        setTableData(
+          apiData.map((item) => ({
+            id: item.id,
+
+            // Common
+            menuItem: item.nameEnglish,
+            itemName: item.nameEnglish,
+            category: item.menuCategoryNameEnglish,
+
+            // INSIDE
+            typeNo:
+              selectedType === "Inside"
+                ? (item.insideAgency?.typeNo ?? "Inside")
+                : "-",
+
+            // OUTSIDE
+            type: "Outside",
+            quantity: item.outsideAgency?.quantity ?? "",
+            price: item.outsideAgency?.price ?? "",
+            unit: item.outsideAgency?.unit ?? "kg",
+
+            // CHEF LABOUR
+            allocationType: item.chefLabourAgency ? "Chef Labour" : "counter",
+            counterNo: item.chefLabourAgency?.counterNo ?? "",
+            pricePerLabour: item.chefLabourAgency?.pricePerLabour ?? "",
+            qtyPer100Person: item.chefLabourAgency?.qtyPer100Person ?? "",
+            pricePerHelper: item.chefLabourAgency?.pricePerHelper ?? "",
+          }))
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenuItems();
+  }, [fromCategory, selectedType]);
+
+  /* =========================
+     DEPENDENT DROPDOWN CONFIG
+  ========================= */
+
+  /* =========================
+   DEPENDENT DROPDOWN CONFIG FIX
+========================= */
+
+  const dropdownConfig = useMemo(() => {
+    if (toType === "Inside") {
+      return { label: "Vendor / Chef", options: [] }; // disabled
+    }
+    if (toType === "Outside" || toType === "Chef Labour") {
+      return { label: "Vendor / Chef", options: vendorList }; // use fetched vendor list
+    }
+    return { label: "Select To Type First", options: [] };
+  }, [toType, vendorList]);
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
-    <Fragment>
-      <Container>
-        {/* Breadcrumb */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="RAW_MATERIAL.CHANGE_CATEGORY"
-                    defaultMessage="Change Menu Item Allocation"
-                  />
-                ),
-              },
-            ]}
-          />
-        </div>
-
-        {/* Two Cards in Same Row */}
-        <div className="card p-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* 1️⃣ From Category */}
-            <div>
-              <label className="form-label font-semibold">
-                <FormattedMessage
-                  id="FROM_CATEGORY"
-                  defaultMessage="From Category"
-                />
-              </label>
-              <select
-                className="input w-full"
-                value={fromCategory}
-                onChange={(e) => setFromCategory(e.target.value)}
-              >
-                <option value="">Select From Category</option>
-                {combinedCategories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 2️⃣ To Type */}
-            <div>
-              <label className="form-label font-semibold">To Type</label>
-              <select
-                className="input w-full"
-                value={toCategory}
-                onChange={(e) => setToCategory(e.target.value)}
-              >
-                <option value="">Select To Type</option>
-                {categoryList.map((cat) => (
-                  <option key={cat.id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 4️⃣ Small / Dependent Type */}
-            <div>
-              <label className="form-label font-semibold">
-                {dropdownConfig.label}
-              </label>
-              <select
-                className="input w-full"
-                value={selectedItem}
-                onChange={(e) => setSelectedItem(e.target.value)}
-                disabled={!TochefLabourType}
-              >
-                <option value="">
-                  {TochefLabourType
-                    ? `Select ${dropdownConfig.label}`
-                    : "Select Type First"}
-                </option>
-                {dropdownConfig.options.map((item) => (
-                  <option key={item.id} value={item.name}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="form-label text-xs font-semibold text-gray-600">
-                Fliter type
-              </label>
-              <select
-                className="h-8 px-2 text-sm rounded-md border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary w-full"
-                value={TochefLabourType}
-                onChange={(e) => setToChefLabourType(e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="Inside">Inside</option>
-                <option value="Outside">Outside</option>
-                <option value="chefLabour">Chef Labour</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="mb-4">
-          <input
-            className="input w-[200px]"
-            type="text"
-            placeholder={intl.formatMessage({
-              id: "RAW_MATERIAL.SEARCH",
-              defaultMessage: "Search items...",
-            })}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {resolvedTableType === "Inside" && <InsideTable data={filteredData} />}
-
-        {resolvedTableType === "Outside" && (
-          <OutsideTable data={filteredData} />
-        )}
-
-        {resolvedTableType === "Chef Labour" && (
-          <ChefLabourTable data={filteredData} />
-        )}
-        {/* Empty state */}
-        {/* Empty state */}
-        {!fromCategory && (
-          <div className="relative p-4 text-center text-gray-500 border rounded h-64 flex items-center justify-center">
-            {/* Absolute image */}
-            <img
-              src={toAbsoluteUrl("/media/icons/pleassle.png")}
-              alt="Empty"
-              className=" absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2  max-h-[230px] dark:hidden"
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label className="form-label font-semibold">
+            <FormattedMessage
+              id="FROM_CATEGORY"
+              defaultMessage="From Category"
             />
+          </label>
+          <select
+            className="input appearance-none pr-10"
+            value={fromCategory}
+            onChange={(e) => setFromCategory(e.target.value)}
+            disabled={categoriesLoading}
+          >
+            <option value="">
+              {categoriesLoading ? "Loading..." : "Select a category"}
+            </option>
 
-            {/* Text */}
-            <span className="relative  mt-8 z-20">
-              Please select From Category to view table
-            </span>
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div className="flex justify-end gap-3 mt-4">
-          <button className="btn btn-light">Cancel</button>
-          <button className="btn btn-primary">Save Changes</button>
+            {categoryList.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
-      </Container>
-    </Fragment>
+
+        {/* Type */}
+        <div>
+          <label className="form-label font-semibold"> From Type</label>
+          <select
+            className="input w-full"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            disabled={!fromCategory}
+          >
+            <option value="">Select Type</option>
+            <option value="Inside">Inside</option>
+            <option value="Outside">Outside</option>
+            <option value="Chef Labour">Chef Labour</option>
+          </select>
+        </div>
+
+        {/* To Type */}
+        <div>
+          <label className="form-label font-semibold">To Type</label>
+          <select
+            className="input w-full"
+            value={toType}
+            onChange={(e) => setToType(e.target.value)}
+            disabled={!selectedType}
+          >
+            <option value="">Select To Type</option>
+            <option value="Inside">Inside</option>
+            <option value="Outside">Outside</option>
+            <option value="Chef Labour">Chef Labour</option>
+          </select>
+        </div>
+
+        {/* Vendor / Chef */}
+        <div>
+          <label className="form-label font-semibold">
+            {dropdownConfig.label}
+          </label>
+          <select
+            className="input w-full"
+            value={selectedItem}
+            onChange={(e) => setSelectedItem(e.target.value)}
+            disabled={toType === "Inside" || !toType || vendorList.length === 0}
+          >
+            <option value="">
+              {toType === "Inside"
+                ? "Not applicable"
+                : `Select ${dropdownConfig.label}`}
+            </option>
+            {vendorList.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.nameEnglish} ({item.contact?.contactType?.nameEnglish})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* TABLES */}
+      {loading && <div className="text-center py-6">Loading...</div>}
+
+      {!loading && selectedType === "Inside" && (
+        <InsideTable data={tableData} />
+      )}
+
+      {!loading && selectedType === "Outside" && (
+        <OutsideTable data={tableData} />
+      )}
+
+      {!loading && selectedType === "Chef Labour" && (
+        <ChefLabourTable data={tableData} />
+      )}
+    </div>
   );
 };
 
-export default ConfigMenuItemPage;
+export default MenuAllocation;

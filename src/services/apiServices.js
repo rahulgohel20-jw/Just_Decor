@@ -1,5 +1,7 @@
 import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
 import axios from "./axiosInstance";
+
+
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
@@ -589,10 +591,8 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
-export const uploadFileformenu = (formData, params) => {
-  return UPLOAD(`/file/uploadfile`, formData, {
-    params: params,
-  });
+export const uploadFileformenu = (formData) => {
+  return PUT('/fileupload/upload-file', formData);
 };
 
 //upload Image
@@ -1228,7 +1228,6 @@ export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
 
 export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   if (!cat_id_list || cat_id_list.length === 0) {
-    console.warn("⚠️ No category IDs provided to API");
     return Promise.resolve({ data: { data: [] } });
   }
   const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
@@ -1237,58 +1236,28 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   );
 };
 
-export const UpdateRawMaterialCategory = (
-  current_cat_id_list = [],
-  new_cat_id,
-  userId
-) => {
-  // Validate inputs
-  if (!current_cat_id_list || current_cat_id_list.length === 0) {
-    console.warn("⚠️ No current category IDs provided");
-    return Promise.reject(new Error("Current category IDs are required"));
-  }
-
-  if (!new_cat_id) {
-    console.warn("⚠️ No new category ID provided");
-    return Promise.reject(new Error("New category ID is required"));
-  }
-
-  if (!userId) {
-    console.warn("⚠️ No user ID provided");
-    return Promise.reject(new Error("User ID is required"));
-  }
-
-  // Build query parameters
-  const params = new URLSearchParams();
-
-  // Add each current category ID as separate parameter
-  current_cat_id_list.forEach((id) => {
-    params.append("current_cat_id_list", id);
-  });
-
-  // Add new category and user ID
-  params.append("new_cat_id", new_cat_id);
-  params.append("userId", userId);
-
-  const queryString = params.toString();
-  console.log(
-    "🔗 Update API URL:",
-    `/rawmaterial/updaterawmaterialitemcategory?${queryString}`
-  );
-
+export const UpdateRawMaterialCategory = (queryString) => {
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
 };
 
-export const GetAllItemByType = (eventFunctionId, eventId, type) => {
+export const Getmenuitemsusingcatidconfig = (menu_cat_ids = [], userId ,type) => {
+  if (!menu_cat_ids || menu_cat_ids.length === 0) {
+    return Promise.resolve({ data: { data: [] } });
+  }
+
+  const catIdParams = menu_cat_ids
+    .map((id) => `menu_cat_ids=${id}`)
+    .join("&");
+const typeParam = type ? `&type=${encodeURIComponent(type)}` : "";
   return GET(
-    `/menuallocation/getitembytype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&type=${type}`
+    `/menuitems/getmenubycatorsubcat?${catIdParams}&userId=${userId}${typeParam}`
   );
 };
 
-export const AddCustomTheme = (formData) => {
-  return POST("/templatemaster/add", formData);
-};
+export const UpdtaemenuItemcatergoryconfig = (queryString) => {
+  return PUT(`/menuitems/updatemenuitemcategory?${queryString}`);
+}
 
-export const GetAllCustomTheme = () => {
-  return GET(`/templatemaster/getall`);
-};
+export const Updateallocatesupplier = (queryString) => {
+  return PUT(`/rawmaterial/updaterawmaterialsupplier?${queryString}`);
+}

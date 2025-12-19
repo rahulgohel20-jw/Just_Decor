@@ -5,10 +5,19 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { FormattedMessage, useIntl } from "react-intl";
 import { columns } from "./constant";
 import FromCategoryDropdown from "../../../components/form-inputs/FromCategoryDropdown/FromCategoryDropdown";
+import {
+  GetMenuCategoryByUserId,
+  Getmenuitemsusingcatidconfig,
+  UpdtaemenuItemcatergoryconfig,
+} from "@/services/apiServices";
+import Swal from "sweetalert2";
+import NoData from "../../../components/Nodata";
 
 const ChangeMenuItemCategoryPage = () => {
   const intl = useIntl();
+  const [activeCategory, setActiveCategory] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
   const [fromCategory, setFromCategory] = useState("");
   const [toCategory, setToCategory] = useState("");
   const [categoryList, setCategoryList] = useState([]);
@@ -16,35 +25,130 @@ const ChangeMenuItemCategoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  const staticCategories = [
-    { id: "all", name: "All Categories" },
-    { id: "uncategorized", name: "Uncategorized" },
-  ];
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        rawMaterial: "Sugar",
-        category: "Food",
-      },
-      {
-        id: 2,
-        rawMaterial: "Flour",
-        category: "Food",
-      },
-      {
-        id: 3,
-        rawMaterial: "Oil",
-        category: "Grocery",
-      },
-    ];
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await GetMenuCategoryByUserId(userId);
 
-    setTableData(mockData);
-    setLoading(false);
+        const categoriesData =
+          response?.data?.data?.["Menu Category Details"] || [];
+
+        const categories = categoriesData.map((cat) => ({
+          id: cat.id,
+          name: cat.nameEnglish?.trim(),
+        }));
+
+        setCategoryList(categories);
+      } catch (error) {
+        console.error("❌ Error fetching menu categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const fetchMenuitem = async () => {
+      if (!activeCategory) {
+        setTableData([]);
+        return;
+      }
+
+      if (activeCategory === "all" && categoryList.length === 0) return;
+
+      setLoading(true);
+      try {
+        const userId = localStorage.getItem("userId");
+
+        let menu_cat_ids =
+          activeCategory === "all"
+            ? categoryList.map((cat) => cat.id)
+            : [activeCategory];
+
+        // Call API without `type`
+        const response = await Getmenuitemsusingcatidconfig(
+          menu_cat_ids,
+          userId,
+          null
+        );
+
+        const menuItemsData =
+          response?.data?.data || response?.data?.darta || []; // handle typo
+
+        const formattedData = menuItemsData.map((item) => ({
+          id: item.id,
+          menuItem: item.nameEnglish?.trim() ?? "N/A",
+          category: item.menuCategoryNameEnglish?.trim() ?? "N/A",
+        }));
+
+        setTableData(formattedData);
+      } catch (error) {
+        setTableData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenuitem();
+  }, [activeCategory, categoryList]);
+
+  const staticCategories = [{ id: "all", name: "All Categories" }];
+
   const combinedCategories = [...staticCategories, ...categoryList];
+
+  const handleSaveChanges = async () => {
+    if (!toCategory || selectedRows.length === 0) return;
+
+    setIsSaving(true);
+
+    try {
+      const userId = localStorage.getItem("userId");
+
+      const params = new URLSearchParams();
+
+      params.append("new_cat_id", toCategory);
+      params.append("user_id", userId);
+
+      selectedRows.forEach((id) => {
+        params.append("menu_item_ids", id);
+      });
+
+      const response = await UpdtaemenuItemcatergoryconfig(params.toString());
+
+      const successMsg =
+        response?.data?.msg || "Menu item category updated successfully";
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: successMsg,
+        confirmButtonColor: "#2563eb",
+      });
+
+      // reload table
+      setActiveCategory(toCategory);
+      setSelectedRows([]);
+      setFromCategory("");
+      setToCategory("");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          "Failed to update menu item category",
+        confirmButtonColor: "#dc2626",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Fragment>
@@ -78,8 +182,12 @@ const ChangeMenuItemCategoryPage = () => {
 
               <FromCategoryDropdown
                 value={fromCategory}
-                onChange={setFromCategory}
+                onChange={(val) => {
+                  setFromCategory(val);
+                  setActiveCategory(val);
+                }}
                 options={combinedCategories}
+                disabled={categoriesLoading}
               />
             </div>
             <div>
@@ -95,8 +203,12 @@ const ChangeMenuItemCategoryPage = () => {
                   className="input appearance-none pr-10"
                   value={toCategory}
                   onChange={(e) => setToCategory(e.target.value)}
+                  disabled={categoriesLoading}
                 >
-                  <option value="">Select a category</option>
+                  <option value="">
+                    {categoriesLoading ? "Loading..." : "Select a category"}
+                  </option>
+
                   {categoryList.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -104,7 +216,6 @@ const ChangeMenuItemCategoryPage = () => {
                   ))}
                 </select>
 
-                {/* Dropdown Icon */}
                 <i className="ki-filled ki-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
               </div>
             </div>
@@ -147,16 +258,37 @@ const ChangeMenuItemCategoryPage = () => {
           />
         </div>
 
-        {/* ACTION BUTTONS */}
         <div className="flex justify-end gap-3 mb-10">
-          <button className="btn btn-light">
+          <button
+            className="btn btn-light"
+            onClick={() => {
+              setSelectedRows([]);
+              setFromCategory("");
+              setToCategory("");
+            }}
+          >
             <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
           </button>
-          <button className="btn btn-primary">
-            <FormattedMessage
-              id="COMMON.SAVE_CHANGES"
-              defaultMessage="Save Changes"
-            />
+
+          <button
+            className="btn btn-primary"
+            disabled={!toCategory || selectedRows.length === 0 || isSaving}
+            onClick={handleSaveChanges}
+          >
+            {isSaving ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" />
+                <FormattedMessage
+                  id="COMMON.SAVING"
+                  defaultMessage="Saving..."
+                />
+              </>
+            ) : (
+              <FormattedMessage
+                id="COMMON.SAVE_CHANGES"
+                defaultMessage="Save Changes"
+              />
+            )}
           </button>
         </div>
       </Container>

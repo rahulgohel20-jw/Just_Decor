@@ -44,8 +44,6 @@ export default function AddSupplierCustomerModal({
   useEffect(() => {
     if (!open || !userId) return;
 
-    console.log("Calling GetAllCustomer API...");
-
     GetAllCustomer(userId)
       .then((res) => {
         console.log("API RESPONSE", res);

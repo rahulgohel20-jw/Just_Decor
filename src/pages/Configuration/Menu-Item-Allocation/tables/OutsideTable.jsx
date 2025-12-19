@@ -1,10 +1,36 @@
-import { useState } from "react";
-import { Checkbox } from "antd";
+import { useState, useEffect } from "react";
+import { Checkbox, Select } from "antd";
 import { TableComponent } from "@/components/table/TableComponent";
 import { FormattedMessage } from "react-intl";
+import { GetUnitData } from "@/services/apiServices";
+
+const { Option } = Select;
 
 const OutsideTable = ({ data }) => {
   const [selectedRows, setSelectedRows] = useState([]);
+  const [unitList, setUnitList] = useState([]);
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await GetUnitData(userId);
+
+        const units =
+          response?.data?.data?.["Unit Details"] &&
+          Array.isArray(response.data.data["Unit Details"])
+            ? response.data.data["Unit Details"]
+            : [];
+
+        setUnitList(units);
+      } catch (err) {
+        console.error("Error fetching units:", err);
+        setUnitList([]);
+      }
+    };
+
+    fetchUnits();
+  }, []);
 
   const columns = [
     {
@@ -29,7 +55,6 @@ const OutsideTable = ({ data }) => {
           checked={selectedRows.includes(row.original.id)}
           onChange={(e) => {
             const id = row.original.id;
-
             setSelectedRows((prev) =>
               e.target.checked
                 ? [...prev, id]
@@ -59,6 +84,20 @@ const OutsideTable = ({ data }) => {
       header: <FormattedMessage id="RAW_MATERIAL.TYPE" defaultMessage="Type" />,
     },
     {
+      accessorKey: "vendorAllocate",
+      header: (
+        <FormattedMessage
+          id="RAW_MATERIAL.VENDOR"
+          defaultMessage="Vendor Allocate"
+        />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-700">
+          {row.original.vendorAllocate || "-"}
+        </span>
+      ),
+    },
+    {
       accessorKey: "quantity",
       header: (
         <FormattedMessage
@@ -69,7 +108,7 @@ const OutsideTable = ({ data }) => {
       cell: ({ row }) => (
         <input
           type="number"
-          className="input w-full"
+          className="input w-[120px]"
           defaultValue={row.original.quantity}
         />
       ),
@@ -84,7 +123,7 @@ const OutsideTable = ({ data }) => {
           ₹
           <input
             type="number"
-            className="input w-full"
+            className="input w-[120px]"
             defaultValue={row.original.price.replace("₹", "")}
           />
         </div>
@@ -94,24 +133,54 @@ const OutsideTable = ({ data }) => {
       accessorKey: "unit",
       header: <FormattedMessage id="RAW_MATERIAL.UNIT" defaultMessage="Unit" />,
       cell: ({ row }) => (
-        <select className="input w-full" defaultValue={row.original.unit}>
-          <option value="kg">KG</option>
-          <option value="ltr">Liter</option>
-          <option value="pcs">Pieces</option>
-          <option value="plate">Plate</option>
-        </select>
+        <Select
+          showSearch
+          className="w-[120px]"
+          placeholder="Select unit"
+          defaultValue={row.original.unit}
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+        >
+          {unitList.length > 0 ? (
+            unitList.map((unit) => (
+              <Option key={unit.id} value={unit.nameEnglish}>
+                {unit.nameEnglish}
+              </Option>
+            ))
+          ) : (
+            <Option value="" disabled>
+              No units available
+            </Option>
+          )}
+        </Select>
       ),
+    },
+    {
+      accessorKey: "totalPrice",
+      header: (
+        <FormattedMessage
+          id="RAW_MATERIAL.TOTAL_PRICE"
+          defaultMessage="Total Price"
+        />
+      ),
+      cell: ({ row }) => {
+        const quantity = Number(row.original.quantity) || 0;
+        const price = Number(row.original.price.replace("₹", "")) || 0;
+        const total = quantity * price;
+
+        return <span>₹{total.toFixed(2)}</span>;
+      },
     },
   ];
 
-  // Optional: Log selected rows for debugging
   console.log("Selected Row IDs:", selectedRows);
 
   return (
     <div>
       <TableComponent columns={columns} data={data} paginationSize={10} />
 
-      {/* Optional: Display selected count */}
       {selectedRows.length > 0 && (
         <div className="mt-2 text-sm text-gray-600">
           {selectedRows.length} row(s) selected
