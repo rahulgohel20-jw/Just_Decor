@@ -68,12 +68,13 @@ const ReportcustomeTheme = () => {
 
     // Get full PDF URL
     const pdfFullUrl = getFullImageUrl(theme.dummyPdf);
+    console.log("PDF URL:", pdfFullUrl);
 
     // Set PDF URL after a short delay to show loading state
     setTimeout(() => {
       setPdfUrl(pdfFullUrl);
       setIsGenerating(false);
-    }, 500);
+    }, 1000);
   };
 
   const closeViewer = () => {
@@ -263,11 +264,12 @@ const ReportcustomeTheme = () => {
       </Container>
 
       {/* PDF Viewer Modal */}
+      {/* PDF Viewer Modal */}
       {selectedTheme && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] overflow-hidden relative flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
-              <div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 gap-2">
+              <div className="flex flex-col">
                 <h3 className="text-lg font-semibold text-[#002D62]">
                   {selectedTheme.name}
                 </h3>
@@ -304,7 +306,7 @@ const ReportcustomeTheme = () => {
                   <p className="text-gray-600">Loading PDF...</p>
                 </div>
               ) : pdfUrl ? (
-                <iframe
+                <embed
                   src={pdfUrl}
                   className="w-full h-full border-0"
                   title={`PDF Viewer - ${selectedTheme.name}`}

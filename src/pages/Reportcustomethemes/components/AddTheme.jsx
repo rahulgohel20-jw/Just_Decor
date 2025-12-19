@@ -338,7 +338,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     isModalOpen && (
       <CustomModal
         open={isModalOpen}
-        onCancel={() => {
+        onClose={() => {
           resetForm();
           setIsModalOpen(false);
         }}
