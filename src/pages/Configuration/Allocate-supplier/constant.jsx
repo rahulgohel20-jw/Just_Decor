@@ -50,4 +50,11 @@ export const columns = ({ selectedRows, setSelectedRows, data }) => [
       />
     ),
   },
+  {
+    accessorKey: "supplier",
+    header: (
+      <FormattedMessage id="RAW_MATERIAL.SUPPLIER" defaultMessage="Supplier" />
+    ),
+    cell: ({ row }) => row.original.supplier || "N/A", // display supplier name or "N/A"
+  },
 ];

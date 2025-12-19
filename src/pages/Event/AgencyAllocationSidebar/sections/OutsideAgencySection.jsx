@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AllocateRowOutside from "../components/AllocateRowOutside";
 import OutsideAgencyTable from "../components/OutsideAgencyTable";
+import { MenuAllocationSave } from "@/services/apiServices";
+import Swal from "sweetalert2";
 
-export default function OutsideAgencySection({ data, onDataUpdate }) {
+export default function OutsideAgencySection({ data, onDataUpdate, close }) {
   const [selectedItems, setSelectedItems] = useState({});
-  const [agencyData, setAgencyData] = useState(data?.agencyResponse || []);
+  const [menuItems, setMenuItems] = useState(data[0].menuAllocation || []);
+  const [saving, setSaving] = useState(false);
 
-  // Sync agencyData when data prop changes
   useEffect(() => {
-    if (data?.agencyResponse) {
-      setAgencyData(data.agencyResponse);
+    if (data) {
+      setMenuItems(data[0].menuAllocation);
     }
   }, [data]);
 
-  const handleItemSelect = (itemKey, isChecked, agencyIndex, itemIndex) => {
+  const handleItemSelect = (itemKey, isChecked, menuIndex, allocationIndex) => {
     setSelectedItems((prev) => ({
       ...prev,
       [itemKey]: isChecked,
@@ -21,92 +23,209 @@ export default function OutsideAgencySection({ data, onDataUpdate }) {
   };
 
   const handleAllocate = (allocationData) => {
-    const { contactId, pax } = allocationData;
+    const { partyId, partyName, pax } = allocationData;
 
     console.log("Allocate called with:", {
-      contactId,
+      partyId,
+      partyName,
       pax,
-      type: typeof contactId,
     });
 
-    if (!contactId || !pax) {
-      alert("Vendor and pax are required");
+    if (!partyId || !pax) {
+      Swal.fire({
+        title: "Success",
+        text: "Vendor and pax are required",
+        icon: "warning",
+      });
       return;
     }
 
-    const updatedAgencyData = agencyData.map((agency, agencyIndex) => {
-      const updatedItems = agency.allocationItems.map((item, itemIndex) => {
-        // Auto-check all items
-        const itemKey = `${agencyIndex}-${itemIndex}`;
-        setSelectedItems((prev) => ({
-          ...prev,
-          [itemKey]: true,
-        }));
+    // Check if any items are selected
+    const hasSelectedItems = Object.values(selectedItems).some(
+      (isSelected) => isSelected
+    );
 
-        console.log("Updating item:", {
-          itemIndex,
-          oldContactId: item.contactId,
-          newContactId: contactId,
-          stringContactId: String(contactId),
-        });
-
-        return {
-          ...item,
-          contactId: contactId, // Keep as-is from vendor select
-          pax: pax,
-        };
+    if (!hasSelectedItems) {
+      Swal.fire({
+        title: "Success",
+        text: "Please select at least one item to allocate",
+        icon: "warning",
       });
+      return;
+    }
 
-      // Recalculate agency total price after allocation
-      const totalPrice = updatedItems.reduce(
-        (sum, item) => sum + (parseFloat(item.itemTotal) || 0),
-        0
+    let allocatedCount = 0;
+
+    const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
+      const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
+        (allocation, allocationIndex) => {
+          const itemKey = `${menuIndex}-${allocationIndex}`;
+
+          // Only update if this item is selected
+          if (selectedItems[itemKey]) {
+            allocatedCount++;
+
+            console.log("Updating allocation:", {
+              allocationIndex,
+              oldPartyId: allocation.partyId,
+              newPartyId: partyId,
+            });
+
+            return {
+              ...allocation,
+              partyId: partyId,
+              partyName: partyName,
+              pax: pax,
+            };
+          }
+
+          // Return unchanged if not selected
+          return allocation;
+        }
+      );
+
+      // Check if any allocations in this menu item were updated
+      const hasUpdatedAllocations = menuItem.eventFunctionMenuAllocations.some(
+        (_, allocationIndex) => {
+          const itemKey = `${menuIndex}-${allocationIndex}`;
+          return selectedItems[itemKey];
+        }
       );
 
       return {
-        ...agency,
-        allocationItems: updatedItems,
-        totalPrice: totalPrice,
+        ...menuItem,
+        eventFunctionMenuAllocations: updatedAllocations,
+        // Update personCount only if this menu item had selected allocations
+        ...(hasUpdatedAllocations && { personCount: pax }),
       };
     });
 
-    console.log("Updated agency data:", updatedAgencyData);
+    console.log("Updated menu items:", updatedMenuItems);
 
-    setAgencyData(updatedAgencyData);
+    setMenuItems(updatedMenuItems);
 
     if (onDataUpdate) {
-      onDataUpdate(updatedAgencyData);
+      onDataUpdate(updatedMenuItems);
     }
 
-    alert("Allocated to all items successfully");
+    Swal.fire({
+      title: "Success",
+      text: `Allocated to ${allocatedCount} selected item(s) successfully`,
+      icon: "success",
+      timer: 2000,
+      buttons: false,
+    });
   };
 
-  const handleAgencyUpdate = (agencyIndex, updatedAgency) => {
-    const updatedData = [...agencyData];
-    updatedData[agencyIndex] = updatedAgency;
-    setAgencyData(updatedData);
+  const handleMenuItemUpdate = (menuIndex, updatedMenuItem) => {
+    const updatedData = [...menuItems];
+    updatedData[menuIndex] = updatedMenuItem;
+    setMenuItems(updatedData);
 
     if (onDataUpdate) {
       onDataUpdate(updatedData);
     }
   };
+  const buildPayload = useCallback(() => {
+    console.log(menuItems);
 
+    const userId = Number(localStorage.getItem("userId"));
+
+    return menuItems.map((menuItem) => ({
+      chefLabour: false,
+      eventFunctionId: menuItem.eventFunctionId || 0,
+      eventId: menuItem.eventId || 0,
+      id: menuItem.id || 0,
+      inside: false,
+      outside: true,
+      instructions: menuItem.instructions || "",
+      menuCategoryId: menuItem.menuCategoryId || 0,
+      menuItemId: menuItem.menuItemId || 0,
+      personCount: menuItem.personCount || 0,
+      place: menuItem.place || "",
+      userId,
+
+      menuAllocationOrders:
+        menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
+          id: 0,
+          partyId: allocation.partyId || 0,
+          number: allocation.number || "",
+          serviceType: "",
+          quantity: allocation.quantity,
+          price: allocation.price || 0,
+          counterQuantity: 0,
+          counterPrice: 0,
+          helperQuantity: 0,
+          helperPrice: 0,
+          totalPrice: allocation.totalPrice || 0,
+          unitId: allocation.unitId || 0,
+          remarks: "",
+          menuItemRawMaterials: [],
+          isOutside: true,
+        })) || [],
+    }));
+  }, [menuItems]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const payload = buildPayload();
+
+      console.log("📦 Final Payload:", payload);
+
+      const res = await MenuAllocationSave(payload);
+
+      if (res?.data?.success === true) {
+        Swal.fire({
+          title: "Success",
+          text: res?.data?.message || " allocation saved successfully",
+          icon: "success",
+          timer: 2000,
+          buttons: false,
+        });
+
+        close?.();
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: res?.data?.message || "Failed to save allocation",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Save failed:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to save allocation",
+        icon: "error",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <>
-      <AllocateRowOutside
-        eventFunction={data?.eventFunction}
-        onAllocate={handleAllocate}
+      <AllocateRowOutside onAllocate={handleAllocate} />
+      <OutsideAgencyTable
+        menuItems={menuItems}
+        onUpdate={handleMenuItemUpdate}
+        selectedItems={selectedItems}
+        onItemSelect={handleItemSelect}
       />
-      {agencyData?.map((agency, index) => (
-        <OutsideAgencyTable
-          key={index}
-          agencyData={agency}
-          agencyIndex={index}
-          onUpdate={handleAgencyUpdate}
-          selectedItems={selectedItems}
-          onItemSelect={handleItemSelect}
-        />
-      ))}
+      <div className="flex justify-end gap-3 px-6 py-4 border-t bg-white">
+        <button className="btn btn-danger" aria-label="Cancel" onClick={close}>
+          Cancel
+        </button>
+        <button
+          className="btn btn-primary"
+          aria-label="Save changes"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save"}
+        </button>
+      </div>
     </>
   );
 }

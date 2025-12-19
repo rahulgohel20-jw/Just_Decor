@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import BaseSelect from "../ui/BaseSelect";
 import BaseInput from "../ui/BaseInput";
+import Swal from "sweetalert2";
 import { OutsideContactName } from "@/services/apiServices";
 
-export default function AllocateRowOutside({ eventFunction, onAllocate }) {
+export default function AllocateRowOutside({ onAllocate }) {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState("");
@@ -17,30 +18,63 @@ export default function AllocateRowOutside({ eventFunction, onAllocate }) {
   const fetchdata = async () => {
     try {
       setLoading(true);
-      const partyMasters = await OutsideContactName(7, userid);
+      const partyMasters = await OutsideContactName(6, userid);
       const data = partyMasters.data.data["Party Details"] || [];
       setVendors(data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load vendors",
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleAllocate = () => {
-    if (!selectedVendor || !pax) {
-      alert("Please select a vendor and enter pax");
+    if (!selectedVendor) {
+      Swal.fire({
+        title: "Missing Vendor",
+        text: "Please select a vendor",
+        icon: "warning",
+      });
       return;
     }
 
-    onAllocate({
-      contactId: selectedVendor,
-      pax: pax,
+    if (!pax || pax <= 0) {
+      Swal.fire({
+        title: "Invalid Pax",
+        text: "Please enter a valid pax value",
+        icon: "warning",
+      });
+      return;
+    }
+
+    const selectedVendorData = vendors.find(
+      (v) => String(v.id) === String(selectedVendor)
+    );
+
+    const success = onAllocate({
+      partyId: selectedVendor,
+      partyName: selectedVendorData?.nameEnglish || "",
+      pax,
     });
 
-    // Reset form
-    setSelectedVendor("");
-    setPax("");
+    if (success) {
+      Swal.fire({
+        title: "Allocated",
+        text: "Vendor allocated successfully",
+        icon: "success",
+        timer: 1500,
+        buttons: false,
+      });
+
+      setSelectedVendor("");
+      setPax("");
+    }
   };
 
   return (

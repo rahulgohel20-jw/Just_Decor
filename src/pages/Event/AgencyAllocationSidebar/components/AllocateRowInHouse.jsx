@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import BaseSelect from "../ui/BaseSelect";
 import BaseInput from "../ui/BaseInput";
+import Swal from "sweetalert2";
 import { OutsideContactName } from "@/services/apiServices";
 
 export default function AllocateRowInHouse({ onAllocate }) {
@@ -22,6 +23,12 @@ export default function AllocateRowInHouse({ onAllocate }) {
       setVendors(data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load vendors",
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -29,33 +36,50 @@ export default function AllocateRowInHouse({ onAllocate }) {
 
   const handleAllocate = () => {
     if (!selectedVendor) {
+      Swal.fire({
+        title: "Missing Vendor",
+        text: "Please select a vendor",
+        icon: "warning",
+      });
       return;
     }
 
     if (!pax || pax <= 0) {
+      Swal.fire({
+        title: "Invalid Pax",
+        text: "Please enter a valid pax value",
+        icon: "warning",
+      });
       return;
     }
 
-    // Get selected vendor details
-    const vendor = vendors.find(
-      (v) => String(v.id || v.contactId) === String(selectedVendor)
-    );
+    const vendor = vendors.find((v) => String(v.id) === String(selectedVendor));
 
     if (!vendor) {
+      Swal.fire({
+        title: "Error",
+        text: "Selected vendor not found",
+        icon: "error",
+      });
       return;
     }
-    const vendorNumber = vendor.mobileno || "";
 
-    // Call the parent function to allocate
-    const success = onAllocate(
-      vendor.id || vendor.contactId,
-      vendor.nameEnglish || "",
-      vendorNumber,
-      pax
-    );
+    const success = onAllocate({
+      partyId: vendor.id,
+      partyName: vendor.nameEnglish || "",
+      number: vendor.mobileno || "",
+      pax,
+    });
 
-    // Reset fields if successful
     if (success) {
+      Swal.fire({
+        title: "Allocated",
+        text: "Vendor allocated successfully",
+        icon: "success",
+        timer: 1500,
+        buttons: false,
+      });
+
       setSelectedVendor("");
       setPax("");
     }
@@ -72,10 +96,7 @@ export default function AllocateRowInHouse({ onAllocate }) {
           {loading ? "Loading vendors..." : "Select Vendor"}
         </option>
         {vendors.map((vendor) => (
-          <option
-            key={vendor.id || vendor.contactId}
-            value={vendor.id || vendor.contactId}
-          >
+          <option key={vendor.id} value={vendor.id}>
             {vendor.nameEnglish || ""}
           </option>
         ))}
