@@ -3,15 +3,14 @@ import {
   editCategory,
   AddCategory,
   Translateapi,
-} from "@/services/apiServices"; // ✅ added Translateapi
+  uploadFile,
+} from "@/services/apiServices";
 import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import MultiLangInputBox from "../../../components/form-inputs/MultiLangInputbox";
-import { uploadFile } from "@/services/apiServices";
 import { formValidation } from "../../../lib/utils";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const AddMenuCategory = ({
   isModalOpen,
@@ -30,129 +29,45 @@ const AddMenuCategory = ({
     menuSlogan: "",
     price: "",
     sequence: "",
-    file: "",
+    file: null,
   };
+
   const requiredFields = ["nameEnglish"];
+
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [debounceTimer, setDebounceTimer] = useState(null);
 
+  /* -------------------- INPUT CHANGE -------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Auto-translate English → Gujarati & Hindi
+  /* -------------------- AUTO TRANSLATE -------------------- */
   useEffect(() => {
-    if (formData.nameEnglish) {
-      if (debounceTimer) clearTimeout(debounceTimer);
+    if (!formData.nameEnglish) return;
 
-      const timer = setTimeout(() => {
-        Translateapi(formData.nameEnglish)
-          .then((res) => {
-            setFormData((prev) => ({
-              ...prev,
-              nameGujarati: res.data.gujarati || "",
-              nameHindi: res.data.hindi || "",
-            }));
-          })
-          .catch((err) => console.error("Translation error:", err));
-      }, 500);
+    if (debounceTimer) clearTimeout(debounceTimer);
 
-      setDebounceTimer(timer);
-    }
+    const timer = setTimeout(() => {
+      Translateapi(formData.nameEnglish)
+        .then((res) => {
+          setFormData((prev) => ({
+            ...prev,
+            nameGujarati: res?.data?.gujarati || "",
+            nameHindi: res?.data?.hindi || "",
+          }));
+        })
+        .catch((err) => console.error("Translation error:", err));
+    }, 500);
+
+    setDebounceTimer(timer);
   }, [formData.nameEnglish]);
 
-  const handleSubmit = () => {
-    if (checkErrors()) {
-      const Id = localStorage.getItem("userId");
-      if (!Id) {
-        Swal.fire("Error", "User data not found", "error");
-        return;
-      }
-
-      if (editData) {
-        const payload = {
-          ...formData,
-          userId: Id,
-          slogan: formData.menuSlogan,
-        };
-
-        editCategory(editData.id, payload)
-          .then((res) => {
-            if (res.data?.status === true) {
-              Swal.fire("Success", res.data.msg, "success");
-            }
-            if (ModuleId) {
-              uploadImage({
-                ModuleId: res.data.ModuleId,
-                FileType: res.data.FileType,
-                ModuleName: res.data.ModuleName,
-              });
-            }
-          })
-          .catch((error) => {
-            const errorMsg =
-              error?.response?.data?.msg || "Something went wrong";
-            Swal.fire("Error", errorMsg, "error");
-            console.error("Error editing meal:", error);
-          });
-      } else {
-        const payload = { ...formData, userId: Id };
-        AddCategory(payload)
-          .then((res) => {
-            if (res.data?.success === true) {
-              Swal.fire("Success", res.data.msg, "success");
-
-              if (formData.file) {
-                uploadImage({
-                  ModuleId: res.data.ModuleId,
-                  FileType: res.data.FileType,
-                  ModuleName: res.data.ModuleName,
-                });
-              } else {
-                refreshData();
-                setIsModalOpen(false);
-              }
-
-              return;
-            }
-
-            Swal.fire(
-              "Error",
-              res.data?.msg || "Something went wrong",
-              "error"
-            );
-          })
-          .catch((error) => {
-            if (error?.response?.data?.success === true) {
-              Swal.fire("Success", error.response.data.msg, "success");
-
-              const response = error.response.data;
-              if (formData.file) {
-                uploadImage({
-                  ModuleId: response.ModuleId,
-                  FileType: response.FileType,
-                  ModuleName: response.ModuleName,
-                });
-              } else {
-                refreshData();
-                setIsModalOpen(false);
-              }
-              return;
-            }
-
-            const errorMsg =
-              error?.response?.data?.msg || "Something went wrong";
-            Swal.fire("Error", errorMsg, "error");
-          });
-      }
-    }
-  };
-
+  /* -------------------- FORM VALIDATION -------------------- */
   const checkErrors = () => {
-    let errorObject = formValidation(requiredFields, formData);
-
+    const errorObject = formValidation(requiredFields, formData);
     if (Object.keys(errorObject).length > 0) {
       setErrors(errorObject);
       return false;
@@ -161,39 +76,88 @@ const AddMenuCategory = ({
     return true;
   };
 
-  const uploadImage = (uploadRequest) => {
-    if (!formData.file) {
-      refreshData();
-      setIsModalOpen();
+  /* -------------------- BUILD FORMDATA -------------------- */
+  const buildFormData = (data, userId) => {
+    const fd = new FormData();
+
+    Object.keys(data).forEach((key) => {
+      if (key === "file") {
+        if (data.file) fd.append("file", data.file);
+      } else {
+        fd.append(key, data[key] ?? "");
+      }
+    });
+
+    fd.append("userId", userId);
+    return fd;
+  };
+
+  /* -------------------- SUBMIT -------------------- */
+  const handleSubmit = () => {
+    if (!checkErrors()) return;
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      Swal.fire("Error", "User data not found", "error");
       return;
     }
 
-    const request = new FormData();
-    request.append("moduleId", uploadRequest.ModuleId);
-    request.append("moduleName", uploadRequest.ModuleName);
-    request.append("fileType", uploadRequest.FileType);
-    request.append("file", formData.file);
+    const payload = buildFormData(
+      {
+        ...formData,
+        slogan: formData.menuSlogan,
+      },
+      userId
+    );
 
-    uploadFile(request)
-      .then((res) => {
-        res.data?.msg && successMsgPopup(res.data.msg);
-        refreshData();
-        setIsModalOpen();
-      })
-      .catch((error) => {
-        error?.response?.data?.msg && errorMsgPopup(error.response.data.msg);
-        console.error("Error uploading image:", error);
-      });
+    /* -------- EDIT -------- */
+    if (editData) {
+      editCategory(editData.id, payload)
+        .then((res) => {
+          if (res.data?.status === true) {
+            Swal.fire("Success", res.data.msg, "success");
+            refreshData();
+            setIsModalOpen(false);
+          }
+        })
+        .catch((error) => {
+          const msg = error?.response?.data?.msg || "Something went wrong";
+          Swal.fire("Error", msg, "error");
+        });
+    } else {
+
+    /* -------- ADD -------- */
+      AddCategory(payload)
+        .then((res) => {
+          if (res.data?.success === true) {
+            Swal.fire("Success", res.data.msg, "success");
+            refreshData();
+            setIsModalOpen(false);
+            return;
+          }
+
+          Swal.fire("Error", res.data?.msg || "Something went wrong", "error");
+        })
+        .catch((error) => {
+          const msg = error?.response?.data?.msg || "Something went wrong";
+          Swal.fire("Error", msg, "error");
+        });
+    }
   };
 
+  /* -------------------- PREFILL EDIT -------------------- */
   useEffect(() => {
     if (editData) {
-      setFormData(editData);
+      setFormData({
+        ...editData,
+        file: null,
+      });
     } else {
       setFormData(initialFormState);
     }
   }, [isModalOpen]);
 
+  /* -------------------- UI -------------------- */
   return (
     <CustomModal
       open={isModalOpen}
@@ -202,6 +166,7 @@ const AddMenuCategory = ({
       onClose={() => setIsModalOpen(false)}
       footer={[
         <button
+          key="cancel"
           type="button"
           onClick={() => setIsModalOpen(false)}
           className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mr-2"
@@ -209,9 +174,10 @@ const AddMenuCategory = ({
           <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
         </button>,
         <button
+          key="save"
           type="button"
-          className="btn-success text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition"
           onClick={handleSubmit}
+          className="btn-success text-white px-5 py-2 rounded-lg"
         >
           {editData ? (
             <FormattedMessage id="COMMON.UPDATE" defaultMessage="Update" />
@@ -222,7 +188,6 @@ const AddMenuCategory = ({
       ]}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Name fields */}
         <MultiLangInputBox
           formData={formData}
           setFormData={setFormData}
@@ -231,81 +196,61 @@ const AddMenuCategory = ({
             id: "COMMON.NAME",
             defaultMessage: "Name",
           })}
-          placeholder={intl.formatMessage({
-            id: "COMMON.NAME",
-            defaultMessage: "Name",
-          })}
           error={errors.nameEnglish}
         />
 
-        <div className="relative">
-          <label className="block text-gray-600 mb-1">
+        <div>
+          <label className="block mb-1">
             <FormattedMessage id="COMMON.PRICE" defaultMessage="Price" />
           </label>
           <input
             type="number"
-            name={"price"}
+            name="price"
             value={formData.price}
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({
-              id: "COMMON.PRICE",
-              defaultMessage: "Price",
-            })}
+            className="border p-2 w-full rounded"
           />
         </div>
-        <div className="relative">
-          <label className="block text-gray-600 mb-1">
+
+        <div>
+          <label className="block mb-1">
             <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />
           </label>
           <input
             type="number"
-            name={"sequence"}
+            name="sequence"
             value={formData.sequence}
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({
-              id: "COMMON.PRIORITY",
-              defaultMessage: "Priority",
-            })}
+            className="border p-2 w-full rounded"
           />
         </div>
-        <div className="relative">
-          <label className="block text-gray-600 mb-1">
+
+        <div>
+          <label className="block mb-1">
             <FormattedMessage id="COMMON.IMAGE" defaultMessage="Image" />
           </label>
           <input
             type="file"
-            name={"file"}
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
+            onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                file: file,
-              }));
-            }}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({
-              id: "COMMON.IMAGE",
-              defaultMessage: "Image",
-            })}
+                file: e.target.files[0],
+              }))
+            }
+            className="border p-2 w-full rounded"
           />
         </div>
-        <div className="relative">
-          <label className="block text-gray-600 mb-1">
+
+        <div className="md:col-span-2">
+          <label className="block mb-1">
             <FormattedMessage id="COMMON.SLOGAN" defaultMessage="Slogan" />
           </label>
           <textarea
-            type="text"
-            name={"menuSlogan"}
+            name="menuSlogan"
             value={formData.menuSlogan}
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-            placeholder={intl.formatMessage({
-              id: "COMMON.SLOGAN",
-              defaultMessage: "Slogan",
-            })}
+            className="border p-2 w-full rounded"
           />
         </div>
       </div>

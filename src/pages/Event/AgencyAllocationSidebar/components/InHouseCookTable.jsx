@@ -4,12 +4,13 @@ import BaseSelect from "../ui/BaseSelect";
 import { OutsideContactName } from "@/services/apiServices";
 
 export default function InHouseCookTable({
-  insidedata,
-  tableData,
-  setTableData,
+  menuItems,
+  onUpdate,
+  selectedItems,
+  onItemSelect,
 }) {
   const [vendors, setVendors] = useState([]);
-  const [loadingVendors, setLoadingVendors] = useState(true);
+  const [loadingVendors, setLoadingVendors] = useState(false);
 
   useEffect(() => {
     fetchVendor();
@@ -20,8 +21,6 @@ export default function InHouseCookTable({
       setLoadingVendors(true);
       const data = await OutsideContactName(7, localStorage.getItem("userId"));
       const vendorList = data?.data?.data["Party Details"] || [];
-
-      console.log("Fetched vendors:", vendorList);
       setVendors(vendorList);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -31,76 +30,89 @@ export default function InHouseCookTable({
     }
   };
 
-  // Handle input changes
-  const handleInputChange = (index, field, value) => {
-    setTableData((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
-        [field]: value,
-      };
-      return updated;
-    });
+  const handleAllocationChange = (menuIndex, allocationIndex, field, value) => {
+    const menuItem = menuItems[menuIndex];
+    const updatedAllocations = [...menuItem.eventFunctionMenuAllocations];
+    updatedAllocations[allocationIndex] = {
+      ...updatedAllocations[allocationIndex],
+      [field]: value,
+    };
+
+    const updatedMenuItem = {
+      ...menuItem,
+      eventFunctionMenuAllocations: updatedAllocations,
+      ...(field === "pax" && { personCount: value }),
+    };
+
+    onUpdate(menuIndex, updatedMenuItem);
   };
 
-  // Handle contact name change with vendor data
-  const handleContactChange = (index, vendorId) => {
+  const handleContactChange = (menuIndex, allocationIndex, vendorId) => {
     const selectedVendor = vendors.find(
-      (v) => String(v.id || v.contactId) === String(vendorId)
+      (v) => String(v.id) === String(vendorId)
     );
 
     if (selectedVendor) {
-      setTableData((prev) => {
-        const updated = [...prev];
-        updated[index] = {
-          ...updated[index],
-          contactId: selectedVendor.id || "",
-          contactName:
-            selectedVendor.name ||
-            selectedVendor.nameEnglish ||
-            selectedVendor.partyName,
-          number: selectedVendor.mobileno || selectedVendor.number || "",
-        };
-        return updated;
-      });
+      const menuItem = menuItems[menuIndex];
+      const updatedAllocations = [...menuItem.eventFunctionMenuAllocations];
+      updatedAllocations[allocationIndex] = {
+        ...updatedAllocations[allocationIndex],
+        partyId: selectedVendor.id || "",
+        partyName: selectedVendor.nameEnglish || "",
+        number: selectedVendor.mobileno || "",
+      };
+
+      const updatedMenuItem = {
+        ...menuItem,
+        eventFunctionMenuAllocations: updatedAllocations,
+      };
+
+      onUpdate(menuIndex, updatedMenuItem);
     }
   };
 
-  // Handle checkbox change for individual row
-  const handleRowCheckbox = (index) => {
-    setTableData((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
-        selected: !updated[index].selected,
-      };
-      return updated;
+  const handleCheckboxChange = (menuIndex, allocationIndex, isChecked) => {
+    const itemKey = `${menuIndex}-${allocationIndex}`;
+    onItemSelect(itemKey, isChecked);
+  };
+
+  const handleSelectAll = (e) => {
+    const isChecked = e.target.checked;
+    menuItems?.forEach((menuItem, menuIndex) => {
+      menuItem.eventFunctionMenuAllocations?.forEach((_, allocationIndex) => {
+        const itemKey = `${menuIndex}-${allocationIndex}`;
+        onItemSelect(itemKey, isChecked);
+      });
     });
   };
 
-  // Handle select all checkbox
-  const allSelected =
-    tableData.length > 0 && tableData.every((item) => item.selected);
-  const handleSelectAll = () => {
-    setTableData((prev) =>
-      prev.map((item) => ({
-        ...item,
-        selected: !allSelected,
-      }))
-    );
-  };
+  if (!menuItems || menuItems.length === 0) return null;
 
-  console.log("Updated table data:", tableData);
+  // ✅ Check if all items are selected
+  const allSelected =
+    Array.isArray(menuItems) &&
+    menuItems.length > 0 &&
+    menuItems.every((menuItem, menuIndex) => {
+      const allocations = menuItem?.eventFunctionMenuAllocations;
+
+      if (!Array.isArray(allocations) || allocations.length === 0) {
+        return false;
+      }
+
+      return allocations.every((_, allocationIndex) => {
+        const itemKey = `${menuIndex}-${allocationIndex}`;
+        return selectedItems[itemKey] === true;
+      });
+    });
 
   return (
     <div className="mt-3 px-6 pb-6 overflow-x-auto">
       <div className="border rounded-xl bg-white overflow-hidden">
         <table className="w-full border-collapse text-sm">
-          {/* COLUMN WIDTH CONTROL */}
           <colgroup>
             <col className="w-[44px]" />
             <col className="w-[60px]" />
-            <col className="w-[160px]" />
+            <col className="w-[200px]" />
             <col className="w-[100px]" />
             <col className="w-[220px]" />
             <col className="w-[160px]" />
@@ -108,130 +120,154 @@ export default function InHouseCookTable({
             <col className="w-[140px]" />
           </colgroup>
 
-          {/* HEADER */}
+          {/* ✅ Single header for all items */}
           <thead className="bg-gray-50 border-b">
             <tr className="text-gray-600 text-xs font-semibold">
-              <th rowSpan={2} className="p-3 text-center">
+              <th className="p-3 text-center">
                 <input
                   type="checkbox"
-                  checked={allSelected}
+                  checked={allSelected || false}
                   onChange={handleSelectAll}
                 />
               </th>
-              <th rowSpan={2} className="p-3 text-left">
-                No.
-              </th>
-              <th rowSpan={2} className="p-3 text-left">
-                Item Name
-              </th>
-              <th rowSpan={2} className="p-3 text-left">
-                Pax
-              </th>
-              <th rowSpan={2} className="p-3 text-left">
-                Contact Name
-              </th>
-              <th rowSpan={2} className="p-3 text-left">
-                Number
-              </th>
-              <th colSpan={1} className="p-3 text-center border-l">
-                Person
-              </th>
-              <th colSpan={1} className="p-3 text-center border-l">
-                Remarks
-              </th>
+              <th className="p-3 text-left">No.</th>
+              <th className="p-3 text-left">Item Name</th>
+              <th className="p-3 text-left">Pax</th>
+              <th className="p-3 text-left">Contact Name</th>
+              <th className="p-3 text-left">Number</th>
+              <th className="p-3 text-left">Person</th>
+              <th className="p-3 text-left">Remarks</th>
             </tr>
           </thead>
 
-          {/* BODY */}
           <tbody>
-            {tableData.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="p-6 text-center text-gray-500">
-                  No data available
-                </td>
-              </tr>
-            ) : (
-              tableData.map((item, index) => (
-                <tr
-                  key={`${item.contactId}-${item.itemId}-${index}`}
-                  className={`border-b hover:bg-gray-50 align-middle ${
-                    item.selected ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <td className="p-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={item.selected || false}
-                      onChange={() => handleRowCheckbox(index)}
-                    />
-                  </td>
-                  <td className="p-3">{index + 1}</td>
-                  <td className="p-3">{item.itemName}</td>
-                  <td className="p-2">
-                    <BaseInput
-                      placeholder="0"
-                      value={item.pax || ""}
-                      onChange={(e) =>
-                        handleInputChange(index, "pax", e.target.value)
-                      }
-                      type="number"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <BaseSelect
-                      value={item.contactId || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, e.target.value)
-                      }
-                      disabled={loadingVendors}
-                    >
-                      <option value="">
-                        {loadingVendors ? "Loading..." : "Select Name"}
-                      </option>
-                      {vendors.map((vendor) => (
-                        <option
-                          key={vendor.id || vendor.contactId}
-                          value={vendor.id || vendor.contactId}
-                        >
-                          {vendor.name || vendor.nameEnglish}
-                        </option>
-                      ))}
-                    </BaseSelect>
-                  </td>
+            {menuItems.map((menuItem, menuIndex) => (
+              <>
+                {menuItem.eventFunctionMenuAllocations?.map(
+                  (allocation, allocationIndex) => {
+                    const itemKey = `${menuIndex}-${allocationIndex}`;
 
-                  <td className="p-2">
-                    <BaseInput
-                      placeholder="0"
-                      value={item.number || ""}
-                      onChange={(e) =>
-                        handleInputChange(index, "number", e.target.value)
-                      }
-                    />
-                  </td>
+                    return (
+                      <tr
+                        key={`${menuIndex}-${allocationIndex}`}
+                        className={`border-b hover:bg-gray-50 align-middle ${
+                          selectedItems[itemKey] ? "bg-blue-50" : ""
+                        }`}
+                      >
+                        <td className="p-3 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedItems[itemKey] || false}
+                            onChange={(e) =>
+                              handleCheckboxChange(
+                                menuIndex,
+                                allocationIndex,
+                                e.target.checked
+                              )
+                            }
+                          />
+                        </td>
+                        <td className="p-3">{allocationIndex + 1}</td>
+                        <td className="p-3 font-medium text-gray-900">
+                          {menuItem.menuItemName || "-"}
+                        </td>
+                        <td className="p-2">
+                          <BaseInput
+                            type="number"
+                            placeholder="0"
+                            value={menuItem.personCount || ""}
+                            onChange={(e) =>
+                              handleAllocationChange(
+                                menuIndex,
+                                allocationIndex,
+                                "pax",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td className="p-2">
+                          <BaseSelect
+                            value={allocation.partyId || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                menuIndex,
+                                allocationIndex,
+                                e.target.value
+                              )
+                            }
+                            disabled={loadingVendors}
+                          >
+                            <option value="">
+                              {loadingVendors ? "Loading..." : "Select Name"}
+                            </option>
 
-                  <td className="p-2">
-                    <BaseInput
-                      placeholder="0"
-                      value={item.qty || ""}
-                      onChange={(e) =>
-                        handleInputChange(index, "qty", e.target.value)
-                      }
-                      type="number"
-                    />
-                  </td>
+                            {allocation.partyId &&
+                              !vendors.some(
+                                (v) =>
+                                  String(v.id) === String(allocation.partyId)
+                              ) && (
+                                <option value={allocation.partyId}>
+                                  {allocation.partyName || "Selected contact"}
+                                </option>
+                              )}
 
-                  <td className="p-2">
-                    <BaseInput
-                      placeholder="Enter Remarks"
-                      value={item.remarks || ""}
-                      onChange={(e) =>
-                        handleInputChange(index, "remarks", e.target.value)
-                      }
-                    />
-                  </td>
-                </tr>
-              ))
-            )}
+                            {vendors.map((vendor) => (
+                              <option key={vendor.id} value={vendor.id}>
+                                {vendor.nameEnglish}
+                              </option>
+                            ))}
+                          </BaseSelect>
+                        </td>
+                        <td className="p-2">
+                          <BaseInput
+                            placeholder="0"
+                            value={allocation.number || ""}
+                            onChange={(e) =>
+                              handleAllocationChange(
+                                menuIndex,
+                                allocationIndex,
+                                "number",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td className="p-2">
+                          <BaseInput
+                            type="number"
+                            placeholder="0"
+                            value={allocation.counterQuantity || ""}
+                            onChange={(e) =>
+                              handleAllocationChange(
+                                menuIndex,
+                                allocationIndex,
+                                "counterQuantity",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td className="p-2">
+                          <BaseInput
+                            placeholder="Enter Remarks"
+                            value={allocation.remarks || ""}
+                            onChange={(e) =>
+                              handleAllocationChange(
+                                menuIndex,
+                                allocationIndex,
+                                "remarks",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                      </tr>
+                    );
+                  }
+                )}
+              </>
+            ))}
           </tbody>
         </table>
       </div>

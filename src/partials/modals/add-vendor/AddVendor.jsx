@@ -1,16 +1,12 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import {
-  AddCustomerapi,
-  GetAllContactCategory,
-  EditCustomerApi,
-  Translateapi,
-} from "@/services/apiServices";
+import axios from "axios";
+import { GetAllContactCategory, Translateapi } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage, useIntl } from "react-intl";
-import Select from "react-select"; // inside your form
+import Select from "react-select";
 
 const AddVendor = ({
   isModalOpen,
@@ -23,10 +19,40 @@ const AddVendor = ({
   if (!isModalOpen) return null;
   const intl = useIntl();
 
+  // Define API functions directly in the component
+  const getAuthHeaders = () => {
+    const token =
+      localStorage.getItem("token") || localStorage.getItem("authToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const getBaseURL = () => {
+    // Try to get base URL from existing axios instance or use relative path
+    return "/v1/api";
+  };
+
+  const AddCustomerapi = (formData) => {
+    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
+      headers: {
+        ...getAuthHeaders(),
+        // Don't set Content-Type, let axios set it with boundary
+      },
+    });
+  };
+
+  const EditCustomerApi = (id, formData) => {
+    return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
+  };
+
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null); // ✅ Added selectedFile state
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
@@ -43,7 +69,6 @@ const AddVendor = ({
 
   // Initial form state
   const initialFormState = {
-    id: "",
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -170,6 +195,7 @@ const AddVendor = ({
       } else {
         setFormData(initialFormState);
         setImagePreview(null);
+        setSelectedFile(null); // ✅ Reset selectedFile
       }
       setErrors({});
     }
@@ -219,7 +245,8 @@ const AddVendor = ({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file));
+      setSelectedFile(file); // ✅ Store the actual file object
+      setImagePreview(URL.createObjectURL(file)); // ✅ Create preview URL
     }
   };
 
@@ -273,27 +300,40 @@ const AddVendor = ({
         throw new Error("User data not found");
       }
 
-      const payload = {
+      // ✅ Create FormData object (same as AddCustomer)
+      const formDataObj = new FormData();
+
+      // ✅ Append all form fields
+      Object.entries({
         ...formData,
         userId: userData,
         bdate: formatDateToDDMMYYYY(formData.bdate),
-      };
+      }).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formDataObj.append(key, value);
+        }
+      });
+
+      // ✅ Append file if exists
+      if (selectedFile) {
+        formDataObj.append("file", selectedFile);
+      }
 
       if (formData.id) {
-        await EditCustomerApi(formData.id, payload);
+        await EditCustomerApi(formData.id, formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
-          text: "Customer updated successfully!",
+          text: "Vendor updated successfully!",
           timer: 2000,
           showConfirmButton: false,
         });
       } else {
-        await AddCustomerapi(payload);
+        await AddCustomerapi(formDataObj);
         Swal.fire({
           icon: "success",
           title: "Success!",
-          text: "Customer added successfully!",
+          text: "Vendor added successfully!",
           timer: 2000,
           showConfirmButton: false,
         });
@@ -303,13 +343,14 @@ const AddVendor = ({
       refreshData();
       setFormData(initialFormState);
       setImagePreview(null);
+      setSelectedFile(null); // ✅ Clear selectedFile
       setErrors({});
     } catch (error) {
-      console.error("Error saving customer:", error);
+      console.error("Error saving vendor:", error);
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: error.message || "Failed to save customer. Please try again.",
+        text: error.message || "Failed to save vendor. Please try again.",
         timer: 3000,
         showConfirmButton: false,
       });
@@ -323,6 +364,7 @@ const AddVendor = ({
       isModalClose(false);
       setFormData(initialFormState);
       setImagePreview(null);
+      setSelectedFile(null); // ✅ Clear selectedFile
       setErrors({});
       setIsContactModalOpen(false);
     };
@@ -434,6 +476,10 @@ const AddVendor = ({
                 name="nameEnglish"
                 value={formData.nameEnglish}
                 onChange={handleChange}
+                placeholder={intl.formatMessage({
+                  id: "COMMON.NAME_ENGLISH",
+                  defaultMessage: "Name (English)",
+                })}
                 lng="en-US"
                 required
               />
@@ -452,6 +498,10 @@ const AddVendor = ({
                 />
               }
               name="nameGujarati"
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_GUJARATI",
+                defaultMessage: "Name (ગુજરાતી)",
+              })}
               value={formData.nameGujarati}
               onChange={handleChange}
               lng="gu"
@@ -464,6 +514,10 @@ const AddVendor = ({
                 />
               }
               name="nameHindi"
+              placeholder={intl.formatMessage({
+                id: "COMMON.NAME_HINDI",
+                defaultMessage: "Name (हिंदी)",
+              })}
               value={formData.nameHindi}
               onChange={handleChange}
               lng="hi"
@@ -478,6 +532,10 @@ const AddVendor = ({
                 />
               }
               name="addressEnglish"
+              placeholder={intl.formatMessage({
+                id: "COMMON.HOME_ADDRESS_ENGLISH",
+                defaultMessage: "Home Address (English)",
+              })}
               value={formData.addressEnglish}
               onChange={handleChange}
               lng="en-US"
@@ -490,6 +548,10 @@ const AddVendor = ({
                 />
               }
               name="addressGujarati"
+              placeholder={intl.formatMessage({
+                id: "COMMON.HOME_ADDRESS_GUJARATI",
+                defaultMessage: "Home Address (ગુજરાતી)",
+              })}
               value={formData.addressGujarati}
               onChange={handleChange}
               lng="gu"
@@ -502,6 +564,10 @@ const AddVendor = ({
                 />
               }
               name="addressHindi"
+              placeholder={intl.formatMessage({
+                id: "COMMON.HOME_ADDRESS_HINDI",
+                defaultMessage: "Home Address (हिंदी)",
+              })}
               value={formData.addressHindi}
               onChange={handleChange}
               lng="hi"
@@ -576,7 +642,7 @@ const AddVendor = ({
                 })}
                 value={formData.email}
                 onChange={handleChange}
-                required
+                required={false}
                 error={errors.email}
               />
               {errors.email && (
@@ -667,6 +733,10 @@ const AddVendor = ({
               </label>
               <input
                 type="date"
+                placeholder={intl.formatMessage({
+                  id: "USER.MASTER.BIRTHDATE",
+                  defaultMessage: "Birth Date",
+                })}
                 name="bdate"
                 className="border border-gray-300 rounded-lg p-2 w-full pr-10 text-gray-600"
                 value={formData.bdate}

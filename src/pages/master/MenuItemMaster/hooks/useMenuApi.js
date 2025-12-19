@@ -14,7 +14,8 @@ export default function useMenuApi(userId) {
     () => GetRawmaterialforitem(userId),
     [userId]
   );
-  const getUnits = useCallback(() => GetUnitData(1), []);
+
+  const getUnits = useCallback(() => GetUnitData(userId), []);
   const getContactCategory = useCallback(
     () => GetAllContactCategorybycontacttype(6, userId),
     [userId]

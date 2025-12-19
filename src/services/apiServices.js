@@ -63,8 +63,12 @@ export const GetPartyMasterByCatId = (catTypeId, userId) => {
 };
 
 //Add customer
-export const AddCustomerapi = (data) => {
-  return POST("/partymaster/add", data);
+export const AddCustomerapi = (formData) => {
+  return POST("/partymaster/add", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 //Edit customer
@@ -140,9 +144,9 @@ export const updateContactTypeStatus = (Id, statusId) => {
 };
 
 // Get All Raw Material
-export const GetAllRawMaterial = (Id) => {
+export const GetAllRawMaterial = (Id, page, pageSize) => {
   return GET(
-    `rawmaterial/getallbyuserid?pageNo=1&pageSize=10000&rawMateriaCatlId=0&unitid=0&userid=${Id}`
+    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
 export const DeleteRole = (Id) => {
@@ -152,6 +156,11 @@ export const DeleteRole = (Id) => {
 export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
+
+export const GetUnitById = (Id) => {
+  return GET(`/unit/getbyid?id=${Id}`);
+};
+
 export const GetSuplier = (id) => {
   return GET(
     `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`
@@ -596,8 +605,8 @@ export const GetAllMenuItems = ({
   userId,
   itemName = "",
   subCategoryId,
-  page = 1,
-  size = 10,
+  page,
+  size ,
 }) => {
   const query = `?userId=${userId}&itemName=${itemName}&menuSubCatId=${subCategoryId}&page=${page}&size=${size}`;
   return GET(`/menuitems/getallbyuserid${query}`);
@@ -1122,8 +1131,8 @@ export const DeleteTicket = (Id) => {
   return DELETE(`/ticket/delete?id=${Id}`);
 };
 
-export const AddTickets = (data) => {
-  return POST(`/ticket/add`, data);
+export const AddTickets = (formData) => {
+  return POST(`/ticket/add`, formData);
 };
 
 export const GetOutsideSummary = (eventfunID, eventId, type) => {
@@ -1208,11 +1217,9 @@ export const GETExpenseBYId = (id) => {
   return GET(`/expensemanagement/getbyid?expenseId=${id}`);
 };
 
-
 export const AddExpenseItem = (data) => {
   return POST("/expenseitem/add", data);
 };
-
 
 export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
   GET(
@@ -1223,9 +1230,11 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   if (!cat_id_list || cat_id_list.length === 0) {
     return Promise.resolve({ data: { data: [] } });
   }
-  const catIdParams = cat_id_list.map(id => `cat_id_list=${id}`).join('&');
-  return GET(`/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`);
-}
+  const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
+  return GET(
+    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`
+  );
+};
 
 export const UpdateRawMaterialCategory = (queryString) => {
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
