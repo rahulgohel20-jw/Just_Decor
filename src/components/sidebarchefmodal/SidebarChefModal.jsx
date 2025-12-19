@@ -59,7 +59,9 @@ export default function SidebarChefModal({
     const FetchDetails = async () => {
       try {
         setLoading(true);
+
         const menudata = await GetMenuAllocation(eventId, eventFunctionId);
+
         const raw =
           menudata?.data?.data["Menu Allocation Details"][0]?.menuAllocation ||
           [];
@@ -68,41 +70,53 @@ export default function SidebarChefModal({
           ...allocation,
           eventFunctionMenuAllocations:
             allocation.eventFunctionMenuAllocations?.map((alloc) => {
-              // For Plate Wise, use quantity * price
-              if (alloc.serviceType === "Plate Wise") {
+              // ✅ NORMALIZE serviceType (FIX FOR FIRST LOAD)
+              let normalizedServiceType = alloc.serviceType;
+
+              if (alloc.serviceType === "plate_wise") {
+                normalizedServiceType = "Plate Wise";
+              } else if (alloc.serviceType === "counter_wise") {
+                normalizedServiceType = "Counter Wise";
+              }
+
+              // 🔵 PLATE WISE
+              if (normalizedServiceType === "Plate Wise") {
                 const qty = parseFloat(alloc.quantity) || 0;
                 const price = parseFloat(alloc.price) || 0;
                 const calculatedTotal = qty * price;
 
                 return {
                   ...alloc,
+                  serviceType: normalizedServiceType, // ✅ FIXED
                   totalPrice:
                     alloc.totalPrice && alloc.totalPrice > 0
                       ? alloc.totalPrice
                       : calculatedTotal,
-                  // Map quantity to counterQuantity for display purposes
                   counterQuantity: alloc.quantity || 0,
                   counterPrice: alloc.price || 0,
-                };
-              } else {
-                // For Counter Wise
-                const counterQty = parseFloat(alloc.counterQuantity) || 0;
-                const helperQty = parseFloat(alloc.helperQuantity) || 0;
-                const counterPrice = parseFloat(alloc.counterPrice) || 0;
-                const helperPrice = parseFloat(alloc.helperPrice) || 0;
-
-                const calculatedTotal =
-                  counterQty * counterPrice + helperQty * helperPrice;
-
-                return {
-                  ...alloc,
-                  totalPrice:
-                    alloc.totalPrice && alloc.totalPrice > 0
-                      ? alloc.totalPrice
-                      : calculatedTotal,
+                  helperQuantity: 0,
+                  helperPrice: 0,
                 };
               }
-            }),
+
+              // 🔵 COUNTER WISE
+              const counterQty = parseFloat(alloc.counterQuantity) || 0;
+              const helperQty = parseFloat(alloc.helperQuantity) || 0;
+              const counterPrice = parseFloat(alloc.counterPrice) || 0;
+              const helperPrice = parseFloat(alloc.helperPrice) || 0;
+
+              const calculatedTotal =
+                counterQty * counterPrice + helperQty * helperPrice;
+
+              return {
+                ...alloc,
+                serviceType: normalizedServiceType, // ✅ FIXED
+                totalPrice:
+                  alloc.totalPrice && alloc.totalPrice > 0
+                    ? alloc.totalPrice
+                    : calculatedTotal,
+              };
+            }) || [],
         }));
 
         setMenuAllocations(processedAllocations);
@@ -114,49 +128,16 @@ export default function SidebarChefModal({
             m.chefLabour === true
         );
 
-        console.log("📥 Fetched allocation data for item:", currentItem);
+        console.log("✅ Chef Labour allocation loaded:", currentItem);
       } catch (error) {
-        console.error("Error fetching event details:", error);
+        console.error("❌ Error fetching event details:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    const FetchContactName = async () => {
-      try {
-        let userId = localStorage.getItem("userId");
-
-        const res = await ContactNameItem(userId, "Chef Labour");
-        if (res?.data?.data) {
-          setContactNames(res.data.data["Party Details"]);
-        }
-      } catch (error) {
-        console.error("Error fetching contact name:", error);
-      }
-    };
-
-    const FetchUnits = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-
-        const res = await Getunit(userId);
-
-        const units =
-          res?.data?.data["Unit Details"]?.map((item) => ({
-            unitId: item.id,
-            unitName: item.nameEnglish,
-          })) || [];
-
-        setUnits(units);
-      } catch (error) {
-        console.error("Error fetching units:", error);
-      }
-    };
-
     if (eventId && eventFunctionId && open) {
       FetchDetails();
-      FetchContactName();
-      FetchUnits();
     }
   }, [eventId, eventFunctionId, open, row?.menuItemId, row?.menuCategoryId]);
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import BaseSelect from "../ui/BaseSelect";
 import BaseInput from "../ui/BaseInput";
+import Swal from "sweetalert2";
 import { OutsideContactName } from "@/services/apiServices";
 
 export default function AllocateRowOutside({ onAllocate }) {
@@ -22,31 +23,58 @@ export default function AllocateRowOutside({ onAllocate }) {
       setVendors(data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load vendors",
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleAllocate = () => {
-    if (!selectedVendor || !pax) {
-      alert("Please select a vendor and enter pax");
+    if (!selectedVendor) {
+      Swal.fire({
+        title: "Missing Vendor",
+        text: "Please select a vendor",
+        icon: "warning",
+      });
       return;
     }
 
-    // Find the selected vendor to get the name
+    if (!pax || pax <= 0) {
+      Swal.fire({
+        title: "Invalid Pax",
+        text: "Please enter a valid pax value",
+        icon: "warning",
+      });
+      return;
+    }
+
     const selectedVendorData = vendors.find(
       (v) => String(v.id) === String(selectedVendor)
     );
 
-    onAllocate({
+    const success = onAllocate({
       partyId: selectedVendor,
       partyName: selectedVendorData?.nameEnglish || "",
-      pax: pax,
+      pax,
     });
 
-    // Reset form
-    setSelectedVendor("");
-    setPax("");
+    if (success) {
+      Swal.fire({
+        title: "Allocated",
+        text: "Vendor allocated successfully",
+        icon: "success",
+        timer: 1500,
+        buttons: false,
+      });
+
+      setSelectedVendor("");
+      setPax("");
+    }
   };
 
   return (
