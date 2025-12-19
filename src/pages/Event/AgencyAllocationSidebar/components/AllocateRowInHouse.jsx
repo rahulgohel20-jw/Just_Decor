@@ -29,30 +29,32 @@ export default function AllocateRowInHouse({ onAllocate }) {
 
   const handleAllocate = () => {
     if (!selectedVendor) {
+      alert("Please select a vendor");
       return;
     }
 
     if (!pax || pax <= 0) {
+      alert("Please enter a valid pax value");
       return;
     }
 
     // Get selected vendor details
-    const vendor = vendors.find(
-      (v) => String(v.id || v.contactId) === String(selectedVendor)
-    );
+    const vendor = vendors.find((v) => String(v.id) === String(selectedVendor));
 
     if (!vendor) {
+      alert("Selected vendor not found");
       return;
     }
+
     const vendorNumber = vendor.mobileno || "";
 
     // Call the parent function to allocate
-    const success = onAllocate(
-      vendor.id || vendor.contactId,
-      vendor.nameEnglish || "",
-      vendorNumber,
-      pax
-    );
+    const success = onAllocate({
+      partyId: vendor.id,
+      partyName: vendor.nameEnglish || "",
+      number: vendorNumber,
+      pax: pax,
+    });
 
     // Reset fields if successful
     if (success) {
@@ -72,10 +74,7 @@ export default function AllocateRowInHouse({ onAllocate }) {
           {loading ? "Loading vendors..." : "Select Vendor"}
         </option>
         {vendors.map((vendor) => (
-          <option
-            key={vendor.id || vendor.contactId}
-            value={vendor.id || vendor.contactId}
-          >
+          <option key={vendor.id} value={vendor.id}>
             {vendor.nameEnglish || ""}
           </option>
         ))}

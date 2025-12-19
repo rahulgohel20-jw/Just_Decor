@@ -3,7 +3,7 @@ import BaseSelect from "../ui/BaseSelect";
 import BaseInput from "../ui/BaseInput";
 import { OutsideContactName } from "@/services/apiServices";
 
-export default function AllocateRowOutside({ eventFunction, onAllocate }) {
+export default function AllocateRowOutside({ onAllocate }) {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState("");
@@ -17,7 +17,7 @@ export default function AllocateRowOutside({ eventFunction, onAllocate }) {
   const fetchdata = async () => {
     try {
       setLoading(true);
-      const partyMasters = await OutsideContactName(7, userid);
+      const partyMasters = await OutsideContactName(6, userid);
       const data = partyMasters.data.data["Party Details"] || [];
       setVendors(data);
     } catch (error) {
@@ -33,8 +33,14 @@ export default function AllocateRowOutside({ eventFunction, onAllocate }) {
       return;
     }
 
+    // Find the selected vendor to get the name
+    const selectedVendorData = vendors.find(
+      (v) => String(v.id) === String(selectedVendor)
+    );
+
     onAllocate({
-      contactId: selectedVendor,
+      partyId: selectedVendor,
+      partyName: selectedVendorData?.nameEnglish || "",
       pax: pax,
     });
 

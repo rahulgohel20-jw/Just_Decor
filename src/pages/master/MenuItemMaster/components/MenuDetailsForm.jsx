@@ -22,7 +22,6 @@ import { buildPayload } from "../utils/buildMenuPayload";
 import {
   AddMenuItems,
   Translateapi,
-  uploadFile,
   UpdateMenuItem,
   deleteRawmatrialcatidInmenuitem,
 } from "@/services/apiServices";
@@ -323,6 +322,29 @@ const MenuDetailsForm = ({
     }
   };
 
+  const handleNext = () => {
+    // Collect data without validation
+    const newUpload = fileList.find((f) => f.originFileObj);
+    const file = newUpload?.originFileObj || null;
+    const shouldUploadImage = !!file;
+    const allValues = form.getFieldsValue(true);
+    const details = {
+      ...allValues,
+      recipes: tableData,
+      totalRate,
+      dishCosting,
+      file,
+      shouldUploadImage,
+    };
+
+    if (isEdit && !file && editData?.imagePath) {
+      details.removeImage = true;
+    }
+
+    setMenuDetails(details);
+    onNext();
+  };
+
   const onFinish = async (values) => {
     const newUpload = fileList.find((f) => f.originFileObj);
     const file = newUpload?.originFileObj || null;
@@ -343,33 +365,22 @@ const MenuDetailsForm = ({
 
     setMenuDetails(details);
 
-    if (!isSaveOnly) {
-      onNext();
-      return;
-    }
-
     try {
-      const payload = buildPayload(details, {});
+      // Now buildPayload returns FormData with file included
+      const formData = buildPayload(details, {});
       let res;
 
       if (isEdit) {
         const id = editData.id;
-        res = await UpdateMenuItem(id, payload);
+        res = await UpdateMenuItem(id, formData);
       } else {
-        res = await AddMenuItems(payload);
+        res = await AddMenuItems(formData);
       }
 
       const data = res?.data;
       const success = data?.success === true;
 
-      if (success && shouldUploadImage && file) {
-        const formData = new FormData();
-        formData.append("moduleId", data.moduleId);
-        formData.append("moduleName", data.moduleName);
-        formData.append("fileType", data.fileType);
-        formData.append("file", file);
-        await uploadFile(formData);
-      }
+      // No need for separate file upload anymore - it's already in FormData
 
       Swal.fire({
         title: success ? "Success!" : "Failed",
@@ -861,10 +872,7 @@ const MenuDetailsForm = ({
           <div className="flex gap-4">
             <Button
               type="primary"
-              onClick={() => {
-                setIsSaveOnly(false);
-                form.submit();
-              }}
+              onClick={handleNext}
               className="bg-primary h-10 px-6 rounded-md hover:bg-primary"
             >
               Next

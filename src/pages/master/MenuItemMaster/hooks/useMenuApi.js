@@ -15,7 +15,7 @@ export default function useMenuApi(userId) {
     [userId]
   );
 
-  const getUnits = useCallback(() => GetUnitData(), []);
+  const getUnits = useCallback(() => GetUnitData(userId), []);
   const getContactCategory = useCallback(
     () => GetAllContactCategorybycontacttype(6, userId),
     [userId]

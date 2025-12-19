@@ -69,7 +69,6 @@ export const AddCustomerapi = (formData) => {
   });
 };
 
-
 //Edit customer
 export const EditCustomerApi = (Id, data) => {
   return PUT(`/partymaster/update?id=${Id}`, data);
@@ -155,7 +154,6 @@ export const DeleteRole = (Id) => {
 export const GetUnitData = (Id) => {
   return GET(`/unit/getallbyuserid?isActive=true&userid=${Id}`);
 };
-
 
 export const GetUnitById = (Id) => {
   return GET(`/unit/getbyid?id=${Id}`);
@@ -1219,11 +1217,9 @@ export const GETExpenseBYId = (id) => {
   return GET(`/expensemanagement/getbyid?expenseId=${id}`);
 };
 
-
 export const AddExpenseItem = (data) => {
   return POST("/expenseitem/add", data);
 };
-
 
 export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
   GET(
@@ -1235,11 +1231,17 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
     console.warn("⚠️ No category IDs provided to API");
     return Promise.resolve({ data: { data: [] } });
   }
-  const catIdParams = cat_id_list.map(id => `cat_id_list=${id}`).join('&');
-  return GET(`/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`);
-}
+  const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
+  return GET(
+    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`
+  );
+};
 
-export const UpdateRawMaterialCategory = (current_cat_id_list = [], new_cat_id, userId) => {
+export const UpdateRawMaterialCategory = (
+  current_cat_id_list = [],
+  new_cat_id,
+  userId
+) => {
   // Validate inputs
   if (!current_cat_id_list || current_cat_id_list.length === 0) {
     console.warn("⚠️ No current category IDs provided");
@@ -1260,21 +1262,28 @@ export const UpdateRawMaterialCategory = (current_cat_id_list = [], new_cat_id, 
   const params = new URLSearchParams();
 
   // Add each current category ID as separate parameter
-  current_cat_id_list.forEach(id => {
-    params.append('current_cat_id_list', id);
+  current_cat_id_list.forEach((id) => {
+    params.append("current_cat_id_list", id);
   });
 
   // Add new category and user ID
-  params.append('new_cat_id', new_cat_id);
-  params.append('userId', userId);
+  params.append("new_cat_id", new_cat_id);
+  params.append("userId", userId);
 
   const queryString = params.toString();
-  console.log("🔗 Update API URL:", `/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
+  console.log(
+    "🔗 Update API URL:",
+    `/rawmaterial/updaterawmaterialitemcategory?${queryString}`
+  );
 
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
 };
 
-
+export const GetAllItemByType = (eventFunctionId, eventId, type) => {
+  return GET(
+    `/menuallocation/getitembytype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&type=${type}`
+  );
+};
 
 export const AddCustomTheme = (formData) => {
   return POST("/templatemaster/add", formData);
@@ -1282,4 +1291,4 @@ export const AddCustomTheme = (formData) => {
 
 export const GetAllCustomTheme = () => {
   return GET(`/templatemaster/getall`);
-}
+};
