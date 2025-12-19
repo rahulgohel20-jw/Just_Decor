@@ -1,30 +1,138 @@
 export const buildPayload = (details, allocation = {}) => {
   const userId = Number(localStorage.getItem("userId"));
 
-  return {
-    dishCosting: details.dishCosting || 0,
-    menuCategoryId: Number(details.category) || 0,
-    menuSubCategoryId: Number(details.subCategory) || null,
-    nameEnglish: details.nameEnglish || "",
-    nameGujarati: details.nameGujarati || "",
-    nameHindi: details.nameHindi || "",
-    slogan: details.slogan || "",
-    price: details.price || 0,
-    remarks: details.remarks || "",
-    sequence: details.priority || 0,
-    totalRate: details.totalRate || 0,
-    url: details.imageUrl || "",
-    userId,
+  const formData = new FormData();
 
-    menuItemRawMaterials: (details.recipes || []).map((r) => ({
-      id: r.menuRmId || 0,
-      rate: r.rate || 0,
-      rawMaterialId: r.rawMaterialId || 0,
-      unitId: r.unitId || 0,
-      weight: Number(r.weight) || 0,
-    })),
+  // Basic fields
+  formData.append("dishCosting", details.dishCosting || 0);
+  formData.append("menuCategoryId", Number(details.category) || 0);
+  if (details.subCategory) {
+    formData.append("menuSubCategoryId", Number(details.subCategory));
+  }
+  formData.append("nameEnglish", details.nameEnglish || "");
+  formData.append("nameGujarati", details.nameGujarati || "");
+  formData.append("nameHindi", details.nameHindi || "");
+  formData.append("slogan", details.slogan || "");
+  formData.append("price", details.price || 0);
+  formData.append("remarks", details.remarks || "");
+  formData.append("sequence", details.priority || 0);
+  formData.append("totalRate", details.totalRate || 0);
+  formData.append("url", details.imageUrl || "");
+  formData.append("userId", userId);
 
-    menuItemAllocationConfigRequest:
-      allocation && Object.keys(allocation).length > 0 ? allocation : null,
-  };
+  // File upload
+  if (details.file) {
+    formData.append("file", details.file);
+  }
+
+  // Menu Item Raw Materials
+  const rawMaterials = (details.recipes || []).map((r) => ({
+    id: r.menuRmId || 0,
+    rate: r.rate || 0,
+    rawMaterialId: r.rawMaterialId || 0,
+    unitId: r.unitId || 0,
+    weight: Number(r.weight) || 0,
+  }));
+
+  rawMaterials.forEach((rm, index) => {
+    formData.append(`menuItemRawMaterials[${index}].id`, rm.id);
+    formData.append(`menuItemRawMaterials[${index}].rate`, rm.rate);
+    formData.append(
+      `menuItemRawMaterials[${index}].rawMaterialId`,
+      rm.rawMaterialId
+    );
+    formData.append(`menuItemRawMaterials[${index}].unitId`, rm.unitId);
+    formData.append(`menuItemRawMaterials[${index}].weight`, rm.weight);
+  });
+
+  // Menu Item Allocation Config
+  if (allocation && Object.keys(allocation).length > 0) {
+    formData.append("menuItemAllocationConfigRequest.id", allocation.id || 0);
+    formData.append(
+      "menuItemAllocationConfigRequest.godownLocation",
+      allocation.godownLocation || ""
+    );
+    formData.append(
+      "menuItemAllocationConfigRequest.remarks",
+      allocation.remarks || ""
+    );
+
+    if (allocation.partyId) {
+      formData.append(
+        "menuItemAllocationConfigRequest.partyId",
+        allocation.partyId
+      );
+    }
+
+    formData.append(
+      "menuItemAllocationConfigRequest.selectChefLabourAgency",
+      allocation.selectChefLabourAgency || false
+    );
+    formData.append(
+      "menuItemAllocationConfigRequest.selectOutsideAgency",
+      allocation.selectOutsideAgency || false
+    );
+    formData.append(
+      "menuItemAllocationConfigRequest.selectInsideAgency",
+      allocation.selectInsideAgency || false
+    );
+
+    // Chef Labour Item
+    if (allocation.chefLabourItem) {
+      formData.append(
+        "menuItemAllocationConfigRequest.chefLabourItem.id",
+        allocation.chefLabourItem.id || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.chefLabourItem.allocation_type",
+        allocation.chefLabourItem.allocation_type || ""
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.chefLabourItem.counterNo",
+        allocation.chefLabourItem.counterNo || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.chefLabourItem.pricePerLabour",
+        allocation.chefLabourItem.pricePerLabour || 0
+      );
+    }
+
+    // Outside Item
+    if (allocation.outsideItem) {
+      formData.append(
+        "menuItemAllocationConfigRequest.outsideItem.id",
+        allocation.outsideItem.id || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.outsideItem.quantityPer100Person",
+        allocation.outsideItem.quantityPer100Person || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.outsideItem.unitId",
+        allocation.outsideItem.unitId || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.outsideItem.pricePerHelper",
+        allocation.outsideItem.pricePerHelper || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.outsideItem.contactCategoryId",
+        allocation.outsideItem.contactCategoryId || 0
+      );
+    }
+
+    // Inside Item
+    if (allocation.insideItem) {
+      formData.append(
+        "menuItemAllocationConfigRequest.insideItem.id",
+        allocation.insideItem.id || 0
+      );
+      formData.append(
+        "menuItemAllocationConfigRequest.insideItem.number",
+        allocation.insideItem.number || ""
+      );
+    }
+  }
+
+  return formData;
 };

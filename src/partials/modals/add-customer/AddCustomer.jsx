@@ -53,7 +53,6 @@ const AddCustomer = ({
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);

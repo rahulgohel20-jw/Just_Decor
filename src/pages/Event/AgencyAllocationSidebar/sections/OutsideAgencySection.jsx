@@ -4,16 +4,15 @@ import OutsideAgencyTable from "../components/OutsideAgencyTable";
 
 export default function OutsideAgencySection({ data, onDataUpdate }) {
   const [selectedItems, setSelectedItems] = useState({});
-  const [agencyData, setAgencyData] = useState(data?.agencyResponse || []);
+  const [menuItems, setMenuItems] = useState(data[0].menuAllocation || []);
 
-  // Sync agencyData when data prop changes
   useEffect(() => {
-    if (data?.agencyResponse) {
-      setAgencyData(data.agencyResponse);
+    if (data) {
+      setMenuItems(data[0].menuAllocation);
     }
   }, [data]);
 
-  const handleItemSelect = (itemKey, isChecked, agencyIndex, itemIndex) => {
+  const handleItemSelect = (itemKey, isChecked, menuIndex, allocationIndex) => {
     setSelectedItems((prev) => ({
       ...prev,
       [itemKey]: isChecked,
@@ -21,70 +20,90 @@ export default function OutsideAgencySection({ data, onDataUpdate }) {
   };
 
   const handleAllocate = (allocationData) => {
-    const { contactId, pax } = allocationData;
+    const { partyId, partyName, pax } = allocationData;
 
     console.log("Allocate called with:", {
-      contactId,
+      partyId,
+      partyName,
       pax,
-      type: typeof contactId,
     });
 
-    if (!contactId || !pax) {
+    if (!partyId || !pax) {
       alert("Vendor and pax are required");
       return;
     }
 
-    const updatedAgencyData = agencyData.map((agency, agencyIndex) => {
-      const updatedItems = agency.allocationItems.map((item, itemIndex) => {
-        // Auto-check all items
-        const itemKey = `${agencyIndex}-${itemIndex}`;
-        setSelectedItems((prev) => ({
-          ...prev,
-          [itemKey]: true,
-        }));
+    // Check if any items are selected
+    const hasSelectedItems = Object.values(selectedItems).some(
+      (isSelected) => isSelected
+    );
 
-        console.log("Updating item:", {
-          itemIndex,
-          oldContactId: item.contactId,
-          newContactId: contactId,
-          stringContactId: String(contactId),
-        });
+    if (!hasSelectedItems) {
+      alert("Please select at least one item to allocate");
+      return;
+    }
 
-        return {
-          ...item,
-          contactId: contactId, // Keep as-is from vendor select
-          pax: pax,
-        };
-      });
+    let allocatedCount = 0;
 
-      // Recalculate agency total price after allocation
-      const totalPrice = updatedItems.reduce(
-        (sum, item) => sum + (parseFloat(item.itemTotal) || 0),
-        0
+    const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
+      const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
+        (allocation, allocationIndex) => {
+          const itemKey = `${menuIndex}-${allocationIndex}`;
+
+          // Only update if this item is selected
+          if (selectedItems[itemKey]) {
+            allocatedCount++;
+
+            console.log("Updating allocation:", {
+              allocationIndex,
+              oldPartyId: allocation.partyId,
+              newPartyId: partyId,
+            });
+
+            return {
+              ...allocation,
+              partyId: partyId,
+              partyName: partyName,
+              pax: pax,
+            };
+          }
+
+          // Return unchanged if not selected
+          return allocation;
+        }
+      );
+
+      // Check if any allocations in this menu item were updated
+      const hasUpdatedAllocations = menuItem.eventFunctionMenuAllocations.some(
+        (_, allocationIndex) => {
+          const itemKey = `${menuIndex}-${allocationIndex}`;
+          return selectedItems[itemKey];
+        }
       );
 
       return {
-        ...agency,
-        allocationItems: updatedItems,
-        totalPrice: totalPrice,
+        ...menuItem,
+        eventFunctionMenuAllocations: updatedAllocations,
+        // Update personCount only if this menu item had selected allocations
+        ...(hasUpdatedAllocations && { personCount: pax }),
       };
     });
 
-    console.log("Updated agency data:", updatedAgencyData);
+    console.log("Updated menu items:", updatedMenuItems);
 
-    setAgencyData(updatedAgencyData);
+    setMenuItems(updatedMenuItems);
 
     if (onDataUpdate) {
-      onDataUpdate(updatedAgencyData);
+      onDataUpdate(updatedMenuItems);
     }
 
-    alert("Allocated to all items successfully");
+    alert(`Allocated to ${allocatedCount} selected item(s) successfully`);
   };
 
-  const handleAgencyUpdate = (agencyIndex, updatedAgency) => {
-    const updatedData = [...agencyData];
-    updatedData[agencyIndex] = updatedAgency;
-    setAgencyData(updatedData);
+  const handleMenuItemUpdate = (menuIndex, updatedMenuItem) => {
+    const updatedData = [...menuItems];
+    updatedData[menuIndex] = updatedMenuItem;
+    setMenuItems(updatedData);
 
     if (onDataUpdate) {
       onDataUpdate(updatedData);
@@ -93,20 +112,13 @@ export default function OutsideAgencySection({ data, onDataUpdate }) {
 
   return (
     <>
-      <AllocateRowOutside
-        eventFunction={data?.eventFunction}
-        onAllocate={handleAllocate}
+      <AllocateRowOutside onAllocate={handleAllocate} />
+      <OutsideAgencyTable
+        menuItems={menuItems}
+        onUpdate={handleMenuItemUpdate}
+        selectedItems={selectedItems}
+        onItemSelect={handleItemSelect}
       />
-      {agencyData?.map((agency, index) => (
-        <OutsideAgencyTable
-          key={index}
-          agencyData={agency}
-          agencyIndex={index}
-          onUpdate={handleAgencyUpdate}
-          selectedItems={selectedItems}
-          onItemSelect={handleItemSelect}
-        />
-      ))}
     </>
   );
 }

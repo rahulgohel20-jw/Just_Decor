@@ -3,11 +3,7 @@ import { Tabs, Form, Select, Button, message } from "antd";
 import useMenuApi from "../hooks/useMenuApi";
 import allocationTabsConfig from "../config/allocationTabsConfig";
 import RenderAllocationFields from "./RenderAllocationFields";
-import {
-  AddMenuItems,
-  UpdateMenuItem,
-  uploadFile,
-} from "@/services/apiServices";
+import { AddMenuItems, UpdateMenuItem } from "@/services/apiServices";
 import { buildPayload } from "../utils/buildMenuPayload";
 import AddContactName from "../components/AddContactName";
 import Swal from "sweetalert2";
@@ -69,7 +65,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         message.error("Failed to load options");
       }
     })();
-  }, []);
+  }, [getUnits, getContactCategory, getContactNames]);
 
   const fetchChefcontactname = async (catTypeId) => {
     try {
@@ -93,8 +89,10 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     else if (alloc.selectOutsideAgency) setActiveTab("outside");
     else if (alloc.selectInsideAgency) setActiveTab("inside");
   }, [isEdit, editData]);
+
+  // Initialize edit values when component receives editData or menuDetails
   useEffect(() => {
-    console.log(editData);
+    console.log("Checking edit data:", { isEdit, editData, menuDetails });
 
     if (!isEdit || !editData) return;
 
@@ -128,8 +126,9 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       values.remarks = alloc.remarks;
     }
 
+    console.log("Setting pending values:", values);
     setPendingEditValues(values);
-  }, [isEdit, editData]);
+  }, [isEdit, editData, menuDetails]);
   const refreshData = async () => {
     try {
       const [unitRes, contactRes, chefRes, insideRes] = await Promise.all([
@@ -177,24 +176,60 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   useEffect(() => {
     if (!pendingEditValues) return;
 
+    console.log("Pending edit values check:", {
+      pendingEditValues,
+      chefNamesLength: chefNames.length,
+      insideCookNamesLength: insideCookNames.length,
+      contactLength: contact.length,
+      chefunitLength: chefunit.length,
+      outsideNameLength: outsideName.length,
+    });
+
     const dropdownsLoaded =
       chefNames.length &&
       insideCookNames.length &&
       contact.length &&
       chefunit.length;
 
-    if (!dropdownsLoaded) return;
+    if (!dropdownsLoaded) {
+      console.log("Base dropdowns not loaded yet");
+      return;
+    }
 
-    // If Outside agency needs async contact name fetch, handle it then set form
-    const loadOutsideContact = async () => {
-      if (pendingEditValues.contactCategory) {
-        await fetchChefcontactname(pendingEditValues.contactCategory);
+    // If Outside agency tab and needs contact name fetch
+    if (
+      pendingEditValues.contactCategory &&
+      pendingEditValues.outside_contactName
+    ) {
+      // Check if we need to fetch or if data is already there
+      const needsFetch =
+        outsideName.length === 0 ||
+        !outsideName.find(
+          (item) => item.partyId === pendingEditValues.outside_contactName
+        );
+
+      if (needsFetch) {
+        console.log(
+          "Fetching outside contact names for category:",
+          pendingEditValues.contactCategory
+        );
+        fetchChefcontactname(pendingEditValues.contactCategory);
+        return; // Wait for next render after fetch
       }
-      form.setFieldsValue(pendingEditValues);
-    };
+    }
 
-    loadOutsideContact();
-  }, [pendingEditValues, chefNames, insideCookNames, contact, chefunit]);
+    // All dropdowns are ready, set form values
+    console.log("Setting form values:", pendingEditValues);
+    form.setFieldsValue(pendingEditValues);
+    setPendingEditValues(null); // Clear to prevent re-setting
+  }, [
+    pendingEditValues,
+    chefNames,
+    insideCookNames,
+    contact,
+    chefunit,
+    outsideName,
+  ]);
   const handleAddContact = (fieldName) => {
     switch (fieldName) {
       case "chef_contactName":
@@ -275,30 +310,26 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     return allocation;
   };
 
+  const handlePrevious = () => {
+    blurActiveElement();
+    onPrev();
+  };
+
   const onFinish = async (values) => {
     try {
-      if (!isSaveOnly) {
-        Swal.close();
-        return onPrev();
-      }
       const allocationObject = formatAllocationFields(values);
-      const payload = buildPayload(menuDetails, allocationObject);
+
+      // buildPayload now returns FormData
+      const formData = buildPayload(menuDetails, allocationObject);
 
       let apiRes = isEdit
-        ? await UpdateMenuItem(editData.id, payload)
-        : await AddMenuItems(payload);
+        ? await UpdateMenuItem(editData.id, formData)
+        : await AddMenuItems(formData);
 
       const data = apiRes?.data;
       const success = data?.success;
 
-      if (success && menuDetails?.shouldUploadImage && menuDetails?.file) {
-        const fd = new FormData();
-        fd.append("moduleId", data.moduleId);
-        fd.append("moduleName", data.moduleName);
-        fd.append("fileType", data.fileType);
-        fd.append("file", menuDetails.file);
-        await uploadFile(fd);
-      }
+      // File upload is already handled in FormData
 
       Swal.fire({
         title: success ? "Success!" : "Failed",
@@ -403,7 +434,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         <Tabs
           activeKey={activeTab}
           onChange={(key) => setActiveTab(key)}
-          destroyInactiveTabPane={false}
+          destroyInactiveTabPane={true}
         >
           <Tabs.TabPane tab="Select Chef Labour Agency" key="chef">
             <RenderAllocationFields
@@ -429,14 +460,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         </Tabs>
 
         <div className="flex justify-between pt-4 mb-6">
-          <Button
-            onClick={() => {
-              blurActiveElement();
-              onPrev();
-            }}
-          >
-            Previous
-          </Button>
+          <Button onClick={handlePrevious}>Previous</Button>
           <Button
             type="primary"
             onClick={() => {
