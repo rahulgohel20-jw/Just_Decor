@@ -179,7 +179,7 @@ const ChangeRawMaterialCategoryPage = () => {
                 value={fromCategory}
                 onChange={(val) => {
                   setFromCategory(val);
-                  setActiveCategory(val); // 👈 table loads
+                  setActiveCategory(val);
                 }}
                 options={combinedCategories}
                 disabled={categoriesLoading}

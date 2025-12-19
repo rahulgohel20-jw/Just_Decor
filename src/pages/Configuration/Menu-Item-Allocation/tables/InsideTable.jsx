@@ -3,7 +3,7 @@ import { Checkbox } from "antd";
 import { TableComponent } from "@/components/table/TableComponent";
 import { FormattedMessage } from "react-intl";
 
-const InsideTable = ({ data }) => {
+const InsideTable = ({ data = [] }) => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   const columns = [
@@ -15,13 +15,9 @@ const InsideTable = ({ data }) => {
           indeterminate={
             selectedRows.length > 0 && selectedRows.length < data.length
           }
-          onChange={(e) => {
-            if (e.target.checked) {
-              setSelectedRows(data.map((row) => row.id));
-            } else {
-              setSelectedRows([]);
-            }
-          }}
+          onChange={(e) =>
+            setSelectedRows(e.target.checked ? data.map((row) => row.id) : [])
+          }
         />
       ),
       cell: ({ row }) => (
@@ -29,7 +25,6 @@ const InsideTable = ({ data }) => {
           checked={selectedRows.includes(row.original.id)}
           onChange={(e) => {
             const id = row.original.id;
-
             setSelectedRows((prev) =>
               e.target.checked
                 ? [...prev, id]
@@ -39,13 +34,17 @@ const InsideTable = ({ data }) => {
         />
       ),
     },
+
     {
-      accessorKey: "itemName",
+      id: "menuItem",
+      accessorKey: "menuItem",
       header: (
         <FormattedMessage id="RAW_MATERIAL.NAME" defaultMessage="Menu Item" />
       ),
     },
+
     {
+      id: "category",
       accessorKey: "category",
       header: (
         <FormattedMessage
@@ -54,48 +53,23 @@ const InsideTable = ({ data }) => {
         />
       ),
     },
+
     {
-      accessorKey: "type",
-      header: <FormattedMessage id="RAW_MATERIAL.TYPE" defaultMessage="Type" />,
-    },
-    {
-      accessorKey: "quantity",
+      id: "typeNo",
+      accessorKey: "typeNo",
       header: (
-        <FormattedMessage
-          id="RAW_MATERIAL.QUANTITY"
-          defaultMessage="Quantity"
-        />
+        <FormattedMessage id="RAW_MATERIAL.TYPE_NO" defaultMessage="Type" />
       ),
-      cell: ({ row }) => (
-        <input className="input w-full" defaultValue={row.original.quantity} />
-      ),
-    },
-    {
-      accessorKey: "price",
-      header: (
-        <FormattedMessage id="RAW_MATERIAL.PRICE" defaultMessage="Price" />
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          ₹
-          <input
-            type="number"
-            className="input w-full"
-            defaultValue={row.original.price.replace("₹", "")}
-          />
-        </div>
+      cell: ({ getValue }) => (
+        <span className="text-sm text-gray-700">{getValue() ?? "-"}</span>
       ),
     },
   ];
-
-  // Optional: Log selected rows for debugging
-  console.log("Selected Row IDs:", selectedRows);
 
   return (
     <div>
       <TableComponent columns={columns} data={data} paginationSize={10} />
 
-      {/* Optional: Display selected count */}
       {selectedRows.length > 0 && (
         <div className="mt-2 text-sm text-gray-600">
           {selectedRows.length} row(s) selected

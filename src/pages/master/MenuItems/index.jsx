@@ -163,42 +163,52 @@ const MenuItems = () => {
     });
   };
 
-  const uploadImage = async (id, file) => {
+  const uploadImage = async (moduleRecordId, file) => {
     if (!file) return;
+
+    if (!(file instanceof File || file instanceof Blob)) {
+      Swal.fire("Error", "File must be binary", "error");
+      return;
+    }
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file, file.name);
+      formData.append("fileType", "IMAGE");
+      formData.append("moduleName", "MENUITEM");
+      formData.append("moduleRecordId", moduleRecordId);
+      formData.append("userId", Id);
 
-      const fileType = "MenuItemImage";
-      const moduleName = "MenuItem";
+      const response = await uploadFileformenu(formData);
 
-      const response = await uploadFileformenu(formData, {
-        fileType,
-        moduleId: id,
-        moduleName,
-      });
+      // ✅ STRICT SUCCESS CHECK
+      if (response?.data?.success !== true) {
+        throw new Error(response?.data?.msg || "Image upload failed");
+      }
 
-      // Get new image path from response
-      const newImage = response?.data?.imagePath || "";
+      const imagePath = response.data.fullPath; // ✅ CORRECT KEY
 
-      // Update the specific row in tableData
       setTableData((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, image: newImage } : item
+          item.id === moduleRecordId ? { ...item, image: imagePath } : item
         )
       );
 
       Swal.fire({
         title: "Uploaded!",
-        text: "Image uploaded successfully.",
+        text: response.data.msg,
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
       });
     } catch (error) {
-      console.error("Upload failed!", error);
-      Swal.fire("Error", "Failed to upload image!", "error");
+      console.error("Upload failed:", error);
+
+      Swal.fire(
+        "Error",
+        error.response?.data?.msg || error.message || "Image upload failed",
+        "error"
+      );
     }
   };
 

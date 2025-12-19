@@ -143,5 +143,6 @@ export const UPLOAD = (url, formData, config = {}) =>
       ...(config.headers || {}),
     },
   });
+  
 
 export default axiosInstance;

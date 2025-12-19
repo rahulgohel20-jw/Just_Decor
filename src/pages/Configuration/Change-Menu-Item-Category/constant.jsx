@@ -12,11 +12,7 @@ export const columns = ({ selectedRows, setSelectedRows, data }) => [
           selectedRows.length > 0 && selectedRows.length < data.length
         }
         onChange={(e) => {
-          if (e.target.checked) {
-            setSelectedRows(data.map((row) => row.id));
-          } else {
-            setSelectedRows([]);
-          }
+          setSelectedRows(e.target.checked ? data.map((row) => row.id) : []);
         }}
       />
     ),
@@ -25,7 +21,6 @@ export const columns = ({ selectedRows, setSelectedRows, data }) => [
         checked={selectedRows.includes(row.original.id)}
         onChange={(e) => {
           const id = row.original.id;
-
           setSelectedRows((prev) =>
             e.target.checked
               ? [...prev, id]
@@ -36,7 +31,7 @@ export const columns = ({ selectedRows, setSelectedRows, data }) => [
     ),
   },
   {
-    accessorKey: "rawMaterial",
+    accessorKey: "menuItem", // ✅ FIXED
     header: (
       <FormattedMessage id="RAW_MATERIAL.NAME" defaultMessage="Menu Item" />
     ),

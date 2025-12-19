@@ -1,5 +1,7 @@
 import { POST, GET, PUT, DELETE, UPLOAD } from "./axiosInstance";
 import axios from "./axiosInstance";
+
+
 export const GetMenuCategoryByUserId = (Id) => {
   return GET(`/menucategory/getallbyuserid?userid=${Id}`);
 };
@@ -580,10 +582,8 @@ export const uploadFile = (data) => {
   return UPLOAD(`/file/uploadfile`, data);
 };
 
-export const uploadFileformenu = (formData, params) => {
-  return UPLOAD(`/file/uploadfile`, formData, {
-    params: params,
-  });
+export const uploadFileformenu = (formData) => {
+  return PUT('/fileupload/upload-file', formData);
 };
 
 //upload Image
@@ -1227,27 +1227,28 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   return GET(`/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`);
 }
 
-// export const UpdateRawMaterialCategory = (
-//   raw_material_id_list = [],
-//   new_cat_id,
-//   userId
-// ) => {
-//   const params = new URLSearchParams();
-
-//   params.append("new_cat_id", new_cat_id);
-
-//   raw_material_id_list.forEach((id) => {
-//     params.append("raw_material_id_list", id);
-//   });
-
-//   params.append("userId", userId);
-
-//   return PUT(
-//     `/rawmaterial/updaterawmaterialitemcategory?${params.toString()}`
-//   );
-// };
-
-
 export const UpdateRawMaterialCategory = (queryString) => {
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
 };
+
+export const Getmenuitemsusingcatidconfig = (menu_cat_ids = [], userId ,type) => {
+  if (!menu_cat_ids || menu_cat_ids.length === 0) {
+    return Promise.resolve({ data: { data: [] } });
+  }
+
+  const catIdParams = menu_cat_ids
+    .map((id) => `menu_cat_ids=${id}`)
+    .join("&");
+const typeParam = type ? `&type=${encodeURIComponent(type)}` : "";
+  return GET(
+    `/menuitems/getmenubycatorsubcat?${catIdParams}&userId=${userId}${typeParam}`
+  );
+};
+
+export const UpdtaemenuItemcatergoryconfig = (queryString) => {
+  return PUT(`/menuitems/updatemenuitemcategory?${queryString}`);
+}
+
+export const Updateallocatesupplier = (queryString) => {
+  return PUT(`/rawmaterial/updaterawmaterialsupplier?${queryString}`);
+}

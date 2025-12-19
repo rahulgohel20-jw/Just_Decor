@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddTheme from "./components/AddTheme";
+import { toAbsoluteUrl } from "@/utils";
+
 const ReportcustomeTheme = () => {
   const [showMore, setShowMore] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
@@ -13,14 +15,16 @@ const ReportcustomeTheme = () => {
   const navigate = useNavigate();
 
   const themes = [
-    { title: "Elegant – Wedding", img: "/JCX/images/report-theme1.png" },
-    { title: "Basic – Dark", img: "/JCX/images/report-theme2.png" },
-    { title: "Classic – Event", img: "/JCX/images/report-theme3.png" },
-    { title: "Outdoor – Elegant", img: "/JCX/images/report-theme1.png" },
-    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
-    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
+    {
+      title: "Elegant – Wedding",
+      img: "/JCX/images/report-theme1.png",
+      pdf: toAbsoluteUrl("/media/pdf/test.pdf"),
+    },
+    {
+      title: "Basic – Dark",
+      img: "/JCX/images/report-theme2.png",
+      pdf: toAbsoluteUrl("/media/pdf/test.pdf"),
+    },
   ];
 
   const allThemes = showMore ? [...themes, ...themes] : themes;
@@ -133,9 +137,10 @@ const ReportcustomeTheme = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  generatePDF(theme);
+                  setSelectedTheme(theme);
+                  setPdfUrl(theme.pdf);
                 }}
-                className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition"
+                className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] p-2 rounded-full shadow-md"
                 title="View PDF"
               >
                 <svg
