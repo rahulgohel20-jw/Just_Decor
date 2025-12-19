@@ -830,6 +830,7 @@ const LabourOtherManagementPage = () => {
 
         <AddVendor
           isModalOpen={isAddVendorOpen}
+          isModalClose={setIsAddVendorOpen}
           filterType="labour"
           setIsModalOpen={setIsAddVendorOpen}
           refreshData={() => {}}
