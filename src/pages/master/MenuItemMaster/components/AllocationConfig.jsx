@@ -27,33 +27,45 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   const [pendingEditValues, setPendingEditValues] = useState(null);
 
   useEffect(() => {
-    (async () => {
+    const loadOptions = async () => {
       try {
-        const [unitRes, contactRes, chefRes, insideRes] = await Promise.all([
-          getUnits(),
-          getContactCategory(),
-          getContactNames(5),
-          getContactNames(7),
-        ]);
-
+        const unitRes = await getUnits();
         setChefunit(
           unitRes?.data?.data?.["Unit Details"]?.map((i) => ({
             unitid: i.id,
             unitname: i.nameEnglish,
           })) || []
         );
+      } catch (e) {
+        console.error("getUnits failed", e);
+      }
+
+      try {
+        const contactRes = await getContactCategory();
         setContact(
           contactRes?.data?.data?.["Contact Category Details"]?.map((i) => ({
             contactid: i.id,
             contactName: i.nameEnglish,
           })) || []
         );
+      } catch (e) {
+        console.error("getContactCategory failed", e);
+      }
+
+      try {
+        const chefRes = await getContactNames(5);
         setChefNames(
           chefRes?.data?.data?.["Party Details"]?.map((i) => ({
             id: i.id,
             name: i.nameEnglish,
           })) || []
         );
+      } catch (e) {
+        console.error("getContactNames(5) failed", e);
+      }
+
+      try {
+        const insideRes = await getContactNames(7);
         setInsideCookNames(
           insideRes?.data?.data?.["Party Details"]?.map((i) => ({
             id: i.id,
@@ -61,8 +73,8 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
             number: i.mobileno,
           })) || []
         );
-      } catch {
-        message.error("Failed to load options");
+      } catch (e) {
+        console.error("getContactNames(7) failed", e);
       }
     })();
   }, [getUnits, getContactCategory, getContactNames]);

@@ -56,7 +56,6 @@ const AddCustomer = ({
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
