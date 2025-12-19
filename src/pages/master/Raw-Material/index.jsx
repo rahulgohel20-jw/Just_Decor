@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { columns, defaultData } from "./constant";
+import { columns } from "./constant";
 import {
   GetAllRawMaterial,
   Deleterawmaterial,
@@ -12,65 +12,77 @@ import {
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
 import Swal from "sweetalert2";
-import { FormattedMessage } from "react-intl";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
+
+const ITEMS_PER_PAGE = 100;
 
 const RawMaterial = () => {
   const classes = useStyle();
+  const intl = useIntl();
+
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
   const [selectedRawMaterial, setSelectedRawMaterial] = useState(null);
+
+  const [rawOriginalData, setRawOriginalData] = useState([]);
   const [allTableData, setAllTableData] = useState([]);
-  const [displayData, setDisplayData] = useState([]); // Added for drag & drop
+  const [displayData, setDisplayData] = useState([]);
+
+  const [categories, setCategories] = useState([]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [loading, setLoading] = useState(false);
-  const intl = useIntl();
-  const [rawOriginalData, setRawOriginalData] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [dragOverIndex, setDragOverIndex] = useState(null);
   const [generalFixFilter, setGeneralFixFilter] = useState(false);
 
-  let Id = localStorage.getItem("userId");
+  const [loading, setLoading] = useState(false);
 
-  // Fetch All Raw Materials
-  const FetchRawMaterial = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+
+  const userId = localStorage.getItem("userId");
+
+  /* -------------------- RESET PAGE ON FILTER CHANGE -------------------- */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter, generalFixFilter]);
+
+  /* -------------------- FETCH RAW MATERIALS -------------------- */
+  const FetchRawMaterial = (page = currentPage) => {
     setLoading(true);
-    GetAllRawMaterial(Id, 1, 10000)
+
+    GetAllRawMaterial(userId, page, ITEMS_PER_PAGE)
       .then((res) => {
-        const list = res.data.data["Raw Material Details"] || [];
-        setRawOriginalData(list);
-        console.log(`✅ Loaded ${list.length} raw materials`);
+        const data = res?.data?.data || {};
+        setRawOriginalData(data["Raw Material Details"] || []);
+        setTotalRecords(data.totalItems || 0); // ✅ FIXED
       })
-      .catch((error) => {
-        console.error("Error fetching raw materials:", error);
+      .catch(() => {
         setRawOriginalData([]);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   };
 
-  // Fetch Categories
+  /* -------------------- FETCH CATEGORIES -------------------- */
   const FetchCategories = () => {
-    GetRawMaterialcategory(Id)
+    GetRawMaterialcategory(userId)
       .then((res) => {
-        const list = res.data.data["Raw Material Category Details"] || [];
-        setCategories(list);
-        console.log(`✅ Loaded ${list.length} categories`);
+        setCategories(res?.data?.data?.["Raw Material Category Details"] || []);
       })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-        setCategories([]);
-      });
+      .catch(() => setCategories([]));
   };
 
   useEffect(() => {
-    FetchRawMaterial();
+    FetchRawMaterial(1);
     FetchCategories();
   }, []);
 
-  // Map raw data to table format
+  useEffect(() => {
+    FetchRawMaterial(currentPage);
+  }, [currentPage]);
+
+  /* -------------------- MAP RAW DATA -------------------- */
   useEffect(() => {
     const language = localStorage.getItem("lang");
     const languageMap = {
@@ -80,13 +92,12 @@ const RawMaterial = () => {
     };
     const field = languageMap[language] || "nameEnglish";
 
-    // Sort by sequence first
-    const sortedData = [...rawOriginalData].sort((a, b) => {
-      return (a.sequence || 0) - (b.sequence || 0);
-    });
+    const sortedData = [...rawOriginalData].sort(
+      (a, b) => (a.sequence || 0) - (b.sequence || 0)
+    );
 
     const mapped = sortedData.map((raw, index) => ({
-      sr_no: index + 1,
+      sr_no: (currentPage - 1) * ITEMS_PER_PAGE + index + 1, // ✅ FIX
       raw_material_id: raw.id,
       raw_material_cat_id: raw.rawMaterialCat?.id,
       raw_material_name: raw[field] || "-",
@@ -100,265 +111,109 @@ const RawMaterial = () => {
       weightPer100Pax: raw.weightPer100Pax,
       isGeneralFix: raw.isGeneralFix,
     }));
-    console.log(mapped);
 
     setAllTableData(mapped);
-  }, [rawOriginalData]);
+  }, [rawOriginalData, currentPage]);
 
-  // Client-side filtering
+  /* -------------------- FILTERING -------------------- */
   const filteredTableData = useMemo(() => {
-    let filtered = allTableData;
+    let data = allTableData;
 
     if (categoryFilter) {
-      filtered = filtered.filter(
-        (item) => item.raw_material_cat_id === parseInt(categoryFilter)
+      data = data.filter(
+        (i) => i.raw_material_cat_id === Number(categoryFilter)
       );
     }
 
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter((item) => {
-        return (
-          item.raw_material_name?.toLowerCase().includes(query) ||
-          item.raw_material_category?.toLowerCase().includes(query) ||
-          item.unit?.toLowerCase().includes(query) ||
-          String(item.rate)?.toLowerCase().includes(query)
-        );
-      });
-    }
-    if (generalFixFilter) {
-      filtered = filtered.filter((item) => item.isGeneralFix === true);
+      const q = searchQuery.toLowerCase();
+      data = data.filter(
+        (i) =>
+          i.raw_material_name?.toLowerCase().includes(q) ||
+          i.raw_material_category?.toLowerCase().includes(q) ||
+          i.unit?.toLowerCase().includes(q) ||
+          String(i.rate).includes(q)
+      );
     }
 
-    return filtered;
+    if (generalFixFilter) {
+      data = data.filter((i) => i.isGeneralFix);
+    }
+
+    return data;
   }, [allTableData, searchQuery, categoryFilter, generalFixFilter]);
 
-  // Sync displayData with filteredTableData
   useEffect(() => {
     setDisplayData(filteredTableData);
   }, [filteredTableData]);
 
-  // Drag & Drop Handlers
-  const handleDragStart = (e, index) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = "move";
-    e.currentTarget.style.opacity = "0.5";
+  /* -------------------- PAGINATION -------------------- */
+  console.log("total and items per page", totalRecords, ITEMS_PER_PAGE);
+
+  const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
+
+  /* -------------------- DRAG & DROP -------------------- */
+  const handleDrop = (_, dropIndex) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const reordered = [...displayData];
+    const [item] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dropIndex, 0, item);
+    setDisplayData(reordered);
+
+    UpdateSequence(
+      reordered.map((i, idx) => ({
+        rawMaterialCatId: i.raw_material_cat_id || 0,
+        rawMaterialId: i.raw_material_id,
+        sequence: idx + 1,
+      }))
+    ).catch(() => {
+      setDisplayData(filteredTableData);
+      Swal.fire("Error", "Sequence update failed", "error");
+    });
   };
 
-  const handleDragEnd = (e) => {
-    e.currentTarget.style.opacity = "1";
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDragOver = (e, index) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOverIndex(index);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (e, dropIndex) => {
-    e.preventDefault();
-
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      setDragOverIndex(null);
-      return;
-    }
-
-    const reorderedData = [...displayData];
-    const [draggedItem] = reorderedData.splice(draggedIndex, 1);
-    reorderedData.splice(dropIndex, 0, draggedItem);
-
-    // Optimistically update UI
-    setDisplayData(reorderedData);
-
-    // Update sequences
-    const updatePayload = reorderedData.map((item, index) => ({
-      rawMaterialCatId: item.raw_material_cat_id || 0,
-      rawMaterialId: item.raw_material_id,
-      sequence: index + 1,
-    }));
-
-    console.log("📦 Updating sequences:", updatePayload);
-
-    UpdateSequence(updatePayload)
-      .then((res) => {
-        FetchRawMaterial();
-      })
-      .catch((error) => {
-        console.error("❌ Error updating sequence:", error);
-        // Revert on error
-        setDisplayData(filteredTableData);
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to update sequence.",
-          icon: "error",
-        });
-      });
-
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const DeleteRawMaterial = (raw_material_id) => {
+  /* -------------------- ACTIONS -------------------- */
+  const DeleteRawMaterial = (id) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Deleterawmaterial(raw_material_id)
-          .then((response) => {
-            if (
-              response &&
-              (response.success || response.data.success === true)
-            ) {
-              FetchRawMaterial();
-              Swal.fire({
-                title: "Removed!",
-                text: "Raw material has been removed successfully.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-              });
-            } else {
-              throw new Error(response?.message || "API call failed");
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting raw material:", error);
-          });
+    }).then((res) => {
+      if (res.isConfirmed) {
+        Deleterawmaterial(id).then(FetchRawMaterial);
       }
     });
   };
 
-  const handleEdit = (raw_material_id) => {
-    setSelectedRawMaterial(raw_material_id);
-    setIsRawMaterialModalOpen(true);
-  };
+  const statusRaw = (id, status) =>
+    updateRawMaterialStatus(id, status).then(FetchRawMaterial);
 
-  const statusRaw = (raw_material_id, status) => {
-    updateRawMaterialStatus(raw_material_id, status)
-      .then((res) => {
-        FetchRawMaterial();
-      })
-      .catch((error) => {
-        console.error("Error status update:", error);
-      });
-  };
+  const tableColumns = columns(
+    (id) => {
+      setSelectedRawMaterial(id);
+      setIsRawMaterialModalOpen(true);
+    },
+    DeleteRawMaterial,
+    statusRaw
+  );
 
-  // Generate table columns
-  const tableColumns = columns(handleEdit, DeleteRawMaterial, statusRaw);
-
+  /* -------------------- RENDER -------------------- */
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.RAW_MATERIAL_MASTER"
-                    defaultMessage="Raw Material "
-                  />
-                ),
-              },
-            ]}
-          />
-        </div>
-
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
-            <div className="filItems relative">
-              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input
-                className="input pl-8"
-                placeholder={intl.formatMessage({
-                  id: "COMMON.RAW_MATERIAL_SEARCH",
-                  defaultMessage: "Raw Material Search...",
-                })}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <div className="filItems">
-              <select
-                className="select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">
-                  {intl.formatMessage({
-                    id: "COMMON.ALL_CATEGORIES",
-                    defaultMessage: "All Categories",
-                  })}
-                </option>
-                {categories.map((cat) => {
-                  const language = localStorage.getItem("lang");
-                  const languageMap = {
-                    en: "nameEnglish",
-                    hi: "nameHindi",
-                    gu: "nameGujarati",
-                  };
-                  const field = languageMap[language] || "nameEnglish";
-
-                  return (
-                    <option key={cat.id} value={cat.id}>
-                      {cat[field]}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <button
-              className={`btn ${generalFixFilter ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => {
-                setGeneralFixFilter(!generalFixFilter);
-                setSearchQuery("");
-                setCategoryFilter("");
-              }}
-            >
-              {generalFixFilter ? "Show All" : "General Fix"}
-            </button>
-
-            {(searchQuery || categoryFilter) && (
-              <span className="text-sm text-gray-600">
-                {displayData.length} of {allTableData.length} items
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setSelectedRawMaterial(null);
-                setIsRawMaterialModalOpen(true);
-              }}
-            >
-              <i className="ki-filled ki-plus"></i>
-              <FormattedMessage
-                id="COMMON.ADD_RAW_MATERIAL"
-                defaultMessage="Add Raw Material"
-              />
-            </button>
-          </div>
-        </div>
+        <Breadcrumbs
+          items={[
+            {
+              title: (
+                <FormattedMessage
+                  id="USER.MASTER.RAW_MATERIAL_MASTER"
+                  defaultMessage="Raw Material"
+                />
+              ),
+            },
+          ]}
+        />
 
         <AddRawMaterial
           isOpen={isRawMaterialModalOpen}
@@ -367,78 +222,73 @@ const RawMaterial = () => {
           rawmaterial={selectedRawMaterial}
         />
 
-        {/* Custom Table with Drag & Drop */}
-        <div className="card">
-          <div className="">
-            {loading ? (
-              <div className="flex justify-center items-center py-10">
-                <div className="spinner-border" role="status">
-                  <span className="sr-only">Loading...</span>
-                </div>
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th className="w-10">
-                        <i className="ki-filled ki-sort-vertical text-gray-500"></i>
-                      </th>
-                      {tableColumns.map((col, index) => (
-                        <th key={index}>{col.header}</th>
+        <div className="card mt-3">
+          {loading ? (
+            <div className="py-10 text-center">Loading...</div>
+          ) : (
+            <>
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th />
+                    {tableColumns.map((c, i) => (
+                      <th key={i}>{c.header}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayData.map((row, i) => (
+                    <tr
+                      key={row.raw_material_id}
+                      draggable
+                      onDragStart={() => setDraggedIndex(i)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => handleDrop(null, i)}
+                      className={`cursor-grab transition-all ${
+                        dragOverIndex === i ? "border-t-2 border-primary" : ""
+                      }`}
+                      style={{
+                        backgroundColor:
+                          draggedIndex === i ? "#f3f4f6" : "transparent",
+                      }}
+                    >
+                      <td className="text-center cursor-grab active:cursor-grabbing">
+                        ⋮⋮
+                      </td>
+                      {tableColumns.map((c, j) => (
+                        <td key={j}>
+                          {c.cell
+                            ? c.cell({ row: { original: row } })
+                            : row[c.accessorKey]}
+                        </td>
                       ))}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {displayData.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={tableColumns.length + 1}
-                          className="text-center py-10 text-gray-500"
-                        >
-                          No data available
-                        </td>
-                      </tr>
-                    ) : (
-                      displayData.map((row, rowIndex) => (
-                        <tr
-                          key={row.raw_material_id}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, rowIndex)}
-                          onDragEnd={handleDragEnd}
-                          onDragOver={(e) => handleDragOver(e, rowIndex)}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, rowIndex)}
-                          className={`cursor-grab transition-all ${
-                            dragOverIndex === rowIndex
-                              ? "border-t-2 border-primary"
-                              : ""
-                          }`}
-                          style={{
-                            backgroundColor:
-                              draggedIndex === rowIndex
-                                ? "#f3f4f6"
-                                : "transparent",
-                          }}
-                        >
-                          <td className="text-center cursor-grab active:cursor-grabbing">
-                            ⋮⋮
-                          </td>
-                          {tableColumns.map((col, colIndex) => (
-                            <td key={colIndex}>
-                              {col.cell
-                                ? col.cell({ row: { original: row } })
-                                : row[col.accessorKey]}
-                            </td>
-                          ))}
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="flex justify-end gap-2 p-3">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  className="py-1 px-3 rounded-lg bg-[#005BA8] text-white"
+                >
+                  Prev
+                </button>
+                <span className="text-sm flex align-center  items-center">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className="py-1 px-3 rounded-lg bg-[#005BA8] text-white"
+                >
+                  Next
+                </button>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </Container>
     </Fragment>

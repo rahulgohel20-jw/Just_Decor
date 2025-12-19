@@ -73,17 +73,12 @@ const AddTicketModal = ({
     }
   }, [isOpen]);
 
-  // Update the fetchCommentsByTicketId function
-  // Update the fetchCommentsByTicketId function
   const fetchCommentsByTicketId = async (ticketId) => {
     if (!ticketId) return;
 
     try {
       const response = await GetCommentsByTicketId(ticketId);
-      console.log("Raw API Response:", response);
-      console.log("Response data:", response?.data);
 
-      // Try multiple possible paths for the comments data
       let commentData =
         response?.data?.data?.["Ticket Comment Details"] ||
         response?.data?.data?.ticketComments ||
@@ -93,18 +88,11 @@ const AddTicketModal = ({
         response?.data ||
         [];
 
-      console.log("Extracted comment data:", commentData);
-
-      // Check if commentData is an array, if not, convert it or use empty array
       let commentsArray = [];
 
       if (Array.isArray(commentData)) {
         commentsArray = commentData;
       } else if (commentData && typeof commentData === "object") {
-        // If it's an object, try to find the array within it
-        console.log("Comment data is an object, trying to extract array...");
-
-        // Try common property names
         commentsArray =
           commentData["Ticket Comment Details"] ||
           commentData.ticketComments ||
@@ -112,10 +100,8 @@ const AddTicketModal = ({
           commentData.data ||
           [];
 
-        // If still not an array, convert object values to array
         if (!Array.isArray(commentsArray)) {
           const values = Object.values(commentData);
-          // Check if the first value is an array
           if (values.length > 0 && Array.isArray(values[0])) {
             commentsArray = values[0];
           } else {
@@ -124,35 +110,22 @@ const AddTicketModal = ({
         }
       }
 
-      console.log("Final comments array:", commentsArray);
-
-      // Ensure we have an array before mapping
-      // Update the fetchCommentsByTicketId function's mapping section
       if (Array.isArray(commentsArray) && commentsArray.length > 0) {
         const existingComments = commentsArray.map((comment) => {
-          console.log(
-            "Comment ID from API:",
-            comment.id,
-            "Type:",
-            typeof comment.id
-          ); // Debug log
-
           return {
-            id: comment.ticketCommentId || comment.id, // Ensure this is a number
+            id: comment.ticketCommentId || comment.id,
             comment: comment.comment,
             commentBy: comment.commentby || comment.commentBy || "User",
             createdAt:
               comment.createdat ||
               comment.createdAt ||
               new Date().toISOString(),
-            isNew: false, // Mark as existing comments
+            isNew: false,
             isEdited: false,
           };
         });
 
-        console.log("Mapped existing comments:", existingComments);
         setComments(existingComments);
-        console.log("Comments", comments);
       }
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -160,7 +133,7 @@ const AddTicketModal = ({
       setComments([]);
     }
   };
-  // Populate form when editing
+
   useEffect(() => {
     if (
       editMode &&
@@ -190,7 +163,6 @@ const AddTicketModal = ({
         setUploadedFilePath(ticketData.documentpath);
       }
 
-      // Load existing comments if available
       if (ticketData.id) {
         fetchCommentsByTicketId(ticketData.id);
       }
@@ -201,7 +173,6 @@ const AddTicketModal = ({
     try {
       const response = await Fetchmanager(1);
       const managerData = response?.data?.data?.["userDetails"] || [];
-      console.log("managers", managerData);
       setManagers(managerData);
 
       if (managerData.length > 0 && !formData.assignTo && !editMode) {
@@ -222,7 +193,6 @@ const AddTicketModal = ({
       const response = await GetAllInteraction();
       const interactionData =
         response?.data?.data?.["Interaction Details"] || [];
-      console.log("interaction", interactionData);
 
       const activeInteractions = interactionData.filter(
         (item) => item.isActive && !item.isDelete
@@ -268,7 +238,8 @@ const AddTicketModal = ({
     }
   };
 
-  const handleFileChange = async (e) => {
+  // ✅ Updated handleFileChange to store file object
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -280,51 +251,7 @@ const AddTicketModal = ({
     }
 
     setError(null);
-    setUploading(true);
-
-    try {
-      const uploadFormData = new FormData();
-      uploadFormData.append("file", file);
-
-      console.log("Uploading file:", file.name);
-
-      const response = await uploadFileformenu(uploadFormData, {
-        fileType: "document",
-        moduleId: 1,
-        moduleName: "ticket",
-      });
-
-      console.log("Upload response:", response);
-
-      const filePath =
-        response?.data?.data?.fullPath ||
-        response?.data?.fullPath ||
-        response?.data?.path ||
-        response?.fullPath ||
-        response?.path ||
-        "";
-
-      if (filePath) {
-        setUploadedFilePath(filePath);
-        setSelectedFile(file);
-        console.log("File uploaded successfully. Path:", filePath);
-      } else {
-        throw new Error("No file path returned from server");
-      }
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.msg ||
-        err.message ||
-        "Failed to upload file";
-      setError(errorMessage);
-      setSelectedFile(null);
-      setUploadedFilePath("");
-      e.target.value = "";
-    } finally {
-      setUploading(false);
-    }
+    setSelectedFile(file);
   };
 
   const handleRemoveFile = () => {
@@ -334,23 +261,21 @@ const AddTicketModal = ({
     if (fileInput) fileInput.value = "";
   };
 
-  // Add new comment to the list
   const handleAddComment = () => {
     if (!formData.comment.trim()) return;
 
     const newComment = {
-      id: Date.now(), // Temporary ID
+      id: Date.now(),
       comment: formData.comment.trim(),
       commentBy: formData.createdBy || "Admin",
       createdAt: new Date().toISOString(),
-      isNew: true, // Flag to identify new comments
+      isNew: true,
     };
 
     setComments((prev) => [...prev, newComment]);
     setFormData((prev) => ({ ...prev, comment: "" }));
   };
 
-  // Edit comment
   const handleEditComment = (commentId) => {
     const comment = comments.find((c) => c.id === commentId);
     if (comment) {
@@ -359,7 +284,6 @@ const AddTicketModal = ({
     }
   };
 
-  // Save edited comment
   const handleSaveEdit = async (commentId) => {
     if (!editingCommentText.trim()) {
       setCommentError("Comment cannot be empty");
@@ -368,7 +292,6 @@ const AddTicketModal = ({
 
     const comment = comments.find((c) => c.id === commentId);
 
-    // Update local state first
     setComments((prev) =>
       prev.map((c) =>
         c.id === commentId
@@ -381,7 +304,6 @@ const AddTicketModal = ({
     setEditingCommentText("");
     setCommentError(null);
 
-    // If this is an existing comment (not new), call API to update
     if (comment && !comment.isNew && ticketData?.id) {
       try {
         const updatePayload = {
@@ -392,9 +314,7 @@ const AddTicketModal = ({
         };
 
         await EditComment(commentId, updatePayload);
-        console.log("Comment updated successfully");
 
-        // Refresh comments from server to ensure sync
         await fetchCommentsByTicketId(ticketData.id);
 
         Swal.fire({
@@ -420,7 +340,6 @@ const AddTicketModal = ({
           text: errorMessage,
         });
 
-        // Revert local state on error
         setComments((prev) =>
           prev.map((c) =>
             c.id === commentId
@@ -432,18 +351,12 @@ const AddTicketModal = ({
     }
   };
 
-  // Cancel edit
   const handleCancelEdit = () => {
     setEditingCommentId(null);
     setEditingCommentText("");
   };
 
-  // Delete comment
-  // Update the handleDeleteComment function
   const handleDeleteComment = async (commentId) => {
-    // Validate commentId
-    console.log("id", commentId);
-
     if (!commentId || commentId === "undefined") {
       setCommentError("Invalid comment ID");
       return;
@@ -460,7 +373,6 @@ const AddTicketModal = ({
     });
 
     if (result.isConfirmed) {
-      // Find the comment before removing it from state
       const comment = comments.find((c) => c.id === commentId);
 
       if (!comment) {
@@ -468,7 +380,6 @@ const AddTicketModal = ({
         return;
       }
 
-      // If this is a new comment (not saved to DB yet), just remove from state
       if (comment.isNew) {
         setComments((prev) => prev.filter((c) => c.id !== commentId));
 
@@ -482,10 +393,8 @@ const AddTicketModal = ({
         return;
       }
 
-      // For existing comments (saved in DB), call API to delete
       if (ticketData?.id) {
         try {
-          // Show loading state
           Swal.fire({
             title: "Deleting...",
             text: "Please wait while we delete the comment",
@@ -495,13 +404,10 @@ const AddTicketModal = ({
             },
           });
 
-          // Call delete comment API with numeric ID
           await DeleteComment(Number(commentId));
 
-          // Remove from local state after successful deletion
           setComments((prev) => prev.filter((c) => c.id !== commentId));
 
-          // Refresh comments from server to ensure sync
           if (editMode && ticketData.id) {
             await fetchCommentsByTicketId(ticketData.id);
           }
@@ -533,7 +439,6 @@ const AddTicketModal = ({
     }
   };
 
-  // Format date for display
   const formatCommentDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -551,13 +456,14 @@ const AddTicketModal = ({
     return date.toLocaleDateString();
   };
 
+  // ✅ Updated handleSubmit to use FormData
   const handleSubmit = async () => {
     if (!formData.interaction) {
       setError("Please select an interaction");
       return;
     }
     if (!formData.clientmsg) {
-      setError("Please enter  Client Message");
+      setError("Please enter Client Message");
       return;
     }
     if (!formData.usermsg) {
@@ -578,32 +484,52 @@ const AddTicketModal = ({
     setCommentError(null);
 
     try {
-      const payload = {
-        actualclosedate: formatToDDMMYYYY(formData.actualCloseDate),
-        assigntoname: formData.assignTo,
-        assigntouserid: formData.assignToUserId,
-        clientmsg: formData.clientmsg,
-        usermsg: formData.usermsg,
-        documentpath: uploadedFilePath || "",
-        expactedclosedate: formatToDDMMYYYY(formData.expectedCloseDate),
-        interactionid: formData.interactionId,
-        interactionname: formData.interaction,
-        interactiontype:
-          interactions.find((i) => i.id === formData.interactionId)
-            ?.interactiontype || "",
-        status: formData.status,
-        ticketfrom: formData.ticketFrom,
-        userid: formData.userId,
-      };
+      // ✅ Create FormData object
+      const formDataObj = new FormData();
 
-      console.log("Submitting payload:", payload);
+      // ✅ Append all text fields
+      formDataObj.append(
+        "actualclosedate",
+        formatToDDMMYYYY(formData.actualCloseDate)
+      );
+      formDataObj.append("assigntoname", formData.assignTo);
+      formDataObj.append("assigntouserid", formData.assignToUserId);
+      formDataObj.append("clientmsg", formData.clientmsg);
+      formDataObj.append("usermsg", formData.usermsg);
+      formDataObj.append(
+        "expactedclosedate",
+        formatToDDMMYYYY(formData.expectedCloseDate)
+      );
+      formDataObj.append("interactionid", formData.interactionId);
+      formDataObj.append("interactionname", formData.interaction);
+      formDataObj.append(
+        "interactiontype",
+        interactions.find((i) => i.id === formData.interactionId)
+          ?.interactiontype || ""
+      );
+      formDataObj.append("status", formData.status);
+      formDataObj.append("ticketfrom", formData.ticketFrom);
+      formDataObj.append("userid", formData.userId);
+
+      // ✅ Append file if selected
+      if (selectedFile) {
+        formDataObj.append("file", selectedFile);
+      } else if (uploadedFilePath) {
+        // If there's an existing file path (edit mode), include it
+        formDataObj.append("documentpath", uploadedFilePath);
+      }
+
+      // Debug: Log FormData contents
+      for (let pair of formDataObj.entries()) {
+        if (pair[1] instanceof File) {
+        } else {
+        }
+      }
 
       let response;
       if (editMode && ticketData) {
-        response = await EditTicket(ticketData.id, payload);
-        console.log("Ticket updated successfully:", response);
+        response = await EditTicket(ticketData.id, formDataObj);
 
-        // Add all new comments (UPDATED)
         const newComments = comments.filter((c) => c.isNew);
         if (newComments.length > 0) {
           for (const comment of newComments) {
@@ -615,7 +541,6 @@ const AddTicketModal = ({
                 ticketId: ticketData.id,
               };
               await AddComments(commentPayload);
-              console.log("Comment added:", commentPayload);
             } catch (commentErr) {
               console.error("Error adding comment:", commentErr);
               setCommentError("Some comments failed to add");
@@ -626,20 +551,18 @@ const AddTicketModal = ({
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: `Ticket updated successfully${newComments.length > 0 ? ` with ${newComments.length} comment(s)` : ""}`,
+          text: `Ticket Updated successfully`,
           timer: 2000,
           showConfirmButton: false,
         });
       } else {
-        response = await AddTickets(payload);
-        console.log("Ticket created successfully:", response);
+        response = await AddTickets(formDataObj);
 
         const ticketId =
           response?.data?.data?.ticket?.id ||
           response?.data?.data?.id ||
           response?.data?.id;
 
-        // Add all comments if ticketId is available (UPDATED)
         if (ticketId && comments.length > 0) {
           let successCount = 0;
           let failCount = 0;
@@ -653,7 +576,6 @@ const AddTicketModal = ({
               };
               await AddComments(commentPayload);
               successCount++;
-              console.log("Comment added:", commentPayload);
             } catch (commentErr) {
               failCount++;
               console.error("Error adding comment:", commentErr);
@@ -670,7 +592,7 @@ const AddTicketModal = ({
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: `Ticket created successfully${comments.length > 0 ? ` with ${comments.length} comment(s)` : ""}`,
+          text: `Ticket Created successfully`,
           timer: 2000,
           showConfirmButton: false,
         });
@@ -1004,7 +926,7 @@ const AddTicketModal = ({
                 Upload Document
               </label>
 
-              {!selectedFile ? (
+              {!selectedFile && !uploadedFilePath ? (
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
                   <input
                     type="file"
@@ -1018,36 +940,25 @@ const AddTicketModal = ({
                     htmlFor="fileUpload"
                     className={`cursor-pointer flex flex-col items-center ${uploading ? "opacity-50 pointer-events-none" : ""}`}
                   >
-                    {uploading ? (
-                      <>
-                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                        <span className="text-sm text-gray-600 mb-1">
-                          Uploading file...
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-12 h-12 text-gray-400 mb-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                          />
-                        </svg>
-                        <span className="text-sm text-gray-600 mb-1">
-                          Click to upload or drag and drop
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          PDF, DOC, DOCX, JPG, PNG, XLSX (MAX. 5MB)
-                        </span>
-                      </>
-                    )}
+                    <svg
+                      className="w-12 h-12 text-gray-400 mb-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <span className="text-sm text-gray-600 mb-1">
+                      Click to upload or drag and drop
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      PDF, DOC, DOCX, JPG, PNG, XLSX (MAX. 5MB)
+                    </span>
                   </label>
                 </div>
               ) : (
@@ -1071,11 +982,14 @@ const AddTicketModal = ({
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-800">
-                          {selectedFile.name}
+                          {selectedFile
+                            ? selectedFile.name
+                            : uploadedFilePath.split("/").pop()}
                         </p>
                         <p className="text-xs text-green-600">
-                          {formatFileSize(selectedFile.size)} • Uploaded
-                          successfully
+                          {selectedFile
+                            ? `${formatFileSize(selectedFile.size)} • Selected`
+                            : "Existing file"}
                         </p>
                       </div>
                     </div>
@@ -1191,7 +1105,6 @@ const AddTicketModal = ({
                               </span>
                             )}
                           </div>
-                          {/* Only show edit/delete for new comments or if user has permission */}
                           {(comment.isNew ||
                             comment.commentBy === formData.createdBy) && (
                             <div className="flex items-center gap-1 flex-shrink-0">
