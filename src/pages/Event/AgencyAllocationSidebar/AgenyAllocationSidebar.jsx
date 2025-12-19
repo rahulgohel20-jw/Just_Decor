@@ -125,11 +125,11 @@ export default function AgencyAllocationSidebar({
 
     switch (tab) {
       case "chef":
-        return <ChefLabourSection data={allocationData} />;
+        return <ChefLabourSection data={allocationData} close={onClose} />;
       case "outside":
-        return <OutsideAgencySection data={allocationData} />;
+        return <OutsideAgencySection data={allocationData} close={onClose} />;
       case "inside":
-        return <InHouseCookSection data={allocationData} />;
+        return <InHouseCookSection data={allocationData} close={onClose} />;
       default:
         return null;
     }
@@ -217,24 +217,6 @@ export default function AgencyAllocationSidebar({
             {/* Content */}
             <div className="flex-1 overflow-auto bg-gray-50">
               {renderSection}
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 px-6 py-4 border-t bg-white">
-              <button
-                className="btn btn-danger"
-                onClick={onClose}
-                aria-label="Cancel"
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                disabled={loading || !allocationData}
-                aria-label="Save changes"
-              >
-                Save
-              </button>
             </div>
           </motion.div>
         </div>

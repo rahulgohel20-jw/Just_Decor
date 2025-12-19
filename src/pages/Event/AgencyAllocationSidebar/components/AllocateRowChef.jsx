@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import BaseSelect from "../ui/BaseSelect";
 import BaseInput from "../ui/BaseInput";
+import Swal from "sweetalert2";
 import { OutsideContactName } from "@/services/apiServices";
 
 export default function AllocateRowChef({ onAllocate }) {
@@ -23,6 +24,12 @@ export default function AllocateRowChef({ onAllocate }) {
       setVendors(data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load vendors",
+        icon: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -30,41 +37,60 @@ export default function AllocateRowChef({ onAllocate }) {
 
   const handleAllocate = () => {
     if (!selectedVendor) {
-      alert("Please select a vendor");
+      Swal.fire({
+        title: "Missing Agency",
+        text: "Please select an agency",
+        icon: "warning",
+      });
       return;
     }
 
     if (!serviceType) {
-      alert("Please select a service type");
+      Swal.fire({
+        title: "Missing Service Type",
+        text: "Please select a service type",
+        icon: "warning",
+      });
       return;
     }
 
     if (!pax || pax <= 0) {
-      alert("Please enter a valid pax value");
+      Swal.fire({
+        title: "Invalid Pax",
+        text: "Please enter a valid pax value",
+        icon: "warning",
+      });
       return;
     }
 
-    // Get selected vendor details
     const vendor = vendors.find((v) => String(v.id) === String(selectedVendor));
 
     if (!vendor) {
-      alert("Selected vendor not found");
+      Swal.fire({
+        title: "Error",
+        text: "Selected agency not found",
+        icon: "error",
+      });
       return;
     }
 
-    const vendorNumber = vendor.mobileno || "";
-
-    // Call the parent function to allocate
     const success = onAllocate({
       partyId: vendor.id,
       partyName: vendor.nameEnglish || "",
-      number: vendorNumber,
-      pax: pax,
-      serviceType: serviceType,
+      number: vendor.mobileno || "",
+      pax,
+      serviceType,
     });
 
-    // Reset fields if successful
     if (success) {
+      Swal.fire({
+        title: "Allocated",
+        text: "Agency allocated successfully",
+        icon: "success",
+        timer: 1500,
+        buttons: false,
+      });
+
       setSelectedVendor("");
       setPax("");
       setServiceType("");

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import BaseInput from "../ui/BaseInput";
 import BaseSelect from "../ui/BaseSelect";
-import { OutsideContactName } from "@/services/apiServices";
+import { OutsideContactName, GetUnitData } from "@/services/apiServices";
 
 export default function ChefLabourTable({
   menuItems,
@@ -11,10 +11,21 @@ export default function ChefLabourTable({
 }) {
   const [vendors, setVendors] = useState([]);
   const [loadingVendors, setLoadingVendors] = useState(false);
-
+  const [unit, setUnit] = useState([]);
   useEffect(() => {
     fetchVendor();
+    fetchUnit();
   }, []);
+
+  const fetchUnit = async () => {
+    try {
+      const data = await GetUnitData(localStorage.getItem("userId"));
+      const unitData = data?.data?.data["Unit Details"] || [];
+      setUnit(unitData);
+    } catch {
+      console.log("error ", error);
+    }
+  };
 
   const fetchVendor = async () => {
     try {
@@ -313,21 +324,36 @@ export default function ChefLabourTable({
                             <td className="p-2">
                               <BaseSelect
                                 value={allocation.unitId || ""}
-                                onChange={(e) =>
-                                  handleAllocationChange(
-                                    menuIndex,
-                                    allocationIndex,
-                                    "unitId",
-                                    e.target.value
-                                  )
-                                }
+                                onChange={(e) => {
+                                  const selectedUnit = unit.find(
+                                    (u) =>
+                                      String(u.id) === String(e.target.value)
+                                  );
+
+                                  const menuItem = menuItems[menuIndex];
+                                  const updatedAllocations = [
+                                    ...menuItem.eventFunctionMenuAllocations,
+                                  ];
+
+                                  updatedAllocations[allocationIndex] = {
+                                    ...updatedAllocations[allocationIndex],
+                                    unitId: selectedUnit?.id || "",
+                                    unitName: selectedUnit?.nameEnglish || "",
+                                  };
+
+                                  onUpdate(menuIndex, {
+                                    ...menuItem,
+                                    eventFunctionMenuAllocations:
+                                      updatedAllocations,
+                                  });
+                                }}
                               >
-                                <option value="">Unit</option>
-                                {allocation.unitName && (
-                                  <option value={allocation.unitId}>
-                                    {allocation.unitName}
+                                <option value="">Select Unit</option>
+                                {unit.map((u) => (
+                                  <option key={u.id} value={u.id}>
+                                    {u.nameEnglish}
                                   </option>
-                                )}
+                                ))}
                               </BaseSelect>
                             </td>
                             <td className="p-2">

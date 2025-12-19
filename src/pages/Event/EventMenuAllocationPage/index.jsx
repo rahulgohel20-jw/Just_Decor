@@ -1606,7 +1606,13 @@ const EventMenuAllocationPage = () => {
         />
         <AgencyAllocationSidebar
           open={isAgencyAllocationModal}
-          onClose={() => setIsAgencyAllocationModal(false)}
+          onClose={() => {
+            setIsAgencyAllocationModal(false);
+
+            if (activeFunction?.id) {
+              fetchMenuAllocation(activeFunction.id);
+            }
+          }}
           eventId={eventId}
           eventFunctionId={activeFunction?.id}
         />
