@@ -25,7 +25,6 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   const [insideCookNames, setInsideCookNames] = useState([]);
   const [concatId, setConcatId] = useState(null);
   const [pendingEditValues, setPendingEditValues] = useState(null);
-
   useEffect(() => {
     const loadOptions = async () => {
       try {
@@ -76,7 +75,9 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       } catch (e) {
         console.error("getContactNames(7) failed", e);
       }
-    })();
+    };
+
+    loadOptions();
   }, [getUnits, getContactCategory, getContactNames]);
 
   const fetchChefcontactname = async (catTypeId) => {
