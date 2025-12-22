@@ -145,7 +145,7 @@ const AddFunctionType = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_FUNCTION"
-                defaultMessage="New Function"
+                defaultMessage="Create New Function"
               />
             )}
           </h2>

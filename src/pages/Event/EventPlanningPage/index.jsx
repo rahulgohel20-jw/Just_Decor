@@ -696,9 +696,6 @@ const EventPlanningPage = () => {
     setSelectedCategoryId(categoryId);
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
   const openItemNotesModal = (itemId) => {
     // Find the item in categories to get its itemSlogan
     const bucket = selectedByFunction[selectedFunction];
@@ -826,6 +823,16 @@ const EventPlanningPage = () => {
               {/* ONLY FOR THIS SCREEN */}
               <div className="flex gap-2">
                 <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                  onClick={() => setEditPax(true)}
+                >
+                  <i
+                    className="ki-filled ki-user "
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  Edit Person
+                </button>
+                <button
                   onClick={() => navigate(`/menu-allocation/${eventId}`)}
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 >
@@ -833,7 +840,7 @@ const EventPlanningPage = () => {
                     className="ki-filled ki-menu "
                     style={{ color: "white" }}
                   ></i>{" "}
-                  3. Menu Allocation
+                  3. Menu Execution
                 </button>
 
                 <button
@@ -851,7 +858,7 @@ const EventPlanningPage = () => {
                     className="ki-filled ki-gift"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  4. Raw Material Allocation
+                  4. Raw Material Distribution
                 </button>
 
                 <button
@@ -865,16 +872,6 @@ const EventPlanningPage = () => {
                     style={{ color: "white" }}
                   ></i>{" "}
                   5. Agency Distribution
-                </button>
-                <button
-                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
-                  onClick={() => setEditPax(true)}
-                >
-                  <i
-                    className="ki-filled ki-user "
-                    style={{ color: "white" }}
-                  ></i>{" "}
-                  Edit Pax
                 </button>
               </div>
             </div>
@@ -1042,7 +1039,7 @@ const EventPlanningPage = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 p-2 border rounded bg-gray-200">
+            <div className="flex flex-wrap items-center  gap-2 p-2 border rounded bg-gray-200">
               <div className="flex gap-2">
                 {/* CUSTOM BUTTON */}
                 <button
@@ -1059,7 +1056,7 @@ const EventPlanningPage = () => {
                     }));
                   }}
                 >
-                  Custom
+                  A La Carte
                 </button>
 
                 {/* CUSTOM PACKAGE BUTTON */}
@@ -1071,19 +1068,19 @@ const EventPlanningPage = () => {
                   }`}
                   onClick={() => setShowCustomPackageModal(true)}
                 >
-                  Custom package
+                  Menu Package
+                </button>
+                <button
+                  className="btn bg-success text-white text-sm px-3 py-1 "
+                  onClick={() => {
+                    setMenuReportEventId(eventId);
+                    setIsSelectMenuReport(true);
+                  }}
+                >
+                  Report
                 </button>
               </div>
 
-              <button
-                className="btn bg-success text-white text-sm px-3 py-1"
-                onClick={() => {
-                  setMenuReportEventId(eventId);
-                  setIsSelectMenuReport(true);
-                }}
-              >
-                Report
-              </button>
               {packageAppliedForFunction[selectedFunction] &&
                 selectedPkgInfo && (
                   <div className="flex w-full  bg-blue-50 border border-blue-300 rounded-lg p-2 justify-between">
@@ -1223,15 +1220,15 @@ const EventPlanningPage = () => {
 
         {/* Sticky Footer */}
         <div className="bg-white">
-          <div className="flex items-center justify-between px-2 py-3">
-            <button
+          <div className="flex items-center justify-end px-2 py-3">
+            {/* <button
               type="button"
               onClick={handleCancel}
               disabled={isSaving}
               className="btn bg-white border border-gray-300 text-gray-700 ml-2 px-6 py-2 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
-            </button>
+            </button> */}
 
             <button
               type="button"

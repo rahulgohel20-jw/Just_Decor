@@ -134,7 +134,7 @@ const AddEventType = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.ADD_EVENT_TYPE"
-                defaultMessage="New Event"
+                defaultMessage="Create New Event"
               />
             )}
           </h2>

@@ -75,7 +75,7 @@ const AccountUserProfilePage = () => {
           accountId: user.userCode || "ID-45453423",
           language: "English",
           roleName: user.userBasicDetails?.role?.name || "",
-          image: user.profileImage || profileData.image,
+          image: user.logo || profileData.image,
         });
       }
     } catch (error) {
@@ -106,40 +106,17 @@ const AccountUserProfilePage = () => {
   const handleFileUpload = async (file) => {
     if (!file) return;
 
-    // Validate file type
-    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
-    if (!validTypes.includes(file.type)) {
-      message.error(
-        "Please upload a valid image file (JPEG, JPG, PNG, or GIF)"
-      );
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      message.error("File size should not exceed 5MB");
-      return;
-    }
-
     setIsUploading(true);
 
     try {
-      // Create FormData
       const formData = new FormData();
-      formData.append("file", file);
 
-      const fileType = file.type.split("/")[1];
-
-      // Build URL with query parameters
-      const params = new URLSearchParams({
-        fileType: fileType,
-        moduleId: userMasterId.toString(),
-        moduleName: "userlogo",
-      });
-
-      // Make the API call with query parameters in URL
-      const response = await uploadProfileImage(formData, params.toString());
+      formData.append("file", file, file.name);
+      formData.append("fileType", "IMAGE");
+      formData.append("moduleRecordId", userMasterId);
+      formData.append("moduleName", "userlogo");
+      formData.append("userId", userMasterId);
+      const response = await uploadProfileImage(formData);
 
       if (response?.data?.success) {
         const uploadedImageUrl =
@@ -147,27 +124,18 @@ const AccountUserProfilePage = () => {
           response.data.data?.fileUrl ||
           response.data.data?.url;
 
-        // Update profile data with the uploaded image URL
         setProfileData((prev) => ({
           ...prev,
           image: uploadedImageUrl,
         }));
-        console.log("ImageUrl", uploadedImageUrl);
 
-        message.success(
-          response.data.msg || "Profile image uploaded successfully!"
-        );
+        message.success("Profile image uploaded successfully!");
         setRefreshKey((prev) => prev + 1);
       } else {
-        throw new Error(
-          response?.data?.msg || response?.data?.message || "Upload failed"
-        );
+        throw new Error("Upload failed");
       }
     } catch (error) {
-      console.error("Failed to upload image:", error);
-      message.error(
-        error.message || "Failed to upload image. Please try again."
-      );
+      message.error("Failed to upload image");
     } finally {
       setIsUploading(false);
     }
@@ -208,7 +176,8 @@ const AccountUserProfilePage = () => {
                   <img
                     className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow"
                     src={
-                      profileData.image || toAbsoluteUrl("/images/user_img.jpg")
+                      profileData.image ||
+                      toAbsoluteUrl("/media/menu/noImage.jpg")
                     }
                     alt="profile"
                   />

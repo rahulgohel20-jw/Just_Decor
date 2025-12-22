@@ -219,7 +219,7 @@ const VendorMaster = () => {
             <i className="ki-filled ki-plus"></i>{" "}
             <FormattedMessage
               id="USER.MASTER.ADD_CUSTOMER"
-              defaultMessage="Add Vendor"
+              defaultMessage="Create New"
             />
           </button>
         </div>

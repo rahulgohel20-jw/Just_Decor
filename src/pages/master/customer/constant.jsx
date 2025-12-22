@@ -6,13 +6,15 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
     accessorKey: "sr_no",
     header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No" />,
     meta: {
-      headerClassName: "w-[4%]",
-      cellClassName: "w-[4%]",
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
     },
   },
   {
     accessorKey: "customer",
-    header: <FormattedMessage id="USER.MASTER.CUSTOMER_NAME" defaultMessage="Customer Name" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.CUSTOMER_NAME" defaultMessage=" Name" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -20,7 +22,9 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
   },
   {
     accessorKey: "address",
-    header: <FormattedMessage id="USER.MASTER.ADDRESS" defaultMessage="Address" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.ADDRESS" defaultMessage="Address" />
+    ),
     meta: {
       headerClassName: "w-[10%]",
       cellClassName: "w-[10%]",
@@ -28,7 +32,12 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
   },
   {
     accessorKey: "contact_type",
-    header: <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY" defaultMessage="Contact Category" />,
+    header: (
+      <FormattedMessage
+        id="USER.MASTER.CONTACT_CATEGORY"
+        defaultMessage=" Categories"
+      />
+    ),
     meta: {
       headerClassName: "w-[18%]",
       cellClassName: "w-[18%]",
@@ -44,7 +53,9 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
   },
   {
     accessorKey: "mobile",
-    header: <FormattedMessage id="USER.MASTER.MOBILE_NO" defaultMessage="Mobile No" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.MOBILE_NO" defaultMessage="Mobile No" />
+    ),
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",
@@ -52,7 +63,9 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
   },
   {
     accessorKey: "gst",
-    header: <FormattedMessage id="USER.MASTER.GST_NO" defaultMessage="GST No" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.GST_NO" defaultMessage="GST No" />
+    ),
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",
@@ -61,7 +74,9 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
 
   {
     accessorKey: "birthdate",
-    header: <FormattedMessage id="USER.MASTER.BIRTHDATE" defaultMessage="Birthdate" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.BIRTHDATE" defaultMessage="Birthdate" />
+    ),
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",
@@ -69,7 +84,9 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
   },
   {
     accessorKey: "document",
-    header: <FormattedMessage id="USER.MASTER.DOCUMENT" defaultMessage="Document" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.DOCUMENT" defaultMessage="Document" />
+    ),
     meta: {
       headerClassName: "w-[12%]",
       cellClassName: "w-[12%]",

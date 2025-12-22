@@ -245,7 +245,7 @@ const CustomerMaster = () => {
             <i className="ki-filled ki-plus"></i>{" "}
             <FormattedMessage
               id="USER.MASTER.ADD_CUSTOMER"
-              defaultMessage="Add Customer"
+              defaultMessage="Create New"
             />
           </button>
         </div>

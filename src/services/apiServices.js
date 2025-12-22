@@ -595,8 +595,8 @@ export const uploadFileformenu = (formData) => {
 };
 
 //upload Image
-export const uploadProfileImage = (data, queryParams) => {
-  return UPLOAD(`/file/uploadfile?${queryParams}`, data);
+export const uploadProfileImage = (data) => {
+  return PUT(`/fileupload/upload-file`, data);
 };
 
 //getmenuitem

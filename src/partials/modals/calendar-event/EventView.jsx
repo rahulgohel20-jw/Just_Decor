@@ -224,7 +224,7 @@ const EventViewModal = ({
         title={
           <FormattedMessage
             id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_TITLE"
-            defaultMessage="Event View"
+            defaultMessage="Event Details"
           />
         }
         className="calendar-event-modal "
@@ -233,10 +233,10 @@ const EventViewModal = ({
         <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="col-span-1 flex flex-col gap-6 mb-1">
             <div className="bg-white p-4 rounded-xl shadow">
-              <p className="text-gray-600">
+              <p className="text-gray-600 font-larger">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_NAME"
-                  defaultMessage="Event Details"
+                  defaultMessage="Client Name"
                 />
               </p>
               <h3 className="font-semibold text-base mb-2">
@@ -337,7 +337,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_PREPARATION"
-                    defaultMessage="Menu Preparation"
+                    defaultMessage="Menu Planning"
                   />
                 ),
                 icon: "/media/eventviewicon/menuprep.png",
@@ -347,7 +347,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_ALLOCATION"
-                    defaultMessage="Menu Allocation"
+                    defaultMessage="Menu Execution"
                   />
                 ),
                 icon: "/media/eventviewicon/menuallocation.png",
@@ -357,7 +357,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_RAW_MATERIAL_ALLOCATION"
-                    defaultMessage="Raw Material Allocation"
+                    defaultMessage="Raw Material Distribution"
                   />
                 ),
                 icon: "/media/eventviewicon/rawmaterial.png",
@@ -373,7 +373,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_LABOUR_OTHER_MANAGEMENT"
-                    defaultMessage="Labour / Other Management"
+                    defaultMessage="Labour Agency Order"
                   />
                 ),
                 icon: "/media/eventviewicon/labour.png",
@@ -384,7 +384,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_DISH_COSTING"
-                    defaultMessage="Dish Costing"
+                    defaultMessage="Per Dish Costing"
                   />
                 ),
                 icon: "/media/eventviewicon/dishcost.png",
@@ -394,7 +394,7 @@ const EventViewModal = ({
                 label: (
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_MENU_REPORT"
-                    defaultMessage="Menu Report"
+                    defaultMessage="Events Report"
                   />
                 ),
                 icon: "/media/eventviewicon/menureport.png",
@@ -455,7 +455,7 @@ const EventViewModal = ({
                     className="w-10 h-10"
                   />
                 </div>
-                <p className="font-medium text-gray-800 text-center">
+                <p className="font-large text-gray font-bold text-center">
                   {item.label}
                 </p>
               </div>

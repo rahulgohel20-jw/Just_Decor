@@ -534,7 +534,7 @@ const AddInvoicePage = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Invoice" }]} />
+          <Breadcrumbs items={[{ title: "Tax Invoice" }]} />
         </div>
 
         <div className="flex flex-col bg-gray-100 rounded mb-7">
@@ -546,47 +546,47 @@ const AddInvoicePage = () => {
                     Event Name:{" "}
                     {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
                   </p>
-                  <div className="flex items-center gap-7">
-                    <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-user text-success"></i>
+                  <div className="flex items-center gap-14">
+                    <div className="flex items-center gap-6">
+                      <i className="ki-filled ki-user text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Party name:</span>
+                        <span className="text-sm">Party name:</span>
                         <span className="text-sm font-medium text-gray-900">
                           {invoiceData?.event?.party?.nameEnglish || "N/A"}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-geolocation-home text-success"></i>
+                      <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Venue name:</span>
+                        <span className="text-sm">Venue name:</span>
                         <span className="text-sm font-medium text-gray-900">
                           {invoiceData?.event?.venue.nameEnglish || "N/A"}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Invoice Date:</span>
+                        <span className="text-sm">Invoice Date:</span>
                         <span className="text-sm font-medium text-gray-900">
                           {formatDate(invoiceData?.createdAt)}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Event Date:</span>
+                        <span className="text-sm">Event Date:</span>
                         <span className="text-sm font-medium text-gray-900">
                           {formatDate(invoiceData?.event?.inquiryDate)}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success"></i>
+                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Due Date:</span>
+                        <span className="text-sm">Due Date:</span>
                         <DatePicker
                           format="DD/MM/YYYY"
                           className="input w-full"
@@ -619,7 +619,7 @@ const AddInvoicePage = () => {
                 {/* Billing Address */}
                 <div className="border-r p-4 rounded">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Billing Address
+                    Catering Details:
                     {editStates.billingAddress ? (
                       <>
                         <Tooltip title="Save">
@@ -670,7 +670,7 @@ const AddInvoicePage = () => {
                 {/* Shipping Address */}
                 <div className="p-4">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Shipping Address
+                    Billing To:
                     {editStates.shippingAddress ? (
                       <>
                         <Tooltip title="Save">

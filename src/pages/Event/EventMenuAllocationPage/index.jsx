@@ -168,11 +168,11 @@ const TableHeader = () => (
     </div>
     <div className="col-span-1 text-center">
       {" "}
-      <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outside" />
+      <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
     </div>
     <div className="col-span-2 text-center">
       {" "}
-      <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside" />
+      <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
     </div>
     <div className="col-span-1 text-center">
       {" "}
@@ -1189,7 +1189,7 @@ const EventMenuAllocationPage = () => {
           {/* LEFT: Page Title + 3 Custom Buttons */}
           <div className="flex items-center gap-6">
             <h2 className="text-xl text-black font-semibold">
-              3. Menu Allocation
+              3. Menu Execution
             </h2>
 
             {/* ONLY FOR THIS SCREEN */}
@@ -1217,7 +1217,7 @@ const EventMenuAllocationPage = () => {
                 }
               >
                 <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
-                4. Raw Material Allocation
+                4. Raw Material Distribution
               </button>
 
               <button
@@ -1240,9 +1240,9 @@ const EventMenuAllocationPage = () => {
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
             <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success"></i>
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
-                <span className="text-xs">
+                <span className="text-sm">
                   <FormattedMessage
                     id="EVENT_MENU_ALLOCATION.EVENT_ID"
                     defaultMessage="Event ID:"
@@ -1255,9 +1255,9 @@ const EventMenuAllocationPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <i className="ki-filled ki-user text-success"></i>
+              <i className="ki-filled ki-user text-success text-lg"></i>
               <div className="flex flex-col">
-                <span className="text-xs">
+                <span className="text-sm">
                   <FormattedMessage
                     id="EVENT_MENU_ALLOCATION.PARTY_NAME"
                     defaultMessage="Party Name:"
@@ -1270,9 +1270,9 @@ const EventMenuAllocationPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <i className="ki-filled ki-geolocation-home text-success"></i>
+              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
               <div className="flex flex-col">
-                <span className="text-xs">
+                <span className="text-sm">
                   <FormattedMessage
                     id="EVENT_MENU_ALLOCATION.EVENT_NAME"
                     defaultMessage="Event Name:"
@@ -1285,9 +1285,9 @@ const EventMenuAllocationPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success"></i>
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
-                <span className="text-xs">
+                <span className="text-sm">
                   <FormattedMessage
                     id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
                     defaultMessage="Event Venue:"
@@ -1300,9 +1300,9 @@ const EventMenuAllocationPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success"></i>
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
-                <span className="text-xs">
+                <span className="text-sm">
                   <FormattedMessage
                     id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
                     defaultMessage="Event Date & Time:"
@@ -1316,22 +1316,7 @@ const EventMenuAllocationPage = () => {
 
             <div className="flex flex-row items-end gap-2">
               <button
-                type="button"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#20c964] text-white shadow hover:brightness-95"
-                title="Share on WhatsApp"
-                onClick={() => setIsWhatsAppSidebar(true)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-5 h-5 fill-current"
-                >
-                  <path d="M20.52 3.48A11.92 11.92 0 0 0 12.04 0C5.44.03.16 5.32.16 11.93c0 2.1.55 4.14 1.6 5.95L0 24l6.29-1.73a11.9 11.9 0 0 0 5.75 1.48h.01c6.59 0 11.86-5.28 11.89-11.88a11.87 11.87 0 0 0-3.42-8.39ZM12.05 21.2h-.01a9.27 9.27 0 0 1-4.73-1.29l-.34-.2-3.73 1.03 1-3.64-.22-.37A9.25 9.25 0 0 1 2.78 11.9c0-5.11 4.16-9.28 9.29-9.3 2.48 0 4.81.97 6.56 2.72a9.26 9.26 0 0 1 2.72 6.56c-.02 5.12-4.18 9.3-9.3 9.31Zm5.32-6.93c-.29-.15-1.7-.84-1.96-.94-.26-.09-.45-.15-.65.15-.2.29-.74.94-.91 1.13-.17.19-.34.21-.63.08-.29-.14-1.2-.44-2.29-1.41-.85-.76-1.43-1.7-1.6-1.98-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.09-.19.05-.36-.02-.51-.07-.15-.65-1.57-.89-2.15-.24-.58-.48-.5-.65-.5l-.56-.01c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.14.19 2 3.06 4.85 4.29.68.29 1.21.46 1.62.59.68.22 1.3.19 1.79.11.55-.08 1.7-.7 1.94-1.37.24-.68.24-1.25.17-1.37-.07-.12-.26-.19-.55-.34Z" />
-                </svg>
-              </button>
-
-              <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-primary "
                 title="Save"
                 onClick={handleMainSave}
               >
@@ -1459,21 +1444,21 @@ const EventMenuAllocationPage = () => {
                   <button
                     onClick={openSummaryItemModalOustsideAgency}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
-                    title="Outside Agency"
+                    title="Outsource Agency"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="Outside Agency"
+                      defaultMessage="Outsource Agency"
                     />
                   </button>
                   <button
                     onClick={openSummaryItemModalInHouseCook}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
-                    title="In House Cook"
+                    title="Inside Kitchen"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="In House Cook"
+                      defaultMessage="Inside Kitchen"
                     />
                   </button>
                   <button

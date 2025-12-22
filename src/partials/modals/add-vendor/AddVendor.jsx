@@ -448,7 +448,7 @@ const AddVendor = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CUSTOMER"
-                defaultMessage="New Vendor"
+                defaultMessage="Create New Vendor"
               />
             )}
           </h2>
@@ -528,13 +528,13 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_ENGLISH"
-                  defaultMessage="Home Address (English)"
+                  defaultMessage=" Address (English)"
                 />
               }
               name="addressEnglish"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_ENGLISH",
-                defaultMessage: "Home Address (English)",
+                defaultMessage: " Address (English)",
               })}
               value={formData.addressEnglish}
               onChange={handleChange}
@@ -544,13 +544,13 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_GUJARATI"
-                  defaultMessage="Home Address (ગુજરાતી)"
+                  defaultMessage=" Address (ગુજરાતી)"
                 />
               }
               name="addressGujarati"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_GUJARATI",
-                defaultMessage: "Home Address (ગુજરાતી)",
+                defaultMessage: " Address (ગુજરાતી)",
               })}
               value={formData.addressGujarati}
               onChange={handleChange}
@@ -560,13 +560,13 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_HINDI"
-                  defaultMessage="Home Address (हिंदी)"
+                  defaultMessage=" Address (हिंदी)"
                 />
               }
               name="addressHindi"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_HINDI",
-                defaultMessage: "Home Address (हिंदी)",
+                defaultMessage: " Address (हिंदी)",
               })}
               value={formData.addressHindi}
               onChange={handleChange}
@@ -577,7 +577,7 @@ const AddVendor = ({
               <label className="text-gray-600">
                 <FormattedMessage
                   id="USER.MASTER.CONTACT_CATEGORY"
-                  defaultMessage="Contact Category"
+                  defaultMessage=" Categories"
                 />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
