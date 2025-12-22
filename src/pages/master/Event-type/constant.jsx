@@ -12,7 +12,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "event_type",
-    header: <FormattedMessage id="USER.MASTER.EVENT_TYPE" defaultMessage="Event Type" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.EVENT_TYPE" defaultMessage="Name" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

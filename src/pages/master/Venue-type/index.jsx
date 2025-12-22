@@ -251,7 +251,7 @@ const VenueTypeMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.VENUE_TYPE_MASTER"
-                    defaultMessage="Venue Type Master"
+                    defaultMessage="Venue Master"
                   />
                 ),
               },
@@ -283,7 +283,7 @@ const VenueTypeMaster = () => {
             <i className="ki-filled ki-plus"></i>
             <FormattedMessage
               id="USER.MASTER.ADD_VENUE_TYPE"
-              defaultMessage="Add Venue Type"
+              defaultMessage="Create New "
             />
           </button>
         </div>

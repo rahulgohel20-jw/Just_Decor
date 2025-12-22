@@ -298,7 +298,7 @@ const SelectedItems = ({
                                                           "/media/menu/noImage.jpg"
                                                         )
                                                   }
-                                                  alt={displayItemName}
+                                                  alt="Images"
                                                   className="w-full h-full object-cover"
                                                 />
                                               </div>

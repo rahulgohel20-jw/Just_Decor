@@ -229,7 +229,7 @@ const Labourshiftmaster = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="USER.MASTER.ADD_SHIFT"
-                defaultMessage="Add Shift"
+                defaultMessage="Create New "
               />
             </button>
           </div>

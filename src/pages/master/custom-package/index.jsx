@@ -224,7 +224,7 @@ const CustomPackageMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.CUSTOM_PACKAGE_MASTER"
-                    defaultMessage="Custom Package Master"
+                    defaultMessage="Menu Package Master"
                   />
                 ),
               },
@@ -259,7 +259,7 @@ const CustomPackageMaster = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="USER.MASTER.ADD_PACKAGE"
-                defaultMessage="Add Package"
+                defaultMessage="Create New"
               />
             </button>
           </div>

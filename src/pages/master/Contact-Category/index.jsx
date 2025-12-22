@@ -164,7 +164,7 @@ const ContactCategoryMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.CONTACT_CATEGORY_MASTER"
-                    defaultMessage="Contact Category Master"
+                    defaultMessage="Category Master"
                   />
                 ),
               },
@@ -200,7 +200,7 @@ const ContactCategoryMaster = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="USER.MASTER.ADD_CONTACT_CATEGORY"
-                defaultMessage="Add Contact Category"
+                defaultMessage="Create New"
               />
             </button>
           </div>

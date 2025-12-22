@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "sr_no",
-    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No#" />,
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -12,7 +12,12 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "contact_name",
-    header: <FormattedMessage id="USER.MASTER.CONTACT_CATEGORY" defaultMessage="Contact Category" />,
+    header: (
+      <FormattedMessage
+        id="USER.MASTER.CONTACT_CATEGORY"
+        defaultMessage=" Category"
+      />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -20,7 +25,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "sequence",
-    header: <FormattedMessage id="USER.MASTER.PRIORITY" defaultMessage="Priority" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.PRIORITY" defaultMessage="Sequence" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -28,7 +35,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "contcatTypeId",
-    header: <FormattedMessage id="USER.MASTER.CONTACT_TYPE" defaultMessage="Contact Type" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.CONTACT_TYPE" defaultMessage=" Type" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

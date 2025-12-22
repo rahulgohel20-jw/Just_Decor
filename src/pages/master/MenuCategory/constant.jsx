@@ -24,7 +24,7 @@ export const columns = (onEdit, onDelete, onStatus, handleView) => [
   },
   {
     accessorKey: "nameEnglish",
-    header: <FormattedMessage id="COMMON.CATEGORY" defaultMessage="Category" />,
+    header: <FormattedMessage id="COMMON.CATEGORY" defaultMessage="Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -40,7 +40,7 @@ export const columns = (onEdit, onDelete, onStatus, handleView) => [
   },
   {
     accessorKey: "sequence",
-    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />,
+    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Sequence" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

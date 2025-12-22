@@ -12,13 +12,13 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "role_name",
-    header: <FormattedMessage id="COMMON.ROLE_NAME" defaultMessage="Role" />,
+    header: <FormattedMessage id="COMMON.ROLE_NAME" defaultMessage="Name" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
     },
   },
-  
+
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
@@ -35,21 +35,17 @@ export const columns = (onEdit, onDelete, onStatus) => [
             </button>
           </Tooltip>
           <Popconfirm
-              title="Are you sure to delete this item?"
-              onConfirm={() => onDelete(row.original.id)
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <Tooltip title="Delete">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title=""
-            >
-              <i className="ki-filled ki-trash  text-danger"></i>
-            </button>
-          </Tooltip>
+            title="Are you sure to delete this item?"
+            onConfirm={() => onDelete(row.original.id)}
+            onCancel={() => console.log("Cancelled")}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip title="Delete">
+              <button className="btn btn-sm btn-icon btn-clear" title="">
+                <i className="ki-filled ki-trash  text-danger"></i>
+              </button>
+            </Tooltip>
           </Popconfirm>
         </div>
       );

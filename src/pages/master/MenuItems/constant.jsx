@@ -6,8 +6,8 @@ export const columns = (onEdit, onDelete, onstatus) => [
     accessorKey: "sr_no",
     header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
-      headerClassName: "w-[4%]",
-      cellClassName: "w-[4%]",
+      headerClassName: "w-[6%]",
+      cellClassName: "w-[6%]",
     },
   },
   {
@@ -26,7 +26,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
         <div className="relative w-20 h-20 group">
           <img
             src={row.original.image || "/no-image.png"}
-            alt={row.original.name}
+            alt="Image"
             className="w-16 h-16 object-cover rounded-md border"
           />
 
@@ -61,7 +61,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
     header: (
       <FormattedMessage
         id="MASTER.MENU_ITEM_CATEGORY"
-        defaultMessage="Menu Item Category"
+        defaultMessage=" Category"
       />
     ),
     meta: {
@@ -84,7 +84,9 @@ export const columns = (onEdit, onDelete, onstatus) => [
   },
   {
     accessorKey: "cost",
-    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Cost" />,
+    header: (
+      <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Price (100 Pax)" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",

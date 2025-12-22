@@ -19,13 +19,13 @@ const allocationTabsConfig = {
     },
     {
       type: "select",
-      label: "Select Contact Category",
+      label: "Vendor Category",
       name: "contactCategory",
       options: [],
     },
     {
       type: "select",
-      label: "Select Contact Name",
+      label: "Vendor Name",
       name: "outside_contactName",
       options: [],
       showAddButton: true,
@@ -39,17 +39,16 @@ const allocationTabsConfig = {
   chef: [
     {
       type: "select",
-      label: "Select Type wise",
+      label: "Order Type ",
       name: "counter wise",
       options: [
         { label: "Counter Wise", value: "counter_wise" },
-        { label: "Day Wise", value: "day_wise" },
         { label: "Plate Wise", value: "plate_wise" },
       ],
     },
     {
       type: "input",
-      label: "Counter No",
+      label: "labour",
       name: "counterno",
     },
     {
@@ -73,7 +72,7 @@ const allocationTabsConfig = {
   inside: [
     {
       type: "select",
-      label: "Select Chef Name",
+      label: "Chef / Kitchen",
       name: "chef_name",
       options: [],
       showAddButton: true,

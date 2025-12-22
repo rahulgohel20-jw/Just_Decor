@@ -34,23 +34,22 @@ const AddContactCategory = ({
   const Id = JSON.parse(localStorage.getItem("userId"));
 
   // ✅ Fetch dropdown values
- useEffect(() => {
-   if (Id) {
-     GetAllContactType(1)
-       .then((res) => {
-         let allTypes = res?.data?.data?.["Contact Type Details"] || [];
+  useEffect(() => {
+    if (Id) {
+      GetAllContactType(1)
+        .then((res) => {
+          let allTypes = res?.data?.data?.["Contact Type Details"] || [];
 
-         if (labourOnly) {
-           // Show only Labour type
-           allTypes = allTypes.filter((type) => type.nameEnglish === "Labour");
-         }
+          if (labourOnly) {
+            // Show only Labour type
+            allTypes = allTypes.filter((type) => type.nameEnglish === "Labour");
+          }
 
-         setContactTypes(allTypes);
-       })
-       .catch((err) => console.error(err));
-   }
- }, [Id, labourOnly]);
-
+          setContactTypes(allTypes);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [Id, labourOnly]);
 
   // ✅ Validation schema
   const validationSchema = Yup.object().shape({
@@ -100,12 +99,12 @@ const AddContactCategory = ({
             {contactCategory ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_CONTACT_CATEGORY"
-                defaultMessage="Edit Contact Category"
+                defaultMessage="Edit Category"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CONTACT_CATEGORY"
-                defaultMessage="New Contact Category"
+                defaultMessage="Create New Category"
               />
             )}
           </h2>
@@ -204,7 +203,7 @@ const AddContactCategory = ({
                     <label className="block text-gray-600 mb-1">
                       <FormattedMessage
                         id="USER.MASTER.CONTACT_TYPE"
-                        defaultMessage="Contact Type"
+                        defaultMessage="Types"
                       />
                       <span className="text-red-500">*</span>
                     </label>
@@ -239,14 +238,14 @@ const AddContactCategory = ({
                     label={
                       <FormattedMessage
                         id="USER.MASTER.PRIORITY"
-                        defaultMessage="Priority"
+                        defaultMessage="Sequence"
                       />
                     }
                     name="sequence"
                     type="number"
                     placeholder={intl.formatMessage({
                       id: "USER.MASTER.PRIORITY",
-                      defaultMessage: "Priority",
+                      defaultMessage: "sequence",
                     })}
                     required={false}
                   />

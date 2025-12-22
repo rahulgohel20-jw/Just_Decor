@@ -21,7 +21,7 @@ const MenuItemMaster = () => {
           <Breadcrumbs
             items={[
               {
-                title: "Add Menu Item",
+                title: "Create Menu Item And Recipe",
               },
             ]}
           />

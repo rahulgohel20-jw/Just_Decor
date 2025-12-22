@@ -137,7 +137,7 @@ const MealMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.MEAL_MASTER"
-                    defaultMessage="Meals Master"
+                    defaultMessage="Food Prefrence"
                   />
                 ),
               },
@@ -176,7 +176,7 @@ const MealMaster = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="USER.MASTER.ADD_MEAL"
-                defaultMessage="Add Meal"
+                defaultMessage="Create New "
               />
             </button>
           </div>

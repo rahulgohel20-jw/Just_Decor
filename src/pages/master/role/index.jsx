@@ -117,7 +117,7 @@ const RoleMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.ROLE_MASTER"
-                    defaultMessage="Role Master"
+                    defaultMessage="Department Master"
                   />
                 ),
               },
@@ -152,7 +152,7 @@ const RoleMaster = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="USER.MASTER.ADD_ROLE"
-                defaultMessage="Add Role"
+                defaultMessage="Create New"
               />
             </button>
           </div>

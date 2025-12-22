@@ -187,7 +187,7 @@ const AddRawMaterialCategory = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               {intl.formatMessage({
                 id: "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY",
-                defaultMessage: "Add Raw Material Category",
+                defaultMessage: "Create New ",
               })}
             </button>
           </div>
