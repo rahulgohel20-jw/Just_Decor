@@ -87,7 +87,7 @@ const SidebarMenu = () => {
             >
               {item.icon && <KeenIcon icon={item.icon} className={iconSize} />}
             </MenuIcon>
-            <MenuTitle className="text-sm font-medium text-gray-800 menu-item-active:text-primary menu-link-hover:!text-primary">
+            <MenuTitle className="mb-2 text-lg font-medium text-gray-800 menu-item-active:text-primary menu-link-hover:!text-primary">
               {item.title}
             </MenuTitle>
             {buildMenuArrow()}
@@ -112,7 +112,7 @@ const SidebarMenu = () => {
         <MenuLink
           path={item.path}
           className={clsx(
-            "border border-transparent menu-item-active:bg-secondary-active dark:menu-item-active:bg-coal-300 dark:menu-item-active:border-gray-100 hover:bg-secondary-active dark:hover:bg-coal-300 hover:rounded-lg menu-item-active:rounded-lg",
+            "mb-2 border border-transparent menu-item-active:bg-secondary-active dark:menu-item-active:bg-coal-300 dark:menu-item-active:border-gray-100 hover:bg-secondary-active dark:hover:bg-coal-300 hover:rounded-lg menu-item-active:rounded-lg",
             accordionLinkGap[0],
             linkPy,
             linkPl,
@@ -127,7 +127,7 @@ const SidebarMenu = () => {
           >
             {item.icon && <KeenIcon icon={item.icon} className={iconSize} />}
           </MenuIcon>
-          <MenuTitle className="text-sm font-medium text-gray-800 menu-item-active:text-primary menu-link-hover:!text-primary">
+          <MenuTitle className="text-lg font-medium text-gray-800 menu-item-active:text-primary menu-link-hover:!text-primary">
             {item.title}
           </MenuTitle>
         </MenuLink>
@@ -196,7 +196,7 @@ const SidebarMenu = () => {
             )}
           >
             {buildMenuBullet()}
-            <MenuTitle className="text-2sm font-normal text-gray-800 menu-link-hover:!text-primary">
+            <MenuTitle className="text-3sm font-normal text-gray-800 menu-link-hover:!text-primary">
               {item.title}
             </MenuTitle>
             {buildMenuArrow()}

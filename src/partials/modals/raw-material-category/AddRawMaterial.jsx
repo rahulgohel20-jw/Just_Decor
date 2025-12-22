@@ -151,7 +151,7 @@ const AddRawMaterial = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_RAW_MATERIAL_CATEGORY"
-                defaultMessage="New Raw Material Category"
+                defaultMessage="Create New Raw Material Category"
               />
             )}
           </h2>
@@ -271,7 +271,7 @@ const AddRawMaterial = ({
                 </div>
 
                 {/* isDirect Checkbox */}
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <Field name="isDirect">
                     {({ field }) => (
                       <Checkbox
@@ -287,7 +287,7 @@ const AddRawMaterial = ({
                       </Checkbox>
                     )}
                   </Field>
-                </div>
+                </div> */}
 
                 {/* Buttons */}
                 <div className="flex justify-end mt-6 gap-3">

@@ -24,6 +24,8 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
     axios.get(`${API_BASE}/user-rights/getPages`).then((res) => {
+      console.log(res);
+
       setPages(res.data?.data["UserRightsPages"] || []);
     });
 
@@ -150,7 +152,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title="Add Rights"
+        title="Assign User Rights"
         width={650}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -175,7 +177,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
       >
         <div className="flex flex-col gap-y-2 max-h-[500px] overflow-auto scrollable-y">
           <div className="flex flex-col">
-            <label className="form-label"> Role</label>
+            <label className="form-label"> Department</label>
 
             <div className="relative input flex items-center">
               <i className="ki-filled ki-user"></i>
@@ -186,7 +188,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
                 value={formData.role_name || ""}
                 onChange={handleInputChange}
               >
-                <option value="">Select Role</option>
+                <option value="">Select Department</option>
 
                 {roles.map((role) => (
                   <option key={role.id} value={role.name}>

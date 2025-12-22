@@ -11,52 +11,69 @@ dayjs.extend(customParseFormat);
 const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
   const parseDateValue = (dateValue) => {
     if (!dateValue) return null;
-    
+
     console.log("Parsing date value:", dateValue, "Type:", typeof dateValue);
-    
+
     let parsed = dayjs(dateValue);
     if (parsed.isValid()) {
       console.log("✅ Parsed as ISO:", parsed.format("DD-MM-YYYY hh:mm A"));
       return parsed;
     }
-    
+
     parsed = dayjs(dateValue, "DD-MM-YYYY HH:mm", true);
     if (parsed.isValid()) {
-      console.log("✅ Parsed as DD-MM-YYYY HH:mm:", parsed.format("DD-MM-YYYY hh:mm A"));
+      console.log(
+        "✅ Parsed as DD-MM-YYYY HH:mm:",
+        parsed.format("DD-MM-YYYY hh:mm A")
+      );
       return parsed;
     }
-    
+
     parsed = dayjs(dateValue, "DD-MM-YYYY", true);
     if (parsed.isValid()) {
-      console.log("✅ Parsed as DD-MM-YYYY:", parsed.format("DD-MM-YYYY hh:mm A"));
+      console.log(
+        "✅ Parsed as DD-MM-YYYY:",
+        parsed.format("DD-MM-YYYY hh:mm A")
+      );
       return parsed;
     }
-    
+
     parsed = dayjs(dateValue, "YYYY-MM-DD HH:mm:ss", true);
     if (parsed.isValid()) {
-      console.log("✅ Parsed as YYYY-MM-DD HH:mm:ss:", parsed.format("DD-MM-YYYY hh:mm A"));
+      console.log(
+        "✅ Parsed as YYYY-MM-DD HH:mm:ss:",
+        parsed.format("DD-MM-YYYY hh:mm A")
+      );
       return parsed;
     }
-    
+
     parsed = dayjs(dateValue, "YYYY-MM-DD", true);
     if (parsed.isValid()) {
-      console.log("✅ Parsed as YYYY-MM-DD:", parsed.format("DD-MM-YYYY hh:mm A"));
+      console.log(
+        "✅ Parsed as YYYY-MM-DD:",
+        parsed.format("DD-MM-YYYY hh:mm A")
+      );
       return parsed;
     }
-    
+
     console.log("❌ Could not parse date:", dateValue);
     return null;
   };
 
   const intl = useIntl();
-  
+
   const columns = [
     {
-      title: <FormattedMessage id="COMMON.FUNCTION" defaultMessage="Function" />,
+      title: (
+        <FormattedMessage id="COMMON.FUNCTION" defaultMessage="Function" />
+      ),
       dataIndex: "name",
       render: (text, record, index) => (
         <Input
-          placeholder={intl.formatMessage({ id: "COMMON.NAME", defaultMessage: "Name" })}
+          placeholder={intl.formatMessage({
+            id: "COMMON.NAME",
+            defaultMessage: "Name",
+          })}
           value={record.name}
           disabled={!record.isCustom && !record.isNewRow}
           onChange={(e) => onInputChange(index, "name", e.target.value)}
@@ -65,16 +82,21 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       ),
     },
     {
-      title: <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />,
+      title: (
+        <FormattedMessage
+          id="COMMON.DATE_AND_TIME"
+          defaultMessage="Date & Time"
+        />
+      ),
       dataIndex: "date",
       render: (text, record, index) => {
         const dateValue = parseDateValue(record.date);
-        
+
         return (
           <DatePicker
             showTime={{
               use12Hours: true,
-              format: "hh:mm A"
+              format: "hh:mm A",
             }}
             format="DD-MM-YYYY hh:mm A"
             disabled={!record.isCustom && !record.isNewRow}
@@ -108,7 +130,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
         if (record.isNewRow) {
           return <span className="text-gray-400 text-center">-</span>;
         }
-        
+
         // ✅ Show Extra field for all other rows (saved custom rows, event function rows)
         return (
           <Input
@@ -147,7 +169,7 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       title: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
       key: "actions",
       render: (_, record) =>
-        (record.isCustom || record.isNewRow) ? (
+        record.isCustom || record.isNewRow ? (
           <Button
             type="text"
             icon={<DeleteOutlined className="text-red-500" />}
@@ -160,7 +182,10 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
   return (
     <div className="min-w-full mb-7">
       <h4 className="text-base font-semibold leading-none text-gray-900 mb-2">
-        <FormattedMessage id="COMMON.FUNCTION_TABLE" defaultMessage="Function Table" />
+        <FormattedMessage
+          id="COMMON.FUNCTION_TABLE"
+          defaultMessage="Function "
+        />
       </h4>
       <Table
         dataSource={rows}
@@ -173,10 +198,16 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
         <button
           className="btn btn-sm btn-primary"
           onClick={onAddRow}
-          title={intl.formatMessage({ id: "COMMON.ADD_NEW_ROW", defaultMessage: "Add New Row" })}
+          title={intl.formatMessage({
+            id: "COMMON.ADD_NEW_ROW",
+            defaultMessage: "Add New Row",
+          })}
         >
           <i className="ki-filled ki-plus"></i>{" "}
-          <FormattedMessage id="COMMON.ADD_NEW_ROW" defaultMessage="Add New Row" />
+          <FormattedMessage
+            id="COMMON.ADD_NEW_ROW"
+            defaultMessage="Add New Row"
+          />
         </button>
       </div>
     </div>

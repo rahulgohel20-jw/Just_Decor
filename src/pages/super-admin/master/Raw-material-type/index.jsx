@@ -154,7 +154,7 @@ const SuperRawMaterialType = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
-                    defaultMessage="Raw Material Type "
+                    defaultMessage="Raw Material Type  "
                   />
                 ),
               },
@@ -170,7 +170,7 @@ const SuperRawMaterialType = () => {
                 className="input pl-8"
                 placeholder={intl.formatMessage({
                   id: "USER.MASTER.RAW_MATERIAL_TYPE_SEARCH",
-                  defaultMessage: "Raw Material Type Search...",
+                  defaultMessage: "Search...",
                 })}
                 type="text"
                 value={searchQuery}

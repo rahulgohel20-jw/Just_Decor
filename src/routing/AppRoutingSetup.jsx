@@ -140,6 +140,7 @@ import AddInvoicePage from "@/pages/Event/AddInvoicePage";
 import InvoiceViewPage from "@/pages/Event/InvoiceViewPage";
 import CustomerMaster from "@/pages/master/customer";
 import AllMemberMaster from "@/pages/master/all-menbers";
+import SuperadminMember from "../pages/super-admin/master/Add-member";
 import FunctionsMaster from "@/pages/master/functions";
 import MealMaster from "@/pages/master/meals";
 import ContactCategoryMaster from "@/pages/master/contact-category";
@@ -342,6 +343,7 @@ const AppRoutingSetup = () => {
             element={<RawMaterialTypeMaster />}
           />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
+          <Route path="/superadmin/members" element={<SuperadminMember />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />
           <Route path="/master/meals" element={<MealMaster />} />
           <Route

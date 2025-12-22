@@ -505,7 +505,7 @@ const RawMaterialAllocation = () => {
             {/* LEFT: Page Title + 3 Custom Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
-                4. Raw Material Allocation
+                4. Raw Material Distribution
               </h2>
 
               {/* ONLY FOR THIS SCREEN */}
@@ -529,7 +529,7 @@ const RawMaterialAllocation = () => {
                     className="ki-filled ki-gift"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  3. Menu Allocation
+                  3. Menu Execution
                 </button>
 
                 <button
@@ -555,7 +555,7 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs">
+                  <span className="text-sm">
                     <FormattedMessage
                       id="COMMON.EVENT_ID"
                       defaultMessage="Event ID:"
@@ -570,7 +570,7 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-user text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs">
+                  <span className="text-sm">
                     <FormattedMessage
                       id="COMMON.PARTY_NAME"
                       defaultMessage="Party Name:"
@@ -585,7 +585,7 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-geolocation-home text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs">
+                  <span className="text-sm">
                     <FormattedMessage
                       id="COMMON.EVENT_NAME"
                       defaultMessage="Event Name:"
@@ -600,7 +600,7 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs">
+                  <span className="text-sm">
                     <FormattedMessage
                       id="RAW_MATERIAL_ALLOCATION.EVENT_VENUE"
                       defaultMessage="Event Venue"
@@ -615,7 +615,7 @@ const RawMaterialAllocation = () => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
-                  <span className="text-xs">
+                  <span className="text-sm">
                     <FormattedMessage
                       id="RAW_MATERIAL_ALLOCATION.EVENT_DATE_TIME"
                       defaultMessage="Event Date & Time:"
@@ -693,7 +693,7 @@ const RawMaterialAllocation = () => {
           >
             <FormattedMessage
               id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE"
-              defaultMessage="+ Agency, Place & Date Allocation"
+              defaultMessage="+ Supplier Allocation"
             />
           </button>
         </div>

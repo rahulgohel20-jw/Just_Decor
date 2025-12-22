@@ -170,48 +170,29 @@ const CalendarPage = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: intl.formatMessage({
-                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_HEADER_EVENT",
-                  defaultMessage: "Events",
-                }),
-              },
-            ]}
-          />
-        </div>
-
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1">
-            <span className="filItems text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
+            <span className="filItems text-sm font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
                 defaultMessage: "Inquiry",
               })}
             </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
-              {intl.formatMessage({
-                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM",
-                defaultMessage: "Confirm",
-              })}
-            </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
+
+            <span className="filItems text-sm font-medium text-gray-900 bg-[#E75480] rounded px-3 py-1 text-white">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
-                defaultMessage: "Confirm Without Menu",
+                defaultMessage: "Remaining Menu",
               })}
             </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
+            <span className="filItems text-sm font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
                 defaultMessage: "Completed",
               })}
             </span>
-            <span className="filItems text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
+            <span className="filItems text-sm font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
                 defaultMessage: "Cancel",
@@ -228,7 +209,7 @@ const CalendarPage = () => {
             <i className="ki-filled ki-plus"></i>{" "}
             <FormattedMessage
               id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
-              defaultMessage="Add Event"
+              defaultMessage="Create New Event"
             />
           </button>
         </div>

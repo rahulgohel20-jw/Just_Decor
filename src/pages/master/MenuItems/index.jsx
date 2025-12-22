@@ -248,7 +248,7 @@ const MenuItems = () => {
                 title: (
                   <FormattedMessage
                     id="MASTER.MENU_ITEMS"
-                    defaultMessage="Menu Items Master"
+                    defaultMessage="Menu Item Recipe Master"
                   />
                 ),
               },
@@ -311,7 +311,7 @@ const MenuItems = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="MASTER.ADD_MENU_ITEM"
-                defaultMessage="Add Menu Item"
+                defaultMessage="Create New"
               />
             </button>
           </div>

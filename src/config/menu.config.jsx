@@ -17,12 +17,12 @@ export const allMenuItems = [
     title: (
       <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />
     ),
-    icon: "element-11 text-primary",
+    icon: "element-11 text-primary text-lg",
     path: "/",
   },
   {
     title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
-    icon: "ki-filled ki-calendar-tick text-primary",
+    icon: "ki-filled ki-calendar-tick text-primary  text-lg",
     children: [
       {
         title: (
@@ -43,14 +43,11 @@ export const allMenuItems = [
   },
   {
     title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
-    icon: "ki-filled ki-abstract-26 text-primary",
+    icon: "  text-lg ki-filled ki-abstract-26 text-primary",
     children: [
       {
         title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Contact Type"
-          />
+          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Types" />
         ),
         path: "/master/contact-type",
       },
@@ -58,7 +55,7 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CONTACT_CATEGORIES"
-            defaultMessage="Contact Categories"
+            defaultMessage="Categories"
           />
         ),
         path: "/master/contact-categories",
@@ -71,51 +68,42 @@ export const allMenuItems = [
       },
       {
         title: (
-          <FormattedMessage
-            id="COMMON.VENDOR_MASTER"
-            defaultMessage="Vendor Master"
-          />
+          <FormattedMessage id="COMMON.VENDOR_MASTER" defaultMessage="Vendor" />
         ),
         path: "/master/vendor-master",
       },
-
       {
         title: (
-          <FormattedMessage
-            id="COMMON.FUNCTION_TYPE"
-            defaultMessage="Function Type"
-          />
-        ),
-        path: "/master/functions",
-      },
-      {
-        title: (
-          <FormattedMessage id="COMMON.MEAL_TYPE" defaultMessage="Meal Type" />
-        ),
-        path: "/master/meals",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.EVENT_TYPE"
-            defaultMessage="Event Type"
-          />
+          <FormattedMessage id="COMMON.EVENT_TYPE" defaultMessage="Events " />
         ),
         path: "/master/event-type",
       },
       {
         title: (
           <FormattedMessage
-            id="COMMON.VENUE_TYPE"
-            defaultMessage="Venue Type"
+            id="COMMON.FUNCTION_TYPE"
+            defaultMessage="Function"
           />
+        ),
+        path: "/master/functions",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.MEAL_TYPE"
+            defaultMessage="Food Prefrence "
+          />
+        ),
+        path: "/master/meals",
+      },
+
+      {
+        title: (
+          <FormattedMessage id="COMMON.VENUE_TYPE" defaultMessage="Venue " />
         ),
         path: "/master/venue-type",
       },
-      {
-        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
-        path: "/master/unit",
-      },
+
       {
         title: (
           <FormattedMessage
@@ -129,28 +117,26 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CUSTOM_PACKAGE"
-            defaultMessage="Custom Package"
+            defaultMessage="Menu Packages"
           />
         ),
         path: "/master/custom-package",
       },
       {
-        title: (
-          <FormattedMessage id="COMMON.MEMBERS" defaultMessage="Members" />
-        ),
-        icon: "ki-filled ki-abstract-18 text-primary",
+        title: "Users",
+        icon: "  text-lg ki-filled ki-abstract-18 text-primary",
         children: [
           {
             title: (
               <FormattedMessage
                 id="COMMON.ALL_MEMBERS"
-                defaultMessage="All Members"
+                defaultMessage="User Master"
               />
             ),
             path: "/master/all-members",
           },
           {
-            title: "Role",
+            title: "Department",
             path: "/master/role",
           },
         ],
@@ -164,13 +150,13 @@ export const allMenuItems = [
         defaultMessage="Raw Material"
       />
     ),
-    icon: "ki-filled ki-badge text-primary",
+    icon: "  text-lg ki-filled ki-badge text-primary",
     children: [
       {
         title: (
           <FormattedMessage
             id="COMMON.RAW_MATERIAL_TYPE"
-            defaultMessage="Raw Material Type"
+            defaultMessage=" Type"
           />
         ),
         path: "/master/raw-material-type-master",
@@ -179,19 +165,20 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.RAW_MATERIAL_CATEGORY"
-            defaultMessage="Raw Material Category"
+            defaultMessage="Category"
           />
         ),
         path: "/master/raw-material-master",
       },
       {
         title: (
-          <FormattedMessage
-            id="COMMON.RAW_MATERIAL"
-            defaultMessage="Raw Material"
-          />
+          <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Items" />
         ),
         path: "/master/raw-material",
+      },
+      {
+        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
+        path: "/master/unit",
       },
     ],
   },
@@ -199,13 +186,13 @@ export const allMenuItems = [
     title: (
       <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />
     ),
-    icon: "ki-filled ki-additem text-primary",
+    icon: "  text-lg ki-filled ki-additem text-primary",
     children: [
       {
         title: (
           <FormattedMessage
             id="COMMON.MENU_ITEM_CATEGORY"
-            defaultMessage="Menu Item Category"
+            defaultMessage=" Category"
           />
         ),
         path: "/master/menu-category",
@@ -214,7 +201,7 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.MENU_ITEM_SUB_CATEGORY"
-            defaultMessage="Menu Item Sub Category"
+            defaultMessage=" Sub Category"
           />
         ),
         path: "/master/menu-sub-category",
@@ -231,48 +218,42 @@ export const allMenuItems = [
       // },
       {
         title: (
-          <FormattedMessage id="COMMON.MENU_ITEM" defaultMessage="Menu Item" />
+          <FormattedMessage
+            id="COMMON.MENU_ITEM"
+            defaultMessage=" Items With Recipe "
+          />
         ),
         path: "/master/menu-item",
       },
     ],
   },
-  {
-    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
-    icon: "ki-duotone ki-document text-primary",
-    children: [
-      // {
-      //   title: (
-      //     <FormattedMessage
-      //       id="COMMON.DATE_WISE_REPORTS"
-      //       defaultMessage="Date Wise Reports"
-      //     />
-      //   ),
-      //   path: "/report-datewise",
-      // },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.DATE_WISE_REPORTS"
-            defaultMessage="Report Label Configuration"
-          />
-        ),
-        path: "/report-label-configuration",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.REPORT_CONFIGURATION"
-            defaultMessage="Report Configuration"
-          />
-        ),
-        path: "/report-configuration",
-      },
-    ],
-  },
+  // {
+  //   title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
+  //   icon: "  text-lg ki-duotone ki-document text-primary",
+  //   children: [
+  //     {
+  //       title: (
+  //         <FormattedMessage
+  //           id="COMMON.DATE_WISE_REPORTS"
+  //           defaultMessage="Date Wise Reports"
+  //         />
+  //       ),
+  //       path: "/report-datewise",
+  //     },
+  //     {
+  //       title: (
+  //         <FormattedMessage
+  //           id="COMMON.REPORT_CONFIGURATION"
+  //           defaultMessage="Report Configuration"
+  //         />
+  //       ),
+  //       path: "/report-congiguration",
+  //     },
+  //   ],
+  // },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
-    icon: "ki-filled ki-graph-up text-primary",
+    icon: "  text-lg ki-filled ki-graph-up text-primary",
     children: [
       {
         title: (
@@ -295,7 +276,7 @@ export const allMenuItems = [
   //       defaultMessage="Custom Themes"
   //     />
   //   ),
-  //   icon: "ki-duotone ki-dropbox text-primary",
+  //   icon: "  text-lg ki-duotone ki-dropbox text-primary",
   //   path: "/reportcustomethemes",
   // },
 
@@ -303,7 +284,7 @@ export const allMenuItems = [
     title: (
       <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Configuration" />
     ),
-    icon: "ki-filled ki-setting text-primary",
+    icon: "  text-lg ki-filled ki-setting text-primary",
     disabled: false,
     children: [
       {
@@ -347,7 +328,7 @@ export const allMenuItems = [
   },
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
-    icon: "ki-filled ki-setting-2 text-primary",
+    icon: "ki-filled ki-setting-2 text-primary  text-lg",
     disabled: false,
     children: [
       {
@@ -488,6 +469,12 @@ export const superAdminMenuItems = [
     children: [
       {
         title: (
+          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Members" />
+        ),
+        path: "/superadmin/members",
+      },
+      {
+        title: (
           <FormattedMessage
             id="COMMON.CONTACT_TYPE"
             defaultMessage="Contact Type"
@@ -534,6 +521,7 @@ export const superAdminMenuItems = [
     ],
   },
 ];
+
 export const MENU_MEGA = [
   {
     title: "Home",

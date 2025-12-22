@@ -464,7 +464,7 @@ const FunctionsDetails = ({
             className="btn btn-primary btn-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Add Function
+            <Plus size={16} /> Create New Function
           </button>
         </Tooltip>
       </div>
@@ -486,7 +486,7 @@ const FunctionsDetails = ({
                   <span className="flex items-center">
                     <FormattedMessage
                       id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE"
-                      defaultMessage="Function Type"
+                      defaultMessage="Functions"
                     />
                     <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                       *
@@ -532,7 +532,7 @@ const FunctionsDetails = ({
               <th className="text-sm font-semibold text-gray-900 p-3 w-40">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
-                  defaultMessage="Function Venue"
+                  defaultMessage=" Venue"
                 />
               </th>
               <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
@@ -734,11 +734,11 @@ const FunctionsDetails = ({
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
                       >
                         <div className="text-center">
-                          <Tooltip title="Map">
+                          {/* <Tooltip title="Map">
                             <button className="btn btn-sm btn-icon btn-clear btn-primary">
                               <i className="ki-filled ki-geolocation"></i>
                             </button>
-                          </Tooltip>
+                          </Tooltip> */}
                           <Tooltip title="Add Notes">
                             <button
                               className="btn btn-sm btn-icon btn-clear btn-success"
@@ -779,7 +779,7 @@ const FunctionsDetails = ({
             className="btn btn-primary btn-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Add Function
+            <Plus size={16} /> Create New Function
           </button>
         </Tooltip>
       </div>

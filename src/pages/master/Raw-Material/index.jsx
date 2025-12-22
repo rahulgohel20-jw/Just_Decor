@@ -372,7 +372,7 @@ const RawMaterial = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_MASTER"
-                    defaultMessage="Raw Material "
+                    defaultMessage="Raw Material Item Master"
                   />
                 ),
               },
@@ -456,7 +456,7 @@ const RawMaterial = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="COMMON.ADD_RAW_MATERIAL"
-                defaultMessage="Add Raw Material"
+                defaultMessage="Create New"
               />
             </button>
           </div>
