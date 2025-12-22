@@ -1,6 +1,11 @@
 import { Fragment, useState, useEffect } from "react";
 import { Input, Select, DatePicker, Button, message, Spin } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { Container } from "@/components/container";
@@ -16,7 +21,9 @@ import {
   fetchCitiesByState,
   GetAllPlans,
   Fetchmanager,
+  DeleteAmc,
 } from "@/services/apiServices";
+import { DeleteKyc } from "../../services/apiServices";
 
 const SuperAdminMemberEdit = () => {
   const { id } = useParams();
@@ -25,44 +32,21 @@ const SuperAdminMemberEdit = () => {
   const [submitting, setSubmitting] = useState(false);
   const [updateResponse, setUpdateResponse] = useState(null);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
-  // Dropdown options state
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [plans, setPlans] = useState([]);
   const [managers, setManagers] = useState([]);
-
-  // Selected dropdown values for cascading
+  const [amcDetails, setAmcDetails] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-
-  // Member Details State
-  const [memberDetails, setMemberDetails] = useState({
-    firstName: "",
-    lastName: "",
-    contactNo: "",
-    address: "",
-    cityId: "",
-    memberType: "",
-    planId: "",
-    isFile: "true",
-    preFix: "",
-    reportingManagerId: "",
+  const [remarks, setRemarks] = useState({
+    managerReq: "",
+    salesReq: "",
+    managerFiles: [], // array for manager files
+    salesFiles: [], // array for sales files
+    callFiles: [], // array for call files if needed
   });
-
-  // Down Payment State - FIXED: paidAmount instead of paidamount
-  const [downPayments, setDownPayments] = useState([
-    {
-      paymentType: "",
-      amount: "",
-      paidAmount: "",
-      payid: "",
-      transactionDate: "",
-      remarks: "",
-      docPath: null,
-      existingDocPath: null, // To store existing document URL
-    },
-  ]);
 
   const [userAmcs, setUserAmcs] = useState([
     {
@@ -74,6 +58,7 @@ const SuperAdminMemberEdit = () => {
       amcType: "",
       status: "",
       file: null,
+      existingDocPath: null,
     },
   ]);
 
@@ -86,51 +71,77 @@ const SuperAdminMemberEdit = () => {
       refundType: "",
       remarks: "",
       file: null,
+      existingDocPath: null,
+    },
+  ]);
+  const [memberDetails, setMemberDetails] = useState({
+    firstName: "",
+    lastName: "",
+    contactNo: "",
+    address: "",
+    cityId: "",
+    memberType: "",
+    profile: "",
+    planId: "",
+    isFile: "true",
+    preFix: "",
+    reportingManagerId: "",
+    SalesId: "",
+  });
+
+  const [downPayments, setDownPayments] = useState([
+    {
+      paymentType: "",
+      amount: "",
+      paidAmount: "",
+      payid: "",
+      transactionDate: "",
+      remarks: "",
+      docPath: null,
+      existingDocPath: null,
     },
   ]);
 
-  // KYC State
   const [kycDetails, setKycDetails] = useState([
     { kycType: "", kycNo: "", docPath: null, existingDocPath: null },
   ]);
 
   const [callFile, setCallFile] = useState(null);
 
-  const getDocumentUrl = (moduleName, moduleId, fileType) => {
-    const baseUrl =
-      process.env.REACT_APP_API_BASE_URL || "http://your-api-url.com";
-    // Adjust this path based on your actual API structure
-    // Common patterns: /uploads/${moduleName}/${moduleId}.${fileType}
-    // or: /api/files/${moduleName}/${moduleId}
-    return `${baseUrl}/uploads/${moduleName}/${moduleId}.${fileType}`;
+  const getFileNameFromUrl = (url) => {
+    if (!url) return "";
+    const parts = url.split("/");
+    return parts[parts.length - 1];
   };
 
-  const getModuleDisplayName = (moduleName) => {
-    const names = {
-      userDetails: "Profile Image",
-      userDocument: "KYC Document",
-      userDownPayment: "Payment Receipt",
-    };
-    return names[moduleName] || moduleName;
+  const handleViewDocument = (url) => {
+    window.open(url, "_blank");
   };
+
+  const handleDownloadDocument = (url, fileName) => {
+    if (!url) {
+      message.warning("No document available");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "document";
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   useEffect(() => {
     const initialize = async () => {
-      await loadStatesForDefaultCountry(); // load states first
+      await loadStatesForDefaultCountry();
       await loadPlans();
       await loadManagers();
-      if (id) await fetchUserData(); // then fetch user
+      if (id) await fetchUserData();
     };
 
     initialize();
-  }, [id]);
-
-  useEffect(() => {
-    if (id) {
-      console.log("Component mounted with ID:", id, "Type:", typeof id);
-      fetchUserData();
-    } else {
-      console.error("No ID provided in URL params");
-    }
   }, [id]);
 
   const loadStatesForDefaultCountry = async () => {
@@ -150,7 +161,6 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
-  // Load Cities based on state
   const loadCities = async (stateId) => {
     try {
       const response = await fetchCitiesByState(stateId);
@@ -171,7 +181,6 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
-  // Load Plans
   const loadPlans = async () => {
     try {
       const response = await GetAllPlans();
@@ -233,13 +242,12 @@ const SuperAdminMemberEdit = () => {
         if (user) {
           if (user.stateId) {
             setSelectedState(user.stateId);
-
             const cities = await loadCities(user.stateId);
-
             const matchedCity = cities.find((c) => c.label === user.cityName);
 
             setMemberDetails((prev) => ({
               ...prev,
+
               cityId: matchedCity?.value || "",
             }));
           }
@@ -251,13 +259,20 @@ const SuperAdminMemberEdit = () => {
             contactNo: user.contactNo || "",
             address: user.address || "",
             memberType: user.memberType || "",
+            profile: user.profile || "",
             planId: user.userPlan?.plan?.id || "",
             isFile: user.isFile || "true",
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
+            SalesId: user.SalesId || "",
           }));
-
-          // PREFILL PLAN
+          // Remarks
+          setRemarks({
+            managerReq: user.managerReq || "",
+            managerFile: null,
+            salesReq: user.salesReq || "",
+            salesFile: null,
+          });
           if (user.userPlan?.plan) {
             setPlans((prev) => {
               const exists = prev.some(
@@ -276,7 +291,6 @@ const SuperAdminMemberEdit = () => {
             });
           }
 
-          // PREFILL KYC DOCUMENTS
           if (user.userDocument && user.userDocument.length > 0) {
             setKycDetails(
               user.userDocument.map((doc) => ({
@@ -284,12 +298,11 @@ const SuperAdminMemberEdit = () => {
                 kycType: doc.kycType || "",
                 kycNo: doc.kycNo || "",
                 docPath: null,
-                existingDocPath: doc.docPath || null, // Store existing document URL
+                existingDocPath: doc.docPath || null,
               }))
             );
           }
 
-          // PREFILL DOWN PAYMENTS - FIXED: using paidAmount
           if (user.downPayment && user.downPayment.length > 0) {
             setDownPayments(
               user.downPayment.map((dp) => ({
@@ -307,14 +320,54 @@ const SuperAdminMemberEdit = () => {
                   : "",
                 remarks: dp.remarks || "",
                 docPath: null,
-                existingDocPath: dp.docPath || null, // Store existing document URL
+                existingDocPath: dp.docPath || null,
+              }))
+            );
+          }
+
+          if (user.userAmc && user.userAmc.length > 0) {
+            setUserAmcs(
+              user.userAmc.map((amc) => ({
+                id: amc.id,
+                amcType: amc.amcType || "",
+                amcAmount: amc.amcAmount || "",
+                amcRemarks: amc.amcRemarks || "",
+                amcDate: amc.amcDate
+                  ? amc.amcDate.split("/").reverse().join("-")
+                  : "",
+                amcRecivableAmount: amc.amcRecivableAmount || "",
+                amcRecivableDate: amc.amcRecivableDate
+                  ? amc.amcRecivableDate.split("/").reverse().join("-")
+                  : "",
+                status: amc.status || "",
+                file: null,
+                existingDocPath: amc.file || null,
+              }))
+            );
+          }
+
+          if (user.refundDetails && user.refundDetails.length > 0) {
+            setRefundDetails(
+              user.refundDetails.map((refund) => ({
+                id: refund.id,
+                refundPaymentMode: refund.refundPaymentMode || "",
+                amount: refund.amount || "",
+                refundDate: refund.refundDate
+                  ? refund.refundDate.split("/").reverse().join("-")
+                  : "",
+                remarks: refund.remarks || "",
+                refundType: refund.refundType || "",
+                refundDetails: refund.refundDetails || "",
+                file: null,
+                existingDocPath: refund.file || null,
               }))
             );
           }
         } else {
           message.error("User not found");
-          navigate(-1);
         }
+      } else {
+        message.error("Failed to fetch user data");
       }
     } catch (err) {
       console.error(err);
@@ -335,7 +388,6 @@ const SuperAdminMemberEdit = () => {
         paymentType: "",
         amount: "",
         payid: "",
-
         paidAmount: "",
         transactionDate: "",
         remarks: "",
@@ -363,23 +415,116 @@ const SuperAdminMemberEdit = () => {
     setDownPayments(updated);
   };
 
-  // Helper function to convert date from yyyy-MM-dd to dd/MM/yyyy
-  const convertDateFormat = (dateString) => {
-    if (!dateString) return "";
-    const [year, month, day] = dateString.split("-");
-    return `${day}/${month}/${year}`;
+  const addUserAmc = () => {
+    setUserAmcs([
+      ...userAmcs,
+      {
+        amcAmount: "",
+        amcDate: "",
+        amcRecivableAmount: "",
+        amcRecivableDate: "",
+        amcRemarks: "",
+        amcType: "",
+        status: "",
+        file: null,
+        existingDocPath: null,
+      },
+    ]);
   };
 
-  // Helper function to convert date from dd/MM/yyyy to yyyy-MM-dd (for loading data)
-  const convertDateForInput = (dateString) => {
-    if (!dateString) return "";
-    // Check if already in yyyy-MM-dd format
-    if (dateString.includes("-") && dateString.split("-")[0].length === 4) {
-      return dateString;
+  const removeamcDetails = (index) => {
+    if (userAmcs.length === 1)
+      return message.warning("At least one entry is required!");
+    setUserAmcs(userAmcs.filter((_, i) => i !== index));
+  };
+
+  const removeUserAmc = async (index, amcId) => {
+    if (!amcId) {
+      removeamcDetails(index);
+      return;
     }
-    // Convert from dd/MM/yyyy to yyyy-MM-dd
-    const [day, month, year] = dateString.split("/");
-    return `${year}-${month}-${day}`;
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this Amc deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await DeleteAmc(amcId);
+
+        if (response?.data?.success) {
+          message.success("Amc deleted successfully!");
+          removeUserAmc(index);
+          await fetchUserData();
+        } else {
+          message.error(response?.data?.msg || "Failed to delete amc.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting amc:", error);
+      message.error(
+        error.response?.data?.msg || error.message || "Failed to delete amc."
+      );
+    }
+  };
+
+  const handleUserAmcChange = (index, field, value) => {
+    const updated = [...userAmcs];
+    updated[index][field] = value;
+    setUserAmcs(updated);
+  };
+
+  const handleUserAmcFile = (index, file) => {
+    const updated = [...userAmcs];
+    updated[index].file = file;
+    setUserAmcs(updated);
+  };
+
+  const addRefund = () => {
+    setRefundDetails([
+      ...refundDetails,
+      {
+        amount: "",
+        refundDate: "",
+        refundDetails: "",
+        refundPaymentMode: "",
+        refundType: "",
+        remarks: "",
+        file: null,
+        existingDocPath: null,
+      },
+    ]);
+  };
+
+  const removeRefund = (index) => {
+    if (refundDetails.length === 1)
+      return message.warning("At least one entry is required!");
+    setRefundDetails(refundDetails.filter((_, i) => i !== index));
+  };
+
+  const handleRefundChange = (index, field, value) => {
+    const updated = [...refundDetails];
+    updated[index][field] = value;
+    setRefundDetails(updated);
+  };
+
+  const handleRefundFile = (index, file) => {
+    const updated = [...refundDetails];
+    updated[index].file = file;
+    setRefundDetails(updated);
+  };
+
+  const convertDateFormat = (dateString) => {
+    if (!dateString || dateString.trim() === "") return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
   };
 
   const handleKycChange = (index, field, value) => {
@@ -401,208 +546,52 @@ const SuperAdminMemberEdit = () => {
     ]);
   };
 
-  const removeKyc = (index) => {
+  const removekycDetails = (index) => {
     if (kycDetails.length === 1)
       return message.warning("At least one entry is required!");
     setKycDetails(kycDetails.filter((_, i) => i !== index));
   };
 
-  // Helper function to view/download document
-  const handleViewDocument = (docPath) => {
-    if (!docPath) {
-      message.warning("No document available");
-      return;
-    }
-
-    // If docPath is a full URL, open it directly
-    if (docPath.startsWith("http://") || docPath.startsWith("https://")) {
-      window.open(docPath, "_blank");
-    } else {
-      // If it's a relative path, construct the full URL
-      // Replace 'YOUR_BASE_URL' with your actual API base URL
-      const baseUrl =
-        process.env.REACT_APP_API_BASE_URL || "http://your-api-url.com";
-      window.open(`${baseUrl}/${docPath}`, "_blank");
-    }
-  };
-
-  const handleSubmit = async () => {
-    const safeUserAmcs = Array.isArray(userAmcs) ? userAmcs : [];
-    const safeRefundDetails = Array.isArray(refundDetails) ? refundDetails : [];
-    // BASIC VALIDATION
-    if (!memberDetails.firstName || !memberDetails.lastName) {
-      message.error("First name and last name are required!");
-      return;
-    }
-    if (!memberDetails.cityId) {
-      message.error("Please select a city!");
+  const removeKyc = async (index, kycId) => {
+    if (!kycId) {
+      removekycDetails(index);
       return;
     }
 
     try {
-      setSubmitting(true);
-      const formData = new FormData();
-
-      /* =========================
-       MEMBER CORE DETAILS
-    ========================= */
-      formData.append("userId", id);
-      formData.append("firstName", memberDetails.firstName);
-      formData.append("lastName", memberDetails.lastName);
-      formData.append("contactNo", memberDetails.contactNo || "");
-      formData.append("address", memberDetails.address || "");
-      formData.append("cityId", memberDetails.cityId);
-      formData.append("memberType", memberDetails.memberType || "");
-      formData.append("planId", memberDetails.planId || "");
-      formData.append("preFix", memberDetails.preFix || "");
-      formData.append(
-        "reportingManagerId",
-        memberDetails.reportingManagerId || ""
-      );
-
-      /* =========================
-       FILE FLAG
-    ========================= */
-      const anyFileAttached =
-        kycDetails.some((k) => k.docPath instanceof File) ||
-        downPayments.some((d) => d.docPath instanceof File) ||
-        userAmcs.some((a) => a.file instanceof File) ||
-        refundDetails.some((r) => r.file instanceof File) ||
-        callFile instanceof File;
-
-      formData.append("isFile", anyFileAttached);
-
-      /* =========================
-       DOWN PAYMENTS
-    ========================= */
-      downPayments
-        .filter((p) => p.paymentType && p.amount)
-        .forEach((p, i) => {
-          formData.append(`userDownPayments[${i}].id`, p.id || 0);
-          formData.append(`userDownPayments[${i}].paymentType`, p.paymentType);
-          formData.append(`userDownPayments[${i}].amount`, p.amount);
-          formData.append(
-            `userDownPayments[${i}].paidAmount`,
-            p.paidAmount || 0
-          );
-          formData.append(`userDownPayments[${i}].payid`, p.payid || "");
-          formData.append(
-            `userDownPayments[${i}].transactionDate`,
-            convertDateFormat(p.transactionDate)
-          );
-          formData.append(`userDownPayments[${i}].remarks`, p.remarks || "");
-
-          if (p.docPath instanceof File) {
-            formData.append(`userDownPayments[${i}].docPath`, p.docPath);
-          }
-        });
-
-      /* =========================
-       KYC DOCUMENTS
-    ========================= */
-      kycDetails
-        .filter((k) => k.kycType && k.kycNo)
-        .forEach((k, i) => {
-          formData.append(`userDocuments[${i}].id`, k.id || 0);
-          formData.append(`userDocuments[${i}].kycType`, k.kycType);
-          formData.append(`userDocuments[${i}].kycNo`, k.kycNo);
-
-          if (k.docPath instanceof File) {
-            formData.append(`userDocuments[${i}].docPath`, k.docPath);
-          }
-        });
-
-      /* =========================
-       AMC DETAILS (Swagger)
-    ========================= */
-      userAmcs.filter((a) => a.amcAmount || a.amcDate);
-      safeUserAmcs.forEach((a, i) => {
-        formData.append(`userAmcs[${i}].id`, a.id || 0);
-        formData.append(`userAmcs[${i}].amcAmount`, a.amcAmount || 0);
-        formData.append(`userAmcs[${i}].amcDate`, convertDateFormat(a.amcDate));
-        formData.append(
-          `userAmcs[${i}].amcRecivableAmount`,
-          a.amcRecivableAmount || 0
-        );
-        formData.append(
-          `userAmcs[${i}].amcRecivableDate`,
-          convertDateFormat(a.amcRecivableDate)
-        );
-        formData.append(`userAmcs[${i}].amcRemarks`, a.amcRemarks || "");
-        formData.append(`userAmcs[${i}].amcType`, a.amcType || "");
-        formData.append(`userAmcs[${i}].status`, a.status || "");
-
-        if (a.file instanceof File) {
-          formData.append(`userAmcs[${i}].file`, a.file);
-        }
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this Kyc deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
       });
 
-      /* =========================
-       REFUND DETAILS (Swagger)
-    ========================= */
-      refundDetails.filter((r) => r.amount || r.refundDate);
-      safeRefundDetails.forEach((r, i) => {
-        formData.append(`refundDetails[${i}].id`, r.id || 0);
-        formData.append(`refundDetails[${i}].amount`, r.amount || 0);
-        formData.append(
-          `refundDetails[${i}].refundDate`,
-          convertDateFormat(r.refundDate)
-        );
-        formData.append(
-          `refundDetails[${i}].refundDetails`,
-          r.refundDetails || ""
-        );
-        formData.append(
-          `refundDetails[${i}].refundPaymentMode`,
-          r.refundPaymentMode || ""
-        );
-        formData.append(`refundDetails[${i}].refundType`, r.refundType || "");
-        formData.append(`refundDetails[${i}].remarks`, r.remarks || "");
+      if (result.isConfirmed) {
+        const response = await DeleteKyc(kycId);
 
-        if (r.file instanceof File) {
-          formData.append(`refundDetails[${i}].file`, r.file);
+        if (response?.data?.success) {
+          message.success("Kyc deleted successfully!");
+          removeKyc(index);
+          await fetchUserData();
+        } else {
+          message.error(
+            response?.data?.msg || "Failed to delete down payment."
+          );
         }
-      });
-
-      /* =========================
-       CALL FILE
-    ========================= */
-      if (callFile instanceof File) {
-        formData.append("callFile", callFile);
-      }
-
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
-      /* =========================
-       SUBMIT
-    ========================= */
-      const response = await UpdateMemberById(id, formData);
-
-      if (response?.data?.success || response?.status === 200) {
-        message.success("Member updated successfully!");
-        await fetchUserData();
-      } else {
-        message.error(response?.data?.msg || "Update failed");
       }
     } catch (error) {
-      console.error(error);
-      message.error(error?.response?.data?.msg || "Update failed");
-    } finally {
-      setSubmitting(false);
+      console.error("Error deleting down payment:", error);
+      message.error(
+        error.response?.data?.msg ||
+          error.message ||
+          "Failed to delete down payment."
+      );
     }
   };
-
-  if (loading) {
-    return (
-      <Container>
-        <div className="flex justify-center items-center h-96">
-          <Spin size="large" tip="Loading user data..." />
-        </div>
-      </Container>
-    );
-  }
 
   const handleDeleteDownPayment = async (index, paymentId) => {
     if (!paymentId) {
@@ -627,9 +616,7 @@ const SuperAdminMemberEdit = () => {
 
         if (response?.data?.success) {
           message.success("Down payment deleted successfully!");
-          // Remove from state
           removeDownPayment(index);
-          // Optionally refresh data to get updated list
           await fetchUserData();
         } else {
           message.error(
@@ -647,6 +634,202 @@ const SuperAdminMemberEdit = () => {
     }
   };
 
+  const handleRemarksChange = (field, value) => {
+    setRemarks((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    // Basic validation
+    if (!memberDetails.firstName || !memberDetails.lastName) {
+      message.error("First name and last name are required!");
+      return;
+    }
+    if (!memberDetails.cityId) {
+      message.error("Please select a city!");
+      return;
+    }
+
+    // Confirmation dialog
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You want to update this member's details?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, update it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) {
+      Swal.fire("Cancelled", "Update was cancelled", "info");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const formData = new FormData();
+
+      // Basic member details
+      formData.append("userId", id);
+      formData.append("firstName", memberDetails.firstName);
+      formData.append("lastName", memberDetails.lastName);
+      formData.append("contactNo", memberDetails.contactNo || "");
+      formData.append("address", memberDetails.address || "");
+      formData.append("cityId", memberDetails.cityId);
+      formData.append("memberType", memberDetails.memberType || "");
+      formData.append("profile", memberDetails.profile || "");
+      formData.append("planId", memberDetails.planId || "");
+      formData.append("preFix", memberDetails.preFix || "");
+      formData.append("managerId", memberDetails.reportingManagerId || "");
+      formData.append("SalesId", memberDetails.SalesId || "");
+
+      // Remarks text
+      formData.append("managerReq", remarks.managerReq);
+      formData.append("salesReq", remarks.salesReq);
+
+      // Manager Files
+      (remarks.managerFiles || []).forEach((file, i) => {
+        formData.append(`files[${i}].file`, file);
+        formData.append(`files[${i}].fileType`, "MANAGERFILE");
+        formData.append(`files[${i}].fileId`, file.fileId || 0); // 0 for new files
+      });
+
+      // Sales Files
+      (remarks.salesFiles || []).forEach((file, i) => {
+        const index = (remarks.managerFiles || []).length + i;
+        formData.append(`files[${index}].file`, file);
+        formData.append(`files[${index}].fileType`, "SALEFILE");
+        formData.append(`files[${index}].fileId`, file.fileId || 0);
+      });
+
+      // Call Files
+      (remarks.callFiles || []).forEach((file, i) => {
+        const offset =
+          (remarks.managerFiles || []).length +
+          (remarks.salesFiles || []).length;
+        formData.append(`files[${offset + i}].file`, file);
+        formData.append(`files[${offset + i}].fileType`, "CALLFILE");
+        formData.append(`files[${offset + i}].fileId`, file.fileId || 0);
+      });
+
+      // DownPayments
+      downPayments
+        .filter((p) => p.paymentType && p.amount)
+        .forEach((p, i) => {
+          formData.append(`userDownPayments[${i}].id`, p.id || 0);
+          formData.append(`userDownPayments[${i}].paymentType`, p.paymentType);
+          formData.append(`userDownPayments[${i}].amount`, p.amount);
+          formData.append(
+            `userDownPayments[${i}].paidAmount`,
+            p.paidAmount || 0
+          );
+          formData.append(`userDownPayments[${i}].payid`, p.payid || "");
+          formData.append(
+            `userDownPayments[${i}].transactionDate`,
+            convertDateFormat(p.transactionDate)
+          );
+          formData.append(`userDownPayments[${i}].remarks`, p.remarks || "");
+          if (p.docPath instanceof File)
+            formData.append(`userDownPayments[${i}].docPath`, p.docPath);
+        });
+
+      // KYC
+      kycDetails
+        .filter((k) => k.kycType && k.kycNo)
+        .forEach((k, i) => {
+          formData.append(`userDocuments[${i}].id`, k.id || 0);
+          formData.append(`userDocuments[${i}].kycType`, k.kycType);
+          formData.append(`userDocuments[${i}].kycNo`, k.kycNo);
+          if (k.docPath instanceof File)
+            formData.append(`userDocuments[${i}].docPath`, k.docPath);
+        });
+
+      // AMC
+      userAmcs
+        .filter((a) => Number(a.amcAmount) > 0 || a.amcDate)
+        .forEach((a, i) => {
+          formData.append(`userAmcs[${i}].id`, a.id || 0);
+          formData.append(`userAmcs[${i}].amcAmount`, a.amcAmount || 0);
+          formData.append(
+            `userAmcs[${i}].amcDate`,
+            convertDateFormat(a.amcDate)
+          );
+          formData.append(
+            `userAmcs[${i}].amcRecivableAmount`,
+            a.amcRecivableAmount || 0
+          );
+          formData.append(
+            `userAmcs[${i}].amcRecivableDate`,
+            convertDateFormat(a.amcRecivableDate)
+          );
+          formData.append(`userAmcs[${i}].amcRemarks`, a.amcRemarks || "");
+          formData.append(`userAmcs[${i}].amcType`, a.amcType || "");
+          formData.append(`userAmcs[${i}].status`, a.status || "");
+          if (a.file instanceof File)
+            formData.append(`userAmcs[${i}].file`, a.file);
+        });
+
+      // Refund Details
+      refundDetails
+        .filter((r) => Number(r.amount) > 0 || r.refundDate)
+        .forEach((r, i) => {
+          formData.append(`refundDetails[${i}].id`, r.id || 0);
+          formData.append(`refundDetails[${i}].amount`, r.amount || 0);
+          formData.append(
+            `refundDetails[${i}].refundDate`,
+            convertDateFormat(r.refundDate)
+          );
+          formData.append(
+            `refundDetails[${i}].refundDetails`,
+            r.refundDetails || ""
+          );
+          formData.append(
+            `refundDetails[${i}].refundPaymentMode`,
+            r.refundPaymentMode || ""
+          );
+          formData.append(`refundDetails[${i}].refundType`, r.refundType || "");
+          formData.append(`refundDetails[${i}].remarks`, r.remarks || "");
+          if (r.file instanceof File)
+            formData.append(`refundDetails[${i}].file`, r.file);
+        });
+
+      // Submit
+      const response = await UpdateMemberById(id, formData);
+
+      if (response?.data?.success || response?.status === 200) {
+        await Swal.fire("Success!", "Member updated successfully!", "success");
+        await fetchUserData();
+      } else {
+        await Swal.fire(
+          "Error!",
+          response?.data?.msg || "Update failed",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      await Swal.fire(
+        "Error!",
+        error?.response?.data?.msg || "Update failed",
+        "error"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container>
+        <div className="flex justify-center items-center h-96">
+          <Spin size="large" tip="Loading user data..." />
+        </div>
+      </Container>
+    );
+  }
+
   return (
     <Fragment>
       <Container>
@@ -662,7 +845,6 @@ const SuperAdminMemberEdit = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-              {/* Prefix */}
               <div>
                 <label className="block mb-1 text-sm">Prefix</label>
                 <Select
@@ -677,7 +859,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* First Name */}
               <div>
                 <label className="block mb-1 text-sm">First Name *</label>
                 <Input
@@ -688,7 +869,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* Last Name */}
               <div>
                 <label className="block mb-1 text-sm">Last Name *</label>
                 <Input
@@ -699,7 +879,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* Contact */}
               <div>
                 <label className="block mb-1 text-sm">Contact Number</label>
                 <Input
@@ -710,7 +889,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* Address */}
               <div className="sm:col-span-2 md:col-span-2 lg:col-span-1">
                 <label className="block mb-1 text-sm">Address</label>
                 <Input
@@ -721,7 +899,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* State */}
               <div>
                 <label className="block mb-1 text-sm">State</label>
                 <Select
@@ -732,7 +909,6 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* City */}
               <div>
                 <label className="block mb-1 text-sm">City *</label>
                 <Select
@@ -744,27 +920,31 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* Member Type */}
               <div>
                 <label className="block mb-1 text-sm">Member Type</label>
-                <Input
+                <Select
+                  className="w-full"
                   value={memberDetails.memberType}
-                  onChange={(e) =>
-                    handleMemberChange("memberType", e.target.value)
-                  }
+                  options={[
+                    { label: "Normal", value: "Normal" },
+                    { label: "Handle with care", value: "Handle with care" },
+                  ]}
+                  onChange={(v) => handleMemberChange("memberType", v)}
                 />
               </div>
               <div>
                 <label className="block mb-1 text-sm">Profile Type</label>
-                <Input
-                  value={memberDetails.memberType}
-                  onChange={(e) =>
-                    handleMemberChange("memberType", e.target.value)
-                  }
+                <Select
+                  className="w-full"
+                  options={[
+                    { label: "Lead", value: "Lead" },
+                    { label: "Refrence", value: "Refrence" },
+                  ]}
+                  value={memberDetails.profile}
+                  onChange={(v) => handleMemberChange("profile", v)}
                 />
               </div>
 
-              {/* Plan */}
               <div>
                 <label className="block mb-1 text-sm">Plan</label>
                 <Select
@@ -786,8 +966,8 @@ const SuperAdminMemberEdit = () => {
               <div className="w-full md:w-1/2">
                 <label className="block mb-1 text-sm">Sales </label>
                 <Select
-                  value={memberDetails.reportingManagerId}
-                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
+                  value={memberDetails.SalesId}
+                  onChange={(v) => handleMemberChange("SalesId", v)}
                   options={managers}
                   className="w-full"
                 />
@@ -809,33 +989,69 @@ const SuperAdminMemberEdit = () => {
               <span>Remarks</span>
             </div>
 
-            <div className="flex p-4 w-full gap-3 ">
+            <div className="flex p-4 w-full gap-3">
+              {/* Manager Remarks */}
               <div className="w-full md:w-1/2">
                 <label className="block mb-1 text-sm">Manager Remarks</label>
                 <textarea
                   rows={3}
                   className="textarea w-full mb-3"
                   placeholder="Add Remarks here"
+                  value={remarks.managerReq}
+                  onChange={(e) =>
+                    handleRemarksChange("managerReq", e.target.value)
+                  }
                 />
                 <Input
-                  className=""
                   type="file"
-                  onChange={(e) => setCallFile(e.target.files[0])}
+                  multiple
+                  onChange={(e) =>
+                    handleRemarksChange("managerFiles", [
+                      ...(remarks.managerFiles || []),
+                      ...Array.from(e.target.files),
+                    ])
+                  }
                 />
+                {remarks.managerFiles?.map((file, index) => (
+                  <span
+                    key={index}
+                    className="text-xs text-gray-500 mt-1 block"
+                  >
+                    {file.name}
+                  </span>
+                ))}
               </div>
 
+              {/* Sales Remarks */}
               <div className="w-full md:w-1/2">
                 <label className="block mb-1 text-sm">Sales Remarks</label>
                 <textarea
                   rows={3}
                   className="textarea w-full mb-3"
                   placeholder="Add Remarks here"
+                  value={remarks.salesReq}
+                  onChange={(e) =>
+                    handleRemarksChange("salesReq", e.target.value)
+                  }
                 />
                 <Input
-                  className=""
                   type="file"
-                  onChange={(e) => setCallFile(e.target.files[0])}
+                  multiple
+                  onChange={(e) =>
+                    handleRemarksChange("salesFiles", [
+                      ...(remarks.salesFiles || []),
+                      ...Array.from(e.target.files),
+                    ])
+                  }
                 />
+                {remarks.salesFiles?.map((file, index) => (
+                  <span
+                    key={index}
+                    className="text-xs text-gray-500 mt-1 block"
+                  >
+                    {file.name}
+                  </span>
+                ))}
               </div>
             </div>
           </section>
@@ -943,15 +1159,46 @@ const SuperAdminMemberEdit = () => {
                   />
                 </div>
 
-                {/* Upload */}
+                {/* Upload with View */}
                 <div className="flex flex-col">
                   <label className="text-sm">Document</label>
-                  <Input
-                    type="file"
-                    onChange={(e) =>
-                      handleDownPaymentFile(index, e.target.files[0])
-                    }
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      type="file"
+                      onChange={(e) =>
+                        handleDownPaymentFile(index, e.target.files[0])
+                      }
+                      className="flex-1"
+                    />
+                    {row.existingDocPath && (
+                      <div className="flex gap-1">
+                        <Button
+                          icon={<EyeOutlined />}
+                          onClick={() =>
+                            handleViewDocument(row.existingDocPath)
+                          }
+                          title="View Document"
+                          size="small"
+                        />
+                        <Button
+                          icon={<DownloadOutlined />}
+                          onClick={() =>
+                            handleDownloadDocument(
+                              row.existingDocPath,
+                              getFileNameFromUrl(row.existingDocPath)
+                            )
+                          }
+                          title="Download Document"
+                          size="small"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {row.existingDocPath && (
+                    <span className="text-xs text-gray-500 mt-1">
+                      {getFileNameFromUrl(row.existingDocPath)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Delete */}
@@ -1013,13 +1260,46 @@ const SuperAdminMemberEdit = () => {
                     />
                   </div>
 
-                  {/* FILE */}
+                  {/* FILE with View */}
                   <div className="flex flex-col">
                     <label className="text-sm">Upload Document</label>
-                    <Input
-                      type="file"
-                      onChange={(e) => handleKycFile(index, e.target.files[0])}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        onChange={(e) =>
+                          handleKycFile(index, e.target.files[0])
+                        }
+                        className="flex-1"
+                      />
+                      {kyc.existingDocPath && (
+                        <div className="flex gap-1">
+                          <Button
+                            icon={<EyeOutlined />}
+                            onClick={() =>
+                              handleViewDocument(kyc.existingDocPath)
+                            }
+                            title="View Document"
+                            size="small"
+                          />
+                          <Button
+                            icon={<DownloadOutlined />}
+                            onClick={() =>
+                              handleDownloadDocument(
+                                kyc.existingDocPath,
+                                getFileNameFromUrl(kyc.existingDocPath)
+                              )
+                            }
+                            title="Download Document"
+                            size="small"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    {kyc.existingDocPath && (
+                      <span className="text-xs text-gray-500 mt-1">
+                        {getFileNameFromUrl(kyc.existingDocPath)}
+                      </span>
+                    )}
                   </div>
 
                   {/* DELETE */}
@@ -1027,14 +1307,14 @@ const SuperAdminMemberEdit = () => {
                     <Button
                       danger
                       icon={<DeleteOutlined />}
-                      onClick={() => removeKyc(index)}
+                      onClick={() => removeKyc(index, kyc.id)}
                     />
                   </div>
                 </div>
               ))}
             </div>
           </section>
-
+          {/* AMC */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>AMC Details</span>
@@ -1042,7 +1322,7 @@ const SuperAdminMemberEdit = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 size="small"
-                onClick={addDownPayment}
+                onClick={addUserAmc}
               >
                 Add New
               </Button>
@@ -1060,10 +1340,8 @@ const SuperAdminMemberEdit = () => {
                       AMC Type
                     </label>
                     <Select
-                      value={row.paymentType}
-                      onChange={(v) =>
-                        handleDownPaymentChange(index, "paymentType", v)
-                      }
+                      value={row.amcType}
+                      onChange={(v) => handleUserAmcChange(index, "amcType", v)}
                       options={[
                         { label: "Cash", value: "cash" },
                         { label: "Cheque", value: "cheque" },
@@ -1081,9 +1359,9 @@ const SuperAdminMemberEdit = () => {
                     </label>
                     <Input
                       type="number"
-                      value={row.amount}
+                      value={row.amcAmount}
                       onChange={(e) =>
-                        handleDownPaymentChange(index, "amount", e.target.value)
+                        handleUserAmcChange(index, "amcAmount", e.target.value)
                       }
                     />
                   </div>
@@ -1095,13 +1373,9 @@ const SuperAdminMemberEdit = () => {
                     </label>
                     <Input
                       type="date"
-                      value={row.transactionDate}
+                      value={row.amcDate}
                       onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "transactionDate",
-                          e.target.value
-                        )
+                        handleUserAmcChange(index, "amcDate", e.target.value)
                       }
                     />
                   </div>
@@ -1113,12 +1387,14 @@ const SuperAdminMemberEdit = () => {
                     </label>
                     <Input
                       type="number"
-                      value={row.amcAmount}
-                      onChange={(e) => {
-                        const updated = [...userAmcs];
-                        updated[index].amcAmount = e.target.value;
-                        setUserAmcs(updated);
-                      }}
+                      value={row.amcRecivableAmount}
+                      onChange={(e) =>
+                        handleUserAmcChange(
+                          index,
+                          "amcRecivableAmount",
+                          e.target.value
+                        )
+                      }
                     />
                   </div>
 
@@ -1129,11 +1405,11 @@ const SuperAdminMemberEdit = () => {
                     </label>
                     <Input
                       type="date"
-                      value={row.transactionDate}
+                      value={row.amcRecivableDate}
                       onChange={(e) =>
-                        handleDownPaymentChange(
+                        handleUserAmcChange(
                           index,
-                          "transactionDate",
+                          "amcRecivableDate",
                           e.target.value
                         )
                       }
@@ -1146,10 +1422,8 @@ const SuperAdminMemberEdit = () => {
                       Status
                     </label>
                     <Select
-                      value={row.paymentType}
-                      onChange={(v) =>
-                        handleDownPaymentChange(index, "paymentType", v)
-                      }
+                      value={row.status}
+                      onChange={(v) => handleUserAmcChange(index, "status", v)}
                       options={[
                         { label: "Pending", value: "pending" },
                         { label: "Completed", value: "completed" },
@@ -1165,28 +1439,55 @@ const SuperAdminMemberEdit = () => {
                       Remarks
                     </label>
                     <Input
-                      value={row.remarks}
+                      value={row.amcRemarks}
                       onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "remarks",
-                          e.target.value
-                        )
+                        handleUserAmcChange(index, "amcRemarks", e.target.value)
                       }
                     />
                   </div>
 
-                  {/* Upload Document */}
+                  {/* Upload Document with View */}
                   <div>
                     <label className="block mb-1 text-sm font-medium">
                       Upload Document
                     </label>
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleDownPaymentFile(index, e.target.files[0])
-                      }
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        onChange={(e) =>
+                          handleUserAmcFile(index, e.target.files[0])
+                        }
+                        className="flex-1"
+                      />
+                      {row.existingDocPath && (
+                        <div className="flex gap-1">
+                          <Button
+                            icon={<EyeOutlined />}
+                            onClick={() =>
+                              handleViewDocument(row.existingDocPath)
+                            }
+                            title="View Document"
+                            size="small"
+                          />
+                          <Button
+                            icon={<DownloadOutlined />}
+                            onClick={() =>
+                              handleDownloadDocument(
+                                row.existingDocPath,
+                                getFileNameFromUrl(row.existingDocPath)
+                              )
+                            }
+                            title="Download Document"
+                            size="small"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    {row.existingDocPath && (
+                      <span className="text-xs text-gray-500 mt-1">
+                        {getFileNameFromUrl(row.existingDocPath)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Delete Button */}
@@ -1194,14 +1495,14 @@ const SuperAdminMemberEdit = () => {
                     <Button
                       danger
                       icon={<DeleteOutlined />}
-                      onClick={() => handleDeleteDownPayment(index, row.id)}
+                      onClick={() => removeUserAmc(index, row.id)}
                     />
                   </div>
                 </div>
               ))}
             </div>
           </section>
-
+          {/* refund */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Refund Details</span>
@@ -1209,153 +1510,187 @@ const SuperAdminMemberEdit = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 size="small"
-                onClick={addDownPayment}
+                onClick={addRefund} // ✅ Correct function
               >
                 Add New
               </Button>
             </div>
 
             <div className="p-4 space-y-6">
-              {refundDetails.map((row, index) => (
-                <div
-                  key={index}
-                  className=" rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                >
-                  {/* AMC Type */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Refund Type
-                    </label>
-                    <Select
-                      value={row.paymentType}
-                      onChange={(v) =>
-                        handleDownPaymentChange(index, "paymentType", v)
-                      }
-                      options={[
-                        { label: "Cash", value: "cash" },
-                        { label: "Cheque", value: "cheque" },
-                        { label: "Online", value: "online" },
-                        { label: "Other", value: "other" },
-                      ]}
-                      className="w-full"
-                    />
-                  </div>
+              {refundDetails.map(
+                (
+                  row,
+                  index // ✅ Correct array
+                ) => (
+                  <div
+                    key={index}
+                    className="rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                  >
+                    {/* Refund Type */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Refund Type
+                      </label>
+                      <Select
+                        value={row.refundType}
+                        onChange={(v) =>
+                          handleRefundChange(index, "refundType", v)
+                        }
+                        options={[
+                          { label: "Full Refund", value: "full" },
+                          { label: "Partial Refund", value: "partial" },
+                          { label: "Cancellation", value: "cancellation" },
+                        ]}
+                        className="w-full"
+                      />
+                    </div>
 
-                  {/* Amount */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Amount
-                    </label>
-                    <Input
-                      type="number"
-                      value={row.amount}
-                      onChange={(e) => {
-                        const updated = [...refundDetails];
-                        updated[index].amount = e.target.value;
-                        setRefundDetails(updated);
-                      }}
-                    />
-                  </div>
+                    {/* Amount */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Amount
+                      </label>
+                      <Input
+                        type="number"
+                        value={row.amount}
+                        onChange={(e) =>
+                          handleRefundChange(index, "amount", e.target.value)
+                        }
+                      />
+                    </div>
 
-                  {/* AMC Date */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Refund Date
-                    </label>
-                    <Input
-                      type="date"
-                      value={row.transactionDate}
-                      onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "transactionDate",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Refund Payment Mode
-                    </label>
-                    <Select
-                      value={row.paymentType}
-                      onChange={(v) =>
-                        handleDownPaymentChange(index, "paymentType", v)
-                      }
-                      options={[
-                        { label: "Cash", value: "cash" },
-                        { label: "Cheque", value: "cheque" },
-                        { label: "Online", value: "online" },
-                        { label: "Other", value: "other" },
-                      ]}
-                      className="w-full"
-                    />
-                  </div>
+                    {/* Refund Date */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Refund Date
+                      </label>
+                      <Input
+                        type="date"
+                        value={row.refundDate}
+                        onChange={(e) =>
+                          handleRefundChange(
+                            index,
+                            "refundDate",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Refund Details
-                    </label>
-                    <Input
-                      value={row.remarks}
-                      onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "remarks",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
+                    {/* Refund Payment Mode */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Refund Payment Mode
+                      </label>
+                      <Select
+                        value={row.refundPaymentMode}
+                        onChange={(v) =>
+                          handleRefundChange(index, "refundPaymentMode", v)
+                        }
+                        options={[
+                          { label: "Cash", value: "cash" },
+                          { label: "Cheque", value: "cheque" },
+                          { label: "Online Transfer", value: "online" },
+                          { label: "Bank Transfer", value: "bank_transfer" },
+                        ]}
+                        className="w-full"
+                      />
+                    </div>
 
-                  {/* Remarks */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Remarks
-                    </label>
-                    <Input
-                      value={row.remarks}
-                      onChange={(e) =>
-                        handleDownPaymentChange(
-                          index,
-                          "remarks",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
+                    {/* Refund Details */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Refund Details
+                      </label>
+                      <Input
+                        value={row.refundDetails}
+                        onChange={(e) =>
+                          handleRefundChange(
+                            index,
+                            "refundDetails",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter refund details"
+                      />
+                    </div>
 
-                  {/* Upload Document */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      Upload Document
-                    </label>
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleDownPaymentFile(index, e.target.files[0])
-                      }
-                    />
-                  </div>
+                    {/* Remarks */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Remarks
+                      </label>
+                      <Input
+                        value={row.remarks}
+                        onChange={(e) =>
+                          handleRefundChange(index, "remarks", e.target.value)
+                        }
+                        placeholder="Additional remarks"
+                      />
+                    </div>
 
-                  {/* Delete Button */}
-                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 flex justify-end mt-3">
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleDeleteDownPayment(index, row.id)}
-                    />
+                    {/* Upload Document with View */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium">
+                        Upload Document
+                      </label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="file"
+                          onChange={(e) =>
+                            handleRefundFile(index, e.target.files[0])
+                          }
+                          className="flex-1"
+                        />
+                        {row.existingDocPath && (
+                          <div className="flex gap-1">
+                            <Button
+                              icon={<EyeOutlined />}
+                              onClick={() =>
+                                handleViewDocument(row.existingDocPath)
+                              }
+                              title="View Document"
+                              size="small"
+                            />
+                            <Button
+                              icon={<DownloadOutlined />}
+                              onClick={() =>
+                                handleDownloadDocument(
+                                  row.existingDocPath,
+                                  getFileNameFromUrl(row.existingDocPath)
+                                )
+                              }
+                              title="Download Document"
+                              size="small"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {row.existingDocPath && (
+                        <span className="text-xs text-gray-500 mt-1">
+                          {getFileNameFromUrl(row.existingDocPath)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Delete Button */}
+                    <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 flex justify-end mt-3">
+                      <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => removeRefund(index)}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </section>
 
           {/* CALL FILE */}
           <section className="border rounded-md ">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
-              <span> Import Call File</span>
+              <span>Import Call File</span>
             </div>
             <div className="p-3">
               <Input

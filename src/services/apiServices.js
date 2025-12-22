@@ -971,10 +971,12 @@ export const SubscriptionByUser = (id) => {
 };
 
 //Update Member
+export const UpdateMemberById = (id, formData) => {
+  return PUT(`/user/updatemember?id=${id}`, formData, {
 
-export const UpdateMemberById = (id, data) => {
-  return PUT(`/user/updatemember?id=${id}`, data);
+  });
 };
+
 
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
@@ -1284,4 +1286,13 @@ export const GetAllCustomTheme = () => {
 };
 export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
+};
+
+
+export const DeleteKyc = (id) => {
+  return DELETE(`/user/deleteuserdocumentbyid?id=${id}`);
+};
+
+export const DeleteAmc = (id) => {
+  return DELETE(`/user/deleteuseramcbyid?id=${id}`);
 };

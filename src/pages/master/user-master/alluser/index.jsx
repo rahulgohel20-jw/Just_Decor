@@ -18,8 +18,6 @@ const AllUser = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatUsers = (users) => {
-    console.log(users);
-
     const managerMap = {};
     users.forEach((u) => {
       managerMap[u.id] = `${u.firstName} ${u.lastName}`;
@@ -39,6 +37,7 @@ const AllUser = () => {
         email: user.email,
         userCode: user.userCode || "-",
         remark: user.remarks || "-",
+        database: user.database || "-",
       }));
   };
 
