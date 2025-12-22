@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 const CustomerMaster = () => {
   const classes = useStyle();
   const [searchQuery, setSearchQuery] = useState("");
+
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);

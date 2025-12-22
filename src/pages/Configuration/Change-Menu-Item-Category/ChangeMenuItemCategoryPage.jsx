@@ -150,6 +150,18 @@ const ChangeMenuItemCategoryPage = () => {
     }
   };
 
+  const filteredTableData = tableData.filter((item) => {
+    if (!searchQuery) return true; // no search, show all
+
+    const query = searchQuery.toLowerCase();
+
+    // check the fields you want to search in
+    return (
+      item.menuItem.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <Fragment>
       <Container>
@@ -251,9 +263,9 @@ const ChangeMenuItemCategoryPage = () => {
             columns={columns({
               selectedRows,
               setSelectedRows,
-              data: tableData,
+              data: filteredTableData,
             })}
-            data={tableData}
+            data={filteredTableData}
             paginationSize={10}
           />
         </div>

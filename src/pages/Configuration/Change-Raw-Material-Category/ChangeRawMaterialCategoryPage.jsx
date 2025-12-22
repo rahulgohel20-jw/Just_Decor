@@ -144,6 +144,17 @@ const ChangeRawMaterialCategoryPage = () => {
       setIsSaving(false);
     }
   };
+  const filteredTableData = tableData.filter((item) => {
+    if (!searchQuery) return true; // no search, show all
+
+    const query = searchQuery.toLowerCase();
+
+    // Check all fields you want to search in
+    return (
+      item.rawMaterial.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <Fragment>
@@ -238,6 +249,11 @@ const ChangeRawMaterialCategoryPage = () => {
                 })}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSearchQuery(e.target.value);
+                  }
+                }}
               />
             </div>
           </div>
@@ -268,9 +284,9 @@ const ChangeRawMaterialCategoryPage = () => {
               columns={columns({
                 selectedRows,
                 setSelectedRows,
-                data: tableData,
+                data: filteredTableData,
               })}
-              data={tableData}
+              data={filteredTableData}
               paginationSize={10}
             />
           )}

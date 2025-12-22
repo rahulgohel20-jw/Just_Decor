@@ -220,6 +220,18 @@ const Allocatesupplier = () => {
       setIsSaving(false);
     }
   };
+  const filteredTableData = tableData.filter((item) => {
+    if (!searchQuery) return true; // no search, show all
+
+    const query = searchQuery.toLowerCase();
+
+    // Check the fields you want to search in
+    return (
+      item.rawMaterial.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query) ||
+      (item.supplier || "").toLowerCase().includes(query)
+    );
+  });
 
   return (
     <Fragment>
@@ -311,12 +323,12 @@ const Allocatesupplier = () => {
               <input
                 className="input pl-8"
                 type="text"
-                placeholder={intl.formatMessage({
-                  id: "RAW_MATERIAL.SEARCH",
-                  defaultMessage: "To search, type and press Enter.",
-                })}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={intl.formatMessage({
+                  id: "RAW_MATERIAL.SEARCH",
+                  defaultMessage: "To search, type here...",
+                })}
               />
             </div>
           </div>
@@ -325,9 +337,9 @@ const Allocatesupplier = () => {
             columns={columns({
               selectedRows,
               setSelectedRows,
-              data: tableData,
+              data: filteredTableData,
             })}
-            data={tableData}
+            data={filteredTableData}
             paginationSize={10}
           />
         </div>

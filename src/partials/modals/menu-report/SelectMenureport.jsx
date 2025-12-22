@@ -17,10 +17,63 @@ export default function SelectMenureport({
 
   const params = useParams();
   const finalEventId = eventId || params?.eventId;
+  const [selectedCard, setSelectedCard] = useState(null);
 
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const tabs = [
+    {
+      key: "exclusive",
+      label: "Exclusive Reports",
+      img: "/media/icons/exlusivereport.svg",
+    },
+    {
+      key: "simple",
+      label: "Simple Reports",
+      img: "/media/icons/simple.png",
+    },
+    {
+      key: "backoffice",
+      label: "Back-Office Reports",
+      img: "/media/icons/backoffice.png",
+    },
+  ];
+
+  const cardsByTab = {
+    exclusive: [
+      {
+        key: "detailedAnalysis",
+        label: "Detailed Analysis",
+        description: "In-depth insights into event performance.",
+        icon: "/media/icons/analysis.svg",
+        color: "from-blue-500 to-blue-700",
+        iconBg: "bg-blue-100",
+      },
+    ],
+    simple: [
+      {
+        key: "customReport",
+        label: "Customizable Report",
+        description: "Tailor the report to your specific needs.",
+        icon: "/media/icons/report.svg",
+        color: "from-indigo-500 to-indigo-700",
+        iconBg: "bg-indigo-100",
+      },
+    ],
+    backoffice: [
+      {
+        key: "advancedMetrics",
+        label: "Advanced Metrics",
+        description: "Track key performance indicators.",
+        icon: "/media/icons/metrics.svg",
+        color: "from-orange-500 to-orange-700",
+        iconBg: "bg-orange-100",
+      },
+    ],
+  };
+
+  const [activeTab, setActiveTab] = useState("exclusive");
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -48,7 +101,7 @@ export default function SelectMenureport({
       key: "menuAllocation",
       label: "Exclusive Report",
       description: "Detailed allocation with full breakdown",
-      icon: "/media/eventviewicon/menuallocation.png",
+      icon: "media/icons/menuselect1.png",
       color: "from-blue-500 to-blue-600",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
@@ -57,7 +110,7 @@ export default function SelectMenureport({
       key: "rawMaterial",
       label: "Simple Report",
       description: "Quick overview of raw materials",
-      icon: "/media/eventviewicon/rawmaterial.png",
+      icon: "media/icons/menuselect2.png",
       color: "from-blue-500 to-blue-600",
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
@@ -66,7 +119,7 @@ export default function SelectMenureport({
       key: "menuReport",
       label: "Menu Report",
       description: "Complete menu details and analysis",
-      icon: "/media/eventviewicon/menureport.png",
+      icon: "media/icons/menuselect3.png",
       color: "from-blue-500 to-blue-600",
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
@@ -95,27 +148,28 @@ export default function SelectMenureport({
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border border-gray-200">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <InfoItem
-              icon="ki-user"
+              icon={toAbsoluteUrl("/media/icons/partyname.png")}
               label="Party Name"
               value={eventData?.party?.nameEnglish || "-"}
             />
+
             <InfoItem
-              icon="ki-calendar"
+              icon={toAbsoluteUrl("/media/icons/eventname.png")}
               label="Event Name"
               value={eventData?.eventType?.nameEnglish || "-"}
             />
             <InfoItem
-              icon="ki-element-11"
+              icon={toAbsoluteUrl("/media/icons/funtionname.png")}
               label="Function"
               value={eventData?.eventType?.nameEnglish || "-"}
             />
             <InfoItem
-              icon="ki-time"
+              icon={toAbsoluteUrl("/media/icons/date&time.png")}
               label="Date & Time"
               value={eventData?.eventStartDateTime || "-"}
             />
             <InfoItem
-              icon="ki-geolocation"
+              icon={toAbsoluteUrl("/media/icons/venue.png")}
               label="Venue"
               value={eventData?.venue?.nameEnglish || "-"}
             />
@@ -123,83 +177,85 @@ export default function SelectMenureport({
         </div>
 
         {/* Report Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {cards.map((item) => (
-            <div
-              key={item.key}
-              onClick={() => {
-                if (
-                  item.key === "menuReport" ||
-                  item.key === "menuAllocation" ||
-                  item.key === "rawMaterial"
-                ) {
-                  setIsSelectMenuReport(false);
-                  if (onConfirm) onConfirm(item.key);
-                }
-              }}
-              onMouseEnter={() => setHoveredCard(item.key)}
-              onMouseLeave={() => setHoveredCard(null)}
-              className={`
-                relative bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer
-                transition-all duration-300 transform
-                ${hoveredCard === item.key ? "scale-105 shadow-2xl" : "hover:shadow-xl"}
-              `}
-            >
-              {/* Gradient Header */}
-              <div className={`h-2 bg-gradient-to-r ${item.color}`}></div>
+        <div className="flex gap-10 border-b border-gray-200 mb-6">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key;
 
-              <div className="p-6">
-                {/* Icon Section */}
-                <div className="flex items-center justify-center mb-4">
-                  <div
-                    className={`
-                    w-20 h-20 ${item.iconBg} rounded-full flex items-center justify-center
-                    transition-transform duration-300
-                    ${hoveredCard === item.key ? "scale-110" : ""}
-                  `}
-                  >
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`group relative pb-4 flex items-center gap-3 font-semibold text-lg transition-all
+          ${isActive ? "text-gray-700 hover:text-[#005BA8]" : "text-gray-700 hover:text-[#005BA8]"}
+        `}
+                style={isActive ? { color: "#005BA8" } : {}}
+              >
+                {/* Icon with blue filter when active */}
+                <img
+                  src={toAbsoluteUrl(tab.img)}
+                  alt={tab.label}
+                  className="w-6 h-6 transition-all duration-300"
+                  style={{
+                    filter: isActive
+                      ? "invert(26%) sepia(95%) saturate(1685%) hue-rotate(192deg) brightness(93%) contrast(101%)"
+                      : "invert(50%) sepia(0%) saturate(0%)",
+                  }}
+                />
+
+                {/* Label */}
+                <span>{tab.label}</span>
+
+                {/* Bottom underline */}
+                <span
+                  className={`absolute left-0 -bottom-[1px] h-[4px] w-full transition-all duration-300
+            ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
+          `}
+                  style={{ backgroundColor: "#005BA8" }}
+                />
+              </button>
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {cardsByTab[activeTab]?.map((item) => {
+            const isActive = selectedCard === item.key;
+            return (
+              <div
+                key={item.key}
+                onClick={() => {
+                  setSelectedCard(item.key);
+                  onConfirm?.(item.key);
+                }}
+                className={`
+          relative bg-white rounded-2xl cursor-pointer
+          border-2 ${isActive ? "border-blue-500" : "border-gray-200"}
+          shadow-md hover:shadow-lg transition-all duration-300
+        `}
+              >
+                <div className="p-6 flex flex-col items-left">
+                  {/* Icon */}
+                  <div className="w-16 h-16  flex items-center justify-center mb-4">
                     <img
-                      src={toAbsoluteUrl(item.icon)}
-                      alt={item.label}
-                      className="w-10 h-10"
+                      src={toAbsoluteUrl("/media/icons/selectmenu.png")}
+                      className="w-15 h-15"
                     />
                   </div>
-                </div>
 
-                {/* Title */}
-                <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
-                  {item.label}
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm text-gray-500 text-center mb-4">
-                  {item.description}
-                </p>
-
-                {/* Action Button */}
-                <div className="flex justify-center">
-                  <button
-                    className={`
-                    px-6 py-2 rounded-lg font-medium text-white
-                    bg-gradient-to-r ${item.color}
-                    transition-all duration-300
-                    ${hoveredCard === item.key ? "px-8" : ""}
-                  `}
+                  {/* Title */}
+                  <h3
+                    className={`text-lg font-bold mb-2 ${isActive ? "text-blue-600" : "text-gray-800"}`}
                   >
-                    <span className="flex items-center gap-2">
-                      Generate
-                      <i className="ki-filled ki-arrow-right"></i>
-                    </span>
-                  </button>
+                    {item.label}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-500 text-left">
+                    {item.description}
+                  </p>
                 </div>
               </div>
-
-              {/* Hover Effect Overlay */}
-              {hoveredCard === item.key && (
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Help Text */}
@@ -213,18 +269,17 @@ export default function SelectMenureport({
 }
 
 // Info Item Component
+
+// Info Item Component
 const InfoItem = ({ icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center flex-shrink-0 mt-1">
-      <i className={`ki-filled ${icon} text-primary`}></i>
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">
-        {label}
-      </p>
-      <p className="text-sm font-semibold text-gray-800 truncate" title={value}>
-        {value}
-      </p>
+  <div className="flex items-center gap-3 min-w-[120px]">
+    {/* Icon */}
+    {icon && <img src={icon} alt={label} className="w-5 h-5 object-contain" />}
+
+    {/* Text */}
+    <div className="flex flex-col">
+      <span className=" text-black font-bold text-base">{label}</span>
+      <span className="text-sm font-semibold text-gray-600">{value}</span>
     </div>
   </div>
 );
