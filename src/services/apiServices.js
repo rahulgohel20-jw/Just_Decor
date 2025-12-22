@@ -971,10 +971,12 @@ export const SubscriptionByUser = (id) => {
 };
 
 //Update Member
-
-export const UpdateMemberById = (id, data) => {
-  return PUT(`/user/updatemember?id=${id}`, data);
+export const UpdateMemberById = (id, formData) => {
+  return PUT(`/user/updatemember?id=${id}`, formData, {
+  
+  });
 };
+
 
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);

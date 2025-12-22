@@ -40,6 +40,23 @@ const MenuReport = ({
       itemInstruction: checked,
     });
   };
+  const Toggle = ({ checked, onChange, disabled }) => (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={!disabled ? onChange : undefined}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+      ${checked ? "bg-blue-600" : "bg-gray-300"}
+      ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+    `}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+          checked ? "translate-x-5" : "translate-x-1"
+        }`}
+      />
+    </button>
+  );
 
   const toggleOne = (key) =>
     setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -114,7 +131,6 @@ const MenuReport = ({
         defaultMessage: "Menu Report",
       })}
       onClose={handleClose}
-      width="90vw"
       footer={
         pdfUrl
           ? [
@@ -147,7 +163,7 @@ const MenuReport = ({
                 </button>
                 <button
                   onClick={handleReport}
-                  className="px-6 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
+                  className="px-6 py-2 rounded-md bg-[#005BA8] text-white disabled:opacity-60"
                   disabled={loading}
                 >
                   {loading
@@ -167,27 +183,41 @@ const MenuReport = ({
       {!pdfUrl && (
         <>
           {/* Language select */}
-          <div className="flex justify-center items-center gap-6 mb-4">
-            {["english", "gujarati", "hindi"].map((lang) => (
-              <label
-                key={lang}
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <input
-                  type="radio"
-                  name="language"
-                  checked={selectedLanguage === lang}
-                  onChange={() => setSelectedLanguage(lang)}
-                />
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
-              </label>
-            ))}
+          <div className="mb-4">
+            <span className="block text-sm font-medium text-gray-700 mb-2">
+              Select Language
+            </span>
+
+            <div className="flex bg-white border rounded-lg p-1">
+              {["english", "hindi", "gujarati"].map((lang) => {
+                const active = selectedLanguage === lang;
+
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setSelectedLanguage(lang)}
+                    className={`flex-1 py-1 text-sm font-medium rounded-md transition-all
+            ${
+              active
+                ? "bg-[#005BA8] text-white shadow"
+                : "text-gray-800 hover:bg-gray-100"
+            }
+          `}
+                  >
+                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
+            <hr className="my-4 border-gray-300" />
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-3 p-3 border rounded-lg">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between p-3  rounded-lg">
+              <span className="font-medium">Check All</span>
+
+              <Toggle
                 checked={
                   options.categorySlogan &&
                   options.categoryInstruction &&
@@ -195,23 +225,34 @@ const MenuReport = ({
                   options.itemSlogan &&
                   options.itemInstruction
                 }
-                onChange={(e) => toggleAll(e.target.checked)}
+                onChange={(e) =>
+                  toggleAll(
+                    !(
+                      options.categorySlogan &&
+                      options.categoryInstruction &&
+                      options.categoryImage &&
+                      options.itemSlogan &&
+                      options.itemInstruction
+                    )
+                  )
+                }
               />
-              <span>Check All</span>
-            </label>
+            </div>
 
             {Object.keys(options).map((key) => (
-              <label
+              <div
                 key={key}
-                className="flex items-center gap-3 p-3 border rounded-lg"
+                className="flex items-center justify-between p-3  rounded-lg"
               >
-                <input
-                  type="checkbox"
+                <span className="capitalize">
+                  {key.replace(/([A-Z])/g, " $1")}
+                </span>
+
+                <Toggle
                   checked={options[key]}
                   onChange={() => toggleOne(key)}
                 />
-                <span>{key}</span>
-              </label>
+              </div>
             ))}
           </div>
         </>

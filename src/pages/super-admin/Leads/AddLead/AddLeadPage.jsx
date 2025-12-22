@@ -39,9 +39,10 @@ export default function AddLeadPage() {
   const [plans, setPlans] = useState([]);
   const [followUps, setFollowUps] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [viewingFollowUp, setViewingFollowUp] = useState("");
+  const [viewingFollowUp, setViewingFollowUp] = useState(null);
   const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
   const [selectedGetLead, setSelectedGetLead] = useState("");
+
   const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
     start: "",
     end: "",
@@ -1067,7 +1068,7 @@ export default function AddLeadPage() {
                               <div className="ml-auto flex items-center gap-2">
                                 <button
                                   onClick={() => {
-                                    setViewingFollowUp(null); // the specific follow-up
+                                    setViewingFollowUp(item); // the specific follow-up
                                     setIsFollowUpOpen(true);
                                   }}
                                 >

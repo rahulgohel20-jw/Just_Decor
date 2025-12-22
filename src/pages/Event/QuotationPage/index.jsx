@@ -28,6 +28,8 @@ const QuotationPage = () => {
   const [dueDate, setDueDate] = useState(null);
   const todayDate = new Date().toLocaleDateString("en-GB");
   const [isEdited, setIsEdited] = useState(false);
+  const [isQuotationDateEditing, setIsQuotationDateEditing] = useState(false);
+  const [quotationDate, setQuotationDate] = useState("");
 
   const intl = useIntl();
 
@@ -67,6 +69,12 @@ const QuotationPage = () => {
     remainingPayment: "0.00",
     notes: "",
   });
+
+  useEffect(() => {
+    if (quotationData?.QuotationDate) {
+      setQuotationDate(dayjs(quotationData.QuotationDate).format("YYYY-MM-DD"));
+    }
+  }, [quotationData?.QuotationDate]);
 
   useEffect(() => {
     FetchGetQuotation();
@@ -687,9 +695,47 @@ const QuotationPage = () => {
                           defaultMessage="Quotation Date:"
                         />
                       </span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {quotationData.QuotationDate}
-                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {!isQuotationDateEditing ? (
+                          <>
+                            <span className="text-sm font-medium text-gray-900">
+                              {quotationData.QuotationDate}
+                            </span>
+
+                            <button
+                              type="button"
+                              className="text-primary hover:text-primary-dark"
+                              onClick={() => setIsQuotationDateEditing(true)}
+                              title="Edit Quotation Date"
+                            >
+                              <i className="ki-filled ki-pencil"></i>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <input
+                              type="date"
+                              value={quotationDate}
+                              onChange={(e) => {
+                                setQuotationDate(e.target.value);
+                                setIsEdited(true);
+                              }}
+                              className="border rounded px-2 py-1 text-sm"
+                              autoFocus
+                            />
+
+                            <button
+                              type="button"
+                              className="text-success hover:text-success-dark"
+                              onClick={() => setIsQuotationDateEditing(false)}
+                              title="Done"
+                            >
+                              <i className="ki-filled ki-check"></i>
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

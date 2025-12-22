@@ -27,6 +27,8 @@ const AddInvoicePage = () => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [invoiceDate, setInvoiceDate] = useState("");
 
   // New state for invoice footer data
   const [footerData, setFooterData] = useState({
@@ -73,6 +75,12 @@ const AddInvoicePage = () => {
     shipname: "",
     gstnumber: "",
   });
+
+  useEffect(() => {
+    if (invoiceData?.createdAt) {
+      setInvoiceDate(invoiceData.createdAt.split("T")[0]); // yyyy-mm-dd
+    }
+  }, [invoiceData]);
 
   // Initialize billing name and GST number from invoiceData
   useEffect(() => {
@@ -568,10 +576,48 @@ const AddInvoicePage = () => {
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-sm">Invoice Date:</span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {formatDate(invoiceData?.createdAt)}
-                        </span>
+                        <span className="text-xs">Invoice Date:</span>
+
+                        <div className="flex items-center gap-2">
+                          {!isEditing ? (
+                            <>
+                              <span className="text-sm font-medium text-gray-900">
+                                {formatDate(invoiceDate)}
+                              </span>
+
+                              <button
+                                type="button"
+                                className="text-primary hover:text-primary-dark"
+                                onClick={() => setIsEditing(true)}
+                                title="Edit Invoice Date"
+                              >
+                                <i className="ki-filled ki-pencil"></i>
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <input
+                                type="date"
+                                value={invoiceDate}
+                                onChange={(e) => {
+                                  setInvoiceDate(e.target.value);
+                                  setIsEdited(true);
+                                }}
+                                className="border rounded px-2 py-1 text-sm"
+                                autoFocus
+                              />
+
+                              <button
+                                type="button"
+                                className="text-success hover:text-success-dark"
+                                onClick={() => setIsEditing(false)}
+                                title="Done"
+                              >
+                                <i className="ki-filled ki-check"></i>
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

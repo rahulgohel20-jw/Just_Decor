@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import InsideTable from "./tables/InsideTable";
 import OutsideTable from "./tables/OutsideTable";
 import ChefLabourTable from "./tables/ChefLabourTable";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
+import { Container } from "@/components/container";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import NoData from "../../../components/Nodata";
+
 import {
   Getmenuitemsusingcatidconfig,
   GetMenuCategoryByUserId,
@@ -10,7 +14,10 @@ import {
 } from "@/services/apiServices";
 
 const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
+  const intl = useIntl();
+
   const [fromCategory, setFromCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedType, setSelectedType] = useState("");
   const [vendorList, setVendorList] = useState([]);
@@ -61,18 +68,18 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           let filteredVendors = [];
 
           if (toType === "Chef Labour") {
-            // Show only Chef Labour (contactType.id = 5) or Labour (id = 2)
             filteredVendors = vendors.filter(
               (v) =>
                 v.contact?.contactType?.id === 2 ||
                 v.contact?.contactType?.id === 5
             );
           } else if (toType === "Outside") {
-            // Show only Outside Supplier (Food) (contactType.id = 6)
             filteredVendors = vendors.filter(
               (v) => v.contact?.contactType?.id === 6
             );
           }
+
+          console.log("Filtered Vendors:", filteredVendors);
 
           setVendorList(filteredVendors);
         } catch (err) {
@@ -82,31 +89,20 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       };
       fetchVendors();
     } else {
-      // Inside: no vendors
       setVendorList([]);
     }
   }, [toType]);
 
-  /* =========================
-     RESET DEPENDENCIES
-  ========================= */
-
-  // Reset vendor when To Type changes
   useEffect(() => {
     setSelectedItem("");
   }, [toType]);
 
-  // Reset everything when category changes
   useEffect(() => {
     setSelectedType("");
     setToType("");
     setSelectedItem("");
     setTableData([]);
   }, [fromCategory]);
-
-  /* =========================
-     API CALL (Type → Table)
-  ========================= */
 
   useEffect(() => {
     if (!fromCategory || !selectedType) {
@@ -164,128 +160,199 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
     fetchMenuItems();
   }, [fromCategory, selectedType]);
 
-  /* =========================
-     DEPENDENT DROPDOWN CONFIG
-  ========================= */
-
-  /* =========================
-   DEPENDENT DROPDOWN CONFIG FIX
-========================= */
-
   const dropdownConfig = useMemo(() => {
     if (toType === "Inside") {
-      return { label: "Vendor / Chef", options: [] }; // disabled
+      return { label: "Vendor / Chef", options: [] };
     }
     if (toType === "Outside" || toType === "Chef Labour") {
-      return { label: "Vendor / Chef", options: vendorList }; // use fetched vendor list
+      return { label: "Vendor / Chef", options: vendorList };
+      t;
     }
     return { label: "Select To Type First", options: [] };
   }, [toType, vendorList]);
 
-  /* =========================
-     RENDER
-  ========================= */
+  // Inside MenuAllocation component
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return tableData;
+
+    return tableData.filter((item) => {
+      const query = searchQuery.toLowerCase();
+      return (
+        item.menuItem?.toLowerCase().includes(query) ||
+        item.itemName?.toLowerCase().includes(query) ||
+        item.category?.toLowerCase().includes(query) ||
+        item.type?.toLowerCase().includes(query)
+      );
+    });
+  }, [searchQuery, tableData]);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label className="form-label font-semibold">
-            <FormattedMessage
-              id="FROM_CATEGORY"
-              defaultMessage="From Category"
-            />
-          </label>
-          <select
-            className="input appearance-none pr-10"
-            value={fromCategory}
-            onChange={(e) => setFromCategory(e.target.value)}
-            disabled={categoriesLoading}
-          >
-            <option value="">
-              {categoriesLoading ? "Loading..." : "Select a category"}
-            </option>
-
-            {categoryList.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Type */}
-        <div>
-          <label className="form-label font-semibold"> From Type</label>
-          <select
-            className="input w-full"
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            disabled={!fromCategory}
-          >
-            <option value="">Select Type</option>
-            <option value="Inside">Inside</option>
-            <option value="Outside">Outside</option>
-            <option value="Chef Labour">Chef Labour</option>
-          </select>
-        </div>
-
-        {/* To Type */}
-        <div>
-          <label className="form-label font-semibold">To Type</label>
-          <select
-            className="input w-full"
-            value={toType}
-            onChange={(e) => setToType(e.target.value)}
-            disabled={!selectedType}
-          >
-            <option value="">Select To Type</option>
-            <option value="Inside">Inside</option>
-            <option value="Outside">Outside</option>
-            <option value="Chef Labour">Chef Labour</option>
-          </select>
-        </div>
-
-        {/* Vendor / Chef */}
-        <div>
-          <label className="form-label font-semibold">
-            {dropdownConfig.label}
-          </label>
-          <select
-            className="input w-full"
-            value={selectedItem}
-            onChange={(e) => setSelectedItem(e.target.value)}
-            disabled={toType === "Inside" || !toType || vendorList.length === 0}
-          >
-            <option value="">
-              {toType === "Inside"
-                ? "Not applicable"
-                : `Select ${dropdownConfig.label}`}
-            </option>
-            {vendorList.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.nameEnglish} ({item.contact?.contactType?.nameEnglish})
-              </option>
-            ))}
-          </select>
-        </div>
+    <Container>
+      {/* Breadcrumb / Fragment Name */}
+      <div className="mb-4">
+        <Breadcrumbs
+          items={[
+            {
+              title: (
+                <FormattedMessage
+                  id="MENU.ALLOCATE_SUPPLIER"
+                  defaultMessage="Allocate Supplier"
+                />
+              ),
+            },
+          ]}
+        />
       </div>
 
-      {/* TABLES */}
-      {loading && <div className="text-center py-6">Loading...</div>}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="form-label font-semibold">
+              <FormattedMessage
+                id="FROM_CATEGORY"
+                defaultMessage="From Category"
+              />
+            </label>
+            <select
+              className="input appearance-none pr-10"
+              value={fromCategory}
+              onChange={(e) => setFromCategory(e.target.value)}
+              disabled={categoriesLoading}
+            >
+              <option value="">
+                {categoriesLoading ? "Loading..." : "Select a category"}
+              </option>
 
-      {!loading && selectedType === "Inside" && (
-        <InsideTable data={tableData} />
-      )}
+              {categoryList.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {!loading && selectedType === "Outside" && (
-        <OutsideTable data={tableData} />
-      )}
+          {/* Type */}
+          <div>
+            <label className="form-label font-semibold"> From Type</label>
+            <select
+              className="input w-full"
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              disabled={!fromCategory}
+            >
+              <option value="">Select Type</option>
+              <option value="Inside">Inside</option>
+              <option value="Outside">Outside</option>
+              <option value="Chef Labour">Chef Labour</option>
+            </select>
+          </div>
 
-      {!loading && selectedType === "Chef Labour" && (
-        <ChefLabourTable data={tableData} />
-      )}
-    </div>
+          {/* To Type */}
+          <div>
+            <label className="form-label font-semibold">To Type</label>
+            <select
+              className="input w-full"
+              value={toType}
+              onChange={(e) => setToType(e.target.value)}
+              disabled={!selectedType}
+            >
+              <option value="">Select To Type</option>
+              <option value="Inside">Inside</option>
+              <option value="Outside">Outside</option>
+              <option value="Chef Labour">Chef Labour</option>
+            </select>
+          </div>
+
+          {/* Vendor / Chef */}
+          <div>
+            <label className="form-label font-semibold">
+              {dropdownConfig.label}
+            </label>
+            <select
+              className="input w-full"
+              value={selectedItem}
+              onChange={(e) => setSelectedItem(e.target.value)}
+              disabled={toType === "Inside" || !toType}
+            >
+              <option value="">
+                {vendorList.length === 0
+                  ? "Loading vendors..."
+                  : `Select ${dropdownConfig.label}`}
+              </option>
+              {vendorList.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.nameEnglish} ({item.contact?.contactType?.nameEnglish})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="relative text-right w-full flex justify-end">
+          <div className="relative">
+            <i className="ki-filled ki-magnifier text-primary absolute top-1/2 end-0 -translate-y-1/2 me-3"></i>
+            <input
+              className="input pr-8 w-[200px]"
+              type="text"
+              placeholder={intl.formatMessage({
+                id: "RAW_MATERIAL.SEARCH",
+                defaultMessage: "To search, type and press Enter.",
+              })}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {loading && <div className="text-center py-6">Loading...</div>}
+
+          {!loading && !fromCategory && !selectedType && (
+            <NoData message="Please select category to view data." />
+          )}
+
+          {!loading && fromCategory && !selectedType && (
+            <NoData message="Please select type to view data." />
+          )}
+
+          {!loading &&
+            fromCategory &&
+            selectedType &&
+            tableData.length === 0 && (
+              <NoData message="No data available for the selected category and type." />
+            )}
+
+          {!loading && selectedType === "Inside" && filteredData.length > 0 && (
+            <InsideTable data={tableData} />
+          )}
+
+          {!loading &&
+            selectedType === "Outside" &&
+            filteredData.lengthh > 0 && <OutsideTable data={tableData} />}
+
+          {!loading &&
+            selectedType === "Chef Labour" &&
+            filteredData.length > 0 && <ChefLabourTable data={tableData} />}
+        </div>
+        <div className="flex justify-end gap-3 mb-10">
+          <button
+            className="btn btn-light"
+            onClick={() => {
+              setSelectedRows([]);
+              setFromCategory("");
+              setToCategory("");
+            }}
+          >
+            <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
+          </button>
+          <button className="btn btn-primary">
+            <>
+              <span className="spinner-border spinner-border-sm me-2" />
+              <FormattedMessage id="COMMON.SAVING" defaultMessage="Saving..." />
+            </>
+          </button>
+        </div>
+      </div>
+    </Container>
   );
 };
 
