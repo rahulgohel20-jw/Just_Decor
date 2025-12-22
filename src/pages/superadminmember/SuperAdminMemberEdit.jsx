@@ -64,6 +64,31 @@ const SuperAdminMemberEdit = () => {
     },
   ]);
 
+  const [userAmcs, setUserAmcs] = useState([
+    {
+      amcAmount: "",
+      amcDate: "",
+      amcRecivableAmount: "",
+      amcRecivableDate: "",
+      amcRemarks: "",
+      amcType: "",
+      status: "",
+      file: null,
+    },
+  ]);
+
+  const [refundDetails, setRefundDetails] = useState([
+    {
+      amount: "",
+      refundDate: "",
+      refundDetails: "",
+      refundPaymentMode: "",
+      refundType: "",
+      remarks: "",
+      file: null,
+    },
+  ]);
+
   // KYC State
   const [kycDetails, setKycDetails] = useState([
     { kycType: "", kycNo: "", docPath: null, existingDocPath: null },
@@ -402,7 +427,9 @@ const SuperAdminMemberEdit = () => {
   };
 
   const handleSubmit = async () => {
-    // Validation
+    const safeUserAmcs = Array.isArray(userAmcs) ? userAmcs : [];
+    const safeRefundDetails = Array.isArray(refundDetails) ? refundDetails : [];
+    // BASIC VALIDATION
     if (!memberDetails.firstName || !memberDetails.lastName) {
       message.error("First name and last name are required!");
       return;
@@ -414,171 +441,154 @@ const SuperAdminMemberEdit = () => {
 
     try {
       setSubmitting(true);
-
       const formData = new FormData();
+
+      /* =========================
+       MEMBER CORE DETAILS
+    ========================= */
       formData.append("userId", id);
       formData.append("firstName", memberDetails.firstName);
       formData.append("lastName", memberDetails.lastName);
+      formData.append("contactNo", memberDetails.contactNo || "");
+      formData.append("address", memberDetails.address || "");
+      formData.append("cityId", memberDetails.cityId);
+      formData.append("memberType", memberDetails.memberType || "");
+      formData.append("planId", memberDetails.planId || "");
+      formData.append("preFix", memberDetails.preFix || "");
+      formData.append(
+        "reportingManagerId",
+        memberDetails.reportingManagerId || ""
+      );
+
+      /* =========================
+       FILE FLAG
+    ========================= */
       const anyFileAttached =
         kycDetails.some((k) => k.docPath instanceof File) ||
         downPayments.some((d) => d.docPath instanceof File) ||
+        userAmcs.some((a) => a.file instanceof File) ||
+        refundDetails.some((r) => r.file instanceof File) ||
         callFile instanceof File;
 
-      // Set isFile = true when NO file is attached
-      formData.append("isFile", !anyFileAttached);
+      formData.append("isFile", anyFileAttached);
 
-      if (memberDetails.contactNo) {
-        formData.append("contactNo", memberDetails.contactNo);
-      }
-      if (memberDetails.address) {
-        formData.append("address", memberDetails.address);
-      }
-
-      formData.append("cityId", memberDetails.cityId);
-
-      if (memberDetails.memberType) {
-        formData.append("memberType", memberDetails.memberType);
-      }
-      if (memberDetails.planId) {
-        formData.append("planId", memberDetails.planId);
-      }
-      if (memberDetails.preFix) {
-        formData.append("preFix", memberDetails.preFix);
-      }
-      if (memberDetails.reportingManagerId) {
-        formData.append("reportingManagerId", memberDetails.reportingManagerId);
-      }
-
-      const validDownPayments = downPayments.filter((payment) => {
-        if (payment.id) return true;
-        return payment.paymentType && payment.amount;
-      });
-
-      validDownPayments.forEach((payment, index) => {
-        formData.append(`userDownPayments[${index}].id`, payment.id || 0);
-        formData.append(
-          `userDownPayments[${index}].paymentType`,
-          payment.paymentType || ""
-        );
-        formData.append(
-          `userDownPayments[${index}].amount`,
-          payment.amount || ""
-        );
-        formData.append(
-          `userDownPayments[${index}].paidAmount`,
-          payment.paidAmount || ""
-        );
-        formData.append(
-          `userDownPayments[${index}].payid`,
-          payment.payid || ""
-        );
-        formData.append(
-          `userDownPayments[${index}].transactionDate`,
-          convertDateFormat(payment.transactionDate)
-        );
-        formData.append(
-          `userDownPayments[${index}].remarks`,
-          payment.remarks || ""
-        );
-        if (payment.docPath instanceof File) {
+      /* =========================
+       DOWN PAYMENTS
+    ========================= */
+      downPayments
+        .filter((p) => p.paymentType && p.amount)
+        .forEach((p, i) => {
+          formData.append(`userDownPayments[${i}].id`, p.id || 0);
+          formData.append(`userDownPayments[${i}].paymentType`, p.paymentType);
+          formData.append(`userDownPayments[${i}].amount`, p.amount);
           formData.append(
-            `userDownPayments[${index}].docPath`,
-            payment.docPath
+            `userDownPayments[${i}].paidAmount`,
+            p.paidAmount || 0
           );
+          formData.append(`userDownPayments[${i}].payid`, p.payid || "");
+          formData.append(
+            `userDownPayments[${i}].transactionDate`,
+            convertDateFormat(p.transactionDate)
+          );
+          formData.append(`userDownPayments[${i}].remarks`, p.remarks || "");
+
+          if (p.docPath instanceof File) {
+            formData.append(`userDownPayments[${i}].docPath`, p.docPath);
+          }
+        });
+
+      /* =========================
+       KYC DOCUMENTS
+    ========================= */
+      kycDetails
+        .filter((k) => k.kycType && k.kycNo)
+        .forEach((k, i) => {
+          formData.append(`userDocuments[${i}].id`, k.id || 0);
+          formData.append(`userDocuments[${i}].kycType`, k.kycType);
+          formData.append(`userDocuments[${i}].kycNo`, k.kycNo);
+
+          if (k.docPath instanceof File) {
+            formData.append(`userDocuments[${i}].docPath`, k.docPath);
+          }
+        });
+
+      /* =========================
+       AMC DETAILS (Swagger)
+    ========================= */
+      userAmcs.filter((a) => a.amcAmount || a.amcDate);
+      safeUserAmcs.forEach((a, i) => {
+        formData.append(`userAmcs[${i}].id`, a.id || 0);
+        formData.append(`userAmcs[${i}].amcAmount`, a.amcAmount || 0);
+        formData.append(`userAmcs[${i}].amcDate`, convertDateFormat(a.amcDate));
+        formData.append(
+          `userAmcs[${i}].amcRecivableAmount`,
+          a.amcRecivableAmount || 0
+        );
+        formData.append(
+          `userAmcs[${i}].amcRecivableDate`,
+          convertDateFormat(a.amcRecivableDate)
+        );
+        formData.append(`userAmcs[${i}].amcRemarks`, a.amcRemarks || "");
+        formData.append(`userAmcs[${i}].amcType`, a.amcType || "");
+        formData.append(`userAmcs[${i}].status`, a.status || "");
+
+        if (a.file instanceof File) {
+          formData.append(`userAmcs[${i}].file`, a.file);
         }
       });
 
-      // Add KYC details - only send entries with ID (existing) or complete new data
-      const validKycDetails = kycDetails.filter((kyc) => {
-        // Keep if it has an ID (existing record)
-        if (kyc.id) return true;
-        // Keep if it has at least kyc type AND kyc number (new record)
-        return kyc.kycType && kyc.kycNo;
-      });
+      /* =========================
+       REFUND DETAILS (Swagger)
+    ========================= */
+      refundDetails.filter((r) => r.amount || r.refundDate);
+      safeRefundDetails.forEach((r, i) => {
+        formData.append(`refundDetails[${i}].id`, r.id || 0);
+        formData.append(`refundDetails[${i}].amount`, r.amount || 0);
+        formData.append(
+          `refundDetails[${i}].refundDate`,
+          convertDateFormat(r.refundDate)
+        );
+        formData.append(
+          `refundDetails[${i}].refundDetails`,
+          r.refundDetails || ""
+        );
+        formData.append(
+          `refundDetails[${i}].refundPaymentMode`,
+          r.refundPaymentMode || ""
+        );
+        formData.append(`refundDetails[${i}].refundType`, r.refundType || "");
+        formData.append(`refundDetails[${i}].remarks`, r.remarks || "");
 
-      validKycDetails.forEach((kyc, index) => {
-        formData.append(`userDocuments[${index}].id`, kyc.id || 0);
-        formData.append(`userDocuments[${index}].kycType`, kyc.kycType || "");
-        formData.append(`userDocuments[${index}].kycNo`, kyc.kycNo || "");
-
-        // Fix: use kyc instead of doc and correct variable name for index
-        if (kyc.docPath instanceof File) {
-          formData.append(`userDocuments[${index}].docPath`, kyc.docPath);
+        if (r.file instanceof File) {
+          formData.append(`refundDetails[${i}].file`, r.file);
         }
       });
 
-      // Add call file
-      if (callFile) {
+      /* =========================
+       CALL FILE
+    ========================= */
+      if (callFile instanceof File) {
         formData.append("callFile", callFile);
       }
 
-      console.log("Submitting FormData:");
       for (let pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
 
+      /* =========================
+       SUBMIT
+    ========================= */
       const response = await UpdateMemberById(id, formData);
 
-      console.log("API Response:", response);
-
-      // Check for success in different possible response structures
-      const isSuccess =
-        response?.data?.success ||
-        response?.success ||
-        response?.status === 200;
-
-      if (isSuccess) {
-        message.success(response?.data?.msg || "Member updated successfully!");
-
-        // 🔥 Update local state with latest server returned uploaded files
-        const updatedData = response?.data?.data || {};
-
-        if (updatedData?.userDocument?.length) {
-          setKycDetails(
-            updatedData.userDocument.map((doc) => ({
-              id: doc.id,
-              kycType: doc.kycType,
-              kycNo: doc.kycNo,
-              docPath: null,
-              existingDocPath: doc.docPath,
-            }))
-          );
-        }
-
-        if (updatedData?.downPayment?.length) {
-          setDownPayments(
-            updatedData.downPayment.map((dp) => ({
-              id: dp.id,
-              paymentType: dp.paymentType,
-              amount: dp.amount,
-              paidAmount: dp.paidAmount,
-              payid: dp.payid,
-              transactionDate: dp.transactionDateTime?.split(" ")[0] || "",
-              remarks: dp.remarks,
-              docPath: null,
-              existingDocPath: dp.docPath,
-            }))
-          );
-        }
-
+      if (response?.data?.success || response?.status === 200) {
+        message.success("Member updated successfully!");
         await fetchUserData();
       } else {
-        message.error(response?.data?.msg || "Failed to update member");
+        message.error(response?.data?.msg || "Update failed");
       }
-    } catch (err) {
-      console.error("Update Error:", err);
-
-      // Check if error response indicates success (some APIs return 200 with error structure)
-      if (err?.response?.data?.success) {
-        message.success(
-          err.response.data.msg || "Member updated successfully!"
-        );
-        navigate(-1);
-      } else {
-        message.error(
-          "Error updating member: " + (err.response?.data?.msg || err.message)
-        );
-      }
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.msg || "Update failed");
     } finally {
       setSubmitting(false);
     }
@@ -1039,7 +1049,7 @@ const SuperAdminMemberEdit = () => {
             </div>
 
             <div className="p-4 space-y-6">
-              {downPayments.map((row, index) => (
+              {userAmcs.map((row, index) => (
                 <div
                   key={index}
                   className=" rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
@@ -1103,10 +1113,12 @@ const SuperAdminMemberEdit = () => {
                     </label>
                     <Input
                       type="number"
-                      value={row.amount}
-                      onChange={(e) =>
-                        handleDownPaymentChange(index, "amount", e.target.value)
-                      }
+                      value={row.amcAmount}
+                      onChange={(e) => {
+                        const updated = [...userAmcs];
+                        updated[index].amcAmount = e.target.value;
+                        setUserAmcs(updated);
+                      }}
                     />
                   </div>
 
@@ -1204,7 +1216,7 @@ const SuperAdminMemberEdit = () => {
             </div>
 
             <div className="p-4 space-y-6">
-              {downPayments.map((row, index) => (
+              {refundDetails.map((row, index) => (
                 <div
                   key={index}
                   className=" rounded grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
@@ -1237,9 +1249,11 @@ const SuperAdminMemberEdit = () => {
                     <Input
                       type="number"
                       value={row.amount}
-                      onChange={(e) =>
-                        handleDownPaymentChange(index, "amount", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const updated = [...refundDetails];
+                        updated[index].amount = e.target.value;
+                        setRefundDetails(updated);
+                      }}
                     />
                   </div>
 

@@ -135,7 +135,9 @@ export const allMenuItems = [
         path: "/master/custom-package",
       },
       {
-        title: "Member",
+        title: (
+          <FormattedMessage id="COMMON.MEMBERS" defaultMessage="Members" />
+        ),
         icon: "ki-filled ki-abstract-18 text-primary",
         children: [
           {
@@ -235,30 +237,39 @@ export const allMenuItems = [
       },
     ],
   },
-  // {
-  //   title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
-  //   icon: "ki-duotone ki-document text-primary",
-  //   children: [
-  //     {
-  //       title: (
-  //         <FormattedMessage
-  //           id="COMMON.DATE_WISE_REPORTS"
-  //           defaultMessage="Date Wise Reports"
-  //         />
-  //       ),
-  //       path: "/report-datewise",
-  //     },
-  //     {
-  //       title: (
-  //         <FormattedMessage
-  //           id="COMMON.REPORT_CONFIGURATION"
-  //           defaultMessage="Report Configuration"
-  //         />
-  //       ),
-  //       path: "/report-congiguration",
-  //     },
-  //   ],
-  // },
+  {
+    title: <FormattedMessage id="COMMON.REPORTS" defaultMessage="Reports" />,
+    icon: "ki-duotone ki-document text-primary",
+    children: [
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.DATE_WISE_REPORTS"
+      //       defaultMessage="Date Wise Reports"
+      //     />
+      //   ),
+      //   path: "/report-datewise",
+      // },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.DATE_WISE_REPORTS"
+            defaultMessage="Report Label Configuration"
+          />
+        ),
+        path: "/report-label-configuration",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.REPORT_CONFIGURATION"
+            defaultMessage="Report Configuration"
+          />
+        ),
+        path: "/report-configuration",
+      },
+    ],
+  },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "ki-filled ki-graph-up text-primary",

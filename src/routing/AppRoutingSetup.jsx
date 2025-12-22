@@ -168,8 +168,7 @@ import QuotationViewPage from "@/pages/sales/quotaion/QuotationList/QuotationLis
 import QuickCustomPackage from "@/pages/Event/QuickCustomPackage";
 import Labourshiftmaster from "../pages/master/labour-shift";
 import Priceplan from "@/partials/modals/priceplan/Priceplan";
-import ReportsConfig from "@/pages/Reports/ReportsConfig";
-import DateWiseReport from "@/pages/Reports/DateWiseReport";
+// import DateWiseReport from "@/pages/Reports/DateWiseReport";
 import ReportThemes from "@/pages/Event/ReportThemesPage";
 import Editor from "@/pages/Event/ReportThemesPage/ReportThemeEditor/Editor";
 import ClientDashboard from "../pages/clientdashboard/ClientDashboard";
@@ -203,6 +202,8 @@ import { ChangeRawMaterialCategoryPage } from "../pages/Configuration/Change-Raw
 import { ChangeMenuItemCategoryPage } from "../pages/Configuration/Change-Menu-Item-Category";
 import ConfigMenuItemPage from "../pages/Configuration/Menu-Item-Allocation/ConfigMenuItemPage";
 import { Allocatesupplier } from "../pages/Configuration/Allocate-supplier/Allocatesupplier";
+import ReportsConfig from "../pages/Reports/ReportsConfig";
+import ReportLabelConfiguration from "../pages/Reports/ReportLabelConfiguration";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -273,8 +274,12 @@ const AppRoutingSetup = () => {
             element={<RawMaterialAllocationPage />}
           />
           <Route path="/custom-package" element={<CustomPackage />} />
-          <Route path="/report-congiguration" element={<ReportsConfig />} />
-          <Route path="/report-datewise" element={<DateWiseReport />} />
+          <Route path="/report-configuration" element={<ReportsConfig />} />
+          {/* <Route path="/report-datewise" element={<DateWiseReport />} /> */}
+          <Route
+            path="/report-label-configuration"
+            element={<ReportLabelConfiguration />}
+          />
           <Route
             path="/labour-and-other-management"
             element={<LabourOtherManagementPage />}

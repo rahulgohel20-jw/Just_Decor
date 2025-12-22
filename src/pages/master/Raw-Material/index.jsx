@@ -8,6 +8,7 @@ import {
   updateRawMaterialStatus,
   GetRawMaterialcategory,
   UpdateSequence,
+  GetRawMaterialByCategoryWithPagination, // ✅ Updated import
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
@@ -22,7 +23,7 @@ const RawMaterial = () => {
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
   const [selectedRawMaterial, setSelectedRawMaterial] = useState(null);
   const [allTableData, setAllTableData] = useState([]);
-  const [displayData, setDisplayData] = useState([]); // Added for drag & drop
+  const [displayData, setDisplayData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +38,75 @@ const RawMaterial = () => {
 
   let Id = localStorage.getItem("userId");
 
+  const FetchRawMaterialByCategory = (categoryId, page = currentPage) => {
+    if (!categoryId) {
+      FetchRawMaterial(page);
+      return;
+    }
+
+    setLoading(true);
+    const catIdArray = [Number(categoryId)];
+
+    // 🔥 IMPORTANT: Convert UI page → BE page
+    const backendPage = page - 1;
+
+    GetRawMaterialByCategoryWithPagination(
+      catIdArray,
+      Id,
+      backendPage, // ✅ 0-based
+      ITEMS_PER_PAGE
+    )
+      .then((res) => {
+        const responseData = res?.data || {};
+        const data = responseData.data || [];
+
+        const transformedData = data.map((item) => ({
+          id: item.id,
+          nameEnglish: item.nameEnglish,
+          nameHindi: item.nameHindi,
+          nameGujarati: item.nameGujarati,
+          unit: {
+            id: item.unit,
+            nameEnglish: item.unitNameEnglish || "",
+            nameHindi: item.unitNameHindi || "",
+            nameGujarati: item.unitNameGujarati || "",
+          },
+          rawMaterialCat: {
+            id: item.rawMaterialCatId,
+            nameEnglish: item.rawMaterialCatNameEnglish,
+            nameHindi: item.rawMaterialCatNameHindi,
+            nameGujarati: item.rawMaterialCatNameGujarati,
+          },
+          isActive: item.isActive ?? true,
+          sequence: item.sequence || 0,
+          supplierRate: item.rate || 0,
+          weightPer100Pax: item.weightPer100Pax || 0,
+          isGeneralFix: item.isGeneralFix || false,
+          rawMaterialSuppliers: item.partyId
+            ? [
+                {
+                  id: item.partyId,
+                  nameEnglish: item.partyNameEnglish,
+                  nameHindi: item.partyNameHindi,
+                  nameGujarati: item.partyNameGujarati,
+                },
+              ]
+            : [],
+        }));
+
+        setRawOriginalData(transformedData);
+        console.log("total", responseData.totalRawMaterialItems);
+
+        // ✅ FIX: Use the correct field from API response
+        setTotalRecords(responseData.totalRawMaterialItems || 0);
+      })
+      .catch(() => {
+        setRawOriginalData([]);
+        setTotalRecords(0);
+      })
+      .finally(() => setLoading(false));
+  };
+
   // Fetch All Raw Materials
   const FetchRawMaterial = (page = currentPage) => {
     setLoading(true);
@@ -45,7 +115,7 @@ const RawMaterial = () => {
       .then((res) => {
         const data = res?.data?.data || {};
         setRawOriginalData(data["Raw Material Details"] || []);
-        setTotalRecords(data.totalItems || 0); // ✅ required
+        setTotalRecords(data.totalItems || 0);
       })
       .catch(() => {
         setRawOriginalData([]);
@@ -55,9 +125,12 @@ const RawMaterial = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, categoryFilter, generalFixFilter]);
+  }, [categoryFilter]);
 
-  // Fetch Categories
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, generalFixFilter]);
+
   const FetchCategories = () => {
     GetRawMaterialcategory(Id)
       .then((res) => {
@@ -76,9 +149,14 @@ const RawMaterial = () => {
     FetchCategories();
   }, []);
 
+  // ✅ Handle page changes
   useEffect(() => {
-    FetchRawMaterial(currentPage);
-  }, [currentPage]);
+    if (categoryFilter) {
+      FetchRawMaterialByCategory(categoryFilter, currentPage);
+    } else {
+      FetchRawMaterial(currentPage);
+    }
+  }, [currentPage, categoryFilter]);
 
   // Map raw data to table format
   useEffect(() => {
@@ -97,7 +175,6 @@ const RawMaterial = () => {
 
     const mapped = sortedData.map((raw, index) => ({
       sr_no: (currentPage - 1) * ITEMS_PER_PAGE + index + 1,
-
       raw_material_id: raw.id,
       raw_material_cat_id: raw.rawMaterialCat?.id,
       raw_material_name: raw[field] || "-",
@@ -111,22 +188,15 @@ const RawMaterial = () => {
       weightPer100Pax: raw.weightPer100Pax,
       isGeneralFix: raw.isGeneralFix,
     }));
-    console.log(mapped);
 
     setAllTableData(mapped);
-  }, [rawOriginalData]);
+  }, [rawOriginalData, currentPage]);
 
   const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
 
   // Client-side filtering
   const filteredTableData = useMemo(() => {
     let filtered = allTableData;
-
-    if (categoryFilter) {
-      filtered = filtered.filter(
-        (item) => item.raw_material_cat_id === parseInt(categoryFilter)
-      );
-    }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
@@ -139,12 +209,13 @@ const RawMaterial = () => {
         );
       });
     }
+
     if (generalFixFilter) {
       filtered = filtered.filter((item) => item.isGeneralFix === true);
     }
 
     return filtered;
-  }, [allTableData, searchQuery, categoryFilter, generalFixFilter]);
+  }, [allTableData, searchQuery, generalFixFilter]);
 
   // Sync displayData with filteredTableData
   useEffect(() => {
@@ -200,11 +271,14 @@ const RawMaterial = () => {
 
     UpdateSequence(updatePayload)
       .then((res) => {
-        FetchRawMaterial();
+        if (categoryFilter) {
+          FetchRawMaterialByCategory(categoryFilter, currentPage);
+        } else {
+          FetchRawMaterial(currentPage);
+        }
       })
       .catch((error) => {
         console.error("❌ Error updating sequence:", error);
-        // Revert on error
         setDisplayData(filteredTableData);
         Swal.fire({
           title: "Error!",
@@ -235,7 +309,11 @@ const RawMaterial = () => {
               response &&
               (response.success || response.data.success === true)
             ) {
-              FetchRawMaterial();
+              if (categoryFilter) {
+                FetchRawMaterialByCategory(categoryFilter, currentPage);
+              } else {
+                FetchRawMaterial(currentPage);
+              }
               Swal.fire({
                 title: "Removed!",
                 text: "Raw material has been removed successfully.",
@@ -262,11 +340,23 @@ const RawMaterial = () => {
   const statusRaw = (raw_material_id, status) => {
     updateRawMaterialStatus(raw_material_id, status)
       .then((res) => {
-        FetchRawMaterial();
+        if (categoryFilter) {
+          FetchRawMaterialByCategory(categoryFilter, currentPage);
+        } else {
+          FetchRawMaterial(currentPage);
+        }
       })
       .catch((error) => {
         console.error("Error status update:", error);
       });
+  };
+
+  const handleRefreshData = () => {
+    if (categoryFilter) {
+      FetchRawMaterialByCategory(categoryFilter, currentPage);
+    } else {
+      FetchRawMaterial(currentPage);
+    }
   };
 
   // Generate table columns
@@ -343,13 +433,12 @@ const RawMaterial = () => {
               onClick={() => {
                 setGeneralFixFilter(!generalFixFilter);
                 setSearchQuery("");
-                setCategoryFilter("");
               }}
             >
               {generalFixFilter ? "Show All" : "General Fix"}
             </button>
 
-            {(searchQuery || categoryFilter) && (
+            {(searchQuery || generalFixFilter) && (
               <span className="text-sm text-gray-600">
                 {displayData.length} of {allTableData.length} items
               </span>
@@ -376,7 +465,7 @@ const RawMaterial = () => {
         <AddRawMaterial
           isOpen={isRawMaterialModalOpen}
           onClose={setIsRawMaterialModalOpen}
-          refreshData={FetchRawMaterial}
+          refreshData={handleRefreshData}
           rawmaterial={selectedRawMaterial}
         />
 
@@ -386,15 +475,10 @@ const RawMaterial = () => {
             <div className="table-responsive">
               <div className="relative">
                 {loading && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-                    <div className="flex flex-col items-center gap-2">
-                      <div
-                        className="spinner-border text-primary"
-                        role="status"
-                      />
-                      <span className="text-sm text-gray-600">
-                        Loading data...
-                      </span>
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+                    <div className="relative">
+                      <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
+                      <div className="w-16 h-16 border-4 border-[#005BA8] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
                     </div>
                   </div>
                 )}
@@ -456,6 +540,7 @@ const RawMaterial = () => {
                     )}
                   </tbody>
                 </table>
+                {/* ✅ Pagination always visible */}
                 <div className="flex justify-end gap-2 p-3">
                   <button
                     disabled={currentPage === 1}
@@ -466,11 +551,11 @@ const RawMaterial = () => {
                   </button>
 
                   <span className="text-sm flex items-center">
-                    Page {currentPage} of {totalPages}
+                    Page {currentPage} of {totalPages || 1}
                   </span>
 
                   <button
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                     onClick={() => setCurrentPage((p) => p + 1)}
                     className="py-1 px-3 rounded-lg bg-[#005BA8] text-white disabled:opacity-50"
                   >

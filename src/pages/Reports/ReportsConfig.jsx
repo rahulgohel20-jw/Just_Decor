@@ -4,7 +4,10 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Container } from "@/components/container";
 
 const ReportsConfig = () => {
-  const [reportConfig, setReportConfig] = useState([
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Same reports for all tabs
+  const reportsList = [
     "Custom Menu Report",
     "Simple Menu Report",
     "Exclusive Menu Report",
@@ -16,137 +19,353 @@ const ReportsConfig = () => {
     "Two Language Menu Report",
     "Manager Menu Report",
     "Instruction Menu Report",
-  ]);
-
-  const tableHeaders = [
-    "Report Header",
-    "Logo",
-    "Company Name",
-    "Company Address",
-    "Company Mobile Number",
   ];
 
-  const [selected, setSelected] = useState({});
+  const tableHeaders = [
+    { label: "Report Header", type: "checkbox" },
+    { label: "Logo", type: "checkbox" },
+    { label: "Company Name", type: "checkbox" },
+    { label: "Company Address", type: "checkbox" },
+    { label: "Company Mobile Number", type: "checkbox" },
+    { label: "Company Email", type: "checkbox" },
+    { label: "Event Name", type: "checkbox" },
+    { label: "Event Date", type: "checkbox" },
+    { label: "Event Venue", type: "checkbox" },
+    { label: "Extra Left Margin In Report (0px to 50px)", type: "number" },
+    { label: "Adjust Logo Size (-20px to 20px)", type: "number" },
+    { label: "Font Name", type: "dropdown" },
+    { label: "Report Title Font Size", type: "number" },
+    { label: "Company Details Font Size", type: "number" },
+    { label: "Client Details Font Size", type: "number" },
+    { label: "Agent Date Format", type: "number" },
+  ];
+
+  const tabs = [
+    "Menu Preparation",
+    "Menu Allocation",
+    "Raw Material Allocation Report",
+    "Chef Labour Wise Raw Material Allocation Report",
+    "Labour & Agency",
+    "General Fix and Crockery Allocation",
+    "Admin Hub",
+    "Order Report",
+  ];
+
+  // Font options for dropdown
+  const fontOptions = [
+    "Arial Unicode",
+    "Times New Roman",
+    "Helvetica",
+    "Georgia",
+    "Verdana",
+    "Courier New",
+    "Calibri",
+  ];
+
+  // Store selections separately for each tab
+  const [tabSelections, setTabSelections] = useState({
+    0: {}, // Menu Preparation
+    1: {}, // Menu Allocation
+    2: {}, // Raw Material Allocation Report
+    3: {}, // Chef Labour Wise Raw Material Allocation Report
+    4: {}, // Labour & Agency
+    5: {}, // General Fix and Crockery Allocation
+    6: {}, // Admin Hub
+    7: {}, // Order Report
+  });
 
   const handleCheckboxChange = (report, header) => {
-    setSelected((prev) => ({
+    setTabSelections((prev) => ({
       ...prev,
-      [report]: {
-        ...prev[report],
-        [header]: !prev[report]?.[header],
+      [activeTab]: {
+        ...prev[activeTab],
+        [report]: {
+          ...prev[activeTab]?.[report],
+          [header]: !prev[activeTab]?.[report]?.[header],
+        },
       },
     }));
   };
 
+  const handleInputChange = (report, header, value) => {
+    setTabSelections((prev) => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        [report]: {
+          ...prev[activeTab]?.[report],
+          [header]: value,
+        },
+      },
+    }));
+  };
+
+  // Handle master checkbox - select/deselect all checkboxes in the table
+  const handleMasterCheckboxChange = () => {
+    const currentSelections = tabSelections[activeTab] || {};
+
+    // Only check checkbox columns
+    const checkboxHeaders = tableHeaders.filter((h) => h.type === "checkbox");
+
+    // Check if all checkboxes are currently checked
+    const allChecked = reportsList.every((report) =>
+      checkboxHeaders.every(
+        (header) => currentSelections[report]?.[header.label]
+      )
+    );
+
+    // Toggle all checkboxes
+    const newSelections = {};
+    reportsList.forEach((report) => {
+      newSelections[report] = { ...currentSelections[report] };
+      checkboxHeaders.forEach((header) => {
+        newSelections[report][header.label] = !allChecked;
+      });
+    });
+
+    setTabSelections((prev) => ({
+      ...prev,
+      [activeTab]: newSelections,
+    }));
+  };
+
+  // Check if all checkboxes in the table are checked
+  const isMasterChecked = () => {
+    const currentSelections = tabSelections[activeTab] || {};
+    const checkboxHeaders = tableHeaders.filter((h) => h.type === "checkbox");
+
+    return reportsList.every((report) =>
+      checkboxHeaders.every(
+        (header) => currentSelections[report]?.[header.label]
+      )
+    );
+  };
+
+  // Check if some but not all checkboxes are checked (for indeterminate state)
+  const isMasterIndeterminate = () => {
+    const currentSelections = tabSelections[activeTab] || {};
+    const checkboxHeaders = tableHeaders.filter((h) => h.type === "checkbox");
+
+    let checkedCount = 0;
+    let totalCount = reportsList.length * checkboxHeaders.length;
+
+    reportsList.forEach((report) => {
+      checkboxHeaders.forEach((header) => {
+        if (currentSelections[report]?.[header.label]) {
+          checkedCount++;
+        }
+      });
+    });
+
+    return checkedCount > 0 && checkedCount < totalCount;
+  };
+
+  const handleTabClick = (index) => {
+    setActiveTab(index);
+  };
+
+  // Get current tab's selections
+  const currentSelections = tabSelections[activeTab] || {};
+
   return (
     <Fragment>
       <Container>
-  
-        <div className="gap-2 pb-2 mb-3">
+        <div className="w-full pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Report Configuration" }]} />
         </div>
 
-<div className=" mb-5">
-  <div
-    className="tab-scroll flex flex-nowrap overflow-x-auto border-b border-gray-200 text-sm font-medium scroll-smooth"
-    style={{
-      scrollbarWidth: "none", 
-    }}
-  >
-    {[
-      "Menu Preparation",
-      "Menu Allocation",
-      "Raw Material Allocation Report",
-      "Chef Labour Wise Raw Material Allocation Report",
-      "Labour & Agency",
-      "General Fix and Crockery Allocation",
-      "Admin Hub",
-      "Order Report",
-    ].map((tab, index) => (
-      <button
-        key={index}
-        className={`px-4 py-2 text-sm whitespace-nowrap ${
-          index === 0
-            ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-            : "text-gray-600 hover:text-blue-600"
-        }`}
-      >
-        {tab}
-      </button>
-    ))}
-  </div>
-
-  <style jsx>{`
-    .tab-scroll {
-      scrollbar-width: none; /* Firefox */
-    }
-    .tab-scroll::-webkit-scrollbar {
-      height: 6px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .tab-scroll::-webkit-scrollbar-thumb {
-      background-color: #3b82f6;
-      border-radius: 8px;
-    }
-    .tab-scroll::-webkit-scrollbar-track {
-      background-color: #f3f4f6;
-      border-radius: 8px;
-    }
-    /* Show scrollbar on hover */
-    .tab-scroll:hover::-webkit-scrollbar {
-      opacity: 1;
-    }
-  `}</style>
-</div>
-
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 rounded-lg text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-3 text-left font-medium text-gray-700 border-b border-gray-200">
-                  &nbsp;
-                </th>
-                {tableHeaders.map((header, idx) => (
-                  <th
-                    key={idx}
-                    className="p-3 text-center font-medium text-gray-700 border-b border-gray-200"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {reportConfig.map((report, index) => (
-                <tr
+        {/* Report Category Section */}
+        <div className="mb-6">
+          {/* Tab Navigation */}
+          <div
+            className="tab-scroll-container relative overflow-hidden"
+            onWheel={(e) => {
+              const container = e.currentTarget.querySelector(".tab-scroll");
+              if (container && container.scrollWidth > container.clientWidth) {
+                e.preventDefault();
+                e.stopPropagation();
+                container.scrollLeft += e.deltaY;
+              }
+            }}
+          >
+            <div className="tab-scroll flex flex-nowrap overflow-x-auto bg-white scroll-smooth border border-gray-200 rounded-lg shadow-sm">
+              {tabs.map((tab, index) => (
+                <button
                   key={index}
-                  className={`${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-blue-50 transition`}
+                  onClick={() => handleTabClick(index)}
+                  className={`flex-shrink-0 px-4 py-3 text-sm whitespace-nowrap transition-colors font-bold border-r border-gray-200 last:border-r-0 ${
+                    index === activeTab
+                      ? "text-[#005BA8] bg-blue-50"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  } ${index === 0 ? "rounded-l-lg" : ""} ${
+                    index === tabs.length - 1 ? "rounded-r-lg" : ""
+                  }`}
                 >
-                  <td className="p-3 font-medium text-gray-800 whitespace-nowrap">
-                    {report}
-                  </td>
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        <div
+          className="table-scroll-container relative overflow-hidden"
+          onWheel={(e) => {
+            const container = e.currentTarget.querySelector(".table-scroll");
+            if (container && container.scrollWidth > container.clientWidth) {
+              e.preventDefault();
+              e.stopPropagation();
+              container.scrollLeft += e.deltaY;
+            }
+          }}
+        >
+          <div className="table-scroll overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm scroll-smooth">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-3 text-left font-normal text-gray-700 border-b border-gray-200 min-w-[200px]">
+                    <input
+                      type="checkbox"
+                      checked={isMasterChecked()}
+                      ref={(el) => {
+                        if (el) {
+                          el.indeterminate = isMasterIndeterminate();
+                        }
+                      }}
+                      onChange={handleMasterCheckboxChange}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </th>
                   {tableHeaders.map((header, idx) => (
-                    <td
+                    <th
                       key={idx}
-                      className="p-3 text-center border-t border-gray-200"
+                      className="p-3 text-center font-normal text-gray-700 border-b border-gray-200 min-w-[180px]"
                     >
-                      <input
-                        type="checkbox"
-                        checked={!!selected[report]?.[header]}
-                        onChange={() => handleCheckboxChange(report, header)}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                    </td>
+                      {header.label}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {reportsList.map((report, index) => (
+                  <tr
+                    key={index}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50 transition-colors`}
+                  >
+                    <td className="p-3 font-normal text-gray-800 border-b border-gray-100">
+                      {report}
+                    </td>
+                    {tableHeaders.map((header, idx) => (
+                      <td
+                        key={idx}
+                        className="p-3 text-center border-b border-gray-100"
+                      >
+                        <div className="flex justify-center">
+                          {header.type === "checkbox" && (
+                            <input
+                              type="checkbox"
+                              checked={
+                                !!currentSelections[report]?.[header.label]
+                              }
+                              onChange={() =>
+                                handleCheckboxChange(report, header.label)
+                              }
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                            />
+                          )}
+                          {header.type === "number" && (
+                            <input
+                              type="number"
+                              value={
+                                currentSelections[report]?.[header.label] || 0
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  report,
+                                  header.label,
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            />
+                          )}
+                          {header.type === "dropdown" && (
+                            <select
+                              value={
+                                currentSelections[report]?.[header.label] ||
+                                "Arial Unicode"
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  report,
+                                  header.label,
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white cursor-pointer"
+                            >
+                              {fontOptions.map((font) => (
+                                <option key={font} value={font}>
+                                  {font}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={() => {
+              // Reset current tab selections
+              setTabSelections((prev) => ({
+                ...prev,
+                [activeTab]: {},
+              }));
+            }}
+            className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              // Handle save logic here
+              console.log("Saved selections:", tabSelections);
+              alert("Configuration saved successfully!");
+            }}
+            className="px-6 py-2.5 text-sm font-medium text-white bg-[#005BA8] border border-transparent rounded-lg hover:bg-[#005BA8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            Save
+          </button>
+        </div>
+
+        <style jsx>{`
+          .tab-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .tab-scroll::-webkit-scrollbar {
+            display: none;
+          }
+          .table-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .table-scroll::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
       </Container>
     </Fragment>
   );
