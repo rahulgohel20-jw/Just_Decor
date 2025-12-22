@@ -4,6 +4,7 @@ import { AddUnitdata, EditUnit, Translateapi } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useMemo } from "react";
 
 const AddUnit = ({
   isModalOpen,
@@ -36,9 +37,8 @@ const AddUnit = ({
     }, 500);
     setDebounceTimer(timer);
   };
-
-  const formik = useFormik({
-    initialValues: {
+  const initialValues = useMemo(
+    () => ({
       nameEnglish: "",
       nameGujarati: "",
       nameHindi: "",
@@ -52,7 +52,12 @@ const AddUnit = ({
       rangeType: "RANGE",
       ranges: [{ minValue: "", maxValue: "", roundOffValue: "" }],
       stepValue: "",
-    },
+    }),
+    []
+  );
+
+  const formik = useFormik({
+    initialValues,
     validationSchema,
     onSubmit: async (values) => {
       const userId = JSON.parse(localStorage.getItem("userId"));
@@ -140,20 +145,18 @@ const AddUnit = ({
 
   // ✅ Load selectedUnit data when editing
   useEffect(() => {
-    if (selectedUnit) {
-      console.log("Loading unit for edit:", selectedUnit);
-
-      // ✅ Map API ranges format to form format (convert numbers to strings)
+    if (selectedUnit && isModalOpen) {
       const mappedRanges =
-        selectedUnit.ranges && selectedUnit.ranges.length > 0
-          ? selectedUnit.ranges.map((range) => ({
-              minValue: range.minValue?.toString() || "",
-              maxValue: range.maxValue?.toString() || "",
-              roundOffValue: range.roundOffValue?.toString() || "",
+        selectedUnit.ranges?.length > 0
+          ? selectedUnit.ranges.map((r) => ({
+              minValue: r.minValue?.toString() || "",
+              maxValue: r.maxValue?.toString() || "",
+              roundOffValue: r.roundOffValue?.toString() || "",
             }))
           : [{ minValue: "", maxValue: "", roundOffValue: "" }];
 
       formik.setValues({
+        ...initialValues,
         nameEnglish: selectedUnit.nameEnglish || "",
         nameGujarati: selectedUnit.nameGujarati || "",
         nameHindi: selectedUnit.nameHindi || "",
@@ -168,15 +171,6 @@ const AddUnit = ({
         ranges: mappedRanges,
         stepValue: selectedUnit.stepValue?.toString() || "",
       });
-
-      console.log("Form values set:", {
-        rangeType: selectedUnit.rangeType,
-        ranges: mappedRanges,
-        stepValue: selectedUnit.stepValue,
-      });
-    } else {
-      // ✅ Reset form when modal opens for new unit
-      formik.resetForm();
     }
   }, [selectedUnit, isModalOpen]);
 

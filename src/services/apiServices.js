@@ -973,7 +973,7 @@ export const SubscriptionByUser = (id) => {
 //Update Member
 export const UpdateMemberById = (id, formData) => {
   return PUT(`/user/updatemember?id=${id}`, formData, {
-  
+
   });
 };
 
@@ -1237,6 +1237,16 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   );
 };
 
+export const GetRawMaterialByCategoryWithPagination = (cat_id_list = [], user_id, page, size) => {
+  if (!cat_id_list || cat_id_list.length === 0) {
+    return Promise.resolve({ data: { data: [] } });
+  }
+  const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
+  return GET(
+    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}&page=${page}&size=${size}`
+  );
+};
+
 export const UpdateRawMaterialCategory = (queryString) => {
   return PUT(`/rawmaterial/updaterawmaterialitemcategory?${queryString}`);
 };
@@ -1276,4 +1286,13 @@ export const GetAllCustomTheme = () => {
 };
 export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
+};
+
+
+export const DeleteKyc = (id) => {
+  return DELETE(`/user/deleteuserdocumentbyid?id=${id}`);
+};
+
+export const DeleteAmc = (id) => {
+  return DELETE(`/user/deleteuseramcbyid?id=${id}`);
 };
