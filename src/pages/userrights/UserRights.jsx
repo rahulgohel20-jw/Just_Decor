@@ -142,7 +142,9 @@ const UserRights = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "User Rights" }]} />
+      <h1 className="text-xl text-gray-900">
+            User Rights
+            </h1>
         </div>
 
         <div className="w-fit filItems relative mb-4">

@@ -1,9 +1,10 @@
 import { Popconfirm, Tooltip } from "antd";
+import { FormattedMessage } from "react-intl";
 
 export const columns = (onEdit, onDelete, onStatus) => [
   {
     accessorKey: "sr_no",
-    header: "#",
+    header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No" />,
     meta: {
       headerClassName: "w-[5%]",
       cellClassName: "w-[5%]",
@@ -11,7 +12,9 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "shift_name",
-    header: "Shift Name",
+    header: (
+      <FormattedMessage id="TABLE.SHIFT_NAME" defaultMessage="Shit name" />
+    ),
     meta: {
       headerClassName: "w-[25%]",
       cellClassName: "w-[25%]",
@@ -19,7 +22,9 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "shift_time",
-    header: "Shift Time",
+    header: (
+      <FormattedMessage id="TABLE.SHIFT_TIME" defaultMessage="Shit Time" />
+    ),
     meta: {
       headerClassName: "w-[30%]",
       cellClassName: "w-[30%]",
@@ -27,7 +32,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "isActive",
-    header: "Status",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => (
       <div className="flex items-center justify-center">
         <Popconfirm
@@ -48,7 +53,8 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
   {
-    header: "Action",
+    accessorKey:"action",
+    header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => (
       <div className="flex items-center justify-center gap-2">
         <Tooltip title="Edit">

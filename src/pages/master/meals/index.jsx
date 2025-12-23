@@ -130,19 +130,13 @@ const MealMaster = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.MEAL_MASTER"
-                    defaultMessage="Food Prefrence"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className="gpb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.MEALSIDEBAR_TYPE"
+              defaultMessage="Food Prefrence"
+            />
+          </h1>
         </div>
 
         {/* Filters */}
@@ -175,7 +169,7 @@ const MealMaster = () => {
             >
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
-                id="USER.MASTER.ADD_MEAL"
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
                 defaultMessage="Create New "
               />
             </button>

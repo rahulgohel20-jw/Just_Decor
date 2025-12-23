@@ -158,19 +158,13 @@ const ContactTypeMaster = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.CONTACT_TYPE_MASTER"
-                    defaultMessage="Contact Type Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className="pb-2 mb-3">
+          <h1 className="text-xl  text-gray-900">
+            <FormattedMessage
+              id="USER.MASTER.CONTACT_TYPE_MASTER"
+              defaultMessage="Contact Type Master"
+            />
+          </h1>
         </div>
 
         {/* Search + Add */}

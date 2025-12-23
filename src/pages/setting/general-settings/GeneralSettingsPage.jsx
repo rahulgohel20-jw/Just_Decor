@@ -22,8 +22,11 @@ const GeneralSettingsPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="SETTING.COMPANY_PROFILE" defaultMessage="Company Profile"/> }]} />
+        <div className=" mb-3">
+          <h1 className="text-xl text-gray-900">
+        
+              <FormattedMessage id="SETTING.COMPANY_PROFILE" defaultMessage="Company Profile"/> 
+        </h1>
         </div>
         <div className="bg-white rounded-lg shadow-sm">
           {tabs.find((tab) => tab.key === activeTab)?.content}

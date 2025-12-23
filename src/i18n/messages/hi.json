@@ -13,6 +13,112 @@
   "USER.MENU.DARK_MODE": "डार्क मोड",
   "USER.MENU.LOGOUT": "लॉग आउट",
   "USER.MENU.LANGUAGE": "भाषा",
+
+
+ 
+
+  "COMMON.CONTACTSIDEBAR_TYPE": "टाइप",
+  "COMMON.CONTACTSIDEBAR_CATEGORIES": "कैटेगरीज",
+  "COMMON.CUSTOMERSSIDEBAR": "ग्राहक",
+  "COMMON.VENDORSIDEBAR_MASTER": "वेंडर",
+  "COMMON.EVENTSIDEBAR_TYPE": "इवेंट",
+  "COMMON.FUNCTIONSIDEBAR_TYPE": "फंक्शन",
+  "COMMON.MEALSIDEBAR_TYPE": "फूड प्रेफरेंस",
+  "COMMON.VENUESIDEBAR_TYPE": "वेन्यू",
+  "COMMON.CUSTOMSIDEBAR_PACKAGE": "मेनू पैकेज",
+
+
+  "COMMON.SIDEBAR_USERS": "यूज़र्स",
+  "COMMON.USERSIDEBAR_MASTER": "यूज़र मास्टर",
+  "COMMON.DEPARTMENTSIDEBAR": "डिपार्टमेंट",
+
+  
+  "COMMON.RAW_MATERIALSIDEBAR_TYPE": "टाइप",
+  "COMMON.RAW_MATERIALSIDEBAR_CATEGORY": "कैटेगरी",
+  "COMMON.RAWSIDEBAR_MATERIAL": "आइटम्स",
+  "COMMONSIDEBAR.UNIT": "यूनिट",
+  
+  "COMMON.MENU_ITEMSIDEBAR_CATEGORY": "कैटेगरी",
+  "COMMON.MENU_ITEM_SUBSIDEBAR_CATEGORY": "सब कैटेगरी",
+  "COMMON.MENUSIDEBAR_ITEM": "आइटम्स विद रेसिपी",
+
+  "COMMONSIDEBAR.CONFIGURATION": "कॉन्फ़िगरेशन",
+
+  "COMMON.CHANGESIDEBARRAWMATIRAL": "चेंज रॉ मटेरियल कैटेगरी",
+  "COMMON.CHANGESIDEBARMENUITEM": "चेंज मेनू आइटम कैटेगरी",
+  "COMMON.CHANGEMENUITEMALLOCATION": "मेनू आइटम एलोकेशन",
+  "COMMON.CHANGEALLOCATESUPLIER": "एलोकेट सप्लायर",
+"USER.MASTER.VENUE_TYPE_MASTER": "वेन्यू मास्टर",
+
+  "USER.MASTER.LABOUR_SHIFT_MASTER": "लेबर शिफ्ट मास्टर",
+  "USER.MASTER.SEARCH_SHIFT": "शिफ्ट खोजें",
+  "USER.MASTER.ADD_SHIFT": "क्रिएट न्यू",
+
+  "ALERT.DELETE_TITLE": "क्या आप सुनिश्चित हैं?",
+  "ALERT.DELETE_TEXT": "आप इसे वापस नहीं कर पाएंगे!",
+  "ALERT.DELETE_CONFIRM": "हां, डिलीट करें!",
+  "ALERT.DELETE_CANCEL": "रद्द करें",
+  "ALERT.DELETED_TITLE": "हटाया गया!",
+  "ALERT.DELETED_TEXT": "शिफ्ट सफलतापूर्वक हटा दी गई है।",
+  
+  "TABLE.SR_NO": "#",
+  "TABLE.SHIFT_NAME": "शिफ्ट का नाम",
+  "TABLE.SHIFT_TIME": "शिफ्ट समय",
+  "TABLE.STATUS": "स्थिति",
+  "TABLE.ACTION": "क्रिया",
+  "TABLE.CONFIRM_STATUS_CHANGE": "क्या आप स्थिति बदलने के लिए सुनिश्चित हैं?",
+  "TABLE.YES": "हां",
+  "TABLE.NO": "नहीं",
+  "TABLE.EDIT": "संपादित करें",
+  "TABLE.DELETE": "हटाएँ",
+
+"COMMON.DEPARTMENT_MASTER": "डिपार्टमेंट मास्टर",
+"COMMON.RAW_MATERIAL_ITEM_MASTER": "रॉ मटेरियल आइटम मास्टर",
+
+  "COMMON.RAW_MATERIAL_SEARCH": "रॉ मटेरियल सर्च...",
+  "COMMON.ALL_CATEGORIES": "सभी कैटेगरीज",
+  "COMMON.GENERAL_FIX": "जनरल फिक्स",
+  "COMMON.SHOW_ALL": "सभी दिखाएं",
+  "USER.MASTER.ADD_CONTACT_CATEGORY": "नया बनाएं",
+  
+  "COMMON.LOADING": "लोड हो रहा है...",
+  "COMMON.SHOWING_CATEGORIES": "{shown} में से {total} कैटेगरीज दिखा रहा है",
+  "COMMON.MENU_ITEM_RECIPE_MASTER": "मेनू आइटम रेसिपी मास्टर",
+  
+  "RAW_MATERIAL.CHANGE_CATEGORY": "रॉ मटेरियल कैटेगरी बदलें",
+  "FROM_CATEGORY": "फ्रॉम कैटेगरी",
+  "TO_CATEGORY": "टू कैटेगरी",
+  "RAW_MATERIAL.LIST": "रॉ मटेरियल लिस्ट",
+  "RAW_MATERIAL.SEARCH": "सर्च करने के लिए टाइप करें और एंटर दबाएं।",
+  "RAW_MATERIAL.SELECT_CATEGORY": "इस कैटेगरी के लिए कोई रॉ मटेरियल नहीं मिला",
+  "COMMON.CANCEL": "कैंसल",
+  "COMMON.SAVING": "सेव हो रहा है...",
+  "COMMON.SAVE_CHANGES": "चेंजेस सेव करें",
+  "COMMON.LOADING": "लोड हो रहा है...",
+  "COMMON.SELECT_CATEGORY": "कैटेगरी सेलेक्ट करें",
+  "COMMON.ALL_CATEGORIES": "सभी कैटेगरीज",
+  "MENUITEM.CHANGE_CATEGORY":"चेंज मेनू आइटम कैटेगरी",
+  "MENUITEM.LIST":"मेनू आइटम लिस्ट",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   "USER.DASHBOARD.DASHBOARD_LANGUAGE": "डैशबोर्ड",
   "USER.DASHBOARD.DASHBOARD_DESCRIPTION": "पर्सनल कस्टमाइजेशन के लिए सेंट्रल हब",
   "USER.DASHBOARD.DASHBOARD_HIGHLIGHTS": "हाइलाइट्स",
@@ -129,7 +235,7 @@
   "COMMON.STATUS": "स्टेटस",
   "COMMON.ACTIONS": "एक्शन्स",
   "USER.MASTER.CONTACT_TYPE": "कॉन्टैक्ट टाइप",
-  "USER.MASTER.CONTACT_CATEGORY_MASTER": "कॉन्टैक्ट कैटेगरी मास्टर",
+  "USER.MASTER.CONTACT_CATEGORY_MASTER": "कॉन्टैक्ट  मास्टर",
   "USER.MASTER.CONTACT_CATEGORY": "कॉन्टैक्ट कैटेगरी",
   "COMMON.VENDOR_MASTER": "वेंडर मास्टर",
   "USER.MASTER.PRIORITY": "प्रायोरिटी",
@@ -140,7 +246,7 @@
   "COMMON.NAME_HINDI": "नाम (हिंदी)",
   "COMMON.UPDATE": "अपडेट करें",
   "USER.MASTER.ADD_CONTACT_TYPE": "कॉन्टैक्ट टाइप ऐड करें",
-  "USER.MASTER.ADD_CONTACT_CATEGORY": "कॉन्टैक्ट कैटेगरी ऐड करें",
+"USER.MASTER.ADD_CONTACT_CATEGORY": "क्रिएट न्यू",
   "USER.MASTER.NEW_CONTACT_CATEGORY": "नई कॉन्टैक्ट कैटेगरी",
   "USER.MASTER.EDIT_CONTACT_CATEGORY": "कॉन्टैक्ट कैटेगरी एडिट करें",
   "USER.MASTER.SELECT_CONTACT_TYPE": "-- कॉन्टैक्ट टाइप चुनें --",
@@ -194,7 +300,7 @@
   "USER.MASTER.SEARCH_MEAL": "मील खोजें",
   "USER.MASTER.ADD_MEAL": "मील ऐड करें",
   "USER.MASTER.MEAL_NAME": "मील नाम",
-  "USER.MASTER.EVENT_TYPE_MASTER": "इवेंट टाइप मास्टर",
+  "USER.MASTER.EVENT_TYPE_MASTER": "इवेंट  मास्टर",
   "USER.MASTER.EVENT_TYPE": "इवेंट टाइप",
   "USER.MASTER.ADD_EVENT_TYPE": "इवेंट टाइप ऐड करें",
   "USER.MASTER.SEARCH_EVENT_TYPE": "इवेंट टाइप खोजें",
@@ -730,5 +836,20 @@
   "USER.EVENT.EVENT_CODE": "इवेंट कोड",
 
   "USER.PRICE_PLAN.TITLE": "योजनाएँ और मूल्य निर्धारण",
-  "USER.PRICE_PLAN.SUBTITLE": "चाहे आपकी समय-बचत ऑटोमेशन की ज़रूरतें बड़ी हों या छोटी, हम आपको बढ़ने में मदद करने के लिए यहाँ हैं।"
+  "USER.PRICE_PLAN.SUBTITLE": "चाहे आपकी समय-बचत ऑटोमेशन की ज़रूरतें बड़ी हों या छोटी, हम आपको बढ़ने में मदद करने के लिए यहाँ हैं।",
+  
+  "COMMON.SR_NO": "क्रमांक",
+  "PACKAGE.NAME": "नाम",
+  "PACKAGE.PRICE": "कीमत",
+  "PACKAGE.TOTAL_ITEMS": "कुल आइटम",
+  "COMMON.STATUS": "स्थिति",
+  "COMMON.ACTION": "क्रिया",
+  "COMMON.EDIT": "पैकेज संपादित करें",
+  "COMMON.DELETE": "हटाएँ"
+
+
+
+
+
+
 }

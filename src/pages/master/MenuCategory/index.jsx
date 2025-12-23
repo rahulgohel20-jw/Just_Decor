@@ -202,18 +202,12 @@ const MenuCategory = () => {
     <Fragment>
       <Container>
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="MENU_CATEGORY.MASTER"
-                    defaultMessage="Menu Category Master"
-                  />
-                ),
-              },
-            ]}
-          />
+          <h1 className="test-xl text-gray-900">
+            <FormattedMessage
+              id="MENU_CATEGORY.MASTER"
+              defaultMessage="Menu Category Master"
+            />
+          </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -238,13 +232,25 @@ const MenuCategory = () => {
             {loading && (
               <div className="flex items-center gap-2 text-primary">
                 <Spin size="small" />
-                <span className="text-sm">Loading...</span>
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="COMMON.LOADING"
+                    defaultMessage="Loading..."
+                  />
+                </span>
               </div>
             )}
+
             {!loading && (
               <span className="text-sm text-gray-600">
-                Showing {filteredTableData.length} of {allTableData.length}{" "}
-                categories
+                <FormattedMessage
+                  id="COMMON.SHOWING_CATEGORIES"
+                  defaultMessage="Showing {shown} of {total} categories"
+                  values={{
+                    shown: filteredTableData.length,
+                    total: allTableData.length,
+                  }}
+                />
               </span>
             )}
           </div>
