@@ -9,7 +9,6 @@ import ViewMemberDetails from "@/partials/modals/view-member-details/ViewMemberD
 import { FormattedMessage, useIntl } from "react-intl";
 
 const SuperadminMember = () => {
-  const classes = useStyle();
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);

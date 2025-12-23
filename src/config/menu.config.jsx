@@ -477,7 +477,7 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CONTACT_TYPE"
-            defaultMessage="Contact Type"
+            defaultMessage="Categories"
           />
         ),
         path: "/super-contact-type-master",
@@ -486,26 +486,24 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CONTACT_CATEGORIES"
-            defaultMessage="Raw Material Type"
+            defaultMessage="Raw Material "
           />
         ),
         path: "/super-raw-material-type-master",
       },
       {
-        title: (
-          <FormattedMessage
-            id="COMMON.CUSTOMERS"
-            defaultMessage="Unit Master"
-          />
-        ),
+        title: <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Unit" />,
         path: "/super-unit-master",
       },
       {
         title: (
-          <FormattedMessage
-            id="COMMON.CUSTOMERS"
-            defaultMessage="Template Name Master"
-          />
+          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme Type" />
+        ),
+        path: "/super-templateMapping",
+      },
+      {
+        title: (
+          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme" />
         ),
         path: "super-template-name-master",
       },
@@ -513,7 +511,7 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CUSTOMERS"
-            defaultMessage="Interaction Master"
+            defaultMessage="Interaction"
           />
         ),
         path: "/interaction-master",

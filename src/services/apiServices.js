@@ -972,11 +972,8 @@ export const SubscriptionByUser = (id) => {
 
 //Update Member
 export const UpdateMemberById = (id, formData) => {
-  return PUT(`/user/updatemember?id=${id}`, formData, {
-
-  });
+  return PUT(`/user/updatemember?id=${id}`, formData, {});
 };
-
 
 export const GetALLMemberDetailsByID = (id) => {
   return GET(`/user/getmemberbyid?id=${id}`);
@@ -1237,7 +1234,12 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   );
 };
 
-export const GetRawMaterialByCategoryWithPagination = (cat_id_list = [], user_id, page, size) => {
+export const GetRawMaterialByCategoryWithPagination = (
+  cat_id_list = [],
+  user_id,
+  page,
+  size
+) => {
   if (!cat_id_list || cat_id_list.length === 0) {
     return Promise.resolve({ data: { data: [] } });
   }
@@ -1288,11 +1290,13 @@ export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
 };
 
-
 export const DeleteKyc = (id) => {
   return DELETE(`/user/deleteuserdocumentbyid?id=${id}`);
 };
 
 export const DeleteAmc = (id) => {
   return DELETE(`/user/deleteuseramcbyid?id=${id}`);
+};
+export const GetAllExeculisveTheme = (Id) => {
+  return GET(`/templatemaster/getallbymoduleid?moduleId=${Id}`);
 };

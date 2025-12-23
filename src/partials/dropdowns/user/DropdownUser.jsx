@@ -52,8 +52,8 @@ const DropdownUser = ({ menuItemRef }) => {
       <div className="flex items-center justify-between px-5 py-1.5 gap-1.5">
         <div className="flex items-center gap-2">
           <img
-            className="size-9 rounded-full"
-            src={toAbsoluteUrl("/images/user_img.jpg")}
+            className="size-10 rounded-full"
+            src={userdata?.logo || toAbsoluteUrl("/media/menu/noImage.jpg")}
             alt=""
           />
           <div className="flex flex-col gap-1.5">

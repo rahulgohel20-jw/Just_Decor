@@ -141,7 +141,7 @@ export default function SelectMenureport({
           </span>
         </div>
       }
-      width={1200}
+      width={1100}
     >
       <div className="p-6">
         {/* Event Info Card */}

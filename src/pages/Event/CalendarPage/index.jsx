@@ -189,7 +189,7 @@ const CalendarPage = () => {
             <span className="filItems text-sm font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
-                defaultMessage: "Completed",
+                defaultMessage: "Confirm",
               })}
             </span>
             <span className="filItems text-sm font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">

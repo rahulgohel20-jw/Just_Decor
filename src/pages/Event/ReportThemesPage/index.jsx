@@ -11,14 +11,14 @@ const ReportThemes = () => {
   const navigate = useNavigate();
 
   const themes = [
-    { title: "Elegant – Wedding", img: "/JCX/images/report-theme1.png" },
-    { title: "Basic – Dark", img: "/JCX/images/report-theme2.png" },
-    { title: "Classic – Event", img: "/JCX/images/report-theme3.png" },
-    { title: "Outdoor – Elegant", img: "/JCX/images/report-theme1.png" },
-    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
-    { title: "Luxury – Banquet", img: "/JCX/images/report-theme2.png" },
-    { title: "Rustic – Party", img: "/JCX/images/report-theme3.png" },
+    { title: "Elegant – Wedding", img: "/images/report-theme1.png" },
+    { title: "Basic – Dark", img: "/images/report-theme2.png" },
+    { title: "Classic – Event", img: "/images/report-theme3.png" },
+    { title: "Outdoor – Elegant", img: "/images/report-theme1.png" },
+    { title: "Luxury – Banquet", img: "/images/report-theme2.png" },
+    { title: "Rustic – Party", img: "/images/report-theme3.png" },
+    { title: "Luxury – Banquet", img: "/images/report-theme2.png" },
+    { title: "Rustic – Party", img: "/images/report-theme3.png" },
   ];
 
   const allThemes = showMore ? [...themes, ...themes] : themes;

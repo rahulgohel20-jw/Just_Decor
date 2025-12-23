@@ -1,6 +1,6 @@
 import { Tooltip } from "antd";
-
-export const columns = (onEdit, handleApprove, navigate) => {
+import AssignTheme from "../theme";
+export const columns = (onEdit, handleApprove, navigate, onThemeClick) => {
   return [
     {
       accessorKey: "userCode",
@@ -52,8 +52,21 @@ export const columns = (onEdit, handleApprove, navigate) => {
     {
       accessorKey: "theme",
       header: "Themes",
+      cell: ({ row }) => {
+        const userId = row.original.id;
+
+        return (
+          <button
+            onClick={() => onThemeClick(userId)}
+            className="font-medium px-4 py-1 rounded text-white bg-blue-600"
+          >
+            Select Theme
+          </button>
+        );
+      },
       meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
     },
+
     {
       accessorKey: "createdAt",
       header: "Created At",
@@ -130,14 +143,14 @@ export const columns = (onEdit, handleApprove, navigate) => {
       cell: ({ row }) => {
         const userId = row.original.id;
         const email = row.original.email;
-        
+
         return (
           <div className="flex items-center justify-center gap-1">
             <Tooltip title="Edit User">
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 onClick={() => {
-                  console.log('Navigating to edit page with ID:', userId);
+                  console.log("Navigating to edit page with ID:", userId);
                   navigate(`/Superadmin-member-edit/${userId}`);
                 }}
               >
@@ -148,7 +161,7 @@ export const columns = (onEdit, handleApprove, navigate) => {
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 onClick={() => {
-                  console.log('Navigating to logs with email:', email);
+                  console.log("Navigating to logs with email:", email);
                   navigate("/superadmin-logs", {
                     state: { email: email },
                   });

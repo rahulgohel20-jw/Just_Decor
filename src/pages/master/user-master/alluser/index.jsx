@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AssignTheme from "../theme";
 import { message, Spin, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
@@ -16,6 +17,8 @@ const AllUser = () => {
   const [searchText, setSearchText] = useState("");
   const [editingUserId, setEditingUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [selectedThemeUserId, setSelectedThemeUserId] = useState(null);
 
   const formatUsers = (users) => {
     const managerMap = {};
@@ -106,6 +109,10 @@ const AllUser = () => {
       setLoading(false);
     }
   };
+  const handleThemeClick = (userId) => {
+    setSelectedThemeUserId(userId);
+    setIsThemeModalOpen(true);
+  };
 
   return (
     <Container>
@@ -134,7 +141,12 @@ const AllUser = () => {
         </div>
       ) : (
         <TableComponent
-          columns={columns(handleEdit, handleApprove, navigate)}
+          columns={columns(
+            handleEdit,
+            handleApprove,
+            navigate,
+            handleThemeClick
+          )}
           data={filteredData}
           paginationSize={10}
         />
@@ -145,6 +157,11 @@ const AllUser = () => {
         onClose={() => setIsModalOpen(false)}
         refreshData={handleFetchByRoleId}
         userId={editingUserId}
+      />
+      <AssignTheme
+        isModalOpen={isThemeModalOpen}
+        setIsModalOpen={setIsThemeModalOpen}
+        userId={selectedThemeUserId}
       />
     </Container>
   );

@@ -12,7 +12,7 @@ var vite_config_default = defineConfig({
       plugins: [tailwindcss()],
     },
   },
-  base: "/JCX/",
+  base: "/",
   resolve: {
     alias: {
       "@": fileURLToPath(

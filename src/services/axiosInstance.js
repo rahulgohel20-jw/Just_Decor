@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
     "x-no-compression": "true",
   },
 
-  timeout: 500000,
+  timeout: 1000000,
 });
 
 // === Set token before request ===
@@ -143,6 +143,5 @@ export const UPLOAD = (url, formData, config = {}) =>
       ...(config.headers || {}),
     },
   });
-  
 
 export default axiosInstance;
