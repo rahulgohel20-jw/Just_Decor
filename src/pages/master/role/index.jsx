@@ -110,19 +110,13 @@ const RoleMaster = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.ROLE_MASTER"
-                    defaultMessage="Department Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.DEPARTMENT_MASTER"
+              defaultMessage="Department Master"
+            />
+          </h1>
         </div>
 
         {/* Filters */}
@@ -151,7 +145,7 @@ const RoleMaster = () => {
             >
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
-                id="USER.MASTER.ADD_ROLE"
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
                 defaultMessage="Create New"
               />
             </button>

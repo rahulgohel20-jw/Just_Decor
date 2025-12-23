@@ -47,14 +47,17 @@ export const allMenuItems = [
     children: [
       {
         title: (
-          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Types" />
+          <FormattedMessage
+            id="COMMON.CONTACTSIDEBAR_TYPE"
+            defaultMessage="Types"
+          />
         ),
         path: "/master/contact-type",
       },
       {
         title: (
           <FormattedMessage
-            id="COMMON.CONTACT_CATEGORIES"
+            id="COMMON.CONTACTSIDEBAR_CATEGORIES"
             defaultMessage="Categories"
           />
         ),
@@ -68,20 +71,26 @@ export const allMenuItems = [
       },
       {
         title: (
-          <FormattedMessage id="COMMON.VENDOR_MASTER" defaultMessage="Vendor" />
+          <FormattedMessage
+            id="COMMON.VENDORSIDEBAR_MASTER"
+            defaultMessage="Vendor"
+          />
         ),
         path: "/master/vendor-master",
       },
       {
         title: (
-          <FormattedMessage id="COMMON.EVENT_TYPE" defaultMessage="Events " />
+          <FormattedMessage
+            id="COMMON.EVENTSIDEBAR_TYPE"
+            defaultMessage="Events "
+          />
         ),
         path: "/master/event-type",
       },
       {
         title: (
           <FormattedMessage
-            id="COMMON.FUNCTION_TYPE"
+            id="COMMON.FUNCTIONSIDEBAR_TYPE"
             defaultMessage="Function"
           />
         ),
@@ -90,7 +99,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MEAL_TYPE"
+            id="COMMON.MEALSIDEBAR_TYPE"
             defaultMessage="Food Prefrence "
           />
         ),
@@ -99,7 +108,10 @@ export const allMenuItems = [
 
       {
         title: (
-          <FormattedMessage id="COMMON.VENUE_TYPE" defaultMessage="Venue " />
+          <FormattedMessage
+            id="COMMON.VENUESIDEBAR_TYPE"
+            defaultMessage="Venue "
+          />
         ),
         path: "/master/venue-type",
       },
@@ -116,27 +128,34 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.CUSTOM_PACKAGE"
+            id="COMMON.CUSTOMSIDEBAR_PACKAGE"
             defaultMessage="Menu Packages"
           />
         ),
         path: "/master/custom-package",
       },
       {
-        title: "Users",
+        title: (
+          <FormattedMessage id="COMMON.SIDEBAR_USERS" defaultMessage="Users" />
+        ),
         icon: "  text-lg ki-filled ki-abstract-18 text-primary",
         children: [
           {
             title: (
               <FormattedMessage
-                id="COMMON.ALL_MEMBERS"
+                id="COMMON.USERSIDEBAR_MASTER"
                 defaultMessage="User Master"
               />
             ),
             path: "/master/all-members",
           },
           {
-            title: "Department",
+            title: (
+              <FormattedMessage
+                id="COMMON.DEPARTMENTSIDEBAR"
+                defaultMessage="Department"
+              />
+            ),
             path: "/master/role",
           },
         ],
@@ -155,7 +174,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.RAW_MATERIAL_TYPE"
+            id="COMMON.RAW_MATERIALSIDEBAR_TYPE"
             defaultMessage=" Type"
           />
         ),
@@ -164,7 +183,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.RAW_MATERIAL_CATEGORY"
+            id="COMMON.RAW_MATERIALSIDEBAR_CATEGORY"
             defaultMessage="Category"
           />
         ),
@@ -172,12 +191,12 @@ export const allMenuItems = [
       },
       {
         title: (
-          <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Items" />
+          <FormattedMessage id="COMMON.RAWSIDEBAR_MATERIAL" defaultMessage="Items" />
         ),
         path: "/master/raw-material",
       },
       {
-        title: <FormattedMessage id="COMMON.UNIT" defaultMessage="Unit" />,
+        title: <FormattedMessage id="COMMONSIDEBAR.UNIT" defaultMessage="Unit" />,
         path: "/master/unit",
       },
     ],
@@ -191,7 +210,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MENU_ITEM_CATEGORY"
+            id="COMMON.MENU_ITEMSIDEBAR_CATEGORY"
             defaultMessage=" Category"
           />
         ),
@@ -200,7 +219,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MENU_ITEM_SUB_CATEGORY"
+            id="COMMON.MENU_ITEM_SUBSIDEBAR_CATEGORY"
             defaultMessage=" Sub Category"
           />
         ),
@@ -219,7 +238,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.MENU_ITEM"
+            id="COMMON.MENUSIDEBAR_ITEM"
             defaultMessage=" Items With Recipe "
           />
         ),
@@ -282,7 +301,7 @@ export const allMenuItems = [
 
   {
     title: (
-      <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Configuration" />
+      <FormattedMessage id="COMMONSIDEBAR.CONFIGURATION" defaultMessage="Configuration" />
     ),
     icon: "  text-lg ki-filled ki-setting text-primary",
     disabled: false,
@@ -290,7 +309,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.COMPANY_PROFILE"
+            id="COMMON.CHANGESIDEBARRAWMATIRAL"
             defaultMessage="Change Raw Material Category"
           />
         ),
@@ -299,7 +318,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="BREADCRUMBS_USER_RIGHTS"
+            id="COMMON.CHANGESIDEBARMENUITEM"
             defaultMessage="Change Menu Item Category"
           />
         ),
@@ -309,7 +328,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.SUBSCRIPTION"
+            id="COMMON.CHANGEMENUITEMALLOCATION"
             defaultMessage="Menu Item Allocation"
           />
         ),
@@ -318,7 +337,7 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
-            id="COMMON.PAYMENT_HISTORY"
+            id="COMMON.CHANGEALLOCATESUPLIER"
             defaultMessage="Allocate Supplier"
           />
         ),

@@ -577,43 +577,40 @@ const CreateEventPage = () => {
     [formData, errors, onInputChange, handleInputChange]
   );
 
-  const breadcrumbItems = useMemo(
-    () => [
-      {
-        title:
-          mode === "edit" ? (
-            <FormattedMessage
-              id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
-              defaultMessage="Edit Event"
-            />
-          ) : (
-            <FormattedMessage
-              id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
-              defaultMessage="Create Event"
-            />
-          ),
-      },
-    ],
-    [mode]
-  );
 
-  return (
-    <Fragment>
-      <Container>
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={breadcrumbItems} />
-        </div>
-        <StepsComponent
-          direction="vertical"
-          current={current}
-          steps={steps}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onFinish={handleFinish}
-        />
-      </Container>
-    </Fragment>
-  );
+
+ return (
+   <Fragment>
+     <Container>
+       {/* Page Title */}
+       <div className="pb-2 mb-3">
+         <h1 className="text-xl font-semibold text-gray-900">
+           {mode === "edit" ? (
+             <FormattedMessage
+               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
+               defaultMessage="Edit Event"
+             />
+           ) : (
+             <FormattedMessage
+               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
+               defaultMessage="Create Event"
+             />
+           )}
+         </h1>
+       </div>
+
+       <StepsComponent
+         direction="vertical"
+         current={current}
+         steps={steps}
+         onNext={handleNext}
+         onPrev={handlePrev}
+         onFinish={handleFinish}
+       />
+     </Container>
+   </Fragment>
+ );
+
 };
 
 export default CreateEventPage;

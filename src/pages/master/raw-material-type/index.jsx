@@ -156,19 +156,14 @@ const RawMaterialType = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+         
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
                     defaultMessage="Raw Material Type"
                   />
-                ),
-              },
-            ]}
-          />
+               </h1>
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">

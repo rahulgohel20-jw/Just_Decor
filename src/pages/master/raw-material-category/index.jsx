@@ -144,19 +144,13 @@ const AddRawMaterialCategory = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.RAW_MATERIAL_CATEGORY"
-                    defaultMessage="Raw Material Category"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="USER.MASTER.RAW_MATERIAL_CATEGORY"
+              defaultMessage="Raw Material Category"
+            />
+          </h1>
         </div>
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -186,7 +180,7 @@ const AddRawMaterialCategory = () => {
             >
               <i className="ki-filled ki-plus"></i>{" "}
               {intl.formatMessage({
-                id: "USER.MASTER.ADD_RAW_MATERIAL_CATEGORY",
+                id: "USER.MASTER.ADD_CONTACT_CATEGORY",
                 defaultMessage: "Create New ",
               })}
             </button>

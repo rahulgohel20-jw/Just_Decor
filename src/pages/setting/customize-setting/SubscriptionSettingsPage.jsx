@@ -64,7 +64,9 @@ const [loading, setLoading] = useState(true);
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: <FormattedMessage id="SETTING.SUBSCRIPTION" defaultMessage="Subscription" /> }]} />
+          <h1 className="text-xl text-gray-900">
+         <FormattedMessage id="SETTING.SUBSCRIPTION" defaultMessage="Subscription" /> 
+         </h1>
         </div>
         {loading ? (
   <div className="text-center py-10">Loading subscription details...</div>
