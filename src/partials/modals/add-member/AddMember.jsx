@@ -23,6 +23,7 @@ const AddMember = ({
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
   const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
@@ -128,6 +129,7 @@ const AddMember = ({
       }
 
       try {
+        setLoading(true);
         const res = await getUserById(selectedMember.id);
         const member = res?.data?.data?.["User Details"][0];
 
@@ -167,6 +169,8 @@ const AddMember = ({
         }
       } catch (err) {
         console.error("Error fetching user:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -176,6 +180,7 @@ const AddMember = ({
   // ✅ Save Member
   const handleSave = async () => {
     try {
+      setLoading(true);
       const res = await getUserById(Id);
       const user_Data = res?.data?.data["User Details"][0];
 
@@ -208,7 +213,7 @@ const AddMember = ({
         reportingManagerId: 0,
 
         clientId: parsedData.id,
-        planId: parsedData.plan.id,
+        planId: parsedData?.plan?.id || null,
 
         roleId: Number(selectedRole),
         isTaskAccess: taskAccess,
@@ -261,10 +266,13 @@ const AddMember = ({
           return;
         }
       }
+      setLoading(false);
 
       refreshData();
       handleModalClose();
     } catch (err) {
+      setLoading(false);
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -280,18 +288,28 @@ const AddMember = ({
         open={isModalOpen}
         onClose={handleModalClose}
         width={1000}
-        title={selectedMember ? "Edit Member" : "New Member"}
+        title={selectedMember ? "Edit Member" : "Create Member"}
         footer={[
           <div className="flex justify-between" key="footer-buttons">
             <button className="btn btn-light" onClick={handleModalClose}>
               Cancel
             </button>
-            <button className="btn btn-success" onClick={handleSave}>
-              {selectedMember ? "Update" : "Save"}
+            <button
+              className="btn btn-success"
+              onClick={handleSave}
+              disabled={loading}
+            >
+              {loading ? "Please wait..." : selectedMember ? "Update" : "Save"}
             </button>
           </div>,
         ]}
       >
+        {loading && (
+          <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-50">
+            <div className="loader"></div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-y-2">
           {/* First & Last Name */}
           <div className="grid grid-cols-2 gap-x-4">

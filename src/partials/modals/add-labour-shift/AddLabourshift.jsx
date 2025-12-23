@@ -84,7 +84,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
       <div className="bg-white rounded-xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {shiftData ? "Edit Labour Shift" : "New Labour Shift"}
+            {shiftData ? "Edit Labour Shift" : "Create Labour Shift"}
           </h2>
           <button
             onClick={() => onClose(false)}

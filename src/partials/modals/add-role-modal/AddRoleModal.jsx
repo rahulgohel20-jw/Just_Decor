@@ -89,7 +89,7 @@ const AddRoleModal = ({ isModalOpen, setIsModalOpen, selectedEvent }) => {
             ) : (
               <FormattedMessage
                 id="USER.MASTER.ADDROLE"
-                defaultMessage="Add Role"
+                defaultMessage="Create New Department "
               />
             )}
           </h2>

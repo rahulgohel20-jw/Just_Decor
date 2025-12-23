@@ -278,7 +278,7 @@ const FunctionsMaster = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="USER.MASTER.ADD_FUNCTION"
-                defaultMessage="Add Function"
+                defaultMessage="Create New"
               />
             </button>
           </div>

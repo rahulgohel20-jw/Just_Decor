@@ -22,7 +22,7 @@ const HeaderTopbar = () => {
   const [checkInModal, setCheckInModal] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [companyName, setCompanyName] = useState("");
-
+  const [userLogo, setUserLogo] = useState("");
   // ✅ Load company name from localStorage
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,8 +35,11 @@ const HeaderTopbar = () => {
 
         const user = await getUserById(Id);
         const User_data = user.data.data["User Details"][0];
-        const company = User_data?.userBasicDetails?.companyName || "";
+        console.log(User_data);
 
+        const company = User_data?.userBasicDetails?.companyName || "";
+        const logo = User_data?.logo;
+        setUserLogo(logo);
         setCompanyName(company || "Company");
       } catch (error) {
         console.error("❌ Error reading user data:", error);
@@ -143,7 +146,7 @@ const HeaderTopbar = () => {
             <MenuToggle className="btn btn-icon rounded-full">
               <img
                 className="size-9 rounded-full shrink-0"
-                src={toAbsoluteUrl("/images/user_img.jpg")}
+                src={userLogo || toAbsoluteUrl("/media/menu/noImage.jpg")}
                 alt=""
               />
             </MenuToggle>

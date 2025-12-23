@@ -174,7 +174,7 @@ const AddMenuSubCategory = ({
         ) : (
           <FormattedMessage
             id="NEW_MENU_SUB_CATEGORY"
-            defaultMessage="New Menu Sub Category"
+            defaultMessage="Create New Menu Sub Category"
           />
         )
       }

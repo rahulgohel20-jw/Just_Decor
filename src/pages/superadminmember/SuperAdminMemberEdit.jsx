@@ -21,7 +21,9 @@ import {
   fetchCitiesByState,
   GetAllPlans,
   Fetchmanager,
+  DeleteAmc,
 } from "@/services/apiServices";
+import { DeleteKyc } from "../../services/apiServices";
 
 const SuperAdminMemberEdit = () => {
   const { id } = useParams();
@@ -84,6 +86,7 @@ const SuperAdminMemberEdit = () => {
     isFile: "true",
     preFix: "",
     reportingManagerId: "",
+    SalesId: "",
   });
 
   const [downPayments, setDownPayments] = useState([
@@ -244,6 +247,7 @@ const SuperAdminMemberEdit = () => {
 
             setMemberDetails((prev) => ({
               ...prev,
+
               cityId: matchedCity?.value || "",
             }));
           }
@@ -260,6 +264,7 @@ const SuperAdminMemberEdit = () => {
             isFile: user.isFile || "true",
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
+            SalesId: user.SalesId || "",
           }));
           // Remarks
           setRemarks({
@@ -427,10 +432,47 @@ const SuperAdminMemberEdit = () => {
     ]);
   };
 
-  const removeUserAmc = (index) => {
+  const removeamcDetails = (index) => {
     if (userAmcs.length === 1)
       return message.warning("At least one entry is required!");
     setUserAmcs(userAmcs.filter((_, i) => i !== index));
+  };
+
+  const removeUserAmc = async (index, amcId) => {
+    if (!amcId) {
+      removeamcDetails(index);
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this Amc deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await DeleteAmc(amcId);
+
+        if (response?.data?.success) {
+          message.success("Amc deleted successfully!");
+          removeUserAmc(index);
+          await fetchUserData();
+        } else {
+          message.error(response?.data?.msg || "Failed to delete amc.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting amc:", error);
+      message.error(
+        error.response?.data?.msg || error.message || "Failed to delete amc."
+      );
+    }
   };
 
   const handleUserAmcChange = (index, field, value) => {
@@ -504,10 +546,51 @@ const SuperAdminMemberEdit = () => {
     ]);
   };
 
-  const removeKyc = (index) => {
+  const removekycDetails = (index) => {
     if (kycDetails.length === 1)
       return message.warning("At least one entry is required!");
     setKycDetails(kycDetails.filter((_, i) => i !== index));
+  };
+
+  const removeKyc = async (index, kycId) => {
+    if (!kycId) {
+      removekycDetails(index);
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this Kyc deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await DeleteKyc(kycId);
+
+        if (response?.data?.success) {
+          message.success("Kyc deleted successfully!");
+          removeKyc(index);
+          await fetchUserData();
+        } else {
+          message.error(
+            response?.data?.msg || "Failed to delete down payment."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting down payment:", error);
+      message.error(
+        error.response?.data?.msg ||
+          error.message ||
+          "Failed to delete down payment."
+      );
+    }
   };
 
   const handleDeleteDownPayment = async (index, paymentId) => {
@@ -599,10 +682,8 @@ const SuperAdminMemberEdit = () => {
       formData.append("profile", memberDetails.profile || "");
       formData.append("planId", memberDetails.planId || "");
       formData.append("preFix", memberDetails.preFix || "");
-      formData.append(
-        "reportingManagerId",
-        memberDetails.reportingManagerId || ""
-      );
+      formData.append("managerId", memberDetails.reportingManagerId || "");
+      formData.append("SalesId", memberDetails.SalesId || "");
 
       // Remarks text
       formData.append("managerReq", remarks.managerReq);
@@ -885,8 +966,8 @@ const SuperAdminMemberEdit = () => {
               <div className="w-full md:w-1/2">
                 <label className="block mb-1 text-sm">Sales </label>
                 <Select
-                  value={memberDetails.reportingManagerId}
-                  onChange={(v) => handleMemberChange("reportingManagerId", v)}
+                  value={memberDetails.SalesId}
+                  onChange={(v) => handleMemberChange("SalesId", v)}
                   options={managers}
                   className="w-full"
                 />
@@ -1226,7 +1307,7 @@ const SuperAdminMemberEdit = () => {
                     <Button
                       danger
                       icon={<DeleteOutlined />}
-                      onClick={() => removeKyc(index)}
+                      onClick={() => removeKyc(index, kyc.id)}
                     />
                   </div>
                 </div>

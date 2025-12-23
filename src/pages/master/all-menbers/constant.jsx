@@ -9,16 +9,18 @@ export const columns = (onEdit, handleView) => [
     accessorKey: "sr_no",
     header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr. No." />,
     meta: {
-      headerClassName: "w-[4%]",
-      cellClassName: "w-[4%]",
+      headerClassName: "w-[12%]",
+      cellClassName: "w-[12%]",
     },
   },
   {
     accessorKey: "full_name",
-    header: <FormattedMessage id="COMMON.FULL_NAME" defaultMessage="Full Name" />,
+    header: (
+      <FormattedMessage id="COMMON.FULL_NAME" defaultMessage="Full Name" />
+    ),
     meta: {
-      headerClassName: "w-[8%]",
-      cellClassName: "w-[8%]",
+      headerClassName: "w-[18%]",
+      cellClassName: "w-[18%]",
     },
   },
   {
@@ -31,7 +33,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "state",
-    header:<FormattedMessage id="COMMON.STATE" defaultMessage="State" />,
+    header: <FormattedMessage id="COMMON.STATE" defaultMessage="State" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -48,7 +50,7 @@ export const columns = (onEdit, handleView) => [
   },
   {
     accessorKey: "contact",
-    header: <FormattedMessage id="COMMON.CONTACT" defaultMessage="Contact No" />,
+    header: <FormattedMessage id="COMMON.CONTACT" defaultMessage="Mobile No" />,
     meta: {
       headerClassName: "w-[8]",
       cellClassName: "w-[8%]",
@@ -71,22 +73,29 @@ export const columns = (onEdit, handleView) => [
     },
   },
 
-  {
-    accessorKey: "task_access",
-    header: <FormattedMessage id="COMMON.TASK_ACCESS" defaultMessage="Task Access" />,
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
-  {
-    accessorKey: "leave_attendence_access",
-    header: <FormattedMessage id="COMMON.LEAVE_ATTENDANCE_ACCESS" defaultMessage="Leave Attendance Access" />,
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
+  // {
+  //   accessorKey: "task_access",
+  //   header: (
+  //     <FormattedMessage id="COMMON.TASK_ACCESS" defaultMessage="Task Access" />
+  //   ),
+  //   meta: {
+  //     headerClassName: "w-[10%]",
+  //     cellClassName: "w-[10%]",
+  //   },
+  // },
+  // {
+  //   accessorKey: "leave_attendence_access",
+  //   header: (
+  //     <FormattedMessage
+  //       id="COMMON.LEAVE_ATTENDANCE_ACCESS"
+  //       defaultMessage="Leave Attendance Access"
+  //     />
+  //   ),
+  //   meta: {
+  //     headerClassName: "w-[10%]",
+  //     cellClassName: "w-[10%]",
+  //   },
+  // },
 
   {
     accessorKey: "action",
@@ -241,101 +250,4 @@ export const columns = (onEdit, handleView) => [
   // },
 ];
 
-export const defaultData = [
-  {
-    sr_no: 1,
-    first_name: "Rahul",
-    last_name: "Gohel",
-    country: "India",
-    whatsapp: "+91 9876543210",
-    role: "Admin",
-    email: "rahul.gohel@example.com",
-    password: "Admin@123",
-    task_access: true,
-    leave_attendence_access: true,
-  },
-  {
-    sr_no: 2,
-    first_name: "Anjali",
-    last_name: "Sharma",
-    country: "India",
-    whatsapp: "+91 9988776655",
-    role: "Team Member",
-    email: "anjali.sharma@example.com",
-    password: "Team@456",
-    task_access: true,
-    leave_attendence_access: false,
-  },
-  {
-    sr_no: 3,
-    first_name: "Ramesh",
-    last_name: "Patel",
-    country: "India",
-    whatsapp: "+91 9123456780",
-    role: "Manager",
-    email: "ramesh.patel@example.com",
-    password: "Manager@789",
-    task_access: true,
-    leave_attendence_access: true,
-  },
-  {
-    sr_no: 4,
-    first_name: "Neha",
-    last_name: "Verma",
-    country: "India",
-    whatsapp: "+91 9812345678",
-    role: "Team Member",
-    email: "neha.verma@example.com",
-    password: "Team@321",
-    task_access: false,
-    leave_attendence_access: true,
-  },
-  {
-    sr_no: 5,
-    first_name: "Amit",
-    last_name: "Desai",
-    country: "India",
-    whatsapp: "+91 9876501234",
-    role: "Admin",
-    email: "amit.desai@example.com",
-    password: "Admin@654",
-    task_access: true,
-    leave_attendence_access: true,
-  },
-  {
-    sr_no: 6,
-    first_name: "Priya",
-    last_name: "Mehta",
-    country: "India",
-    whatsapp: "+91 9123409876",
-    role: "Manager",
-    email: "priya.mehta@example.com",
-    password: "Manager@987",
-    task_access: true,
-    leave_attendence_access: false,
-  },
-  {
-    sr_no: 7,
-    first_name: "Suresh",
-    last_name: "Iyer",
-    country: "India",
-    whatsapp: "+91 9345612789",
-    role: "Team Member",
-    email: "suresh.iyer@example.com",
-    password: "Team@159",
-    task_access: false,
-    leave_attendence_access: true,
-  },
-  {
-    sr_no: 8,
-    first_name: "Kavita",
-    last_name: "Nair",
-    country: "India",
-    whatsapp: "+91 9012345678",
-    role: "Manager",
-    email: "kavita.nair@example.com",
-    password: "Manager@753",
-    task_access: true,
-    leave_attendence_access: true,
-  },
-];
+export const defaultData = [];

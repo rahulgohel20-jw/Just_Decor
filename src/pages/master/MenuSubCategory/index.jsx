@@ -175,7 +175,7 @@ const MenuSubCategory = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="ADD_SUB_CATEGORY"
-                defaultMessage="Add Sub Category"
+                defaultMessage="Create New"
               />
             </button>
           </div>

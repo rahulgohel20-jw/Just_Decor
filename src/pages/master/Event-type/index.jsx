@@ -176,7 +176,7 @@ const EventTypeMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.EVENT_TYPE_MASTER"
-                    defaultMessage="Event Type Master"
+                    defaultMessage="Event Master"
                   />
                 ),
               },
@@ -217,7 +217,7 @@ const EventTypeMaster = () => {
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="USER.MASTER.ADD_EVENT_TYPE"
-                defaultMessage="Add Event Type"
+                defaultMessage="Create New"
               />
             </button>
           </div>

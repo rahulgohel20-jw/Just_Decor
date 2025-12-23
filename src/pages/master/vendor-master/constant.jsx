@@ -6,17 +6,14 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
     accessorKey: "sr_no",
     header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No" />,
     meta: {
-      headerClassName: "w-[4%]",
-      cellClassName: "w-[4%]",
+      headerClassName: "w-[10%]",
+      cellClassName: "w-[10%]",
     },
   },
   {
     accessorKey: "customer",
     header: (
-      <FormattedMessage
-        id="USER.MASTER.CUSTOMER_NAME"
-        defaultMessage="Customer Name"
-      />
+      <FormattedMessage id="USER.MASTER.CUSTOMER_NAME" defaultMessage=" Name" />
     ),
     meta: {
       headerClassName: "w-[8%]",
@@ -38,7 +35,7 @@ export const columns = (onEdit, onDelete, handleViewCustomer) => [
     header: (
       <FormattedMessage
         id="USER.MASTER.CONTACT_CATEGORY"
-        defaultMessage="Contact Category"
+        defaultMessage=" Categories"
       />
     ),
     meta: {

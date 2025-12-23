@@ -12,9 +12,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "venue_type",
-    header: (
-      <FormattedMessage id="COMMON.VENUE_TYPE" defaultMessage="Venue Type" />
-    ),
+    header: <FormattedMessage id="COMMON.VENUE_TYPE" defaultMessage="Name" />,
     meta: {
       headerClassName: "w-[20%]",
       cellClassName: "w-[20%]",

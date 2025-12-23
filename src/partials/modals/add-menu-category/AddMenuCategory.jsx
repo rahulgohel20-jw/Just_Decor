@@ -125,8 +125,7 @@ const AddMenuCategory = ({
           Swal.fire("Error", msg, "error");
         });
     } else {
-
-    /* -------- ADD -------- */
+      /* -------- ADD -------- */
       AddCategory(payload)
         .then((res) => {
           if (res.data?.success === true) {
@@ -162,7 +161,7 @@ const AddMenuCategory = ({
     <CustomModal
       open={isModalOpen}
       width={1000}
-      title={editData ? "Edit Menu Category" : "New Menu Category"}
+      title={editData ? "Edit Menu Category" : "Create New Menu Category"}
       onClose={() => setIsModalOpen(false)}
       footer={[
         <button
@@ -214,7 +213,7 @@ const AddMenuCategory = ({
 
         <div>
           <label className="block mb-1">
-            <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Priority" />
+            <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Sequence" />
           </label>
           <input
             type="number"

@@ -350,15 +350,11 @@ const UnitMaster = () => {
                 setIsEventTypeModalOpen(true);
                 setSelectedUnit(null);
               }}
-              title={intl.formatMessage({
-                id: "USER.MASTER.ADD_UNIT",
-                defaultMessage: "Add Unit",
-              })}
             >
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
                 id="USER.MASTER.ADD_UNIT"
-                defaultMessage="Add Unit"
+                defaultMessage="Create New"
               />
             </button>
           </div>

@@ -499,16 +499,16 @@ const MenuDetailsForm = ({
           <Form.Item
             label={
               <span className="text-[#6A7C94] text-base font-medium">
-                Priority
+                Sequence
               </span>
             }
-            name="priority"
+            name="Sequence"
           >
             <InputNumber
               min={0}
               className="w-full bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
               controls={false}
-              placeholder="Enter priority"
+              placeholder="Enter Sequence"
             />
           </Form.Item>
         </div>
@@ -518,7 +518,7 @@ const MenuDetailsForm = ({
           <Form.Item
             label={
               <span className="text-[#6A7C94] text-base font-medium">
-                Menu Item Category <span className="text-red-500">*</span>
+                Category <span className="text-red-500">*</span>
               </span>
             }
             name="category"
@@ -527,7 +527,7 @@ const MenuDetailsForm = ({
               <Select
                 showSearch
                 optionFilterProp="label"
-                placeholder="Select Menu Item Category"
+                placeholder="Select  Category"
                 value={form.getFieldValue("category")}
                 options={menuCategory.map((c) => ({
                   value: Number(c.menuid),
@@ -555,7 +555,7 @@ const MenuDetailsForm = ({
           <Form.Item
             label={
               <span className="text-[#6A7C94] text-base font-medium">
-                Menu Item Sub Category
+                Sub Category
               </span>
             }
             name="subCategory"
@@ -564,7 +564,7 @@ const MenuDetailsForm = ({
               <Select
                 showSearch
                 optionFilterProp="label"
-                placeholder="Select Menu Item Sub Category"
+                placeholder="Select Sub Category"
                 value={form.getFieldValue("subCategory")}
                 options={menuSubCategory.map((item) => ({
                   value: Number(item.subid),
@@ -686,9 +686,7 @@ const MenuDetailsForm = ({
         {/* URL */}
         <Form.Item
           label={
-            <span className="text-[#6A7C94] text-base font-medium">
-              Enter URL
-            </span>
+            <span className="text-[#6A7C94] text-base font-medium">URL</span>
           }
           name="imageUrl"
         >
@@ -700,15 +698,27 @@ const MenuDetailsForm = ({
 
         {/* Raw Material List */}
         <div className="w-full">
-          <h1 className="text-black text-xl font-medium mb-4">
-            Raw Material List :
-          </h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-black text-xl font-medium mb-4">
+              Raw Material Items :
+            </h1>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setIsCopyRecipe(true);
+              }}
+              className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
+            >
+              Copy Recipe
+            </Button>
+          </div>
 
           <div className="flex justify-between items-center">
             <div className="flex gap-3 items-end flex-wrap">
               <div className="flex flex-col w-[300px]">
                 <label className="text-[#6A7C94] text-base font-medium mb-2">
-                  Select Raw Material
+                  Raw Material Item
                 </label>
                 <div className="flex">
                   <Select
@@ -791,16 +801,6 @@ const MenuDetailsForm = ({
             <div className="flex gap-2">
               <Button
                 type="primary"
-                onClick={() => {
-                  setIsCopyRecipe(true);
-                }}
-                className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
-              >
-                Copy Recipe
-              </Button>
-
-              <Button
-                type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleAddRecipe}
                 className="bg-primary h-10 px-6 rounded-md hover:bg-primary mt-7"
@@ -811,7 +811,7 @@ const MenuDetailsForm = ({
           </div>
 
           {/* Search & Delete */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mt-4 mb-4">
+          <div className="flex flex-wrap items-center justify-end gap-2 mt-4 mb-4">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input

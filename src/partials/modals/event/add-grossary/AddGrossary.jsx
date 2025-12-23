@@ -18,9 +18,7 @@ const AddGrossary = ({
   const [selectedPlace, setSelectedPlace] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [data, setData] = useState([
-    
-  ]);
+  const [data, setData] = useState([]);
 
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -39,9 +37,7 @@ const AddGrossary = ({
   // Handle inline table changes
   const handleChange = (index, field, value) => {
     setData((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
   };
 
@@ -67,9 +63,7 @@ const AddGrossary = ({
   const handleAllocateDate = () => {
     if (selectedDate) {
       onAllocateDate(selectedDate);
-      setData((prev) =>
-        prev.map((item) => ({ ...item, date: selectedDate }))
-      );
+      setData((prev) => prev.map((item) => ({ ...item, date: selectedDate })));
     }
   };
 
@@ -78,8 +72,13 @@ const AddGrossary = ({
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
-        title={<FormattedMessage id="GROSSARY.AGENCY_PLACE_DATE_ALLOCATION" defaultMessage="Agency, Place & Date Allocation"/>}
-        width={900}
+        title={
+          <FormattedMessage
+            id="GROSSARY.AGENCY_PLACE_DATE_ALLOCATION"
+            defaultMessage="Suppiler Allocation"
+          />
+        }
+        width={1000}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
             <button
@@ -93,8 +92,7 @@ const AddGrossary = ({
               className="btn btn-primary save-btn"
               onClick={handleModalClose}
             >
-            <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
             </button>
           </div>,
         ]}
@@ -104,52 +102,89 @@ const AddGrossary = ({
           {/* Agency Allocation */}
           <div className="flex items-end gap-2">
             <select
-              className="select pe-7.5"
+              className="select pe-7.5 w-[200px]"
               value={selectedAgency}
               onChange={(e) => setSelectedAgency(e.target.value)}
             >
-              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
-              {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>}
-              {!loading && agencies.length > 0 ? (
-                agencies.map((agency) => (
-                  <option
-                    key={agency.id}
-                    value={agency.nameEnglish || agency.name}
-                  >
-                    {agency.nameEnglish || agency.name}
-                  </option>
-                ))
-              ) : (
-                !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="No agnecies found" /></option>
+              <option value="">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.SELECT_AGENCY"
+                  defaultMessage="Select Agency"
+                />
+              </option>
+              {loading && (
+                <option>
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.LOADING"
+                    defaultMessage="Loading..."
+                  />
+                </option>
               )}
+              {!loading && agencies.length > 0
+                ? agencies.map((agency) => (
+                    <option
+                      key={agency.id}
+                      value={agency.nameEnglish || agency.name}
+                    >
+                      {agency.nameEnglish || agency.name}
+                    </option>
+                  ))
+                : !loading && (
+                    <option>
+                      <FormattedMessage
+                        id="COMMON.NO_AGENCY_FOUND"
+                        defaultMessage="No agnecies found"
+                      />
+                    </option>
+                  )}
             </select>
             <button
               className="btn btn-primary"
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
 
           {/* Place Allocation */}
           <div className="flex items-end gap-2">
             <select
-              className="select pe-7.5"
+              className="select pe-7.5  w-[200px]"
               value={selectedPlace}
               onChange={(e) => setSelectedPlace(e.target.value)}
             >
-              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select Place" /></option>
-                <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
-                <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
-             
+              <option value="">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.SELECT_PLACE"
+                  defaultMessage="Select Place"
+                />
+              </option>
+              <option value="At Venue">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.AT_VENUE"
+                  defaultMessage="At Venue"
+                />
+              </option>
+              <option value="Godown">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.GO_DOWN"
+                  defaultMessage="At Godown"
+                />
+              </option>
             </select>
             <button
               className="btn btn-primary"
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
 
@@ -167,13 +202,16 @@ const AddGrossary = ({
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Allocate" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
         </div>
 
         {/* Table Section */}
-    
+
         {/* Optional Custom Data Section */}
         <div className="mt-4">{modalData()}</div>
       </CustomModal>

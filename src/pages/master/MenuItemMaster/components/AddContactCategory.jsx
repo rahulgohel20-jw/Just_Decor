@@ -101,12 +101,12 @@ const AddContactCategory = ({
             {contactCategory ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_CONTACT_CATEGORY"
-                defaultMessage="Edit Contact Category"
+                defaultMessage="Edit Category"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CONTACT_CATEGORY"
-                defaultMessage="New Contact Category"
+                defaultMessage="Create New Category"
               />
             )}
           </h2>

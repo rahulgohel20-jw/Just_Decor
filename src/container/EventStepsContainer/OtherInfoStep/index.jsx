@@ -75,7 +75,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               <p className="text-base font-medium text-gray-900">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES"
-                  defaultMessage="Meal And Notes"
+                  defaultMessage="Food Prefrence"
                 />
               </p>
             </div>
@@ -84,7 +84,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <label className="form-label">
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_TYPE"
-                    defaultMessage="Meal Type"
+                    defaultMessage="Prefrence"
                   />
                   <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                     *
@@ -122,7 +122,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <label className="form-label"></label>
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_NOTES"
-                  defaultMessage="Meal Notes"
+                  defaultMessage="Notes"
                 />
 
                 <div className="input">
@@ -147,7 +147,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               <p className="text-base font-medium text-gray-900 flex items-center gap-1">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_SERVICE_AND_REMARK"
-                  defaultMessage="Manager Name"
+                  defaultMessage="Sales Executive"
                 />
                 <span className="text-red-500 font-semibold">*</span>
               </p>
@@ -156,7 +156,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             {/* Manager Dropdown Section */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <div className="w-56">
+                <div className="w-[330px]">
                   {" "}
                   {/* Adjust width here (56 ≈ 224px) */}
                   <ManagerDropdown

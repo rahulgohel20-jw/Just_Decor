@@ -549,7 +549,7 @@ function AddCustomPackage() {
     <div>
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <h2 className="text-xl font-semibold mb-4">
-          {packageId ? "Edit Custom Package" : "Add Custom Package"}
+          {packageId ? "Edit Packages" : "Create New Packages"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>

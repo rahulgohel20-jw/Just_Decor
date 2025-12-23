@@ -8,8 +8,8 @@ import { GetAllItemByType } from "@/services/apiServices";
 // Tab configuration
 const TABS = [
   { id: "chef", label: "Chef Labour" },
-  { id: "outside", label: "Outside Agency" },
-  { id: "inside", label: "In-House Cook" },
+  { id: "outside", label: "Outsource Agency" },
+  { id: "inside", label: "Inside Kitchen" },
 ];
 
 export default function AgencyAllocationSidebar({
