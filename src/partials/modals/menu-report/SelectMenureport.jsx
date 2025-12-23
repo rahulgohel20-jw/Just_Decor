@@ -26,7 +26,7 @@ export default function SelectMenureport({
     {
       key: "exclusive",
       label: "Exclusive Reports",
-      img: "/media/icons/exlusivereport.svg",
+      img: "/media/icons/Exclusive-Reports.png",
     },
     {
       key: "simple",
@@ -145,7 +145,7 @@ export default function SelectMenureport({
     >
       <div className="p-6">
         {/* Event Info Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border border-gray-200">
+        <div className="bg-gray-200 rounded-2xl p-6 mb-6 border border-gray-400">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <InfoItem
               icon={toAbsoluteUrl("/media/icons/partyname.png")}
@@ -252,6 +252,18 @@ export default function SelectMenureport({
                   <p className="text-sm text-gray-500 text-left">
                     {item.description}
                   </p>
+          {/* Centered Button */}
+          <div className="flex justify-center mt-6">
+            <button
+              className="btn btn-primary px-6 py-2 rounded-lg"
+              onClick={() => {
+                console.log("Generate Report clicked");
+                // Your click handler here
+              }}
+            >
+              Generate Report
+            </button>
+          </div>
                 </div>
               </div>
             );
@@ -259,10 +271,7 @@ export default function SelectMenureport({
         </div>
 
         {/* Help Text */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
-          <i className="ki-filled ki-information-2 text-primary"></i>
-          <span>Select a report type to view detailed information</span>
-        </div>
+       
       </div>
     </CustomModal>
   );

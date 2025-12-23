@@ -95,8 +95,8 @@ const RawMaterial = () => {
         }));
 
         setRawOriginalData(transformedData);
-        console.log("total", responseData.totalRawMaterialItems);
 
+        
         // ✅ FIX: Use the correct field from API response
         setTotalRecords(responseData.totalRawMaterialItems || 0);
       })
@@ -136,7 +136,6 @@ const RawMaterial = () => {
       .then((res) => {
         const list = res.data.data["Raw Material Category Details"] || [];
         setCategories(list);
-        console.log(`✅ Loaded ${list.length} categories`);
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
@@ -267,7 +266,6 @@ const RawMaterial = () => {
       sequence: index + 1,
     }));
 
-    console.log("📦 Updating sequences:", updatePayload);
 
     UpdateSequence(updatePayload)
       .then((res) => {
@@ -365,19 +363,13 @@ const RawMaterial = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.RAW_MATERIAL_MASTER"
-                    defaultMessage="Raw Material Item Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.RAW_MATERIAL_ITEM_MASTER"
+              defaultMessage="Raw Material Item Master"
+            />
+          </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -435,7 +427,10 @@ const RawMaterial = () => {
                 setSearchQuery("");
               }}
             >
-              {generalFixFilter ? "Show All" : "General Fix"}
+              <FormattedMessage
+                id={generalFixFilter ? "COMMON.SHOW_ALL" : "COMMON.GENERAL_FIX"}
+                defaultMessage={generalFixFilter ? "Show All" : "General Fix"}
+              />
             </button>
 
             {(searchQuery || generalFixFilter) && (
@@ -455,7 +450,7 @@ const RawMaterial = () => {
             >
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
-                id="COMMON.ADD_RAW_MATERIAL"
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
                 defaultMessage="Create New"
               />
             </button>

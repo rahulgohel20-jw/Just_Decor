@@ -206,19 +206,13 @@ const CustomerMaster = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.CUSTOMER_MASTER"
-                    defaultMessage="Customer Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="test-xl text-gray-900">
+            <FormattedMessage
+              id="USER.MASTER.CUSTOMER_MASTER"
+              defaultMessage="Customer Master"
+            />
+          </h1>
         </div>
 
         {/* Search + Add */}
@@ -245,7 +239,7 @@ const CustomerMaster = () => {
           <button className="btn btn-primary" onClick={handleAddCustomer}>
             <i className="ki-filled ki-plus"></i>{" "}
             <FormattedMessage
-              id="USER.MASTER.ADD_CUSTOMER"
+              id="USER.MASTER.ADD_CONTACT_CATEGORY"
               defaultMessage="Create New"
             />
           </button>

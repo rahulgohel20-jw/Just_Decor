@@ -160,19 +160,15 @@ const ChangeRawMaterialCategoryPage = () => {
     <Fragment>
       <Container>
         {/* Breadcrumb */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+        <div className=" mb-3">
+                    <h1 className="test-xxl text-gray-900">
+
+        
                   <FormattedMessage
                     id="RAW_MATERIAL.CHANGE_CATEGORY"
                     defaultMessage="Change Raw Material Category"
                   />
-                ),
-              },
-            ]}
-          />
+               </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}
@@ -212,7 +208,15 @@ const ChangeRawMaterialCategoryPage = () => {
                   disabled={categoriesLoading}
                 >
                   <option value="">
-                    {categoriesLoading ? "Loading..." : "Select a category"}
+                    {categoriesLoading
+                      ? intl.formatMessage({
+                          id: "COMMON.LOADING",
+                          defaultMessage: "Loading...",
+                        })
+                      : intl.formatMessage({
+                          id: "COMMON.SELECT_CATEGORY",
+                          defaultMessage: "Select a category",
+                        })}
                   </option>
 
                   {categoryList.map((cat) => (
