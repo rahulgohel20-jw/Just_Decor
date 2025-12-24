@@ -190,18 +190,12 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
     <Container>
       {/* Breadcrumb / Fragment Name */}
       <div className="mb-4">
-        <Breadcrumbs
-          items={[
-            {
-              title: (
-                <FormattedMessage
-                  id="MENU.ALLOCATE_SUPPLIER"
-                  defaultMessage="Allocate Supplier"
-                />
-              ),
-            },
-          ]}
-        />
+        <h1 className="text-xl text-gray-900">
+          <FormattedMessage
+            id="ALLOCATE_SUPPLIER"
+            defaultMessage="Allocate Supplier"
+          />
+        </h1>
       </div>
 
       <div className="space-y-6">
@@ -233,7 +227,13 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
 
           {/* Type */}
           <div>
-            <label className="form-label font-semibold"> From Type</label>
+            <label className="form-label font-semibold">
+              {" "}
+              <FormattedMessage
+                id="FORM.FROM_TYPE"
+                defaultMessage="From Type"
+              />
+            </label>
             <select
               className="input w-full"
               value={selectedType}
@@ -249,7 +249,9 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
 
           {/* To Type */}
           <div>
-            <label className="form-label font-semibold">To Type</label>
+            <label className="form-label font-semibold">
+              <FormattedMessage id="FORM.TO_TYPE" defaultMessage="To Type" />
+            </label>
             <select
               className="input w-full"
               value={toType}

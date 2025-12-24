@@ -10,6 +10,7 @@ import { invoicecolumns } from "./invoiceconstant";
 import { itemcolumns, defaultitemData } from "./itemconstant";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import VideoTutorial from "@/components/videoTutorial/VideoTutorial";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
   GetClientwisedashboardata,
   GetClientdashboardpiechart1,
@@ -36,6 +37,8 @@ const debounce = (fn, delay = 300) => {
 const formatDate = (date) => dayjs(date).format("DD/MM/YYYY");
 
 const ClientDashboard = () => {
+  const intl = useIntl();
+
   const [dashboarddata, setDashboarddata] = useState([]);
   const [salesPiechart, setSalesPiechart] = useState(null);
 
@@ -395,7 +398,18 @@ const ClientDashboard = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Dashboard" }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="COMMON.DASHBOARD"
+                    defaultMessage="Dashboard"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -403,7 +417,10 @@ const ClientDashboard = () => {
           <div className="flex items-center justify-between bg-[#FFF5E6] p-6 rounded-2xl shadow-sm">
             <div>
               <p className="text-sm text-gray-600 font-medium mb-1">
-                Total Events
+                <FormattedMessage
+                  id="DASHBOARD.TOTAL_EVENTS"
+                  defaultMessage="Total Events"
+                />
               </p>
               <h2 className="text-3xl font-bold text-gray-900">
                 {dashboarddata?.totalEvent || 0}
@@ -422,7 +439,11 @@ const ClientDashboard = () => {
           <div className="flex items-center justify-between bg-[#E6FFF1] p-6 rounded-2xl shadow-sm">
             <div>
               <p className="text-sm text-gray-600 font-medium mb-1">
-                Generate Invoices
+                <FormattedMessage
+                  id="DASHBOARD.GENERATE_INVOICE"
+                  defaultMessage="                Generate Invoices
+"
+                />
               </p>
               <h2 className="text-3xl font-bold text-gray-900">
                 {dashboarddata?.totalInvoice || 0}
@@ -441,8 +462,12 @@ const ClientDashboard = () => {
           <div className="flex items-center justify-between bg-[#F3E8FF] p-6 rounded-2xl shadow-sm">
             <div>
               <p className="text-sm text-gray-600 font-medium mb-1">
-                Total Receivable Invoice Amount
+                <FormattedMessage
+                  id="DASHBOARD.TOTAL_RECEIVABLE_INVOICE"
+                  defaultMessage="                Total Receivable Invoice Amount"
+                />
               </p>
+
               <h2 className="text-3xl font-bold text-gray-900">
                 {dashboarddata?.totalInvoiceAmount || 0}
               </h2>
@@ -461,8 +486,13 @@ const ClientDashboard = () => {
           <div className="flex items-center justify-between bg-[#f3f3f3] p-6 rounded-2xl shadow-sm">
             <div>
               <p className="text-sm text-gray-600 font-medium mb-1">
-                Total Receivable Quotation Amount
+                <FormattedMessage
+                  id="DASHBOARD.TOTAL_RECEIVABLE_QUOTATION"
+                  defaultMessage="                Total Receivable Quotation Amount
+"
+                />
               </p>
+
               <h2 className="text-3xl font-bold text-gray-900">
                 {dashboarddata?.totalQuotationAmount || 0}
               </h2>
@@ -483,19 +513,34 @@ const ClientDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {[
             {
-              title: "Sales Chart - Expenses",
+              title: (
+                <FormattedMessage
+                  id="CHART.SALES_EXPENSE"
+                  defaultMessage="Sales Chart -Expense"
+                />
+              ),
               data: expenseChart,
               state: selectedExpensePeriod,
               type: "expense",
             },
             {
-              title: "Quotation Chart",
+              title: (
+                <FormattedMessage
+                  id="CHART.QUOTATION"
+                  defaultMessage="Quatation Chart"
+                />
+              ),
               data: QuotationChart,
               state: selectedQuotationPeriod,
               type: "quotation",
             },
             {
-              title: "Invoice Chart",
+              title: (
+                <FormattedMessage
+                  id="CHART.INVOICE"
+                  defaultMessage="Invoice Chart"
+                />
+              ),
               data: InvoiceChart,
               state: selectedInvoicePeriod,
               type: "invoice",
@@ -684,7 +729,10 @@ const ClientDashboard = () => {
           <div className="w-[70%] p-3 border border-primary rounded-lg">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
               <h2 className="text-base font-semibold text-gray-800">
-                Most Selling Item
+                <FormattedMessage
+                  id="DASHBOARD.MOST_SELLING_ITEM"
+                  defaultMessage="   Most Selling Item"
+                />
               </h2>
 
               <div className="flex items-center gap-3">
@@ -692,7 +740,10 @@ const ClientDashboard = () => {
                   <Search className="text-blue-500 w-4 h-4 mr-2" />
                   <input
                     type="text"
-                    placeholder="Search here..."
+                    placeholder={intl.formatMessage({
+                      id: "COMMON.SEARCH_HERE",
+                      defaultMessage: "Serach Here",
+                    })}
                     value={itemSearchInput}
                     onChange={(e) => setItemSearchInput(e.target.value)}
                     className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400 h-6"
@@ -756,7 +807,10 @@ const ClientDashboard = () => {
           <div className="w-[30%] bg-white border border-primary rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-lg font-semibold text-[#003366]">
-                Quick Help
+                <FormattedMessage
+                  id="HELP.QUICK_HELP"
+                  defaultMessage="  Quick Help"
+                />
               </h2>
             </div>
             <div className="border border-[#D9E6FF] rounded-lg p-4 mb-4">
@@ -771,8 +825,11 @@ const ClientDashboard = () => {
                 <div>
                   <p className="font-semibold text-gray-800">Manan Gandhi</p>
                   <p className="text-sm text-gray-600">
-                    Manan Gandhi is Point of Contact (POC). Feel free to connect
-                    between 10 AM to 7 PM.
+                    <FormattedMessage
+                      id="HELP.POC_INFO"
+                      defaultMessage="   Manan Gandhi is Point of Contact (POC). Feel free to connect
+                    between 10 AM to 7 PM."
+                    />
                   </p>
                 </div>
               </div>
@@ -782,7 +839,12 @@ const ClientDashboard = () => {
                   alt="WhatsApp"
                   className="w-5 h-5 object-contain"
                 />
-                Contact On WhatsApp
+                <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-sm font-medium hover:bg-[#d6f4e3] transition">
+                  <FormattedMessage
+                    id="HELP.CONTACT_WHATSAPP"
+                    defaultMessage=" Contact On WhatsApp"
+                  />
+                </button>
               </button>
             </div>
             <div className="border border-[#D9E6FF] rounded-lg p-4">
@@ -796,7 +858,10 @@ const ClientDashboard = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">
-                    Need Quick Help 24/7 ?
+                    <FormattedMessage
+                      id="HELP.NEED_HELP"
+                      defaultMessage=" Need Quick Help 24/7 ?"
+                    />
                   </p>
                   <p className="text-sm text-gray-600">
                     Contact us for Support on{" "}

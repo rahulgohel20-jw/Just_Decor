@@ -238,18 +238,13 @@ const Allocatesupplier = () => {
       <Container>
         {/* Breadcrumb */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+          <h1 className="text-xl text-gray-900">
+         
                   <FormattedMessage
-                    id="RAW_MATERIAL.CHANGE_CATEGORY"
+                    id="ALLOCATE_SUPPLIER"
                     defaultMessage="Allocate Supplier"
                   />
-                ),
-              },
-            ]}
-          />
+               </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}
