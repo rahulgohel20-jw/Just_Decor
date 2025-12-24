@@ -148,6 +148,13 @@ export const GetAllRawMaterial = (Id, page, pageSize) => {
     `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
+
+export const SearchRawMaterial = (Id, page, pageSize, itemName) => {
+  return GET(
+    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMaterialName=${itemName}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
+  );
+};
+
 export const DeleteRole = (Id) => {
   return DELETE(`/rolemaster/deletebyid?id=${Id}`);
 };
@@ -1309,4 +1316,8 @@ export const GetAllThemeType = (Id) => {
 
 export const DeleteThemeType = (Id) => {
   return DELETE(`/templatemapping/deletebyid?id=${Id}`);
+};
+
+export const DeleteRefund = (id) => {
+  return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
 };

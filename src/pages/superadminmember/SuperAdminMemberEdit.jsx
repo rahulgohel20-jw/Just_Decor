@@ -1,10 +1,13 @@
 import { Fragment, useState, useEffect } from "react";
 import { Input, Select, DatePicker, Button, message, Spin } from "antd";
 import {
-  PlusOutlined,
-  DeleteOutlined,
   EyeOutlined,
   DownloadOutlined,
+  FileOutlined,
+  FilePdfOutlined,
+  FileImageOutlined,
+  PlusOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -23,7 +26,7 @@ import {
   Fetchmanager,
   DeleteAmc,
 } from "@/services/apiServices";
-import { DeleteKyc } from "../../services/apiServices";
+import { DeleteKyc, DeleteRefund } from "../../services/apiServices";
 
 const SuperAdminMemberEdit = () => {
   const { id } = useParams();
@@ -503,7 +506,44 @@ const SuperAdminMemberEdit = () => {
     ]);
   };
 
-  const removeRefund = (index) => {
+  const removeRefund = async (index, refundId) => {
+    if (!refundId) {
+      removerefundDetails(index);
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this Refund deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const response = await DeleteRefund(refundId);
+
+        if (response?.data?.success) {
+          message.success("Refund deleted successfully!");
+          removeRefund(index);
+          await fetchUserData();
+        } else {
+          message.error(response?.data?.msg || "Failed to delete amc.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting amc:", error);
+      message.error(
+        error.response?.data?.msg || error.message || "Failed to delete amc."
+      );
+    }
+  };
+
+  const removerefundDetails = (index) => {
     if (refundDetails.length === 1)
       return message.warning("At least one entry is required!");
     setRefundDetails(refundDetails.filter((_, i) => i !== index));
@@ -1159,45 +1199,88 @@ const SuperAdminMemberEdit = () => {
                   />
                 </div>
 
-                {/* Upload with View */}
                 <div className="flex flex-col">
-                  <label className="text-sm">Document</label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleDownPaymentFile(index, e.target.files[0])
-                      }
-                      className="flex-1"
-                    />
-                    {row.existingDocPath && (
-                      <div className="flex gap-1">
-                        <Button
-                          icon={<EyeOutlined />}
-                          onClick={() =>
-                            handleViewDocument(row.existingDocPath)
-                          }
-                          title="View Document"
-                          size="small"
-                        />
-                        <Button
-                          icon={<DownloadOutlined />}
-                          onClick={() =>
-                            handleDownloadDocument(
-                              row.existingDocPath,
-                              getFileNameFromUrl(row.existingDocPath)
-                            )
-                          }
-                          title="Download Document"
-                          size="small"
-                        />
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    Document
+                  </label>
+
+                  {row.existingDocPath || row.docPath ? (
+                    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                      <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                        <div className="text-lg text-blue-600">📄</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">
+                            {
+                              row.docPath
+                                ? row.docPath.name // ✅ Show new file name
+                                : getFileNameFromUrl(row.existingDocPath) // Show existing file
+                            }
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {row.docPath
+                              ? "Selected (not uploaded yet)"
+                              : "Uploaded document"}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  {row.existingDocPath && (
-                    <span className="text-xs text-gray-500 mt-1">
-                      {getFileNameFromUrl(row.existingDocPath)}
-                    </span>
+
+                      <div className="flex gap-2 p-2 bg-gray-50">
+                        {!row.docPath && row.existingDocPath && (
+                          <Button
+                            icon={<EyeOutlined />}
+                            onClick={() =>
+                              handleViewDocument(row.existingDocPath)
+                            }
+                            size="small"
+                            className="flex-1"
+                          >
+                            View
+                          </Button>
+                        )}
+                        {row.docPath && (
+                          <span className="text-xs text-orange-600 px-2 py-1">
+                            ⚠️ Save form to upload this file
+                          </span>
+                        )}
+                      </div>
+
+                      <label className="cursor-pointer block bg-white hover:bg-gray-50 transition-colors border-t border-gray-200">
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            handleDownPaymentFile(index, e.target.files[0])
+                          }
+                          className="hidden"
+                        />
+                        <div className="px-3 py-2 text-center">
+                          <span className="text-xs text-blue-600 font-medium">
+                            📎{" "}
+                            {row.docPath ? "Change file" : "Replace document"}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors">
+                      <label className="cursor-pointer block">
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            handleDownPaymentFile(index, e.target.files[0])
+                          }
+                          className="hidden"
+                        />
+                        <div className="p-4 text-center">
+                          <div className="text-3xl text-gray-400 mb-2">📁</div>
+                          <p className="text-sm text-gray-600 font-medium">
+                            Click to upload document
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            PDF, PNG, JPG up to 10MB
+                          </p>
+                        </div>
+                      </label>
+                    </div>
                   )}
                 </div>
 
@@ -1262,43 +1345,87 @@ const SuperAdminMemberEdit = () => {
 
                   {/* FILE with View */}
                   <div className="flex flex-col">
-                    <label className="text-sm">Upload Document</label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="file"
-                        onChange={(e) =>
-                          handleKycFile(index, e.target.files[0])
-                        }
-                        className="flex-1"
-                      />
-                      {kyc.existingDocPath && (
-                        <div className="flex gap-1">
-                          <Button
-                            icon={<EyeOutlined />}
-                            onClick={() =>
-                              handleViewDocument(kyc.existingDocPath)
-                            }
-                            title="View Document"
-                            size="small"
-                          />
-                          <Button
-                            icon={<DownloadOutlined />}
-                            onClick={() =>
-                              handleDownloadDocument(
-                                kyc.existingDocPath,
-                                getFileNameFromUrl(kyc.existingDocPath)
-                              )
-                            }
-                            title="Download Document"
-                            size="small"
-                          />
+                    <label className="text-sm font-medium text-gray-700 mb-1">
+                      Upload Document
+                    </label>
+
+                    {kyc.existingDocPath || kyc.docPath ? (
+                      <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                        <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                          <div className="text-lg text-blue-600">📄</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800 truncate">
+                              {kyc.docPath
+                                ? kyc.docPath.name
+                                : getFileNameFromUrl(kyc.existingDocPath)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {kyc.docPath
+                                ? "Selected (not uploaded yet)"
+                                : "Uploaded document"}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    {kyc.existingDocPath && (
-                      <span className="text-xs text-gray-500 mt-1">
-                        {getFileNameFromUrl(kyc.existingDocPath)}
-                      </span>
+
+                        <div className="flex gap-2 p-2 bg-gray-50">
+                          {!kyc.docPath && kyc.existingDocPath && (
+                            <Button
+                              icon={<EyeOutlined />}
+                              onClick={() =>
+                                handleViewDocument(kyc.existingDocPath)
+                              }
+                              size="small"
+                              className="flex-1"
+                            >
+                              View
+                            </Button>
+                          )}
+                          {kyc.docPath && (
+                            <span className="text-xs text-orange-600 px-2 py-1">
+                              ⚠️ Save form to upload this file
+                            </span>
+                          )}
+                        </div>
+
+                        <label className="cursor-pointer block bg-white hover:bg-gray-50 transition-colors border-t border-gray-200">
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              handleKycFile(index, e.target.files[0])
+                            }
+                            className="hidden"
+                          />
+                          <div className="px-3 py-2 text-center">
+                            <span className="text-xs text-blue-600 font-medium">
+                              📎{" "}
+                              {kyc.docPath ? "Change file" : "Replace document"}
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors">
+                        <label className="cursor-pointer block">
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              handleKycFile(index, e.target.files[0])
+                            }
+                            className="hidden"
+                          />
+                          <div className="p-4 text-center">
+                            <div className="text-3xl text-gray-400 mb-2">
+                              📁
+                            </div>
+                            <p className="text-sm text-gray-600 font-medium">
+                              Click to upload document
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              PDF, PNG, JPG up to 10MB
+                            </p>
+                          </div>
+                        </label>
+                      </div>
                     )}
                   </div>
 
@@ -1447,46 +1574,87 @@ const SuperAdminMemberEdit = () => {
                   </div>
 
                   {/* Upload Document with View */}
-                  <div>
+                  <div className="flex flex-col">
                     <label className="block mb-1 text-sm font-medium">
                       Upload Document
                     </label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="file"
-                        onChange={(e) =>
-                          handleUserAmcFile(index, e.target.files[0])
-                        }
-                        className="flex-1"
-                      />
-                      {row.existingDocPath && (
-                        <div className="flex gap-1">
-                          <Button
-                            icon={<EyeOutlined />}
-                            onClick={() =>
-                              handleViewDocument(row.existingDocPath)
-                            }
-                            title="View Document"
-                            size="small"
-                          />
-                          <Button
-                            icon={<DownloadOutlined />}
-                            onClick={() =>
-                              handleDownloadDocument(
-                                row.existingDocPath,
-                                getFileNameFromUrl(row.existingDocPath)
-                              )
-                            }
-                            title="Download Document"
-                            size="small"
-                          />
+
+                    {row.existingDocPath || row.file ? (
+                      <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                        <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                          <div className="text-lg text-blue-600">📄</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800 truncate">
+                              {row.file
+                                ? row.file.name
+                                : getFileNameFromUrl(row.existingDocPath)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {row.file
+                                ? "Selected (not uploaded yet)"
+                                : "Uploaded document"}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    {row.existingDocPath && (
-                      <span className="text-xs text-gray-500 mt-1">
-                        {getFileNameFromUrl(row.existingDocPath)}
-                      </span>
+
+                        <div className="flex gap-2 p-2 bg-gray-50">
+                          {!row.file && row.existingDocPath && (
+                            <Button
+                              icon={<EyeOutlined />}
+                              onClick={() =>
+                                handleViewDocument(row.existingDocPath)
+                              }
+                              size="small"
+                              className="flex-1"
+                            >
+                              View
+                            </Button>
+                          )}
+                          {row.file && (
+                            <span className="text-xs text-orange-600 px-2 py-1">
+                              ⚠️ Save form to upload this file
+                            </span>
+                          )}
+                        </div>
+
+                        <label className="cursor-pointer block bg-white hover:bg-gray-50 transition-colors border-t border-gray-200">
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              handleUserAmcFile(index, e.target.files[0])
+                            }
+                            className="hidden"
+                          />
+                          <div className="px-3 py-2 text-center">
+                            <span className="text-xs text-blue-600 font-medium">
+                              📎 {row.file ? "Change file" : "Replace document"}
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors">
+                        <label className="cursor-pointer block">
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              handleUserAmcFile(index, e.target.files[0])
+                            }
+                            className="hidden"
+                          />
+                          <div className="p-4 text-center">
+                            <div className="text-3xl text-gray-400 mb-2">
+                              📁
+                            </div>
+                            <p className="text-sm text-gray-600 font-medium">
+                              Click to upload document
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              PDF, PNG, JPG up to 10MB
+                            </p>
+                          </div>
+                        </label>
+                      </div>
                     )}
                   </div>
 
@@ -1630,46 +1798,88 @@ const SuperAdminMemberEdit = () => {
                     </div>
 
                     {/* Upload Document with View */}
-                    <div>
+                    <div className="flex flex-col">
                       <label className="block mb-1 text-sm font-medium">
                         Upload Document
                       </label>
-                      <div className="flex gap-2">
-                        <Input
-                          type="file"
-                          onChange={(e) =>
-                            handleRefundFile(index, e.target.files[0])
-                          }
-                          className="flex-1"
-                        />
-                        {row.existingDocPath && (
-                          <div className="flex gap-1">
-                            <Button
-                              icon={<EyeOutlined />}
-                              onClick={() =>
-                                handleViewDocument(row.existingDocPath)
-                              }
-                              title="View Document"
-                              size="small"
-                            />
-                            <Button
-                              icon={<DownloadOutlined />}
-                              onClick={() =>
-                                handleDownloadDocument(
-                                  row.existingDocPath,
-                                  getFileNameFromUrl(row.existingDocPath)
-                                )
-                              }
-                              title="Download Document"
-                              size="small"
-                            />
+
+                      {row.existingDocPath || row.file ? (
+                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                          <div className="flex items-center gap-2 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                            <div className="text-lg text-blue-600">📄</div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">
+                                {row.file
+                                  ? row.file.name
+                                  : getFileNameFromUrl(row.existingDocPath)}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {row.file
+                                  ? "Selected (not uploaded yet)"
+                                  : "Uploaded document"}
+                              </p>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      {row.existingDocPath && (
-                        <span className="text-xs text-gray-500 mt-1">
-                          {getFileNameFromUrl(row.existingDocPath)}
-                        </span>
+
+                          <div className="flex gap-2 p-2 bg-gray-50">
+                            {!row.file && row.existingDocPath && (
+                              <Button
+                                icon={<EyeOutlined />}
+                                onClick={() =>
+                                  handleViewDocument(row.existingDocPath)
+                                }
+                                size="small"
+                                className="flex-1"
+                              >
+                                View
+                              </Button>
+                            )}
+                            {row.file && (
+                              <span className="text-xs text-orange-600 px-2 py-1">
+                                ⚠️ Save form to upload this file
+                              </span>
+                            )}
+                          </div>
+
+                          <label className="cursor-pointer block bg-white hover:bg-gray-50 transition-colors border-t border-gray-200">
+                            <input
+                              type="file"
+                              onChange={(e) =>
+                                handleRefundFile(index, e.target.files[0])
+                              }
+                              className="hidden"
+                            />
+                            <div className="px-3 py-2 text-center">
+                              <span className="text-xs text-blue-600 font-medium">
+                                📎{" "}
+                                {row.file ? "Change file" : "Replace document"}
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors">
+                          <label className="cursor-pointer block">
+                            <input
+                              type="file"
+                              onChange={(e) =>
+                                handleRefundFile(index, e.target.files[0])
+                              }
+                              className="hidden"
+                            />
+                            <div className="p-4 text-center">
+                              <div className="text-3xl text-gray-400 mb-2">
+                                📁
+                              </div>
+                              <p className="text-sm text-gray-600 font-medium">
+                                Click to upload document
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                PDF, PNG, JPG up to 10MB
+                              </p>
+                            </div>
+                          </label>
+                        </div>
                       )}
                     </div>
 
@@ -1678,7 +1888,7 @@ const SuperAdminMemberEdit = () => {
                       <Button
                         danger
                         icon={<DeleteOutlined />}
-                        onClick={() => removeRefund(index)}
+                        onClick={() => removeRefund(index, row.id)}
                       />
                     </div>
                   </div>
