@@ -191,12 +191,17 @@ export const allMenuItems = [
       },
       {
         title: (
-          <FormattedMessage id="COMMON.RAWSIDEBAR_MATERIAL" defaultMessage="Items" />
+          <FormattedMessage
+            id="COMMON.RAWSIDEBAR_MATERIAL"
+            defaultMessage="Items"
+          />
         ),
         path: "/master/raw-material",
       },
       {
-        title: <FormattedMessage id="COMMONSIDEBAR.UNIT" defaultMessage="Unit" />,
+        title: (
+          <FormattedMessage id="COMMONSIDEBAR.UNIT" defaultMessage="Unit" />
+        ),
         path: "/master/unit",
       },
     ],
@@ -301,7 +306,10 @@ export const allMenuItems = [
 
   {
     title: (
-      <FormattedMessage id="COMMONSIDEBAR.CONFIGURATION" defaultMessage="Configuration" />
+      <FormattedMessage
+        id="COMMONSIDEBAR.CONFIGURATION"
+        defaultMessage="Configuration"
+      />
     ),
     icon: "  text-lg ki-filled ki-setting text-primary",
     disabled: false,

@@ -8,7 +8,8 @@ import {
   updateRawMaterialStatus,
   GetRawMaterialcategory,
   UpdateSequence,
-  GetRawMaterialByCategoryWithPagination, // ✅ Updated import
+  GetRawMaterialByCategoryWithPagination,
+  SearchRawMaterial, // ✅ Added import
 } from "@/services/apiServices";
 import useStyle from "./style";
 import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
@@ -38,6 +39,32 @@ const RawMaterial = () => {
 
   let Id = localStorage.getItem("userId");
 
+  // ✅ NEW: Search Raw Material function
+  const FetchSearchRawMaterial = (searchTerm, page = currentPage) => {
+    if (!searchTerm.trim()) {
+      // If search is cleared, fetch all
+      FetchRawMaterial(page);
+      return;
+    }
+
+    setLoading(true);
+    // ✅ FIX: Backend expects 1-based pagination (page starts from 1, not 0)
+    SearchRawMaterial(Id, page, ITEMS_PER_PAGE, searchTerm)
+      .then((res) => {
+        const data = res?.data?.data || {};
+        const rawMaterials = data["Raw Material Details"] || [];
+
+        setRawOriginalData(rawMaterials);
+        setTotalRecords(data.totalItems || 0);
+      })
+      .catch((error) => {
+        console.error("Error searching raw materials:", error);
+        setRawOriginalData([]);
+        setTotalRecords(0);
+      })
+      .finally(() => setLoading(false));
+  };
+
   const FetchRawMaterialByCategory = (categoryId, page = currentPage) => {
     if (!categoryId) {
       FetchRawMaterial(page);
@@ -46,14 +73,12 @@ const RawMaterial = () => {
 
     setLoading(true);
     const catIdArray = [Number(categoryId)];
-
-    // 🔥 IMPORTANT: Convert UI page → BE page
     const backendPage = page - 1;
 
     GetRawMaterialByCategoryWithPagination(
       catIdArray,
       Id,
-      backendPage, // ✅ 0-based
+      backendPage,
       ITEMS_PER_PAGE
     )
       .then((res) => {
@@ -95,9 +120,6 @@ const RawMaterial = () => {
         }));
 
         setRawOriginalData(transformedData);
-
-        
-        // ✅ FIX: Use the correct field from API response
         setTotalRecords(responseData.totalRawMaterialItems || 0);
       })
       .catch(() => {
@@ -107,10 +129,10 @@ const RawMaterial = () => {
       .finally(() => setLoading(false));
   };
 
-  // Fetch All Raw Materials
   const FetchRawMaterial = (page = currentPage) => {
     setLoading(true);
 
+    // ✅ Note: Check if this API also expects 1-based pagination
     GetAllRawMaterial(Id, page, ITEMS_PER_PAGE)
       .then((res) => {
         const data = res?.data?.data || {};
@@ -127,9 +149,10 @@ const RawMaterial = () => {
     setCurrentPage(1);
   }, [categoryFilter]);
 
+  // ✅ REMOVED: searchQuery from this useEffect (now handled by debounced search)
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, generalFixFilter]);
+  }, [generalFixFilter]);
 
   const FetchCategories = () => {
     GetRawMaterialcategory(Id)
@@ -148,16 +171,32 @@ const RawMaterial = () => {
     FetchCategories();
   }, []);
 
-  // ✅ Handle page changes
+  // ✅ UPDATED: Handle page changes and search
   useEffect(() => {
-    if (categoryFilter) {
+    if (searchQuery.trim()) {
+      // If there's a search query, use search API
+      FetchSearchRawMaterial(searchQuery, currentPage);
+    } else if (categoryFilter) {
+      // If category filter is active
       FetchRawMaterialByCategory(categoryFilter, currentPage);
     } else {
+      // Default: fetch all
       FetchRawMaterial(currentPage);
     }
-  }, [currentPage, categoryFilter]);
+  }, [currentPage, categoryFilter, searchQuery]);
 
-  // Map raw data to table format
+  // ✅ UPDATED: Debounced search handler
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        setCurrentPage(1); // Reset to page 1 when searching
+        FetchSearchRawMaterial(searchQuery, 1);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     const language = localStorage.getItem("lang");
     const languageMap = {
@@ -167,7 +206,6 @@ const RawMaterial = () => {
     };
     const field = languageMap[language] || "nameEnglish";
 
-    // Sort by sequence first
     const sortedData = [...rawOriginalData].sort((a, b) => {
       return (a.sequence || 0) - (b.sequence || 0);
     });
@@ -193,35 +231,21 @@ const RawMaterial = () => {
 
   const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
 
-  // Client-side filtering
+  // ✅ UPDATED: Only apply generalFixFilter client-side (search is now server-side)
   const filteredTableData = useMemo(() => {
     let filtered = allTableData;
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter((item) => {
-        return (
-          item.raw_material_name?.toLowerCase().includes(query) ||
-          item.raw_material_category?.toLowerCase().includes(query) ||
-          item.unit?.toLowerCase().includes(query) ||
-          String(item.rate)?.toLowerCase().includes(query)
-        );
-      });
-    }
 
     if (generalFixFilter) {
       filtered = filtered.filter((item) => item.isGeneralFix === true);
     }
 
     return filtered;
-  }, [allTableData, searchQuery, generalFixFilter]);
+  }, [allTableData, generalFixFilter]);
 
-  // Sync displayData with filteredTableData
   useEffect(() => {
     setDisplayData(filteredTableData);
   }, [filteredTableData]);
 
-  // Drag & Drop Handlers
   const handleDragStart = (e, index) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -256,20 +280,19 @@ const RawMaterial = () => {
     const [draggedItem] = reorderedData.splice(draggedIndex, 1);
     reorderedData.splice(dropIndex, 0, draggedItem);
 
-    // Optimistically update UI
     setDisplayData(reorderedData);
 
-    // Update sequences
     const updatePayload = reorderedData.map((item, index) => ({
       rawMaterialCatId: item.raw_material_cat_id || 0,
       rawMaterialId: item.raw_material_id,
       sequence: index + 1,
     }));
 
-
     UpdateSequence(updatePayload)
       .then((res) => {
-        if (categoryFilter) {
+        if (searchQuery.trim()) {
+          FetchSearchRawMaterial(searchQuery, currentPage);
+        } else if (categoryFilter) {
           FetchRawMaterialByCategory(categoryFilter, currentPage);
         } else {
           FetchRawMaterial(currentPage);
@@ -307,7 +330,9 @@ const RawMaterial = () => {
               response &&
               (response.success || response.data.success === true)
             ) {
-              if (categoryFilter) {
+              if (searchQuery.trim()) {
+                FetchSearchRawMaterial(searchQuery, currentPage);
+              } else if (categoryFilter) {
                 FetchRawMaterialByCategory(categoryFilter, currentPage);
               } else {
                 FetchRawMaterial(currentPage);
@@ -338,7 +363,9 @@ const RawMaterial = () => {
   const statusRaw = (raw_material_id, status) => {
     updateRawMaterialStatus(raw_material_id, status)
       .then((res) => {
-        if (categoryFilter) {
+        if (searchQuery.trim()) {
+          FetchSearchRawMaterial(searchQuery, currentPage);
+        } else if (categoryFilter) {
           FetchRawMaterialByCategory(categoryFilter, currentPage);
         } else {
           FetchRawMaterial(currentPage);
@@ -350,14 +377,15 @@ const RawMaterial = () => {
   };
 
   const handleRefreshData = () => {
-    if (categoryFilter) {
+    if (searchQuery.trim()) {
+      FetchSearchRawMaterial(searchQuery, currentPage);
+    } else if (categoryFilter) {
       FetchRawMaterialByCategory(categoryFilter, currentPage);
     } else {
       FetchRawMaterial(currentPage);
     }
   };
 
-  // Generate table columns
   const tableColumns = columns(handleEdit, DeleteRawMaterial, statusRaw);
 
   return (
@@ -424,7 +452,6 @@ const RawMaterial = () => {
               className={`btn ${generalFixFilter ? "btn-primary" : "btn-secondary"}`}
               onClick={() => {
                 setGeneralFixFilter(!generalFixFilter);
-                setSearchQuery("");
               }}
             >
               <FormattedMessage
@@ -433,9 +460,10 @@ const RawMaterial = () => {
               />
             </button>
 
+            {/* ✅ UPDATED: Show count when filtering */}
             {(searchQuery || generalFixFilter) && (
               <span className="text-sm text-gray-600">
-                {displayData.length} of {allTableData.length} items
+                {displayData.length} of {totalRecords} items
               </span>
             )}
           </div>
@@ -464,7 +492,6 @@ const RawMaterial = () => {
           rawmaterial={selectedRawMaterial}
         />
 
-        {/* Custom Table with Drag & Drop */}
         <div className="card">
           <div className="">
             <div className="table-responsive">
@@ -535,7 +562,6 @@ const RawMaterial = () => {
                     )}
                   </tbody>
                 </table>
-                {/* ✅ Pagination always visible */}
                 <div className="flex justify-end gap-2 p-3">
                   <button
                     disabled={currentPage === 1}
