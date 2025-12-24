@@ -420,7 +420,7 @@ const AddUnit = ({
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl p-8 relative overflow-y-auto max-h-[90vh] border border-gray-100">
         <div className="flex justify-between items-center border-b pb-3 mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">
-            {selectedUnit ? "Edit Unit" : "New Unit"}
+            {selectedUnit ? "Edit Unit" : "Create New Unit"}
           </h2>
           <button
             onClick={() => setIsModalOpen(false)}

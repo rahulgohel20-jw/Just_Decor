@@ -148,6 +148,13 @@ export const GetAllRawMaterial = (Id, page, pageSize) => {
     `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
   );
 };
+
+export const SearchRawMaterial = (Id, page, pageSize, itemName) => {
+  return GET(
+    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMaterialName=${itemName}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
+  );
+};
+
 export const DeleteRole = (Id) => {
   return DELETE(`/rolemaster/deletebyid?id=${Id}`);
 };
@@ -595,8 +602,8 @@ export const uploadFileformenu = (formData) => {
 };
 
 //upload Image
-export const uploadProfileImage = (data, queryParams) => {
-  return UPLOAD(`/file/uploadfile?${queryParams}`, data);
+export const uploadProfileImage = (data) => {
+  return PUT(`/fileupload/upload-file`, data);
 };
 
 //getmenuitem
@@ -1296,3 +1303,8 @@ export const DeleteKyc = (id) => {
 export const DeleteAmc = (id) => {
   return DELETE(`/user/deleteuseramcbyid?id=${id}`);
 };
+
+export const DeleteRefund = (id) => {
+  return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
+};
+

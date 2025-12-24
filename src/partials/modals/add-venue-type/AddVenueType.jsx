@@ -159,7 +159,7 @@ const AddVenueType = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.ADD_EVENT_TYPE"
-                defaultMessage="New Venue"
+                defaultMessage="Create New Venue"
               />
             )}
           </h2>

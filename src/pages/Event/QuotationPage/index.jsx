@@ -633,7 +633,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-user text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.PARTY_NAME"
                           defaultMessage="Party Name:"
@@ -647,7 +647,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-geolocation-home text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.VENUE_NAME"
                           defaultMessage="Venue Name:"
@@ -661,7 +661,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.EVENT_DATE"
                           defaultMessage="Event Date:"
@@ -675,7 +675,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-phone text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.MOBILE_NUMBER"
                           defaultMessage="Mobile Number:"
@@ -689,7 +689,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-calendar-tick text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.QUOTATION_DATE"
                           defaultMessage="Quotation Date:"
@@ -743,7 +743,7 @@ const QuotationPage = () => {
                   <div className="flex items-center gap-3">
                     <i className="ki-filled ki-user text-success"></i>
                     <div className="flex flex-col">
-                      <span className="text-xs">
+                      <span className="text-sm">
                         <FormattedMessage
                           id="COMMON.BILLING_NAME"
                           defaultMessage="Billing Name:"

@@ -13,7 +13,7 @@ export const columns = (onEdit, onDelete) => [
   {
     accessorKey: "meal_type",
     header: (
-      <FormattedMessage id="USER.MASTER.MEAL_NAME" defaultMessage="Meal Name" />
+      <FormattedMessage id="USER.MASTER.MEAL_NAME" defaultMessage=" Name" />
     ),
     meta: {
       headerClassName: "w-[8%]",

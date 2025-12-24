@@ -430,7 +430,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     <div className="mt-6">
       <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
-          label={<span className="text-[#6A7C94] font-medium">At Venue</span>}
+          label={<span className="text-[#6A7C94] font-medium"> Venue</span>}
           name="venue"
         >
           <Select
@@ -449,21 +449,21 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
           onChange={(key) => setActiveTab(key)}
           destroyInactiveTabPane={true}
         >
-          <Tabs.TabPane tab="Select Chef Labour Agency" key="chef">
+          <Tabs.TabPane tab=" Chef Agency" key="chef">
             <RenderAllocationFields
               fields={chefFields}
               onAddClick={handleAddContact}
               form={form}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Select Outside Agency" key="outside">
+          <Tabs.TabPane tab="Outsource Agency" key="outside">
             <RenderAllocationFields
               fields={outsideFields}
               onAddClick={handleAddContact}
               form={form}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Select Inside Cook" key="inside">
+          <Tabs.TabPane tab="Inside Chef / Kitchen" key="inside">
             <RenderAllocationFields
               fields={insideFields}
               onAddClick={handleAddContact}

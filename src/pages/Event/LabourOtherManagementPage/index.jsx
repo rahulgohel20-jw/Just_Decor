@@ -586,7 +586,7 @@ const LabourOtherManagementPage = () => {
                     className="ki-filled ki-menu "
                     style={{ color: "white" }}
                   ></i>{" "}
-                  3. Menu Allocation
+                  3. Menu Execution
                 </button>
 
                 <button
@@ -604,7 +604,7 @@ const LabourOtherManagementPage = () => {
                     className="ki-filled ki-gift"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  4. Raw Material Allocation
+                  4. Raw Material Distribution
                 </button>
               </div>
             </div>
@@ -692,7 +692,7 @@ const LabourOtherManagementPage = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={openSelectMenureport}
-                  className="btn btn-light btn-sm h-10"
+                  className="btn btn-success btn-sm h-10"
                 >
                   <i className="ki-filled ki-document"></i>
                   Report
@@ -883,7 +883,7 @@ const LabourTable = ({
               <th className="text-center px-3 py-2 w-12">#</th>
               <th className="px-3 py-2">
                 <div className="flex items-center justify-between">
-                  Labour Type
+                  Categories
                   <button
                     type="button"
                     className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"

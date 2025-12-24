@@ -122,12 +122,12 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
             {selectedMeal ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_MEAL"
-                defaultMessage="Edit Meal"
+                defaultMessage="Edit Food Prefrence"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_MEAL"
-                defaultMessage="New Meal"
+                defaultMessage="Create New Food Prefrence"
               />
             )}
           </h2>

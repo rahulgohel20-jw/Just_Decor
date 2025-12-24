@@ -12,7 +12,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "function_name",
-    header: <FormattedMessage id="USER.MASTER.FUNCTION_NAME" defaultMessage="Function Name" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.FUNCTION_NAME" defaultMessage=" Name" />
+    ),
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
@@ -20,7 +22,12 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "start_time",
-    header: <FormattedMessage id="USER.MASTER.START_TIME" defaultMessage="Start Time" />,
+    header: (
+      <FormattedMessage
+        id="USER.MASTER.START_TIME"
+        defaultMessage="Start Time"
+      />
+    ),
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -28,7 +35,9 @@ export const columns = (onEdit, onDelete) => [
   },
   {
     accessorKey: "end_time",
-    header: <FormattedMessage id="USER.MASTER.END_TIME" defaultMessage="End Time" />,
+    header: (
+      <FormattedMessage id="USER.MASTER.END_TIME" defaultMessage="End Time" />
+    ),
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",

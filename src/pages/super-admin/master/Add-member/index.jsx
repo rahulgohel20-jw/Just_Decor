@@ -1,18 +1,14 @@
 import { Fragment, useEffect, useState } from "react";
-import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
 import { GetAllMemberByUserId } from "@/services/apiServices";
-import { Tooltip } from "antd";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
-import useStyle from "./style";
-import { Link } from "react-router-dom";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import ViewMemberDetails from "@/partials/modals/view-member-details/ViewMemberDetails";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const AllMemberMaster = () => {
+const SuperadminMember = () => {
   const classes = useStyle();
   const [isViewMemberModalOpen, setIsViewMemberModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -86,7 +82,7 @@ const AllMemberMaster = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.ALL_MEMBER_MASTER"
-                    defaultMessage="User Master"
+                    defaultMessage="All Member Master"
                   />
                 ),
               },
@@ -96,9 +92,7 @@ const AllMemberMaster = () => {
 
         {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          >
+          <div className={`flex flex-wrap items-center gap-2`}>
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -123,7 +117,7 @@ const AllMemberMaster = () => {
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
                 id="USER.MASTER.ADD_MEMBER"
-                defaultMessage="Create New"
+                defaultMessage="Add Member"
               />
             </button>
           </div>
@@ -154,4 +148,4 @@ const AllMemberMaster = () => {
   );
 };
 
-export default AllMemberMaster;
+export default SuperadminMember;
