@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
+import { Check } from "lucide-react";
+
+// Import your actual API services
 import { toAbsoluteUrl } from "@/utils";
 import {
   GetAllPlans,
@@ -9,11 +12,11 @@ import {
   GetPlansByBillingCycle,
 } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
-
 import { useAutoTranslation } from "../../../utils/useAutoTranslation";
 import PaymentSuccess from "../successmodal/paymentsuccess";
 import Swal from "sweetalert2";
 import { useLanguage } from "@/i18n";
+import ThemeModal from "./ThemeModal";
 
 const parseJwt = (token) => {
   try {
@@ -31,6 +34,8 @@ const parseJwt = (token) => {
     return null;
   }
 };
+
+// PaymentSuccess component will be imported from your actual component
 
 const Priceplan = () => {
   const [plans, setPlans] = useState([]);
@@ -53,10 +58,45 @@ const Priceplan = () => {
     transactionId: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
+  const [customTheme, setCustomTheme] = useState(true);
+  const [couponCode, setCouponCode] = useState("");
 
   const stored =
     typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
   const token = stored;
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    const decoded = parseJwt(token);
+    console.log(decoded);
+
+    const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
+    if (idFromToken) {
+      setUserId(idFromToken);
+    } else if (stored?.id) {
+      setUserId(stored.id);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchUserDetails = async () => {
+      try {
+        const res = await FetchAllUser(userId);
+        const fetched = res?.data?.data?.["User Details"]?.[0] ?? null;
+        if (fetched) {
+          setUser(fetched);
+        } else {
+          console.warn("FetchAllUser returned no data:", res);
+        }
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+      }
+    };
+    fetchUserDetails();
+  }, [userId]);
 
   useEffect(() => {
     const loadLabels = async () => {
@@ -76,7 +116,7 @@ const Priceplan = () => {
       });
     };
     loadLabels();
-  }, [language]); // <-- ADD LANGUAGE HERE
+  }, [language]);
 
   useEffect(() => {
     if (!token) return;
@@ -118,22 +158,19 @@ const Priceplan = () => {
   const fetchPlans = async () => {
     try {
       setLoading(true);
-      const res = await GetPlansByBillingCycle(activeCycle);
+      const res = await GetAllPlans();
       const result = res?.data?.data?.["Plan Details"] || [];
 
+      // Translate all plan data
       const langPlans = await Promise.all(
         result.map(async (p) => ({
           ...p,
-
           originalName: p.name, // keep English
           name: await translate(p.name),
-
           originalDescription: p.description,
           description: await translate(p.description),
-
           originalBillingCycle: p.billingCycle,
           billingCycle: await translate(p.billingCycle),
-
           features: await Promise.all(
             p.features?.map(async (f) => ({
               ...f,
@@ -153,18 +190,24 @@ const Priceplan = () => {
     }
   };
 
+  useEffect(() => {
+    if (!translatedPlans.length) return;
+
+    // Prefer popular plan, fallback to first plan
+    const defaultPlan =
+      translatedPlans.find((p) => p.isPopular) || translatedPlans[0];
+
+    setSelectedPlan(defaultPlan);
+  }, [translatedPlans]);
+
   const orderedPlans = (() => {
     if (!translatedPlans.length) return [];
-
     const popular = translatedPlans.filter((p) => p.isPopular);
     const others = translatedPlans.filter((p) => !p.isPopular);
-
     if (popular.length === 0) return translatedPlans;
-
     if (others.length === 2) {
       return [others[0], popular[0], others[1]];
     }
-
     return [...others, ...popular];
   })();
 
@@ -285,239 +328,280 @@ const Priceplan = () => {
   };
 
   const userHasPlan = !!user?.plan;
-  console.log("userplan", user);
+
+  // All features list for left sidebar
+  const displayedFeatures = selectedPlan?.features || [];
+
+  const planPrice = translatedPlans.find((p) => p.isPopular)?.price || 24000;
+  const customThemePrice = 6000;
+
+  const finalTotal = planPrice + (customTheme ? customThemePrice : 0);
+
+  const handlePlanSelect = (plan) => {
+    setSelectedPlan(plan);
+  };
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-10">
-        {underVerification && user && !user.isApprove && (
-          <div className="relative bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-6 rounded-b-xl overflow-hidden">
-            <div className="flex items-start gap-3 relative ">
-              <p className="sm:text-base">
-                Your profile is under verification. Please wait until admin
-                approves it. Meanwhile, feel free to explore our other plans and
-                log out if you wish.
-              </p>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            Choose Your Right Plan
+          </h1>
+          <p className="text-gray-600">
+            Select from the best plans, ensuring a perfect match for your
+            catering business
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Sidebar - Features */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg p-6 shadow-sm sticky top-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Features Included
+              </h3>
+              <ul className="space-y-3">
+                {displayedFeatures.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center">
+                      <Check className="w-3 h-3 text-green-600" />
+                    </div>
+                    <span className="text-sm text-gray-700">
+                      {feature.featureText}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        )}
 
-        <h2 className="text-3xl mt-4 md:text-4xl font-semibold text-[#170F49]">
-          <FormattedMessage
-            id="USER.PRICE_PLAN.TITLE"
-            defaultMessage="   Plans & Pricing"
-          />
-        </h2>
-        <p className="text-[#6F6C8F] mt-3 max-w-xl mx-auto text-base leading-relaxed">
-          <FormattedMessage
-            id="USER.PRICE_PLAN.SUBTITLE"
-            defaultMessage="    Whether your time-saving automation needs are large or small, we're
-          here to help you scale."
-          />
-        </p>
+          {/* Right Content - Plans & Payment */}
+          <div className="lg:col-span-2 space-y-6">
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <Spin size="large" />
+              </div>
+            ) : (
+              <>
+                {/* Plans Grid */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {orderedPlans
+                    .filter((plan) => plan.id !== 5)
+                    .map((plan) => {
+                      const isPopular = plan.isPopular;
+                      const disabledBecauseSamePlan =
+                        user?.plan?.id === plan.id;
 
-        <div className="flex justify-center mt-8">
-          <div className="flex bg-[#F4F4FF] rounded-full p-1">
-            {[
-              { key: "Quarterly", label: labels.quarterly },
-              { key: "Annually", label: labels.annually },
-            ].map((cycle) => (
-              <button
-                key={cycle.key}
-                onClick={() => setActiveCycle(cycle.key)}
-                className={`px-6 py-2 text-sm rounded-full font-medium transition-all ${
-                  activeCycle === cycle.key
-                    ? "bg-[#005BA8] text-white"
-                    : "text-[#6F6C8F] hover:bg-blue-50"
-                }`}
-              >
-                {cycle.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-10">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <div
-          key={language}
-          className={`grid gap-8 md:gap-6 items-stretch ${
-            orderedPlans.filter((plan) => plan.id !== 5).length === 1
-              ? "grid-cols-1 max-w-lg mx-auto"
-              : orderedPlans.filter((plan) => plan.id !== 5).length === 2
-                ? "grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto"
-                : "grid-cols-1 md:grid-cols-3"
-          }`}
-        >
-          {orderedPlans
-            .filter((plan) => plan.id !== 5)
-            .map((plan) => {
-              const isPopular = plan.isPopular;
-              const disabledBecauseSamePlan = user?.plan?.id === plan.id;
-              const isSinglePlan =
-                orderedPlans.filter((p) => p.id !== 5).length === 1;
-              const isHighlighted = isPopular || isSinglePlan;
-
-              return (
-                <div key={`${plan.id}-${language}`} className="relative group">
-                  {/* Glow effect behind card */}
-                  {isHighlighted && (
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
-                  )}
-
-                  <div
-                    className={`relative flex flex-col h-full rounded-3xl border-2 transition-all duration-300 bg-white p-8 md:p-10 ${
-                      isHighlighted
-                        ? "border-[#005BA8] shadow-[0_20px_60px_rgba(0,91,168,0.15)] group-hover:shadow-[0_25px_70px_rgba(0,91,168,0.2)]"
-                        : "border-[#E6E6F0] shadow-sm hover:shadow-xl hover:border-[#005BA8]/30"
-                    }`}
-                  >
-                    {/* Badge - Only show for isPopular plans */}
-                    {isPopular && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <div className="bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          Most Popular
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Plan Icon */}
-                    <div
-                      className={`flex justify-center mb-6 ${isHighlighted ? "mt-2" : ""}`}
-                    >
-                      <div
-                        className={`rounded-2xl p-4 ${
-                          isHighlighted
-                            ? "bg-gradient-to-br from-[#005BA8]/10 to-[#4A3AFF]/10"
-                            : "bg-[#F4F4FF]"
-                        }`}
-                      >
-                        <img
-                          src={toAbsoluteUrl(
-                            `/media/price/${plan.originalName.toLowerCase()}.png`
+                      return (
+                        <div key={plan.id} className="relative">
+                          {/* Best choice badge */}
+                          {isPopular && (
+                            <div className="w-auto absolute -top-3 left-3/4 -translate-x-1/7 z-10">
+                              <div className="bg-white text-gray-900 text-xs px-3 py-2 rounded-full font-medium shadow-md border border-gray-400">
+                                Best choice
+                              </div>
+                            </div>
                           )}
-                          alt={plan.name}
-                          className={`${isHighlighted ? "h-14 w-14" : "h-12 w-12"} object-contain`}
-                        />
-                      </div>
-                    </div>
 
-                    {/* Plan Name & Description */}
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold text-[#170F49] mb-2">
-                        {plan.name}
-                      </h3>
-                      <p className="text-sm text-[#6F6C8F] leading-relaxed">
-                        {plan.description}
-                      </p>
-                    </div>
-
-                    {/* Price */}
-                    <div className="text-center mb-8">
-                      <div className="flex items-baseline justify-center">
-                        <span className="text-lg font-medium text-[#6F6C8F]">
-                          ₹
-                        </span>
-                        <span className="text-5xl font-bold text-[#170F49] mx-1">
-                          {plan.price.toLocaleString()}
-                        </span>
-                      </div>
-                      <span className="text-sm text-[#A0A3BD]">
-                        /{plan.billingCycle}
-                      </span>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#E6E6F0] to-transparent mb-8" />
-
-                    {/* Features */}
-                    <ul className="text-[#6F6C8F] text-sm space-y-4 mb-8 flex-grow">
-                      {plan.features?.map((f, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span
-                            className={`flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0 mt-0.5 ${
-                              isHighlighted
-                                ? "bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white"
-                                : "border-2 border-[#4A3AFF] text-[#4A3AFF]"
-                            }`}
+                          <div
+                            className={`relative rounded-2xl p-8 cursor-pointer ${
+                              isPopular
+                                ? "bg-[#005BA8] text-white"
+                                : "bg-white text-gray-900 border border-gray-200"
+                            } ${selectedPlan?.id === plan.id ? "ring-4 ring-blue-400" : ""}`}
+                            onClick={() => handlePlanSelect(plan)}
                           >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                            <h3 className="text-base font-semibold mb-4">
+                              {plan.billingCycle} Plan
+                            </h3>
+
+                            {/* Original Price (strikethrough) */}
+
+                            <div
+                              className={`text-3xl font-bold mb-1 ${isPopular ? "text-white" : "text-gray-900"} line-through`}
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </span>
-                          <span className="text-[#4A4A68]">
-                            {f.featureText}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                              {(plan.billingCycle === "Quarterly"
+                                ? 35000
+                                : 45000
+                              ).toLocaleString("en-IN")}
+                            </div>
 
-                    {/* CTA Button */}
-                    <button
-                      onClick={() => handlePayment(plan)}
-                      disabled={!userId || disabledBecauseSamePlan}
-                      className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all duration-300 ${
-                        isHighlighted
-                          ? "bg-gradient-to-r from-[#005BA8] to-[#4A3AFF] text-white shadow-lg shadow-[#005BA8]/25 hover:shadow-xl hover:shadow-[#005BA8]/30 hover:scale-[1.02]"
-                          : "border-2 border-[#D9DBE9] text-[#170F49] hover:border-[#005BA8] hover:bg-[#F9FAFF]"
-                      } ${!userId || disabledBecauseSamePlan ? "opacity-60 cursor-not-allowed hover:scale-100" : ""}`}
-                    >
-                      {disabledBecauseSamePlan ? "Current Plan" : "Choose Plan"}
-                    </button>
+                            {/* Discounted Price */}
+                            <div className="text-6xl font-bold mb-2">
+                              ₹{plan.price.toLocaleString("en-IN")}/-
+                            </div>
 
-                    {/* Trust text */}
-                    {isHighlighted && (
-                      <p className="text-center text-xs text-[#A0A3BD] mt-4 flex items-center justify-center gap-1">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                          />
-                        </svg>
-                        Secure payment • Cancel anytime
+                            {/* AMC and Period */}
+                            <div className="flex items-center justify-between mb-6">
+                              <span
+                                className={`text-lg font-semibold ${isPopular ? "text-white" : "text-gray-700"}`}
+                              >
+                                ₹ 9000/- AMC
+                              </span>
+                              <div
+                                className={`text-right ${isPopular ? "text-white/90" : "text-gray-600"}`}
+                              >
+                                <div className="text-xs font-medium">
+                                  {isPopular ? "Annually" : "Per 3 month"}
+                                </div>
+                                <div className="text-xs">
+                                  {isPopular
+                                    ? "For Next Year On-ward"
+                                    : "For Next Year On-ward"}
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handlePayment(plan)}
+                              disabled={!userId || disabledBecauseSamePlan}
+                              className={`w-full py-3 rounded-full font-semibold transition-all text-sm ${
+                                isPopular
+                                  ? "bg-white text-gray-900 hover:bg-gray-50"
+                                  : "border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                              } ${!userId || disabledBecauseSamePlan ? "opacity-50 cursor-not-allowed" : ""}`}
+                            >
+                              {disabledBecauseSamePlan
+                                ? "Current Plan"
+                                : `Choose ${isPopular ? "Annual" : "3-Month"} Plan`}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {/* Custom Themes */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Custom Themes
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Personalize the software with brand-matched, premium
+                        interface themes
                       </p>
-                    )}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl font-bold text-gray-900">
+                        + ₹6000
+                      </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={customTheme}
+                          onChange={(e) => setCustomTheme(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setThemeModalOpen(true)}
+                      className="mt-4 border border-[#005BA8] rounded-lg px-5 py-3 text-[#005BA8] text-sm font-medium hover:bg-[#005BA8] hover:text-white"
+                    >
+                      View Available Themes
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          <PaymentSuccess
-            open={modalOpen}
-            onClose={() => setModalOpen(false)}
-            amount={paymentData.amount}
-            transactionId={paymentData.transactionId}
-            approve={user?.isApprove}
-          />
+
+                {/* Coupon */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Have a Coupon?
+                  </h3>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button className="px-6 py-2 bg-[#005BA8] text-white rounded font-medium hover:bg-[#005BA8]">
+                      Apply
+                    </button>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-[#005BA8]">
+                    <span className="text-lg">
+                      {" "}
+                      <img
+                        src={toAbsoluteUrl("/media/brand-logos/coupon.png")}
+                        className="dark:hidden max-h-[20px]"
+                        alt=""
+                      />
+                    </span>
+                    <span>Grab it Fast – 50% OFF for first 50!</span>
+                  </div>
+                </div>
+
+                {/* Final Total */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-gray-700">
+                      <span>Plan Price</span>
+                      <span className="font-semibold">
+                        ₹{planPrice.toLocaleString()}
+                      </span>
+                    </div>
+                    {customTheme && (
+                      <div className="flex justify-between text-gray-700">
+                        <span>
+                          Custom Theme Price (Exclusive Your Custom Report)
+                        </span>
+                        <span className="font-semibold">
+                          ₹{customThemePrice.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-900">
+                      <span>Final Total</span>
+                      <span>₹{finalTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const selectedPlan = translatedPlans.find(
+                        (p) => p.isPopular
+                      );
+                      if (selectedPlan) handlePayment(selectedPlan);
+                    }}
+                    className="w-full mt-6 py-3 bg-[#005BA8] text-white rounded-lg font-semibold hover:bg-[#005BA8] transition-colors"
+                  >
+                    Pay Now
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      )}
+        <ThemeModal
+          open={themeModalOpen}
+          onClose={() => setThemeModalOpen(false)}
+          onAddTheme={() => {
+            setCustomTheme(true); // ✅ +6000 ON
+            setThemeModalOpen(false);
+          }}
+          onSkipTheme={() => {
+            setCustomTheme(false); // ❌ +6000 OFF
+            setThemeModalOpen(false);
+          }}
+        />
+
+        <PaymentSuccess
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          amount={paymentData.amount}
+          transactionId={paymentData.transactionId}
+          approve={user?.isApprove}
+        />
+      </div>
     </div>
   );
 };

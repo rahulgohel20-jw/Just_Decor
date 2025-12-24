@@ -241,19 +241,15 @@ const MenuItems = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+        <div className=" pb-2 mb-3">
+                    <h1 className="test-xl text-gray-900">
+
+         
                   <FormattedMessage
-                    id="MASTER.MENU_ITEMS"
+                    id="COMMON.MENU_ITEM_RECIPE_MASTER"
                     defaultMessage="Menu Item Recipe Master"
                   />
-                ),
-              },
-            ]}
-          />
+                </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -310,7 +306,7 @@ const MenuItems = () => {
             >
               <i className="ki-filled ki-plus"></i>{" "}
               <FormattedMessage
-                id="MASTER.ADD_MENU_ITEM"
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
                 defaultMessage="Create New"
               />
             </button>

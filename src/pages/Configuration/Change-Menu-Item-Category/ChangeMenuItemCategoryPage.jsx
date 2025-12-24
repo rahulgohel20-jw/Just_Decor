@@ -172,7 +172,7 @@ const ChangeMenuItemCategoryPage = () => {
               {
                 title: (
                   <FormattedMessage
-                    id="RAW_MATERIAL.CHANGE_CATEGORY"
+                    id="MENUITEM.CHANGE_CATEGORY"
                     defaultMessage="Change Menu Item Category"
                   />
                 ),
@@ -239,7 +239,7 @@ const ChangeMenuItemCategoryPage = () => {
           <div className="flex items-center justify-between gap-2 mb-3">
             <h2 className="text-black text-lg font-semibold">
               <FormattedMessage
-                id="RAW_MATERIAL.LIST"
+                id="MENUITEM.LIST"
                 defaultMessage="Menu Item List"
               />
             </h2>

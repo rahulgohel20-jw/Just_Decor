@@ -391,19 +391,13 @@ const RawMaterial = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.RAW_MATERIAL_MASTER"
-                    defaultMessage="Raw Material Item Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.RAW_MATERIAL_ITEM_MASTER"
+              defaultMessage="Raw Material Item Master"
+            />
+          </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -460,7 +454,10 @@ const RawMaterial = () => {
                 setGeneralFixFilter(!generalFixFilter);
               }}
             >
-              {generalFixFilter ? "Show All" : "General Fix"}
+              <FormattedMessage
+                id={generalFixFilter ? "COMMON.SHOW_ALL" : "COMMON.GENERAL_FIX"}
+                defaultMessage={generalFixFilter ? "Show All" : "General Fix"}
+              />
             </button>
 
             {/* ✅ UPDATED: Show count when filtering */}
@@ -481,7 +478,7 @@ const RawMaterial = () => {
             >
               <i className="ki-filled ki-plus"></i>
               <FormattedMessage
-                id="COMMON.ADD_RAW_MATERIAL"
+                id="USER.MASTER.ADD_CONTACT_CATEGORY"
                 defaultMessage="Create New"
               />
             </button>

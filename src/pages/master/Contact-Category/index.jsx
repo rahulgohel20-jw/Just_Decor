@@ -157,19 +157,13 @@ const ContactCategoryMaster = () => {
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
-                  <FormattedMessage
-                    id="USER.MASTER.CONTACT_CATEGORY_MASTER"
-                    defaultMessage="Category Master"
-                  />
-                ),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="test-xl text-gray-900">
+            <FormattedMessage
+              id="USER.MASTER.CONTACT_CATEGORY_MASTER"
+              defaultMessage="Category Master"
+            />
+          </h1>
         </div>
 
         {/* Filters */}

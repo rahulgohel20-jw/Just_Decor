@@ -36,7 +36,6 @@ export default function AddNewManagerModal({
 
   const userId = Number(localStorage.getItem("userId"));
 
-  // Log eventId when modal opens
   useEffect(() => {
     if (open) {
       console.log("AddNewManagerModal opened with eventId:", eventId);
@@ -183,6 +182,7 @@ export default function AddNewManagerModal({
     cityId: "",
     image: null,
     mangerId: "",
+    expenseId: "",
     sameShipping: false,
   };
 
@@ -191,7 +191,6 @@ export default function AddNewManagerModal({
     setShowGST(false);
     setCities([]);
   };
-
   const handleSubmit = async () => {
     const error = validateForm();
 
@@ -211,37 +210,44 @@ export default function AddNewManagerModal({
         const [year, month, day] = dateString.split("-");
         return `${day}/${month}/${year}`;
       };
-      let documentBase64 = "";
+
+      const formData = new FormData();
+
+      // BASIC
+      formData.append("amount", Number(form.amount || 0));
+      formData.append("date", formatDate(form.date));
+      formData.append("description", form.description || "");
+      formData.append("remark", form.remarks || ""); // ✅ FIXED
+      formData.append("paymentType", form.paymentType || "");
+      formData.append("mobileNo", form.mobile || "");
+      formData.append("name", form.name || ""); // ✅ NOT EMPTY
+      formData.append("expenseId", -1);
+      formData.append("partyId", 0); // ✅ FIXED
+
+      // ADDRESS
+      formData.append("buildingAddress", form.billFlat || "");
+      formData.append("area", form.billArea || "");
+      formData.append("city", form.cityId || "");
+      formData.append("state", form.stateId || "");
+      formData.append("pincode", form.billPincode || "");
+      formData.append("countryCode", "+91");
+
+      // META
+      formData.append("managerId", Number(form.manager || 0));
+      formData.append("userId", userId);
+      formData.append("roleId", form.roleId || 0);
+      formData.append("eventId", Number(eventId));
+      formData.append("userType", "MANAGER");
+      formData.append("gstin", form.gst || "");
+
+      // FILE
       if (form.image) {
-        documentBase64 = await getBase64(form.image);
+        formData.append("file", form.image); // ✅ file
+        formData.append("document", ""); // ✅ string (or base64 if BE needs)
       }
-      const payload = {
-        amount: Number(form.amount || 0),
-        date: formatDate(form.date),
-        description: form.description || "",
-        remark: form.remarks || "",
-        paymentType: form.paymentType || "",
-        mobileNo: form.mobile || "",
-        managerId: Number(form.manager || 0),
-        userId,
-        roleId: form.roleId || 0,
-        gstin: form.gst || "",
-        buildingAddress: form.billFlat || "",
-        area: form.billArea || "",
-        city: form.cityId || "",
-        state: form.stateId || "",
-        pincode: form.billPincode || "",
-        countryCode: "+91",
-        expenseId: -1,
-        eventId: Number(eventId),
-        partyId: 0,
-        userType: "MANAGER",
-        // document: documentBase64,
-      };
 
-      const res = await AddExpensemanagement(payload);
+      const res = await AddExpensemanagement(formData);
 
-      // ✅ SUCCESS MESSAGE
       Swal.fire({
         icon: "success",
         title: "Saved Successfully",
@@ -254,7 +260,6 @@ export default function AddNewManagerModal({
     } catch (err) {
       console.error("Failed to add expense", err);
 
-      // ❌ ERROR MESSAGE
       Swal.fire({
         icon: "error",
         title: "Save Failed",

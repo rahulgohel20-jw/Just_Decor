@@ -149,18 +149,14 @@ const QuotationDashboard = () => {
 
       <Container>
         <div className="mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+                    <h1 className="test-xl text-gray-900">
+
+        
                   <FormattedMessage
                     id="SALES.QUOTATION_OVERVIEW"
                     defaultMessage="Quotation Overview"
                   />
-                ),
-              },
-            ]}
-          />
+                </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-4">
