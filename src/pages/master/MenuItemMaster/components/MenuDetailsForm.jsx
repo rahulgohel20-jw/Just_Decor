@@ -836,13 +836,6 @@ const MenuDetailsForm = ({
           </div>
 
           {/* Table */}
-          <RawMaterialTable
-            data={filteredTableData}
-            onEditRow={handleEditRow}
-            onDeleteRow={handleDeleteRow}
-            selectedRows={selectedRows}
-            setSelectedRows={setSelectedRows}
-          />
 
           {/* Footer Total */}
           <div className="flex justify-between mt-4 text-lg font-medium text-[#6A7C94]">
@@ -891,7 +884,13 @@ const MenuDetailsForm = ({
           </div>
         </div>
       </Form>
-
+      <RawMaterialTable
+        data={filteredTableData}
+        onEditRow={handleEditRow}
+        onDeleteRow={handleDeleteRow}
+        selectedRows={selectedRows}
+        setSelectedRows={setSelectedRows}
+      />
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}

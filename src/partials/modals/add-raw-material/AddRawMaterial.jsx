@@ -58,6 +58,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
     useState(null);
   const intl = useIntl();
   let id = localStorage.getItem("userId");
+  console.log(rawmaterial);
 
   const formik = useFormik({
     initialValues: {
@@ -205,6 +206,8 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const FetchUnit = () => {
     GetUnitData(id).then((response) => {
       const data = response?.data?.data["Unit Details"];
+      console.log(data);
+
       setUnitList(
         data.map((item) => ({
           id: item.id,

@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import { GetUnitData, OutsideContactName } from "@/services/apiServices";
+
+/* ---------- UI ATOMS ---------- */
 
 const FieldLabel = ({ children }) => (
-  <div className="text-[16px] text-black leading-none mb-1">{children}</div>
+  <div className="text-sm text-gray-800 font-medium truncate">{children}</div>
 );
 
 const BaseInput = (props) => (
@@ -23,6 +26,8 @@ const BaseSelect = (props) => (
   </select>
 );
 
+/* ---------- MAIN COMPONENT ---------- */
+
 export default function SidebarRawMaterial({
   open,
   onClose,
@@ -30,87 +35,84 @@ export default function SidebarRawMaterial({
   onSave,
 }) {
   const [functionRows, setFunctionRows] = useState([]);
-  const [agencies, setAgencies] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [unit, setUnit] = useState([]);
+  const [supplier, setSupplier] = useState([]);
+  let userId = localStorage.getItem("userId");
+  console.log(selectedRow);
 
   useEffect(() => {
     if (selectedRow && open) {
       const functions = selectedRow.eventRawMaterialFunctions || [];
 
       if (functions.length > 0) {
-        // 🔥 SIMPLIFIED: Just display ALL rows from API
         const rows = functions.map((func, index) => ({
           id: index + 1,
+
+          // ✅ FUNCTION LEVEL
           functionType: func.functionName || "",
           menuItemName: func.itemName || "",
-          agency: func.supplierName || "",
-          supplierId: func.supplierId || null,
-          qty: func.qty || "",
-          unit: func.unitName || "Kilogram",
-          unitId: func.unitId || null,
-          place: func.place || "",
+
+          qty: func.qty ?? selectedRow.qty ?? "",
+          price: func.price ?? 0,
+
+          // ✅ SUPPLIER (fallback to selectedRow)
+          supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
+          agency: func.supplierName ?? selectedRow.agency ?? "",
+
+          // ✅ UNIT (fallback)
+          unitId: func.unitId ?? selectedRow.unitId ?? "",
+          unit: func.unitName ?? selectedRow.unit ?? "",
+
+          // ✅ PLACE (fallback)
+          place: func.place || selectedRow.place || "",
+
+          // ✅ DATE
           dateTime:
             func.functiondatetime && dayjs(func.functiondatetime).isValid()
               ? dayjs(func.functiondatetime)
               : null,
-          price: func.price || 0,
+
           functionId: func.functionId || null,
           eventFunctionId: func.eventFunctionId || null,
           isExtraField: func.isExtraField || false,
         }));
 
-        // 🔥 Sort: Extra rows first
-        rows.sort((a, b) => {
-          if (a.isExtraField && !b.isExtraField) return -1;
-          if (!a.isExtraField && b.isExtraField) return 1;
-          return 0;
-        });
-
-        // Re-index
-        rows.forEach((row, index) => {
-          row.id = index + 1;
-        });
-
         setFunctionRows(rows);
-      } else {
-        setFunctionRows([
-          {
-            id: 1,
-            functionType: "",
-            menuItemName: selectedRow.material || "",
-            agency: selectedRow.agency || "",
-            supplierId: null,
-            qty: "",
-            unit: selectedRow.unit || "Kilogram",
-            unitId: null,
-            place: selectedRow.place || "",
-            dateTime:
-              selectedRow.date && dayjs(selectedRow.date).isValid()
-                ? dayjs(selectedRow.date)
-                : null,
-            price: 0,
-            functionId: null,
-            eventFunctionId: null,
-            isExtraField: false,
-          },
-        ]);
       }
     }
   }, [selectedRow, open]);
 
   useEffect(() => {
-    if (!open) {
-      setFunctionRows([]);
-    }
+    if (!open) setFunctionRows([]);
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => e.key === "Escape" && onClose?.();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+    FetchUnit();
+    FetchSupplier();
+  }, []);
+
+  const FetchUnit = async () => {
+    try {
+      const data = await GetUnitData(userId);
+      console.log(data);
+
+      setUnit(data?.data?.data["Unit Details"] || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const FetchSupplier = async () => {
+    try {
+      const data = await OutsideContactName(3, userId);
+
+      setSupplier(data?.data?.data["Party Details"] || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  /* ---------- HANDLERS ---------- */
 
   const handleInputChange = (rowIndex, field, value) => {
     setFunctionRows((prev) =>
@@ -124,9 +126,7 @@ export default function SidebarRawMaterial({
     for (let i = 0; i < functionRows.length; i++) {
       const row = functionRows[i];
       if (!row.agency || !row.qty || !row.place) {
-        alert(
-          `Please fill all required fields (Agency, Qty, Place) in row ${i + 1}`
-        );
+        alert(`Please fill all required fields in row ${i + 1}`);
         return;
       }
     }
@@ -149,26 +149,16 @@ export default function SidebarRawMaterial({
       isExtraField: row.isExtraField || false,
     }));
 
-    const totalQty = enrichedRows.reduce((sum, row) => sum + row.qty, 0);
-    const totalPrice = enrichedRows.reduce((sum, row) => sum + row.price, 0);
-
     const dataToSave = {
       ...selectedRow,
-      finalQty: totalQty,
-      total: totalPrice,
       eventRawMaterialFunctions: enrichedRows,
-      id: selectedRow.id,
-      rawMaterialId: selectedRow.rawMaterialId || selectedRow.id,
     };
 
-    console.log("Data to save:", dataToSave);
-
-    if (onSave) {
-      onSave(dataToSave);
-    }
-
+    onSave?.(dataToSave);
     onClose();
   };
+
+  /* ---------- UI ---------- */
 
   return (
     <AnimatePresence>
@@ -182,138 +172,186 @@ export default function SidebarRawMaterial({
             onClick={onClose}
           />
 
-          <div className="absolute inset-0 pointer-events-none">
-            <motion.div
-              className="pointer-events-auto absolute top-6 bottom-6 right-6 w-[1200px] max-w-[95vw] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-              initial={{ x: "110%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "110%" }}
-            >
-              <div className="px-6 py-4 border-b flex items-center justify-between">
-                <div className="text-lg font-semibold">
-                  Raw Material Allocation
-                </div>
-                <button
-                  className="px-3 py-1 border rounded hover:bg-gray-50"
-                  onClick={onClose}
-                >
-                  Close
-                </button>
-              </div>
+          <motion.div
+            className="absolute top-6 bottom-6 right-6 w-[1200px] max-w-[95vw] bg-white rounded-2xl shadow-2xl flex flex-col"
+            initial={{ x: "110%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "110%" }}
+          >
+            {/* HEADER */}
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Raw Material Allocation</h2>
+              <button
+                className="px-3 py-1 border rounded hover:bg-gray-50"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
 
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="border rounded-xl overflow-hidden">
-                  <div className="grid grid-cols-9 gap-4 px-4 py-3 bg-gray-50 font-medium text-sm">
-                    <div>Sr.</div>
-                    <div>Function</div>
-                    <div>Item Name</div>
-                    <div>Agency</div>
-                    <div>Qty</div>
-                    <div>Unit</div>
-                    <div>Place</div>
-                    <div>Date & Time</div>
-                    <div>Price</div>
-                  </div>
+            {/* TABLE */}
+            <div className="p-2">
+              <div className="border rounded-xl overflow-x-auto ">
+                <table className="w-full border-collapse ">
+                  <thead className="bg-gray-100">
+                    <tr className="text-sm font-semibold text-gray-700">
+                      <th className="p-3 text-left">Sr.</th>
+                      <th className="p-3 text-left">Function</th>
+                      <th className="p-3 text-left">Item Name</th>
+                      <th className="p-3 text-left">Agency</th>
+                      <th className="p-3 text-left">Qty</th>
+                      <th className="p-3 text-left">Unit</th>
+                      <th className="p-3 text-left">Place</th>
+                      <th className="p-3 text-left">Date & Time</th>
+                      <th className="p-3 text-left">Price</th>
+                    </tr>
+                  </thead>
 
-                  {functionRows.map((row, idx) => (
-                    <div
-                      key={idx}
-                      className={`grid grid-cols-9 gap-4 px-4 py-4 border-t ${
-                        row.isExtraField ? "bg-yellow-50" : "hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center">{row.id}.</div>
-                      <div>
-                        <FieldLabel>{row.functionType || "-"}</FieldLabel>
-                      </div>
-                      <div>
-                        <FieldLabel>{row.menuItemName || "-"}</FieldLabel>
-                      </div>
-                      <div>
-                        <BaseSelect
-                          value={row.agency}
-                          onChange={(e) =>
-                            handleInputChange(idx, "agency", e.target.value)
-                          }
-                        >
-                          <option value="">Select Agency</option>
-                          <option value="Sahil">Sahil</option>
-                          <option value="Agency 2">Agency 2</option>
-                        </BaseSelect>
-                      </div>
-                      <div>
-                        <BaseInput
-                          type="number"
-                          value={row.qty}
-                          onChange={(e) =>
-                            handleInputChange(idx, "qty", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <BaseSelect
-                          value={row.unit}
-                          onChange={(e) =>
-                            handleInputChange(idx, "unit", e.target.value)
-                          }
-                        >
-                          <option value="Gram">Gram</option>
-                          <option value="Kilogram">Kilogram</option>
-                          <option value="Litre">Litre</option>
-                        </BaseSelect>
-                      </div>
-                      <div>
-                        <BaseSelect
-                          value={row.place}
-                          onChange={(e) =>
-                            handleInputChange(idx, "place", e.target.value)
-                          }
-                        >
-                          <option value="">Select</option>
-                          <option value="At Venue">At Venue</option>
-                          <option value="Godown">Godown</option>
-                        </BaseSelect>
-                      </div>
-                      <div>
-                        <DatePicker
-                          className="h-9 w-full text-sm"
-                          showTime
-                          value={row.dateTime}
-                          onChange={(date) =>
-                            handleInputChange(idx, "dateTime", date)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <BaseInput
-                          type="number"
-                          value={row.price}
-                          onChange={(e) =>
-                            handleInputChange(idx, "price", e.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                  <tbody>
+                    {functionRows.map((row, idx) => (
+                      <tr
+                        key={idx}
+                        className={`border-t align-top ${
+                          row.isExtraField ? "bg-yellow-50" : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <td className="p-3">{row.id}.</td>
 
-              <div className="px-6 py-4 border-t flex justify-between">
-                <button
-                  className="px-4 py-2 border rounded hover:bg-gray-50"
-                  onClick={onClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  onClick={handleSave}
-                >
-                  Save
-                </button>
+                        <td className="p-3">{row.functionType || "-"}</td>
+
+                        {/* ✅ FULL ITEM NAME */}
+                        <td className="p-3 text-sm text-gray-800 whitespace-normal break-words max-w-[320px]">
+                          {row.menuItemName || "-"}
+                        </td>
+
+                        <td className="p-3">
+                          <BaseSelect
+                            value={row.supplierId || ""}
+                            onChange={(e) => {
+                              const selectedSupplier = supplier.find(
+                                (s) => String(s.partyId) === e.target.value
+                              );
+
+                              handleInputChange(
+                                idx,
+                                "supplierId",
+                                selectedSupplier?.partyId || ""
+                              );
+                              handleInputChange(
+                                idx,
+                                "agency",
+                                selectedSupplier?.partyName || ""
+                              );
+                            }}
+                          >
+                            <option value="">Select Agency</option>
+
+                            {supplier.map((s) => (
+                              <option key={s.partyId} value={s.partyId}>
+                                {s.nameEnglish}
+                              </option>
+                            ))}
+                          </BaseSelect>
+                        </td>
+
+                        <td className="p-3 w-[90px]">
+                          <BaseInput
+                            type="number"
+                            className="text-center"
+                            value={row.qty}
+                            onChange={(e) =>
+                              handleInputChange(idx, "qty", e.target.value)
+                            }
+                          />
+                        </td>
+
+                        <td className="p-3 w-[130px]">
+                          <BaseSelect
+                            value={row.unitId || ""}
+                            onChange={(e) => {
+                              const selectedUnit = unit.find(
+                                (u) => String(u.unitId) === e.target.value
+                              );
+
+                              handleInputChange(
+                                idx,
+                                "unitId",
+                                selectedUnit?.unitId || ""
+                              );
+                              handleInputChange(
+                                idx,
+                                "unit",
+                                selectedUnit?.unitName || ""
+                              );
+                            }}
+                          >
+                            <option value="">Select Unit</option>
+
+                            {unit.map((u) => (
+                              <option key={u.unitId} value={u.unitId}>
+                                {u.nameEnglish}
+                              </option>
+                            ))}
+                          </BaseSelect>
+                        </td>
+
+                        <td className="p-3 w-[140px]">
+                          <BaseSelect
+                            value={row.place}
+                            onChange={(e) =>
+                              handleInputChange(idx, "place", e.target.value)
+                            }
+                          >
+                            <option value="">Select</option>
+                            <option value="At Venue">At Venue</option>
+                            <option value="Godown">Godown</option>
+                          </BaseSelect>
+                        </td>
+
+                        <td className="p-3 w-[200px]">
+                          <DatePicker
+                            className="h-9 w-full text-sm"
+                            showTime
+                            value={row.dateTime}
+                            onChange={(date) =>
+                              handleInputChange(idx, "dateTime", date)
+                            }
+                          />
+                        </td>
+
+                        <td className="p-3 w-[120px]">
+                          <BaseInput
+                            type="number"
+                            className="text-right"
+                            value={row.price}
+                            onChange={(e) =>
+                              handleInputChange(idx, "price", e.target.value)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </motion.div>
-          </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                className="px-4 py-2 border rounded hover:bg-gray-50"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={handleSave}
+              >
+                Save
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </AnimatePresence>

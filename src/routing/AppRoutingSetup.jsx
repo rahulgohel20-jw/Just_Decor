@@ -193,7 +193,7 @@ import SuperUnitMaster from "../pages/super-admin/master/unit";
 import PaymentHistory from "../pages/setting/paymenthistory";
 import InvoicePreview from "../components/superadminInvoice/InvoicePreview";
 import TemplateName from "../pages/super-admin/master/template-name";
-
+import TemplateMapping from "../pages/super-admin/master/Template-mapping";
 import MenuItemMaster from "../pages/master/MenuItemMaster";
 import InteractionMaster from "../pages/super-admin/master/interaction-master";
 import ExpenseDetails from "../pages/Event/ExpensePage";
@@ -375,6 +375,7 @@ const AppRoutingSetup = () => {
             path="/super-template-name-master"
             element={<TemplateName />}
           />
+          <Route path="/super-templateMapping" element={<TemplateMapping />} />
           <Route path="/interaction-master" element={<InteractionMaster />} />
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route

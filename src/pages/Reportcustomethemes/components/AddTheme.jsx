@@ -15,6 +15,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [templateOptions, setTemplateOptions] = useState([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [templateModule, setTemplateModule] = useState("");
 
   // Fetch template options when modal opens
   useEffect(() => {
@@ -30,31 +31,14 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       console.log("template", response);
 
       if (response?.data?.success && response?.data?.data) {
-        // Extract template names from the API response
-        // Adjust the mapping based on your actual API response structure
         const options = response.data.data.map((template) => ({
           id: template.id,
           name: template.nameEnglish || template.templateName || template.title,
         }));
         setTemplateOptions(options);
-      } else {
-        // Fallback to default options if API fails
-        setTemplateOptions([
-          { id: 1, name: "Birthday" },
-          { id: 2, name: "Wedding" },
-          { id: 3, name: "Festival" },
-          { id: 4, name: "Corporate" },
-        ]);
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
-      // Fallback to default options on error
-      setTemplateOptions([
-        { id: 1, name: "Birthday" },
-        { id: 2, name: "Wedding" },
-        { id: 3, name: "Festival" },
-        { id: 4, name: "Corporate" },
-      ]);
 
       Swal.fire({
         title: "Warning",
@@ -75,6 +59,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     if (templates.length === 0) err.templates = "Add at least 1 template";
     if (!nameplate) err.nameplate = "Add one nameplate image";
     if (!dummyPdf) err.dummyPdf = "Add dummy PDF";
+    if (!templateModule) err.templateModule = "Please select template module";
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -133,6 +118,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       formData.append("name", nameplateName);
       formData.append("templateModuleId", selectedTemplate?.id || 1);
       formData.append("userId", userId);
+      formData.append("templateModule", templateModule);
 
       // Add dummy PDF
       if (dummyPdf) {
@@ -393,7 +379,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
               ))}
 
               {/* Empty Slots */}
-              {[...Array(4 - templates.length)].map((_, i) => (
+              {[...Array(6 - templates.length)].map((_, i) => (
                 <div
                   key={`empty-${i}`}
                   className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center text-gray-400"
@@ -453,6 +439,28 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
               {errors.templateName && (
                 <div className="text-red-500 text-sm mt-1">
                   {errors.templateName}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Template Module
+              </label>
+              <select
+                value={templateModule}
+                onChange={(e) => setTemplateModule(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Template Module</option>
+                <option value="Menu">Menu</option>
+                <option value="Invoice">Invoice</option>
+                <option value="Report">Report</option>
+                <option value="Nameplate">Nameplate</option>
+              </select>
+
+              {errors.templateModule && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.templateModule}
                 </div>
               )}
             </div>

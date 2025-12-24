@@ -210,7 +210,7 @@ const ReportcustomeTheme = () => {
                         alt={theme.name}
                         className="w-full h-full object-cover object-center"
                         onError={(e) => {
-                          e.target.src = "/JCX/images/placeholder-image.png";
+                          e.target.src = "/images/placeholder-image.png";
                         }}
                       />
                     ) : (
