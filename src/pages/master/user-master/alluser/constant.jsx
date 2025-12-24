@@ -1,6 +1,12 @@
 import { Tooltip } from "antd";
 import AssignTheme from "../theme";
-export const columns = (onEdit, handleApprove, navigate, onThemeClick) => {
+export const columns = (
+  onEdit,
+  handleApprove,
+  navigate,
+  onThemeClick,
+  handleApproveOtp
+) => {
   return [
     {
       accessorKey: "userCode",
@@ -118,17 +124,9 @@ export const columns = (onEdit, handleApprove, navigate, onThemeClick) => {
           );
         }
 
-        const handleClick = async () => {
-          try {
-            await handleApprove(userId, true);
-          } catch (err) {
-            console.error("Approval failed", err);
-          }
-        };
-
         return (
           <button
-            onClick={handleClick}
+            onClick={() => handleApproveOtp(userId)}
             className="font-medium px-4 py-1 rounded text-white bg-blue-600"
           >
             Approve

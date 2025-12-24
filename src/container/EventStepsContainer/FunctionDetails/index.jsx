@@ -779,7 +779,7 @@ const FunctionsDetails = ({
             className="btn btn-primary btn-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Create New Function
+            <Plus size={16} /> Create New
           </button>
         </Tooltip>
       </div>

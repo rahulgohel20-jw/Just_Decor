@@ -24,12 +24,6 @@ export default function AllocateRowChef({ onAllocate }) {
       setVendors(data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
-
-      Swal.fire({
-        title: "Error",
-        text: "Failed to load vendors",
-        icon: "error",
-      });
     } finally {
       setLoading(false);
     }

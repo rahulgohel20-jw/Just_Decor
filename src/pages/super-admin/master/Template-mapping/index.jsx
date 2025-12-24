@@ -4,12 +4,12 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
-  GettemplatebyuserId,
-  Deletetemplatebyid,
+  GetAllThemeType,
+  DeleteThemeType,
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
-import AddTemplateName from "../../../../partials/modals/Template-modal/AddTemplateName";
+import TemplateType from "../../../../partials/modals/Theme-type/TemplateType";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
@@ -21,13 +21,14 @@ const TemplateMapping = () => {
   const intl = useIntl();
   const [rawOriginalData, setRawOriginalData] = useState([]);
 
-  let userId = localStorage.getItem("userId");
+  let userId = 0;
   let language = localStorage.getItem("lang");
 
   const FetchTemplateName = () => {
-    GettemplatebyuserId(userId)
+    GetAllThemeType(userId)
       .then((res) => {
         const templateList = res?.data?.data || [];
+
         setRawOriginalData(templateList);
       })
       .catch((error) => console.error(error));
@@ -39,23 +40,27 @@ const TemplateMapping = () => {
 
   useEffect(() => {
     const languageMap = {
-      en: "nameEnglish",
-      hi: "nameHindi",
-      gu: "nameGujarati",
+      en: "templateModuleNameEnglish",
+      hi: "templateModuleNameHindi",
+      gu: "templateModuleNameGujarati",
     };
 
-    const field = languageMap[language] || "nameEnglish";
+    const field = languageMap[language] || "templateModuleNameEnglish";
 
     // Apply Search Filter
     const filteredData = rawOriginalData.filter((item) =>
       item[field]?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    console.log(filteredData);
+
     const mapped = filteredData.map((item, index) => ({
       sr_no: index + 1,
       name: item[field] || "-",
+      templateModuleId: item.templateModuleId,
+      nameEnglish: item.nameEnglish,
       rawid: item.id,
-      createdAt: item.createdAt,
+      createdAt: item.nameEnglish || "-",
       status: item.isActive,
     }));
 
@@ -73,7 +78,7 @@ const TemplateMapping = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        Deletetemplatebyid(rawid)
+        DeleteThemeType(rawid)
           .then((response) => {
             if (response?.data?.success) {
               FetchTemplateName();
@@ -140,7 +145,7 @@ const TemplateMapping = () => {
           </button>
         </div>
 
-        <AddTemplateName
+        <TemplateType
           isOpen={isRawModalOpen}
           onClose={setIsRawModalOpen}
           refreshData={FetchTemplateName}

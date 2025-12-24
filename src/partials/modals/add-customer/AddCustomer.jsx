@@ -2,8 +2,9 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
 import Select from "react-select";
 import Swal from "sweetalert2";
-import axios from "axios";
 import {
+  AddCustomerapi,
+  EditCustomerApi,
   GetAllContactCategorybycontacttype,
   Translateapi,
 } from "@/services/apiServices";
@@ -19,35 +20,6 @@ const AddCustomer = ({
 }) => {
   if (!isModalOpen) return null;
   const intl = useIntl();
-
-  // Define API functions directly in the component
-  const getAuthHeaders = () => {
-    const token =
-      localStorage.getItem("token") || localStorage.getItem("authToken");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  const getBaseURL = () => {
-    // Try to get base URL from existing axios instance or use relative path
-    return "/v1/api";
-  };
-
-  const AddCustomerapi = (formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-        // Don't set Content-Type, let axios set it with boundary
-      },
-    });
-  };
-
-  const EditCustomerApi = (id, formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-  };
 
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);

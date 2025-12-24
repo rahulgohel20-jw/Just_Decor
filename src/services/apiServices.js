@@ -555,8 +555,8 @@ export const getAllByRoleId = () => {
   return GET(`/user/getallbyroleid?roleId=${2}`);
 };
 
-export const updateStatusApprove = (id) => {
-  return PUT(`/auth/isapproved?isApprove=true&userId=${id}`);
+export const updateStatusApprove = (otp, id) => {
+  return PUT(`/auth/isapproved?isApprove=true&otp=${otp}&userId=${id}`);
 };
 
 // Kitchen Area
@@ -1299,4 +1299,14 @@ export const DeleteAmc = (id) => {
 };
 export const GetAllExeculisveTheme = (Id) => {
   return GET(`/templatemaster/getallbymoduleid?moduleId=${Id}`);
+};
+export const AddThemeType = (data) => {
+  return POST("/templatemapping/addorupdate", data);
+};
+export const GetAllThemeType = (Id) => {
+  return GET(`/templatemapping/getall?template_module_id=${Id}`);
+};
+
+export const DeleteThemeType = (Id) => {
+  return DELETE(`/templatemapping/deletebyid?id=${Id}`);
 };

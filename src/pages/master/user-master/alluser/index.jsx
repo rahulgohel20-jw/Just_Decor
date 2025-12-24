@@ -6,9 +6,9 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
-import { getAllByRoleId, updateStatusApprove } from "@/services/apiServices";
+import { getAllByRoleId, LoginWithOtp } from "@/services/apiServices";
 import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
-
+import ApproveOtp from "../approveotp";
 const AllUser = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -18,6 +18,7 @@ const AllUser = () => {
   const [editingUserId, setEditingUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [selectedThemeUserId, setSelectedThemeUserId] = useState(null);
 
   const formatUsers = (users) => {
@@ -114,6 +115,27 @@ const AllUser = () => {
     setIsThemeModalOpen(true);
   };
 
+  const handleApproveOtp = async (userId) => {
+    try {
+      setLoading(true);
+      const mobile = 8866889580;
+      const res = await LoginWithOtp(mobile);
+
+      if (res?.data?.success) {
+        message.success("OTP sent successfully");
+        setSelectedThemeUserId(userId);
+        setIsOtpModalOpen(true);
+      } else {
+        message.error(res?.data?.msg || "Failed to send OTP");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Something went wrong while sending OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container>
       <div className="gap-2 pb-2 mb-3">
@@ -145,7 +167,8 @@ const AllUser = () => {
             handleEdit,
             handleApprove,
             navigate,
-            handleThemeClick
+            handleThemeClick,
+            handleApproveOtp
           )}
           data={filteredData}
           paginationSize={10}
@@ -158,6 +181,14 @@ const AllUser = () => {
         refreshData={handleFetchByRoleId}
         userId={editingUserId}
       />
+
+      <ApproveOtp
+        isModalOpen={isOtpModalOpen}
+        setIsModalOpen={setIsOtpModalOpen}
+        userId={selectedThemeUserId}
+        refreshData={handleFetchByRoleId}
+      />
+
       <AssignTheme
         isModalOpen={isThemeModalOpen}
         setIsModalOpen={setIsThemeModalOpen}

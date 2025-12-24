@@ -21,7 +21,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
   {
     accessorKey: "createdAt",
 
-    header: <FormattedMessage id="COMMON.NAME" defaultMessage="CreatedAt" />,
+    header: <FormattedMessage id="COMMON.NAME" defaultMessage="Theme" />,
     meta: {
       headerClassName: "w-[8%]",
       cellClassName: "w-[8%]",
