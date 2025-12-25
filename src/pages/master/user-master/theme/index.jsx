@@ -1,47 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { GetAllExeculisveTheme } from "@/services/apiServices";
-
-const themes = [
-  { id: 1, title: "Wedding Invitation", image: "/themes/theme1.jpg" },
-  { id: 2, title: "Groom & Bride", image: "/themes/theme2.jpg" },
-  { id: 3, title: "Classic Wedding", image: "/themes/theme3.jpg" },
-  { id: 4, title: "Traditional Invite", image: "/themes/theme4.jpg" },
-  { id: 5, title: "Royal Wedding", image: "/themes/theme5.jpg" },
-  { id: 6, title: "Modern Invite", image: "/themes/theme6.jpg" },
-];
-
-const nameplates = [
-  { id: 1, title: "Gold Nameplate", image: "/nameplates/nameplate1.jpg" },
-  { id: 2, title: "Silver Nameplate", image: "/nameplates/nameplate2.jpg" },
-  { id: 3, title: "Wooden Nameplate", image: "/nameplates/nameplate3.jpg" },
-  { id: 4, title: "Modern Nameplate", image: "/nameplates/nameplate4.jpg" },
-];
-
-const categories = [
-  { id: "all", label: "All Categories" },
-  { id: "traditional", label: "Traditional" },
-  { id: "modern", label: "Modern" },
-  { id: "classic", label: "Classic" },
-  { id: "royal", label: "Royal" },
-];
+import {
+  GettemplatebyuserId,
+  GetAllThemeByModuleId,
+  AssignThemeAdmin,
+} from "@/services/apiServices";
+import { EyeIcon } from "lucide-react";
+import Swal from "sweetalert2";
 
 const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
-  const [activeTab, setActiveTab] = useState("theme"); // 'theme' or 'nameplate'
+  const [activeTab, setActiveTab] = useState("theme");
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedNameplate, setSelectedNameplate] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [themes, setThemes] = useState([]);
+  const [nameplates, setNameplates] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [assignLoading, setAssignLoading] = useState(false);
 
-  const handleSave = () => {
-    if (activeTab === "theme" && !selectedTheme) return;
-    if (activeTab === "nameplate" && !selectedNameplate) return;
+  // Preview states
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewItem, setPreviewItem] = useState(null);
+  const [previewPage, setPreviewPage] = useState("frontPage");
 
-    console.log(
-      activeTab === "theme"
-        ? `Assign Theme: ${selectedTheme} to user: ${userId}`
-        : `Assign Nameplate: ${selectedNameplate} to user: ${userId}`
-    );
-    setIsModalOpen(false);
+  useEffect(() => {
+    if (isModalOpen && userId) {
+      fetchCategories();
+    }
+  }, [isModalOpen, userId]);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchThemesByCategory();
+    }
+  }, [selectedCategory, activeTab]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await GettemplatebyuserId(userId);
+
+      if (response?.data?.data) {
+        const fetchedCategories = response.data.data.map((item) => ({
+          id: item.id || item._id,
+          label: item.nameEnglish || item.title || item.category,
+        }));
+
+        setCategories(fetchedCategories);
+
+        if (fetchedCategories.length > 0) {
+          setSelectedCategory(fetchedCategories[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  let isNameplate = activeTab === "nameplate";
+
+  const fetchThemesByCategory = async () => {
+    try {
+      setLoadingItems(true);
+
+      const response = await GetAllThemeByModuleId(
+        isNameplate,
+        selectedCategory
+      );
+
+      if (response?.data) {
+        const items = response.data.data || response.data;
+
+        const mappedItems = items.map((item) => ({
+          id: item.id || item._id, // templateMasterId
+          title: item.name || item.nameEnglish,
+          frontPage: item.frontPage || "",
+          secondFrontPage: item.secondFrontPage || "",
+          watermark: item.watermark || "",
+          lastMainPage: item.lastMainPage || "",
+          templateMappingId: item?.templateMappingResponseDto?.id || 0,
+          templateModuleMasterId: item?.templateModuleMaster?.id || 0,
+        }));
+
+        isNameplate ? setNameplates(mappedItems) : setThemes(mappedItems);
+      }
+    } catch (error) {
+      console.error("Error fetching themes:", error);
+      isNameplate ? setNameplates([]) : setThemes([]);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSelectedTheme(null);
+    setSelectedNameplate(null);
   };
 
   const currentItems = activeTab === "theme" ? themes : nameplates;
@@ -50,129 +107,215 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
   const setSelectedItem =
     activeTab === "theme" ? setSelectedTheme : setSelectedNameplate;
 
+  const handleSave = async () => {
+    if (!selectedItem) return;
+
+    const selectedData = currentItems.find((item) => item.id === selectedItem);
+
+    if (!selectedData) return;
+
+    const payload = {
+      templateMappingId: selectedData.templateMappingId || 0,
+      templateMasterId: selectedData.id || 0,
+      templateModuleMasterId: selectedData.templateModuleMasterId || 0,
+      userId: userId,
+    };
+
+    try {
+      setAssignLoading(true);
+
+      const res = await AssignThemeAdmin(payload);
+      console.log(res);
+
+      if (res.data?.success === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Assigned Successfully",
+          text: `${
+            activeTab === "theme" ? "Theme" : "Nameplate"
+          } assigned to user successfully.`,
+          confirmButtonColor: "#3085d6",
+        });
+
+        setIsModalOpen(false);
+        setSelectedTheme(null);
+        setSelectedNameplate(null);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Assignment Failed",
+          text: "Something went wrong. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("AssignThemeAdmin failed:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Assignment Failed",
+        text: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setAssignLoading(false);
+    }
+  };
+
   return (
-    isModalOpen && (
-      <CustomModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Select Exclusive Design"
-        width={900}
-        footer={null}
-      >
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-4">
-          <button
-            onClick={() => setActiveTab("theme")}
-            className={`px-6 py-3 font-medium text-sm transition-colors relative
-              ${
-                activeTab === "theme"
-                  ? "text-white bg-primary border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }
-            `}
-          >
-            Themes
-          </button>
-          <button
-            onClick={() => setActiveTab("nameplate")}
-            className={`px-6 py-3 font-medium text-sm transition-colors relative
-              ${
-                activeTab === "nameplate"
-                  ? "text-white bg-primary border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }
-            `}
-          >
-            Nameplates
-          </button>
-        </div>
-
-        {/* Dropdown Filter */}
-        <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Filter by Theme
-          </label>
-          <select
-            id="category"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          >
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Content Grid */}
-        <div className="max-h-[55vh] overflow-y-auto px-1">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {currentItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedItem(item.id)}
-                className={`relative cursor-pointer rounded-lg border overflow-hidden group
-                  ${
-                    selectedItem === item.id
-                      ? "border-blue-600 ring-2 ring-blue-500"
-                      : "border-gray-200"
-                  }
-                `}
+    <>
+      {isModalOpen && (
+        <CustomModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Select Exclusive Design"
+          width={900}
+          footer={null}
+        >
+          {/* Tabs */}
+          <div className="flex border-b mb-4">
+            {["theme", "nameplate"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab)}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === tab ? "bg-primary text-white" : "text-gray-600"
+                }`}
               >
-                {/* Image */}
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">
-                    Choose {activeTab === "theme" ? "Template" : "Nameplate"}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <div className="p-2 text-center text-sm font-medium bg-white">
-                  {item.title}
-                </div>
-
-                {/* Selected Badge */}
-                {selectedItem === item.id && (
-                  <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                    Selected
-                  </div>
-                )}
-              </div>
+                {tab === "theme" ? "Themes" : "Nameplates"}
+              </button>
             ))}
           </div>
-        </div>
 
-        {/* Footer Buttons */}
-        <div className="flex justify-end gap-2 mt-6">
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            Cancel
-          </button>
+          {/* Category Filter */}
+          {activeTab === "theme" && (
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="mb-4 w-64 px-3 py-2 border rounded"
+              disabled={loading}
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          )}
 
-          <button
-            onClick={handleSave}
-            disabled={!selectedItem}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            Assign {activeTab === "theme" ? "Theme" : "Nameplate"}
-          </button>
-        </div>
-      </CustomModal>
-    )
+          {/* Grid */}
+          <div className="max-h-[55vh] overflow-y-auto">
+            {loadingItems ? (
+              <div className="h-60 flex items-center justify-center">
+                Loading...
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {currentItems.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() =>
+                      setSelectedItem(selectedItem === item.id ? null : item.id)
+                    }
+                    className={`relative border rounded-lg overflow-hidden cursor-pointer transition
+                      ${
+                        selectedItem === item.id
+                          ? "border-primary ring-2 ring-primary"
+                          : "border-gray-200"
+                      }
+                    `}
+                  >
+                    {/* Eye */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewItem(item);
+                        setPreviewPage("frontPage");
+                        setPreviewOpen(true);
+                      }}
+                      className="absolute top-2 left-2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100"
+                    >
+                      <EyeIcon className="text-primary w-4 h-4" />
+                    </button>
+
+                    {/* Selected ✔ */}
+                    {selectedItem === item.id && (
+                      <div className="absolute top-2 right-2 z-10 bg-success text-white rounded-full w-7 h-7 flex items-center justify-center shadow">
+                        ✔
+                      </div>
+                    )}
+
+                    <img
+                      src={item.frontPage}
+                      alt={item.title}
+                      className="w-full h-40 object-cover"
+                    />
+
+                    <div className="p-2 text-center text-sm font-medium bg-white">
+                      {item.title}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 border rounded"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleSave}
+              disabled={!selectedItem || assignLoading}
+              className="px-4 py-2 bg-primary text-white rounded disabled:opacity-60"
+            >
+              {assignLoading
+                ? "Assigning..."
+                : `Assign ${activeTab === "theme" ? "Theme" : "Nameplate"}`}
+            </button>
+          </div>
+        </CustomModal>
+      )}
+
+      {/* PREVIEW MODAL */}
+      {previewOpen && previewItem && (
+        <CustomModal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          title={`${previewItem.title} Preview`}
+          width={900}
+          footer={null}
+        >
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {["frontPage", "secondFrontPage", "watermark", "lastMainPage"].map(
+              (page) =>
+                previewItem[page] && (
+                  <button
+                    key={page}
+                    onClick={() => setPreviewPage(page)}
+                    className={`px-3 py-1 rounded text-sm ${
+                      previewPage === page ? "bg-primary text-white" : "border"
+                    }`}
+                  >
+                    {page.replace(/([A-Z])/g, " $1")}
+                  </button>
+                )
+            )}
+          </div>
+
+          <div className="bg-gray-100 p-4 rounded flex justify-center">
+            <img
+              src={previewItem[previewPage]}
+              alt="Preview"
+              className="max-h-[70vh] bg-white shadow object-contain"
+            />
+          </div>
+        </CustomModal>
+      )}
+    </>
   );
 };
 

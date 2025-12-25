@@ -26,15 +26,16 @@ export const columns = (
       meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
     },
     {
-      accessorKey: "fullName",
-      header: "Full Name",
-      meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
-    },
-    {
       accessorKey: "companyName",
       header: "Company",
-      meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
+      meta: { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
     },
+    {
+      accessorKey: "fullName",
+      header: "Full Name",
+      meta: { headerClassName: "w-[55%]", cellClassName: "w-[55%]" },
+    },
+
     {
       accessorKey: "contactNo",
       header: "Mobile Number",
