@@ -13,6 +13,7 @@ import {
   ReloadOutlined,
   DeleteOutlined,
   PlusOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { defaultData } from "../constant";
 import useMenuApi from "../hooks/useMenuApi";
@@ -24,6 +25,7 @@ import {
   Translateapi,
   UpdateMenuItem,
   deleteRawmatrialcatidInmenuitem,
+  GetRawmaterialItemByRecipe,
 } from "@/services/apiServices";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
@@ -43,6 +45,7 @@ const MenuDetailsForm = ({
 }) => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
+
   const { getRawMaterial, getCategories, getSubCategories } =
     useMenuApi(userId);
 
@@ -56,6 +59,7 @@ const MenuDetailsForm = ({
   const [isRawMaterialModalOpen, setIsRawMaterialModalOpen] = useState(false);
   const [isCopyRecipe, setIsCopyRecipe] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
 
   const {
     tableData,
@@ -188,6 +192,53 @@ const MenuDetailsForm = ({
     }
   }, [editData, form, setTableData]);
 
+  const SyncRawMaterial = async () => {
+    if (!editData?.id) {
+      message.warning("No menu item selected for sync");
+      return;
+    }
+
+    setLoadingItems(true);
+    try {
+      const res = await GetRawmaterialItemByRecipe(editData.id, userId, true);
+
+      console.log("Sync API Response:", res);
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.msg || "Failed to sync raw materials");
+      }
+
+      const rawMaterials = res?.data?.data?.menuItemRawMaterials || [];
+
+      const syncedItems = rawMaterials.map((rm, idx) => ({
+        sr_no: idx + 1,
+        menuRmId: rm.id,
+        rawMaterialId: rm.rawMaterial?.id,
+        name: rm.rawMaterial?.nameEnglish,
+        category: rm.rawMaterial?.rawMaterialCat?.nameEnglish,
+        weight: rm.weight,
+        unitId: rm.unit?.id,
+        unit: rm.unit?.nameEnglish,
+        supplierRate: rm.rawMaterial?.supplierRate,
+        rate: rm.rate,
+      }));
+
+      console.log("Synced Items:", syncedItems);
+
+      if (syncedItems.length > 0) {
+        setTableData(syncedItems);
+        message.success(`Successfully Synced Raw Materials`);
+      } else {
+        message.info("No raw materials found to sync");
+      }
+    } catch (error) {
+      console.error("Error syncing raw materials:", error);
+      message.error(error.message || "Failed to sync raw materials");
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
   const refreshData = async () => {
     try {
       const [rawRes, catRes] = await Promise.all([
@@ -198,10 +249,12 @@ const MenuDetailsForm = ({
       const rawData =
         rawRes?.data?.data?.["Raw Material Details"]?.map((item) => ({
           rawMaterialId: item.id,
+          category: item?.rawMaterialCat?.nameEnglish,
           name: item.nameEnglish,
           unitId: item.unit?.id,
           unit: item.unit?.nameEnglish,
           supplierRate: item.supplierRate,
+          unitHierarchy: item.unitHierarchy,
         })) || [];
       setRawmaterialList(rawData);
 
@@ -462,7 +515,6 @@ const MenuDetailsForm = ({
             <Input className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]" />
           </Form.Item>
         </div>
-
         {/* Slogan */}
         <div className="grid gap-4 md:grid-cols-3">
           <Form.Item
@@ -477,7 +529,6 @@ const MenuDetailsForm = ({
             <Input className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]" />
           </Form.Item>
         </div>
-
         {/* Price & Priority */}
         <div className="grid gap-4 md:grid-cols-2">
           <Form.Item
@@ -512,7 +563,6 @@ const MenuDetailsForm = ({
             />
           </Form.Item>
         </div>
-
         {/* Categories */}
         <div className="grid gap-4 md:grid-cols-2">
           <Form.Item
@@ -588,7 +638,6 @@ const MenuDetailsForm = ({
             </div>
           </Form.Item>
         </div>
-
         {/* Remarks */}
         <Form.Item
           label={
@@ -603,7 +652,6 @@ const MenuDetailsForm = ({
             className="bg-[#F8FAFC] hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
           />
         </Form.Item>
-
         {/* Image Upload */}
         <Form.Item
           label={
@@ -632,7 +680,6 @@ const MenuDetailsForm = ({
             </p>
           </Dragger>
         </Form.Item>
-
         {/* Custom file list */}
         {fileList.length > 0 && (
           <div className="space-y-2 mb-4">
@@ -682,7 +729,6 @@ const MenuDetailsForm = ({
             ))}
           </div>
         )}
-
         {/* URL */}
         <Form.Item
           label={
@@ -695,7 +741,6 @@ const MenuDetailsForm = ({
             className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
           />
         </Form.Item>
-
         {/* Raw Material List */}
         <div className="w-full">
           <div className="flex justify-between items-center">
@@ -811,7 +856,7 @@ const MenuDetailsForm = ({
           </div>
 
           {/* Search & Delete */}
-          <div className="flex flex-wrap items-center justify-end gap-2 mt-4 mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -823,67 +868,35 @@ const MenuDetailsForm = ({
               />
             </div>
 
-            {selectedRows.length > 0 && (
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                onClick={handleBulkDelete}
-                className="h-10 px-6 rounded-md"
-              >
-                Delete Selected ({selectedRows.length})
-              </Button>
-            )}
-          </div>
+            <div className="flex gap-2">
+              {selectedRows.length > 0 && (
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={handleBulkDelete}
+                  className="h-10 px-6 rounded-md"
+                >
+                  Delete Selected ({selectedRows.length})
+                </Button>
+              )}
 
-          {/* Table */}
-
-          {/* Footer Total */}
-          <div className="flex justify-between mt-4 text-lg font-medium text-[#6A7C94]">
-            <p>
-              Dish Costing :
-              <span className="text-primary ml-2">
-                {dishCosting.toFixed(2)}
-              </span>
-            </p>
-            <p>
-              Total Rate :
-              <span className="text-primary ml-2">{totalRate.toFixed(2)}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Footer buttons */}
-        <div className="flex justify-between gap-4 pt-4">
-          <Button
-            type="default"
-            onClick={handleCancel}
-            className="bg-white h-10 px-6 rounded-md hover:bg-primary"
-          >
-            Cancel
-          </Button>
-
-          <div className="flex gap-4">
-            <Button
-              type="primary"
-              onClick={handleNext}
-              className="bg-primary h-10 px-6 rounded-md hover:bg-primary"
-            >
-              Next
-            </Button>
-
-            <Button
-              type="primary"
-              className="bg-primary h-10 px-6 rounded-md hover:bg-primary w-[120px]"
-              onClick={() => {
-                setIsSaveOnly(true);
-                form.submit();
-              }}
-            >
-              {isEdit ? "Update" : "Save"}
-            </Button>
+              {isEdit && (
+                <Button
+                  loading={loadingItems}
+                  type="primary"
+                  icon={<SyncOutlined />}
+                  onClick={SyncRawMaterial}
+                  className="bg-primary h-10 px-6 rounded-md hover:bg-blue-700"
+                >
+                  Sync Raw Material
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </Form>
+
+      {/* Table */}
       <RawMaterialTable
         data={filteredTableData}
         onEditRow={handleEditRow}
@@ -891,6 +904,50 @@ const MenuDetailsForm = ({
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
       />
+      {/* Footer Total */}
+      <div className="flex justify-between mt-4 text-lg font-medium text-[#6A7C94]">
+        <p>
+          Dish Costing :
+          <span className="text-primary ml-2">{dishCosting.toFixed(2)}</span>
+        </p>
+        <p>
+          Total Rate :
+          <span className="text-primary ml-2">{totalRate.toFixed(2)}</span>
+        </p>
+      </div>
+
+      {/* Footer buttons */}
+      <div className="flex justify-between gap-4 pt-4">
+        <Button
+          type="default"
+          onClick={handleCancel}
+          className="bg-white h-10 px-6 rounded-md hover:bg-primary"
+        >
+          Cancel
+        </Button>
+
+        <div className="flex gap-4">
+          <Button
+            type="primary"
+            onClick={handleNext}
+            className="bg-primary h-10 px-6 rounded-md hover:bg-primary"
+          >
+            Next
+          </Button>
+
+          <Button
+            type="primary"
+            className="bg-primary h-10 px-6 rounded-md hover:bg-primary w-[120px]"
+            onClick={() => {
+              setIsSaveOnly(true);
+              form.submit();
+            }}
+          >
+            {isEdit ? "Update" : "Save"}
+          </Button>
+        </div>
+      </div>
+
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}

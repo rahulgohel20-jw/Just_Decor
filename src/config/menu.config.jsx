@@ -134,6 +134,7 @@ export const allMenuItems = [
         ),
         path: "/master/custom-package",
       },
+
       {
         title: (
           <FormattedMessage id="COMMON.SIDEBAR_USERS" defaultMessage="Users" />
@@ -275,6 +276,16 @@ export const allMenuItems = [
   //     },
   //   ],
   // },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.CUSTOM_THEMES"
+        defaultMessage="Custom Themes"
+      />
+    ),
+    icon: "ki-filled ki-color-swatch text-primary",
+    path: "/adminreportcustomtheme",
+  },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "  text-lg ki-filled ki-graph-up text-primary",

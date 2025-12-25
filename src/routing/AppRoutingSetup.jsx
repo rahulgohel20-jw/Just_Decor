@@ -205,6 +205,7 @@ import ConfigMenuItemPage from "../pages/Configuration/Menu-Item-Allocation/Conf
 import { Allocatesupplier } from "../pages/Configuration/Allocate-supplier/Allocatesupplier";
 import ReportsConfig from "../pages/Reports/ReportsConfig";
 import ReportLabelConfiguration from "../pages/Reports/ReportLabelConfiguration";
+import AdminReportCustomThem from "../pages/master/AdminReportCustomTheme";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -310,6 +311,10 @@ const AppRoutingSetup = () => {
           <Route path="/report-themes" element={<ReportThemes />} />
           <Route path="/report-themes/editor" element={<Editor />} />
           <Route path="/reportcustomethemes" element={<ReportCustomTheme />} />
+          <Route
+            path="/adminreportcustomtheme"
+            element={<AdminReportCustomThem />}
+          />
           <Route
             path="/super-reportcustomethemes"
             element={<ReportCustomTheme />}

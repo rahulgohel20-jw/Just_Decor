@@ -7,7 +7,7 @@ import { GetAllItemByType } from "@/services/apiServices";
 
 // Tab configuration
 const TABS = [
-  { id: "chef", label: "Chef Labour" },
+  { id: "cheflabour", label: "Chef Labour" },
   { id: "outside", label: "Outsource Agency" },
   { id: "inside", label: "Inside Kitchen" },
 ];
@@ -18,7 +18,7 @@ export default function AgencyAllocationSidebar({
   eventId,
   eventFunctionId,
 }) {
-  const [tab, setTab] = useState("chef");
+  const [tab, setTab] = useState("cheflabour");
   const [loading, setLoading] = useState(false);
   const [allocationData, setAllocationData] = useState(null);
 
@@ -124,7 +124,7 @@ export default function AgencyAllocationSidebar({
     }
 
     switch (tab) {
-      case "chef":
+      case "cheflabour":
         return <ChefLabourSection data={allocationData} close={onClose} />;
       case "outside":
         return <OutsideAgencySection data={allocationData} close={onClose} />;

@@ -1066,9 +1066,9 @@ export const SuperAdminDashboardTotalUserAndPlan = () => {
   return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
 };
 
-export const GetRawmaterialItemByRecipe = (menuId, id) => {
+export const GetRawmaterialItemByRecipe = (menuId, id, isSync) => {
   return GET(
-    `/menuitems/getmenuitemrawmaterialbymenuid?menuItemId=${menuId}&userId=${id}`
+    `/menuitems/getmenuitemrawmaterialbymenuid?isSync=${isSync}&menuItemId=${menuId}&userId=${id}`
   );
 };
 
@@ -1294,6 +1294,11 @@ export const GetAllItemByType = (eventFunctionId, eventId, type) => {
 export const GetAllCustomTheme = () => {
   return GET(`/templatemaster/getall`);
 };
+
+export const GetAllCustomThemeByUserId = (Id) => {
+  return GET(`/admintemplatemodule/getall?userId=${Id}`);
+};
+
 export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
 };
@@ -1321,6 +1326,16 @@ export const DeleteThemeType = (Id) => {
 
 export const DeleteRefund = (id) => {
   return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
+};
+
+export const GetAllThemeByModuleId = (namePlate, Id) => {
+  return GET(
+    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}`
+  );
+};
+
+export const AssignThemeAdmin = (data) => {
+  return POST("/admintemplatemodule/add", data);
 };
 
 

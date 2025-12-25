@@ -2,12 +2,12 @@ import { useState, Fragment, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddTheme from "./components/AddTheme";
-import { GetAllCustomTheme } from "@/services/apiServices";
+import { GetAllCustomThemeByUserId } from "@/services/apiServices";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import { toAbsoluteUrl } from "@/utils";
 
-const ReportcustomeTheme = () => {
+const AdminReportCustomThem = () => {
   const [showMore, setShowMore] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -32,11 +32,32 @@ const ReportcustomeTheme = () => {
   const fetchTemplates = async (userId) => {
     setIsLoading(true);
     try {
-      const response = await GetAllCustomTheme(userId);
+      const response = await GetAllCustomThemeByUserId(userId);
       console.log("customeTheme", response);
 
       if (response?.data?.success && response?.data?.data) {
-        setTemplateList(response.data.data);
+        // Map the response to extract templateMaster data
+        const mappedData = response.data.data.map((item) => ({
+          id: item.id,
+          userId: item.userId,
+          name: item.templateMaster?.name,
+          frontPage: item.templateMaster?.frontPage,
+          secondFrontPage: item.templateMaster?.secondFrontPage,
+          watermark: item.templateMaster?.watermark,
+          lastMainPage: item.templateMaster?.lastMainPage,
+          isNamePlate: item.templateMaster?.isNamePlate,
+          namePlateBg: item.templateMaster?.namePlateBg,
+          nameplateName: item.templateMaster?.nameplateName,
+          dummyPdf: item.templateMaster?.dummyPdf,
+          headingFontColor: item.templateMaster?.headingFontColor,
+          contentFontColor: item.templateMaster?.contentFontColor,
+          templateModuleMaster:
+            item.templateModuleMaster ||
+            item.templateMaster?.templateModuleMaster,
+          isActive: item.templateMaster?.isActive,
+          createdAt: item.createdAt,
+        }));
+        setTemplateList(mappedData);
       } else {
         setTemplateList([]);
       }
@@ -114,25 +135,6 @@ const ReportcustomeTheme = () => {
       <Container className="flex flex-col min-h-screen">
         <div className="pb-4 mb-3 border-b border-gray-200">
           <Breadcrumbs items={[{ title: "Menu Report Themes" }]} />
-          <p className="text-sm text-gray-500 mt-1">
-            Discover unique designs, crafted for your reports.
-          </p>
-
-          <div className="flex justify-end gap-3 mt-3">
-            <button
-              className="flex items-center gap-2 bg-[#005BA8] text-white px-5 py-1 shadow hover:bg-[#008B5A] transition"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
-            >
-              <img
-                src={`${import.meta.env.BASE_URL}images/pushicon.png`}
-                alt="icon"
-                className="inline-block w-5 h-5"
-              />
-              Add Theme
-            </button>
-          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -193,47 +195,15 @@ const ReportcustomeTheme = () => {
         ) : currentTemplates.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+              <img
+                src={toAbsoluteUrl("/images/nofound.jpg")}
+                className="dark:hidden max-h-[230px]"
+                alt=""
+              />
+
               <h3 className="mt-2 text-sm font-medium text-gray-900">
                 No {activeTab === "theme" ? "themes" : "nameplates"} found
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Get started by creating a new{" "}
-                {activeTab === "theme" ? "theme" : "nameplate"}.
-              </p>
-              <div className="mt-6">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#005BA8] hover:bg-[#004C8C]"
-                >
-                  <svg
-                    className="-ml-1 mr-2 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Add {activeTab === "theme" ? "Theme" : "Nameplate"}
-                </button>
-              </div>
             </div>
           </div>
         ) : (
@@ -276,8 +246,6 @@ const ReportcustomeTheme = () => {
                     </button>
                   )}
 
-                  {/* Badge for type */}
-
                   <div className="h-[250px] w-full overflow-hidden bg-gray-100">
                     {/* Display namePlateBg for nameplates, frontPage for themes */}
                     {activeTab === "nameplate" && theme.namePlateBg ? (
@@ -285,12 +253,18 @@ const ReportcustomeTheme = () => {
                         src={getFullImageUrl(theme.namePlateBg)}
                         alt={theme.nameplateName || theme.name}
                         className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          e.target.src = "/images/placeholder-image.png";
+                        }}
                       />
                     ) : theme.frontPage ? (
                       <img
                         src={getFullImageUrl(theme.frontPage)}
                         alt={theme.name}
                         className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          e.target.src = "/images/placeholder-image.png";
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -396,14 +370,8 @@ const ReportcustomeTheme = () => {
           </div>
         </div>
       )}
-
-      <AddTheme
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        refreshData={refreshTemplates}
-      />
     </Fragment>
   );
 };
 
-export default ReportcustomeTheme;
+export default AdminReportCustomThem;
