@@ -44,7 +44,7 @@ const CopyRecipe = ({ isOpen, onClose, onCopy }) => {
   const fetchRecipeItems = async (recipeId) => {
     setLoadingItems(true);
     try {
-      const res = await GetRawmaterialItemByRecipe(recipeId, userId);
+      const res = await GetRawmaterialItemByRecipe(recipeId, userId, false);
 
       const list = res?.data?.data?.menuItemRawMaterials || [];
 
