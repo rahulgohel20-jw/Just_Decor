@@ -4,6 +4,8 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddTheme from "./components/AddTheme";
 import { GetAllCustomTheme } from "@/services/apiServices";
+import { useRef } from "react";
+import Swal from "sweetalert2";
 
 const ReportcustomeTheme = () => {
   const [showMore, setShowMore] = useState(false);
@@ -13,13 +15,19 @@ const ReportcustomeTheme = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("theme"); // 'theme' or 'nameplate'
 
   const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
+
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    if (!userId || hasFetched.current) return;
+
+    hasFetched.current = true;
     fetchTemplates(userId);
-  }, []);
+  }, [userId]);
 
   const fetchTemplates = async (userId) => {
     setIsLoading(true);
@@ -51,7 +59,21 @@ const ReportcustomeTheme = () => {
     return `${baseUrl}${path}`;
   };
 
-  const displayedThemes = showMore ? templateList : templateList.slice(0, 8);
+  // Filter templates based on active tab
+  const themeTemplates = templateList.filter(
+    (template) => template.isNamePlate === false || template.isNamePlate === 0
+  );
+  const nameplateTemplates = templateList.filter(
+    (template) => template.isNamePlate === true || template.isNamePlate === 1
+  );
+
+  // Get current templates based on active tab
+  const currentTemplates =
+    activeTab === "theme" ? themeTemplates : nameplateTemplates;
+
+  const displayedThemes = showMore
+    ? currentTemplates
+    : currentTemplates.slice(0, 8);
 
   const openPDF = (theme) => {
     if (!theme.dummyPdf) {
@@ -113,6 +135,54 @@ const ReportcustomeTheme = () => {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-200 mb-6">
+          <button
+            onClick={() => {
+              setActiveTab("theme");
+              setShowMore(false); // Reset show more when switching tabs
+            }}
+            className={`px-6 py-3 font-medium text-sm transition-colors relative ${
+              activeTab === "theme"
+                ? "text-[#005BA8] border-b-2 border-[#005BA8]"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Themes
+            <span
+              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                activeTab === "theme"
+                  ? "bg-[#005BA8] text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+            >
+              {themeTemplates.length}
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("nameplate");
+              setShowMore(false); // Reset show more when switching tabs
+            }}
+            className={`px-6 py-3 font-medium text-sm transition-colors relative ${
+              activeTab === "nameplate"
+                ? "text-[#005BA8] border-b-2 border-[#005BA8]"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Nameplates
+            <span
+              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                activeTab === "nameplate"
+                  ? "bg-[#005BA8] text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+            >
+              {nameplateTemplates.length}
+            </span>
+          </button>
+        </div>
+
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -120,7 +190,7 @@ const ReportcustomeTheme = () => {
               <p className="text-gray-600">Loading templates...</p>
             </div>
           </div>
-        ) : templateList.length === 0 ? (
+        ) : currentTemplates.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <svg
@@ -138,10 +208,11 @@ const ReportcustomeTheme = () => {
                 />
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No templates found
+                No {activeTab === "theme" ? "themes" : "nameplates"} found
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating a new template.
+                Get started by creating a new{" "}
+                {activeTab === "theme" ? "theme" : "nameplate"}.
               </p>
               <div className="mt-6">
                 <button
@@ -160,7 +231,7 @@ const ReportcustomeTheme = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add Theme
+                  Add {activeTab === "theme" ? "Theme" : "Nameplate"}
                 </button>
               </div>
             </div>
@@ -173,38 +244,52 @@ const ReportcustomeTheme = () => {
                   key={theme.id || index}
                   className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                 >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openPDF(theme);
-                    }}
-                    className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition z-10"
-                    title="View PDF"
-                    disabled={!theme.dummyPdf}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                  {/* PDF View Button - Only show for themes with PDF */}
+                  {theme.dummyPdf && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPDF(theme);
+                      }}
+                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition z-10"
+                      title="View PDF"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Badge for type */}
 
                   <div className="h-[250px] w-full overflow-hidden bg-gray-100">
-                    {theme.frontPage ? (
+                    {/* Display namePlateBg for nameplates, frontPage for themes */}
+                    {activeTab === "nameplate" && theme.namePlateBg ? (
+                      <img
+                        src={getFullImageUrl(theme.namePlateBg)}
+                        alt={theme.nameplateName || theme.name}
+                        className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          e.target.src = "/images/placeholder-image.png";
+                        }}
+                      />
+                    ) : theme.frontPage ? (
                       <img
                         src={getFullImageUrl(theme.frontPage)}
                         alt={theme.name}
@@ -234,12 +319,14 @@ const ReportcustomeTheme = () => {
 
                   <div className="px-5 py-4 text-center bg-white">
                     <h3 className="text-[17px] font-semibold text-[#002D62] leading-snug tracking-wide">
-                      {theme.name}
+                      {activeTab === "nameplate"
+                        ? theme.nameplateName || theme.name
+                        : theme.name}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
                       {theme.templateModuleMaster?.nameEnglish || "N/A"}
                     </p>
-                    {!theme.dummyPdf && (
+                    {!theme.dummyPdf && activeTab === "theme" && (
                       <span className="inline-block mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
                         No PDF Available
                       </span>
@@ -249,7 +336,7 @@ const ReportcustomeTheme = () => {
               ))}
             </div>
 
-            {templateList.length > 8 && (
+            {currentTemplates.length > 8 && (
               <div className="flex justify-center mt-8">
                 <button
                   onClick={() => setShowMore(!showMore)}
@@ -263,7 +350,6 @@ const ReportcustomeTheme = () => {
         )}
       </Container>
 
-      {/* PDF Viewer Modal */}
       {/* PDF Viewer Modal */}
       {selectedTheme && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
