@@ -1326,3 +1326,13 @@ export const DeleteThemeType = (Id) => {
 export const DeleteRefund = (id) => {
   return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
 };
+
+export const GetAllThemeByModuleId = (namePlate, Id) => {
+  return GET(
+    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}`
+  );
+};
+
+export const AssignThemeAdmin = (data) => {
+  return POST("/admintemplatemodule/add", data);
+};
