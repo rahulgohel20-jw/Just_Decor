@@ -462,7 +462,6 @@ const MenuDetailsForm = ({
             <Input className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]" />
           </Form.Item>
         </div>
-
         {/* Slogan */}
         <div className="grid gap-4 md:grid-cols-3">
           <Form.Item
@@ -477,7 +476,6 @@ const MenuDetailsForm = ({
             <Input className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]" />
           </Form.Item>
         </div>
-
         {/* Price & Priority */}
         <div className="grid gap-4 md:grid-cols-2">
           <Form.Item
@@ -512,7 +510,6 @@ const MenuDetailsForm = ({
             />
           </Form.Item>
         </div>
-
         {/* Categories */}
         <div className="grid gap-4 md:grid-cols-2">
           <Form.Item
@@ -588,7 +585,6 @@ const MenuDetailsForm = ({
             </div>
           </Form.Item>
         </div>
-
         {/* Remarks */}
         <Form.Item
           label={
@@ -603,7 +599,6 @@ const MenuDetailsForm = ({
             className="bg-[#F8FAFC] hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
           />
         </Form.Item>
-
         {/* Image Upload */}
         <Form.Item
           label={
@@ -632,7 +627,6 @@ const MenuDetailsForm = ({
             </p>
           </Dragger>
         </Form.Item>
-
         {/* Custom file list */}
         {fileList.length > 0 && (
           <div className="space-y-2 mb-4">
@@ -682,7 +676,6 @@ const MenuDetailsForm = ({
             ))}
           </div>
         )}
-
         {/* URL */}
         <Form.Item
           label={
@@ -695,7 +688,6 @@ const MenuDetailsForm = ({
             className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
           />
         </Form.Item>
-
         {/* Raw Material List */}
         <div className="w-full">
           <div className="flex justify-between items-center">
@@ -834,56 +826,10 @@ const MenuDetailsForm = ({
               </Button>
             )}
           </div>
-
-          {/* Table */}
-
-          {/* Footer Total */}
-          <div className="flex justify-between mt-4 text-lg font-medium text-[#6A7C94]">
-            <p>
-              Dish Costing :
-              <span className="text-primary ml-2">
-                {dishCosting.toFixed(2)}
-              </span>
-            </p>
-            <p>
-              Total Rate :
-              <span className="text-primary ml-2">{totalRate.toFixed(2)}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Footer buttons */}
-        <div className="flex justify-between gap-4 pt-4">
-          <Button
-            type="default"
-            onClick={handleCancel}
-            className="bg-white h-10 px-6 rounded-md hover:bg-primary"
-          >
-            Cancel
-          </Button>
-
-          <div className="flex gap-4">
-            <Button
-              type="primary"
-              onClick={handleNext}
-              className="bg-primary h-10 px-6 rounded-md hover:bg-primary"
-            >
-              Next
-            </Button>
-
-            <Button
-              type="primary"
-              className="bg-primary h-10 px-6 rounded-md hover:bg-primary w-[120px]"
-              onClick={() => {
-                setIsSaveOnly(true);
-                form.submit();
-              }}
-            >
-              {isEdit ? "Update" : "Save"}
-            </Button>
-          </div>
-        </div>
+        </div>{" "}
       </Form>
+
+      {/* Table */}
       <RawMaterialTable
         data={filteredTableData}
         onEditRow={handleEditRow}
@@ -891,6 +837,50 @@ const MenuDetailsForm = ({
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
       />
+      {/* Footer Total */}
+      <div className="flex justify-between mt-4 text-lg font-medium text-[#6A7C94]">
+        <p>
+          Dish Costing :
+          <span className="text-primary ml-2">{dishCosting.toFixed(2)}</span>
+        </p>
+        <p>
+          Total Rate :
+          <span className="text-primary ml-2">{totalRate.toFixed(2)}</span>
+        </p>
+      </div>
+
+      {/* Footer buttons */}
+      <div className="flex justify-between gap-4 pt-4">
+        <Button
+          type="default"
+          onClick={handleCancel}
+          className="bg-white h-10 px-6 rounded-md hover:bg-primary"
+        >
+          Cancel
+        </Button>
+
+        <div className="flex gap-4">
+          <Button
+            type="primary"
+            onClick={handleNext}
+            className="bg-primary h-10 px-6 rounded-md hover:bg-primary"
+          >
+            Next
+          </Button>
+
+          <Button
+            type="primary"
+            className="bg-primary h-10 px-6 rounded-md hover:bg-primary w-[120px]"
+            onClick={() => {
+              setIsSaveOnly(true);
+              form.submit();
+            }}
+          >
+            {isEdit ? "Update" : "Save"}
+          </Button>
+        </div>
+      </div>
+
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}

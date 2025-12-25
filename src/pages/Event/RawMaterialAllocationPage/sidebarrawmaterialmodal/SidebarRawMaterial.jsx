@@ -38,7 +38,6 @@ export default function SidebarRawMaterial({
   const [unit, setUnit] = useState([]);
   const [supplier, setSupplier] = useState([]);
   let userId = localStorage.getItem("userId");
-  console.log(selectedRow);
 
   useEffect(() => {
     if (selectedRow && open) {
@@ -87,6 +86,26 @@ export default function SidebarRawMaterial({
   }, [open]);
 
   useEffect(() => {
+    if (!unit.length || !functionRows.length) return;
+
+    setFunctionRows((prev) =>
+      prev.map((row) => {
+        if (!row.unitId) return row;
+
+        const matchedUnit = unit.find((u) => u.id === row.unitId);
+
+        if (!matchedUnit) return row;
+
+        return {
+          ...row,
+          unitId: matchedUnit.id,
+          unit: matchedUnit.nameEnglish,
+        };
+      })
+    );
+  }, [unit]);
+
+  useEffect(() => {
     FetchUnit();
     FetchSupplier();
   }, []);
@@ -94,7 +113,6 @@ export default function SidebarRawMaterial({
   const FetchUnit = async () => {
     try {
       const data = await GetUnitData(userId);
-      console.log(data);
 
       setUnit(data?.data?.data["Unit Details"] || []);
     } catch (error) {
@@ -229,25 +247,25 @@ export default function SidebarRawMaterial({
                             value={row.supplierId || ""}
                             onChange={(e) => {
                               const selectedSupplier = supplier.find(
-                                (s) => String(s.partyId) === e.target.value
+                                (s) => s.id === parseInt(e.target.value)
                               );
 
                               handleInputChange(
                                 idx,
                                 "supplierId",
-                                selectedSupplier?.partyId || ""
+                                selectedSupplier?.id || ""
                               );
                               handleInputChange(
                                 idx,
                                 "agency",
-                                selectedSupplier?.partyName || ""
+                                selectedSupplier?.nameEnglish || "" //
                               );
                             }}
                           >
                             <option value="">Select Agency</option>
 
                             {supplier.map((s) => (
-                              <option key={s.partyId} value={s.partyId}>
+                              <option key={s.id} value={s.id}>
                                 {s.nameEnglish}
                               </option>
                             ))}
@@ -270,25 +288,25 @@ export default function SidebarRawMaterial({
                             value={row.unitId || ""}
                             onChange={(e) => {
                               const selectedUnit = unit.find(
-                                (u) => String(u.unitId) === e.target.value
+                                (u) => u.id === parseInt(e.target.value) // ✅ Parse to number
                               );
 
                               handleInputChange(
                                 idx,
                                 "unitId",
-                                selectedUnit?.unitId || ""
+                                selectedUnit?.id || ""
                               );
                               handleInputChange(
                                 idx,
                                 "unit",
-                                selectedUnit?.unitName || ""
+                                selectedUnit?.nameEnglish || ""
                               );
                             }}
                           >
                             <option value="">Select Unit</option>
 
                             {unit.map((u) => (
-                              <option key={u.unitId} value={u.unitId}>
+                              <option key={u.id} value={u.id}>
                                 {u.nameEnglish}
                               </option>
                             ))}

@@ -24,14 +24,14 @@ export default function SelectMenureport({
   const [hoveredCard, setHoveredCard] = useState(null);
   const tabs = [
     {
-      key: "exclusive",
-      label: "Exclusive Reports",
-      img: "/media/icons/Exclusive-Reports.png",
-    },
-    {
       key: "simple",
       label: "Simple Reports",
       img: "/media/icons/simple.png",
+    },
+    {
+      key: "exclusive",
+      label: "Exclusive Reports",
+      img: "/media/icons/Exclusive-Reports.png",
     },
     {
       key: "backoffice",
@@ -72,9 +72,7 @@ export default function SelectMenureport({
       },
     ],
   };
-
-  const [activeTab, setActiveTab] = useState("exclusive");
-
+  const [activeTab, setActiveTab] = useState("simple");
   useEffect(() => {
     const fetchEventData = async () => {
       if (!finalEventId) return;
@@ -95,36 +93,6 @@ export default function SelectMenureport({
 
     fetchEventData();
   }, [finalEventId]);
-
-  const cards = [
-    {
-      key: "menuAllocation",
-      label: "Exclusive Report",
-      description: "Detailed allocation with full breakdown",
-      icon: "media/icons/menuselect1.png",
-      color: "from-blue-500 to-blue-600",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      key: "rawMaterial",
-      label: "Simple Report",
-      description: "Quick overview of raw materials",
-      icon: "media/icons/menuselect2.png",
-      color: "from-blue-500 to-blue-600",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-    },
-    {
-      key: "menuReport",
-      label: "Menu Report",
-      description: "Complete menu details and analysis",
-      icon: "media/icons/menuselect3.png",
-      color: "from-blue-500 to-blue-600",
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-  ];
 
   return (
     <CustomModal
@@ -252,18 +220,18 @@ export default function SelectMenureport({
                   <p className="text-sm text-gray-500 text-left">
                     {item.description}
                   </p>
-          {/* Centered Button */}
-          <div className="flex justify-center mt-6">
-            <button
-              className="btn btn-primary px-6 py-2 rounded-lg"
-              onClick={() => {
-                console.log("Generate Report clicked");
-                // Your click handler here
-              }}
-            >
-              Generate Report
-            </button>
-          </div>
+                  {/* Centered Button */}
+                  <div className="flex justify-center mt-6">
+                    <button
+                      className="btn btn-primary px-6 py-2 rounded-lg"
+                      onClick={() => {
+                        console.log("Generate Report clicked");
+                        // Your click handler here
+                      }}
+                    >
+                      Generate Report
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -271,7 +239,6 @@ export default function SelectMenureport({
         </div>
 
         {/* Help Text */}
-       
       </div>
     </CustomModal>
   );
