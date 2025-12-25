@@ -889,7 +889,25 @@
   "COMMON.LOADING": "  लोड हो रहा है...",
   "HELP.QUICK_HELP": " त्वरित सहायता",
   "HELP.CONTACT_WHATSAPP": " व्हाट्सएप पर संपर्क करें",
-  "HELP.REQUEST_CALLBACK": "कॉल बैक का अनुरोध करें"
+  "HELP.REQUEST_CALLBACK": "कॉल बैक का अनुरोध करें",
+
+
+  "INVOICE.SR_NO": "एसआर नं#",
+  "INVOICE.CUSTOMER_NAME": "कस्टमर नेम",
+  "INVOICE.EVENT_NAME": "इवेंट नेम",
+  "INVOICE.EVENT_DATE": "इवेंट डेट",
+  "INVOICE.BALANCE_DUE": "बैलेंस ड्यू",
+  "FORM.FROM_TYPE": "फ्रॉम टाइप",
+  "FORM.TO_TYPE": "टू टाइप",
+  
+  "TABLE.SR_NO": "सीरियल नंबर",
+  "TABLE.CLIENT_NAME": "क्लाइंट नेम",
+  "TABLE.EVENT_NAME": "इवेंट नेम",
+  "TABLE.EVENT_DATE_TIME": "इवेंट डेट और टाइम",
+  "TABLE.VENUE": "वेन्यू",
+  "TABLE.STATUS": "स्टेटस"
+
+
 
 
 

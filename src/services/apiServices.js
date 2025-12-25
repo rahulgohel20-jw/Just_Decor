@@ -87,6 +87,7 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
+
 export const GetAllContactCategorybycontacttype = (concatId, Id) => {
   return GET(
     `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`
@@ -1321,3 +1322,9 @@ export const DeleteThemeType = (Id) => {
 export const DeleteRefund = (id) => {
   return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
 };
+
+
+export const Updatemenuitemallocationconfig = (data) => {
+  return PUT(`/menuitems/updatemenuallocation`, data);
+}
+

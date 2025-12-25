@@ -876,7 +876,25 @@
 
   "COMMON.APPLY": "એપ્લાય ",
   "COMMON.CONTACT_WHATSAPP": "વોટ્સએપ પર સંપર્ક કરો ",
-  "COMMON.REQUEST_CALLBACK": "કોલબૅક રિક્વેસ્ટ "
+  "COMMON.REQUEST_CALLBACK": "કોલબૅક રિક્વેસ્ટ ",
+
+
+
+  "INVOICE.SR_NO": "એસ.આર. નં#",
+  "INVOICE.CUSTOMER_NAME": "કસ્ટમર નેમ",
+  "INVOICE.EVENT_NAME": "ઇવેન્ટ નેમ",
+  "INVOICE.EVENT_DATE": "ઇવેન્ટ તારીખ",
+  "INVOICE.BALANCE_DUE": "બેલેન્સ ડ્યુ",
+  "FORM.FROM_TYPE": "ફ્રોમ ટાઇપ",
+  "FORM.TO_TYPE": "ટુ ટાઇપ",
+  
+  "TABLE.SR_NO": "સીરિયલ નંબર",
+  "TABLE.CLIENT_NAME": "ક્લાયન્ટ નેમ",
+  "TABLE.EVENT_NAME": "ઇવેન્ટ નેમ",
+  "TABLE.EVENT_DATE_TIME": "ઇવેન્ટ તારીખ અને સમય",
+  "TABLE.VENUE": "વેન્યુ",
+  "TABLE.STATUS": "સ્ટેટસ"
+
 
 
 
