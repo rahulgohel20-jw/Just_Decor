@@ -1294,6 +1294,10 @@ export const GetAllCustomTheme = () => {
   return GET(`/templatemaster/getall`);
 };
 
+export const GetAllCustomThemeByUserId = (Id) => {
+  return GET(`/admintemplatemodule/getall?userId=${Id}`);
+};
+
 export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
 };
