@@ -242,14 +242,12 @@ const MenuItems = () => {
     <Fragment>
       <Container>
         <div className=" pb-2 mb-3">
-                    <h1 className="test-xl text-gray-900">
-
-         
-                  <FormattedMessage
-                    id="COMMON.MENU_ITEM_RECIPE_MASTER"
-                    defaultMessage="Menu Item Recipe Master"
-                  />
-                </h1>
+          <h1 className="test-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.MENU_ITEM_RECIPE_MASTER"
+              defaultMessage="Menu Item Recipe Master"
+            />
+          </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">

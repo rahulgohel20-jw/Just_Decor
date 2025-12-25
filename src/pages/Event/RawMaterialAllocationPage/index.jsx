@@ -4,7 +4,7 @@ import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import { useNavigate } from "react-router-dom";
-
+import { GetUnitData } from "@/services/apiServices";
 import {
   GetAllRawMaterialAllocationCategory,
   GetAllRawMaterialAllocationItems,
@@ -36,12 +36,14 @@ const RawMaterialAllocation = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState(null);
+  const [unit, setUnit] = useState([]);
   const [eventData, setEventData] = useState([]);
   // 🔥 NEW: Track if data has been modified
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
 
   const intl = useIntl();
+  let userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (eventId) {
@@ -63,6 +65,15 @@ const RawMaterialAllocation = () => {
       }
     } catch (error) {
       console.error("Error fetching event data:", error);
+    }
+  };
+  const FetchUnit = async () => {
+    try {
+      const data = await GetUnitData(userId);
+
+      setUnit(data?.data?.data["Unit Details"] || []);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -109,7 +120,6 @@ const RawMaterialAllocation = () => {
     const fetchAgencies = async () => {
       setLoading(true);
       try {
-        const userId = localStorage.getItem("userId");
         const response = await GetAllSupllierVendors(userId);
         const list = response?.data?.data?.["Party Details"] || [];
         setAgencies(list);
@@ -145,7 +155,8 @@ const RawMaterialAllocation = () => {
           agency: item.supplierName || "-",
           supplierId: item.supplierId || 0,
           place: item.place || "NA",
-          date: item.date || "",
+          date:
+            item.date && dayjs(item.date).isValid() ? dayjs(item.date) : null,
           total: item.totalprice || 0,
           eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
         }));
@@ -165,13 +176,10 @@ const RawMaterialAllocation = () => {
   const handleChange = (index, field, value) => {
     const updated = [...data];
 
-    // If finalQty is being changed, calculate the difference
     if (field === "finalQty") {
       const oldFinalQty = parseFloat(updated[index].finalQty) || 0;
       const newFinalQty = parseFloat(value) || 0;
-      const oldQty = parseFloat(updated[index].qty) || 0; // 🔥 Get the original qty
-
-      // 🔥 Calculate difference between new finalQty and OLD finalQty (not qty)
+      const oldQty = parseFloat(updated[index].qty) || 0;
       const difference = newFinalQty - oldFinalQty;
 
       console.log("🔍 Debug:", {
@@ -181,9 +189,8 @@ const RawMaterialAllocation = () => {
         difference,
       });
 
-      // If there's an increase, mark it for adding an "Extra" row in sidebar
       if (difference > 0) {
-        updated[index].extraQty = difference; // 🔥 This should be just the difference
+        updated[index].extraQty = difference;
         updated[index].needsExtraRow = true;
       } else {
         updated[index].extraQty = 0;
@@ -191,7 +198,12 @@ const RawMaterialAllocation = () => {
       }
     }
 
-    updated[index][field] = value;
+    if (field === "date" && value) {
+      updated[index][field] = dayjs(value);
+    } else {
+      updated[index][field] = value;
+    }
+
     setData(updated);
     setHasUnsavedChanges(true);
   };
@@ -223,14 +235,20 @@ const RawMaterialAllocation = () => {
           ).map((fn) => ({
             eventFunctionId: fn.eventFunctionId || 0,
             functionId: fn.functionId || 0,
-            functiondatetime: fn.functiondatetime || "",
-            isExtraField: fn.isExtraField === true, // 🔥 ADDED: Include isExtraField
+            functiondatetime: fn.functiondatetime
+              ? dayjs(fn.functiondatetime).isValid()
+                ? dayjs(fn.functiondatetime).format("YYYY-MM-DD HH:mm:ss.0")
+                : ""
+              : item.date && dayjs(item.date).isValid()
+                ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
+                : "",
+            isExtraField: fn.isExtraField === true,
             itemName: fn.itemName || item.material || "",
             place: fn.place || item.place || "",
             price: parseFloat(fn.price) || 0,
             qty: parseFloat(fn.qty) || 0,
             supplierId: fn.supplierId || supplierId,
-            unitId: fn.unitId || item.unitId || 1,
+            unitId: fn.unitId || item.unitId || 0,
           }));
 
           return {
@@ -241,7 +259,11 @@ const RawMaterialAllocation = () => {
             rawMaterialId: item.rawMaterialId || 0,
             supplierId: supplierId,
             totalprice: parseFloat(item.total) || 0,
-            unitId: item.unitId || 1,
+            unitId: item.unitId || 0,
+            date:
+              item.date && dayjs(item.date).isValid()
+                ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
+                : "",
           };
         }),
       };
@@ -352,13 +374,15 @@ const RawMaterialAllocation = () => {
 
   const handleAllocateDate = (date) => {
     if (!date) return;
-    const formatted = dayjs(date).format("MM/DD/YYYY hh:mm A");
+
     const updated = data.map((item) => ({
       ...item,
-      date: formatted,
+      date: date,
     }));
+
+    console.log(updated);
     setData(updated);
-    setHasUnsavedChanges(true); // 🔥 Mark as changed
+    setHasUnsavedChanges(true);
   };
 
   const renderModalData = () => {
@@ -722,6 +746,7 @@ const RawMaterialAllocation = () => {
                     defaultMessage="Agency"
                   />,
                   <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />,
+                  <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />,
                   <FormattedMessage
                     id="COMMON.TOTAL_PRICE"
                     defaultMessage="Total Price"
@@ -793,6 +818,11 @@ const RawMaterialAllocation = () => {
 
                     <td className="px-4 py-3">{item.agency}</td>
                     <td className="px-4 py-3">{item.place}</td>
+                    <td className="px-4 py-3">
+                      {item.date
+                        ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
+                        : "-"}
+                    </td>
                     <td className="px-4 py-3 ">{item.total}</td>
                     <td className="px-4 py-3 flex justify-center">
                       <span

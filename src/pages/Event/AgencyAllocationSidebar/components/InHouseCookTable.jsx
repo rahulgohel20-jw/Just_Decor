@@ -141,133 +141,143 @@ export default function InHouseCookTable({
           </thead>
 
           <tbody>
-            {menuItems.map((menuItem, menuIndex) => (
-              <>
-                {menuItem.eventFunctionMenuAllocations?.map(
-                  (allocation, allocationIndex) => {
-                    const itemKey = `${menuIndex}-${allocationIndex}`;
+            {menuItems.map((menuItem, menuIndex) => {
+              // ✅ Calculate the starting number for this menu item
+              let startingNumber = 0;
+              for (let i = 0; i < menuIndex; i++) {
+                startingNumber +=
+                  menuItems[i].eventFunctionMenuAllocations?.length || 0;
+              }
 
-                    return (
-                      <tr
-                        key={`${menuIndex}-${allocationIndex}`}
-                        className={`border-b hover:bg-gray-50 align-middle ${
-                          selectedItems[itemKey] ? "bg-blue-50" : ""
-                        }`}
-                      >
-                        <td className="p-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedItems[itemKey] || false}
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                menuIndex,
-                                allocationIndex,
-                                e.target.checked
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="p-3">{allocationIndex + 1}</td>
-                        <td className="p-3 font-medium text-gray-900">
-                          {menuItem.menuItemName || "-"}
-                        </td>
-                        <td className="p-2">
-                          <BaseInput
-                            type="number"
-                            placeholder="0"
-                            value={menuItem.personCount || ""}
-                            onChange={(e) =>
-                              handleAllocationChange(
-                                menuIndex,
-                                allocationIndex,
-                                "pax",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="p-2">
-                          <BaseSelect
-                            value={allocation.partyId || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                menuIndex,
-                                allocationIndex,
-                                e.target.value
-                              )
-                            }
-                            disabled={loadingVendors}
-                          >
-                            <option value="">
-                              {loadingVendors ? "Loading..." : "Select Name"}
-                            </option>
+              return (
+                <>
+                  {menuItem.eventFunctionMenuAllocations?.map(
+                    (allocation, allocationIndex) => {
+                      const itemKey = `${menuIndex}-${allocationIndex}`;
+                      const serialNumber = startingNumber + allocationIndex + 1; // ✅ Continuous numbering
 
-                            {allocation.partyId &&
-                              !vendors.some(
-                                (v) =>
-                                  String(v.id) === String(allocation.partyId)
-                              ) && (
-                                <option value={allocation.partyId}>
-                                  {allocation.partyName || "Selected contact"}
-                                </option>
-                              )}
-
-                            {vendors.map((vendor) => (
-                              <option key={vendor.id} value={vendor.id}>
-                                {vendor.nameEnglish}
+                      return (
+                        <tr
+                          key={`${menuIndex}-${allocationIndex}`}
+                          className={`border-b hover:bg-gray-50 align-middle ${
+                            selectedItems[itemKey] ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <td className="p-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedItems[itemKey] || false}
+                              onChange={(e) =>
+                                handleCheckboxChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  e.target.checked
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="p-3">{serialNumber}</td>
+                          <td className="p-3 font-medium text-gray-900">
+                            {menuItem.menuItemName || "-"}
+                          </td>
+                          <td className="p-2">
+                            <BaseInput
+                              type="number"
+                              placeholder="0"
+                              value={menuItem.personCount || ""}
+                              onChange={(e) =>
+                                handleAllocationChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  "pax",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="p-2">
+                            <BaseSelect
+                              value={allocation.partyId || ""}
+                              onChange={(e) =>
+                                handleContactChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  e.target.value
+                                )
+                              }
+                              disabled={loadingVendors}
+                            >
+                              <option value="">
+                                {loadingVendors ? "Loading..." : "Select Name"}
                               </option>
-                            ))}
-                          </BaseSelect>
-                        </td>
-                        <td className="p-2">
-                          <BaseInput
-                            placeholder="0"
-                            value={allocation.number || ""}
-                            onChange={(e) =>
-                              handleAllocationChange(
-                                menuIndex,
-                                allocationIndex,
-                                "number",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="p-2">
-                          <BaseInput
-                            type="number"
-                            placeholder="0"
-                            value={allocation.counterQuantity || ""}
-                            onChange={(e) =>
-                              handleAllocationChange(
-                                menuIndex,
-                                allocationIndex,
-                                "counterQuantity",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="p-2">
-                          <BaseInput
-                            placeholder="Enter Remarks"
-                            value={allocation.remarks || ""}
-                            onChange={(e) =>
-                              handleAllocationChange(
-                                menuIndex,
-                                allocationIndex,
-                                "remarks",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                      </tr>
-                    );
-                  }
-                )}
-              </>
-            ))}
+
+                              {allocation.partyId &&
+                                !vendors.some(
+                                  (v) =>
+                                    String(v.id) === String(allocation.partyId)
+                                ) && (
+                                  <option value={allocation.partyId}>
+                                    {allocation.partyName || "Selected contact"}
+                                  </option>
+                                )}
+
+                              {vendors.map((vendor) => (
+                                <option key={vendor.id} value={vendor.id}>
+                                  {vendor.nameEnglish}
+                                </option>
+                              ))}
+                            </BaseSelect>
+                          </td>
+                          <td className="p-2">
+                            <BaseInput
+                              placeholder="0"
+                              value={allocation.number || ""}
+                              onChange={(e) =>
+                                handleAllocationChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  "number",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="p-2">
+                            <BaseInput
+                              type="number"
+                              placeholder="0"
+                              value={allocation.counterQuantity || ""}
+                              onChange={(e) =>
+                                handleAllocationChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  "counterQuantity",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                          <td className="p-2">
+                            <BaseInput
+                              placeholder="Enter Remarks"
+                              value={allocation.remarks || ""}
+                              onChange={(e) =>
+                                handleAllocationChange(
+                                  menuIndex,
+                                  allocationIndex,
+                                  "remarks",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </>
+              );
+            })}
           </tbody>
         </table>
       </div>
