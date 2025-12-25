@@ -1065,9 +1065,9 @@ export const SuperAdminDashboardTotalUserAndPlan = () => {
   return GET(`/dashboard/superadmin/getTotalUserAndPlanData`);
 };
 
-export const GetRawmaterialItemByRecipe = (menuId, id) => {
+export const GetRawmaterialItemByRecipe = (menuId, id, isSync) => {
   return GET(
-    `/menuitems/getmenuitemrawmaterialbymenuid?menuItemId=${menuId}&userId=${id}`
+    `/menuitems/getmenuitemrawmaterialbymenuid?isSync=${isSync}&menuItemId=${menuId}&userId=${id}`
   );
 };
 
