@@ -827,7 +827,64 @@
   "COMMON.SELECT_CATEGORY": "કેટેગરી પસંદ કરો",
   "COMMON.ALL_CATEGORIES": "બધી કેટેગરીઝ",
   "MENUITEM.CHANGE_CATEGORY":"ચેન્જ મેનૂ આઇટમ કેટેગરી",
-  "MENUITEM.LIST":"મેનૂ આઇટમ લિસ્ટ"
+  "MENUITEM.LIST":"મેનૂ આઇટમ લિસ્ટ",
+  "ALLOCATE_SUPPLIER":"એલોકેટ સપ્લાયર",
+  "FORM.FROM_TYPE":"ફ્રોમ ટાઇપ",
+  "FORM.TO_TYPE":"ટુ ટાઇપ",
+  
+  "RAW_MATERIAL.NAME": "રૉ મટિરિયલ ",
+  "RAW_MATERIAL.CATEGORY": "રૉ મટિરિયલ કેટેગરી ",
+  "RAW_MATERIAL.SUPPLIER": "સપ્લાયર ",
+  
+  "TOTAL.OUTSTANDING_RECEIVABLE": "ટોટલ આઉટસ્ટેન્ડિંગ રિસીવેબલ ",
+  "TOTAL.REMAINING": "ટોટલ રિમેઇનિંગ ",
+  "TOTAL.AMOUNT": "ટોટલ એમાઉન્ટ ",
+  
+  "INVOICE.SR_NO": "એસ.આર. નંબર ",
+  "INVOICE.CUSTOMER_NAME": "કસ્ટમર નેમ ",
+  "INVOICE.EVENT_NAME": "ઇવેન્ટ નેમ ",
+  "INVOICE.EVENT_DATE": "ઇવેન્ટ તારીખ ",
+  "INVOICE.INVOICE_DATE": "ઇન્વોઇસ તારીખ ",
+  "INVOICE.TOTAL_PAID": "ટોટલ પેઈડ ",
+  "INVOICE.BALANCE_DUE": "બેલેન્સ ડ્યુ ",
+  "COMMON.STATUS": "સ્ટેટસ ",
+  "COMMON.VIEW": "વ્યૂ ",
+  
+  "INVOICE.OVERVIEW": "ઇન્વોઇસ ઓવરવ્યૂ ",
+  "INVOICE.SEARCH": "સર્ચ ઇન્વોઇસ ",
+  "INVOICE.ALL": "ઓલ ઇન્વોઇસ ",
+  "INVOICE.LAST_3_MONTHS": "લાસ્ટ 3 મન્થ્સ ",
+  "INVOICE.LAST_6_MONTHS": "લાસ્ટ 6 મન્થ્સ ",
+  "INVOICE.CUSTOM_DATE": "કસ્ટમ ડેટ ",
+  
+  "COMMON.DASHBOARD": "ડેશબોર્ડ ",
+  "DASHBOARD.TOTAL_EVENTS": "ટોટલ ઇવેન્ટ્સ ",
+  "DASHBOARD.GENERATE_INVOICE": "જનરેટ ઇન્વોઇસ ",
+  "DASHBOARD.TOTAL_RECEIVABLE_INVOICE": "ટોટલ રિસીવેબલ ઇન્વોઇસ એમાઉન્ટ ",
+  "DASHBOARD.TOTAL_RECEIVABLE_QUOTATION": "ટોટલ રિસીવેબલ ક્વોટેશન એમાઉન્ટ ",
+
+  "SECTION.UPCOMING_EVENTS": "અપકમિંગ ઇવેન્ટ્સ",
+  "SECTION.INVOICES": "ઇન્વોઇસેસ ",
+  "SECTION.MOST_SELLING_ITEM": "મોસ્ટ સેલિંગ આઇટમ ",
+
+  "CHART.SALES_EXPENSE": "સેલ્સ ચાર્ટ - એક્સપેન્સ ",
+
+  "COMMON.TODAY": "ટુડે ",
+  "COMMON.THIS_WEEK": "ધિસ વીક ",
+  "COMMON.THIS_MONTH": "ધિસ મન્થ ",
+  "COMMON.CUSTOM_RANGE": "કસ્ટમ રેન્જ ",
+
+  "COMMON.APPLY": "એપ્લાય ",
+  "COMMON.CONTACT_WHATSAPP": "વોટ્સએપ પર સંપર્ક કરો ",
+  "COMMON.REQUEST_CALLBACK": "કોલબૅક રિક્વેસ્ટ "
+
+
+
+
+
+
+
+
 
 
 
