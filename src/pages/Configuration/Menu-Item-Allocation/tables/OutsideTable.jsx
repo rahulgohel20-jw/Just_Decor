@@ -138,18 +138,14 @@ const OutsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
       ),
       cell: ({ row }) => (
         <span className="text-sm text-gray-700">
-          {row.original.vendorAllocate || "-"}
+          {row.original.outsideSupplierName || "-"}
         </span>
       ),
     },
+
     {
       accessorKey: "contactCategory",
-      header: (
-        <FormattedMessage
-          id="RAW_MATERIAL.CONTACT_CATEGORY"
-          defaultMessage="Contact Category"
-        />
-      ),
+      header: "Contact Category",
       cell: ({ row }) => (
         <Select
           showSearch
@@ -160,7 +156,6 @@ const OutsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
             const selectedCategory = contactCategoryList.find(
               (c) => c.nameEnglish === value
             );
-
             setTableData((prev) =>
               prev.map((item, index) =>
                 index === row.index
@@ -173,26 +168,15 @@ const OutsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
               )
             );
           }}
-          optionFilterProp="children"
-          filterOption={(input, option) =>
-            option.children.toLowerCase().includes(input.toLowerCase())
-          }
         >
-          {contactCategoryList.length > 0 ? (
-            contactCategoryList.map((category) => (
-              <Select.Option key={category.id} value={category.nameEnglish}>
-                {category.nameEnglish}
-              </Select.Option>
-            ))
-          ) : (
-            <Select.Option value="" disabled>
-              No categories available
+          {contactCategoryList.map((category) => (
+            <Select.Option key={category.id} value={category.nameEnglish}>
+              {category.nameEnglish}
             </Select.Option>
-          )}
+          ))}
         </Select>
       ),
     },
-
     {
       accessorKey: "quantity",
       header: (

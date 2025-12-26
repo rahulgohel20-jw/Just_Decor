@@ -34,7 +34,8 @@ export default function SelectMenureport({
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
-  const [mappingId, setmappingId] = useState();
+  const [mappingId, setmappingId] = useState(null);
+  const [selectedModuleId, setSelectedModuleId] = useState(null);
 
   // Get userId from your auth context or storage
   const userId = 2; // Replace with actual user ID from your auth system
@@ -47,6 +48,7 @@ export default function SelectMenureport({
       description: "Clean and minimal template design.",
       dummyPdf: "/media/templates/simple1.pdf",
       isStatic: true,
+      mappingId: null,
     },
     {
       id: "simple-2",
@@ -54,6 +56,7 @@ export default function SelectMenureport({
       description: "Modern and elegant template layout.",
       dummyPdf: "/media/templates/simple2.pdf",
       isStatic: true,
+      mappingId: null,
     },
     {
       id: "simple-3",
@@ -61,6 +64,7 @@ export default function SelectMenureport({
       description: "Professional and straightforward design.",
       dummyPdf: "/media/templates/simple3.pdf",
       isStatic: true,
+      mappingId: null,
     },
   ];
 
@@ -118,7 +122,7 @@ export default function SelectMenureport({
           activeTab
         );
 
-        console.log("data", res.data.data.templateMappingResponseDto);
+        console.log("data", res.data.data);
 
         if (res?.data?.success && res?.data?.data) {
           const fetchedTemplates = res.data.data.map((item) => ({
@@ -135,11 +139,10 @@ export default function SelectMenureport({
             isNamePlate: item.templateMaster.isNamePlate,
             namePlateBg: item.templateMaster.namePlateBg,
             isStatic: false,
-            mappingId: item.templateMappingResponseDto.id,
+            mappingId: item.templateMappingResponseDto?.id || item.id,
           }));
-          setmappingId(fetchedTemplates[0]?.mappingId);
-          console.log("sdddd", fetchedTemplates);
 
+          console.log("fetchedTemplates", fetchedTemplates);
           setTemplates(fetchedTemplates);
         } else {
           setTemplates([]);
@@ -183,13 +186,16 @@ export default function SelectMenureport({
     setSelectedCard(template.id);
     setSelectedTemplateId(template.id);
 
-    // ✅ SET CORRECT mappingId HERE
     setmappingId(template.mappingId);
+    setSelectedModuleId(activeTab);
 
     const functionId = eventData?.eventFunctions?.[0]?.id || 0;
     setSelectedFunctionId(functionId);
 
-    onConfirm?.(template.id);
+    // ✅ CLOSE parent modal
+    setIsSelectMenuReport(false);
+
+    // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
   };
 
@@ -335,8 +341,6 @@ export default function SelectMenureport({
                         {template.description}
                       </p>
 
-                      {/* Preview PDF Button (if available) */}
-
                       {/* Centered Button */}
                       <div className="flex justify-center mt-6">
                         <button
@@ -366,7 +370,7 @@ export default function SelectMenureport({
         setIsModalOpen={setIsMenuReportOpen}
         eventId={finalEventId}
         eventFunctionId={selectedFunctionId}
-        moduleId={activeTab} // ✅ DIRECT SOURCE OF TRUTH
+        moduleId={selectedModuleId || activeTab}
         mappingId={mappingId}
       />
     </>

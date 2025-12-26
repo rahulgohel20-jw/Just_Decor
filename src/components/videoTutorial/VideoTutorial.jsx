@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { toAbsoluteUrl } from "@/utils/Assets";
-import { ChevronDown, Play } from "lucide-react";
+import { ChevronDown, Play, X } from "lucide-react";
 
 export default function SidebarModal({ open, onClose }) {
   return (
@@ -25,79 +24,109 @@ export default function SidebarModal({ open, onClose }) {
               exit={{ x: "110%" }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
-              <div className="w-[320px] bg-[#F7F9FC] border-r px-6 py-8 relative overflow-y-auto no-scrollbar ">
-                {/* Header */}
-                <h2 className="text-xl font-semibold flex items-center gap-2 mb-6 text-primary">
-                  Just Catering X Tutorial
-                  <img
-                    src={toAbsoluteUrl("/media/images/cap2.png")}
-                    className="w-5 h-5"
-                  />
-                </h2>
+              <div className="relative flex w-full">
+                {/* Blurred Content */}
+                <div
+                  className="w-full flex"
+                  style={{
+                    filter: "blur(3px)",
+                    WebkitFilter: "blur(3px)",
+                  }}
+                >
+                  {/* Sidebar */}
+                  <div className="w-[320px] bg-[#F7F9FC] border-r px-6 py-8 relative overflow-y-auto no-scrollbar">
+                    <h2 className="text-xl font-semibold flex items-center gap-2 mb-6 text-blue-600">
+                      Just Catering X Tutorial
+                      <span className="w-5 h-5 bg-blue-500 rounded-full" />
+                    </h2>
 
-                {/* Accordion */}
-                <div className="space-y-4">
-                  {/* Item 1 */}
-                  <Accordion title="How to create event?" defaultOpen />
-
-                  {/* Item 2 with submenu */}
-                  <Accordion title="How to prepare menu or menu planning?">
-                    <div className="mt-3 ml-2 space-y-2">
-                      <SubItem index="1" title="Create Menu" />
-                      <SubItem index="2" title="Custom Menu" />
+                    <div className="space-y-4">
+                      <Accordion title="How to create event?" defaultOpen />
+                      <Accordion title="How to prepare menu or menu planning?">
+                        <div className="mt-3 ml-2 space-y-2">
+                          <SubItem index="1" title="Create Menu" />
+                          <SubItem index="2" title="Custom Menu" />
+                        </div>
+                      </Accordion>
+                      <Accordion title="How to generate invoice?" />
+                      <Accordion title="How to make quotation?" />
                     </div>
-                  </Accordion>
 
-                  <Accordion title="How to generate invoice?" />
-                  <Accordion title="How to make quotation?" />
-                </div>
-
-                {/* Footer */}
-                <button className="absolute bottom-6 left-6 text-gray-500 text-sm hover:text-black transition">
-                  Support Center
-                </button>
-              </div>
-
-              {/* Main content */}
-              <div className="flex-1 px-10 py-10 overflow-y-auto">
-                {/* Welcome Section */}
-                <div className="flex flex-col items-center mt-8 mb-10">
-                  <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-4xl">
-                    <img
-                      src={toAbsoluteUrl(`/media/images/jccap.png`)}
-                      alt="JC Tutorial"
-                      className="w-18 h-18"
-                    />
+                    <button className="absolute bottom-6 left-6 text-gray-500 text-sm hover:text-black transition">
+                      Support Center
+                    </button>
                   </div>
-                  <h1 className="text-3xl font-semibold mt-4 text-black">
-                    Welcome!
-                  </h1>
-                  <p className="text-[#646464] text-lg mt-1">
-                    What can we help you with?
-                  </p>
-                </div>
 
-                {/* Video Cards Grid */}
-                <div className="grid grid-cols-2 gap-6">
-                  {[
-                    "How to create event?",
-                    "How to generate invoice?",
-                    "How to make quotation?",
-                    "How to generate menu report?",
-                  ].map((title, i) => (
-                    <div
-                      key={i}
-                      className="p-6 border rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex flex-col items-center"
-                    >
-                      <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-3">
-                        ▶
+                  {/* Main content */}
+                  <div className="flex-1 px-10 py-10 overflow-y-auto">
+                    <div className="flex flex-col items-center mt-8 mb-10">
+                      <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-4xl">
+                        🎓
                       </div>
-                      <p className="text-gray-700 font-medium text-center">
-                        {title}
+                      <h1 className="text-3xl font-semibold mt-4 text-black">
+                        Welcome!
+                      </h1>
+                      <p className="text-[#646464] text-lg mt-1">
+                        What can we help you with?
                       </p>
                     </div>
-                  ))}
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {[
+                        "How to create event?",
+                        "How to generate invoice?",
+                        "How to make quotation?",
+                        "How to generate menu report?",
+                      ].map((title, i) => (
+                        <div
+                          key={i}
+                          className="p-6 border rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex flex-col items-center"
+                        >
+                          <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+                            ▶
+                          </div>
+                          <p className="text-gray-700 font-medium text-center">
+                            {title}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Coming Soon Overlay */}
+                <div
+                  className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    backdropFilter: "blur(2px)",
+                    zIndex: 100,
+                  }}
+                >
+                  <div className="text-center px-8 py-6 rounded-2xl bg-white shadow-2xl border border-gray-200">
+                    <div className="mb-3">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center">
+                        <Play className="w-8 h-8 text-blue-600" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      Coming Soon
+                    </h3>
+                    <p className="text-sm text-gray-600 max-w-xs">
+                      Video tutorials are under development and will be
+                      available soon.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Close Button on top */}
+                <button
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition"
+                  style={{ zIndex: 101 }}
+                  onClick={onClose}
+                >
+                  <X className="w-4 h-4 text-gray-600" />
+                </button>
               </div>
             </motion.div>
           </div>
@@ -106,6 +135,7 @@ export default function SidebarModal({ open, onClose }) {
     </AnimatePresence>
   );
 }
+
 function Accordion({ title, children, defaultOpen = false }) {
   return (
     <details
@@ -116,7 +146,6 @@ function Accordion({ title, children, defaultOpen = false }) {
         {title}
         <ChevronDown className="w-4 h-4 transition group-open:rotate-180" />
       </summary>
-
       {children}
     </details>
   );
@@ -129,6 +158,23 @@ function SubItem({ index, title }) {
         {index}. {title}
       </span>
       <Play className="w-4 h-4 text-gray-600" />
+    </div>
+  );
+}
+
+// Demo wrapper
+function Demo() {
+  const [open, setOpen] = React.useState(true);
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <button
+        onClick={() => setOpen(true)}
+        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        Open Tutorial Modal
+      </button>
+      <SidebarModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }
