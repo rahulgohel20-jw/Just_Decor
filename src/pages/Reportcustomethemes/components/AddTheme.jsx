@@ -263,12 +263,12 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       formData.append("name", nameplateName);
       formData.append("userId", userId);
 
-      formData.append("contentFontColor", null);
-      formData.append("headingFontColor", null);
+      // formData.append("contentFontColor", null);
+      // formData.append("headingFontColor", null);
 
-      formData.append("dummyPdf", null);
+      // formData.append("dummyPdf", null);
 
-      formData.append("menuReportPages", null);
+      // formData.append("menuReportPages", null);
 
       if (nameplate) {
         formData.append("namePlateBg", nameplate.file);
