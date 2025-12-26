@@ -1,7 +1,6 @@
 import React from "react";
 import { DataGridColumnHeader } from "@/components";
-import { Link } from "react-router-dom";
-import { Tooltip } from "antd";
+import { FormattedMessage } from "react-intl";
 
 // Status Badge Component
 const StatusBadge = ({ status }) => {
@@ -16,7 +15,6 @@ const StatusBadge = ({ status }) => {
       textColor: "text-blue-700",
       borderColor: "border-gray-300",
     },
-
     Cancelled: {
       bgColor: "bg-red-100",
       textColor: "text-red-700",
@@ -39,37 +37,67 @@ export const columns = [
   {
     accessorKey: "Invoice",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Sr No#" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={<FormattedMessage id="TABLE.SR_NO" defaultMessage="Sr No#" />}
+      />
     ),
   },
   {
     accessorKey: "CustomerName",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Client Name" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={
+          <FormattedMessage
+            id="TABLE.CLIENT_NAME"
+            defaultMessage="Client Name"
+          />
+        }
+      />
     ),
   },
   {
     accessorKey: "Eventname",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Event Name" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={
+          <FormattedMessage id="TABLE.EVENT_NAME" defaultMessage="Event Name" />
+        }
+      />
     ),
   },
   {
     accessorKey: "eventDate",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Event Date & Time" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={
+          <FormattedMessage
+            id="TABLE.EVENT_DATE_TIME"
+            defaultMessage="Event Date & Time"
+          />
+        }
+      />
     ),
   },
   {
     accessorKey: "Venue",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Venue" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={<FormattedMessage id="TABLE.VENUE" defaultMessage="Venue" />}
+      />
     ),
   },
   {
     accessorKey: "status",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Status" column={column} />
+      <DataGridColumnHeader
+        column={column}
+        title={<FormattedMessage id="TABLE.STATUS" defaultMessage="Status" />}
+      />
     ),
     cell: ({ row }) => {
       const status = row.original?.status;

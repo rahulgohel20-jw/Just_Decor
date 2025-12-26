@@ -167,18 +167,12 @@ const ChangeMenuItemCategoryPage = () => {
       <Container>
         {/* Breadcrumb */}
         <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: (
+         <h1 className="text-xl text-gray-900">
                   <FormattedMessage
                     id="MENUITEM.CHANGE_CATEGORY"
                     defaultMessage="Change Menu Item Category"
                   />
-                ),
-              },
-            ]}
-          />
+                </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}

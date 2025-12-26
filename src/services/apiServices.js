@@ -87,6 +87,7 @@ export const SearchCustomerApi = (data, Id) => {
 export const GetAllContactCategory = (Id) => {
   return GET(`/contactcategory/getallbyuserid?userId=${Id}`);
 };
+
 export const GetAllContactCategorybycontacttype = (concatId, Id) => {
   return GET(
     `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`
@@ -1336,3 +1337,9 @@ export const GetAllThemeByModuleId = (namePlate, Id) => {
 export const AssignThemeAdmin = (data) => {
   return POST("/admintemplatemodule/add", data);
 };
+
+
+export const Updatemenuitemallocationconfig = (data) => {
+  return PUT(`/menuitems/updatemenuallocation`, data);
+}
+
