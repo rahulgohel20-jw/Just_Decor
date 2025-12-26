@@ -20,6 +20,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
 
   const [fromCategory, setFromCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [lastAssignedType, setLastAssignedType] = useState("");
 
   const [selectedType, setSelectedType] = useState(""); // From Type
   const [vendorList, setVendorList] = useState([]);
@@ -149,29 +150,25 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           itemName: item.nameEnglish,
           category: item.menuCategoryNameEnglish,
 
-          // ✅ NEW
-          assignedType: item.insideAgency
-            ? "Inside"
-            : item.outsideAgency
-              ? "Outside"
-              : item.chefLabourAgency
-                ? "Chef Labour"
-                : "",
-
-          /* INSIDE */
-          typeNo: item.insideAgency ? (item.counterNo ?? "") : "",
-          remarks: item.insideAgency ? (item.remarks ?? "") : "",
-
-          /* OUTSIDE */
-          quantity: item.qtyPer100Person ?? "",
-          price: item.base_price ?? "",
-          unit: item.unitNameEnglish ?? "",
-          unitId: item.unitId ?? 0,
+          // Assigned type
+          assignedType: item.chefLabourAgency ? "Chef Labour" : "",
 
           /* CHEF LABOUR */
-          counterNo: item.counterNo ?? "",
-          pricePerLabour: item.pricePerLabour ?? "",
-          qtyPer100Person: item.qtyPer100Person ?? "",
+          type: "cheflabour", // ✅ IMPORTANT
+          allocationType: "Plate Wise",
+
+          // Quantity
+          counterNo: item.qtyPer100Person ?? 0, // ✅ qty → No
+
+          // Price
+          basePrice: item.base_price ?? 0, // ✅ base_price used as price
+
+          // Vendor
+          vendorAllocate: item.supplierNameEnglish ?? "-", // ✅ vendor
+
+          // Unit
+          unit: item.unitNameEnglish ?? "",
+          unitId: item.unitId ?? 0,
         }));
 
         setTableData(formattedData);
@@ -246,6 +243,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           unitId: row.unitId || 0,
           basePrice: row.price ? Number(row.price) : 0,
           quantityPer100Person: row.quantity ? Number(row.quantity) : 0,
+          contactCategoryId: row.contactCategoryId || 0, // ✅ FIXED: Added this line
           selectOutsideAgency: true,
         };
 
@@ -253,13 +251,11 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
         return {
           ...basePayload,
           unitId: row.unitId || 0,
-          basePrice: row.pricePerLabour ? Number(row.pricePerLabour) : 0,
-          pricePerLabour: row.pricePerLabour ? Number(row.pricePerLabour) : 0,
-          quantityPer100Person: row.qtyPer100Person
-            ? Number(row.qtyPer100Person)
-            : 0,
-          counterNo: row.counterNo ? Number(row.counterNo) : 0,
-          allocationType: "Chef Labour",
+          basePrice: row.basePrice ? Number(row.basePrice) : 0, // Use table value
+          pricePerLabour: 0, // Make it empty in payload
+          quantityPer100Person: row.counterNo ? Number(row.counterNo) : 0,
+
+          allocationType: "Plate wise",
           selectChefLabourAgency: true,
         };
 
@@ -271,10 +267,11 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
   const handleSave = async () => {
     const userId = localStorage.getItem("userId");
 
-    // Determine which data to use based on TO TYPE
+    // Determine which data to use
     let dataToSave = [];
     let selectedIds = [];
 
+    // Use TO TYPE if selected, else use FROM TYPE table
     if (toType === "Inside") {
       dataToSave = insideTableData.length > 0 ? insideTableData : tableData;
       selectedIds = insideSelectedRows;
@@ -285,6 +282,10 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       dataToSave =
         chefLabourTableData.length > 0 ? chefLabourTableData : tableData;
       selectedIds = chefLabourSelectedRows;
+    } else {
+      // No TO TYPE selected — use tableData as-is
+      dataToSave = tableData;
+      selectedIds = tableData.map((row) => row.id); // select all rows by default
     }
 
     // Filter only selected rows
@@ -294,7 +295,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
         : [];
 
     if (rowsToSave.length === 0) {
-      message.warning("Please select at least one item to save.");
+      message.warning("No items to save.");
       return;
     }
 
@@ -302,24 +303,22 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       .map((row) =>
         buildAllocationPayload({
           row,
-          type: toType,
-          partyId: selectedItem,
+          type: toType || selectedType, // fallback to FROM TYPE
+          partyId: selectedItem || 0,
           userId,
         })
       )
       .filter(Boolean);
 
     if (payload.length === 0) {
-      message.warning("No valid data to save");
+      message.warning("No valid data to save.");
       return;
     }
 
-    /* =========================
-     SWEETALERT CONFIRMATION
-  ========================= */
+    /* SweetAlert confirmation */
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: `You are about to update ${payload.length} menu item(s) for ${toType}.`,
+      text: `You are about to update ${payload.length} menu item(s).`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -329,9 +328,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       reverseButtons: true,
     });
 
-    if (!result.isConfirmed) {
-      return;
-    }
+    if (!result.isConfirmed) return;
 
     try {
       await Updatemenuitemallocationconfig(payload);
@@ -339,24 +336,22 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       Swal.fire({
         icon: "success",
         title: "Updated!",
-        text: `Menu items successfully assigned as ${toType}.`,
+        text: `Menu items successfully assigned.`,
         timer: 2000,
         showConfirmButton: false,
       });
-
-      // ✅ RESET INPUTS
+      setLastAssignedType(toType);
+      // Reset inputs
       setToType("");
       setSelectedItem("");
       setVendorList([]);
 
-      // ✅ RESET SELECTIONS
+      // Reset selections
       setInsideSelectedRows([]);
       setOutsideSelectedRows([]);
       setChefLabourSelectedRows([]);
 
-      // ✅ RE-FETCH MENU ITEMS (REFRESH TABLE)
-      const userId = localStorage.getItem("userId");
-
+      // Re-fetch menu items
       setLoading(true);
       const response = await Getmenuitemsusingcatidconfig(
         [fromCategory],
@@ -371,21 +366,21 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
         menuItem: item.nameEnglish,
         itemName: item.nameEnglish,
         category: item.menuCategoryNameEnglish,
-
         assignedType: item.insideAgency
           ? "Inside"
           : item.outsideAgency
             ? "Outside"
             : item.chefLabourAgency
-              ? "Chef Labour"
+              ? "ChefLabour"
               : "",
-
         typeNo: item.counterNo ?? "",
         remarks: item.remarks ?? "",
         quantity: item.qtyPer100Person ?? "",
         price: item.base_price ?? "",
         unit: item.unitNameEnglish ?? "",
         unitId: item.unitId ?? 0,
+        contactCategoryId: item.contactCategoryId ?? 0, // ✅ Add this
+        contactCategory: item.contactCategoryNameEnglish ?? "",
       }));
 
       setTableData(refreshedData);
@@ -403,22 +398,13 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       setLoading(false);
     }
   };
-  // Decide which table type to show based on saved data or current selection
+
   const getTableTypeFromData = () => {
     // While user is assigning, always respect TO TYPE
     if (toType) return toType;
 
-    // After save, decide from assignedType in table data
-    const assignedTypes = new Set(
-      filteredData
-        .map((item) => item.assignedType)
-        .filter((type) => type && type.trim() !== "")
-    );
-
-    // If all rows share same assigned type, use it
-    if (assignedTypes.size === 1) {
-      return [...assignedTypes][0]; // Inside / Outside / Chef Labour
-    }
+    // After save, respect last assigned type
+    if (lastAssignedType) return lastAssignedType;
 
     // Fallback to FROM TYPE
     return selectedType;
@@ -523,7 +509,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
                       <option value="">Select Type</option>
                       <option value="Inside">Inside</option>
                       <option value="Outside">Outside</option>
-                      <option value="Chef Labour">Chef Labour</option>
+                      <option value="ChefLabour">Chef Labour</option>
                     </select>
                   </div>
                 </div>

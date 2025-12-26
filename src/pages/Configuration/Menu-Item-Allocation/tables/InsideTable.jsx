@@ -126,6 +126,20 @@ const InsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
       ),
     },
     {
+      accessorKey: "vendorAllocate",
+      header: (
+        <FormattedMessage
+          id="RAW_MATERIAL.VENDOR"
+          defaultMessage="Vendor Allocate"
+        />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-700">
+          {row.original.vendorAllocate || "-"}
+        </span>
+      ),
+    },
+    {
       accessorKey: "type",
       header: <FormattedMessage id="RAW_MATERIAL.TYPE" defaultMessage="Type" />,
       cell: ({ row }) => row.original.type || "Inside",
