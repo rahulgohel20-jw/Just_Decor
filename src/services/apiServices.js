@@ -1353,3 +1353,10 @@ export const Updatemenuitemallocationconfig = (data) => {
 export const AddExclusiveReport = (formData) => {
   return POST("/report/menu-planning-exclusive", formData);
 };
+
+
+export const GetReportConfiguration = (mappingId) => {
+  return GET(
+    `/report/configuration/get?mappingId=${mappingId}`
+  );
+};

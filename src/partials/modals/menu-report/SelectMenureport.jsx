@@ -30,11 +30,11 @@ export default function SelectMenureport({
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
-  const [selectedModuleId, setSelectedModuleId] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [mappingId, setmappingId] = useState();
 
   // Get userId from your auth context or storage
   const userId = 2; // Replace with actual user ID from your auth system
@@ -81,6 +81,7 @@ export default function SelectMenureport({
             }));
 
           setTabs(modules);
+          console.log("module", modules);
 
           // Set first tab as active by default
           if (modules.length > 0) {
@@ -117,6 +118,8 @@ export default function SelectMenureport({
           activeTab
         );
 
+        console.log("data", res.data.data.templateMappingResponseDto);
+
         if (res?.data?.success && res?.data?.data) {
           const fetchedTemplates = res.data.data.map((item) => ({
             id: item.id,
@@ -132,7 +135,10 @@ export default function SelectMenureport({
             isNamePlate: item.templateMaster.isNamePlate,
             namePlateBg: item.templateMaster.namePlateBg,
             isStatic: false,
+            mappingId: item.templateMappingResponseDto.id,
           }));
+          setmappingId(fetchedTemplates[0]?.mappingId);
+          console.log("sdddd", fetchedTemplates);
 
           setTemplates(fetchedTemplates);
         } else {
@@ -174,13 +180,13 @@ export default function SelectMenureport({
   }, [isSelectMenureport, finalEventId]);
 
   const handleGenerateReport = (template) => {
-    setSelectedModuleId(activeTab);
     setSelectedCard(template.id);
     setSelectedTemplateId(template.id);
 
-    // Get the first function ID from eventFunctions array
-    const functionId = eventData?.eventFunctions?.[0]?.id || 0;
+    // ✅ SET CORRECT mappingId HERE
+    setmappingId(template.mappingId);
 
+    const functionId = eventData?.eventFunctions?.[0]?.id || 0;
     setSelectedFunctionId(functionId);
 
     onConfirm?.(template.id);
@@ -371,8 +377,8 @@ export default function SelectMenureport({
         setIsModalOpen={setIsMenuReportOpen}
         eventId={finalEventId}
         eventFunctionId={selectedFunctionId}
-        moduleId={selectedModuleId}
-        templateId={selectedTemplateId}
+        moduleId={activeTab} // ✅ DIRECT SOURCE OF TRUTH
+        mappingId={mappingId}
       />
     </>
   );
