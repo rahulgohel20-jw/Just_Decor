@@ -269,16 +269,6 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
   };
 
   const handleSave = async () => {
-    if (!selectedItem) {
-      message.warning("Please select a vendor");
-      return;
-    }
-
-    if (!toType) {
-      message.warning("Please select an assign type");
-      return;
-    }
-
     const userId = localStorage.getItem("userId");
 
     // Determine which data to use based on TO TYPE
@@ -654,7 +644,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           <button
             className="btn btn-primary"
             onClick={handleSave}
-            disabled={loading || !selectedItem || !toType}
+            disabled={loading}
           >
             {loading ? (
               <>
