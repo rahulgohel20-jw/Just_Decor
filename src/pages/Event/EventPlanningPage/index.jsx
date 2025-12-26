@@ -18,7 +18,6 @@ import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import { useParams, useNavigate } from "react-router-dom";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
-import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
@@ -1249,12 +1248,6 @@ const EventPlanningPage = () => {
         </div>
       </div>
 
-      <MenuReport
-        isModalOpen={isMenuReport}
-        setIsModalOpen={setIsMenuReport}
-        eventId={menuReportEventId}
-      />
-
       <CustomPackageModal
         isOpen={showCustomPackageModal}
         onClose={() => setShowCustomPackageModal(false)}
@@ -1271,14 +1264,8 @@ const EventPlanningPage = () => {
         isSelectMenureport={isSelectMenuReport}
         setIsSelectMenuReport={setIsSelectMenuReport}
         onConfirm={() => {
-          setIsSelectMenuReport(false);
           setIsMenuReport(true);
         }}
-      />
-      <MenuReport
-        isModalOpen={isMenuReport}
-        setIsModalOpen={setIsMenuReport}
-        eventId={menuReportEventId}
       />
 
       <AddMenuItem

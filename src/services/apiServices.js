@@ -1351,7 +1351,7 @@ export const Updatemenuitemallocationconfig = (data) => {
 
 
 export const AddExclusiveReport = (formData) => {
-  return POST("/report/menu-planning-exclusive", formData);
+  return POST("/report/menu-planning-exclusive/", formData);
 };
 
 

@@ -34,21 +34,35 @@ const MenuReport = ({
     categoryImage: false,
     itemSlogan: false,
     itemInstruction: false,
+    itemImage: false,
   });
 
-  console.log(eventId, moduleId);
+  // Track which fields are available from backend
+  const [availableFields, setAvailableFields] = useState({
+    categorySlogan: false,
+    categoryInstruction: false,
+    categoryImage: false,
+    itemSlogan: false,
+    itemInstruction: false,
+    itemImage: false,
+  });
 
-  // Derived "Check All" (STATIC, no state)
+  console.log("MenuReport Props:", {
+    eventId,
+    moduleId,
+    mappingId,
+    eventFunctionId,
+  });
+
+  const availableFieldKeys = Object.keys(availableFields).filter(
+    (key) => availableFields[key]
+  );
   const isCheckAll =
-    options.categorySlogan &&
-    options.categoryInstruction &&
-    options.categoryImage &&
-    options.itemSlogan &&
-    options.itemInstruction;
+    availableFieldKeys.length > 0 &&
+    availableFieldKeys.every((key) => options[key]);
 
   const userId = 2;
 
-  /* ---------------- FETCH CONFIG FROM BE ---------------- */
   useEffect(() => {
     if (!mappingId) return;
 
@@ -58,13 +72,20 @@ const MenuReport = ({
         const config = res?.data?.data?.[0];
         if (!config) return;
 
-        setOptions({
-          categorySlogan: config.isCategorySlogan === 1,
-          categoryInstruction: config.isCategoryInstruction === 1,
-          categoryImage: config.isCategoryImage === 1,
-          itemSlogan: config.isItemSlogan === 1,
-          itemInstruction: config.isItemInstruction === 1,
-        });
+        const isEnabled = (v) => Number(v) === 1;
+
+        const available = {
+          categorySlogan: isEnabled(config.isCategorySlogan),
+          categoryInstruction: isEnabled(config.isCategoryInstruction),
+          categoryImage: isEnabled(config.isCategoryImage),
+          itemSlogan: isEnabled(config.isItemSlogan),
+          itemInstruction: isEnabled(config.isItemInstruction),
+          itemImage: isEnabled(config.isItemImage),
+        };
+
+        console.log("availability", available);
+
+        setAvailableFields(available);
       } catch (err) {
         console.error("Configuration fetch error", err);
       }
@@ -73,81 +94,94 @@ const MenuReport = ({
     fetchConfig();
   }, [mappingId]);
 
-  /* ---------------- TOGGLES ---------------- */
   const toggleAll = (checked) => {
-    setOptions({
-      categorySlogan: checked,
-      categoryInstruction: checked,
-      categoryImage: checked,
-      itemSlogan: checked,
-      itemInstruction: checked,
+    const newOptions = { ...options };
+    availableFieldKeys.forEach((key) => {
+      newOptions[key] = checked;
     });
+    setOptions(newOptions);
   };
 
-  const toggleOne = (key) =>
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  const Toggle = ({ checked, onChange }) => (
+  const Toggle = ({ checked, onChange, disabled }) => (
     <button
       type="button"
-      onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition
-        ${checked ? "bg-blue-600" : "bg-gray-300"}`}
+      disabled={disabled}
+      onClick={!disabled ? onChange : undefined}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+      ${checked ? "bg-blue-600" : "bg-gray-300"}
+      ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+    `}
     >
       <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition
-          ${checked ? "translate-x-5" : "translate-x-1"}`}
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+          checked ? "translate-x-5" : "translate-x-1"
+        }`}
       />
     </button>
   );
 
-  /* ---------------- REPORT API ---------------- */
+  const toggleOne = (key) =>
+    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const handleClose = () => {
+    setPdfUrl(null);
+    setIsModalOpen(false);
+  };
+
   const handleReport = async () => {
     if (!eventId || !moduleId) {
       errorMsgPopup("Missing required data");
       return;
     }
 
+    const b = (v) => (v ? 1 : 0);
+
     const lang =
       selectedLanguage === "english" ? 0 : selectedLanguage === "hindi" ? 1 : 2;
 
-    const b = (v) => (v ? 1 : 0);
-
-    const formData = new FormData();
-    formData.append("adminTemplateModuleId", moduleId);
-    formData.append("eventFunctionId", eventFunctionId || 0);
-    formData.append("eventId", eventId);
-    formData.append("lang", lang);
-    formData.append("userId", userId);
-
-    formData.append("isCategoryImage", b(options.categoryImage));
-    formData.append("isCategoryInstruction", b(options.categoryInstruction));
-    formData.append("isCategorySlogan", b(options.categorySlogan));
-    formData.append("isItemImage", b(options.categoryImage));
-    formData.append("isItemInstruction", b(options.itemInstruction));
-    formData.append("isItemSlogan", b(options.itemSlogan));
-
     setLoading(true);
-    console.log(formData);
 
     try {
+      const formData = new FormData();
+
+      formData.append("adminTemplateModuleId", moduleId);
+      formData.append("eventFunctionId", eventFunctionId || 0);
+      formData.append("eventId", eventId);
+      formData.append("lang", lang);
+      formData.append("userId", userId);
+
+      // Optional boolean fields (converted to 0 or 1)
+      formData.append("isCategoryImage", b(options.categoryImage));
+      formData.append("isCategoryInstruction", b(options.categoryInstruction));
+      formData.append("isCategorySlogan", b(options.categorySlogan));
+      formData.append("isItemImage", b(options.itemImage)); // Now uses itemImage
+      formData.append("isItemInstruction", b(options.itemInstruction));
+      formData.append("isItemSlogan", b(options.itemSlogan));
+
+      // Debug: Log FormData contents
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      // Call the new API
       const { data } = await AddExclusiveReport(formData);
-      if (data?.success && data?.filePath) {
-        successMsgPopup(data.msg || "Report generated");
-        setPdfUrl(data.filePath);
+
+      if (data?.success === true && data?.report_path) {
+        successMsgPopup(data?.msg || "Report generated successfully");
+        setPdfUrl(data.report_path);
       } else {
         errorMsgPopup(data?.msg || "Failed to generate report");
       }
     } catch (err) {
-      errorMsgPopup(err?.response?.data?.msg || "Report failed");
+      console.error("Full error object:", err);
+      console.error("Error response:", err?.response);
+      console.error("Error message:", err?.message);
+      const apiMsg = err?.response?.data?.msg;
+      errorMsgPopup(apiMsg || err?.message || "Failed to generate report");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    setPdfUrl(null);
-    setIsModalOpen(false);
   };
 
   /* ---------------- UI ---------------- */
@@ -168,7 +202,7 @@ const MenuReport = ({
           <button
             onClick={handleReport}
             disabled={loading}
-            className="px-6 py-2 bg-[#005BA8] text-white rounded"
+            className="px-6 py-2 bg-[#005BA8] text-white rounded disabled:opacity-60"
           >
             {loading ? "Reporting..." : "Report"}
           </button>
@@ -184,37 +218,50 @@ const MenuReport = ({
                 <button
                   key={lang}
                   onClick={() => setSelectedLanguage(lang)}
-                  className={`flex-1 py-2 ${
-                    selectedLanguage === lang ? "bg-[#005BA8] text-white" : ""
+                  className={`flex-1 py-2 transition-all ${
+                    selectedLanguage === lang
+                      ? "bg-[#005BA8] text-white"
+                      : "text-gray-800 hover:bg-gray-100"
                   }`}
                 >
-                  {lang.toUpperCase()}
+                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* CHECK ALL */}
-          <div className="flex justify-between mb-3">
-            <span className="font-semibold">Check All</span>
-            <Toggle
-              checked={isCheckAll}
-              onChange={() => toggleAll(!isCheckAll)}
-            />
-          </div>
-
-          {/* OPTIONS */}
-          {Object.keys(options).map((key) => (
-            <div key={key} className="flex justify-between items-center py-2">
-              <span>{key.replace(/([A-Z])/g, " $1")}</span>
-              <Toggle checked={options[key]} onChange={() => toggleOne(key)} />
+          {availableFieldKeys.length > 0 && (
+            <div className="flex justify-between items-center p-3 mb-3">
+              <span className="font-semibold">Check All</span>
+              <Toggle
+                checked={isCheckAll}
+                onChange={() => toggleAll(!isCheckAll)}
+              />
             </div>
-          ))}
+          )}
+
+          {availableFieldKeys.length > 0 ? (
+            availableFieldKeys.map((key) => (
+              <div key={key} className="flex justify-between items-center p-3">
+                <span className="capitalize">
+                  {key.replace(/([A-Z])/g, " $1")}
+                </span>
+                <Toggle
+                  checked={options[key]}
+                  onChange={() => toggleOne(key)}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              No configuration options available
+            </div>
+          )}
         </>
       )}
 
       {pdfUrl && (
-        <div style={{ height: "80vh" }}>
+        <div style={{ height: "80vh" }} className="mt-2 border rounded shadow">
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
             <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />
           </Worker>
