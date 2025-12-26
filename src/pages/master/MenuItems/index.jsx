@@ -73,8 +73,6 @@ const MenuItems = () => {
       setLoading(true);
 
       try {
-        console.log(`📩 Fetching page ${page} with search: "${search}"`);
-
         const response = await GetAllMenuItems({
           userId: Id,
           itemName: search || "",
@@ -117,7 +115,6 @@ const MenuItems = () => {
         }));
 
         setTableData(mapped);
-        console.log(`✅ Loaded ${items.length} items for page ${page}`);
       } catch (error) {
         console.error("Error loading page:", error);
         setTableData([]);
@@ -136,7 +133,6 @@ const MenuItems = () => {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      console.log("🔍 Search triggered:", searchQuery);
       setCurrentPage(1);
       fetchPage(1, searchQuery, categoryFilter, subCategoryFilter);
     }, 500);
@@ -342,12 +338,6 @@ const MenuItems = () => {
                 })),
               ]}
             />
-            {loading && (
-              <div className="flex items-center gap-2 text-primary">
-                <Spin size="small" />
-                <span className="text-sm">Loading items...</span>
-              </div>
-            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
