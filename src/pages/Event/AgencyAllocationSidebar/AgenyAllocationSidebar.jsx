@@ -85,9 +85,9 @@ export default function AgencyAllocationSidebar({
   // ✅ Reset and fetch on modal open
   useEffect(() => {
     if (open) {
-      setTab("chef");
+      setTab("cheflabour");
       setAllocationData(null);
-      fetchAllocationData("chef");
+      fetchAllocationData("cheflabour");
     }
   }, [open, fetchAllocationData]);
 

@@ -15,7 +15,7 @@ const AdminReportCustomThem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("theme"); // 'theme' or 'nameplate'
+  const [activeTab, setActiveTab] = useState("theme");
 
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
@@ -253,18 +253,12 @@ const AdminReportCustomThem = () => {
                         src={getFullImageUrl(theme.namePlateBg)}
                         alt={theme.nameplateName || theme.name}
                         className="w-full h-full object-cover object-center"
-                        onError={(e) => {
-                          e.target.src = "/images/placeholder-image.png";
-                        }}
                       />
                     ) : theme.frontPage ? (
                       <img
                         src={getFullImageUrl(theme.frontPage)}
                         alt={theme.name}
                         className="w-full h-full object-cover object-center"
-                        onError={(e) => {
-                          e.target.src = "/images/placeholder-image.png";
-                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

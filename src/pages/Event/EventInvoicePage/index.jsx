@@ -57,8 +57,8 @@ const EventInvoicePage = () => {
       </style>
       <Container>
         {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
+        <div className="mb-3">
+          <h1 className="text-xl text-gray-900">Invoice Overview</h1>
         </div>
         {/* filters */}
 

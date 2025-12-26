@@ -52,11 +52,6 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
         eventClick={(e) => openEvent(e)}
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,dayGridWeek,timeGridDay,listWeek",
-        }}
         buttonText={{
           today: intl.formatMessage({
             id: "USER.DASHBOARD.DASHBOARD_CALENDAR_TODAY",
@@ -78,6 +73,11 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
             id: "USER.DASHBOARD.DASHBOARD_CALENDAR_LIST",
             defaultMessage: "List",
           }),
+        }}
+        headerToolbar={{
+          left: "dayGridMonth,dayGridWeek,timeGridDay,listWeek",
+          center: "title",
+          right: "prev,next today",
         }}
         dateClick={handleDateClick}
         eventDidMount={(info) => {

@@ -6,6 +6,7 @@ import InvoiceTable from "@/components/InvoiceTable/InvoiceTable";
 import { useNavigate } from "react-router-dom";
 import { CommonHexagonBadge } from "@/partials/common";
 import { toAbsoluteUrl } from "@/utils";
+import { FormattedMessage } from "react-intl";
 
 import {
   GetAllInvoice,
@@ -159,32 +160,47 @@ const InvoiceDashboard = () => {
     setTableData(mapped);
   }, [originalData, localStorage.getItem("lang")]);
 
-  const steps = [
-    {
-      title: "Total Outstanding Receivable",
-      value: `₹ ${totals.receivable.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
-      icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
-    },
-    {
-      title: "Total Remaining",
-      value: `₹ ${totals.dueToday.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
-      icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
-    },
-    {
-      title: "Total Amount",
-      value: `₹ ${totals.dueWithin30Days.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
-      icon: <i className="ki-filled ki-time text-xl text-primary"></i>,
-    },
-  ];
+const steps = [
+  {
+    title: (
+      <FormattedMessage
+        id="TOTAL.OUTSTANDING_RECEIVABLE"
+        defaultMessage="Total Outstanding Receivable"
+      />
+    ),
+    value: `₹ ${totals.receivable.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    icon: <i className="ki-filled ki-wallet text-xl text-primary"></i>,
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="TOTAL.REMAINING"
+        defaultMessage="Total Remainiing"
+      />
+    ),
+    value: `₹ ${totals.dueToday.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    icon: <i className="ki-filled ki-calendar-tick text-xl text-primary"></i>,
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="TOTAL.AMOUNT"
+        defaultMessage="Total Amount"
+      />
+    ),
+    value: `₹ ${totals.dueWithin30Days.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    icon: <i className="ki-filled ki-time text-xl text-primary"></i>,
+  },
+];
 
   return (
     <Fragment>
@@ -202,7 +218,12 @@ const InvoiceDashboard = () => {
       <Container>
         {/* Breadcrumb */}
         <div className="mb-3">
-          <Breadcrumbs items={[{ title: "Invoice Overview" }]} />
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="INVOICE.OVERVIEW"
+              defaultMessage=" Invoice Overview"
+            />{" "}
+          </h1>
         </div>
 
         {/* Filters */}
@@ -211,7 +232,15 @@ const InvoiceDashboard = () => {
             {/* Search */}
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-              <input className="input pl-8" placeholder="Search invoice" />
+              <input
+                className="input pl-8"
+                placeholder={
+                  <FormattedMessage
+                    id="INVOICE.SEARCH"
+                    defaultMessage="Search Invoice"
+                  />
+                }
+              />
             </div>
 
             {/* Filter Dropdown */}
@@ -221,10 +250,37 @@ const InvoiceDashboard = () => {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="select pe-7.5"
               >
-                <option value="0">All Invoice</option>
-                <option value="1">Last 3 Months</option>
-                <option value="2">Last 6 Months</option>
-                <option value="3">Custom Date</option>
+                <option value="0">
+                  {" "}
+                  <FormattedMessage
+                    id="INVOICE.ALL"
+                    defaultMessage="  All Invoice"
+                  />
+                </option>
+                <option value="1">
+                  {" "}
+                  <FormattedMessage
+                    id="INVOICE.LAST_3_MONTHS"
+                    defaultMessage=" Last 3 Months"
+                  />
+                </option>
+                <option value="2">
+                  {" "}
+                  <FormattedMessage
+                    id="INVOICE.LAST_6_MONTHS"
+                    defaultMessage=" Last 6 Months"
+                  />
+                </option>
+                <option value="3">
+                  {" "}
+                  <FormattedMessage
+                    id="INVOICE.CUSTOM_DATE"
+                    defaultMessage="    
+                  Custom Date
+"
+                  />
+                  
+                </option>
               </select>
             </div>
 
