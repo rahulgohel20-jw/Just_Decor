@@ -175,7 +175,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       formData.append("contentFontColor", contentColor);
       formData.append("headingFontColor", headingColor);
       formData.append("isNamePlate", "false"); // Template tab doesn't include nameplate
-      formData.append("name", selectedTemplateName);
+      formData.append("name", nameplateName);
       formData.append("templateMappingId", templateModule);
       formData.append("templateModuleId", templateName);
       formData.append("userId", userId);
@@ -636,7 +636,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Nameplate Name <span className="text-red-500">*</span>
+                    Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
