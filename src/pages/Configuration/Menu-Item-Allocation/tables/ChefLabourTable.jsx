@@ -6,9 +6,29 @@ import { GetUnitData } from "@/services/apiServices";
 
 const { Option } = Select;
 
-const ChefLabourTable = ({ data }) => {
+const ChefLabourTable = ({ data = [], onDataChange, onSelectionChange }) => {
+  const [tableData, setTableData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [unitList, setUnitList] = useState([]);
+
+  // Sync prop data into local editable state
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
+  // Notify parent whenever tableData changes
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange(tableData);
+    }
+  }, [tableData, onDataChange]);
+
+  // Notify parent whenever selection changes
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(selectedRows);
+    }
+  }, [selectedRows, onSelectionChange]);
 
   // Fetch units on mount
   useEffect(() => {
@@ -38,13 +58,15 @@ const ChefLabourTable = ({ data }) => {
       id: "select",
       header: (
         <Checkbox
-          checked={data.length > 0 && selectedRows.length === data.length}
+          checked={
+            tableData.length > 0 && selectedRows.length === tableData.length
+          }
           indeterminate={
-            selectedRows.length > 0 && selectedRows.length < data.length
+            selectedRows.length > 0 && selectedRows.length < tableData.length
           }
           onChange={(e) => {
             if (e.target.checked) {
-              setSelectedRows(data.map((row) => row.id));
+              setSelectedRows(tableData.map((row) => row.id));
             } else {
               setSelectedRows([]);
             }
@@ -134,13 +156,33 @@ const ChefLabourTable = ({ data }) => {
             className="input w-[120px]"
             type="number"
             placeholder="No"
-            defaultValue={row.original.counterNo || ""}
+            value={row.original.counterNo || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTableData((prev) =>
+                prev.map((item, index) =>
+                  index === row.index ? { ...item, counterNo: value } : item
+                )
+              );
+            }}
           />
           <Select
             showSearch
             className="w-[120px]"
             placeholder="Select unit"
-            defaultValue={row.original.unit || undefined}
+            value={row.original.unit || undefined}
+            onChange={(value) => {
+              const selectedUnit = unitList.find(
+                (u) => u.nameEnglish === value
+              );
+              setTableData((prev) =>
+                prev.map((item, index) =>
+                  index === row.index
+                    ? { ...item, unit: value, unitId: selectedUnit?.id || 0 }
+                    : item
+                )
+              );
+            }}
             optionFilterProp="children"
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
@@ -175,7 +217,17 @@ const ChefLabourTable = ({ data }) => {
             className="input"
             type="number"
             placeholder="Price"
-            defaultValue={row.original.pricePerHelper || ""}
+            value={row.original.pricePerLabour || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTableData((prev) =>
+                prev.map((item, index) =>
+                  index === row.index
+                    ? { ...item, pricePerLabour: value }
+                    : item
+                )
+              );
+            }}
           />
         </div>
       ),
@@ -189,8 +241,8 @@ const ChefLabourTable = ({ data }) => {
         />
       ),
       cell: ({ row }) => {
-        const quantity = Number(row.original.quantity) || 0;
-        const price = Number(row.original.price.replace("₹", "")) || 0;
+        const quantity = Number(row.original.counterNo) || 0;
+        const price = Number(row.original.pricePerLabour) || 0;
         const total = quantity * price;
 
         return <span>₹{total.toFixed(2)}</span>;
@@ -200,7 +252,7 @@ const ChefLabourTable = ({ data }) => {
 
   return (
     <div>
-      <TableComponent columns={columns} data={data} paginationSize={10} />
+      <TableComponent columns={columns} data={tableData} paginationSize={10} />
       {selectedRows.length > 0 && (
         <div className="mt-2 text-sm text-gray-600">
           {selectedRows.length} row(s) selected

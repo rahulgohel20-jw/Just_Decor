@@ -13,10 +13,6 @@
   "USER.MENU.DARK_MODE": "डार्क मोड",
   "USER.MENU.LOGOUT": "लॉग आउट",
   "USER.MENU.LANGUAGE": "भाषा",
-
-
- 
-
   "COMMON.CONTACTSIDEBAR_TYPE": "टाइप",
   "COMMON.CONTACTSIDEBAR_CATEGORIES": "कैटेगरीज",
   "COMMON.CUSTOMERSSIDEBAR": "ग्राहक",
@@ -99,23 +95,9 @@
   "COMMON.ALL_CATEGORIES": "सभी कैटेगरीज",
   "MENUITEM.CHANGE_CATEGORY":"चेंज मेनू आइटम कैटेगरी",
   "MENUITEM.LIST":"मेनू आइटम लिस्ट",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "ALLOCATE_SUPPLIER":"एलोकेट सप्लायर",
+  "FORM.FROM_TYPE":"फ्रॉम टाइप",
+  "FORM.TO_TYPE":"टू टाइप",
 
 
 
@@ -845,7 +827,90 @@
   "COMMON.STATUS": "स्थिति",
   "COMMON.ACTION": "क्रिया",
   "COMMON.EDIT": "पैकेज संपादित करें",
-  "COMMON.DELETE": "हटाएँ"
+  "COMMON.DELETE": "हटाएँ",
+
+
+  "RAW_MATERIAL.NAME": " रॉ मटीरियल",
+  "RAW_MATERIAL.CATEGORY": "रॉ मटीरियल कैटेगरी",
+  "RAW_MATERIAL.SUPPLIER": " सप्लायर",
+  
+  "TOTAL.OUTSTANDING_RECEIVABLE": " टोटल आउटस्टैंडिंग रिसीवेबल",
+  "TOTAL.REMAINING": " टोटल रिमेनिंग",
+  "TOTAL.AMOUNT": " टोटल अमाउंट",
+
+  "INVOICE.SR_NO": " एस.आर. नंबर",
+  "INVOICE.CUSTOMER_NAME": " कस्टमर नेम",
+  "INVOICE.EVENT_NAME":" इवेंट नेम",
+  "INVOICE.EVENT_DATE": " इवेंट तारीख",
+  "INVOICE.INVOICE_DATE": "इनवॉइस तारीख",
+  "INVOICE.TOTAL_PAID": " टोटल पेड",
+  "INVOICE.BALANCE_DUE": " बैलेंस ड्यू",
+  "COMMON.STATUS": " स्टेटस",
+  "COMMON.VIEW": " व्यू",
+  
+  "INVOICE.OVERVIEW": " इनवॉइस ओवरव्यू",
+  "INVOICE.SEARCH": " सर्च इनवॉइस",
+  "INVOICE.ALL": "ऑल इनवॉइस",
+  "INVOICE.LAST_3_MONTHS": " लास्ट 3 मंथ्स",
+  "INVOICE.LAST_6_MONTHS": " लास्ट 6 मंथ्स",
+  "INVOICE.CUSTOM_DATE": "कस्टम डेट",
+  
+  "COMMON.DASHBOARD": "डैशबोर्ड",
+  "DASHBOARD.TOTAL_EVENTS": "टोटल इवेंट्स",
+  "DASHBOARD.GENERATE_INVOICE": "जनरेट इनवॉइस",
+  "DASHBOARD.TOTAL_RECEIVABLE_INVOICE": " टोटल रिसीवेबल इनवॉइस अमाउंट",
+  "DASHBOARD.TOTAL_RECEIVABLE_QUOTATION": "टोटल रिसीवेबल कोटेशन अमाउंट",
+
+  "SECTION.UPCOMING_EVENTS": " अपकमिंग इवेंट्स",
+  "SECTION.INVOICES": " इनवॉइसेस",
+  "SECTION.MOST_SELLING_ITEM": " मोस्ट सेलिंग आइटम",
+
+  "CHART.SALES_EXPENSE": " सेल्स चार्ट - एक्सपेंस",
+
+  "COMMON.TODAY": " टुडे",
+  "COMMON.THIS_WEEK": " दिस वीक",
+  "COMMON.THIS_MONTH": " दिस मंथ",
+  "COMMON.CUSTOM_RANGE": " कस्टम रेंज",
+
+  "COMMON.APPLY": " अप्लाय",
+  "COMMON.CONTACT_WHATSAPP": " व्हाट्सએप पर संपर्क करें",
+  "COMMON.REQUEST_CALLBACK": " कॉलबैक रिक्वेस्ट",
+
+
+  "CHART.QUOTATION": " कोटेशन चार्ट",
+  "CHART.INVOICE": " इनवॉइस चार्ट",
+  "DASHBOARD.MOST_SELLING_ITEM": " मोस्ट सेलिंग आइटम",
+  "COMMON.SEARCH_HERE": " यहाँ खोजें...",
+  "COMMON.TODAY": " आज",
+  "COMMON.THIS_WEEK": " इस सप्ताह",
+  "COMMON.THIS_MONTH": " इस महीने",
+  "COMMON.CUSTOM_RANGE": " कस्टम रेंज",
+  "COMMON.APPLY": " लागू करें",
+  "COMMON.LOADING": "  लोड हो रहा है...",
+  "HELP.QUICK_HELP": " त्वरित सहायता",
+  "HELP.CONTACT_WHATSAPP": " व्हाट्सएप पर संपर्क करें",
+  "HELP.REQUEST_CALLBACK": "कॉल बैक का अनुरोध करें",
+
+
+  "INVOICE.SR_NO": "एसआर नं#",
+  "INVOICE.CUSTOMER_NAME": "कस्टमर नेम",
+  "INVOICE.EVENT_NAME": "इवेंट नेम",
+  "INVOICE.EVENT_DATE": "इवेंट डेट",
+  "INVOICE.BALANCE_DUE": "बैलेंस ड्यू",
+  "FORM.FROM_TYPE": "फ्रॉम टाइप",
+  "FORM.TO_TYPE": "टू टाइप",
+  
+  "TABLE.SR_NO": "सीरियल नंबर",
+  "TABLE.CLIENT_NAME": "क्लाइंट नेम",
+  "TABLE.EVENT_NAME": "इवेंट नेम",
+  "TABLE.EVENT_DATE_TIME": "इवेंट डेट और टाइम",
+  "TABLE.VENUE": "वेन्यू",
+  "TABLE.STATUS": "स्टेटस"
+
+
+
+
+
 
 
 

@@ -2,13 +2,34 @@ import { useState, useEffect } from "react";
 import { Checkbox, Select } from "antd";
 import { TableComponent } from "@/components/table/TableComponent";
 import { FormattedMessage } from "react-intl";
-import { GetUnitData } from "@/services/apiServices";
+import { GetUnitData, GetAllContactCategory } from "@/services/apiServices";
 
 const { Option } = Select;
 
-const OutsideTable = ({ data }) => {
+const OutsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
+  const [tableData, setTableData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [unitList, setUnitList] = useState([]);
+  const [contactCategoryList, setContactCategoryList] = useState([]);
+
+  // Sync prop data into local editable state
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
+  // Notify parent whenever tableData changes
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange(tableData);
+    }
+  }, [tableData, onDataChange]);
+
+  // Notify parent whenever selection changes
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(selectedRows);
+    }
+  }, [selectedRows, onSelectionChange]);
 
   useEffect(() => {
     const fetchUnits = async () => {
@@ -32,18 +53,41 @@ const OutsideTable = ({ data }) => {
     fetchUnits();
   }, []);
 
+  useEffect(() => {
+    const fetchContactCategories = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await GetAllContactCategory(userId);
+        const categories =
+          response?.data?.data?.["Contact Category Details"] &&
+          Array.isArray(response.data.data["Contact Category Details"])
+            ? response.data.data["Contact Category Details"]
+            : [];
+
+        setContactCategoryList(categories);
+      } catch (err) {
+        console.error("Error fetching contact categories:", err);
+        setContactCategoryList([]);
+      }
+    };
+
+    fetchContactCategories();
+  }, []);
+
   const columns = [
     {
       id: "select",
       header: (
         <Checkbox
-          checked={data.length > 0 && selectedRows.length === data.length}
+          checked={
+            tableData.length > 0 && selectedRows.length === tableData.length
+          }
           indeterminate={
-            selectedRows.length > 0 && selectedRows.length < data.length
+            selectedRows.length > 0 && selectedRows.length < tableData.length
           }
           onChange={(e) => {
             if (e.target.checked) {
-              setSelectedRows(data.map((row) => row.id));
+              setSelectedRows(tableData.map((row) => row.id));
             } else {
               setSelectedRows([]);
             }
@@ -98,6 +142,57 @@ const OutsideTable = ({ data }) => {
       ),
     },
     {
+      accessorKey: "contactCategory",
+      header: (
+        <FormattedMessage
+          id="RAW_MATERIAL.CONTACT_CATEGORY"
+          defaultMessage="Contact Category"
+        />
+      ),
+      cell: ({ row }) => (
+        <Select
+          showSearch
+          className="w-[160px]"
+          placeholder="Select contact category"
+          value={row.original.contactCategory || undefined}
+          onChange={(value) => {
+            const selectedCategory = contactCategoryList.find(
+              (c) => c.nameEnglish === value
+            );
+
+            setTableData((prev) =>
+              prev.map((item, index) =>
+                index === row.index
+                  ? {
+                      ...item,
+                      contactCategory: value,
+                      contactCategoryId: selectedCategory?.id || null,
+                    }
+                  : item
+              )
+            );
+          }}
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+        >
+          {contactCategoryList.length > 0 ? (
+            contactCategoryList.map((category) => (
+              <Select.Option key={category.id} value={category.nameEnglish}>
+                {category.nameEnglish}
+              </Select.Option>
+            ))
+          ) : (
+            <Select.Option value="" disabled>
+              No categories available
+            </Select.Option>
+          )}
+        </Select>
+      ),
+    },
+
+    {
       accessorKey: "quantity",
       header: (
         <FormattedMessage
@@ -109,10 +204,19 @@ const OutsideTable = ({ data }) => {
         <input
           type="number"
           className="input w-[120px]"
-          defaultValue={row.original.quantity}
+          value={row.original.quantity || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            setTableData((prev) =>
+              prev.map((item, index) =>
+                index === row.index ? { ...item, quantity: value } : item
+              )
+            );
+          }}
         />
       ),
     },
+
     {
       accessorKey: "price",
       header: (
@@ -124,7 +228,15 @@ const OutsideTable = ({ data }) => {
           <input
             type="number"
             className="input w-[120px]"
-            defaultValue={row.original.price.replace("₹", "")}
+            value={row.original.price || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTableData((prev) =>
+                prev.map((item, index) =>
+                  index === row.index ? { ...item, price: value } : item
+                )
+              );
+            }}
           />
         </div>
       ),
@@ -137,7 +249,17 @@ const OutsideTable = ({ data }) => {
           showSearch
           className="w-[120px]"
           placeholder="Select unit"
-          defaultValue={row.original.unit}
+          value={row.original.unit || undefined}
+          onChange={(value) => {
+            const selectedUnit = unitList.find((u) => u.nameEnglish === value);
+            setTableData((prev) =>
+              prev.map((item, index) =>
+                index === row.index
+                  ? { ...item, unit: value, unitId: selectedUnit?.id || 0 }
+                  : item
+              )
+            );
+          }}
           optionFilterProp="children"
           filterOption={(input, option) =>
             option.children.toLowerCase().includes(input.toLowerCase())
@@ -167,7 +289,7 @@ const OutsideTable = ({ data }) => {
       ),
       cell: ({ row }) => {
         const quantity = Number(row.original.quantity) || 0;
-        const price = Number(row.original.price.replace("₹", "")) || 0;
+        const price = Number(row.original.price) || 0;
         const total = quantity * price;
 
         return <span>₹{total.toFixed(2)}</span>;
@@ -175,11 +297,9 @@ const OutsideTable = ({ data }) => {
     },
   ];
 
-  console.log("Selected Row IDs:", selectedRows);
-
   return (
     <div>
-      <TableComponent columns={columns} data={data} paginationSize={10} />
+      <TableComponent columns={columns} data={tableData} paginationSize={10} />
 
       {selectedRows.length > 0 && (
         <div className="mt-2 text-sm text-gray-600">
