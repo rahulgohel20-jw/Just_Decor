@@ -28,7 +28,7 @@ const CalendarPage = () => {
   const getStatusColor = (statusCode) => {
     switch (statusCode) {
       case 0:
-        return "#6366f1"; // Inquiry
+        return "info"; // Inquiry
       case 1:
         return "rgba(40, 167, 69, 1)"; // Confirm
       case 2:
@@ -158,13 +158,11 @@ const CalendarPage = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (clickedDate > today) {
-      navigate("/add-event", {
-        state: {
-          event_date: clickedDate,
-        },
-      });
-    }
+    navigate("/add-event", {
+      state: {
+        event_date: clickedDate,
+      },
+    });
   };
 
   return (

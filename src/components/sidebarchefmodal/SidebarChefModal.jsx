@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GetMenuAllocation,
-  ContactNameItem,
-  Getunit,
+  OutsideContactName,
+  GetUnitData,
 } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import AddVendor from "@/partials/modals/add-vendor/AddVendor";
@@ -52,7 +52,7 @@ export default function SidebarChefModal({
   const [extraRows, setExtraRows] = useState([]);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  let userId = localStorage.getItem("userId");
   const intl = useIntl();
 
   useEffect(() => {
@@ -159,6 +159,38 @@ export default function SidebarChefModal({
     unitId: "",
     totalPrice: 0,
   });
+
+  useEffect(() => {
+    FetchUnit();
+    FetchSupplier();
+  }, []);
+
+  const FetchUnit = async () => {
+    try {
+      const data = await GetUnitData(userId);
+      const unitdata = data?.data?.data["Unit Details"] || [];
+      // ✅ FIX: Normalize unit data to ensure unitId exists
+      const normalizedUnits = unitdata.map((unit) => ({
+        ...unit,
+        unitId: unit.id || unit.unitId, // Use 'id' if 'unitId' doesn't exist
+      }));
+      setUnits(normalizedUnits);
+      console.log("✅ Units loaded:", normalizedUnits);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const FetchSupplier = async () => {
+    try {
+      const data = await OutsideContactName(5, userId);
+
+      const supplierdata = data?.data?.data["Party Details"] || [];
+      setContactNames(supplierdata);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleAddRow = () => {
     setExtraRows([
@@ -761,26 +793,31 @@ export default function SidebarChefModal({
                                     }
                                   />
                                   <BaseSelect
-                                    value={defaultRow.unit || ""}
+                                    value={defaultRow.unitId || ""}
                                     onChange={(e) => {
-                                      const selectedUnitName = e.target.value;
+                                      const selectedUnitId = e.target.value;
                                       const selectedUnit = units.find(
-                                        (u) => u.unitName === selectedUnitName
+                                        (u) =>
+                                          String(u.unitId) ===
+                                          String(selectedUnitId)
                                       );
                                       handleDefaultRowChange(
-                                        "unit",
-                                        selectedUnitName
+                                        "unitId",
+                                        selectedUnitId
                                       );
                                       if (selectedUnit) {
                                         handleDefaultRowChange(
-                                          "unitId",
-                                          selectedUnit.unitId
+                                          "unit",
+                                          selectedUnit.nameEnglish
                                         );
                                       }
-                                      console.log("Selected unit:", {
-                                        unitName: selectedUnitName,
-                                        unitId: selectedUnit?.unitId,
-                                      });
+                                      console.log(
+                                        "✅ Default Row - Selected unit:",
+                                        {
+                                          unitId: selectedUnitId,
+                                          unitName: selectedUnit?.nameEnglish,
+                                        }
+                                      );
                                     }}
                                   >
                                     <option value="">
@@ -792,9 +829,9 @@ export default function SidebarChefModal({
                                     {units.map((unit) => (
                                       <option
                                         key={unit.unitId}
-                                        value={unit.unitName}
+                                        value={unit.unitId}
                                       >
-                                        {unit.unitName}
+                                        {unit.nameEnglish}
                                       </option>
                                     ))}
                                   </BaseSelect>
@@ -1018,7 +1055,14 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "unit",
-                                        selectedUnit?.unitName || ""
+                                        selectedUnit?.nameEnglish || ""
+                                      );
+                                      console.log(
+                                        "✅ Existing Row - Selected unit:",
+                                        {
+                                          unitId: selectedUnitId,
+                                          unitName: selectedUnit?.nameEnglish,
+                                        }
                                       );
                                     }}
                                   >
@@ -1033,7 +1077,7 @@ export default function SidebarChefModal({
                                         key={unit.unitId}
                                         value={unit.unitId}
                                       >
-                                        {unit.unitName}
+                                        {unit.nameEnglish}
                                       </option>
                                     ))}
                                   </BaseSelect>
@@ -1256,27 +1300,28 @@ export default function SidebarChefModal({
                               }
                             />
                             <BaseSelect
-                              value={extraRow.unit || ""}
+                              value={extraRow.unitId || ""}
                               onChange={(e) => {
-                                const selectedUnitName = e.target.value;
+                                const selectedUnitId = e.target.value;
                                 const selectedUnit = units.find(
-                                  (u) => u.unitName === selectedUnitName
+                                  (u) =>
+                                    String(u.unitId) === String(selectedUnitId)
                                 );
                                 handleExtraRowChange(
                                   idx,
-                                  "unit",
-                                  selectedUnitName
+                                  "unitId",
+                                  selectedUnitId
                                 );
                                 if (selectedUnit) {
                                   handleExtraRowChange(
                                     idx,
-                                    "unitId",
-                                    selectedUnit.unitId
+                                    "unit",
+                                    selectedUnit.nameEnglish
                                   );
                                 }
-                                console.log("Extra row - Selected unit:", {
-                                  unitName: selectedUnitName,
-                                  unitId: selectedUnit?.unitId,
+                                console.log("✅ Extra row - Selected unit:", {
+                                  unitId: selectedUnitId,
+                                  unitName: selectedUnit?.nameEnglish,
                                 });
                               }}
                             >
@@ -1287,8 +1332,8 @@ export default function SidebarChefModal({
                                 />
                               </option>
                               {units.map((unit) => (
-                                <option key={unit.unitId} value={unit.unitName}>
-                                  {unit.unitName}
+                                <option key={unit.unitId} value={unit.unitId}>
+                                  {unit.nameEnglish}
                                 </option>
                               ))}
                             </BaseSelect>
