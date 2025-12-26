@@ -1,44 +1,62 @@
 import { Fragment, useEffect, useState, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { TableComponent } from "@/components/table/TableComponent";
-import { columns } from "./constant";
 import {
   GetAllMenuItems,
   DeleteMenuItem,
   updatestatusmneuitem,
   uploadFileformenu,
   GetAllSubCategory,
+  GetAllCategory,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
+import { Select } from "antd";
 
-const ITEMS_PER_PAGE = 1000;
+const ITEMS_PER_PAGE = 100;
 
 const MenuItems = () => {
   const navigate = useNavigate();
+  const intl = useIntl();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const intl = useIntl();
   const [subCategoryFilter, setSubCategoryFilter] = useState("");
   const [subCategoryList, setSubCategoryList] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryList, setCategoryList] = useState([]);
 
   let Id = localStorage.getItem("userId");
+
+  const FetchCategoryData = async () => {
+    setLoading(true);
+    try {
+      const res = await GetAllCategory({
+        userid: Id,
+        menuCategoryName: "",
+      });
+
+      const list = res.data.data["Menu Category Details"] || [];
+      setCategoryList(list);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+      setCategoryList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const FetchSubCategoryData = () => {
     setLoading(true);
     GetAllSubCategory({ userid: Id })
       .then((res) => {
         const list = res.data.data["Menu Sub Category Details"] || [];
-        console.log(list);
-
         setSubCategoryList(list);
       })
       .catch((error) => console.error("Error fetching sub category:", error))
@@ -46,7 +64,12 @@ const MenuItems = () => {
   };
 
   const fetchPage = useCallback(
-    async (page, search = searchQuery, subCat = subCategoryFilter) => {
+    async (
+      page,
+      search = searchQuery,
+      category = categoryFilter,
+      subCat = subCategoryFilter
+    ) => {
       setLoading(true);
 
       try {
@@ -55,6 +78,7 @@ const MenuItems = () => {
         const response = await GetAllMenuItems({
           userId: Id,
           itemName: search || "",
+          menuCatId: category || "",
           subCategoryId: subCat || "",
           page: page,
           size: ITEMS_PER_PAGE,
@@ -89,8 +113,6 @@ const MenuItems = () => {
           status: item.isActive,
           rawdata: item.menuItemRawMaterials || [],
           menuAllocation: item.menuItemAllocationConfigs || [],
-          uploadImage,
-
           _originalItem: item,
         }));
 
@@ -103,11 +125,12 @@ const MenuItems = () => {
         setLoading(false);
       }
     },
-    [Id, searchQuery]
+    [Id, searchQuery, categoryFilter, subCategoryFilter]
   );
 
   useEffect(() => {
     fetchPage(1);
+    FetchCategoryData();
     FetchSubCategoryData();
   }, []);
 
@@ -115,8 +138,8 @@ const MenuItems = () => {
     const timeoutId = setTimeout(() => {
       console.log("🔍 Search triggered:", searchQuery);
       setCurrentPage(1);
-      fetchPage(1, searchQuery);
-    }, 500); // 500ms debounce
+      fetchPage(1, searchQuery, categoryFilter, subCategoryFilter);
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
@@ -181,12 +204,11 @@ const MenuItems = () => {
 
       const response = await uploadFileformenu(formData);
 
-      // ✅ STRICT SUCCESS CHECK
       if (response?.data?.success !== true) {
         throw new Error(response?.data?.msg || "Image upload failed");
       }
 
-      const imagePath = response.data.fullPath; // ✅ CORRECT KEY
+      const imagePath = response.data.fullPath;
 
       setTableData((prev) =>
         prev.map((item) =>
@@ -214,7 +236,7 @@ const MenuItems = () => {
 
   const handlePagination = (page) => {
     setCurrentPage(page);
-    fetchPage(page, searchQuery);
+    fetchPage(page, searchQuery, categoryFilter, subCategoryFilter);
   };
 
   const handleEdit = (menuItem) => {
@@ -238,10 +260,22 @@ const MenuItems = () => {
     }
   };
 
+  const handleImageUpload = (e, itemId) => {
+    const file = e.target.files[0];
+    if (file) {
+      uploadImage(itemId, file);
+    }
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+
   return (
     <Fragment>
       <Container>
-        <div className=" pb-2 mb-3">
+        <div className="pb-2 mb-3">
           <h1 className="test-xl text-gray-900">
             <FormattedMessage
               id="COMMON.MENU_ITEM_RECIPE_MASTER"
@@ -251,7 +285,7 @@ const MenuItems = () => {
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex  items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
@@ -265,25 +299,49 @@ const MenuItems = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <select
-              className="input min-w-[200px]"
-              value={subCategoryFilter}
-              onChange={(e) => {
-                const selected = e.target.value;
+            <Select
+              className="min-w-[200px]"
+              showSearch
+              allowClear
+              placeholder="All Categories"
+              optionFilterProp="label"
+              value={categoryFilter || undefined}
+              onChange={(value) => {
+                const selected = value || "";
+                setCategoryFilter(selected);
+                setSubCategoryFilter("");
+                setCurrentPage(1);
+                fetchPage(1, searchQuery, selected, "");
+              }}
+              options={[
+                { value: "", label: "All Categories" },
+                ...categoryList.map((item) => ({
+                  value: item.id,
+                  label: item.nameEnglish || "-",
+                })),
+              ]}
+            />
+            <Select
+              className="min-w-[200px]"
+              showSearch
+              allowClear
+              placeholder="All Subcategories"
+              optionFilterProp="label"
+              value={subCategoryFilter || undefined}
+              onChange={(value) => {
+                const selected = value || "";
                 setSubCategoryFilter(selected);
                 setCurrentPage(1);
-
-                fetchPage(1, searchQuery, selected);
+                fetchPage(1, searchQuery, categoryFilter, selected);
               }}
-            >
-              <option value="">All Subcategories</option>
-              {subCategoryList?.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.nameEnglish || item.name || "-"}
-                </option>
-              ))}
-            </select>
-
+              options={[
+                { value: "", label: "All Subcategories" },
+                ...(subCategoryList || []).map((item) => ({
+                  value: item.id,
+                  label: item.nameEnglish || item.name || "-",
+                })),
+              ]}
+            />
             {loading && (
               <div className="flex items-center gap-2 text-primary">
                 <Spin size="small" />
@@ -311,20 +369,188 @@ const MenuItems = () => {
           </div>
         </div>
 
-        <TableComponent
-          columns={columns(handleEdit, handleDelete, statusmenuitem)}
-          data={tableData}
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            pageSize: ITEMS_PER_PAGE,
-            total: totalItems,
-            onChange: handlePagination,
-            showSizeChanger: false,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-          }}
-        />
+        {/* Native Table */}
+        <div className="card">
+          <div className="card-body p-0">
+            <div className="overflow-x-auto">
+              <table className="table table-auto">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Sr. No.
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Image
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Name
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Category
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Sub Category
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Price (100 Pax)
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="8" className="text-center py-8">
+                        <Spin size="large" />
+                        <p className="mt-2 text-gray-600">Loading...</p>
+                      </td>
+                    </tr>
+                  ) : tableData.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="text-center py-8 text-gray-500"
+                      >
+                        No menu items found
+                      </td>
+                    </tr>
+                  ) : (
+                    tableData.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="py-4 px-6 text-gray-800">
+                          {item.sr_no}
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="relative inline-block w-20 h-20 group">
+                            <img
+                              src={item.image || "/no-image.png"}
+                              alt={item.name}
+                              className="w-16 h-16 object-cover rounded-md border"
+                            />
+                            <label className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-primary/90 transition-all">
+                              <i className="ki-filled ki-cloud-add text-white text-xs"></i>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleImageUpload(e, item.id)}
+                              />
+                            </label>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-gray-800 font-medium">
+                          {item.name}
+                        </td>
+                        <td className="py-4 px-6 text-gray-600">
+                          {item.category}
+                        </td>
+                        <td className="py-4 px-6 text-gray-600">
+                          {item.subCategory}
+                        </td>
+                        <td className="py-4 px-6 text-gray-800">
+                          {item.price}
+                        </td>
+                        <td className="py-4 px-6">
+                          <label className="switch switch-sm">
+                            <input
+                              type="checkbox"
+                              checked={item.status}
+                              onChange={() =>
+                                statusmenuitem(item.id, item.status)
+                              }
+                            />
+                            <span className="slider"></span>
+                          </label>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex gap-2">
+                            <button
+                              className="w-9 h-9 flex items-center justify-center rounded hover:bg-blue-50 text-blue-600 transition-colors"
+                              onClick={() => handleEdit(item)}
+                              title="Edit"
+                            >
+                              <i className="ki-filled ki-notepad-edit text-lg"></i>
+                            </button>
+                            <button
+                              className="w-9 h-9 flex items-center justify-center rounded hover:bg-red-50 text-red-600 transition-colors"
+                              onClick={() => handleDelete(item.id)}
+                              title="Delete"
+                            >
+                              <i className="ki-filled ki-trash text-lg"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Pagination */}
+          {!loading && tableData.length > 0 && (
+            <div className="card-footer justify-between">
+              <div className="text-sm text-gray-600">
+                Showing {startItem} to {endItem} of {totalItems} items
+              </div>
+              <div className="flex gap-2 items-center">
+                <button
+                  className="btn btn-sm btn-light"
+                  onClick={() => handlePagination(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <i className="ki-filled ki-left"></i>
+                  Previous
+                </button>
+
+                <div className="flex gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`btn btn-sm ${
+                          currentPage === pageNum ? "btn-primary" : "btn-light"
+                        }`}
+                        onClick={() => handlePagination(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  className="btn btn-sm btn-light"
+                  onClick={() => handlePagination(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <i className="ki-filled ki-right"></i>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </Container>
     </Fragment>
   );

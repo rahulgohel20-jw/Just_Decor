@@ -134,7 +134,7 @@ const AdminReportCustomThem = () => {
     <Fragment>
       <Container className="flex flex-col min-h-screen">
         <div className="pb-4 mb-3 border-b border-gray-200">
-          <Breadcrumbs items={[{ title: "Menu Report Themes" }]} />
+          <h1 className="text-xl text-gray-900">Menu Report Themes</h1>
         </div>
 
         {/* Tab Navigation */}
@@ -142,7 +142,7 @@ const AdminReportCustomThem = () => {
           <button
             onClick={() => {
               setActiveTab("theme");
-              setShowMore(false); // Reset show more when switching tabs
+              setShowMore(false);
             }}
             className={`px-6 py-3 font-medium text-sm transition-colors relative ${
               activeTab === "theme"

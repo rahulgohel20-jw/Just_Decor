@@ -16,8 +16,7 @@ import AddRawMaterial from "@/partials/modals/add-raw-material/AddRawMaterial";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
-
-const ITEMS_PER_PAGE = 100;
+import { Select } from "antd";
 
 const RawMaterial = () => {
   const classes = useStyle();
@@ -38,6 +37,17 @@ const RawMaterial = () => {
   const [totalRecords, setTotalRecords] = useState(0);
 
   let Id = localStorage.getItem("userId");
+  const field = useMemo(() => {
+    const language = localStorage.getItem("lang");
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+    return languageMap[language] || "nameEnglish";
+  }, []);
+
+  const ITEMS_PER_PAGE = 100;
 
   // ✅ NEW: Search Raw Material function
   const FetchSearchRawMaterial = (searchTerm, page = currentPage) => {
@@ -419,33 +429,34 @@ const RawMaterial = () => {
             </div>
 
             <div className="filItems">
-              <select
-                className="select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">
-                  {intl.formatMessage({
-                    id: "COMMON.ALL_CATEGORIES",
-                    defaultMessage: "All Categories",
-                  })}
-                </option>
-                {categories.map((cat) => {
-                  const language = localStorage.getItem("lang");
-                  const languageMap = {
-                    en: "nameEnglish",
-                    hi: "nameHindi",
-                    gu: "nameGujarati",
-                  };
-                  const field = languageMap[language] || "nameEnglish";
-
-                  return (
-                    <option key={cat.id} value={cat.id}>
-                      {cat[field]}
-                    </option>
-                  );
+              <Select
+                className="min-w-[220px]"
+                showSearch
+                allowClear
+                placeholder={intl.formatMessage({
+                  id: "COMMON.ALL_CATEGORIES",
+                  defaultMessage: "All Categories",
                 })}
-              </select>
+                optionFilterProp="label"
+                value={categoryFilter || undefined}
+                onChange={(value) => {
+                  setCategoryFilter(value || "");
+                  setCurrentPage(1);
+                }}
+                options={[
+                  {
+                    value: "",
+                    label: intl.formatMessage({
+                      id: "COMMON.ALL_CATEGORIES",
+                      defaultMessage: "All Categories",
+                    }),
+                  },
+                  ...categories.map((cat) => ({
+                    value: cat.id,
+                    label: cat[field],
+                  })),
+                ]}
+              />
             </div>
 
             <button

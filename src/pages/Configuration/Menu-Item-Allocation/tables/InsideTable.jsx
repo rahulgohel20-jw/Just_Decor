@@ -128,6 +128,7 @@ const InsideTable = ({ data = [], onDataChange, onSelectionChange }) => {
     {
       accessorKey: "type",
       header: <FormattedMessage id="RAW_MATERIAL.TYPE" defaultMessage="Type" />,
+      cell: ({ row }) => row.original.type || "Inside",
     },
   ];
 
