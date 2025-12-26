@@ -5,7 +5,7 @@ import {
   AddExclusiveReport,
   GetReportConfiguration,
 } from "@/services/apiServices";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 
 // PDF Viewer
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -24,6 +24,9 @@ const MenuReport = ({
   const intl = useIntl();
   const pdfPlugin = defaultLayoutPlugin();
 
+  const userId = localStorage.getItem("userId");
+  const [visibleOptions, setVisibleOptions] = useState([]);
+
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -36,25 +39,15 @@ const MenuReport = ({
     itemInstruction: false,
   });
 
-  console.log(eventId, moduleId);
-
-  // Derived "Check All" (STATIC, no state)
-  const isCheckAll =
-    options.categorySlogan &&
-    options.categoryInstruction &&
-    options.categoryImage &&
-    options.itemSlogan &&
-    options.itemInstruction;
-
-  const userId = 2;
-
-  /* ---------------- FETCH CONFIG FROM BE ---------------- */
+  /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
-    if (!mappingId) return;
+    if (!isModalOpen || !mappingId) return;
 
     const fetchConfig = async () => {
       try {
         const res = await GetReportConfiguration(mappingId);
+        console.log(res);
+
         const config = res?.data?.data?.[0];
         if (!config) return;
 
@@ -65,13 +58,25 @@ const MenuReport = ({
           itemSlogan: config.isItemSlogan === 1,
           itemInstruction: config.isItemInstruction === 1,
         });
+
+        setVisibleOptions(
+          Object.entries({
+            categorySlogan: config.isCategorySlogan,
+            categoryInstruction: config.isCategoryInstruction,
+            categoryImage: config.isCategoryImage,
+            itemSlogan: config.isItemSlogan,
+            itemInstruction: config.isItemInstruction,
+          })
+            .filter(([_, value]) => value === 1)
+            .map(([key]) => key)
+        );
       } catch (err) {
-        console.error("Configuration fetch error", err);
+        console.error("Config fetch error", err);
       }
     };
 
     fetchConfig();
-  }, [mappingId]);
+  }, [isModalOpen, mappingId]);
 
   /* ---------------- TOGGLES ---------------- */
   const toggleAll = (checked) => {
@@ -91,55 +96,74 @@ const MenuReport = ({
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition
-        ${checked ? "bg-blue-600" : "bg-gray-300"}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+        checked ? "bg-blue-600" : "bg-gray-300"
+      }`}
     >
       <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition
-          ${checked ? "translate-x-5" : "translate-x-1"}`}
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+          checked ? "translate-x-5" : "translate-x-1"
+        }`}
       />
     </button>
   );
 
+  const isCheckAll =
+    visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
+
   /* ---------------- REPORT API ---------------- */
   const handleReport = async () => {
-    if (!eventId || !moduleId) {
+    const payload = {
+      eventId,
+      eventFunctionId: eventFunctionId ?? 0,
+      adminTemplateModuleId: moduleId,
+
+      userId,
+      lang:
+        selectedLanguage === "english"
+          ? 0
+          : selectedLanguage === "hindi"
+            ? 1
+            : 2,
+
+      isCategoryImage: options.categoryImage,
+      isCategoryInstruction: options.categoryInstruction,
+      isCategorySlogan: options.categorySlogan,
+      isItemImage: options.categoryImage,
+      isItemInstruction: options.itemInstruction,
+      isItemSlogan: options.itemSlogan,
+    };
+
+    console.log("📦 FINAL PAYLOAD:", payload);
+
+    if (!payload.eventId || !payload.adminTemplateModuleId) {
       errorMsgPopup("Missing required data");
       return;
     }
 
-    const lang =
-      selectedLanguage === "english" ? 0 : selectedLanguage === "hindi" ? 1 : 2;
-
-    const b = (v) => (v ? 1 : 0);
-
     const formData = new FormData();
-    formData.append("adminTemplateModuleId", moduleId);
-    formData.append("eventFunctionId", eventFunctionId || 0);
-    formData.append("eventId", eventId);
-    formData.append("lang", lang);
-    formData.append("userId", userId);
+    Object.entries(payload).forEach(([key, value]) => {
+      if (typeof value === "boolean") {
+        formData.append(key, value ? "1" : "0");
+      } else {
+        formData.append(key, String(value));
+      }
+    });
 
-    formData.append("isCategoryImage", b(options.categoryImage));
-    formData.append("isCategoryInstruction", b(options.categoryInstruction));
-    formData.append("isCategorySlogan", b(options.categorySlogan));
-    formData.append("isItemImage", b(options.categoryImage));
-    formData.append("isItemInstruction", b(options.itemInstruction));
-    formData.append("isItemSlogan", b(options.itemSlogan));
+    console.log("📤 FormData:");
+    for (let p of formData.entries()) console.log(p[0], p[1]);
 
     setLoading(true);
-    console.log(formData);
-
     try {
       const { data } = await AddExclusiveReport(formData);
-      if (data?.success && data?.filePath) {
-        successMsgPopup(data.msg || "Report generated");
-        setPdfUrl(data.filePath);
+      if (data?.success && data?.report_path) {
+        successMsgPopup(data?.msg || "Report generated");
+        setPdfUrl(data?.report_path);
       } else {
         errorMsgPopup(data?.msg || "Failed to generate report");
       }
     } catch (err) {
-      errorMsgPopup(err?.response?.data?.msg || "Report failed");
+      errorMsgPopup(err?.response?.data?.msg || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -156,6 +180,7 @@ const MenuReport = ({
       open={isModalOpen}
       title="Menu Report"
       onClose={handleClose}
+      width={900}
       footer={
         pdfUrl ? (
           <button
@@ -168,24 +193,31 @@ const MenuReport = ({
           <button
             onClick={handleReport}
             disabled={loading}
-            className="px-6 py-2 bg-[#005BA8] text-white rounded"
+            className={`px-6 py-2 text-white rounded ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#005BA8] hover:bg-[#004a8f]"
+            }`}
           >
-            {loading ? "Reporting..." : "Report"}
+            {loading ? "Generating..." : "Generate Report"}
           </button>
         )
       }
     >
-      {!pdfUrl && (
+      {!pdfUrl ? (
         <>
           {/* LANGUAGE */}
           <div className="mb-4">
-            <div className="flex border rounded-lg">
+            <label className="block font-medium mb-2">Select Language</label>
+            <div className="flex border rounded overflow-hidden">
               {["english", "hindi", "gujarati"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setSelectedLanguage(lang)}
                   className={`flex-1 py-2 ${
-                    selectedLanguage === lang ? "bg-[#005BA8] text-white" : ""
+                    selectedLanguage === lang
+                      ? "bg-[#005BA8] text-white"
+                      : "bg-white"
                   }`}
                 >
                   {lang.toUpperCase()}
@@ -195,7 +227,7 @@ const MenuReport = ({
           </div>
 
           {/* CHECK ALL */}
-          <div className="flex justify-between mb-3">
+          <div className="flex justify-between border-b pb-3 mb-3">
             <span className="font-semibold">Check All</span>
             <Toggle
               checked={isCheckAll}
@@ -204,16 +236,23 @@ const MenuReport = ({
           </div>
 
           {/* OPTIONS */}
-          {Object.keys(options).map((key) => (
-            <div key={key} className="flex justify-between items-center py-2">
-              <span>{key.replace(/([A-Z])/g, " $1")}</span>
-              <Toggle checked={options[key]} onChange={() => toggleOne(key)} />
+          <div className="space-y-2">
+            <div className="space-y-2">
+              {visibleOptions.map((key) => (
+                <div key={key} className="flex justify-between items-center">
+                  <span className="capitalize">
+                    {key.replace(/([A-Z])/g, " $1")}
+                  </span>
+                  <Toggle
+                    checked={options[key]}
+                    onChange={() => toggleOne(key)}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </>
-      )}
-
-      {pdfUrl && (
+      ) : (
         <div style={{ height: "80vh" }}>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
             <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />

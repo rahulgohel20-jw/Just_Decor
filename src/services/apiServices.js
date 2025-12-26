@@ -1296,12 +1296,14 @@ export const GetAllCustomTheme = () => {
   return GET(`/templatemaster/getall`);
 };
 
-export const GetAllCustomThemeByUserId = (Id,) => {
+export const GetAllCustomThemeByUserId = (Id) => {
   return GET(`/admintemplatemodule/getall?userId=${Id}`);
 };
 
 export const GetAllCustomThemeByUserIdAndModuleId = (Id, moduleId) => {
-  return GET(`/admintemplatemodule/getall?templateModuleId=${moduleId}&userId=${Id}`);
+  return GET(
+    `/admintemplatemodule/getall?templateModuleId=${moduleId}&userId=${Id}`
+  );
 };
 
 export const AddCustomTheme = (data) => {
@@ -1343,20 +1345,14 @@ export const AssignThemeAdmin = (data) => {
   return POST("/admintemplatemodule/add", data);
 };
 
-
 export const Updatemenuitemallocationconfig = (data) => {
   return PUT(`/menuitems/updatemenuallocation`, data);
-}
-
-
-
-export const AddExclusiveReport = (formData) => {
-  return POST("/report/menu-planning-exclusive", formData);
 };
 
+export const AddExclusiveReport = (formData) => {
+  return POST("/report/menu-planning-exclusive/", formData);
+};
 
 export const GetReportConfiguration = (mappingId) => {
-  return GET(
-    `/report/configuration/get?mappingId=${mappingId}`
-  );
+  return GET(`/report/configuration/get?mappingId=${mappingId}`);
 };
