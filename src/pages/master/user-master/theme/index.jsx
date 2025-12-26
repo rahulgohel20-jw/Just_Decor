@@ -115,7 +115,6 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
     if (!selectedData) return;
 
     const payload = {
-      templateMappingId: selectedData.templateMappingId || 0,
       templateMasterId: selectedData.id || 0,
       templateModuleMasterId: selectedData.templateModuleMasterId || 0,
       userId: userId,
