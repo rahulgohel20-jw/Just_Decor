@@ -1249,15 +1249,6 @@ const EventPlanningPage = () => {
         </div>
       </div>
 
-      <SelectMenureport
-        isSelectMenureport={isSelectMenuReport}
-        setIsSelectMenuReport={setIsSelectMenuReport}
-        onConfirm={() => {
-          setIsSelectMenuReport(false);
-          setIsMenuReport(true);
-        }}
-      />
-
       <MenuReport
         isModalOpen={isMenuReport}
         setIsModalOpen={setIsMenuReport}
