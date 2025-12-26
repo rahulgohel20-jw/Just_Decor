@@ -33,11 +33,15 @@ axiosInstance.interceptors.request.use(
       const systemToken = localStorage.getItem("token");
       config.headers["x-am-authorization"] = systemToken || "__token__";
     }
+
+    // ✅ CRITICAL FIX: Properly handle FormData
     if (!(config.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
     } else {
+      // For FormData, delete Content-Type to let browser set it with boundary
       delete config.headers["Content-Type"];
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -135,13 +139,8 @@ export const POST = (url, data) => axiosInstance.post(url, data);
 export const GET = (url, params) => axiosInstance.get(url, { params });
 export const PUT = (url, data) => axiosInstance.put(url, data);
 export const DELETE = (url, data) => axiosInstance.delete(url, data);
+
 export const UPLOAD = (url, formData, config = {}) =>
-  axiosInstance.post(url, formData, {
-    ...config,
-    headers: {
-      "Content-Type": "multipart/form-data",
-      ...(config.headers || {}),
-    },
-  });
+  axiosInstance.post(url, formData, config);
 
 export default axiosInstance;
