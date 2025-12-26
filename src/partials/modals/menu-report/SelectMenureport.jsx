@@ -307,7 +307,7 @@ export default function SelectMenureport({
                     key={template.id}
                     className={`
           relative bg-white rounded-2xl
-          border-2 ${isActive ? "border-blue-500" : "border-gray-200"}
+          border-2 ${isActive ? "border-[#005BA8]" : "border-gray-200"}
           shadow-md hover:shadow-lg transition-all duration-300
         `}
                   >
@@ -331,13 +331,13 @@ export default function SelectMenureport({
 
                       {/* Title */}
                       <h3
-                        className={`text-lg font-bold mb-2 ${isActive ? "text-blue-600" : "text-gray-800"}`}
+                        className={`text-lg font-bold mb-2 ${isActive ? "text-[#005BA8]" : "text-gray-800"}`}
                       >
                         {template.name}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-sm text-gray-500 text-left">
+                      <p className="text-sm text-gray-700 text-left">
                         {template.description}
                       </p>
 

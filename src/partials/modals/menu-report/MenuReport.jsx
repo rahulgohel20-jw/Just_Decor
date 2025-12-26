@@ -78,21 +78,15 @@ const MenuReport = ({
     fetchConfig();
   }, [isModalOpen, mappingId]);
 
-  /* ---------------- TOGGLES ---------------- */
   const toggleAll = (checked) => {
-    setOptions({
-      categorySlogan: checked,
-      categoryInstruction: checked,
-      categoryImage: checked,
-      itemSlogan: checked,
-      itemInstruction: checked,
+    const newOptions = { ...options };
+    availableFieldKeys.forEach((key) => {
+      newOptions[key] = checked;
     });
+    setOptions(newOptions);
   };
 
-  const toggleOne = (key) =>
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  const Toggle = ({ checked, onChange }) => (
+  const Toggle = ({ checked, onChange, disabled }) => (
     <button
       type="button"
       onClick={onChange}
@@ -169,11 +163,6 @@ const MenuReport = ({
     }
   };
 
-  const handleClose = () => {
-    setPdfUrl(null);
-    setIsModalOpen(false);
-  };
-
   /* ---------------- UI ---------------- */
   return (
     <CustomModal
@@ -220,7 +209,7 @@ const MenuReport = ({
                       : "bg-white"
                   }`}
                 >
-                  {lang.toUpperCase()}
+                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
                 </button>
               ))}
             </div>
