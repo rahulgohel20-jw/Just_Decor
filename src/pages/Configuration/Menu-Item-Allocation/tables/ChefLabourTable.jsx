@@ -103,15 +103,9 @@ const ChefLabourTable = ({ data = [], onDataChange, onSelectionChange }) => {
       ),
     },
     {
-      accessorKey: "typeNo",
-      header: (
-        <FormattedMessage id="RAW_MATERIAL.TYPE_NO" defaultMessage="Type " />
-      ),
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-700">
-          {row.original.chefLabourAgency ? "Chef Labour" : "-"}
-        </span>
-      ),
+      accessorKey: "type",
+      header: <FormattedMessage id="RAW_MATERIAL.TYPE" defaultMessage="Type" />,
+      cell: ({ row }) => row.original.type || "cheflabour",
     },
     {
       accessorKey: "allocationType",
