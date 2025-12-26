@@ -1295,8 +1295,12 @@ export const GetAllCustomTheme = () => {
   return GET(`/templatemaster/getall`);
 };
 
-export const GetAllCustomThemeByUserId = (Id) => {
+export const GetAllCustomThemeByUserId = (Id,) => {
   return GET(`/admintemplatemodule/getall?userId=${Id}`);
+};
+
+export const GetAllCustomThemeByUserIdAndModuleId = (Id, moduleId) => {
+  return GET(`/admintemplatemodule/getall?templateModuleId=${moduleId}&userId=${Id}`);
 };
 
 export const AddCustomTheme = (data) => {
@@ -1343,3 +1347,8 @@ export const Updatemenuitemallocationconfig = (data) => {
   return PUT(`/menuitems/updatemenuallocation`, data);
 }
 
+
+
+export const AddExclusiveReport = (formData) => {
+  return POST("/report/menu-planning-exclusive", formData);
+};
