@@ -24,10 +24,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 const TopTabs = ({ value, onChange, functions }) => {
+  console.log(functions);
+
   return (
     <div className="flex gap-3 overflow-x-auto">
-      {functions.length > 0 ? (
-        functions.map((item) => (
+      {functions.map((item) => {
+        const dateTime = item?.functionStartDateTime || "";
+        const parts = dateTime.split(" ");
+
+        const date = parts[0]; // 26/12/2025
+        const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
+
+        return (
           <button
             key={item.id || item.function?.id}
             onClick={() => onChange(item)}
@@ -38,17 +46,31 @@ const TopTabs = ({ value, onChange, functions }) => {
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
             }
           >
-            {item.function?.nameEnglish || "Unnamed"}
+            <p className="font-semibold">
+              {item.function?.nameEnglish || "Unnamed"}
+            </p>
+
+            <p
+              className={
+                value?.id === item.id
+                  ? "bg-primary text-white shadow"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+              }
+            >
+              {date}
+            </p>
+            <p
+              className={
+                value?.id === item.id
+                  ? "bg-primary text-white shadow"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+              }
+            >
+              {time}
+            </p>
           </button>
-        ))
-      ) : (
-        <p className="text-gray-500 text-sm">
-          <FormattedMessage
-            id="COMMON.NO_FUNCTIONS"
-            defaultMessage="No functions available"
-          />
-        </p>
-      )}
+        );
+      })}
     </div>
   );
 };

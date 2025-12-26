@@ -856,7 +856,7 @@ const MenuDetailsForm = ({
           </div>
 
           {/* Search & Delete */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-4 mb-3">
             <div className="filItems relative">
               <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input

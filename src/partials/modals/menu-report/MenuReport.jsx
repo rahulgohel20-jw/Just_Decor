@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
 import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
-import { MenuReportData } from "@/services/apiServices";
+import { MenuReportData, AddExclusiveReport } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 
 // PDF Viewer
@@ -15,6 +15,8 @@ const MenuReport = ({
   setIsModalOpen,
   eventId,
   eventFunctionId,
+  moduleId,
+  templateId,
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [options, setOptions] = useState({
@@ -28,6 +30,9 @@ const MenuReport = ({
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
 
+  // Get userId from your auth context or storage
+  const userId = 2; // Replace with actual user ID from your auth system
+
   const intl = useIntl();
   const pdfPlugin = defaultLayoutPlugin();
 
@@ -40,6 +45,7 @@ const MenuReport = ({
       itemInstruction: checked,
     });
   };
+
   const Toggle = ({ checked, onChange, disabled }) => (
     <button
       type="button"
@@ -78,26 +84,43 @@ const MenuReport = ({
       return;
     }
 
+    if (!moduleId) {
+      errorMsgPopup("Template Module ID missing");
+      return;
+    }
+
     const b = (v) => (v ? 1 : 0);
 
+    // Map language to integer: english=0, hindi=1, gujarati=2
     const lang =
       selectedLanguage === "english" ? 0 : selectedLanguage === "hindi" ? 1 : 2;
 
     setLoading(true);
+
     try {
-      const { data } = await MenuReportData(
-        eventFunctionId,
-        eventId,
-        b(options.categoryImage),
-        b(options.categoryInstruction),
-        b(options.categorySlogan),
-        b(options.itemInstruction),
-        b(options.itemSlogan),
-        lang
-      );
+      // Create FormData object
+      const formData = new FormData();
+
+      // Required fields
+      formData.append("adminTemplateModuleId", moduleId);
+      formData.append("eventFunctionId", eventFunctionId || 0);
+      formData.append("eventId", eventId);
+      formData.append("lang", lang);
+      formData.append("userId", userId);
+
+      // Optional boolean fields (converted to 0 or 1)
+      formData.append("isCategoryImage", b(options.categoryImage));
+      formData.append("isCategoryInstruction", b(options.categoryInstruction));
+      formData.append("isCategorySlogan", b(options.categorySlogan));
+      formData.append("isItemImage", b(options.categoryImage)); // Note: Using categoryImage for now, adjust if needed
+      formData.append("isItemInstruction", b(options.itemInstruction));
+      formData.append("isItemSlogan", b(options.itemSlogan));
+
+      // Call the new API
+      const { data } = await AddExclusiveReport(formData);
 
       if (data?.success && data?.filePath) {
-        successMsgPopup(data?.msg || "Report generated");
+        successMsgPopup(data?.msg || "Report generated successfully");
         setPdfUrl(data.filePath);
       } else {
         errorMsgPopup(data?.msg || "Failed to generate report");
@@ -105,6 +128,7 @@ const MenuReport = ({
     } catch (err) {
       const apiMsg = err?.response?.data?.msg;
       errorMsgPopup(apiMsg || err?.message || "Failed to generate report");
+      console.error("Report generation error:", err);
     } finally {
       setLoading(false);
     }
