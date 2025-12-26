@@ -611,11 +611,12 @@ export const uploadProfileImage = (data) => {
 export const GetAllMenuItems = ({
   userId,
   itemName = "",
+  menuCatId,
   subCategoryId,
   page,
   size,
 }) => {
-  const query = `?userId=${userId}&itemName=${itemName}&menuSubCatId=${subCategoryId}&page=${page}&size=${size}`;
+  const query = `?userId=${userId}&itemName=${itemName}&menuCatId=${menuCatId}&menuSubCatId=${subCategoryId}&page=${page}&size=${size}`;
   return GET(`/menuitems/getallbyuserid${query}`);
 };
 
