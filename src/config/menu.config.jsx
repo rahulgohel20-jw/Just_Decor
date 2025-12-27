@@ -554,6 +554,15 @@ export const superAdminMenuItems = [
         ),
         path: "/interaction-master",
       },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
+            defaultMessage="Module Name"
+          />
+        ),
+        path: "/ModuleRights",
+      },
     ],
   },
 ];
