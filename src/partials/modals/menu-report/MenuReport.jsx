@@ -37,6 +37,10 @@ const MenuReport = ({
     categoryImage: false,
     itemSlogan: false,
     itemInstruction: false,
+    companyDetails: true,
+    companyLogo: true,
+    itemImage: true,
+    partyDetails: true,
   });
 
   /* ---------------- FETCH CONFIG ---------------- */
@@ -45,7 +49,7 @@ const MenuReport = ({
 
     const fetchConfig = async () => {
       try {
-        const res = await GetReportConfiguration(mappingId);
+        const res = await GetReportConfiguration(mappingId, moduleId);
         console.log(res);
 
         const config = res?.data?.data?.[0];
@@ -57,6 +61,10 @@ const MenuReport = ({
           categoryImage: config.isCategoryImage === 1,
           itemSlogan: config.isItemSlogan === 1,
           itemInstruction: config.isItemInstruction === 1,
+          companyDetails: config.isCompanyDetails === 1,
+          companyLogo: config.isCompanyLogo === 1,
+          itemImage: config.isItemImage === 1,
+          partyDetails: config.isPartyDetails === 1,
         });
 
         setVisibleOptions(
@@ -66,6 +74,10 @@ const MenuReport = ({
             categoryImage: config.isCategoryImage,
             itemSlogan: config.isItemSlogan,
             itemInstruction: config.isItemInstruction,
+            companyDetails: config.isCompanyDetails,
+            companyLogo: config.isCompanyLogo,
+            itemImage: config.isItemImage,
+            partyDetails: config.isPartyDetails,
           })
             .filter(([_, value]) => value === 1)
             .map(([key]) => key)
@@ -112,7 +124,7 @@ const MenuReport = ({
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? 0,
-      adminTemplateModuleId: moduleId,
+      adminTemplateModuleId: moduleId ?? 0,
 
       userId,
       lang:
@@ -128,6 +140,9 @@ const MenuReport = ({
       isItemImage: options.categoryImage,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
+      isCompanyDetails: options.companyDetails,
+      iscompanyLogo: options.companyLogo,
+      isPartyDetails: options.partyDetails,
     };
 
     console.log("📦 FINAL PAYLOAD:", payload);

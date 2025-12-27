@@ -1353,6 +1353,6 @@ export const AddExclusiveReport = (formData) => {
   return POST("/report/menu-planning-exclusive/", formData);
 };
 
-export const GetReportConfiguration = (mappingId) => {
-  return GET(`/report/configuration/get?mappingId=${mappingId}`);
+export const GetReportConfiguration = (mappingId, moduleId) => {
+  return GET(`/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`);
 };
