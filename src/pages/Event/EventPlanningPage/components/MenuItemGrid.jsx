@@ -382,7 +382,10 @@ const MenuItemGrid = ({
                   }}
                   className="absolute top-1 left-1  text-white px-1 py-[2px] text-[11px] rounded flex items-center gap-1"
                 >
-                  <Eye className="text-primary" size={20} />
+                  <Eye
+                    className="text-white bg-primary p-1 rounded-lg"
+                    size={20}
+                  />
                 </button>
               </div>
 
