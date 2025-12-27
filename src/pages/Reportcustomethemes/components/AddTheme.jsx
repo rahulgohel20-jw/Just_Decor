@@ -137,7 +137,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       return;
     }
 
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 15 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       Swal.fire({
         title: "File Too Large",
@@ -374,7 +374,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     }
 
     // Validate file types and sizes
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 15 * 1024 * 1024; // 5MB
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
     for (let file of fileArr) {
@@ -428,7 +428,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     }
 
     // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 15 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       Swal.fire({
         title: "File Too Large",
