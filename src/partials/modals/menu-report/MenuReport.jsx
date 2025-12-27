@@ -79,11 +79,13 @@ const MenuReport = ({
   }, [isModalOpen, mappingId]);
 
   const toggleAll = (checked) => {
-    const newOptions = { ...options };
-    availableFieldKeys.forEach((key) => {
-      newOptions[key] = checked;
+    setOptions((prev) => {
+      const updated = { ...prev };
+      visibleOptions.forEach((key) => {
+        updated[key] = checked;
+      });
+      return updated;
     });
-    setOptions(newOptions);
   };
 
   const Toggle = ({ checked, onChange, disabled }) => (
@@ -162,6 +164,12 @@ const MenuReport = ({
       setLoading(false);
     }
   };
+  const handleClose = () => {
+    setPdfUrl(null);
+    setIsModalOpen(false);
+  };
+  const toggleOne = (key) =>
+    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
 
   /* ---------------- UI ---------------- */
   return (
