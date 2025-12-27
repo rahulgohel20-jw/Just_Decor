@@ -558,6 +558,15 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CUSTOMERS"
+            defaultMessage="Report Configuration"
+          />
+        ),
+        path: "/super-allreport-config",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
             defaultMessage="Module Name"
           />
         ),
