@@ -10,6 +10,7 @@ import {
   updateusermaster,
 } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useUser } from "../../context/UserContext";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -25,6 +26,8 @@ const getUserIdFromLocalStorage = () => {
 
 const ProfileForm = ({ isEditing, onSaveSuccess }) => {
   const intl = useIntl();
+  const { refreshUser } = useUser();
+
   const [form] = Form.useForm();
   const userMasterId = getUserIdFromLocalStorage();
 
@@ -181,10 +184,12 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
       await updateusermaster(userMasterId, payload);
       message.success("Profile updated successfully");
 
-      // Refresh data from API after successful update
-      await fetchUserData();
-
       setIsChanged(false);
+
+      await refreshUser();
+
+      // Optional: refresh form UI
+      // await fetchUserData();
 
       if (onSaveSuccess) {
         onSaveSuccess();

@@ -193,7 +193,6 @@ export default function SelectMenureport({
     setSelectedFunctionId(functionId);
 
     // ✅ CLOSE parent modal
-    setIsSelectMenuReport(false);
 
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
