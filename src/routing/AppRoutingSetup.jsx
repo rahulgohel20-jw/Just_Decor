@@ -206,6 +206,7 @@ import { Allocatesupplier } from "../pages/Configuration/Allocate-supplier/Alloc
 import ReportsConfig from "../pages/Reports/ReportsConfig";
 import ReportLabelConfiguration from "../pages/Reports/ReportLabelConfiguration";
 import AdminReportCustomThem from "../pages/master/AdminReportCustomTheme";
+import AllReportsConfig from "../pages/super-admin/master/super-report-config";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -382,6 +383,8 @@ const AppRoutingSetup = () => {
           />
           <Route path="/super-templateMapping" element={<TemplateMapping />} />
           <Route path="/interaction-master" element={<InteractionMaster />} />
+          <Route path="super-allreport-config" element={<AllReportsConfig />} />
+          {/* <Route path="/super-report-config" element={<ReportsConfig />} /> */}
           <Route path="/master/user-master/plan" element={<AllPlan />} />
           <Route
             path="/master/menu-category"
