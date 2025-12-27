@@ -8,8 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { DropdownChat } from "@/partials/dropdowns/chat";
 import { ModalSearch } from "@/partials/modals/search/ModalSearch";
 import { useLanguage } from "@/i18n";
+import { useUser } from "@/context/UserContext";
+
 import CheckInModal from "@/partials/modals/CheckInModal";
-import { getUserById } from "@/services/apiServices";
 
 const HeaderTopbar = () => {
   const navigate = useNavigate();
@@ -21,34 +22,15 @@ const HeaderTopbar = () => {
 
   const [checkInModal, setCheckInModal] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [companyName, setCompanyName] = useState("");
-  const [userLogo, setUserLogo] = useState("");
-  // ✅ Load company name from localStorage
+  const { user, refreshUser } = useUser();
+
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const Id = localStorage.getItem("userId");
-        if (!Id) {
-          console.warn("⚠️ No user data found in localStorage");
-          return;
-        }
+    refreshUser();
+  }, [refreshUser]);
 
-        const user = await getUserById(Id);
-        const User_data = user.data.data["User Details"][0];
-        console.log(User_data);
+  const companyName = user?.userBasicDetails?.companyName || "Company";
 
-        const company = User_data?.userBasicDetails?.companyName || "";
-        const logo = User_data?.logo;
-        setUserLogo(logo);
-        setCompanyName(company || "Company");
-      } catch (error) {
-        console.error("❌ Error reading user data:", error);
-        setCompanyName("Company");
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const userLogo = user?.logo;
 
   return (
     <div className="flex items-center justify-between w-full">
