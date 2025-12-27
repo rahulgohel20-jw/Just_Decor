@@ -9,6 +9,8 @@ import {
   GettemplatebyuserId,
   GetAllCustomThemeByUserIdAndModuleId,
 } from "@/services/apiServices";
+import { useMemo } from "react";
+
 import MenuReport from "./MenuReport";
 
 export default function SelectMenureport({
@@ -17,11 +19,14 @@ export default function SelectMenureport({
   setIsSelectMenuReport,
   onConfirm,
   activeFunctionName,
+  setEventFunctionId,
+  disabled = false,
 }) {
   const navigate = useNavigate();
 
   const params = useParams();
-  const finalEventId = eventId || params?.eventId;
+  const finalEventId = eventId || params.eventId;
+
   const [selectedCard, setSelectedCard] = useState(null);
 
   const [eventData, setEventData] = useState(null);
@@ -38,35 +43,13 @@ export default function SelectMenureport({
   const [selectedModuleId, setSelectedModuleId] = useState(null);
 
   // Get userId from your auth context or storage
-  const userId = 2; // Replace with actual user ID from your auth system
+  const userId = localStorage.getItem("userId");
 
-  // Static simple templates
-  const simpleTemplates = [
-    {
-      id: "simple-1",
-      name: "Simple 1",
-      description: "Clean and minimal template design.",
-      dummyPdf: "/media/templates/simple1.pdf",
-      isStatic: true,
-      mappingId: null,
-    },
-    {
-      id: "simple-2",
-      name: "Simple 2",
-      description: "Modern and elegant template layout.",
-      dummyPdf: "/media/templates/simple2.pdf",
-      isStatic: true,
-      mappingId: null,
-    },
-    {
-      id: "simple-3",
-      name: "Simple 3",
-      description: "Professional and straightforward design.",
-      dummyPdf: "/media/templates/simple3.pdf",
-      isStatic: true,
-      mappingId: null,
-    },
-  ];
+  const selectedEventFunction = useMemo(() => {
+    return eventData?.eventFunctions?.find(
+      (item) => item.id === setEventFunctionId
+    );
+  }, [eventData, setEventFunctionId]);
 
   // Fetch template modules for tabs
   useEffect(() => {
@@ -100,32 +83,31 @@ export default function SelectMenureport({
     fetchTemplateModules();
   }, []);
 
-  // Fetch templates when active tab changes
+  // Remove the simpleTemplates array completely - delete these lines if you have them
+
   useEffect(() => {
     const fetchTemplates = async () => {
       if (!activeTab) return;
 
-      // Check if the active tab is "Simple" (you may need to adjust the condition)
-      const activeTabData = tabs.find((tab) => tab.key === activeTab);
+      setTemplates([]); // Clear templates first
 
-      // If it's a Simple module, use static templates
-      if (activeTabData?.label?.toLowerCase().includes("simple")) {
-        setTemplates(simpleTemplates);
-        return;
-      }
-
-      // Otherwise, fetch from API
       try {
         setTemplatesLoading(true);
+
+        // Fetch dynamic templates from API
         const res = await GetAllCustomThemeByUserIdAndModuleId(
           userId,
           activeTab
         );
 
-        console.log("data", res.data.data);
+        let dynamicTemplates = [];
 
-        if (res?.data?.success && res?.data?.data) {
-          const fetchedTemplates = res.data.data.map((item) => ({
+        if (
+          res?.data?.success &&
+          res?.data?.data &&
+          Array.isArray(res.data.data)
+        ) {
+          dynamicTemplates = res.data.data.map((item) => ({
             id: item.id,
             name: item.templateMaster.name,
             description: `${item.templateMaster.name} - Custom theme template`,
@@ -141,12 +123,12 @@ export default function SelectMenureport({
             isStatic: false,
             mappingId: item.templateMappingResponseDto?.id || item.id,
           }));
-
-          console.log("fetchedTemplates", fetchedTemplates);
-          setTemplates(fetchedTemplates);
-        } else {
-          setTemplates([]);
         }
+
+        console.log("Dynamic templates fetched:", dynamicTemplates);
+
+        // ✅ Always set only dynamic templates (no static templates)
+        setTemplates(dynamicTemplates);
       } catch (error) {
         console.error("Error fetching templates:", error);
         setTemplates([]);
@@ -156,7 +138,7 @@ export default function SelectMenureport({
     };
 
     fetchTemplates();
-  }, [activeTab, tabs]);
+  }, [activeTab, tabs, userId]);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -189,10 +171,7 @@ export default function SelectMenureport({
     setmappingId(template.mappingId);
     setSelectedModuleId(activeTab);
 
-    const functionId = eventData?.eventFunctions?.[0]?.id || 0;
-    setSelectedFunctionId(functionId);
-
-    // ✅ CLOSE parent modal
+    setSelectedFunctionId(setEventFunctionId);
 
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
@@ -201,7 +180,7 @@ export default function SelectMenureport({
   return (
     <>
       <CustomModal
-        open={isSelectMenureport}
+        open={isSelectMenureport && !disabled}
         onClose={() => setIsSelectMenuReport(false)}
         footer={null}
         title={
@@ -234,9 +213,7 @@ export default function SelectMenureport({
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/funtionname.png")}
                 label="Function"
-                value={
-                  eventData?.eventFunctions?.[0]?.function?.nameEnglish || "-"
-                }
+                value={selectedEventFunction?.function?.nameEnglish || "-"}
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/date&time.png")}

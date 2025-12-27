@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, useCallback } from "react";
+import { Fragment, useEffect, useState, useCallback, useMemo } from "react";
 import { toAbsoluteUrl } from "@/utils";
 import MenuItemGrid from "./components/MenuItemGrid";
 import SelectedItems from "./components/SelectedItems";
@@ -63,6 +63,17 @@ const EventPlanningPage = () => {
   const userId = localStorage.getItem("userId");
   const [editPax, setEditPax] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+
+  const hasSelectedItems = useMemo(() => {
+    const bucket = selectedByFunction[selectedFunction];
+    if (!bucket || !bucket.categories) return false;
+
+    const totalItems = Object.values(bucket.categories).reduce(
+      (sum, items) => sum + items.length,
+      0
+    );
+    return totalItems > 0;
+  }, [selectedByFunction, selectedFunction]);
 
   const fetchEventData = async () => {
     try {
@@ -1070,11 +1081,12 @@ const EventPlanningPage = () => {
                   Menu Package
                 </button>
                 <button
-                  className="btn bg-success text-white text-sm px-3 py-1 "
+                  className="btn bg-success text-white text-sm px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => {
                     setMenuReportEventId(eventId);
                     setIsSelectMenuReport(true);
                   }}
+                  disabled={!hasSelectedItems || isDirty} // Add disabled condition
                 >
                   Report
                 </button>
@@ -1262,10 +1274,12 @@ const EventPlanningPage = () => {
       />
       <SelectMenureport
         isSelectMenureport={isSelectMenuReport}
+        setEventFunctionId={selectedFunction}
         setIsSelectMenuReport={setIsSelectMenuReport}
         onConfirm={() => {
           setIsMenuReport(true);
         }}
+        disabled={!hasSelectedItems || isDirty}
       />
 
       <AddMenuItem
