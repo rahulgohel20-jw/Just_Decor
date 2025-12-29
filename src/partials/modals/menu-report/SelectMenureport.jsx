@@ -34,6 +34,7 @@ export default function SelectMenureport({
   const [hoveredCard, setHoveredCard] = useState(null);
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
+  const [moduleId, setModuleId] = useState(null);
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
@@ -56,6 +57,7 @@ export default function SelectMenureport({
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
+        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
           const modules = res.data.data
@@ -68,7 +70,6 @@ export default function SelectMenureport({
             }));
 
           setTabs(modules);
-          console.log("module", modules);
 
           // Set first tab as active by default
           if (modules.length > 0) {
@@ -81,24 +82,23 @@ export default function SelectMenureport({
     };
 
     fetchTemplateModules();
-  }, []);
-
-  // Remove the simpleTemplates array completely - delete these lines if you have them
+  }, [isSelectMenureport, finalEventId]);
 
   useEffect(() => {
     const fetchTemplates = async () => {
       if (!activeTab) return;
 
-      setTemplates([]); // Clear templates first
+      setTemplates([]);
 
       try {
         setTemplatesLoading(true);
 
-        // Fetch dynamic templates from API
         const res = await GetAllCustomThemeByUserIdAndModuleId(
           userId,
           activeTab
         );
+
+        console.log(res, "data");
 
         let dynamicTemplates = [];
 
@@ -125,9 +125,6 @@ export default function SelectMenureport({
           }));
         }
 
-        console.log("Dynamic templates fetched:", dynamicTemplates);
-
-        // ✅ Always set only dynamic templates (no static templates)
         setTemplates(dynamicTemplates);
       } catch (error) {
         console.error("Error fetching templates:", error);
@@ -348,6 +345,7 @@ export default function SelectMenureport({
         eventFunctionId={selectedFunctionId}
         moduleId={selectedModuleId || activeTab}
         mappingId={mappingId}
+        selectedTemplateId={selectedTemplateId}
       />
     </>
   );

@@ -20,6 +20,7 @@ const MenuReport = ({
   eventFunctionId,
   moduleId,
   mappingId,
+  selectedTemplateId,
 }) => {
   const intl = useIntl();
   const pdfPlugin = defaultLayoutPlugin();
@@ -124,7 +125,7 @@ const MenuReport = ({
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? 0,
-      adminTemplateModuleId: moduleId ?? 0,
+      adminTemplateModuleId: selectedTemplateId ?? 0,
 
       userId,
       lang:
