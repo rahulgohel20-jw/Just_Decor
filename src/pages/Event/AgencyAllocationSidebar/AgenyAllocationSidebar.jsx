@@ -3,6 +3,9 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import ChefLabourSection from "./sections/ChefLabourSection";
 import OutsideAgencySection from "./sections/OutsideAgencySection";
 import InHouseCookSection from "./sections/InHouseCookSection";
+import AddContactName from "../../master/MenuItemMaster/components/AddContactName";
+import { Plus } from "lucide-react";
+
 import { GetAllItemByType } from "@/services/apiServices";
 
 // Tab configuration
@@ -21,6 +24,9 @@ export default function AgencyAllocationSidebar({
   const [tab, setTab] = useState("cheflabour");
   const [loading, setLoading] = useState(false);
   const [allocationData, setAllocationData] = useState(null);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [concatId, setConcatId] = useState(null);
+  const [contactTypeId, setContactTypeId] = useState(null);
 
   // ✅ Extract event function data from first allocation
   const eventFunctionData = useMemo(() => {
@@ -172,26 +178,50 @@ export default function AgencyAllocationSidebar({
             </div>
 
             {/* Event Info */}
-            <div className="flex gap-20 px-6 py-4 border-b bg-white">
-              <div>
-                <p className="text-sm text-gray-500">Function</p>
-                <p className="font-semibold text-gray-900">
-                  {eventFunctionData?.eventFunctionName || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Date & Time</p>
-                <p className="font-semibold text-gray-900">
-                  {eventFunctionData?.functionStartDateTime || "-"}
-                </p>
-              </div>
-              {eventFunctionData?.pax && (
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
+              <div className="flex gap-20">
                 <div>
-                  <p className="text-sm text-gray-500">PAX</p>
+                  <p className="text-sm text-gray-500">Function</p>
                   <p className="font-semibold text-gray-900">
-                    {eventFunctionData.pax}
+                    {eventFunctionData?.eventFunctionName || "-"}
                   </p>
                 </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Date & Time</p>
+                  <p className="font-semibold text-gray-900">
+                    {eventFunctionData?.functionStartDateTime || "-"}
+                  </p>
+                </div>
+
+                {eventFunctionData?.pax && (
+                  <div>
+                    <p className="text-sm text-gray-500">PAX</p>
+                    <p className="font-semibold text-gray-900">
+                      {eventFunctionData.pax}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {eventFunctionData?.pax && (
+                <button
+                  onClick={() => {
+                    let typeId = null;
+
+                    if (tab === "cheflabour") typeId = 5;
+                    if (tab === "outside") typeId = 6;
+                    if (tab === "inside") typeId = 7;
+
+                    setConcatId(typeId);
+                    setContactTypeId(typeId);
+                    setIsMemberModalOpen(true);
+                  }}
+                  className="flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                >
+                  <span>Add Venodr</span>
+                  <Plus className="w-5 h-5 bg-blue-700 text-white rounded-full p-1" />
+                </button>
               )}
             </div>
 
@@ -221,6 +251,13 @@ export default function AgencyAllocationSidebar({
           </motion.div>
         </div>
       )}
+      <AddContactName
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+        concatId={concatId}
+        contactTypeId={contactTypeId}
+        refreshData={() => fetchAllocationData(tab)}
+      />
     </AnimatePresence>
   );
 }

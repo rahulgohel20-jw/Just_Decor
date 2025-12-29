@@ -40,6 +40,7 @@ const RawMaterialAllocation = () => {
   const [eventData, setEventData] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
+  const [isSaving, setIsSaving] = useState(false); // Add this line after other useState declarations
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
@@ -312,6 +313,7 @@ const RawMaterialAllocation = () => {
   };
 
   const handleSave = async () => {
+    setIsSaving(true); // 🔥 Start loader
     const success = await autoSave(true);
 
     if (success) {
@@ -326,6 +328,7 @@ const RawMaterialAllocation = () => {
         text: "Something went wrong while saving.",
       });
     }
+    setIsSaving(false); // 🔥 Stop loader
   };
 
   const handleTabSwitch = async (tab) => {
@@ -405,7 +408,7 @@ const RawMaterialAllocation = () => {
     ];
 
     return (
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto ">
         <table className="min-w-full text-sm text-gray-700">
           <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
             <tr>
@@ -670,11 +673,26 @@ const RawMaterialAllocation = () => {
               </button>
               <button
                 onClick={handleSave}
-                className="bg-primary text-white text-sm px-5 py-2 rounded-md transition"
-                title="Save"
+                disabled={!hasUnsavedChanges || isSaving} // 🔥 Add isSaving
+                className={`text-sm px-5 py-2 rounded-md transition flex items-center gap-2
+    ${
+      hasUnsavedChanges && !isSaving
+        ? "bg-primary text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
+                title={hasUnsavedChanges ? "Save" : "No changes to save"}
               >
-                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-                {hasUnsavedChanges && <span className="ml-1">*</span>}
+                {isSaving ? (
+                  <>
+                    <i className="ki-filled ki-loading animate-spin"></i>
+                    <FormattedMessage
+                      id="COMMON.SAVING"
+                      defaultMessage="Saving..."
+                    />
+                  </>
+                ) : (
+                  <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                )}
               </button>
             </div>
           </div>
@@ -730,9 +748,9 @@ const RawMaterialAllocation = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto bg-white rounded-xl shadow border border-gray-200">
-          <table className="min-w-full text-sm text-gray-700">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+        <div className="bg-white rounded-xl shadow border border-gray-200 flex flex-col scrollbar-hide">
+          <table className="min-w-full text-sm text-gray-700 ">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
               <tr>
                 {[
                   <FormattedMessage
@@ -770,82 +788,83 @@ const RawMaterialAllocation = () => {
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="9" className="text-center py-4">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.LOADING"
-                      defaultMessage="Loading..."
-                    />
-                  </td>
-                </tr>
-              ) : data.length === 0 ? (
-                <tr>
-                  <td colSpan="9" className="text-center py-4 text-gray-500">
-                    <FormattedMessage
-                      id="COMMON.NO_MATERIAL_FOUND"
-                      defaultMessage="No materials found"
-                    />
-                  </td>
-                </tr>
-              ) : (
-                data.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition"
-                  >
-                    <td className="px-4 py-3">{item.id}</td>
-                    <td className="px-4 py-3">{item.material}</td>
-                    <td className="px-4 py-3">{item.qty}</td>
-
-                    <td className="px-4 py-3">
-                      <input
-                        type="text"
-                        value={item.finalQty}
-                        onChange={(e) =>
-                          handleChange(index, "finalQty", e.target.value)
-                        }
-                        className="w-24 border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-100"
+          </table>
+          <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
+            <table className="min-w-full text-sm text-gray-700">
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="9" className="text-center py-4">
+                      <FormattedMessage
+                        id="SIDEBAR_MODAL.LOADING"
+                        defaultMessage="Loading..."
                       />
                     </td>
-
-                    <td className="px-4 py-3">
-                      <select
-                        value={item.unit}
-                        onChange={(e) =>
-                          handleChange(index, "unit", e.target.value)
-                        }
-                        className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-100"
-                      >
-                        {unitOptions.map((unit) => (
-                          <option key={unit}>{unit}</option>
-                        ))}
-                      </select>
-                    </td>
-
-                    <td className="px-4 py-3">{item.agency}</td>
-                    <td className="px-4 py-3">{item.place}</td>
-                    <td className="px-4 py-3">
-                      {item.date
-                        ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
-                        : "-"}
-                    </td>
-                    <td className="px-4 py-3 ">{item.total}</td>
-                    <td className="px-4 py-3 flex justify-center">
-                      <span
-                        className="text-black cursor-pointer text-lg"
-                        onClick={() => handleEditRow(item)}
-                        title="Edit Raw Material"
-                      >
-                        <i className="ki-filled ki-notepad-edit text-primary"></i>
-                      </span>
+                  </tr>
+                ) : data.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="text-center py-4 text-gray-500">
+                      <FormattedMessage
+                        id="COMMON.NO_MATERIAL_FOUND"
+                        defaultMessage="No materials found"
+                      />
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  data.map((item, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="px-4 py-3">{item.id}</td>
+                      <td className="px-4 py-3">{item.material}</td>
+                      <td className="px-4 py-3">{item.qty}</td>
+
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={item.finalQty}
+                          onChange={(e) =>
+                            handleChange(index, "finalQty", e.target.value)
+                          }
+                          className="w-24 border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-100"
+                        />
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <select
+                          value={item.unit}
+                          onChange={(e) =>
+                            handleChange(index, "unit", e.target.value)
+                          }
+                          className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-100"
+                        >
+                          {unitOptions.map((unit) => (
+                            <option key={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </td>
+
+                      <td className="px-4 py-3">{item.agency}</td>
+                      <td className="px-4 py-3">{item.place}</td>
+                      <td className="px-4 py-3">
+                        {item.date
+                          ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-3 ">{item.total}</td>
+                      <td className="px-4 py-3 flex justify-center">
+                        <span
+                          className="text-black cursor-pointer text-lg"
+                          onClick={() => handleEditRow(item)}
+                          title="Edit Raw Material"
+                        >
+                          <i className="ki-filled ki-notepad-edit text-primary"></i>
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 py-4 border-t border-gray-200 bg-gray-50">
             <div className="text-sm font-medium text-gray-800">
@@ -859,10 +878,20 @@ const RawMaterialAllocation = () => {
             </div>
             <button
               onClick={handleSave}
-              className="bg-primary text-white text-sm px-6 py-2 rounded-md transition"
+              disabled={isSaving} // 🔥 Add disabled state
+              className="bg-primary text-white text-sm px-6 py-2 rounded-md transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-              {hasUnsavedChanges && <span className="ml-1"></span>}
+              {isSaving ? (
+                <>
+                  <i className="ki-filled ki-loading animate-spin"></i>
+                  <FormattedMessage
+                    id="COMMON.SAVING"
+                    defaultMessage="Saving..."
+                  />
+                </>
+              ) : (
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+              )}
             </button>
           </div>
         </div>
@@ -900,6 +929,30 @@ const RawMaterialAllocation = () => {
           }}
         />
       </Container>
+      {isSaving && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className=" rounded-lg p-8  flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold text-white">
+                <FormattedMessage
+                  id="COMMON.SAVING"
+                  defaultMessage="Saving..."
+                />
+              </p>
+              <p className="text-sm text-gray-500">
+                <FormattedMessage
+                  id="COMMON.PLEASE_WAIT"
+                  defaultMessage="Please wait"
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </Fragment>
   );
 };

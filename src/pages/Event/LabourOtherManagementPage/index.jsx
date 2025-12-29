@@ -14,6 +14,9 @@ import SelectMenureport from "../../../partials/modals/menu-report/SelectMenurep
 import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
 import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 import { useExtraExpense } from "./hooks/useExtraExpense";
+import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+
+import { Plus } from "lucide-react";
 import {
   GetEventMasterById,
   GetAllContactCategory,
@@ -71,7 +74,10 @@ const LabourOtherManagementPage = () => {
   const [activeFunctionName, setActiveFunctionName] = useState("");
   const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
+  const [contactTypeId, setContactTypeId] = useState(2);
+  const [concatId, setConcatId] = useState(2);
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -93,6 +99,8 @@ const LabourOtherManagementPage = () => {
 
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // Add this line after other useState declarations
 
   const userId = localStorage.getItem("userId");
   console.log("userid", userId);
@@ -300,6 +308,8 @@ const LabourOtherManagementPage = () => {
   }, [eventData, activeTab, labourCategories, allContacts, activeFunction]);
 
   const handleRowChange = useCallback((id, field, value) => {
+    setHasUnsavedChanges(true);
+
     setLabourData((prev) =>
       prev.map((row) => {
         if (row.id !== id) return row;
@@ -319,6 +329,8 @@ const LabourOtherManagementPage = () => {
 
   const handleLabourTypeChange = useCallback(
     (rowId, value) => {
+      setHasUnsavedChanges(true);
+
       const selectedCategory = labourCategories.find(
         (c) => c.nameEnglish === value
       );
@@ -341,6 +353,8 @@ const LabourOtherManagementPage = () => {
 
   const handleContactChange = useCallback(
     (rowId, contactName) => {
+      setHasUnsavedChanges(true);
+
       const row = labourData.find((r) => r.id === rowId);
       const contactList = filteredContacts[rowId] || [];
       const selectedContact = contactList.find(
@@ -363,10 +377,12 @@ const LabourOtherManagementPage = () => {
   );
 
   const addLabourRow = useCallback(() => {
+    setHasUnsavedChanges(true);
     setLabourData((prev) => [...prev, createEmptyLabourRow()]);
   }, []);
 
   const deleteRow = useCallback((id) => {
+    setHasUnsavedChanges(true);
     setLabourData((prev) => prev.filter((row) => row.id !== id));
   }, []);
 
@@ -416,12 +432,7 @@ const LabourOtherManagementPage = () => {
     console.log("Save Payload:", JSON.stringify(payload, null, 2));
 
     try {
-      Swal.fire({
-        title: "Saving...",
-        text: "Please wait while we save labour details.",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
+      setIsSaving(true); // 🔥 Start loader
 
       const res = await AddUpdateLabor(payload);
 
@@ -433,6 +444,7 @@ const LabourOtherManagementPage = () => {
           timer: 2000,
           showConfirmButton: false,
         });
+        setHasUnsavedChanges(false);
 
         // Refetch labour details
         if (activeFunction && eventData) {
@@ -484,12 +496,16 @@ const LabourOtherManagementPage = () => {
         title: "Error",
         text: error?.response?.data?.message || "Something went wrong",
       });
+    } finally {
+      setIsSaving(false); // 🔥 Stop loader
     }
   }, [eventData, activeFunction, labourData, labourCategories, allContacts]);
 
   const handleSaveNotes = useCallback(
     (notesData) => {
       if (currentNoteRowId !== null) {
+        setHasUnsavedChanges(true);
+
         setLabourData((prev) =>
           prev.map((row) =>
             row.id === currentNoteRowId
@@ -645,8 +661,14 @@ const LabourOtherManagementPage = () => {
             </div>
 
             <button
-              className="bg-[#005BA8] text-white text-sm px-3 py-2 rounded-md transition"
               onClick={handleSave}
+              disabled={!hasUnsavedChanges || isSaving}
+              className={`text-sm px-3 py-2 rounded-md transition
+    ${
+      hasUnsavedChanges && !isSaving
+        ? "bg-[#005BA8] text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
             >
               Save
             </button>
@@ -733,6 +755,8 @@ const LabourOtherManagementPage = () => {
           <LabourTable
             data={filteredLabourData}
             labourCategories={labourCategories}
+            hasUnsavedChanges={hasUnsavedChanges}
+            isSaving={isSaving} // 🔥 Add this
             filteredContacts={filteredContacts}
             shiftOptions={shiftOptions}
             eventData={eventData}
@@ -752,7 +776,7 @@ const LabourOtherManagementPage = () => {
             setSelectedRow={setSelectedRow}
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
-            onOpenAddVendor={() => setIsAddVendorOpen(true)}
+            onOpenAddVendor={() => setIsMemberModalOpen(true)}
           />
         )}
 
@@ -828,12 +852,18 @@ const LabourOtherManagementPage = () => {
           />
         )}
 
-        <AddVendor
+        {/* <AddVendor
           isModalOpen={isAddVendorOpen}
           isModalClose={setIsAddVendorOpen}
           filterType="labour"
           setIsModalOpen={setIsAddVendorOpen}
           refreshData={() => {}}
+        /> */}
+        <AddContactName
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+          concatId={concatId}
+          contactTypeId={contactTypeId}
         />
 
         <MenuReport
@@ -842,6 +872,20 @@ const LabourOtherManagementPage = () => {
           eventId={menuReportEventId}
         />
       </Container>
+      {isSaving && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className=" rounded-lg p-8  flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold text-white">Saving...</p>
+              <p className="text-sm text-gray-500">Please wait</p>
+            </div>
+          </div>
+        </div>
+      )}
     </Fragment>
   );
 };
@@ -871,6 +915,8 @@ const LabourTable = ({
   onViewDetails,
   onAddNotes,
   onSave,
+  isSaving,
+  hasUnsavedChanges,
   onOpenAddLabourModal,
   onOpenAddVendor,
 }) => (
@@ -882,28 +928,18 @@ const LabourTable = ({
             <tr>
               <th className="text-center px-3 py-2 w-12">#</th>
               <th className="px-3 py-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   Categories
-                  <button
-                    type="button"
-                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
-                    title="Add Labour Type"
-                    onClick={onOpenAddLabourModal}
-                  >
-                    +
+                  <button onClick={onOpenAddLabourModal}>
+                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
               <th className="px-3 py-2 w-24">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   Vendors
-                  <button
-                    type="button"
-                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
-                    title="Add Vendor"
-                    onClick={onOpenAddVendor}
-                  >
-                    +
+                  <button onClick={onOpenAddVendor}>
+                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
@@ -949,7 +985,13 @@ const LabourTable = ({
 
         <button
           onClick={onSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
+          disabled={!hasUnsavedChanges || isSaving}
+          className={`px-4 py-2 rounded-md transition
+    ${
+      hasUnsavedChanges && !isSaving
+        ? "bg-blue-600 hover:bg-blue-700 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
         >
           Save
         </button>

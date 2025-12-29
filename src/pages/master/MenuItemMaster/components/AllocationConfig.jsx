@@ -142,6 +142,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     console.log("Setting pending values:", values);
     setPendingEditValues(values);
   }, [isEdit, editData, menuDetails]);
+
   const refreshData = async () => {
     try {
       const [unitRes, contactRes, chefRes, insideRes] = await Promise.all([

@@ -5,6 +5,8 @@ import axios from "axios";
 import {
   GetAllContactCategorybycontacttype,
   Translateapi,
+  AddCustomerapi,
+  EditCustomerApi,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "../components/AddContactCategory";
@@ -15,6 +17,7 @@ const AddContactName = ({
   setIsModalOpen,
   selectedCustomer,
   concatId,
+  contactTypeId,
   refreshData = () => {},
 }) => {
   if (!isModalOpen) return null;
@@ -27,27 +30,27 @@ const AddContactName = ({
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  const getBaseURL = () => {
-    // Try to get base URL from existing axios instance or use relative path
-    return "/v1/api";
-  };
+  // const getBaseURL = () => {
+  //   // Try to get base URL from existing axios instance or use relative path
+  //   return "/v1/api";
+  // };
 
-  const AddCustomerapi = (formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-        // Don't set Content-Type, let axios set it with boundary
-      },
-    });
-  };
+  // const AddCustomerapi = (formData) => {
+  //   return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
+  //     headers: {
+  //       ...getAuthHeaders(),
+  //       // Don't set Content-Type, let axios set it with boundary
+  //     },
+  //   });
+  // };
 
-  const EditCustomerApi = (id, formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-  };
+  // const EditCustomerApi = (id, formData) => {
+  //   return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
+  //     headers: {
+  //       ...getAuthHeaders(),
+  //     },
+  //   });
+  // };
 
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,9 +68,7 @@ const AddContactName = ({
     mobileno: Yup.string()
       .required("Mobile number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-    email: Yup.string()
-      .required("Email is required")
-      .email("Please enter a valid email address"),
+
     contactCategoryId: Yup.string().required("Contact category is required"),
   });
 
@@ -215,6 +216,7 @@ const AddContactName = ({
 
       // Filter out Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
+      console.log("Contact category API response:", data);
       const filteredCategories = allCategories.filter((cat) => {
         return cat.contactType?.id !== 1;
       });
@@ -611,12 +613,7 @@ const AddContactName = ({
                 })}
                 value={formData.email}
                 onChange={handleChange}
-                required
-                error={errors.email}
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
             </div>
 
             {/* Mobile */}
