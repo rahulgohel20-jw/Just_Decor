@@ -22,6 +22,15 @@ html,
   background: #ffffff;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Inactive tab */
 .allocation-inner-tabs .ant-tabs-tab {
   margin: 0 !important;

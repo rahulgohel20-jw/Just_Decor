@@ -1,4 +1,10 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toAbsoluteUrl } from "@/utils";
 
@@ -16,11 +22,49 @@ const SelectedItems = ({
   const { categoriesOrder = [], categories = {} } = data;
 
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [autoOpenItemId, setAutoOpenItemId] = useState(null);
+  const [manuallyOpenItems, setManuallyOpenItems] = useState({});
+
   const [currentLanguage, setCurrentLanguage] = useState(
     localStorage.getItem("lang") || "en"
   );
 
-  // Listen for language changes
+  // Track the total number of items to detect when new items are added
+  const previousItemCountRef = useRef(0);
+
+  useEffect(() => {
+    let lastItem = null;
+    let currentItemCount = 0;
+
+    categoriesOrder.forEach((cat) => {
+      const items = categories[cat] || [];
+      currentItemCount += items.length;
+      if (items.length) {
+        lastItem = items[items.length - 1];
+      }
+    });
+
+    // Only reset instructions if a new item was actually added
+    if (currentItemCount > previousItemCountRef.current && lastItem?.id) {
+      setAutoOpenItemId(lastItem.id);
+
+      // Close all previous items and only open the new one
+      setManuallyOpenItems({
+        [lastItem.id]: true, // Only the new item is open
+      });
+    }
+
+    // Update the ref with the current count
+    previousItemCountRef.current = currentItemCount;
+  }, [categories, categoriesOrder]);
+
+  const toggleInstruction = useCallback((itemId) => {
+    setManuallyOpenItems((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  }, []);
+
   useEffect(() => {
     const handleLanguageChange = () => {
       const newLang = localStorage.getItem("lang") || "en";
@@ -89,71 +133,75 @@ const SelectedItems = ({
     };
   }, [currentLanguage]);
 
-  const toggleCategory = (catName) => {
+  const toggleCategory = useCallback((catName) => {
     setExpandedCategories((prev) => ({
       ...prev,
       [catName]: !prev[catName],
     }));
-  };
+  }, []);
 
   const getCategoryDroppableId = (cat) => `cat-${cat}`;
   const getItemDraggableId = (itemId) => `item-${itemId}`;
 
-  const internalOnDragEnd = (result) => {
-    const { destination, source, type, draggableId } = result;
-    if (!destination) return;
+  const internalOnDragEnd = useCallback(
+    (result) => {
+      const { destination, source, type, draggableId } = result;
+      if (!destination) return;
 
-    if (type === "CATEGORY") {
-      const newCategoriesOrder = Array.from(categoriesOrder);
-      const [moved] = newCategoriesOrder.splice(source.index, 1);
-      newCategoriesOrder.splice(destination.index, 0, moved);
-      onDragEndNewState({ categoriesOrder: newCategoriesOrder, categories });
-      return;
-    }
+      if (type === "CATEGORY") {
+        const newCategoriesOrder = Array.from(categoriesOrder);
+        const [moved] = newCategoriesOrder.splice(source.index, 1);
+        newCategoriesOrder.splice(destination.index, 0, moved);
+        onDragEndNewState({ categoriesOrder: newCategoriesOrder, categories });
+        return;
+      }
 
-    const srcCat = source.droppableId.replace(/^cat-/, "");
-    const destCat = destination.droppableId.replace(/^cat-/, "");
+      const srcCat = source.droppableId.replace(/^cat-/, "");
+      const destCat = destination.droppableId.replace(/^cat-/, "");
 
-    const srcList = Array.from(categories[srcCat] || []);
-    const destList =
-      srcCat === destCat ? srcList : Array.from(categories[destCat] || []);
+      const srcList = Array.from(categories[srcCat] || []);
+      const destList =
+        srcCat === destCat ? srcList : Array.from(categories[destCat] || []);
 
-    const itemIdStr = draggableId.replace(/^item-/, "");
-    const itemIndex = srcList.findIndex((it) => String(it.id) === itemIdStr);
-    if (itemIndex === -1) return;
+      const itemIdStr = draggableId.replace(/^item-/, "");
+      const itemIndex = srcList.findIndex((it) => String(it.id) === itemIdStr);
+      if (itemIndex === -1) return;
 
-    const [movedItem] = srcList.splice(itemIndex, 1);
+      const [movedItem] = srcList.splice(itemIndex, 1);
 
-    if (srcCat === destCat) {
-      srcList.splice(destination.index, 0, movedItem);
-      const newCategories = { ...categories, [srcCat]: srcList };
-      onDragEndNewState({ categoriesOrder, categories: newCategories });
-      return;
-    }
+      if (srcCat === destCat) {
+        srcList.splice(destination.index, 0, movedItem);
+        const newCategories = { ...categories, [srcCat]: srcList };
+        onDragEndNewState({ categoriesOrder, categories: newCategories });
+        return;
+      }
 
-    const updatedItem = { ...movedItem, menuCategoryName: destCat };
-    destList.splice(destination.index, 0, updatedItem);
+      const updatedItem = { ...movedItem, menuCategoryName: destCat };
+      destList.splice(destination.index, 0, updatedItem);
 
-    const newCategories = {
-      ...categories,
-      [srcCat]: srcList.length ? srcList : undefined,
-      [destCat]: destList,
-    };
+      const newCategories = {
+        ...categories,
+        [srcCat]: srcList.length ? srcList : undefined,
+        [destCat]: destList,
+      };
 
-    Object.keys(newCategories).forEach((k) => {
-      if (!newCategories[k] || newCategories[k].length === 0)
-        delete newCategories[k];
-    });
+      Object.keys(newCategories).forEach((k) => {
+        if (!newCategories[k] || newCategories[k].length === 0)
+          delete newCategories[k];
+      });
 
-    const newCategoriesOrder = categoriesOrder.slice();
-    if (!newCategoriesOrder.includes(destCat)) newCategoriesOrder.push(destCat);
-    const finalOrder = newCategoriesOrder.filter((c) => newCategories[c]);
+      const newCategoriesOrder = categoriesOrder.slice();
+      if (!newCategoriesOrder.includes(destCat))
+        newCategoriesOrder.push(destCat);
+      const finalOrder = newCategoriesOrder.filter((c) => newCategories[c]);
 
-    onDragEndNewState({
-      categoriesOrder: finalOrder,
-      categories: newCategories,
-    });
-  };
+      onDragEndNewState({
+        categoriesOrder: finalOrder,
+        categories: newCategories,
+      });
+    },
+    [categoriesOrder, categories, onDragEndNewState]
+  );
 
   const { totalItems, totalRate } = useMemo(() => {
     let itemCount = 0;
@@ -365,22 +413,41 @@ const SelectedItems = ({
                                             </div>
                                           </div>
 
-                                          {/* INSTRUCTIONS FIELD */}
-                                          <textarea
-                                            rows={2}
-                                            placeholder="Add instructions..."
-                                            value={item.itemNotes || ""}
-                                            onChange={(e) => {
-                                              onInstructionsChange(
-                                                functionId,
-                                                catName,
-                                                item.id,
-                                                e.target.value
-                                              );
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleInstruction(item.id);
                                             }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm outline-none focus:outline-none focus:ring-0 resize-none"
-                                          />
+                                            className="text-xs text-[#005BA8] mt-2 hover:underline "
+                                          >
+                                            {manuallyOpenItems[item.id]
+                                              ? "Hide instructions"
+                                              : "Show instructions"}
+                                          </button>
+
+                                          {manuallyOpenItems[item.id] && (
+                                            <textarea
+                                              rows={2}
+                                              placeholder="Add instructions..."
+                                              value={item.itemNotes || ""}
+                                              onChange={(e) =>
+                                                onInstructionsChange(
+                                                  functionId,
+                                                  catName,
+                                                  item.id,
+                                                  e.target.value
+                                                )
+                                              }
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm resize-none"
+                                              autoFocus={
+                                                autoOpenItemId === item.id
+                                              }
+                                            />
+                                          )}
                                         </div>
                                       )}
                                     </Draggable>
@@ -415,6 +482,13 @@ const SelectedItems = ({
     currentLanguage,
     getLocalizedItemName,
     getLocalizedCategoryName,
+    manuallyOpenItems,
+    autoOpenItemId,
+    toggleInstruction,
+    onOpenItemNotes,
+    onOpenCategoryNotes,
+    internalOnDragEnd,
+    toggleCategory,
   ]);
 
   return (
