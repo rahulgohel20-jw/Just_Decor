@@ -12,9 +12,9 @@ import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
-import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 import { useExtraExpense } from "./hooks/useExtraExpense";
 import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
 
 import { Plus } from "lucide-react";
 import {
@@ -86,6 +86,8 @@ const LabourOtherManagementPage = () => {
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [shiftOptions, setShiftOptions] = useState([]);
+  const [selectedcontactType, setSelectedcontactType] = useState(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const [labourData, setLabourData] = useState([]);
   const [labourCategories, setLabourCategories] = useState([]);
@@ -104,28 +106,36 @@ const LabourOtherManagementPage = () => {
 
   const userId = localStorage.getItem("userId");
   console.log("userid", userId);
+  const FetchLabourShift = useCallback(async () => {
+    try {
+      const res = await GetAllLabourShift(userId || 0);
+
+      const apiShifts = res?.data?.data?.["Function Details"] || [];
+
+      const mapped =
+        Array.isArray(apiShifts) && apiShifts.length
+          ? apiShifts
+              .map((s) => (typeof s === "string" ? s : s.nameEnglish || ""))
+              .filter(Boolean)
+          : SHIFTS;
+
+      setShiftOptions(mapped);
+    } catch (err) {
+      console.error("Error fetching shifts:", err);
+      setShiftOptions(SHIFTS);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    const fetchShifts = async () => {
-      try {
-        const res = await GetAllLabourShift(userId || 0);
-        const apiShifts = res?.data?.data?.["Function Details"] || [];
-        const mapped =
-          Array.isArray(apiShifts) && apiShifts.length
-            ? apiShifts
-                .map((s) => (typeof s === "string" ? s : s.nameEnglish || ""))
-                .filter(Boolean)
-            : SHIFTS;
+    if (userId) {
+      FetchLabourShift();
+    }
+  }, [userId, FetchLabourShift]);
 
-        setShiftOptions(mapped);
-      } catch (err) {
-        console.error("Error fetching shifts:", err);
-        setShiftOptions(SHIFTS);
-      }
-    };
-
-    if (userId) fetchShifts();
-  }, [userId]);
+  const handleOpenAddLabourShift = () => {
+    setSelectedcontactType(null); // or existing shift if editing
+    setIsContactModalOpen(true);
+  };
 
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
@@ -777,6 +787,7 @@ const LabourOtherManagementPage = () => {
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
             onOpenAddVendor={() => setIsMemberModalOpen(true)}
+            onOpenAddLabourShift={handleOpenAddLabourShift}
           />
         )}
 
@@ -865,7 +876,12 @@ const LabourOtherManagementPage = () => {
           concatId={concatId}
           contactTypeId={contactTypeId}
         />
-
+        <AddLabourshift
+          isOpen={isContactModalOpen}
+          onClose={setIsContactModalOpen}
+          shiftData={selectedcontactType}
+          refreshData={FetchLabourShift}
+        />
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
@@ -919,6 +935,7 @@ const LabourTable = ({
   hasUnsavedChanges,
   onOpenAddLabourModal,
   onOpenAddVendor,
+  onOpenAddLabourShift,
 }) => (
   <div className="card shadow-sm rounded-lg overflow-hidden">
     <div className="card-body p-0">
@@ -943,7 +960,14 @@ const LabourTable = ({
                   </button>
                 </div>
               </th>
-              <th className="px-3 py-2 w-36">Labour Shift</th>
+              <th className="px-3 py-2 w-36">
+                <div className="flex items-center gap-2">
+                  Labour Shift
+                  <button onClick={onOpenAddLabourShift}>
+                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                  </button>
+                </div>
+              </th>
               <th className="px-3 py-2 w-40">Date & Time</th>
               <th className="px-3 py-2 w-24">Price</th>
               <th className="px-3 py-2 w-24">Qty</th>

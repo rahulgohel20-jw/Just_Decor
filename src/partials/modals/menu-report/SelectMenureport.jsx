@@ -42,6 +42,8 @@ export default function SelectMenureport({
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [mappingId, setmappingId] = useState(null);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
+  const [eventName, setEventName] = useState("");
+  const [PartyNumber, setPartyNumber] = useState("");
 
   // Get userId from your auth context or storage
   const userId = localStorage.getItem("userId");
@@ -57,7 +59,6 @@ export default function SelectMenureport({
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
-        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
           const modules = res.data.data
@@ -97,8 +98,6 @@ export default function SelectMenureport({
           userId,
           activeTab
         );
-
-        console.log(res, "data");
 
         let dynamicTemplates = [];
 
@@ -147,6 +146,8 @@ export default function SelectMenureport({
         if (res?.data?.data?.["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
 
+          setEventName(event?.party?.nameEnglish || "");
+          setPartyNumber(event?.party?.mobileno || "");
           setEventData(event);
         }
       } catch (error) {
@@ -346,6 +347,8 @@ export default function SelectMenureport({
         moduleId={selectedModuleId || activeTab}
         mappingId={mappingId}
         selectedTemplateId={selectedTemplateId}
+        eventName={eventName}
+        PartyNumber={PartyNumber}
       />
     </>
   );

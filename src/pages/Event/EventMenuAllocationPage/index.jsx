@@ -1180,42 +1180,65 @@ const EventMenuAllocationPage = () => {
   const handleSyncRawMaterial = async () => {
     try {
       const eventFunctionId = activeFunction?.id;
-      console.log(eventFunctionId);
 
       if (!eventFunctionId) {
         Swal.fire({
           icon: "error",
           title: "Missing data",
-          text: "Event, function or user information missing",
+          text: "Event or function information missing",
         });
         return;
       }
 
+      // 🟡 CONFIRMATION MODAL
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to sync raw materials for this function?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Sync",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      // 🔵 LOADER
       Swal.fire({
         title: "Syncing Raw Materials...",
+        text: "Please wait",
         allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
       });
 
       const res = await SyncRawmaterialMenuallocation(eventFunctionId);
 
+      Swal.close(); // close loader
+
       if (res?.data?.success) {
         Swal.fire({
           icon: "success",
-          title: "Synced",
+          title: "Synced Successfully",
           text: "Raw materials synced successfully",
+          confirmButtonColor: "#3085d6",
         });
 
-        // ✅ refresh menu allocation
+        // ✅ Refresh menu allocation
         fetchMenuAllocation(eventFunctionId);
       } else {
         throw new Error(res?.data?.message || "Sync failed");
       }
     } catch (error) {
+      Swal.close(); // ensure loader closes on error
       Swal.fire({
         icon: "error",
         title: "Error",
         text: error.message || "Failed to sync raw materials",
+        confirmButtonColor: "#d33",
       });
     }
   };
