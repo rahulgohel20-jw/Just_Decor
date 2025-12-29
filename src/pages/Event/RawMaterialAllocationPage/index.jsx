@@ -38,7 +38,6 @@ const RawMaterialAllocation = () => {
   const [selectedReportType, setSelectedReportType] = useState(null);
   const [unit, setUnit] = useState([]);
   const [eventData, setEventData] = useState([]);
-  // 🔥 NEW: Track if data has been modified
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
 
@@ -144,22 +143,33 @@ const RawMaterialAllocation = () => {
       console.log("Fetched items:", items);
 
       if (Array.isArray(items)) {
-        const formatted = items.map((item, index) => ({
-          id: index + 1,
-          rawMaterialId: item.rawMaterialId || item.id || 0,
-          material: item.rawMaterialNameEng || "N/A",
-          qty: item.qty || 0,
-          finalQty: item.finalQty || item.final_qty || item.qty || 0,
-          unit: item.unitName || item.unit || "Kilogram",
-          unitId: item.unitId || 1,
-          agency: item.supplierName || "-",
-          supplierId: item.supplierId || 0,
-          place: item.place || "NA",
-          date:
-            item.date && dayjs(item.date).isValid() ? dayjs(item.date) : null,
-          total: item.totalprice || 0,
-          eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
-        }));
+        const formatted = items.map((item, index) => {
+          const functionDate =
+            item.eventRawMaterialFunctions &&
+            item.eventRawMaterialFunctions.length > 0
+              ? item.eventRawMaterialFunctions[0].functiondatetime
+              : null;
+
+          return {
+            id: index + 1,
+            rawMaterialId: item.rawMaterialId || item.id || 0,
+            material: item.rawMaterialNameEng || "N/A",
+            qty: item.qty || 0,
+            finalQty: item.finalQty || item.qty || 0,
+            unit: item.unitName || "Kilogram",
+            unitId: item.unitId || 1,
+            agency: item.supplierName || "-",
+            supplierId: item.supplierId || 0,
+            place: item.place || "NA",
+            date:
+              functionDate && dayjs(functionDate).isValid()
+                ? dayjs(functionDate)
+                : null,
+            total: item.totalprice || 0,
+            eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
+          };
+        });
+
         setData(formatted);
         setHasUnsavedChanges(false); // Reset unsaved changes flag
       } else {
@@ -318,7 +328,6 @@ const RawMaterialAllocation = () => {
     }
   };
 
-  // 🔥 NEW: Handle tab switch with auto-save
   const handleTabSwitch = async (tab) => {
     console.log("🔄 Switching tab from", activeTab, "to", tab.value);
 
@@ -345,7 +354,6 @@ const RawMaterialAllocation = () => {
   };
 
   function openSelectMenureport() {
-    console.log("🟢 Opening SelectMenureport for event:", eventId);
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
   }
@@ -854,7 +862,7 @@ const RawMaterialAllocation = () => {
               className="bg-primary text-white text-sm px-6 py-2 rounded-md transition"
             >
               <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-              {hasUnsavedChanges && <span className="ml-1">*</span>}
+              {hasUnsavedChanges && <span className="ml-1"></span>}
             </button>
           </div>
         </div>
