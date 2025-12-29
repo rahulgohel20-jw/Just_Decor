@@ -207,6 +207,7 @@ import ReportsConfig from "../pages/Reports/ReportsConfig";
 import ReportLabelConfiguration from "../pages/Reports/ReportLabelConfiguration";
 import AdminReportCustomThem from "../pages/master/AdminReportCustomTheme";
 import AllReportsConfig from "../pages/super-admin/master/super-report-config";
+import RightsModule from "../pages/super-admin/master/RightsModule";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -381,6 +382,7 @@ const AppRoutingSetup = () => {
             path="/super-template-name-master"
             element={<TemplateName />}
           />
+          <Route path="/ModuleRights" element={<RightsModule />} />
           <Route path="/super-templateMapping" element={<TemplateMapping />} />
           <Route path="/interaction-master" element={<InteractionMaster />} />
           <Route path="super-allreport-config" element={<AllReportsConfig />} />
