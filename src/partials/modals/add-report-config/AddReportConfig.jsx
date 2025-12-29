@@ -36,7 +36,7 @@ const AddReportConfig = ({
   isModalOpen,
   setIsModalOpen,
   editId = null,
-  onSave, // ID to edit
+  onSave,
 }) => {
   const [templateId, setTemplateId] = useState("");
   const [templateModuleId, setTemplateModuleId] = useState("");
@@ -57,9 +57,6 @@ const AddReportConfig = ({
     }
   }, [isModalOpen]);
 
-  /* =========================
-     LOAD TEMPLATES
-  ========================== */
   useEffect(() => {
     if (!isModalOpen) return;
 
@@ -84,9 +81,6 @@ const AddReportConfig = ({
     fetchTemplates();
   }, [isModalOpen]);
 
-  /* =========================
-     LOAD MODULES BY TEMPLATE
-  ========================== */
   useEffect(() => {
     if (!templateId) return;
 
@@ -114,9 +108,6 @@ const AddReportConfig = ({
     fetchModules();
   }, [templateId]);
 
-  /* =========================
-     LOAD DATA IF EDIT
-  ========================== */
   useEffect(() => {
     if (!editId || !isModalOpen) return;
 
@@ -148,9 +139,6 @@ const AddReportConfig = ({
     fetchData();
   }, [editId, isModalOpen]);
 
-  /* =========================
-     TOGGLES
-  ========================== */
   const optionKeys = Object.keys(options);
   const isCheckAll = optionKeys.every((key) => options[key]);
   const toggleAll = (checked) => {
@@ -176,9 +164,6 @@ const AddReportConfig = ({
     </button>
   );
 
-  /* =========================
-     SAVE / UPDATE
-  ========================== */
   const booleanToNumber = (val) => (val ? 1 : 0);
 
   const handleSave = async () => {
@@ -255,7 +240,6 @@ const AddReportConfig = ({
         </div>
       }
     >
-      {/* TEMPLATE SELECTION */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -307,13 +291,11 @@ const AddReportConfig = ({
         </div>
       </div>
 
-      {/* CHECK ALL */}
       <div className="flex justify-between border-b pb-3 mb-3">
         <span className="font-semibold">Check All</span>
         <Toggle checked={isCheckAll} onChange={() => toggleAll(!isCheckAll)} />
       </div>
 
-      {/* OPTIONS */}
       <div className="space-y-2">
         {optionKeys.map((key) => (
           <div key={key} className="flex justify-between items-center">

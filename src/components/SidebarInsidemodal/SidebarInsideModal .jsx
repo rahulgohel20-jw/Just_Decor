@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FormattedMessage, useIntl } from "react-intl";
 import { ContactNameItem } from "../../services/apiServices";
+import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+import { Plus } from "lucide-react";
 
 const WhatsAppIcon = () => (
   <svg
@@ -45,6 +47,10 @@ export default function SidebarInsideModal({
   const [showRawMaterials, setShowRawMaterials] = useState(false);
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
   const [contactsError, setContactsError] = useState(null);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
+  const [contactTypeId, setContactTypeId] = useState(7);
+  const [concatId, setConcatId] = useState(7);
   const intl = useIntl();
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
@@ -393,11 +399,14 @@ export default function SidebarInsideModal({
                     <div>
                       <FormattedMessage id="COMMON.NO" defaultMessage="No." />
                     </div>
-                    <div className="ml-3">
+                    <div className="ml-2 flex items-center gap-2">
                       <FormattedMessage
-                        id="COMMON.CONTACT_NAME"
+                        id="SIDEBAR_MODAL.CONTACT_NAME"
                         defaultMessage="Contact Name"
                       />
+                      <button onClick={() => setIsMemberModalOpen(true)}>
+                        <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                      </button>
                     </div>
                     <div>
                       <FormattedMessage
@@ -562,6 +571,12 @@ export default function SidebarInsideModal({
           </div>
         </div>
       )}
+      <AddContactName
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+        concatId={concatId}
+        contactTypeId={contactTypeId}
+      />
     </AnimatePresence>
   );
 }
