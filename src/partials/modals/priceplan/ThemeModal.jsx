@@ -1,22 +1,28 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toAbsoluteUrl } from "@/utils";
 
 const ThemeModal = ({ open, onClose, onAddTheme, onSkipTheme }) => {
   const themes = [
     {
       id: 1,
-      name: "Elegant - Wedding",
-      image: "/media/themes/elegant-wedding.jpg",
+      name: "First Page",
+      image: toAbsoluteUrl("/media/images/Main.png"),
     },
     {
       id: 2,
-      name: "Elegant - Wedding",
-      image: "/media/themes/elegant-wedding-2.jpg",
+      name: "Second Page",
+      image: toAbsoluteUrl("/media/images/Detail.png"),
     },
     {
       id: 3,
-      name: "Elegant - Wedding",
-      image: "/media/themes/elegant-wedding-3.jpg",
+      name: "Details Page",
+      image: toAbsoluteUrl("/media/images/Watermark.png"),
+    },
+    {
+      id: 4,
+      name: "Last Page",
+      image: toAbsoluteUrl("/media/images/Last.png"),
     },
   ];
 
@@ -78,16 +84,22 @@ const ThemeModal = ({ open, onClose, onAddTheme, onSkipTheme }) => {
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
                 {/* Theme Gallery */}
-                <div className=" rounded-lg p-4 mb-6">
-                  <div className="grid grid-cols-3 gap-4">
+                <div className="rounded-lg p-4 mb-6">
+                  <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                     {themes.map((theme) => (
-                      <div key={theme.id} className="text-center">
+                      <div
+                        key={theme.id}
+                        className="text-center flex-shrink-0 w-[280px]"
+                      >
                         <div className="bg-gray-100 rounded-lg aspect-[3/4] mb-2 flex items-center justify-center overflow-hidden">
                           <div className="w-full h-full bg-gradient-to-br from-blue-50 to-gray-50 flex items-center justify-center">
-                            <span className="text-4xl">🎨</span>
+                            <img
+                              src={theme.image}
+                              alt={theme.name}
+                              className="max-w-full max-h-full object-contain"
+                            />
                           </div>
                         </div>
                         <p className="text-sm font-medium text-gray-700">
@@ -98,7 +110,6 @@ const ThemeModal = ({ open, onClose, onAddTheme, onSkipTheme }) => {
                   </div>
                 </div>
 
-                {/* Benefits Section */}
                 <div className="mb-6">
                   <h3 className="text-base font-semibold text-gray-900 mb-4">
                     Why Should You Purchase Custom Theme?
