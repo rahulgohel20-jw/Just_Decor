@@ -7,6 +7,8 @@ import {
 } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import AddVendor from "@/partials/modals/add-vendor/AddVendor";
+import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+
 import { Plus } from "lucide-react";
 
 const WhatsAppIcon = () => (
@@ -52,6 +54,10 @@ export default function SidebarChefModal({
   const [extraRows, setExtraRows] = useState([]);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [contactTypeId, setContactTypeId] = useState([5]);
+  const [concatId, setConcatId] = useState([5]);
+
   let userId = localStorage.getItem("userId");
   const intl = useIntl();
 
@@ -657,8 +663,8 @@ export default function SidebarChefModal({
                         id="SIDEBAR_MODAL.CONTACT_NAME"
                         defaultMessage="Contact Name"
                       />
-                      <button onClick={() => setIsModalOpen(true)}>
-                        <Plus className="w-6 h-6  text-white bg-blue-700 rounded-full p-1" />
+                      <button onClick={() => setIsMemberModalOpen(true)}>
+                        <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
                       </button>
                     </div>
 
@@ -1490,6 +1496,12 @@ export default function SidebarChefModal({
       <AddVendor
         isModalOpen={isModalOpen}
         isModalClose={() => setIsModalOpen(false)}
+      />
+      <AddContactName
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+        concatId={concatId}
+        contactTypeId={contactTypeId}
       />
     </AnimatePresence>
   );

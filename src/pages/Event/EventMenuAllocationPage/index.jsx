@@ -54,7 +54,7 @@ const TopTabs = ({ value, onChange, functions }) => {
               className={
                 value?.id === item.id
                   ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                  : "bg-white text-gray-700  hover:bg-gray-50"
               }
             >
               {date}
@@ -63,7 +63,7 @@ const TopTabs = ({ value, onChange, functions }) => {
               className={
                 value?.id === item.id
                   ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                  : "bg-white text-gray-700  hover:bg-gray-50"
               }
             >
               {time}
@@ -179,29 +179,23 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
 };
 
 const TableHeader = () => (
-  <div className="grid grid-cols-12 items-center gap-5 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+  <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
     <div className="col-span-2">
-      {" "}
       <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
     </div>
-    <div className="col-span-2 text-center">
-      {" "}
+    <div className="col-span-1  text-center">
       <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
     </div>
-    <div className="col-span-1 text-center">
-      {" "}
+    <div className="col-span-2 text-center">
       <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
     </div>
     <div className="col-span-2 text-center">
-      {" "}
       <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
     </div>
     <div className="col-span-1 text-center">
-      {" "}
       <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
     </div>
     <div className="col-span-2 text-center">
-      {" "}
       <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
     </div>
     <div className="col-span-2">
@@ -226,7 +220,7 @@ const TableRow = ({ row, onChange }) => {
   };
 
   return (
-    <div className="grid grid-cols-12 items-center gap-6 border-b border-gray-100 px-4 py-4 text-sm">
+    <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
       <div className="col-span-2 font-medium text-gray-800">
         <div className="flex flex-col">
           <span className="text-xs text-gray-500">{row.categoryName}</span>
@@ -234,7 +228,7 @@ const TableRow = ({ row, onChange }) => {
         </div>
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      <div className="col-span-1 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.chefLabour}
           onChange={(e) => handleCheckboxChange("chef", e.target.checked)}
@@ -251,7 +245,7 @@ const TableRow = ({ row, onChange }) => {
         )}
       </div>
 
-      <div className="col-span-1 flex justify-center items-center gap-2">
+      <div className="col-span-2 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.outside}
           onChange={(e) => handleCheckboxChange("outside", e.target.checked)}
@@ -293,7 +287,7 @@ const TableRow = ({ row, onChange }) => {
           onChange={(e) =>
             onChange({ ...row, personCount: Number(e.target.value) || 0 })
           }
-          className="w-30 p-1"
+          className="w-16 p-1 text-center"
         />
       </div>
 
@@ -313,10 +307,10 @@ const TableRow = ({ row, onChange }) => {
       <div className="col-span-2">
         <Input
           size="small"
-          placeholder=""
+          placeholder="Add..."
           value={row.instructions}
           onChange={(e) => onChange({ ...row, instructions: e.target.value })}
-          className="p-1"
+          className="w-full p-1"
         />
       </div>
     </div>
@@ -353,6 +347,8 @@ const EventMenuAllocationPage = () => {
   const [outsidesummary, setoutsidesummary] = useState([]);
   const [insidesummary, setinsidesummary] = useState([]);
   const [isAgencyAllocationModal, setIsAgencyAllocationModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [initialRows, setInitialRows] = useState([]);
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -613,11 +609,56 @@ const EventMenuAllocationPage = () => {
       setMenuLoading(false);
     }
   };
+  useEffect(() => {
+    if (rows.length > 0 && initialRows.length === 0) {
+      setInitialRows(JSON.parse(JSON.stringify(rows)));
+      setHasUnsavedChanges(false);
+    }
+  }, [rows]);
 
-  const handleFunctionChange = (functionItem) => {
-    setActiveFunction(functionItem);
-    fetchMenuAllocation(functionItem.id);
+  const checkForChanges = (currentRows, originalRows) => {
+    if (currentRows.length !== originalRows.length) return true;
+
+    return currentRows.some((row, index) => {
+      const original = originalRows[index];
+      if (!original) return true;
+
+      // Check basic fields
+      if (
+        row.chefLabour !== original.chefLabour ||
+        row.outside !== original.outside ||
+        row.inside !== original.inside ||
+        row.personCount !== original.personCount ||
+        row.place !== original.place ||
+        row.instructions !== original.instructions
+      ) {
+        return true;
+      }
+
+      // Check allocations
+      const currentAllocations = row.eventFunctionMenuAllocations || [];
+      const originalAllocations = original.eventFunctionMenuAllocations || [];
+
+      if (currentAllocations.length !== originalAllocations.length) return true;
+
+      return currentAllocations.some((alloc, i) => {
+        const origAlloc = originalAllocations[i];
+        if (!origAlloc) return true;
+
+        return (
+          alloc.partyId !== origAlloc.partyId ||
+          alloc.price !== origAlloc.price ||
+          alloc.quantity !== origAlloc.quantity ||
+          alloc.counterQuantity !== origAlloc.counterQuantity ||
+          alloc.helperQuantity !== origAlloc.helperQuantity ||
+          alloc.counterPrice !== origAlloc.counterPrice ||
+          alloc.helperPrice !== origAlloc.helperPrice
+        );
+      });
+    });
   };
+
+  // Update the updateRow function to detect changes
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
@@ -626,8 +667,15 @@ const EventMenuAllocationPage = () => {
 
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
 
+      // Check if there are changes
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+
       return updatedRows;
     });
+  };
+  const handleFunctionChange = (functionItem) => {
+    setActiveFunction(functionItem);
+    fetchMenuAllocation(functionItem.id);
   };
 
   const handleAdjustPerson = () => {
@@ -681,8 +729,6 @@ const EventMenuAllocationPage = () => {
   }, [rows, eventId, activeFunction, searchTerm]);
 
   const handleInsideSave = (saveData) => {
-    console.log(saveData, "inside save data");
-
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
@@ -716,13 +762,13 @@ const EventMenuAllocationPage = () => {
       });
 
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
       return updatedRows;
     });
 
     setIsInsideModal(false);
   };
-
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
       prevGroups.map((group) => ({
@@ -788,6 +834,7 @@ const EventMenuAllocationPage = () => {
     );
   };
 
+  // Update all save handler functions to set hasUnsavedChanges to true
   const handleOutsideSave = (saveData) => {
     setAllocationData((prev) => ({
       ...prev,
@@ -822,6 +869,7 @@ const EventMenuAllocationPage = () => {
       });
 
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
       return updatedRows;
     });
@@ -881,7 +929,6 @@ const EventMenuAllocationPage = () => {
           },
         },
       };
-      console.log(updated, "save data");
       return updated;
     });
 
@@ -896,6 +943,8 @@ const EventMenuAllocationPage = () => {
         }
         return r;
       });
+
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
       return updatedRows;
     });
 
@@ -924,16 +973,24 @@ const EventMenuAllocationPage = () => {
           text: "Missing event or function information. Please refresh and try again.",
           icon: "error",
           confirmButtonColor: "#d33",
-          confirmButtonText: "OK",
         });
         return;
       }
 
+      // 🔵 SHOW LOADER BEFORE SAVE
+      Swal.fire({
+        title: "Saving...",
+        text: "Please wait while menu allocation is being saved",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const payload = rows.map((r) => {
-        // ✅ Build menuAllocationOrders based on current checkbox states
         const menuAllocationOrders = [];
 
-        // Add outside allocations if checkbox is checked
         if (r.outside) {
           const outsideAllocations =
             r.eventFunctionMenuAllocations
@@ -955,7 +1012,6 @@ const EventMenuAllocationPage = () => {
           menuAllocationOrders.push(...outsideAllocations);
         }
 
-        // Add chef labour allocations if checkbox is checked
         if (r.chefLabour) {
           const chefLabourAllocations =
             r.eventFunctionMenuAllocations
@@ -977,7 +1033,6 @@ const EventMenuAllocationPage = () => {
           menuAllocationOrders.push(...chefLabourAllocations);
         }
 
-        // Add inside allocations if checkbox is checked
         if (r.inside) {
           const insideAllocations =
             r.eventFunctionMenuAllocations
@@ -1001,76 +1056,35 @@ const EventMenuAllocationPage = () => {
           menuAllocationOrders.push(...insideAllocations);
         }
 
-        // Rest of your code remains the same...
         const rawMaterialsSource =
-          allocationData[`${r.menuItemId}-category`]?.rawMaterials &&
-          allocationData[`${r.menuItemId}-category`]?.rawMaterials.length > 0
+          allocationData[`${r.menuItemId}-category`]?.rawMaterials?.length > 0
             ? allocationData[`${r.menuItemId}-category`].rawMaterials
             : r.menuItemRawMaterials || [];
 
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => {
-          let partyId = 0;
+        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
+          dateTime: rm.dateTime || "",
+          eventFunctionId: validEventFunctionId,
+          eventId: validEventId,
+          id: rm.id ?? 0,
+          menuItemId: rm.menuItemId || r.menuItemId || 0,
+          partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
+          place: rm.place || "",
+          rate: rm.rate || 0,
+          rawMaterialId: rm.rawMaterialId || 0,
+          rawmaterial_rate: rm.rawmaterial_rate || 0,
+          rawmaterial_weight: rm.rawmaterial_weight || 0,
+          unitId: rm.unitId || rm.unit_id || rm.unit?.id || 0,
+          weight: rm.weight || 0,
+        }));
 
-          if (
-            rm.partyId !== undefined &&
-            rm.partyId !== null &&
-            rm.partyId !== 0
-          ) {
-            partyId = rm.partyId;
-          } else if (
-            rm.party_id !== undefined &&
-            rm.party_id !== null &&
-            rm.party_id !== 0
-          ) {
-            partyId = rm.party_id;
-          } else if (rm.party?.id) {
-            partyId = rm.party.id;
-          }
-
-          let unitId = 0;
-          if (
-            rm.unitId !== undefined &&
-            rm.unitId !== null &&
-            rm.unitId !== 0
-          ) {
-            unitId = rm.unitId;
-          } else if (
-            rm.unit_id !== undefined &&
-            rm.unit_id !== null &&
-            rm.unit_id !== 0
-          ) {
-            unitId = rm.unit_id;
-          } else if (rm.unit?.id) {
-            unitId = rm.unit.id;
-          }
-
-          const mapped = {
-            dateTime: rm.dateTime || "",
-            eventFunctionId: validEventFunctionId,
-            eventId: validEventId,
-            id: rm.id !== undefined ? rm.id : 0,
-            menuItemId: rm.menuItemId || r.menuItemId || 0,
-            partyId: partyId,
-            place: rm.place || "",
-            rate: rm.rate || 0,
-            rawMaterialId: rm.rawMaterialId || 0,
-            rawmaterial_rate: rm.rawmaterial_rate || 0,
-            rawmaterial_weight: rm.rawmaterial_weight || 0,
-            unitId: unitId,
-            weight: rm.weight || 0,
-          };
-
-          return mapped;
-        });
-
-        const rowPayload = {
+        return {
           chefLabour: r.chefLabour || false,
           eventFunctionId: validEventFunctionId,
           eventId: validEventId,
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
-          menuAllocationOrders, // ✅ Now properly filtered based on checkboxes
+          menuAllocationOrders,
           menuCategoryId: r.menuCategoryId || 0,
           menuItemId: r.menuItemId || 0,
           menuItemRawMaterials,
@@ -1079,11 +1093,12 @@ const EventMenuAllocationPage = () => {
           place: r.place || "venue",
           userId: Number(Id) || 0,
         };
-
-        return rowPayload;
       });
 
       const res = await MenuAllocationSave(payload);
+
+      // 🔵 CLOSE LOADER
+      Swal.close();
 
       if (res?.data?.success === true) {
         Swal.fire({
@@ -1091,10 +1106,11 @@ const EventMenuAllocationPage = () => {
           text: "Menu Allocation details have been saved.",
           icon: "success",
           confirmButtonColor: "#3085d6",
-          confirmButtonText: "OK",
         });
 
         await fetchMenuAllocation(validEventFunctionId);
+        setHasUnsavedChanges(false);
+        setInitialRows(JSON.parse(JSON.stringify(rows)));
       } else {
         Swal.fire({
           title: "Save Failed!",
@@ -1104,17 +1120,17 @@ const EventMenuAllocationPage = () => {
             "Failed to save menu allocation details.",
           icon: "error",
           confirmButtonColor: "#d33",
-          confirmButtonText: "OK",
         });
       }
     } catch (error) {
+      Swal.close(); // 🔴 Ensure loader is closed on error
       console.error("❌ Error saving menu allocation:", error);
+
       Swal.fire({
         title: "Error!",
         text: error.message || "Failed to save menu allocation details.",
         icon: "error",
         confirmButtonColor: "#d33",
-        confirmButtonText: "OK",
       });
     }
   };
@@ -1257,7 +1273,6 @@ const EventMenuAllocationPage = () => {
             </div>
           </div>
         </div>
-
         {/* Event Details */}
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
@@ -1338,9 +1353,10 @@ const EventMenuAllocationPage = () => {
 
             <div className="flex flex-row items-end gap-2">
               <button
-                className="btn btn-sm btn-primary "
+                className="btn btn-sm btn-primary"
                 title="Save"
                 onClick={handleMainSave}
+                disabled={!hasUnsavedChanges}
               >
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
               </button>
@@ -1358,9 +1374,11 @@ const EventMenuAllocationPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-row gap-4">
-          <div className="w-[70%] flex flex-col gap-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-[#FAFAFA] p-3 rounded-lg overflow-x-auto">
+        <div className="flex gap-4">
+          {/* Left side - Table Section */}
+          <div className="w-[70%] flex flex-col">
+            {/* Top Tabs */}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-[#FAFAFA] p-3 rounded-lg overflow-x-auto mb-3">
               <TopTabs
                 value={activeFunction}
                 onChange={handleFunctionChange}
@@ -1368,65 +1386,70 @@ const EventMenuAllocationPage = () => {
               />
             </div>
 
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-row gap-4 items-end">
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-600">
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.DATE_TIME"
-                      defaultMessage="Date & Time"
+            {/* Sticky Header Section */}
+            <div
+              className="sticky z-10 bg-white pb-2 rounded-lg shadow-sm mb-3"
+              style={{ top: "70px" }}
+            >
+              <div className="flex flex-row gap-4 p-4 border-b border-gray-200">
+                <div className="flex flex-row gap-4 items-end">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.DATE_TIME"
+                        defaultMessage="Date & Time"
+                      />
+                    </span>
+                    <Input
+                      className="p-1 w-[200px] text-black"
+                      type="text"
+                      readOnly
+                      value={activeFunction?.functionStartDateTime || "-"}
                     />
-                  </span>
-                  <Input
-                    className="p-1 w-[200px] text-black"
-                    type="text"
-                    readOnly
-                    value={activeFunction?.functionStartDateTime || "-"}
-                  />
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm text-gray-600">
+                      <FormattedMessage
+                        id="COMMON.PERSON"
+                        defaultMessage="Person"
+                      />
+                    </span>
+                    <Input
+                      className="p-1 w-[70px] text-black text-center"
+                      type="text"
+                      readOnly
+                      value={activeFunction?.pax || 0}
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-sm text-gray-600">
-                    <FormattedMessage
-                      id="COMMON.PERSON"
-                      defaultMessage="Person"
-                    />
-                  </span>
+
+                <div className="flex flex-row gap-4 items-end">
                   <Input
-                    className="p-1 w-[70px] text-black text-center"
-                    type="text"
-                    readOnly
-                    value={activeFunction?.pax || 0}
+                    placeholder={intl.formatMessage({
+                      id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                      defaultMessage: "Enter Person",
+                    })}
+                    value={percentage}
+                    onChange={(e) => setPercentage(e.target.value)}
+                    className="p-1 pl-2 w-28"
                   />
+                  <Tooltip title="It will increase or decrease the number of persons by the entered number.">
+                    <button
+                      className="btn btn-sm btn-primary"
+                      title="Adjust Person"
+                      onClick={handleAdjustPerson}
+                    >
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                        defaultMessage="Adjust Person"
+                      />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
 
-              <div className="flex flex-row gap-4 items-end">
-                <Input
-                  placeholder={intl.formatMessage({
-                    id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
-                    defaultMessage: "Enter Person",
-                  })}
-                  value={percentage}
-                  onChange={(e) => setPercentage(e.target.value)}
-                  className="p-1 pl-2 w-28"
-                />
-                <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                  <button
-                    className="btn btn-sm btn-primary"
-                    title="Adjust Person"
-                    onClick={handleAdjustPerson}
-                  >
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                      defaultMessage="Adjust Person"
-                    />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="flex gap-2">
+              {/* Second Sticky Row - Search and Buttons */}
+              <div className="flex gap-2 p-4">
                 <div className="flex w-fit items-center gap-3">
                   <div className="filItems relative">
                     <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
@@ -1495,46 +1518,52 @@ const EventMenuAllocationPage = () => {
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div className="col-span-8 lg:col-span-8 xl:col-span-9">
-                {menuLoading ? (
-                  <div className="flex items-center justify-center p-8">
-                    <Spin size="large" />
-                  </div>
-                ) : (
-                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <TableHeader />
-                    {filtered.length === 0 ? (
-                      <div className="p-8 text-center text-gray-500">
-                        <FormattedMessage
-                          id="EVENT_MENU_ALLOCATION.NO_ITEMS_AVAILABLE"
-                          defaultMessage="No menu items available."
-                        />
-                      </div>
-                    ) : (
-                      <div className="divide-y">
-                        {filtered.map((row, index) => (
-                          <TableRow
-                            key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
-                            row={row}
-                            onChange={updateRow}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+            {/* Table Section - No individual scroll */}
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+              <TableHeader />
+              {filtered.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  No menu items available
+                </div>
+              ) : (
+                filtered.map((row, index) => (
+                  <TableRow
+                    key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
+                    row={row}
+                    onChange={updateRow}
+                  />
+                ))
+              )}
             </div>
           </div>
 
-          <div className="w-[30%] col-span-12 lg:col-span-4 xl:col-span-3 ">
-            <OrderSummary
-              groups={orderSummaryGroups}
-              loading={menuLoading}
-              onItemClick={handleOrderSummaryItemClick}
-              pax={activeFunction?.pax || 0}
-            />
+          {/* Right side - Order Summary (Sticky) */}
+          <div className="w-[30%]">
+            <div className="sticky bg-white z-10" style={{ top: "70px" }}>
+              <div className="max-h-[calc(100vh-100px)] overflow-y-auto">
+                <OrderSummary
+                  groups={orderSummaryGroups}
+                  loading={menuLoading}
+                  onItemClick={handleOrderSummaryItemClick}
+                  pax={activeFunction?.pax || 0}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="  ">
+          <div className="flex justify-end p-4">
+            <button
+              className="btn btn-primary px-6 py-2"
+              title="Save"
+              onClick={handleMainSave}
+              disabled={!hasUnsavedChanges}
+            >
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+            </button>
           </div>
         </div>
 
@@ -1549,7 +1578,6 @@ const EventMenuAllocationPage = () => {
           onSave={handleOutsideSave}
           personCount={selectedRow?.personCount}
         />
-
         <SidebarChefModal
           open={isChefModal}
           onClose={() => setIsChefModal(false)}

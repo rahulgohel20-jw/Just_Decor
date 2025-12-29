@@ -14,6 +14,9 @@ import SelectMenureport from "../../../partials/modals/menu-report/SelectMenurep
 import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
 import AddVendor from "../../../partials/modals/add-vendor/AddVendor";
 import { useExtraExpense } from "./hooks/useExtraExpense";
+import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+
+import { Plus } from "lucide-react";
 import {
   GetEventMasterById,
   GetAllContactCategory,
@@ -71,7 +74,10 @@ const LabourOtherManagementPage = () => {
   const [activeFunctionName, setActiveFunctionName] = useState("");
   const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
+  const [contactTypeId, setContactTypeId] = useState(2);
+  const [concatId, setConcatId] = useState(2);
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -752,7 +758,7 @@ const LabourOtherManagementPage = () => {
             setSelectedRow={setSelectedRow}
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
-            onOpenAddVendor={() => setIsAddVendorOpen(true)}
+            onOpenAddVendor={() => setIsMemberModalOpen(true)}
           />
         )}
 
@@ -828,12 +834,18 @@ const LabourOtherManagementPage = () => {
           />
         )}
 
-        <AddVendor
+        {/* <AddVendor
           isModalOpen={isAddVendorOpen}
           isModalClose={setIsAddVendorOpen}
           filterType="labour"
           setIsModalOpen={setIsAddVendorOpen}
           refreshData={() => {}}
+        /> */}
+        <AddContactName
+          isModalOpen={isMemberModalOpen}
+          setIsModalOpen={setIsMemberModalOpen}
+          concatId={concatId}
+          contactTypeId={contactTypeId}
         />
 
         <MenuReport
@@ -882,28 +894,18 @@ const LabourTable = ({
             <tr>
               <th className="text-center px-3 py-2 w-12">#</th>
               <th className="px-3 py-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   Categories
-                  <button
-                    type="button"
-                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
-                    title="Add Labour Type"
-                    onClick={onOpenAddLabourModal}
-                  >
-                    +
+                  <button onClick={onOpenAddLabourModal}>
+                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
               <th className="px-3 py-2 w-24">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   Vendors
-                  <button
-                    type="button"
-                    className="ml-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full px-2 py-1 text-sm"
-                    title="Add Vendor"
-                    onClick={onOpenAddVendor}
-                  >
-                    +
+                  <button onClick={onOpenAddVendor}>
+                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>

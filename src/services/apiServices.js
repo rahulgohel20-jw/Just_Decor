@@ -1370,7 +1370,7 @@ export const DeleteReportConfiguration = (id) => {
   return DELETE(`/report/configuration/delete?id=${id}`);
 };
 
-// Get configuration by ID
+
 export const GetReportConfigurationById = (id) => {
   return GET(`/report/configuration/getbyid?id=${id}`);
 };

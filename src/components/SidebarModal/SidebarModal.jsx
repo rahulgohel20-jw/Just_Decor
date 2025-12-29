@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ContactNameItem, Getunit } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
+import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
+
+import { Plus } from "lucide-react";
 
 const WhatsAppIcon = () => (
   <svg
@@ -44,6 +47,9 @@ export default function SidebarModal({
   const [contactNames, setContactNames] = useState([]);
   const [unit, setUnit] = useState([]);
   const intl = useIntl();
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [contactTypeId, setContactTypeId] = useState(6);
+  const [concatId, setConcatId] = useState(6);
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
@@ -349,11 +355,14 @@ export default function SidebarModal({
                     <div>
                       <FormattedMessage id="COMMON.NO" defaultMessage="No." />
                     </div>
-                    <div className="ml-3">
+                    <div className="ml-2 flex items-center gap-2">
                       <FormattedMessage
-                        id="COMMON.CONTACT_NAME"
+                        id="SIDEBAR_MODAL.CONTACT_NAME"
                         defaultMessage="Contact Name"
                       />
+                      <button onClick={() => setIsMemberModalOpen(true)}>
+                        <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                      </button>
                     </div>
                     <div>
                       <FormattedMessage
@@ -523,6 +532,12 @@ export default function SidebarModal({
           </div>
         </div>
       )}
+      <AddContactName
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+        concatId={concatId}
+        contactTypeId={contactTypeId}
+      />
     </AnimatePresence>
   );
 }
