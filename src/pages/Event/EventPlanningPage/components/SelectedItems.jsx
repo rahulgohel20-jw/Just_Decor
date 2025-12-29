@@ -29,33 +29,47 @@ const SelectedItems = ({
     localStorage.getItem("lang") || "en"
   );
 
-  // Track the total number of items to detect when new items are added
-  const previousItemCountRef = useRef(0);
+  // Track all item IDs to detect which specific item was added
+  const previousItemIdsRef = useRef(new Set());
+  const isInitialMountRef = useRef(true);
 
   useEffect(() => {
-    let lastItem = null;
-    let currentItemCount = 0;
+    const currentItemIds = new Set();
+    let newItemId = null;
+    let newItemCategory = null;
 
+    // Collect all current item IDs and find the new one
     categoriesOrder.forEach((cat) => {
       const items = categories[cat] || [];
-      currentItemCount += items.length;
-      if (items.length) {
-        lastItem = items[items.length - 1];
-      }
+      items.forEach((item) => {
+        currentItemIds.add(item.id);
+
+        // Check if this item is new (not in previous set)
+        if (!previousItemIdsRef.current.has(item.id)) {
+          newItemId = item.id;
+          newItemCategory = cat;
+        }
+      });
     });
 
-    // Only reset instructions if a new item was actually added
-    if (currentItemCount > previousItemCountRef.current && lastItem?.id) {
-      setAutoOpenItemId(lastItem.id);
-
-      // Close all previous items and only open the new one
-      setManuallyOpenItems({
-        [lastItem.id]: true, // Only the new item is open
+    // 🔥 New item detected
+    if (newItemId && newItemCategory) {
+      // 1️⃣ Close ALL categories except the one with the new item
+      setExpandedCategories({
+        [newItemCategory]: true,
       });
+
+      // 2️⃣ Close ALL item instructions except the newly added one
+      setManuallyOpenItems({
+        [newItemId]: true,
+      });
+
+      // 3️⃣ Auto-focus textarea
+      setAutoOpenItemId(newItemId);
     }
 
-    // Update the ref with the current count
-    previousItemCountRef.current = currentItemCount;
+    // Update the ref with current item IDs
+    previousItemIdsRef.current = currentItemIds;
   }, [categories, categoriesOrder]);
 
   const toggleInstruction = useCallback((itemId) => {
@@ -93,12 +107,16 @@ const SelectedItems = ({
     };
   }, [currentLanguage]);
 
+  // Initialize all categories as expanded on mount (only once)
   useEffect(() => {
-    const defaults = {};
-    categoriesOrder.forEach((cat) => {
-      defaults[cat] = true;
-    });
-    setExpandedCategories(defaults);
+    if (isInitialMountRef.current) {
+      const defaults = {};
+      categoriesOrder.forEach((cat) => {
+        defaults[cat] = true;
+      });
+      setExpandedCategories(defaults);
+      isInitialMountRef.current = false;
+    }
   }, [categoriesOrder]);
 
   // Helper function to get localized item name
@@ -303,7 +321,7 @@ const SelectedItems = ({
                               <div
                                 ref={provItems.innerRef}
                                 {...provItems.droppableProps}
-                                className={`space-y-2 min-h-[40px] rounded-lg ${
+                                className={`space-y-2 min-h-[40px] rounded-lg transition-all duration-300 overflow-hidden ${
                                   snapshot.isDraggingOver ? "bg-blue-50" : ""
                                 }`}
                               >
