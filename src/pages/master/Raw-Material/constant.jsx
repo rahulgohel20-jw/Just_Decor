@@ -11,6 +11,41 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
   {
+    accessorKey: "file",
+    header: <FormattedMessage id="COMMON.IMAGE" defaultMessage="Image" />,
+    cell: ({ row }) => {
+      const imageUrl = row.original.file;
+
+      // If no image or ends with 'null', show placeholder
+      if (
+        !imageUrl ||
+        imageUrl.endsWith("null") ||
+        imageUrl === "http://103.1.101.244:9091null"
+      ) {
+        return (
+          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+            <i className="ki-filled ki-picture text-gray-400 text-xl"></i>
+          </div>
+        );
+      }
+
+      return (
+        <img
+          src={imageUrl}
+          alt={row.original.raw_material_name}
+          className="w-12 h-12 object-cover rounded-lg border border-gray-200"
+          onError={(e) => {
+            e.currentTarget.src = "/no-image.png";
+          }}
+        />
+      );
+    },
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
     accessorKey: "raw_material_name",
     header: (
       <FormattedMessage
@@ -46,7 +81,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
   },
   {
     accessorKey: "rate",
-    header: <FormattedMessage id="COMMON.PRIORITY" defaultMessage="Rate" />,
+    header: <FormattedMessage id="COMMON.RATE" defaultMessage="Rate" />,
     meta: {
       headerClassName: "w-[4%]",
       cellClassName: "w-[4%]",
@@ -95,7 +130,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Contact">
+          <Tooltip className="cursor-pointer" title="Edit Raw Material">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
