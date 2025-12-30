@@ -71,10 +71,6 @@ const FunctionsDetails = ({
   const [venueList, setVenueList] = useState([]);
   const [selectedVenueName, setSelectedVenueName] = useState("");
 
-  console.log("🏢 FunctionsDetails - formData.venueId:", formData.venueId);
-  console.log("🌍 FunctionsDetails - Current locale:", locale);
-
-  // Helper to get localized venue name
   const getLocalizedVenueName = (venue) => {
     if (!venue) return "";
 
@@ -87,7 +83,6 @@ const FunctionsDetails = ({
     return localeMap[locale] || venue.nameEnglish || "";
   };
 
-  // Fetch venue list and set selected venue name
   useEffect(() => {
     const fetchVenues = async () => {
       try {
@@ -95,18 +90,15 @@ const FunctionsDetails = ({
         const res = await GetVenueType(Id);
         const venueArray = res?.data?.data?.["Venue Details"] || [];
 
-        console.log("📍 Fetched venues:", venueArray);
         setVenueList(venueArray);
 
-        // Find and set the selected venue name
         if (formData.venueId) {
           const selectedVenue = venueArray.find(
             (v) => v.id === formData.venueId
           );
           if (selectedVenue) {
             const venueName = getLocalizedVenueName(selectedVenue);
-            console.log("✅ Selected venue found:", selectedVenue);
-            console.log("🏷️ Localized venue name:", venueName);
+
             setSelectedVenueName(venueName);
           }
         }
@@ -118,7 +110,6 @@ const FunctionsDetails = ({
     fetchVenues();
   }, [formData.venueId, locale]);
 
-  // Add this useEffect after the venue fetch useEffect
   useEffect(() => {
     if (selectedVenueName && formData?.eventFunction?.length > 0) {
       const needsUpdate = formData.eventFunction.some(
@@ -126,7 +117,6 @@ const FunctionsDetails = ({
       );
 
       if (needsUpdate) {
-        console.log("🔄 Updating existing rows with venue:", selectedVenueName);
         setFormData((prev) => ({
           ...prev,
           eventFunction: prev.eventFunction.map((func) =>
@@ -147,7 +137,7 @@ const FunctionsDetails = ({
       functionEndDateTime: null,
       pax: "",
       rate: "",
-      function_venue: selectedVenueName, // Prefill with selected venue
+      function_venue: selectedVenueName,
       notesEnglish: "",
       notesGujarati: "",
       notesHindi: "",
@@ -155,17 +145,14 @@ const FunctionsDetails = ({
       id: Date.now() + Math.random(),
     };
 
-    console.log("➕ Creating new row with venue:", newRow.function_venue);
     return newRow;
   };
 
-  // Helper to extract date only
   const extractDateOnly = (dateTimeString) => {
     if (!dateTimeString) return null;
     return dateTimeString.split(" ")[0];
   };
 
-  // Check which rows are duplicates for highlighting
   const getDuplicateIndices = () => {
     const functions = formData?.eventFunction || [];
     const duplicates = new Set();
@@ -218,12 +205,11 @@ const FunctionsDetails = ({
     FetchFunction();
     setFormData((prev) => {
       if (!prev.eventFunction || prev.eventFunction.length === 0) {
-        console.log("🎬 Initializing with first function row");
         return { ...prev, eventFunction: [createEmptyRow()] };
       }
       return prev;
     });
-  }, [selectedVenueName]); // Re-run when venue name changes
+  }, [selectedVenueName]);
 
   const handleAddClick = () => setShowFunctionModal(true);
 
@@ -239,7 +225,6 @@ const FunctionsDetails = ({
   };
 
   const handleAddFunction = () => {
-    console.log("➕ Adding new function with venue:", selectedVenueName);
     const newFunction = createEmptyRow();
 
     setFormData({
