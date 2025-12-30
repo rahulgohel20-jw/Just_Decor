@@ -105,7 +105,6 @@ const LabourOtherManagementPage = () => {
   const [isSaving, setIsSaving] = useState(false); // Add this line after other useState declarations
 
   const userId = localStorage.getItem("userId");
-  console.log("userid", userId);
   const FetchLabourShift = useCallback(async () => {
     try {
       const res = await GetAllLabourShift(userId || 0);
@@ -177,27 +176,17 @@ const LabourOtherManagementPage = () => {
     const fetchContactCategories = async () => {
       if (!userId) return;
 
-      console.log("🔍 Fetch triggered with userId:", userId);
-
       try {
         const res = await GetAllContactCategory(userId);
-
-        console.log("📦 Full API Response:", res);
 
         const allCategories =
           res?.data?.data?.["Contact Category Details"] || [];
 
-        console.log("📄 Extracted Categories:", allCategories);
-
         const labour = allCategories.filter((cat) => {
           const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
-          console.log(
-            `➡ Checking Category: ${cat?.nameEnglish} | Contact Type: ${typeName}`
-          );
+
           return typeName === LABOUR_TYPE;
         });
-
-        console.log("✅ Filtered Labour Categories:", labour);
 
         setLabourCategories(labour);
       } catch (error) {
@@ -229,13 +218,7 @@ const LabourOtherManagementPage = () => {
     fetchContacts();
   }, [labourCategories, userId]);
   // Add this useEffect after setting labourCategories
-  useEffect(() => {
-    console.log("🎯 Labour Type Dropdown Options:", labourCategories);
-    console.log(
-      "🎯 Labour Type Names:",
-      labourCategories.map((cat) => cat.nameEnglish)
-    );
-  }, [labourCategories]);
+  useEffect(() => {}, [labourCategories]);
   useEffect(() => {
     const fetchEventData = async () => {
       if (!eventId) return;
@@ -439,10 +422,8 @@ const LabourOtherManagementPage = () => {
       }),
     };
 
-    console.log("Save Payload:", JSON.stringify(payload, null, 2));
-
     try {
-      setIsSaving(true); // 🔥 Start loader
+      setIsSaving(true);
 
       const res = await AddUpdateLabor(payload);
 
@@ -1041,7 +1022,6 @@ const LabourRow = ({
   <tr className="border-t">
     <td className="text-center !px-[3px]">{index + 1}.</td>
     <td className="!px-[3px]">
-      {console.log("🔽 Dropdown Labour Categories:", labourCategories)}
       <Select
         className="custom-select-sm"
         showSearch
@@ -1051,12 +1031,6 @@ const LabourRow = ({
         style={{ width: "100%" }}
       >
         {labourCategories.map((item) => {
-          console.log(
-            "📌 Option:",
-            item.nameEnglish,
-            "| Contact Type:",
-            item?.contactType?.nameEnglish
-          );
           return (
             <Select.Option key={item.id} value={item.nameEnglish}>
               {item.nameEnglish}

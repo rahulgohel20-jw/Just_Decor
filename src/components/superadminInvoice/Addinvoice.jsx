@@ -1,18 +1,37 @@
 import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { DatePicker, Input, Tooltip, Button, Table, Empty, message, Select } from "antd";
-import { EditOutlined, PlusOutlined, DeleteOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  DatePicker,
+  Input,
+  Tooltip,
+  Button,
+  Table,
+  Empty,
+  message,
+  Select,
+} from "antd";
+import {
+  EditOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  SaveOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import InvoiceFooter from "@/components/InvoiceTable/InvoiceFooter";
 import dayjs from "dayjs";
-import { SuperAdminAddInvoice, getAllByRoleId, GetAllMemberByUserId } from "../../services/apiServices";
+import {
+  SuperAdminAddInvoice,
+  getAllByRoleId,
+  GetAllMemberByUserId,
+} from "../../services/apiServices";
 
 const { TextArea } = Input;
 
 const Addinvoice = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Editing states
   const [editingBilling, setEditingBilling] = useState(false);
   const [editingShipping, setEditingShipping] = useState(false);
@@ -21,7 +40,6 @@ const Addinvoice = () => {
   const [editingPartyName, setEditingPartyName] = useState(false);
   const [editingPlanName, setEditingPlanName] = useState(false);
   const [partyId, setPartyId] = useState(null);
-
 
   // Form data states
   const [partyName, setPartyName] = useState("");
@@ -55,7 +73,8 @@ const Addinvoice = () => {
 
   // Temporary edit states
   const [tempBillingAddress, setTempBillingAddress] = useState(billingAddress);
-  const [tempShippingAddress, setTempShippingAddress] = useState(shippingAddress);
+  const [tempShippingAddress, setTempShippingAddress] =
+    useState(shippingAddress);
   const [tempBillingName, setTempBillingName] = useState(billingName);
   const [tempGSTNumber, setTempGSTNumber] = useState(gstNumber);
   const [tempPartyName, setTempPartyName] = useState(partyName);
@@ -93,7 +112,6 @@ const Addinvoice = () => {
 
         setPartyList(formattedParties);
       } else {
-        console.warn("Expected an array but got:", userDetails);
         setPartyList([]);
       }
     } catch (error) {
@@ -110,84 +128,92 @@ const Addinvoice = () => {
     try {
       setLoading(true);
       const response = await GetAllMemberByUserId(partyId);
-      
-      console.log("API Response:", response);
-      
+
       if (response?.data?.success) {
         const userDetails = response.data.data?.["User Details"];
-        
+
         if (Array.isArray(userDetails) && userDetails.length > 0) {
           const partyData = userDetails[0]; // Get first user from array
-          console.log("Extracted Party Data:", partyData);
-          
+
           // Set party name
-          const fullName = `${partyData.firstName || ""} ${partyData.lastName || ""}`.trim();
+          const fullName =
+            `${partyData.firstName || ""} ${partyData.lastName || ""}`.trim();
           if (fullName) {
             setPartyName(fullName);
           }
-          
+
           // Set billing and shipping addresses from userBasicDetails
           if (partyData.userBasicDetails?.address) {
-            console.log("Setting address:", partyData.userBasicDetails.address);
             setBillingAddress(partyData.userBasicDetails.address);
             setTempBillingAddress(partyData.userBasicDetails.address);
             setShippingAddress(partyData.userBasicDetails.address);
             setTempShippingAddress(partyData.userBasicDetails.address);
           }
-          
+
           // Set billing name (company name or full name)
-          const billingNameValue = partyData.userBasicDetails?.companyName || fullName;
+          const billingNameValue =
+            partyData.userBasicDetails?.companyName || fullName;
           if (billingNameValue) {
-            console.log("Setting billing name:", billingNameValue);
             setBillingName(billingNameValue);
             setTempBillingName(billingNameValue);
           }
-          
+
           // Set GST number (if you have it in your API response - add field name if available)
           // Currently not in the response, so leaving empty
-          
+
           // Set plan information if available
           if (partyData.userPlan) {
             const userPlan = partyData.userPlan;
             const plan = userPlan.plan;
-            console.log("Plan data:", plan);
-            
+
             if (plan?.name) {
               setPlanName(plan.name);
               setTempPlanName(plan.name);
             }
-            
+
             if (userPlan.startDate) {
               // Parse date like "10/11/2025 04:58 pm"
-              const startDateParsed = dayjs(userPlan.startDate, "DD/MM/YYYY hh:mm a");
+              const startDateParsed = dayjs(
+                userPlan.startDate,
+                "DD/MM/YYYY hh:mm a"
+              );
               setPlanStartDate(startDateParsed.format("DD/MM/YYYY"));
             }
-            
+
             if (userPlan.endDate) {
               // Parse date like "10/12/2025 04:58 pm"
-              const endDateParsed = dayjs(userPlan.endDate, "DD/MM/YYYY hh:mm a");
+              const endDateParsed = dayjs(
+                userPlan.endDate,
+                "DD/MM/YYYY hh:mm a"
+              );
               setPlanEndDate(endDateParsed.format("DD/MM/YYYY"));
             }
-            
+
             // Update table data with plan info
             setData([
               {
                 key: Date.now(),
                 planName: plan?.name || "N/A",
-                startDate: userPlan.startDate ? dayjs(userPlan.startDate, "DD/MM/YYYY hh:mm a").format("DD/MM/YYYY") : "",
-                endDate: userPlan.endDate ? dayjs(userPlan.endDate, "DD/MM/YYYY hh:mm a").format("DD/MM/YYYY") : "",
+                startDate: userPlan.startDate
+                  ? dayjs(userPlan.startDate, "DD/MM/YYYY hh:mm a").format(
+                      "DD/MM/YYYY"
+                    )
+                  : "",
+                endDate: userPlan.endDate
+                  ? dayjs(userPlan.endDate, "DD/MM/YYYY hh:mm a").format(
+                      "DD/MM/YYYY"
+                    )
+                  : "",
                 amount: plan?.price?.toString() || "0",
               },
             ]);
           }
-          
+
           message.success("Party details loaded successfully");
         } else {
-          console.log("No user details found in response");
           message.error("No user details found");
         }
       } else {
-        console.log("API response not successful:", response?.data);
         message.error("Failed to load party details - Invalid response");
       }
     } catch (error) {
@@ -223,7 +249,9 @@ const Addinvoice = () => {
       render: (text, record) => (
         <Input
           value={text}
-          onChange={(e) => handleCellChange(record.key, "planName", e.target.value)}
+          onChange={(e) =>
+            handleCellChange(record.key, "planName", e.target.value)
+          }
         />
       ),
     },
@@ -236,7 +264,11 @@ const Addinvoice = () => {
           value={text ? dayjs(text, "DD/MM/YYYY") : null}
           format="DD/MM/YYYY"
           onChange={(date) =>
-            handleCellChange(record.key, "startDate", date ? date.format("DD/MM/YYYY") : "")
+            handleCellChange(
+              record.key,
+              "startDate",
+              date ? date.format("DD/MM/YYYY") : ""
+            )
           }
           className="w-full"
         />
@@ -251,7 +283,11 @@ const Addinvoice = () => {
           value={text ? dayjs(text, "DD/MM/YYYY") : null}
           format="DD/MM/YYYY"
           onChange={(date) =>
-            handleCellChange(record.key, "endDate", date ? date.format("DD/MM/YYYY") : "")
+            handleCellChange(
+              record.key,
+              "endDate",
+              date ? date.format("DD/MM/YYYY") : ""
+            )
           }
           className="w-full"
         />
@@ -264,7 +300,9 @@ const Addinvoice = () => {
       render: (text, record) => (
         <Input
           value={text}
-          onChange={(e) => handleCellChange(record.key, "amount", e.target.value)}
+          onChange={(e) =>
+            handleCellChange(record.key, "amount", e.target.value)
+          }
           prefix="₹"
         />
       ),
@@ -287,7 +325,9 @@ const Addinvoice = () => {
 
   const handleCellChange = (key, field, value) => {
     setData((prev) =>
-      prev.map((item) => (item.key === key ? { ...item, [field]: value } : item))
+      prev.map((item) =>
+        item.key === key ? { ...item, [field]: value } : item
+      )
     );
   };
 
@@ -306,7 +346,6 @@ const Addinvoice = () => {
     setData((prev) => prev.filter((item) => item.key !== key));
   };
 
-  // Party Name handlers
   const handleEditPartyName = () => {
     setTempPartyName(partyName);
     setEditingPartyName(true);
@@ -322,7 +361,6 @@ const Addinvoice = () => {
     setEditingPartyName(false);
   };
 
-  // Plan Name handlers
   const handleEditPlanName = () => {
     setTempPlanName(planName);
     setEditingPlanName(true);
@@ -338,7 +376,6 @@ const Addinvoice = () => {
     setEditingPlanName(false);
   };
 
-  // Billing Address handlers
   const handleEditBilling = () => {
     setTempBillingAddress(billingAddress);
     setEditingBilling(true);
@@ -354,7 +391,6 @@ const Addinvoice = () => {
     setEditingBilling(false);
   };
 
-  // Shipping Address handlers
   const handleEditShipping = () => {
     setTempShippingAddress(shippingAddress);
     setEditingShipping(true);
@@ -370,7 +406,6 @@ const Addinvoice = () => {
     setEditingShipping(false);
   };
 
-  // Billing Name handlers
   const handleEditBillingName = () => {
     setTempBillingName(billingName);
     setEditingBillingName(true);
@@ -402,10 +437,8 @@ const Addinvoice = () => {
     setEditingGST(false);
   };
 
-  // Submit invoice
   const handleSubmit = async () => {
     try {
-      // Basic validation
       if (!partyName || !planName || !dueDate) {
         message.error("Please fill in all required fields");
         return;
@@ -418,10 +451,8 @@ const Addinvoice = () => {
 
       setLoading(true);
 
-      // Get footer totals
       const totals = calculateTotals();
 
-      // Format plan information
       const planInformation = data.map((item) => ({
         planName: item.planName,
         planStartDate: item.startDate || "",
@@ -432,7 +463,6 @@ const Addinvoice = () => {
             : parseFloat(item.amount) || 0,
       }));
 
-      // ✅ Build payload according to your API structure
       const payload = {
         billingAddress,
         billingName,
@@ -446,7 +476,9 @@ const Addinvoice = () => {
         igstPercentage: footerData.igst,
         notes: footerData.notes || notes,
         partyName,
-        planEndDate: planEndDate ? dayjs(planEndDate, "DD-MM-YYYY").format("DD-MM-YYYY") : "",
+        planEndDate: planEndDate
+          ? dayjs(planEndDate, "DD-MM-YYYY").format("DD-MM-YYYY")
+          : "",
         planInformation: data.map((item) => ({
           planName: item.planName,
           planStartDate: item.startDate
@@ -461,7 +493,9 @@ const Addinvoice = () => {
               : parseFloat(item.amount) || 0,
         })),
         planName,
-        planStartDate: planStartDate ? dayjs(planStartDate, "DD-MM-YYYY").format("DD-MM-YYYY") : "",
+        planStartDate: planStartDate
+          ? dayjs(planStartDate, "DD-MM-YYYY").format("DD-MM-YYYY")
+          : "",
         roundOff: footerData.roundOff,
         sgstAmount: totals.sgstAmount,
         sgstPercentage: footerData.sgst,
@@ -469,21 +503,19 @@ const Addinvoice = () => {
         subTotal: totals.subTotal,
       };
 
-      console.log("📤 Sending Invoice Payload:", payload);
-
       const response = await SuperAdminAddInvoice(payload);
 
       if (response?.data?.success) {
         message.success("✅ Invoice created successfully!");
-        // Optionally reset or navigate
         setData([]);
       } else {
         throw new Error(response?.data?.message || "Failed to create invoice");
       }
-
     } catch (error) {
       console.error("❌ Error creating invoice:", error);
-      message.error(error?.response?.data?.message || "Failed to create invoice");
+      message.error(
+        error?.response?.data?.message || "Failed to create invoice"
+      );
     } finally {
       setLoading(false);
     }
@@ -503,13 +535,15 @@ const Addinvoice = () => {
               <div className="flex flex-wrap items-center justify-between p-4 gap-3">
                 <div className="flex flex-col gap-2.5">
                   <div className="flex items-center gap-3 mb-2">
-                    <p className="text-lg font-semibold text-gray-900">Party Name:</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      Party Name:
+                    </p>
                     <Select
                       value={partyName}
                       onChange={(value, option) => {
                         setPartyId(value);
                         setPartyName(option?.label);
-                        
+
                         // Fetch full party details from API
                         fetchPartyDetails(value);
                       }}
@@ -519,9 +553,13 @@ const Addinvoice = () => {
                       showSearch
                       loading={loadingParties}
                       filterOption={(input, option) =>
-                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
                       }
-                      notFoundContent={loadingParties ? "Loading..." : "No parties found"}
+                      notFoundContent={
+                        loadingParties ? "Loading..." : "No parties found"
+                      }
                     />
                   </div>
                   <div className="flex items-center gap-7">
@@ -534,7 +572,9 @@ const Addinvoice = () => {
                             <>
                               <Input
                                 value={tempPlanName}
-                                onChange={(e) => setTempPlanName(e.target.value)}
+                                onChange={(e) =>
+                                  setTempPlanName(e.target.value)
+                                }
                                 className="w-32"
                                 size="small"
                               />
@@ -567,10 +607,16 @@ const Addinvoice = () => {
                       <div className="flex flex-col">
                         <span className="text-xs">Plan Start Date:</span>
                         <DatePicker
-                          value={planStartDate ? dayjs(planStartDate, "DD/MM/YYYY") : null}
+                          value={
+                            planStartDate
+                              ? dayjs(planStartDate, "DD/MM/YYYY")
+                              : null
+                          }
                           format="DD/MM/YYYY"
                           onChange={(date) =>
-                            setPlanStartDate(date ? date.format("DD/MM/YYYY") : "")
+                            setPlanStartDate(
+                              date ? date.format("DD/MM/YYYY") : ""
+                            )
                           }
                           className="w-full"
                         />
@@ -581,10 +627,16 @@ const Addinvoice = () => {
                       <div className="flex flex-col">
                         <span className="text-xs">Plan End Date:</span>
                         <DatePicker
-                          value={planEndDate ? dayjs(planEndDate, "DD/MM/YYYY") : null}
+                          value={
+                            planEndDate
+                              ? dayjs(planEndDate, "DD/MM/YYYY")
+                              : null
+                          }
                           format="DD/MM/YYYY"
                           onChange={(date) =>
-                            setPlanEndDate(date ? date.format("DD/MM/YYYY") : "")
+                            setPlanEndDate(
+                              date ? date.format("DD/MM/YYYY") : ""
+                            )
                           }
                           className="w-full"
                         />
@@ -708,7 +760,9 @@ const Addinvoice = () => {
               <div className="grid md:grid-cols-2 border-t">
                 <div className="border-r p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">Billing Name:</span>
+                    <span className="font-semibold text-gray-900">
+                      Billing Name:
+                    </span>
                     {editingBillingName ? (
                       <>
                         <Input
@@ -744,7 +798,9 @@ const Addinvoice = () => {
                 </div>
                 <div className="p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">GST Number:</span>
+                    <span className="font-semibold text-gray-900">
+                      GST Number:
+                    </span>
                     {editingGST ? (
                       <>
                         <Input
