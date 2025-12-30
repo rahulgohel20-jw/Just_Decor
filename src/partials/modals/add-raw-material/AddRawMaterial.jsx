@@ -297,7 +297,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   };
 
   const handleRemoveSupplier = (item) => {
-    if (!item.deleteId || item.backendId === 0) {
+    if (item.backendId === 0) {
       setTableData((prevData) =>
         prevData.filter((dataItem) => dataItem.supplierId !== item.supplierId)
       );
@@ -313,57 +313,44 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, remove it!",
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const response = await DeleteSuplier(item.deleteId);
+      if (!result.isConfirmed) return;
 
-          if (
-            response &&
-            (response.success || response.data.success === true)
-          ) {
-            setTableData((prevData) =>
-              prevData.filter((dataItem) => dataItem.deleteId !== item.deleteId)
-            );
+      try {
+        const response = await DeleteSuplier(item.backendId);
 
-            Swal.fire({
-              title: "Removed!",
-              text: "Supplier has been removed successfully.",
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-            });
-          } else {
-            throw new Error(response?.message || "API call failed");
-          }
-        } catch (error) {
-          console.error("Delete Supplier API Error:", error);
+        if (response?.success || response?.data?.success === true) {
+          setTableData((prevData) =>
+            prevData.filter((dataItem) => dataItem.backendId !== item.backendId)
+          );
+
           Swal.fire({
-            title: "Error!",
-            text: error.message || "Failed to delete supplier.",
-            icon: "error",
-            confirmButtonText: "OK",
+            title: "Removed!",
+            text: "Supplier has been removed successfully.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
           });
+        } else {
+          throw new Error(response?.message || "API call failed");
         }
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: error.message || "Failed to delete supplier.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
     });
   };
 
   const handleSetDefaultSupplier = (supplierId) => {
     setTableData((prevData) =>
-      prevData.map((item) =>
-        item.supplierId === supplierId
-          ? { ...item, isDefault: !item.isDefault }
-          : item
-      )
+      prevData.map((item) => ({
+        ...item,
+        isDefault: item.supplierId === supplierId,
+      }))
     );
-
-    Swal.fire({
-      title: "Success!",
-      text: "Supplier status updated successfully.",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
   };
 
   const handleEditSupplier = (supplier) => {
@@ -418,7 +405,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       supplierId: supplierData.id,
       supplier_name: supplierData.name,
       backendId: 0,
-      isDefault: false,
+      isDefault: true,
     };
 
     setTableData((prevData) => [...prevData, newSupplierEntry]);

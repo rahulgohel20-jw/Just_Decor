@@ -179,7 +179,6 @@ const RawMaterial = () => {
   };
 
   useEffect(() => {
-    FetchRawMaterial(1);
     FetchCategories();
   }, []);
 

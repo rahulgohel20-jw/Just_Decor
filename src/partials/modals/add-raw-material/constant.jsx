@@ -1,3 +1,4 @@
+import { fa } from "@faker-js/faker";
 import { Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
 
