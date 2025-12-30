@@ -2,7 +2,12 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { GetAllContactCategory, Translateapi } from "@/services/apiServices";
+import {
+  GetAllContactCategory,
+  Translateapi,
+  AddCustomerapi,
+  EditCustomerApi,
+} from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -19,27 +24,6 @@ const AddVendor = ({
   if (!isModalOpen) return null;
   const intl = useIntl();
 
-  // Define API functions directly in the component
-  const getAuthHeaders = () => {
-    const token =
-      localStorage.getItem("token") || localStorage.getItem("authToken");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  const getBaseURL = () => {
-    // Try to get base URL from existing axios instance or use relative path
-    return "/v1/api";
-  };
-
-  const AddCustomerapi = (formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-        // Don't set Content-Type, let axios set it with boundary
-      },
-    });
-  };
-
   const EditCustomerApi = (id, formData) => {
     return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
       headers: {
@@ -52,7 +36,7 @@ const AddVendor = ({
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null); // ✅ Added selectedFile state
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
@@ -195,7 +179,7 @@ const AddVendor = ({
       } else {
         setFormData(initialFormState);
         setImagePreview(null);
-        setSelectedFile(null); // ✅ Reset selectedFile
+        setSelectedFile(null);
       }
       setErrors({});
     }

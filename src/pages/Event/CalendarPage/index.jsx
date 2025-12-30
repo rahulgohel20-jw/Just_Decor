@@ -25,16 +25,22 @@ const CalendarPage = () => {
 
   let Id = localStorage.getItem("userId");
 
-  const getStatusColor = (statusCode) => {
-    switch (statusCode) {
-      case 0:
-        return "info"; // Inquiry
-      case 1:
-        return "rgba(40, 167, 69, 1)"; // Confirm
-      case 2:
-        return "rgba(191, 34, 37, 1)"; // Cancel
-      default:
-        return "#6b7280"; // Default grey
+  const getStatusColor = (statusCode, isRMenu) => {
+    console.log(isRMenu);
+
+    if (isRMenu === true) {
+      return "#E75480";
+    } else {
+      switch (statusCode) {
+        case 0:
+          return "info";
+        case 1:
+          return "rgba(40, 167, 69, 1)";
+        case 2:
+          return "rgba(191, 34, 37, 1)";
+        default:
+          return "#6b7280";
+      }
     }
   };
 
@@ -115,7 +121,7 @@ const CalendarPage = () => {
                   item.eventEndDateTime || item.eventStartDateTime
                 ); // fallback if no end
 
-                const color = getStatusColor(item.status);
+                const color = getStatusColor(item.status, item.isRMenu);
                 console.log("Event Item:", item); // Debug log
                 return {
                   eventid: item.id,
@@ -130,6 +136,7 @@ const CalendarPage = () => {
                   time: time12,
                   mobile: item.party?.mobileno || "N/A",
                   statusCode: item.status,
+                  isRMenu: item?.isRMenu,
                   address: item.address || "N/A",
                   event: item.eventType?.nameEnglish || "Event",
                   color: color,
