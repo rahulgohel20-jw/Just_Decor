@@ -19,8 +19,6 @@ const ClientDetailsStep = ({
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [customer, setCustomer] = useState([]);
 
-  console.log("Language Context:", languageContext);
-
   useEffect(() => {
     FetchCustomerName();
   }, []);
@@ -31,9 +29,6 @@ const ClientDetailsStep = ({
   const getLocalizedField = (item, fieldName) => {
     const currentLocale =
       languageContext?.locale || languageContext?.language || "en";
-
-    console.log("Current Locale:", currentLocale);
-    console.log("Item:", item);
 
     const languageMap = {
       en: "English",
@@ -47,8 +42,6 @@ const ClientDetailsStep = ({
 
     const suffix = languageMap[currentLocale] || "English";
     const fieldKey = `${fieldName}${suffix}`;
-
-    console.log(`Looking for field: ${fieldKey}, Value: ${item[fieldKey]}`);
 
     return item[fieldKey] || item[`${fieldName}English`] || "";
   };
@@ -82,7 +75,6 @@ const ClientDetailsStep = ({
     setFormData({ ...formData, [name]: value });
 
     if (errors && errors[name]) {
-      console.log(`Clearing error for ${name}`);
     }
   };
 
@@ -137,16 +129,12 @@ const ClientDetailsStep = ({
       });
   };
 
-  // Handler to refresh data after adding new customer
   const handleCustomerAdded = () => {
-    console.log("New customer added, refreshing and auto-selecting...");
-    FetchCustomerName(true); // Pass true to auto-select latest
+    FetchCustomerName(true);
   };
 
-  // Re-fetch customer data when language changes to update labels
   useEffect(() => {
     const currentLocale = languageContext?.locale || languageContext?.language;
-    console.log("Language changed to:", currentLocale);
     FetchCustomerName();
   }, [languageContext?.locale, languageContext?.language]);
 

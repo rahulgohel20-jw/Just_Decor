@@ -24,8 +24,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 const TopTabs = ({ value, onChange, functions }) => {
-  console.log(functions);
-
   return (
     <div className="flex gap-3 overflow-x-auto">
       {functions.map((item) => {
@@ -387,10 +385,6 @@ const EventMenuAllocationPage = () => {
       const matchingRow = rows.find((r) => r.menuItemId === menuItemId);
 
       if (matchingRow?.outside) {
-        console.log(
-          "Category sidebar blocked because Outside is selected",
-          menuItemId
-        );
         return;
       }
 
@@ -550,11 +544,6 @@ const EventMenuAllocationPage = () => {
                     finalPrice = basePrice + chefCost;
                   }
                 }
-                console.log(
-                  "FETCH CALC PRICE",
-                  summaryItem.menuItemId,
-                  finalPrice
-                );
 
                 return {
                   ...summaryItem,
@@ -786,7 +775,6 @@ const EventMenuAllocationPage = () => {
 
           // INSIDE
           if (matchingRow.inside) {
-            console.log("UPDATE → INSIDE", { menuItemId, basePrice });
             return { ...item, totalPrice: basePrice };
           }
 
@@ -799,8 +787,6 @@ const EventMenuAllocationPage = () => {
                   (sum, allocation) => sum + (allocation.totalPrice || 0),
                   0
                 ) || 0;
-
-            console.log("UPDATE → OUTSIDE", { menuItemId, additionalCost });
 
             return { ...item, totalPrice: additionalCost };
           }
@@ -817,24 +803,15 @@ const EventMenuAllocationPage = () => {
 
             const finalPrice = basePrice + chefLabourCost;
 
-            console.log("UPDATE → CHEF", {
-              menuItemId,
-              basePrice,
-              chefLabourCost,
-              finalPrice,
-            });
-
             return { ...item, totalPrice: finalPrice };
           }
 
-          console.log("UPDATE → DEFAULT", { menuItemId, basePrice });
           return { ...item, totalPrice: basePrice };
         }),
       }))
     );
   };
 
-  // Update all save handler functions to set hasUnsavedChanges to true
   const handleOutsideSave = (saveData) => {
     setAllocationData((prev) => ({
       ...prev,
@@ -1150,7 +1127,6 @@ const EventMenuAllocationPage = () => {
       eventId,
       "Chef"
     );
-    console.log(res);
     setchefsummary(res.data.data["Menu Allocation Details"] || []);
     setIsModalOpen(true);
   };
@@ -1161,7 +1137,6 @@ const EventMenuAllocationPage = () => {
       eventId,
       "Outside"
     );
-    console.log(res);
     setoutsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsOutsideAgencyModalOpen(true);
   };
@@ -1172,7 +1147,6 @@ const EventMenuAllocationPage = () => {
       eventId,
       "Inside"
     );
-    console.log(res);
     setinsidesummary(res?.data?.data["Menu Allocation Details"] || []);
     setIsInHouseCookModalOpen(true);
   };

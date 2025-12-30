@@ -133,8 +133,6 @@ export default function SidebarChefModal({
             m.menuCategoryId === row?.menuCategoryId &&
             m.chefLabour === true
         );
-
-        console.log("✅ Chef Labour allocation loaded:", currentItem);
       } catch (error) {
         console.error("❌ Error fetching event details:", error);
       } finally {
@@ -175,13 +173,11 @@ export default function SidebarChefModal({
     try {
       const data = await GetUnitData(userId);
       const unitdata = data?.data?.data["Unit Details"] || [];
-      // ✅ FIX: Normalize unit data to ensure unitId exists
       const normalizedUnits = unitdata.map((unit) => ({
         ...unit,
-        unitId: unit.id || unit.unitId, // Use 'id' if 'unitId' doesn't exist
+        unitId: unit.id || unit.unitId,
       }));
       setUnits(normalizedUnits);
-      console.log("✅ Units loaded:", normalizedUnits);
     } catch (error) {
       console.log(error);
     }
@@ -256,24 +252,12 @@ export default function SidebarChefModal({
       const counterPrice = parseFloat(updated[index].counterPrice) || 0;
       const helperPrice = parseFloat(updated[index].helperPrice) || 0;
 
-      // For Plate Wise, only use counterQuantity * counterPrice
       if (updated[index].serviceType === "Plate Wise") {
         updated[index].totalPrice = counterQty * counterPrice;
       } else {
-        // For Counter Wise, use both counter and helper
         updated[index].totalPrice =
           counterQty * counterPrice + helperQty * helperPrice;
       }
-
-      console.log(`✅ Extra Row ${index + 1} Calculation:`, {
-        field,
-        value,
-        counterQty,
-        counterPrice,
-        helperQty,
-        helperPrice,
-        totalPrice: updated[index].totalPrice,
-      });
 
       return updated;
     });
@@ -303,20 +287,9 @@ export default function SidebarChefModal({
         if (alloc.serviceType === "Plate Wise") {
           alloc.totalPrice = counterQty * counterPrice;
         } else {
-          // For Counter Wise, use both counter and helper
           alloc.totalPrice =
             counterQty * counterPrice + helperQty * helperPrice;
         }
-
-        console.log(`✅ Existing Row ${allocIndex + 1} Calculation:`, {
-          field,
-          value,
-          counterQty,
-          counterPrice,
-          helperQty,
-          helperPrice,
-          totalPrice: alloc.totalPrice,
-        });
       }
 
       return updated;
@@ -324,7 +297,6 @@ export default function SidebarChefModal({
   };
 
   const handleSave = async () => {
-    // Only get the current item being edited
     const currentItem = menuAllocations.find(
       (m) =>
         m.menuItemId === row?.menuItemId &&
@@ -332,10 +304,8 @@ export default function SidebarChefModal({
         m.chefLabour === true
     );
 
-    // Get existing allocations for THIS specific item only
     const existingAllocations = currentItem?.eventFunctionMenuAllocations || [];
 
-    // Process default row if it has data
     const defaultRowData = [];
     if (
       defaultRow.partyId &&
@@ -357,21 +327,11 @@ export default function SidebarChefModal({
           (parseFloat(defaultRow.counterQuantity) || 0) *
           (parseFloat(defaultRow.counterPrice) || 0);
 
-        console.log("🔍 Default Row - Plate Wise Data:", {
-          quantity: defaultRowToSave.quantity,
-          price: defaultRowToSave.price,
-          unit: defaultRowToSave.unit,
-          unitId: defaultRowToSave.unitId,
-          totalPrice: defaultRowToSave.totalPrice,
-        });
-
-        // Set Counter Wise fields to 0 for Plate Wise
         defaultRowToSave.counterQuantity = 0;
         defaultRowToSave.counterPrice = 0;
         defaultRowToSave.helperQuantity = 0;
         defaultRowToSave.helperPrice = 0;
       } else {
-        // For Counter Wise
         defaultRowToSave.counterQuantity = defaultRow.counterQuantity;
         defaultRowToSave.counterPrice = defaultRow.counterPrice;
         defaultRowToSave.helperQuantity = defaultRow.helperQuantity;
@@ -382,7 +342,6 @@ export default function SidebarChefModal({
           (parseFloat(defaultRow.helperQuantity) || 0) *
             (parseFloat(defaultRow.helperPrice) || 0);
 
-        // Set Plate Wise fields to 0/empty for Counter Wise
         defaultRowToSave.quantity = 0;
         defaultRowToSave.price = 0;
         defaultRowToSave.unit = "";
@@ -392,7 +351,6 @@ export default function SidebarChefModal({
       defaultRowData.push(defaultRowToSave);
     }
 
-    // Process all allocations for THIS item only
     const allAllocations = [
       ...existingAllocations,
       ...defaultRowData,
@@ -414,7 +372,6 @@ export default function SidebarChefModal({
           isChefLabour: true,
         };
 
-        // For Plate Wise, format the data correctly
         if (alloc.serviceType === "Plate Wise") {
           allocToSave.quantity = alloc.counterQuantity || alloc.quantity;
           allocToSave.price = alloc.counterPrice || alloc.price;
@@ -424,22 +381,11 @@ export default function SidebarChefModal({
             (parseFloat(allocToSave.quantity) || 0) *
             (parseFloat(allocToSave.price) || 0);
 
-          console.log("🔍 Allocation - Plate Wise Data:", {
-            partyId: allocToSave.partyId,
-            quantity: allocToSave.quantity,
-            price: allocToSave.price,
-            unit: allocToSave.unit,
-            unitId: allocToSave.unitId,
-            totalPrice: allocToSave.totalPrice,
-          });
-
-          // Set Counter Wise fields to 0 for Plate Wise
           allocToSave.counterQuantity = 0;
           allocToSave.counterPrice = 0;
           allocToSave.helperQuantity = 0;
           allocToSave.helperPrice = 0;
         } else {
-          // For Counter Wise, calculate total price
           allocToSave.counterQuantity = alloc.counterQuantity || 0;
           allocToSave.counterPrice = alloc.counterPrice || 0;
           allocToSave.helperQuantity = alloc.helperQuantity || 0;
@@ -460,14 +406,6 @@ export default function SidebarChefModal({
         return allocToSave;
       });
 
-    console.log("💾 Saving Chef Labour Data for THIS ITEM ONLY:", {
-      menuItemId: row?.menuItemId,
-      menuCategoryId: row?.menuCategoryId,
-      allocations: allAllocations,
-      totalCount: allAllocations.length,
-    });
-
-    // Prepare save data for THIS specific item only
     const saveData = {
       eventId,
       eventFunctionId,
@@ -481,7 +419,6 @@ export default function SidebarChefModal({
       await onSave(saveData);
     }
 
-    // Update menuAllocations state to persist the data for THIS item only
     setMenuAllocations((prev) => {
       const updated = [...prev];
       const itemIndex = updated.findIndex(
@@ -492,13 +429,11 @@ export default function SidebarChefModal({
       );
 
       if (itemIndex !== -1) {
-        // Update existing item - only update THIS specific item
         updated[itemIndex] = {
           ...updated[itemIndex],
           eventFunctionMenuAllocations: allAllocations,
         };
       } else {
-        // Add new item
         updated.push({
           menuItemId: row?.menuItemId,
           menuCategoryId: row?.menuCategoryId,
@@ -510,7 +445,6 @@ export default function SidebarChefModal({
       return updated;
     });
 
-    // Clear extra rows and reset default row
     setExtraRows([]);
     setDefaultRow({
       partyId: "",
@@ -523,12 +457,6 @@ export default function SidebarChefModal({
       unitId: "",
       totalPrice: 0,
     });
-
-    console.log(
-      "✅ Data saved for menuItemId:",
-      row?.menuItemId,
-      "and will persist on reopen"
-    );
 
     onClose();
   };
@@ -817,13 +745,6 @@ export default function SidebarChefModal({
                                           selectedUnit.nameEnglish
                                         );
                                       }
-                                      console.log(
-                                        "✅ Default Row - Selected unit:",
-                                        {
-                                          unitId: selectedUnitId,
-                                          unitName: selectedUnit?.nameEnglish,
-                                        }
-                                      );
                                     }}
                                   >
                                     <option value="">
@@ -1062,13 +983,6 @@ export default function SidebarChefModal({
                                         idx,
                                         "unit",
                                         selectedUnit?.nameEnglish || ""
-                                      );
-                                      console.log(
-                                        "✅ Existing Row - Selected unit:",
-                                        {
-                                          unitId: selectedUnitId,
-                                          unitName: selectedUnit?.nameEnglish,
-                                        }
                                       );
                                     }}
                                   >
@@ -1325,10 +1239,6 @@ export default function SidebarChefModal({
                                     selectedUnit.nameEnglish
                                   );
                                 }
-                                console.log("✅ Extra row - Selected unit:", {
-                                  unitId: selectedUnitId,
-                                  unitName: selectedUnit?.nameEnglish,
-                                });
                               }}
                             >
                               <option value="">

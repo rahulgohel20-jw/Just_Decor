@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-import { GetUnitData, OutsideContactName } from "@/services/apiServices";
+import { OutsideContactName } from "@/services/apiServices";
 
 /* ---------- UI ATOMS ---------- */
 
@@ -33,48 +33,82 @@ export default function SidebarRawMaterial({
   onClose,
   selectedRow,
   onSave,
+  sidebarunit, // ✅ Unit data from parent
 }) {
   const [functionRows, setFunctionRows] = useState([]);
   const [unit, setUnit] = useState([]);
   const [supplier, setSupplier] = useState([]);
   let userId = localStorage.getItem("userId");
 
+  // ✅ Set unit from parent prop
+  useEffect(() => {
+    if (sidebarunit && Array.isArray(sidebarunit) && sidebarunit.length > 0) {
+      setUnit(sidebarunit);
+    }
+  }, [sidebarunit]);
+
   useEffect(() => {
     if (selectedRow && open) {
       const functions = selectedRow.eventRawMaterialFunctions || [];
 
       if (functions.length > 0) {
-        const rows = functions.map((func, index) => ({
-          id: index + 1,
+        const rows = functions.map((func, index) => {
+          // ✅ Get unitHierarchyDto from func or construct from unit object
+          const unitHierarchy =
+            func.unitHierarchyDto ||
+            (func.unit
+              ? {
+                  unitId: func.unit.id,
+                  nameEnglish: func.unit.nameEnglish,
+                  nameHindi: func.unit.nameHindi || null,
+                  nameGujarati: func.unit.nameGujarati || null,
+                  symbolEnglish: func.unit.symbolEnglish || null,
+                  symbolHindi: func.unit.symbolHindi || null,
+                  symbolGujarati: func.unit.symbolGujarati || null,
+                  children: func.unit.children || [],
+                }
+              : null);
 
-          // ✅ FUNCTION LEVEL
-          functionType: func.functionName || "",
-          menuItemName: func.itemName || "",
+          return {
+            id: index + 1,
+            functionType: func.functionName || "",
+            menuItemName: func.itemName || "",
+            qty: func.qty ?? selectedRow.qty ?? "",
+            price: func.price ?? 0,
+            supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
+            agency: func.supplierName ?? selectedRow.agency ?? "",
 
-          qty: func.qty ?? selectedRow.qty ?? "",
-          price: func.price ?? 0,
+            // ✅ Use unitHierarchyDto for unitId
+            unitId: Number(
+              unitHierarchy?.unitId ??
+                func.unitId ??
+                selectedRow.unitHierarchyDto?.unitId ??
+                selectedRow.unitId ??
+                1
+            ),
 
-          // ✅ SUPPLIER (fallback to selectedRow)
-          supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
-          agency: func.supplierName ?? selectedRow.agency ?? "",
+            unit:
+              unitHierarchy?.nameEnglish ??
+              func.unitName ??
+              selectedRow.unit ??
+              "KILO",
 
-          // ✅ UNIT (fallback)
-          unitId: func.unitId ?? selectedRow.unitId ?? "",
-          unit: func.unitName ?? selectedRow.unit ?? "",
+            // ✅ Store complete unit objects
+            unitObject: func.unit || null,
+            unitHierarchyDto: unitHierarchy,
 
-          // ✅ PLACE (fallback)
-          place: func.place || selectedRow.place || "",
+            place: func.place || selectedRow.place || "",
 
-          // ✅ DATE
-          dateTime:
-            func.functiondatetime && dayjs(func.functiondatetime).isValid()
-              ? dayjs(func.functiondatetime)
-              : null,
+            dateTime:
+              func.functiondatetime && dayjs(func.functiondatetime).isValid()
+                ? dayjs(func.functiondatetime)
+                : null,
 
-          functionId: func.functionId || null,
-          eventFunctionId: func.eventFunctionId || null,
-          isExtraField: func.isExtraField || false,
-        }));
+            functionId: func.functionId || null,
+            eventFunctionId: func.eventFunctionId || null,
+            isExtraField: func.isExtraField || false,
+          };
+        });
 
         setFunctionRows(rows);
       }
@@ -85,45 +119,15 @@ export default function SidebarRawMaterial({
     if (!open) setFunctionRows([]);
   }, [open]);
 
-  useEffect(() => {
-    if (!unit.length || !functionRows.length) return;
-
-    setFunctionRows((prev) =>
-      prev.map((row) => {
-        if (!row.unitId) return row;
-
-        const matchedUnit = unit.find((u) => u.id === row.unitId);
-
-        if (!matchedUnit) return row;
-
-        return {
-          ...row,
-          unitId: matchedUnit.id,
-          unit: matchedUnit.nameEnglish,
-        };
-      })
-    );
-  }, [unit]);
+  useEffect(() => {}, [unit]);
 
   useEffect(() => {
-    FetchUnit();
     FetchSupplier();
   }, []);
-
-  const FetchUnit = async () => {
-    try {
-      const data = await GetUnitData(userId);
-
-      setUnit(data?.data?.data["Unit Details"] || []);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const FetchSupplier = async () => {
     try {
       const data = await OutsideContactName(3, userId);
-
       setSupplier(data?.data?.data["Party Details"] || []);
     } catch (error) {
       console.log(error);
@@ -143,10 +147,10 @@ export default function SidebarRawMaterial({
   const handleSave = () => {
     for (let i = 0; i < functionRows.length; i++) {
       const row = functionRows[i];
-      if (!row.agency || !row.qty || !row.place) {
-        alert(`Please fill all required fields in row ${i + 1}`);
-        return;
-      }
+      // if (!row.agency || !row.qty || !row.place) {
+      //   alert(`Please fill all required fields in row ${i + 1}`);
+      //   return;
+      // }
     }
 
     const enrichedRows = functionRows.map((row) => ({
@@ -155,15 +159,37 @@ export default function SidebarRawMaterial({
       functionName: row.functionType || "",
       qty: parseFloat(row.qty) || 0,
       itemName: row.menuItemName || "",
+
       supplierId: row.supplierId || 0,
-      supplierName: row.agency,
+      supplierName: row.agency || "",
+
       unitId: row.unitId || 1,
-      unitName: row.unit,
+      unitName: row.unit || "KILO",
+
+      // ✅ FULL UNIT OBJECT
+      unit: row.unitObject || null,
+
+      // ✅ REQUIRED BY BACKEND
+      unitHierarchyDto: row.unitHierarchyDto
+        ? {
+            unitId: row.unitHierarchyDto.unitId,
+            nameEnglish: row.unitHierarchyDto.nameEnglish,
+            nameHindi: row.unitHierarchyDto.nameHindi || null,
+            nameGujarati: row.unitHierarchyDto.nameGujarati || null,
+            symbolEnglish: row.unitHierarchyDto.symbolEnglish || null,
+            symbolHindi: row.unitHierarchyDto.symbolHindi || null,
+            symbolGujarati: row.unitHierarchyDto.symbolGujarati || null,
+            children: row.unitHierarchyDto.children || [],
+          }
+        : null,
+
       place: row.place,
       price: parseFloat(row.price) || 0,
+
       functiondatetime: row.dateTime
         ? dayjs(row.dateTime).format("YYYY-MM-DD HH:mm:ss.0")
         : "",
+
       isExtraField: row.isExtraField || false,
     }));
 
@@ -208,10 +234,10 @@ export default function SidebarRawMaterial({
             </div>
 
             {/* TABLE */}
-            <div className="p-2">
-              <div className="border rounded-xl overflow-x-auto ">
-                <table className="w-full border-collapse ">
-                  <thead className="bg-gray-100">
+            <div className="p-2 flex-1 overflow-auto">
+              <div className="border rounded-xl overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="bg-gray-100 sticky top-0">
                     <tr className="text-sm font-semibold text-gray-700">
                       <th className="p-3 text-left">Sr.</th>
                       <th className="p-3 text-left">Function</th>
@@ -226,129 +252,241 @@ export default function SidebarRawMaterial({
                   </thead>
 
                   <tbody>
-                    {functionRows.map((row, idx) => (
-                      <tr
-                        key={idx}
-                        className={`border-t align-top ${
-                          row.isExtraField ? "bg-yellow-50" : "hover:bg-gray-50"
-                        }`}
-                      >
-                        <td className="p-3">{row.id}.</td>
-
-                        <td className="p-3">{row.functionType || "-"}</td>
-
-                        {/* ✅ FULL ITEM NAME */}
-                        <td className="p-3 text-sm text-gray-800 whitespace-normal break-words max-w-[320px]">
-                          {row.menuItemName || "-"}
-                        </td>
-
-                        <td className="p-3">
-                          <BaseSelect
-                            value={row.supplierId || ""}
-                            onChange={(e) => {
-                              const selectedSupplier = supplier.find(
-                                (s) => s.id === parseInt(e.target.value)
-                              );
-
-                              handleInputChange(
-                                idx,
-                                "supplierId",
-                                selectedSupplier?.id || ""
-                              );
-                              handleInputChange(
-                                idx,
-                                "agency",
-                                selectedSupplier?.nameEnglish || "" //
-                              );
-                            }}
-                          >
-                            <option value="">Select Agency</option>
-
-                            {supplier.map((s) => (
-                              <option key={s.id} value={s.id}>
-                                {s.nameEnglish}
-                              </option>
-                            ))}
-                          </BaseSelect>
-                        </td>
-
-                        <td className="p-3 w-[90px]">
-                          <BaseInput
-                            type="number"
-                            className="text-center"
-                            value={row.qty}
-                            onChange={(e) =>
-                              handleInputChange(idx, "qty", e.target.value)
-                            }
-                          />
-                        </td>
-
-                        <td className="p-3 w-[130px]">
-                          <BaseSelect
-                            value={row.unitId || ""}
-                            onChange={(e) => {
-                              const selectedUnit = unit.find(
-                                (u) => u.id === parseInt(e.target.value) // ✅ Parse to number
-                              );
-
-                              handleInputChange(
-                                idx,
-                                "unitId",
-                                selectedUnit?.id || ""
-                              );
-                              handleInputChange(
-                                idx,
-                                "unit",
-                                selectedUnit?.nameEnglish || ""
-                              );
-                            }}
-                          >
-                            <option value="">Select Unit</option>
-
-                            {unit.map((u) => (
-                              <option key={u.id} value={u.id}>
-                                {u.nameEnglish}
-                              </option>
-                            ))}
-                          </BaseSelect>
-                        </td>
-
-                        <td className="p-3 w-[140px]">
-                          <BaseSelect
-                            value={row.place}
-                            onChange={(e) =>
-                              handleInputChange(idx, "place", e.target.value)
-                            }
-                          >
-                            <option value="">Select</option>
-                            <option value="At Venue">At Venue</option>
-                            <option value="Godown">Godown</option>
-                          </BaseSelect>
-                        </td>
-
-                        <td className="p-3 w-[200px]">
-                          <DatePicker
-                            className="h-9 w-full text-sm"
-                            showTime
-                            value={row.dateTime}
-                            onChange={(date) =>
-                              handleInputChange(idx, "dateTime", date)
-                            }
-                          />
-                        </td>
-
-                        <td className="p-3 w-[120px]">
-                          <BaseInput
-                            type="number"
-                            className="text-right"
-                            value={row.price}
-                            onChange={(e) =>
-                              handleInputChange(idx, "price", e.target.value)
-                            }
-                          />
+                    {functionRows.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="9"
+                          className="p-8 text-center text-gray-500"
+                        >
+                          No function data available
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      functionRows.map((row, idx) => (
+                        <tr
+                          key={idx}
+                          className={`border-t align-top ${
+                            row.isExtraField
+                              ? "bg-yellow-50"
+                              : "hover:bg-gray-50"
+                          }`}
+                        >
+                          <td className="p-3">{row.id}.</td>
+
+                          <td className="p-3">{row.functionType || "-"}</td>
+
+                          {/* ✅ FULL ITEM NAME */}
+                          <td className="p-3 text-sm text-gray-800 whitespace-normal break-words max-w-[320px]">
+                            {row.menuItemName || "-"}
+                          </td>
+
+                          <td className="p-3">
+                            <BaseSelect
+                              value={row.supplierId || ""}
+                              onChange={(e) => {
+                                const selectedSupplier = supplier.find(
+                                  (s) => s.id === parseInt(e.target.value)
+                                );
+
+                                handleInputChange(
+                                  idx,
+                                  "supplierId",
+                                  selectedSupplier?.id || ""
+                                );
+                                handleInputChange(
+                                  idx,
+                                  "agency",
+                                  selectedSupplier?.nameEnglish || ""
+                                );
+                              }}
+                            >
+                              <option value="">Select Agency</option>
+                              {supplier.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                  {s.nameEnglish}
+                                </option>
+                              ))}
+                            </BaseSelect>
+                          </td>
+
+                          <td className="p-3 w-[90px]">
+                            <BaseInput
+                              type="number"
+                              className="text-center"
+                              value={row.qty}
+                              onChange={(e) =>
+                                handleInputChange(idx, "qty", e.target.value)
+                              }
+                            />
+                          </td>
+
+                          {/* ✅ UNIT DROPDOWN - ONLY HIERARCHY */}
+                          <td className="p-3 w-[130px]">
+                            <BaseSelect
+                              value={row.unitId || ""}
+                              onChange={(e) => {
+                                const selectedUnitId = parseInt(e.target.value);
+
+                                // ✅ Find unit from hierarchy OR fallback to main unit list
+                                let selectedUnit = null;
+
+                                // First try to find in unitHierarchyDto
+                                if (row.unitHierarchyDto) {
+                                  if (
+                                    row.unitHierarchyDto.unitId ===
+                                    selectedUnitId
+                                  ) {
+                                    selectedUnit = {
+                                      id: row.unitHierarchyDto.unitId,
+                                      nameEnglish:
+                                        row.unitHierarchyDto.nameEnglish,
+                                      nameHindi: row.unitHierarchyDto.nameHindi,
+                                      nameGujarati:
+                                        row.unitHierarchyDto.nameGujarati,
+                                      symbolEnglish:
+                                        row.unitHierarchyDto.symbolEnglish,
+                                      symbolHindi:
+                                        row.unitHierarchyDto.symbolHindi,
+                                      symbolGujarati:
+                                        row.unitHierarchyDto.symbolGujarati,
+                                      children:
+                                        row.unitHierarchyDto.children || [],
+                                    };
+                                  } else if (row.unitHierarchyDto.children) {
+                                    const childUnit =
+                                      row.unitHierarchyDto.children.find(
+                                        (c) => c.unitId === selectedUnitId
+                                      );
+                                    if (childUnit) {
+                                      selectedUnit = {
+                                        id: childUnit.unitId,
+                                        nameEnglish: childUnit.nameEnglish,
+                                        nameHindi: childUnit.nameHindi,
+                                        nameGujarati: childUnit.nameGujarati,
+                                        symbolEnglish: childUnit.symbolEnglish,
+                                        symbolHindi: childUnit.symbolHindi,
+                                        symbolGujarati:
+                                          childUnit.symbolGujarati,
+                                        children: [],
+                                      };
+                                    }
+                                  }
+                                }
+
+                                // Fallback to main unit list if not found in hierarchy
+                                if (!selectedUnit) {
+                                  selectedUnit = unit.find(
+                                    (u) => u.id === selectedUnitId
+                                  );
+                                }
+
+                                if (selectedUnit) {
+                                  handleInputChange(
+                                    idx,
+                                    "unitId",
+                                    selectedUnit.id
+                                  );
+                                  handleInputChange(
+                                    idx,
+                                    "unit",
+                                    selectedUnit.nameEnglish
+                                  );
+                                  handleInputChange(
+                                    idx,
+                                    "unitObject",
+                                    selectedUnit
+                                  );
+
+                                  // ✅ Create proper unitHierarchyDto
+                                  handleInputChange(idx, "unitHierarchyDto", {
+                                    unitId: selectedUnit.id,
+                                    nameEnglish: selectedUnit.nameEnglish,
+                                    nameHindi: selectedUnit.nameHindi || null,
+                                    nameGujarati:
+                                      selectedUnit.nameGujarati || null,
+                                    symbolEnglish:
+                                      selectedUnit.symbolEnglish || null,
+                                    symbolHindi:
+                                      selectedUnit.symbolHindi || null,
+                                    symbolGujarati:
+                                      selectedUnit.symbolGujarati || null,
+                                    children: selectedUnit.children || [],
+                                  });
+                                }
+                              }}
+                            >
+                              <option value="">Select Unit</option>
+
+                              {/* ✅ Show parent unit from hierarchy */}
+                              {row.unitHierarchyDto && (
+                                <option
+                                  key={row.unitHierarchyDto.unitId}
+                                  value={row.unitHierarchyDto.unitId}
+                                >
+                                  {row.unitHierarchyDto.nameEnglish}
+                                </option>
+                              )}
+
+                              {/* ✅ Show children units from hierarchy */}
+                              {row.unitHierarchyDto?.children?.map(
+                                (childUnit) => (
+                                  <option
+                                    key={childUnit.unitId}
+                                    value={childUnit.unitId}
+                                  >
+                                    {childUnit.nameEnglish}
+                                  </option>
+                                )
+                              )}
+
+                              {/* ✅ Fallback: Show current unit if not in hierarchy */}
+                              {row.unitId &&
+                                row.unitHierarchyDto?.unitId !== row.unitId &&
+                                !row.unitHierarchyDto?.children?.some(
+                                  (c) => c.unitId === row.unitId
+                                ) && (
+                                  <option value={row.unitId}>{row.unit}</option>
+                                )}
+                            </BaseSelect>
+                          </td>
+
+                          <td className="p-3 w-[140px]">
+                            <BaseSelect
+                              value={row.place}
+                              onChange={(e) =>
+                                handleInputChange(idx, "place", e.target.value)
+                              }
+                            >
+                              <option value="">Select</option>
+                              <option value="At Venue">At Venue</option>
+                              <option value="Godown">Godown</option>
+                            </BaseSelect>
+                          </td>
+
+                          <td className="p-3 w-[200px]">
+                            <DatePicker
+                              className="h-9 w-full text-sm"
+                              showTime
+                              value={row.dateTime}
+                              onChange={(date) =>
+                                handleInputChange(idx, "dateTime", date)
+                              }
+                            />
+                          </td>
+
+                          <td className="p-3 w-[120px]">
+                            <BaseInput
+                              type="number"
+                              className="text-right"
+                              value={row.price}
+                              onChange={(e) =>
+                                handleInputChange(idx, "price", e.target.value)
+                              }
+                            />
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
