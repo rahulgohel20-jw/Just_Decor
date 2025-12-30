@@ -53,12 +53,13 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const [isRawCategoryModalOpen, setIsRawCategoryModalOpen] = useState(false);
   const [isVendorOpen, setIsVendorOpen] = useState(false);
   const [isSupplierOpen, setIsSupplierOpen] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [selectedRawMaterialCategory, setSelectedRawMaterialCategory] =
     useState(null);
   const intl = useIntl();
   let id = localStorage.getItem("userId");
-  console.log(rawmaterial);
 
   const formik = useFormik({
     initialValues: {
@@ -74,36 +75,51 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      // Prepare rawMaterialSupplierRequestDtos
-      const rawMaterialSupplierRequestDtos = tableData.map((supplier) => ({
-        id: supplier.backendId || 0,
-        idDefault: supplier.isDefault || false,
-        partyId: parseInt(supplier.supplierId),
-      }));
+      // Create FormData instead of JSON
+      const formData = new FormData();
 
-      const requestData = {
-        isGeneralFix: values.generalFixAccess,
-        nameEnglish: values.nameEnglish.trim(),
-        nameGujarati: values.nameGujarati.trim() || "",
-        nameHindi: values.nameHindi.trim() || "",
-        rawMaterialCatId: parseInt(values.rawCategoryId),
-        rawMaterialSupplierRequestDtos,
-        sequence: parseInt(values.priority) || 0,
-        supplierRate: parseFloat(values.supplierRate) || 0,
-        unitId: parseInt(values.unitid),
-        userId: parseInt(id),
-        weightPer100Pax: parseFloat(values.weight) || 0,
-      };
+      // Append basic fields
+      formData.append("isGeneralFix", values.generalFixAccess);
+      formData.append("nameEnglish", values.nameEnglish.trim());
+      formData.append("nameGujarati", values.nameGujarati.trim() || "");
+      formData.append("nameHindi", values.nameHindi.trim() || "");
+      formData.append("rawMaterialCatId", parseInt(values.rawCategoryId));
+      formData.append("sequence", parseInt(values.priority) || 0);
+      formData.append("supplierRate", parseFloat(values.supplierRate) || 0);
+      formData.append("unitId", parseInt(values.unitid));
+      formData.append("userId", parseInt(id));
+      formData.append("weightPer100Pax", parseFloat(values.weight) || 0);
+
+      // Append image file if exists
+      if (imageFile) {
+        formData.append("file", imageFile);
+      }
+
+      // Append supplier data separately
+      tableData.forEach((supplier, index) => {
+        formData.append(
+          `rawMaterialSupplierRequestDtos[${index}].id`,
+          supplier.backendId || 0
+        );
+        formData.append(
+          `rawMaterialSupplierRequestDtos[${index}].idDefault`,
+          supplier.isDefault || false
+        );
+        formData.append(
+          `rawMaterialSupplierRequestDtos[${index}].partyId`,
+          parseInt(supplier.supplierId)
+        );
+      });
 
       try {
         let response;
         if (rawmaterial) {
           response = await EditRawMaterial(
             rawmaterial.raw_material_id,
-            requestData
+            formData
           );
         } else {
-          response = await Addrawmaterial(requestData);
+          response = await Addrawmaterial(formData);
         }
 
         if (response && (response.success || response.data.success === true)) {
@@ -131,6 +147,50 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       }
     },
   });
+
+  // Handle image file selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        Swal.fire({
+          title: "Invalid File",
+          text: "Please select an image file",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          title: "File Too Large",
+          text: "Image size should be less than 5MB",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      setImageFile(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove image
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   useEffect(() => {
     if (formik.values.nameEnglish) {
       if (debounceTimer) clearTimeout(debounceTimer);
@@ -154,6 +214,8 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       formik.resetForm();
       setTableData([]);
       setEditingSupplier(null);
+      setImageFile(null);
+      setImagePreview(null);
       return;
     }
 
@@ -174,6 +236,22 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           weight: rawmaterial.weightPer100Pax || "",
         });
 
+        // Set existing image if available
+        // Check multiple possible image field names
+        const imageUrl =
+          rawmaterial.file || rawmaterial.imageUrl || rawmaterial.image;
+        if (imageUrl) {
+          // If it's a full URL, use it directly
+          // If it's a relative path, construct the full URL
+          const fullImageUrl = imageUrl.startsWith("http")
+            ? imageUrl
+            : `${import.meta.env.VITE_API_BASE_URL || ""}${imageUrl}`;
+
+          setImagePreview(fullImageUrl);
+          // Don't set imageFile when editing - only set preview
+          setImageFile(null);
+        }
+
         if (rawmaterial.suppliers?.length > 0) {
           const supplierTableData = rawmaterial.suppliers.map(
             (supplier, index) => ({
@@ -190,6 +268,8 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       } else {
         formik.resetForm();
         setTableData([]);
+        setImageFile(null);
+        setImagePreview(null);
       }
     }
   }, [isOpen, rawmaterial]);
@@ -206,8 +286,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const FetchUnit = () => {
     GetUnitData(id).then((response) => {
       const data = response?.data?.data["Unit Details"];
-      console.log(data);
-
       setUnitList(
         data.map((item) => ({
           id: item.id,
@@ -292,6 +370,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
     setEditingSupplier(supplier);
     setIsSupplierModalOpen(true);
   };
+
   const handleUpdateSupplier = (updatedSupplierData) => {
     setTableData((prevData) =>
       prevData.map((item) =>
@@ -352,6 +431,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       showConfirmButton: false,
     });
   };
+
   const handleSupplierAction = (supplierData) => {
     if (editingSupplier) {
       handleUpdateSupplier(supplierData);
@@ -363,9 +443,10 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
   const filteredTableData = tableData.filter((supplier) =>
     supplier.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   const openSupplier = () => {
     setIsVendorOpen(false);
-    setTimeout(() => setIsSupplierOpen(true), 150); // delay prevents race condition
+    setTimeout(() => setIsSupplierOpen(true), 150);
   };
 
   const openVendor = () => {
@@ -409,8 +490,61 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
       >
         <form
           onSubmit={formik.handleSubmit}
-          className="flex flex-col  gap-y-4 overflow-auto scrollable-y"
+          className="flex flex-col gap-y-4 overflow-auto scrollable-y"
         >
+          {/* Image Upload Section */}
+          <div className="flex flex-col">
+            <label className="form-label">
+              <FormattedMessage
+                id="USER.RAWMATERIAL.IMAGE"
+                defaultMessage="Raw Material Image"
+              />
+            </label>
+            <div className="flex items-center gap-4">
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                  >
+                    <i className="ki-filled ki-cross text-xs"></i>
+                  </button>
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="image-upload"
+                  className="btn btn-light cursor-pointer"
+                >
+                  <i className="ki-filled ki-file-up"></i>
+                  <FormattedMessage
+                    id="COMMON.UPLOAD_IMAGE"
+                    defaultMessage="Upload Image"
+                  />
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <span className="text-xs text-gray-500">
+                  Max size: 5MB | Formats: JPG, PNG, GIF
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-3 gap-x-4">
             {/* English Name */}
             <div className="flex flex-col">
@@ -487,7 +621,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             <div className="flex items-center gap-2">
               <div className="flex-1">
                 <Select
-                  options={rawCategory} // [{ label, value }]
+                  options={rawCategory}
                   value={
                     rawCategory.find(
                       (c) => c.value === formik.values.rawCategoryId
@@ -502,13 +636,12 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   })}
                   isClearable
                   styles={{
-                    control: (base) => ({ ...base, minHeight: "38px" }), // match your input height
+                    control: (base) => ({ ...base, minHeight: "38px" }),
                     menu: (base) => ({ ...base, zIndex: 9999 }),
                   }}
                 />
               </div>
 
-              {/* + Button to open modal */}
               <button
                 type="button"
                 className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow hover:scale-105 transition"
@@ -528,7 +661,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             )}
           </div>
 
-          {/* Unit */}
           {/* Unit */}
           <div className="flex flex-col">
             <label className="form-label flex items-center gap-2">
@@ -565,8 +697,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
                   }}
                 />
               </div>
-
-              {/* + Button to open modal */}
             </div>
 
             {formik.touched.unitid && formik.errors.unitid && (
@@ -739,7 +869,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           isOpen={isVendorOpen}
           onClose={() => {
             setIsVendorOpen(false);
-            openSupplier(); // <--- return back to supplier
+            openSupplier();
           }}
         />
 

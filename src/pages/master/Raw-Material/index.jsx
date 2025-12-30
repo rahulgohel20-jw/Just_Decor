@@ -17,6 +17,7 @@ import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 import { Select } from "antd";
+import { fi } from "@faker-js/faker";
 
 const RawMaterial = () => {
   const classes = useStyle();
@@ -127,6 +128,7 @@ const RawMaterial = () => {
                 },
               ]
             : [],
+          file: item.file || "",
         }));
 
         setRawOriginalData(transformedData);
@@ -234,6 +236,11 @@ const RawMaterial = () => {
       suppliers: raw.rawMaterialSuppliers,
       weightPer100Pax: raw.weightPer100Pax,
       isGeneralFix: raw.isGeneralFix,
+      nameEnglish: raw.nameEnglish || "",
+      nameGujarati: raw.nameGujarati || "",
+      nameHindi: raw.nameHindi || "",
+      // ✅ IMPORTANT: Ensure file is properly mapped
+      file: raw.file || "",
     }));
 
     setAllTableData(mapped);

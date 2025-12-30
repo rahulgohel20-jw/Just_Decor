@@ -1,4 +1,4 @@
-import { Popconfirm, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
 
 export const columns = (
@@ -16,7 +16,12 @@ export const columns = (
   },
   {
     accessorKey: "supplier_name",
-    header: <FormattedMessage id="COMMON.SUPPLIER_NAME" defaultMessage="Supplier Name" />,
+    header: (
+      <FormattedMessage
+        id="COMMON.SUPPLIER_NAME"
+        defaultMessage="Supplier Name"
+      />
+    ),
     meta: {
       headerClassName: "w-[16%]",
       cellClassName: "w-[16%]",
@@ -24,8 +29,8 @@ export const columns = (
   },
 
   {
-    accessorKey: "isActive",
-    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
+    accessorKey: "isDefault",
+    header: <FormattedMessage id="COMMON.DEFAULT" defaultMessage="Default" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">
@@ -33,8 +38,7 @@ export const columns = (
             <input
               type="checkbox"
               onChange={() => handleSetDefaultSupplier(row.original.supplierId)}
-              checked={row.original.isDefault || true}
-              readOnly
+              checked={row.original.isDefault || false}
             />
           </label>
         </div>
@@ -49,7 +53,7 @@ export const columns = (
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">
-          <Tooltip className="cursor-pointer" title="Edit Contact">
+          <Tooltip className="cursor-pointer" title="Edit Supplier">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
@@ -60,15 +64,13 @@ export const columns = (
           </Tooltip>
 
           <Tooltip title="Delete">
-            {/* <Link to="/menu-allocation"> */}
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
               onClick={() => handleRemoveSupplier(row.original)}
             >
-              <i className="ki-filled ki-trash  text-danger"></i>
+              <i className="ki-filled ki-trash text-danger"></i>
             </button>
-            {/* </Link> */}
           </Tooltip>
         </div>
       );
