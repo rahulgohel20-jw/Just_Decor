@@ -205,7 +205,7 @@ const TableHeader = () => (
   </div>
 );
 
-const TableRow = ({ row, onChange }) => {
+const TableRow = ({ row, onChange, disabled }) => {
   const handleCheckboxChange = (type, checked) => {
     const updated = {
       ...row,
@@ -229,9 +229,11 @@ const TableRow = ({ row, onChange }) => {
       <div className="col-span-1 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.chefLabour}
+          disabled={disabled}
           onChange={(e) => handleCheckboxChange("chef", e.target.checked)}
         />
-        {row.chefLabour && (
+
+        {row.chefLabour && !disabled && (
           <button
             type="button"
             onClick={() => row.openChefSidebar && row.openChefSidebar()}
@@ -246,6 +248,7 @@ const TableRow = ({ row, onChange }) => {
       <div className="col-span-2 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.outside}
+          disabled={disabled}
           onChange={(e) => handleCheckboxChange("outside", e.target.checked)}
         />
         {row.outside && (
@@ -263,6 +266,7 @@ const TableRow = ({ row, onChange }) => {
       <div className="col-span-2 flex justify-center items-center gap-2">
         <Checkbox
           checked={row.inside}
+          disabled={disabled}
           onChange={(e) => handleCheckboxChange("inside", e.target.checked)}
         />
         {row.inside && (
@@ -348,6 +352,22 @@ const EventMenuAllocationPage = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [initialRows, setInitialRows] = useState([]);
 
+  const allFunctionTab = useMemo(
+    () => ({
+      id: -1,
+      function: { id: -1, nameEnglish: "All Functions" },
+      functionStartDateTime: "",
+      allFunctionIds: eventData?.eventFunctions?.map((f) => f.id) || [],
+    }),
+    [eventData?.eventFunctions]
+  );
+
+  const getEventFunctionId = (functionItem) => {
+    if (!functionItem) return null;
+    return functionItem.id; // Return -1 for "All Functions"
+  };
+  const isAllFunctions = activeFunction?.id === -1;
+
   useEffect(() => {
     const FetchEventDetails = async () => {
       try {
@@ -357,11 +377,10 @@ const EventMenuAllocationPage = () => {
         if (res?.data?.data && res.data.data["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
           setEventData(event);
-          if (event.eventFunctions && event.eventFunctions.length > 0) {
-            const firstFunction = event.eventFunctions[0];
-            setActiveFunction(firstFunction);
-            fetchMenuAllocation(firstFunction.id);
-          }
+          // if (event.eventFunctions && event.eventFunctions.length > 0) {
+          //   setActiveFunction(allFunctionTab);
+          //   fetchMenuAllocation(-1);
+          // }
         } else {
           console.warn("No event data found.");
         }
@@ -379,7 +398,7 @@ const EventMenuAllocationPage = () => {
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
-      const eventFunctionId = activeFunction?.id || 1;
+      const eventFunctionId = getEventFunctionId(activeFunction);
       const menuItemId = item.menuItemId || item.id;
 
       const matchingRow = rows.find((r) => r.menuItemId === menuItemId);
@@ -427,169 +446,235 @@ const EventMenuAllocationPage = () => {
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
-      const menudata = await GetMenuAllocation(eventId, eventFunctionId);
 
-      if (
-        menudata?.data?.success &&
-        menudata.data.data["Menu Allocation Details"]?.length > 0
-      ) {
-        const menuDetails = menudata.data.data["Menu Allocation Details"][0];
+      // ✅ Check if "All Functions" is selected
+      const isAllFunctions = eventFunctionId === -1;
 
-        const transformedRows =
-          menuDetails.menuAllocation?.map((item) => ({
-            key: `${item.menuItemId}-${item.menuCategoryId}`,
-            id: item.id,
-            categoryName: item.menuCategoryName || "",
-            itemName: item.menuItemName || "",
-            chefLabour: item.chefLabour || false,
-            inside: item.inside || false,
-            outside: item.outside || false,
-            personCount: item.personCount || 0,
-            place: item.place || "venue",
-            instructions: item.instructions || "",
-            eventId: item.eventId,
-            eventFunctionId: item.eventFunctionId,
-            menuCategoryId: item.menuCategoryId,
-            menuItemId: item.menuItemId,
-            eventFunctionMenuAllocations:
-              item.eventFunctionMenuAllocations?.map((alloc) => {
-                const isChefLabour =
-                  item.chefLabour && !item.outside && !item.inside;
-                const isOutside = item.outside;
-                const isInside = item.inside;
+      let allMenuData = [];
 
-                let allocationTotal = 0;
+      if (isAllFunctions) {
+        // ✅ Fetch data for ALL functions
+        const functionIds = eventData?.eventFunctions?.map((f) => f.id) || [];
 
-                // 🔥 CHEF LABOUR TOTAL
-                if (isChefLabour) {
-                  allocationTotal =
-                    (Number(alloc.counterPrice) || 0) *
-                      (Number(alloc.counterQuantity) || 0) +
-                    (Number(alloc.helperPrice) || 0) *
-                      (Number(alloc.helperQuantity) || 0);
-                } else {
-                  // 🔹 OUTSIDE / NORMAL
-                  allocationTotal =
-                    (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
-                }
+        // Fetch all functions in parallel
+        const promises = functionIds.map((fId) =>
+          GetMenuAllocation(eventId, fId)
+        );
+        const results = await Promise.all(promises);
 
-                return {
-                  id: alloc.id || null,
-                  partyId: alloc.partyId,
-                  partyName: alloc.partyName,
-                  menuAllocationId: item.id,
-                  price: Number(alloc.price) || 0,
-                  quantity: Number(alloc.quantity) || 0,
-                  unitId: alloc.unitId ?? null,
-                  unitName: alloc.unitName ?? null,
-                  serviceType: alloc.serviceType || "",
-                  counterQuantity: alloc.counterQuantity || 0,
-                  helperQuantity: alloc.helperQuantity || 0,
-                  counterPrice: alloc.counterPrice || 0,
-                  helperPrice: alloc.helperPrice || 0,
-
-                  // ✅ FIXED
-                  totalPrice: allocationTotal,
-
-                  isOutside,
-                  isChefLabour,
-                  isInside,
-
-                  number: alloc.number ?? null,
-                  remarks: alloc.remarks ?? null,
-                  pax: alloc.pax ?? null,
-                };
-              }) || [],
-
-            menuItemRawMaterials: [],
-          })) || [];
-
-        setRows(transformedRows);
-
-        const summaryGroups =
-          menuDetails.selectedItemDetails?.map((category) => ({
-            categoryId: category.menuCategoryId,
-            categoryName: category.menuCategoryName,
-            items:
-              category.selectedMenuPreparationItems?.map((summaryItem) => {
-                const matchingRow = transformedRows.find(
-                  (r) => r.menuItemId === summaryItem.menuItemId
-                );
-
-                const basePrice = Number(summaryItem.totalPrice) || 0;
-
-                let finalPrice = basePrice;
-
-                if (matchingRow) {
-                  // INSIDE → base price only
-                  if (matchingRow.inside) {
-                    finalPrice = basePrice;
-                  }
-
-                  // OUTSIDE → only additional cost
-                  else if (matchingRow.outside) {
-                    finalPrice =
-                      matchingRow.eventFunctionMenuAllocations
-                        ?.filter((a) => a.isOutside)
-                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
-                  }
-
-                  // CHEF LABOUR → base + chef cost
-                  else if (matchingRow.chefLabour) {
-                    const chefCost =
-                      matchingRow.eventFunctionMenuAllocations
-                        ?.filter((a) => a.isChefLabour)
-                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
-
-                    finalPrice = basePrice + chefCost;
-                  }
-                }
-
-                return {
-                  ...summaryItem,
-                  originalTotalPrice: basePrice,
-                  totalPrice: finalPrice,
-                };
-              }) || [],
-          })) || [];
-
-        setOrderSummaryGroups(summaryGroups);
-
-        // Fetch raw materials...
-        const updatedRowsPromises = transformedRows.map(async (row) => {
-          try {
-            const res = await SelectedItemNameMenuAllocation(
-              eventFunctionId,
-              row.menuItemId
-            );
-
-            if (res?.data?.success) {
-              const apiData = res.data.data;
-              const rawMaterials =
-                apiData["MenuItem RawMaterial Details"] ||
-                apiData.menuItemRawMaterials ||
-                [];
-
-              return {
-                ...row,
-                menuItemRawMaterials: rawMaterials,
-              };
-            }
-          } catch (error) {
-            console.error(
-              `❌ Error fetching raw materials for item ${row.menuItemId}:`,
-              error
-            );
+        // Merge all results
+        results.forEach((menudata) => {
+          if (
+            menudata?.data?.success &&
+            menudata.data.data["Menu Allocation Details"]?.length > 0
+          ) {
+            allMenuData.push(...menudata.data.data["Menu Allocation Details"]);
           }
-          return row;
         });
-
-        const updatedRows = await Promise.all(updatedRowsPromises);
-        setRows(updatedRows);
       } else {
+        // ✅ Fetch single function data
+        const menudata = await GetMenuAllocation(eventId, eventFunctionId);
+        if (
+          menudata?.data?.success &&
+          menudata.data.data["Menu Allocation Details"]?.length > 0
+        ) {
+          allMenuData = menudata.data.data["Menu Allocation Details"];
+        }
+      }
+
+      if (allMenuData.length === 0) {
         setRows([]);
         setOrderSummaryGroups([]);
+        return;
       }
+
+      const mergedMenuAllocation = allMenuData.flatMap(
+        (d) => d.menuAllocation || []
+      );
+
+      const transformedRows =
+        mergedMenuAllocation.map((item) => ({
+          key: `${item.menuItemId}-${item.menuCategoryId}`,
+          id: item.id,
+          categoryName: item.menuCategoryName || "",
+          itemName: item.menuItemName || "",
+          chefLabour: item.chefLabour || false,
+          inside: item.inside || false,
+          outside: item.outside || false,
+          personCount: item.personCount || 0,
+          place: item.place || "venue",
+          instructions: item.instructions || "",
+          eventId: item.eventId,
+          eventFunctionId: item.eventFunctionId,
+          menuCategoryId: item.menuCategoryId,
+          menuItemId: item.menuItemId,
+          eventFunctionMenuAllocations:
+            item.eventFunctionMenuAllocations?.map((alloc) => {
+              const isChefLabour =
+                item.chefLabour && !item.outside && !item.inside;
+              const isOutside = item.outside;
+              const isInside = item.inside;
+
+              let allocationTotal = 0;
+
+              // 🔥 CHEF LABOUR TOTAL
+              if (isChefLabour) {
+                allocationTotal =
+                  (Number(alloc.counterPrice) || 0) *
+                    (Number(alloc.counterQuantity) || 0) +
+                  (Number(alloc.helperPrice) || 0) *
+                    (Number(alloc.helperQuantity) || 0);
+              } else {
+                // 🔹 OUTSIDE / NORMAL
+                allocationTotal =
+                  (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
+              }
+
+              return {
+                id: alloc.id || null,
+                partyId: alloc.partyId,
+                partyName: alloc.partyName,
+                menuAllocationId: item.id,
+                price: Number(alloc.price) || 0,
+                quantity: Number(alloc.quantity) || 0,
+                unitId: alloc.unitId ?? null,
+                unitName: alloc.unitName ?? null,
+                serviceType: alloc.serviceType || "",
+                counterQuantity: alloc.counterQuantity || 0,
+                helperQuantity: alloc.helperQuantity || 0,
+                counterPrice: alloc.counterPrice || 0,
+                helperPrice: alloc.helperPrice || 0,
+
+                // ✅ FIXED
+                totalPrice: allocationTotal,
+
+                isOutside,
+                isChefLabour,
+                isInside,
+
+                number: alloc.number ?? null,
+                remarks: alloc.remarks ?? null,
+                pax: alloc.pax ?? null,
+              };
+            }) || [],
+
+          menuItemRawMaterials: [],
+        })) || [];
+
+      setRows(transformedRows);
+
+      const allSelectedItems = allMenuData.flatMap(
+        (detail) => detail?.selectedItemDetails || []
+      );
+
+      // Group by category and merge items
+      const categoryMap = new Map();
+
+      allSelectedItems.forEach((category) => {
+        const categoryId = category.menuCategoryId;
+
+        if (!categoryMap.has(categoryId)) {
+          categoryMap.set(categoryId, {
+            categoryId: category.menuCategoryId,
+            categoryName: category.menuCategoryName,
+            items: [],
+          });
+        }
+
+        const existingCategory = categoryMap.get(categoryId);
+
+        // Add items, avoiding duplicates by menuItemId
+        category.selectedMenuPreparationItems?.forEach((item) => {
+          const existingItemIndex = existingCategory.items.findIndex(
+            (i) => i.menuItemId === item.menuItemId
+          );
+
+          if (existingItemIndex === -1) {
+            existingCategory.items.push(item);
+          }
+        });
+      });
+
+      const summaryGroups =
+        Array.from(categoryMap.values())?.map((category) => ({
+          categoryId: category.categoryId,
+          categoryName: category.categoryName,
+          items:
+            category.items?.map((summaryItem) => {
+              const matchingRow = transformedRows.find(
+                (r) => r.menuItemId === summaryItem.menuItemId
+              );
+
+              const basePrice = Number(summaryItem.totalPrice) || 0;
+
+              let finalPrice = basePrice;
+
+              if (matchingRow) {
+                // INSIDE → base price only
+                if (matchingRow.inside) {
+                  finalPrice = basePrice;
+                }
+
+                // OUTSIDE → only additional cost
+                else if (matchingRow.outside) {
+                  finalPrice =
+                    matchingRow.eventFunctionMenuAllocations
+                      ?.filter((a) => a.isOutside)
+                      .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+                }
+
+                // CHEF LABOUR → base + chef cost
+                else if (matchingRow.chefLabour) {
+                  const chefCost =
+                    matchingRow.eventFunctionMenuAllocations
+                      ?.filter((a) => a.isChefLabour)
+                      .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+
+                  finalPrice = basePrice + chefCost;
+                }
+              }
+
+              return {
+                ...summaryItem,
+                originalTotalPrice: basePrice,
+                totalPrice: finalPrice,
+              };
+            }) || [],
+        })) || [];
+
+      setOrderSummaryGroups(summaryGroups);
+
+      // Fetch raw materials...
+      const updatedRowsPromises = transformedRows.map(async (row) => {
+        try {
+          const res = await SelectedItemNameMenuAllocation(
+            row.eventFunctionId, // Use the row's own eventFunctionId
+            row.menuItemId
+          );
+
+          if (res?.data?.success) {
+            const apiData = res.data.data;
+            const rawMaterials =
+              apiData["MenuItem RawMaterial Details"] ||
+              apiData.menuItemRawMaterials ||
+              [];
+
+            return {
+              ...row,
+              menuItemRawMaterials: rawMaterials,
+            };
+          }
+        } catch (error) {
+          console.error(
+            `❌ Error fetching raw materials for item ${row.menuItemId}:`,
+            error
+          );
+        }
+        return row;
+      });
+
+      const updatedRows = await Promise.all(updatedRowsPromises);
+      setRows(updatedRows);
     } catch (error) {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
@@ -598,6 +683,25 @@ const EventMenuAllocationPage = () => {
       setMenuLoading(false);
     }
   };
+
+  // ✅ Helper to get a valid function ID for operations (never -1)
+  const getValidFunctionId = (functionItem) => {
+    if (!functionItem) return null;
+
+    if (functionItem.id === -1) {
+      return eventData?.eventFunctions?.[0]?.id || null;
+    }
+
+    return functionItem.id;
+  };
+
+  useEffect(() => {
+    if (eventData?.eventFunctions?.length > 0) {
+      setActiveFunction(allFunctionTab);
+      fetchMenuAllocation(-1);
+    }
+  }, [eventData?.eventFunctions]);
+
   useEffect(() => {
     if (rows.length > 0 && initialRows.length === 0) {
       setInitialRows(JSON.parse(JSON.stringify(rows)));
@@ -664,7 +768,10 @@ const EventMenuAllocationPage = () => {
   };
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
-    fetchMenuAllocation(functionItem.id);
+    // ✅ Pass actual ID (including -1 for "All Functions")
+    const functionId = functionItem?.id;
+    console.log("under handle function change Id", functionId);
+    fetchMenuAllocation(functionId);
   };
 
   const handleAdjustPerson = () => {
@@ -694,24 +801,39 @@ const EventMenuAllocationPage = () => {
     return filteredRows.map((r) => ({
       ...r,
       openSidebar: () => {
+        // if (isAllFunctions) return;
         setIsChefModal(false);
         setOpen(false);
         setIsInsideModal(false);
-        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: getEventFunctionId(activeFunction),
+        });
         setTimeout(() => setOpen(true), 0);
       },
       openChefSidebar: () => {
+        // if (isAllFunctions) return;
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
-        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: getEventFunctionId(activeFunction),
+        });
         setTimeout(() => setIsChefModal(true), 0);
       },
       openInsideSidebar: () => {
+        // if (isAllFunctions) return;
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
-        setSelectedRow({ ...r, eventId, eventFunctionId: activeFunction?.id });
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: getEventFunctionId(activeFunction),
+        });
         setTimeout(() => setIsInsideModal(true), 0);
       },
     }));
@@ -942,8 +1064,9 @@ const EventMenuAllocationPage = () => {
       let Id = localStorage.getItem("userId");
 
       const validEventId = Number(eventId);
-      const validEventFunctionId = activeFunction?.id;
+      const validEventFunctionId = getValidFunctionId(activeFunction);
 
+      const currentActiveFunctionId = activeFunction?.id;
       if (!validEventId || !validEventFunctionId) {
         Swal.fire({
           title: "Error!",
@@ -953,17 +1076,6 @@ const EventMenuAllocationPage = () => {
         });
         return;
       }
-
-      // 🔵 SHOW LOADER BEFORE SAVE
-      Swal.fire({
-        title: "Saving...",
-        text: "Please wait while menu allocation is being saved",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
 
       const payload = rows.map((r) => {
         const menuAllocationOrders = [];
@@ -1040,7 +1152,7 @@ const EventMenuAllocationPage = () => {
 
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
           dateTime: rm.dateTime || "",
-          eventFunctionId: validEventFunctionId,
+          eventFunctionId: r.eventFunctionId,
           eventId: validEventId,
           id: rm.id ?? 0,
           menuItemId: rm.menuItemId || r.menuItemId || 0,
@@ -1056,7 +1168,7 @@ const EventMenuAllocationPage = () => {
 
         return {
           chefLabour: r.chefLabour || false,
-          eventFunctionId: validEventFunctionId,
+          eventFunctionId: r.eventFunctionId,
           eventId: validEventId,
           id: r.id || 0,
           inside: r.inside || false,
@@ -1074,9 +1186,6 @@ const EventMenuAllocationPage = () => {
 
       const res = await MenuAllocationSave(payload);
 
-      // 🔵 CLOSE LOADER
-      Swal.close();
-
       if (res?.data?.success === true) {
         Swal.fire({
           title: "Saved Successfully!",
@@ -1085,7 +1194,7 @@ const EventMenuAllocationPage = () => {
           confirmButtonColor: "#3085d6",
         });
 
-        await fetchMenuAllocation(validEventFunctionId);
+        await fetchMenuAllocation(currentActiveFunctionId);
         setHasUnsavedChanges(false);
         setInitialRows(JSON.parse(JSON.stringify(rows)));
       } else {
@@ -1122,38 +1231,29 @@ const EventMenuAllocationPage = () => {
   }
 
   const openSummaryItemModalchefoutside = async () => {
-    const res = await MenuAllocationTypeSummary(
-      activeFunction?.id,
-      eventId,
-      "Chef"
-    );
+    const functionId = getEventFunctionId(activeFunction);
+    const res = await MenuAllocationTypeSummary(functionId, eventId, "Chef");
     setchefsummary(res.data.data["Menu Allocation Details"] || []);
     setIsModalOpen(true);
   };
 
   const openSummaryItemModalOustsideAgency = async () => {
-    const res = await MenuAllocationTypeSummary(
-      activeFunction?.id,
-      eventId,
-      "Outside"
-    );
+    const functionId = getEventFunctionId(activeFunction);
+    const res = await MenuAllocationTypeSummary(functionId, eventId, "Outside");
     setoutsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsOutsideAgencyModalOpen(true);
   };
 
   const openSummaryItemModalInHouseCook = async () => {
-    const res = await MenuAllocationTypeSummary(
-      activeFunction?.id,
-      eventId,
-      "Inside"
-    );
+    const functionId = getEventFunctionId(activeFunction);
+    const res = await MenuAllocationTypeSummary(functionId, eventId, "Inside");
     setinsidesummary(res?.data?.data["Menu Allocation Details"] || []);
     setIsInHouseCookModalOpen(true);
   };
 
   const handleSyncRawMaterial = async () => {
     try {
-      const eventFunctionId = activeFunction?.id;
+      const eventFunctionId = getValidFunctionId(activeFunction);
 
       if (!eventFunctionId) {
         Swal.fire({
@@ -1164,7 +1264,6 @@ const EventMenuAllocationPage = () => {
         return;
       }
 
-      // 🟡 CONFIRMATION MODAL
       const confirm = await Swal.fire({
         title: "Are you sure?",
         text: "Do you want to sync raw materials for this function?",
@@ -1361,6 +1460,7 @@ const EventMenuAllocationPage = () => {
                 className="btn btn-sm btn-primary"
                 title="Sync Raw Material"
                 onClick={handleSyncRawMaterial}
+                // disabled={isAllFunctions}
               >
                 <FormattedMessage
                   id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
@@ -1379,7 +1479,10 @@ const EventMenuAllocationPage = () => {
               <TopTabs
                 value={activeFunction}
                 onChange={handleFunctionChange}
-                functions={eventData?.eventFunctions || []}
+                functions={[
+                  allFunctionTab,
+                  ...(eventData?.eventFunctions || []),
+                ]}
               />
             </div>
 
@@ -1401,7 +1504,11 @@ const EventMenuAllocationPage = () => {
                       className="p-1 w-[200px] text-black"
                       type="text"
                       readOnly
-                      value={activeFunction?.functionStartDateTime || "-"}
+                      value={
+                        activeFunction?.id === -1
+                          ? "All Functions"
+                          : activeFunction?.functionStartDateTime || "-"
+                      }
                     />
                   </div>
                   <div className="flex flex-col items-center">
@@ -1415,7 +1522,11 @@ const EventMenuAllocationPage = () => {
                       className="p-1 w-[70px] text-black text-center"
                       type="text"
                       readOnly
-                      value={activeFunction?.pax || 0}
+                      value={
+                        activeFunction?.id === -1
+                          ? "-"
+                          : activeFunction?.pax || 0
+                      }
                     />
                   </div>
                 </div>
@@ -1435,6 +1546,7 @@ const EventMenuAllocationPage = () => {
                       className="btn btn-sm btn-primary"
                       title="Adjust Person"
                       onClick={handleAdjustPerson}
+                      // disabled={isAllFunctions}
                     >
                       <FormattedMessage
                         id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
@@ -1516,6 +1628,12 @@ const EventMenuAllocationPage = () => {
                 </div>
               </div>
             </div>
+            {/* {isAllFunctions && (
+              <div className="mb-3 p-3 bg-blue-50 text-[#005BA8] rounded-md text-sm">
+                All Functions view is read-only. Select a specific function to
+                edit menu allocation.
+              </div>
+            )} */}
 
             {/* Table Section - No individual scroll */}
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -1530,6 +1648,7 @@ const EventMenuAllocationPage = () => {
                     key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                     row={row}
                     onChange={updateRow}
+                    // disabled={isAllFunctions}
                   />
                 ))
               )}
@@ -1600,7 +1719,7 @@ const EventMenuAllocationPage = () => {
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
           selectedRowData={selectedRow}
-          eventFunctionId={activeFunction?.id}
+          eventFunctionId={getEventFunctionId(activeFunction)}
           eventId={eventId}
           onSave={handleCategorySave}
         />
@@ -1641,12 +1760,13 @@ const EventMenuAllocationPage = () => {
           onClose={() => {
             setIsAgencyAllocationModal(false);
 
-            if (activeFunction?.id) {
-              fetchMenuAllocation(activeFunction.id);
+            const functionId = getEventFunctionId(activeFunction);
+            if (functionId) {
+              fetchMenuAllocation(functionId);
             }
           }}
           eventId={eventId}
-          eventFunctionId={activeFunction?.id}
+          eventFunctionId={getEventFunctionId(activeFunction)}
         />
       </Container>
     </Fragment>

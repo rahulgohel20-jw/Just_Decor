@@ -132,7 +132,7 @@ const MenuReport = ({
   const handleReport = async () => {
     const payload = {
       eventId,
-      eventFunctionId: eventFunctionId ?? 0,
+      eventFunctionId: eventFunctionId ?? -1,
       adminTemplateModuleId: selectedTemplateId ?? 0,
 
       userId,

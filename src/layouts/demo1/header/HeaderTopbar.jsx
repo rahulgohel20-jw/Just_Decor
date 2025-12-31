@@ -35,7 +35,7 @@ const HeaderTopbar = () => {
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-black text-lg truncate max-w-[200px]">
+        <span className="font-semibold text-black text-lg truncate w-auto">
           {companyName || "Company"}
         </span>
       </div>
