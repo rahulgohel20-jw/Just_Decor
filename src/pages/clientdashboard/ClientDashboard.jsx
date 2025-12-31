@@ -412,9 +412,9 @@ const ClientDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           {/* Total Events Card */}
-          <div className="flex items-center justify-between bg-[#FFF5E6] p-6 rounded-2xl shadow-sm">
+          <div className="flex items-center justify-between bg-[#FFF5E6] p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm">
             <div>
               <p className="text-sm text-gray-600 font-medium mb-1">
                 <FormattedMessage
@@ -510,7 +510,7 @@ const ClientDashboard = () => {
         </div>
 
         {/* ---------------- UPGRADED PIE CHARTS ---------------- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           {[
             {
               title: (
@@ -599,7 +599,7 @@ const ClientDashboard = () => {
 
         {/* -------------------- EVENTS SECTION -------------------- */}
         <div className="border border-primary p-3 rounded-lg mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+          <div className="flex flex-col gap-3 mb-4">
             <h2 className="text-base font-semibold text-gray-800">
               Upcoming Events
             </h2>
@@ -667,7 +667,7 @@ const ClientDashboard = () => {
 
         {/* -------------------- INVOICE SECTION -------------------- */}
         <div className="border border-primary p-3 rounded-lg mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+          <div className="flex flex-col gap-3 mb-4">
             <h2 className="text-base font-semibold text-gray-800">Invoices</h2>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
@@ -725,9 +725,9 @@ const ClientDashboard = () => {
           />
         </div>
 
-        <div className="flex gap-4">
-          <div className="w-[70%] p-3 border border-primary rounded-lg">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="w-full lg:w-[70%] p-3 sm:p-4 border border-primary rounded-lg overflow-hidden">
+            <div className="flex flex-col gap-3 mb-4">
               <h2 className="text-base font-semibold text-gray-800">
                 <FormattedMessage
                   id="DASHBOARD.MOST_SELLING_ITEM"
@@ -804,66 +804,67 @@ const ClientDashboard = () => {
             )}
           </div>
 
-          <div className="w-[30%] bg-white border border-primary rounded-lg shadow-sm p-4">
+          <div className="w-full lg:w-[30%] bg-white border border-primary rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold text-[#003366]">
+              <h2 className="text-base sm:text-lg font-semibold text-[#003366]">
                 <FormattedMessage
                   id="HELP.QUICK_HELP"
-                  defaultMessage="  Quick Help"
+                  defaultMessage="Quick Help"
                 />
               </h2>
             </div>
-            <div className="border border-[#D9E6FF] rounded-lg p-4 mb-4">
+
+            <div className="border border-[#D9E6FF] rounded-lg p-3 sm:p-4 mb-4">
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full flex-shrink-0">
                   <img
                     src={toAbsoluteUrl(`/media/brand-logos/support.png`)}
                     alt="Support"
-                    className="w-7 h-7 object-contain"
+                    className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
                   />
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-800">Manan Gandhi</p>
-                  <p className="text-sm text-gray-600">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm sm:text-base text-gray-800">
+                    Manan Gandhi
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600">
                     <FormattedMessage
                       id="HELP.POC_INFO"
-                      defaultMessage="   Manan Gandhi is Point of Contact (POC). Feel free to connect
-                    between 10 AM to 7 PM."
+                      defaultMessage="Manan Gandhi is Point of Contact (POC). Feel free to connect between 10 AM to 7 PM."
                     />
                   </p>
                 </div>
               </div>
-              <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-sm font-medium hover:bg-[#d6f4e3] transition">
+              <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-[#d6f4e3] transition">
                 <img
                   src={toAbsoluteUrl(`/media/brand-logos/whatsapp.png`)}
                   alt="WhatsApp"
-                  className="w-5 h-5 object-contain"
+                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                 />
-                <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F8EE] border border-[#25D366] text-[#128C7E] py-2 rounded-md text-sm font-medium hover:bg-[#d6f4e3] transition">
-                  <FormattedMessage
-                    id="HELP.CONTACT_WHATSAPP"
-                    defaultMessage=" Contact On WhatsApp"
-                  />
-                </button>
+                <FormattedMessage
+                  id="HELP.CONTACT_WHATSAPP"
+                  defaultMessage="Contact On WhatsApp"
+                />
               </button>
             </div>
-            <div className="border border-[#D9E6FF] rounded-lg p-4">
+
+            <div className="border border-[#D9E6FF] rounded-lg p-3 sm:p-4">
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full flex-shrink-0">
                   <img
                     src={toAbsoluteUrl(`/media/brand-logos/query.png`)}
                     alt="Query"
-                    className="w-7 h-7 object-contain"
+                    className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
                   />
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-800">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm sm:text-base text-gray-800">
                     <FormattedMessage
                       id="HELP.NEED_HELP"
-                      defaultMessage=" Need Quick Help 24/7 ?"
+                      defaultMessage="Need Quick Help 24/7?"
                     />
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Contact us for Support on{" "}
                     <span className="font-medium text-gray-800">
                       8209792623
@@ -871,9 +872,9 @@ const ClientDashboard = () => {
                   </p>
                 </div>
               </div>
-              <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F0FF] border border-[#005AA7] text-[#005AA7] py-2 rounded-md text-sm font-medium hover:bg-[#dce8ff] transition">
-                <Phone size={18} />
-                Request a Call Back
+              <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8F0FF] border border-[#005AA7] text-[#005AA7] py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-[#dce8ff] transition">
+                <Phone size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span>Request a Call Back</span>
               </button>
             </div>
           </div>
