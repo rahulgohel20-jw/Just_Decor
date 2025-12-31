@@ -22,7 +22,7 @@ import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPack
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import EditPaxModal from "./components/EditPaxModal";
-const EventPlanningPage = () => {
+const EventPlanningPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState(null);
@@ -1281,6 +1281,7 @@ const EventPlanningPage = () => {
           setIsMenuReport(true);
         }}
         disabled={!hasSelectedItems || isDirty}
+        mode={mode}
       />
 
       <AddMenuItem

@@ -10,26 +10,28 @@ import {
 
 const defaultOptions = {
   categoryImage: false,
+  CompanyDetails: false,
   categoryInstruction: false,
   categorySlogan: false,
-  CompanyDetails: false,
   CompanyLogo: false,
   ItemImage: false,
   itemInstruction: false,
   itemSlogan: false,
   PartyDetails: false,
+  WithQuantity: false,
 };
 
 const optionLabels = {
   categoryImage: "Category Image",
-  categoryInstruction: "Category Instruction",
   categorySlogan: "Category Slogan",
   CompanyDetails: "Company Details",
+  categoryInstruction: "Category Instruction",
   CompanyLogo: "Company Logo",
   ItemImage: "Item Image",
   itemInstruction: "Item Instruction",
   itemSlogan: "Item Slogan",
   PartyDetails: "Party Details",
+  WithQuantity: "With Quantity",
 };
 
 const AddReportConfig = ({
@@ -46,6 +48,7 @@ const AddReportConfig = ({
   const [isLoadingModules, setIsLoadingModules] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [options, setOptions] = useState(defaultOptions);
+  const [labourType, setLabourType] = useState("");
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -54,6 +57,7 @@ const AddReportConfig = ({
       setTemplateOptions([]);
       setModuleOptions([]);
       setOptions(defaultOptions);
+      setLabourType("");
     }
   }, [isModalOpen]);
 
@@ -119,17 +123,21 @@ const AddReportConfig = ({
 
           setTemplateId(data.templateModuleId);
           setTemplateModuleId(data.templateMappingId || "");
+          setLabourType(data.labourType || "");
 
           setOptions({
             categoryImage: !!data.isCategoryImage,
-            categoryInstruction: !!data.isCategoryInstruction,
-            categorySlogan: !!data.isCategorySlogan,
             CompanyDetails: !!data.isCompanyDetails,
+
+            categorySlogan: !!data.isCategorySlogan,
             CompanyLogo: !!data.isCompanyLogo,
+            categoryInstruction: !!data.isCategoryInstruction,
+
             ItemImage: !!data.isItemImage,
             itemInstruction: !!data.isItemInstruction,
             itemSlogan: !!data.isItemSlogan,
             PartyDetails: !!data.isPartyDetails,
+            WithQuantity: !!data.isWithQty,
           });
         }
       } catch (error) {
@@ -176,6 +184,7 @@ const AddReportConfig = ({
 
     const payload = {
       id: editId || -1,
+      type: labourType,
       templateModuleId: Number(templateId),
       templateMappingId: templateModuleId ? Number(templateModuleId) : 0,
       isCategoryImage: booleanToNumber(options.categoryImage),
@@ -187,6 +196,7 @@ const AddReportConfig = ({
       isItemInstruction: booleanToNumber(options.itemInstruction),
       isItemSlogan: booleanToNumber(options.itemSlogan),
       isPartyDetails: booleanToNumber(options.PartyDetails),
+      isWithQty: booleanToNumber(options.WithQuantity),
     };
 
     try {
@@ -289,6 +299,20 @@ const AddReportConfig = ({
             ))}
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Labour Type</label>
+          <select
+            value={labourType}
+            onChange={(e) => setLabourType(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">Select Labour Type</option>
+            <option value="OUTSIDE">Outside</option>
+            <option value="INSIDE">Inside</option>
+            <option value="CHEF_LABOUR">Chef Labour</option>
+          </select>
+        </div>
       </div>
 
       <div className="flex justify-between border-b pb-3 mb-3">
@@ -296,10 +320,15 @@ const AddReportConfig = ({
         <Toggle checked={isCheckAll} onChange={() => toggleAll(!isCheckAll)} />
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {optionKeys.map((key) => (
-          <div key={key} className="flex justify-between items-center">
-            <span>{optionLabels[key]}</span>
+          <div
+            key={key}
+            className="flex justify-between items-center p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+          >
+            <span className="text-sm font-medium text-gray-700">
+              {optionLabels[key]}
+            </span>
             <Toggle checked={options[key]} onChange={() => toggleOne(key)} />
           </div>
         ))}

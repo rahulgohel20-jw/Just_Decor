@@ -29,6 +29,7 @@ const DropdownUser = ({ menuItemRef }) => {
   };
   const [userdata, setUserData] = useState([]);
   let Id = localStorage.getItem("userId");
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -53,7 +54,17 @@ const DropdownUser = ({ menuItemRef }) => {
         <div className="flex items-center gap-2">
           <img
             className="size-10 rounded-full"
-            src={userdata?.logo || toAbsoluteUrl("/media/menu/noImage.jpg")}
+            src={
+              userdata?.logo &&
+              typeof userdata.logo === "string" &&
+              userdata.logo.trim() !== "" &&
+              userdata.logo !== "null" &&
+              userdata.logo !== "undefined" &&
+              !userdata.logo.toLowerCase().includes("/null") &&
+              /\.(jpg|jpeg|png|webp|gif)$/i.test(userdata.logo)
+                ? userdata.logo
+                : toAbsoluteUrl("/media/menu/noImage.jpg")
+            }
             alt=""
           />
           <div className="flex flex-col gap-1.5">

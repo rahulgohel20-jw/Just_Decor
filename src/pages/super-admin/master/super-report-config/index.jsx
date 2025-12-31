@@ -19,7 +19,6 @@ const SuperReportConfig = () => {
     try {
       const res = await GETAllreportconfiguration();
       const list = res?.data?.data || [];
-
       const mapped = list.map((item, index) => ({
         sr_no: index + 1,
         mappingName: item.mappingNameEnglish,
@@ -33,6 +32,7 @@ const SuperReportConfig = () => {
         isCompanyLogo: item.isCompanyLogo,
         isCompanyDetails: item.isCompanyDetails,
         isPartyDetails: item.isPartyDetails,
+        isWithQuantity: item.isWithQty, // ✅ true / false
         rawid: item.id,
         mappingId: item.templateMappingId,
         moduleId: item.templateModuleId,
