@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddTheme from "./components/AddTheme";
-import { GetAllCustomTheme } from "@/services/apiServices";
+import { GetAllCustomTheme, GettemplatebyuserId } from "@/services/apiServices";
 import { useRef } from "react";
 import Swal from "sweetalert2";
 
@@ -15,19 +15,81 @@ const ReportcustomeTheme = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("theme"); // 'theme' or 'nameplate'
+  const [activeTab, setActiveTab] = useState(null); // Will be set dynamically
+  const [templateModules, setTemplateModules] = useState([]);
+  const [currentLanguage, setCurrentLanguage] = useState(
+    localStorage.getItem("lang") || "en"
+  );
 
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
   const hasFetched = useRef(false);
 
+  // Listen for language changes
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      setCurrentLanguage(newLang);
+    };
+
+    window.addEventListener("languageChange", handleLanguageChange);
+    window.addEventListener("storage", handleLanguageChange);
+
+    const intervalId = setInterval(() => {
+      const currentLang = localStorage.getItem("lang") || "en";
+      if (currentLang !== currentLanguage) {
+        setCurrentLanguage(currentLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("languageChange", handleLanguageChange);
+      window.removeEventListener("storage", handleLanguageChange);
+      clearInterval(intervalId);
+    };
+  }, [currentLanguage]);
+
+  // Get localized module name
+  const getLocalizedModuleName = (module) => {
+    const languageMap = {
+      en: "nameEnglish",
+      hi: "nameHindi",
+      gu: "nameGujarati",
+    };
+
+    const field = languageMap[currentLanguage] || "nameEnglish";
+    return module[field] || module.nameEnglish || "";
+  };
+
   useEffect(() => {
     if (!userId || hasFetched.current) return;
 
     hasFetched.current = true;
+    fetchTemplateModules();
     fetchTemplates(userId);
   }, [userId]);
+
+  const fetchTemplateModules = async () => {
+    try {
+      const response = await GettemplatebyuserId();
+      console.log("Template Modules:", response);
+
+      if (response?.data?.success && response?.data?.data) {
+        const modules = response.data.data.filter(
+          (module) => module.isActive && !module.isDelete
+        );
+        setTemplateModules(modules);
+
+        // Set first module as default active tab if not set
+        if (modules.length > 0 && !activeTab) {
+          setActiveTab(modules[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching template modules:", error);
+    }
+  };
 
   const fetchTemplates = async (userId) => {
     setIsLoading(true);
@@ -51,25 +113,32 @@ const ReportcustomeTheme = () => {
   // Get the API base URL from environment or construct it
   const getFullImageUrl = (path) => {
     if (!path) return null;
-    // If path already includes http/https, return as is
     if (path.startsWith("http")) return path;
-    // Otherwise, construct full URL - adjust this based on your API base URL
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     return `${baseUrl}${path}`;
   };
 
   // Filter templates based on active tab
-  const themeTemplates = templateList.filter(
-    (template) => template.isNamePlate === false || template.isNamePlate === 0
-  );
   const nameplateTemplates = templateList.filter(
     (template) => template.isNamePlate === true || template.isNamePlate === 1
   );
 
   // Get current templates based on active tab
-  const currentTemplates =
-    activeTab === "theme" ? themeTemplates : nameplateTemplates;
+  const getCurrentTemplates = () => {
+    if (activeTab === "nameplate") {
+      return nameplateTemplates;
+    }
+
+    // Filter templates by module ID
+    return templateList.filter(
+      (template) =>
+        (template.isNamePlate === false || template.isNamePlate === 0) &&
+        template.templateModuleMaster?.id === activeTab
+    );
+  };
+
+  const currentTemplates = getCurrentTemplates();
 
   const displayedThemes = showMore
     ? currentTemplates
@@ -88,11 +157,9 @@ const ReportcustomeTheme = () => {
     setIsGenerating(true);
     setSelectedTheme(theme);
 
-    // Get full PDF URL
     const pdfFullUrl = getFullImageUrl(theme.dummyPdf);
     console.log("PDF URL:", pdfFullUrl);
 
-    // Set PDF URL after a short delay to show loading state
     setTimeout(() => {
       setPdfUrl(pdfFullUrl);
       setIsGenerating(false);
@@ -106,7 +173,21 @@ const ReportcustomeTheme = () => {
 
   const refreshTemplates = () => {
     const userId = localStorage.getItem("userId");
+    fetchTemplateModules();
     fetchTemplates(userId);
+  };
+
+  // Get count for each tab
+  const getTabCount = (tabId) => {
+    if (tabId === "nameplate") {
+      return nameplateTemplates.length;
+    }
+
+    return templateList.filter(
+      (template) =>
+        (template.isNamePlate === false || template.isNamePlate === 0) &&
+        template.templateModuleMaster?.id === tabId
+    ).length;
   };
 
   return (
@@ -135,36 +216,47 @@ const ReportcustomeTheme = () => {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 mb-6">
-          <button
-            onClick={() => {
-              setActiveTab("theme");
-              setShowMore(false); // Reset show more when switching tabs
-            }}
-            className={`px-6 py-3 font-medium text-sm transition-colors relative ${
-              activeTab === "theme"
-                ? "text-[#005BA8] border-b-2 border-[#005BA8]"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Themes
-            <span
-              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                activeTab === "theme"
-                  ? "bg-[#005BA8] text-white"
-                  : "bg-gray-200 text-gray-600"
-              }`}
-            >
-              {themeTemplates.length}
-            </span>
-          </button>
+        {/* Dynamic Tab Navigation */}
+        <div className="flex border-b border-gray-200 mb-6 overflow-x-auto no-scrollbar">
+          {/* Dynamic tabs from API */}
+          {templateModules.map((module) => {
+            const count = getTabCount(module.id);
+            const moduleName = getLocalizedModuleName(module);
+
+            return (
+              <button
+                key={module.id}
+                onClick={() => {
+                  setActiveTab(module.id);
+                  setShowMore(false);
+                }}
+                className={`px-6 py-3 font-medium text-sm transition-colors relative whitespace-nowrap ${
+                  activeTab === module.id
+                    ? "text-[#005BA8] border-b-2 border-[#005BA8]"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {moduleName}
+                <span
+                  className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                    activeTab === module.id
+                      ? "bg-[#005BA8] text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* Static Nameplate Tab */}
           <button
             onClick={() => {
               setActiveTab("nameplate");
-              setShowMore(false); // Reset show more when switching tabs
+              setShowMore(false);
             }}
-            className={`px-6 py-3 font-medium text-sm transition-colors relative ${
+            className={`px-6 py-3 font-medium text-sm transition-colors relative whitespace-nowrap ${
               activeTab === "nameplate"
                 ? "text-[#005BA8] border-b-2 border-[#005BA8]"
                 : "text-gray-500 hover:text-gray-700"
@@ -208,11 +300,11 @@ const ReportcustomeTheme = () => {
                 />
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No {activeTab === "theme" ? "themes" : "nameplates"} found
+                No {activeTab === "nameplate" ? "nameplates" : "themes"} found
               </h3>
               <p className="mt-1 text-sm text-gray-500">
                 Get started by creating a new{" "}
-                {activeTab === "theme" ? "theme" : "nameplate"}.
+                {activeTab === "nameplate" ? "nameplate" : "theme"}.
               </p>
               <div className="mt-6">
                 <button
@@ -231,7 +323,7 @@ const ReportcustomeTheme = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add {activeTab === "theme" ? "Theme" : "Nameplate"}
+                  Add {activeTab === "nameplate" ? "Nameplate" : "Theme"}
                 </button>
               </div>
             </div>
@@ -276,10 +368,7 @@ const ReportcustomeTheme = () => {
                     </button>
                   )}
 
-                  {/* Badge for type */}
-
                   <div className="h-[250px] w-full overflow-hidden bg-gray-100">
-                    {/* Display namePlateBg for nameplates, frontPage for themes */}
                     {activeTab === "nameplate" && theme.namePlateBg ? (
                       <img
                         src={getFullImageUrl(theme.namePlateBg)}
@@ -320,7 +409,7 @@ const ReportcustomeTheme = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {theme.templateModuleMaster?.nameEnglish || "N/A"}
                     </p>
-                    {!theme.dummyPdf && activeTab === "theme" && (
+                    {!theme.dummyPdf && activeTab !== "nameplate" && (
                       <span className="inline-block mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
                         No PDF Available
                       </span>
