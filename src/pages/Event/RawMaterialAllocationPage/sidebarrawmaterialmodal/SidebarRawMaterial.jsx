@@ -153,6 +153,11 @@ export default function SidebarRawMaterial({
       // }
     }
 
+    // ✅ Calculate total quantity from all function rows
+    const totalFunctionQty = functionRows.reduce((sum, row) => {
+      return sum + (parseFloat(row.qty) || 0);
+    }, 0);
+
     const enrichedRows = functionRows.map((row) => ({
       functionId: row.functionId || 0,
       eventFunctionId: row.eventFunctionId || 0,
@@ -196,6 +201,9 @@ export default function SidebarRawMaterial({
     const dataToSave = {
       ...selectedRow,
       eventRawMaterialFunctions: enrichedRows,
+      // ✅ Add the calculated total quantity to update finalQty in parent
+      calculatedFinalQty: totalFunctionQty,
+      qtyWasModified: true, // Flag to indicate quantity was changed in sidebar
     };
 
     onSave?.(dataToSave);

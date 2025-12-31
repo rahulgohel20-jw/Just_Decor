@@ -17,19 +17,13 @@ export default function SelectMenureport({
   eventId,
   isSelectMenureport,
   setIsSelectMenuReport,
-  onConfirm,
-  activeFunctionName,
   setEventFunctionId,
   disabled = false,
   mode,
 }) {
-  const navigate = useNavigate();
-
   const params = useParams();
   const finalEventId = eventId || params.eventId;
-
   const [selectedCard, setSelectedCard] = useState(null);
-
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tabs, setTabs] = useState([]);
@@ -44,7 +38,6 @@ export default function SelectMenureport({
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
 
-  // Get userId from your auth context or storage
   const userId = localStorage.getItem("userId");
 
   const selectedEventFunction = useMemo(() => {
@@ -57,16 +50,25 @@ export default function SelectMenureport({
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
-        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
             (module) => module.isActive && !module.isDelete
           );
 
-          if (mode !== "menu") {
+          if (mode === "menu") {
+            modules = modules.filter((module) =>
+              ["Exclusive Theme", "Simple Theme", "Back Office Theme"].includes(
+                module.nameEnglish
+              )
+            );
+          } else if (mode === "allocation") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Simple Theme"
+              (module) => module.nameEnglish === "Menu Allocation Theme"
+            );
+          } else if (mode === "raw") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Raw Material Theme"
             );
           }
 
@@ -217,7 +219,9 @@ export default function SelectMenureport({
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/funtionname.png")}
                 label="Function"
-                value={selectedEventFunction?.function?.nameEnglish || "-"}
+                value={
+                  selectedEventFunction?.function?.nameEnglish || "All Function"
+                }
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/date&time.png")}

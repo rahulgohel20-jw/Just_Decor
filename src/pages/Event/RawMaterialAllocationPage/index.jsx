@@ -19,7 +19,7 @@ import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const RawMaterialAllocation = () => {
+const RawMaterialAllocation = ({ mode }) => {
   const location = useLocation();
   let { eventId, eventTypeId } = location.state || {};
   const navigate = useNavigate();
@@ -379,13 +379,11 @@ const RawMaterialAllocation = () => {
     fetchRawMaterialItems(tab.categoryId);
   };
 
-  const openMenuReport = (eventId) => {
-    setMenuReportEventId(eventId);
+  const openMenuReport = () => {
     setIsMenuReport(true);
   };
 
   function openSelectMenureport() {
-    setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
   }
 
@@ -561,17 +559,27 @@ const RawMaterialAllocation = () => {
     setIsRawSidebar(true);
   };
 
+  // ✅ UPDATED: Handle save from sidebar with quantity calculation
   const handleSaveFromSidebar = (updatedRow) => {
+    console.log("📦 Updated row from sidebar:", updatedRow);
+
     const updatedData = data.map((item) => {
       if (
         item.id === updatedRow.id ||
         item.rawMaterialId === updatedRow.rawMaterialId
       ) {
+        // ✅ If quantity was modified in sidebar, use calculated value
+        // Otherwise keep the existing finalQty from backend
+        const newFinalQty = updatedRow.qtyWasModified
+          ? updatedRow.calculatedFinalQty
+          : item.finalQty;
+
         return {
           ...item,
           ...updatedRow,
           rawMaterialId: item.rawMaterialId,
           id: item.id,
+          finalQty: newFinalQty, // ✅ Update finalQty with calculated or original value
         };
       }
       return item;
@@ -583,7 +591,9 @@ const RawMaterialAllocation = () => {
     Swal.fire({
       icon: "success",
       title: "Updated",
-      text: "Row updated successfully. Changes will be saved when switching tabs or clicking Save.",
+      text: updatedRow.qtyWasModified
+        ? `Row updated successfully. Final Qty updated to ${updatedRow.calculatedFinalQty}. Changes will be saved when switching tabs or clicking Save.`
+        : "Row updated successfully. Changes will be saved when switching tabs or clicking Save.",
       timer: 2000,
       showConfirmButton: false,
     });
@@ -951,16 +961,19 @@ const RawMaterialAllocation = () => {
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
-          eventId={menuReportEventId}
+          eventId={eventId}
         />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
+          eventId={eventId}
           onConfirm={(reportType) => {
             setIsSelectMenuReport(false);
             setSelectedReportType(reportType);
+            setMenuReportEventId(eventId); // 🔥 ADD THIS LINE
             setIsMenuReport(true);
           }}
+          mode={mode}
         />
       </Container>
       {isSaving && (

@@ -25,6 +25,7 @@ const MenuReport = ({
   PartyNumber,
 }) => {
   const intl = useIntl();
+  console.log(eventId);
 
   // Configure plugin with default scale of 1 (100%)
   const pdfPlugin = defaultLayoutPlugin({
@@ -37,6 +38,7 @@ const MenuReport = ({
 
   const userId = localStorage.getItem("userId");
   const [visibleOptions, setVisibleOptions] = useState([]);
+  const [reportType, setReportType] = useState(null);
 
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
@@ -57,14 +59,15 @@ const MenuReport = ({
   /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
-
+    console.log("EventId in MenuReport:", eventId);
     const fetchConfig = async () => {
       try {
         const res = await GetReportConfiguration(mappingId, moduleId);
+        console.log(res);
 
         const config = res?.data?.data?.[0];
         if (!config) return;
-
+        setReportType(config.type);
         setOptions({
           categorySlogan: config.isCategorySlogan === 1,
           categoryInstruction: config.isCategoryInstruction === 1,
@@ -75,6 +78,7 @@ const MenuReport = ({
           companyLogo: config.isCompanyLogo === 1,
           itemImage: config.isItemImage === 1,
           partyDetails: config.isPartyDetails === 1,
+          isWithQty: config.isWithQty === 1,
         });
 
         setVisibleOptions(
@@ -88,6 +92,7 @@ const MenuReport = ({
             companyLogo: config.isCompanyLogo,
             itemImage: config.isItemImage,
             partyDetails: config.isPartyDetails,
+            isWithQty: config.isWithQty,
           })
             .filter(([_, value]) => value === 1)
             .map(([key]) => key)
@@ -134,7 +139,7 @@ const MenuReport = ({
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
       adminTemplateModuleId: selectedTemplateId ?? 0,
-
+      type: reportType,
       userId,
       lang:
         selectedLanguage === "english"
@@ -152,9 +157,8 @@ const MenuReport = ({
       isCompanyDetails: options.companyDetails,
       iscompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
+      isWithQty: options.isWithQty,
     };
-
-    console.log("📦 FINAL PAYLOAD:", payload);
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
       errorMsgPopup("Missing required data");
