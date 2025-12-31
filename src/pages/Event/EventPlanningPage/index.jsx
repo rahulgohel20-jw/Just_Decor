@@ -524,6 +524,7 @@ const EventPlanningPage = ({ mode }) => {
       }
 
       setHasExistingData(true);
+      setIsDirty(true);
       setShowCustomPackageModal(false);
 
       Swal.fire({
@@ -1059,11 +1060,11 @@ const EventPlanningPage = ({ mode }) => {
                       : "bg-primary text-white"
                   }`}
                   onClick={() => {
-                    // user switches back to FULL CUSTOM mode
                     setPackageAppliedForFunction((prev) => ({
                       ...prev,
                       [selectedFunction]: false,
                     }));
+                    setIsDirty(true); // ✅ enable Save
                   }}
                 >
                   A La Carte
