@@ -168,55 +168,71 @@ const CalendarPage = () => {
   return (
     <Fragment>
       <Container>
-        {/* filters */}
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="filItems text-sm font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
+        {/* Filters - Fully Responsive */}
+        <div className="filters flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          {/* Status Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="filItems text-xs sm:text-sm font-medium bg-info rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
                 defaultMessage: "Inquiry",
               })}
             </span>
 
-            <span className="filItems text-sm font-medium text-gray-900 bg-[#E75480] rounded px-3 py-1 text-white">
+            <span className="filItems text-xs sm:text-sm font-medium bg-[#E75480] rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
                 defaultMessage: "Remaining Menu",
               })}
             </span>
-            <span className="filItems text-sm font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
+
+            <span className="filItems text-xs sm:text-sm font-medium bg-success rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
                 defaultMessage: "Confirm",
               })}
             </span>
-            <span className="filItems text-sm font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
+
+            <span className="filItems text-xs sm:text-sm font-medium bg-danger rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
               {intl.formatMessage({
                 id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
                 defaultMessage: "Cancel",
               })}
             </span>
           </div>
+
+          {/* Add Event Button - Full width on mobile */}
           <button
-            className="btn btn-primary"
+            className="btn btn-primary w-full sm:w-auto text-sm sm:text-base py-2 sm:py-2.5 px-4 flex items-center justify-center gap-2 whitespace-nowrap"
             title="Add Event"
             onClick={() => {
               navigate("/add-event");
             }}
           >
-            <i className="ki-filled ki-plus"></i>{" "}
-            <FormattedMessage
-              id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
-              defaultMessage="Create New Event"
-            />
+            <i className="ki-filled ki-plus text-base sm:text-lg"></i>
+            <span className="hidden xs:inline">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
+                defaultMessage="Create New Event"
+              />
+            </span>
+            <span className="inline xs:hidden">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON_SHORT"
+                defaultMessage="Add Event"
+              />
+            </span>
           </button>
         </div>
 
-        <CalendarComponent
-          data={data}
-          openEvent={openEvent}
-          handleDateClick={handleDateClick}
-        />
+        {/* Calendar Component - Responsive Container */}
+        <div className="calendar-wrapper w-full overflow-x-auto">
+          <CalendarComponent
+            data={data}
+            openEvent={openEvent}
+            handleDateClick={handleDateClick}
+          />
+        </div>
       </Container>
 
       {/* Event Modal */}
