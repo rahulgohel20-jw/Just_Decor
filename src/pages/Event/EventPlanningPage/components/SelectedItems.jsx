@@ -32,6 +32,7 @@ const SelectedItems = ({
   // Track all item IDs to detect which specific item was added
   const previousItemIdsRef = useRef(new Set());
   const isInitialMountRef = useRef(true);
+  const hasLoadedInitialDataRef = useRef(false);
 
   useEffect(() => {
     const currentItemIds = new Set();
@@ -52,8 +53,8 @@ const SelectedItems = ({
       });
     });
 
-    // 🔥 New item detected
-    if (newItemId && newItemCategory) {
+    // 🔥 Only auto-open for NEW items, NOT on initial page load
+    if (newItemId && newItemCategory && hasLoadedInitialDataRef.current) {
       // 1️⃣ Close ALL categories except the one with the new item
       setExpandedCategories({
         [newItemCategory]: true,
@@ -64,8 +65,18 @@ const SelectedItems = ({
         [newItemId]: true,
       });
 
-      // 3️⃣ Auto-focus textarea
+      // 3️⃣ Set auto-focus for the newly added item
       setAutoOpenItemId(newItemId);
+
+      // Clear autoOpenItemId after a short delay
+      setTimeout(() => {
+        setAutoOpenItemId(null);
+      }, 100);
+    }
+
+    // Mark that initial data has been loaded
+    if (!hasLoadedInitialDataRef.current && currentItemIds.size > 0) {
+      hasLoadedInitialDataRef.current = true;
     }
 
     // Update the ref with current item IDs

@@ -61,6 +61,11 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     header: "Party Details",
     cell: ({ row }) => <YesNoIcon value={row.original.isPartyDetails} />,
   },
+  {
+    accessorKey: "isWithQuantity",
+    header: "With Quantity",
+    cell: ({ row }) => <YesNoIcon value={row.original.isWithQuantity} />,
+  },
 
   {
     accessorKey: "action",
