@@ -356,7 +356,6 @@ const MenuDetailsForm = ({
         const payload = {
           id: menuRmIds,
         };
-        console.log(payload);
 
         await deleteRawmatrialcatidInmenuitem(payload);
       }

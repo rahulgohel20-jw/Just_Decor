@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
     "x-no-compression": "true",
   },
 
-  timeout: 1000000,
+  timeout: 18000000,
 });
 
 // === Set token before request ===
@@ -47,7 +47,6 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// === Token fetch function ===
 const getNewToken = async () => {
   try {
     const response = await fetch(

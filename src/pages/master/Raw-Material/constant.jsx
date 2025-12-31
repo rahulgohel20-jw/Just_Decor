@@ -34,9 +34,6 @@ export const columns = (onEdit, onDelete, onStatus) => [
           src={imageUrl}
           alt={row.original.raw_material_name}
           className="w-12 h-12 object-cover rounded-lg border border-gray-200"
-          onError={(e) => {
-            e.currentTarget.src = "/no-image.png";
-          }}
         />
       );
     },
