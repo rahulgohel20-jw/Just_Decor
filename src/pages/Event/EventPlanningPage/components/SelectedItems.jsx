@@ -355,7 +355,17 @@ const SelectedItems = ({
                                               <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
                                                 <img
                                                   src={
-                                                    item.imagePath &&
+                                                    item?.imagePath &&
+                                                    typeof item.imagePath ===
+                                                      "string" &&
+                                                    item.imagePath.trim() !==
+                                                      "" &&
+                                                    item.imagePath !== "null" &&
+                                                    item.imagePath !==
+                                                      "undefined" &&
+                                                    !item.imagePath
+                                                      .toLowerCase()
+                                                      .includes("/null") &&
                                                     /\.(jpg|jpeg|png|webp|gif)$/i.test(
                                                       item.imagePath
                                                     )

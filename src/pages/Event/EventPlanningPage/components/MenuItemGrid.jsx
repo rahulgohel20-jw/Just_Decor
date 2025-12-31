@@ -355,12 +355,12 @@ const MenuItemGrid = ({
                 {item.imagePath ? (
                   <img
                     src={
-                      item.imagePath &&
+                      item?.imagePath &&
                       typeof item.imagePath === "string" &&
+                      item.imagePath.trim() !== "" &&
                       item.imagePath !== "null" &&
                       item.imagePath !== "undefined" &&
-                      item.imagePath.trim() !== "" &&
-                      !item.imagePath.endsWith("null") &&
+                      !item.imagePath.toLowerCase().includes("/null") &&
                       /\.(jpg|jpeg|png|webp|gif)$/i.test(item.imagePath)
                         ? item.imagePath
                         : toAbsoluteUrl("/media/menu/noImage.jpg")
