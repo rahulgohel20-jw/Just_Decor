@@ -136,6 +136,38 @@ const LabourOtherManagementPage = () => {
     setIsContactModalOpen(true);
   };
 
+  const refetchContactsForCategory = useCallback(
+    async (categoryId = null) => {
+      if (!userId) return;
+
+      try {
+        if (categoryId) {
+          // Refetch contacts for specific category
+          const res = await GetPartyMasterByCatId(categoryId, userId);
+          const contacts = res?.data?.data?.["Party Details"] || [];
+
+          setAllContacts((prev) => ({
+            ...prev,
+            [categoryId]: contacts,
+          }));
+        } else {
+          // Refetch all contacts
+          const contactsMap = {};
+          await Promise.all(
+            labourCategories.map(async (cat) => {
+              const res = await GetPartyMasterByCatId(cat.id, userId);
+              contactsMap[cat.id] = res?.data?.data?.["Party Details"] || [];
+            })
+          );
+          setAllContacts(contactsMap);
+        }
+      } catch (err) {
+        console.error("Error refetching contacts:", err);
+      }
+    },
+    [userId, labourCategories]
+  );
+
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
     [eventData, activeTab]
@@ -856,6 +888,7 @@ const LabourOtherManagementPage = () => {
           setIsModalOpen={setIsMemberModalOpen}
           concatId={concatId}
           contactTypeId={contactTypeId}
+          refreshData={refetchContactsForCategory}
         />
         <AddLabourshift
           isOpen={isContactModalOpen}

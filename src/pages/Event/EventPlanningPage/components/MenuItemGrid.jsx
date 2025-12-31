@@ -29,7 +29,6 @@ const MenuItemGrid = ({
   const sentinelRef = useRef();
   const observerRef = useRef();
 
-  // Listen for language changes - Multiple methods to catch it
   useEffect(() => {
     const handleLanguageChange = () => {
       const newLang = localStorage.getItem("lang") || "en";
@@ -59,14 +58,10 @@ const MenuItemGrid = ({
     };
   }, [currentLanguage]);
 
-  // Add this useEffect to force re-render when language changes
   useEffect(() => {
     console.log("Current language:", currentLanguage); // Debug log
-    // This will trigger useMemo recalculation
   }, [currentLanguage]);
 
-  // Helper function to get the appropriate name based on language
-  // Using useMemo instead of useCallback to ensure proper re-rendering
   const getLocalizedName = useMemo(() => {
     return (item) => {
       const languageMap = {
@@ -82,8 +77,6 @@ const MenuItemGrid = ({
     };
   }, [currentLanguage]);
 
-  // Helper function to get localized category name
-  // Using useMemo instead of useCallback to ensure proper re-rendering
   const getLocalizedCategoryName = useMemo(() => {
     return (item) => {
       const languageMap = {
@@ -150,7 +143,6 @@ const MenuItemGrid = ({
 
       let items = response?.data?.data?.menuPreparationItems || [];
 
-      // ⭐ Convert API isPackage → internal isPackageItem
       items = items.map((it) => ({
         ...it,
         isPackageItem: !!it.isPackage,
@@ -222,13 +214,10 @@ const MenuItemGrid = ({
 
   const sortedItems = useMemo(() => {
     return [...allMenuItems].sort((a, b) => {
-      // 🔥 1) Package items first
       const aPkg = a.isPackageItem ? 0 : 1;
       const bPkg = b.isPackageItem ? 0 : 1;
       if (aPkg !== bPkg) return aPkg - bPkg;
 
-      // 🔥 2) If both are package items OR both are normal,
-      // move package categories to top
       const aCat = getLocalizedCategoryName(a);
       const bCat = getLocalizedCategoryName(b);
 
