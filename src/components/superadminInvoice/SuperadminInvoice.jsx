@@ -11,6 +11,9 @@ import { GetSuperalladmininvoice } from "@/services/apiServices";
 const SuperadminInvoice = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState(defaultData);
+  const [filterType, setFilterType] = useState("0"); // 0=All,1=3m,2=6m,3=custom
+  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+
   const [totals, setTotals] = useState({
     receivable: 0,
     dueToday: 0,
@@ -18,6 +21,14 @@ const SuperadminInvoice = () => {
     overDue: 0,
     avgPaymentDays: 7,
   });
+  // API date format (DD-MM-YYYY)
+  const formatDateAPI = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
   const steps = [
     {
@@ -54,9 +65,9 @@ const SuperadminInvoice = () => {
     fetchInvoices();
   }, []);
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (startDate = "", endDate = "") => {
     try {
-      const response = await GetSuperalladmininvoice();
+      const response = await GetSuperalladmininvoice(startDate, endDate);
       console.log("API RESPONSE:", response);
 
       const apiData = response?.data?.data || response?.data;
@@ -65,12 +76,11 @@ const SuperadminInvoice = () => {
       const list =
         apiData?.["Admin Invoice Details"] ||
         apiData?.adminInvoiceDetails ||
-        apiData?.invoiceDetails ||
         apiData ||
         [];
 
       const invoiceList = list.map((item) => ({
-        id: item.id, // <-- required for preview routing
+        id: item.id,
         Invoice: `INV-${String(item.id).padStart(4, "0")}`,
         CustomerName: item.userName || "-",
         plan: item.planName || "-",
@@ -90,6 +100,30 @@ const SuperadminInvoice = () => {
     } catch (error) {
       console.error("Error fetching invoices:", error);
     }
+  };
+  const applyDateFilter = (value) => {
+    setFilterType(value);
+
+    const today = new Date();
+    let startDate = new Date(today);
+    let endDate = new Date(today);
+
+    if (value === "1") {
+      // Last 3 months
+      startDate.setMonth(today.getMonth() - 3);
+    } else if (value === "2") {
+      // Last 6 months
+      startDate.setMonth(today.getMonth() - 6);
+    } else if (value === "3") {
+      // Custom date → wait for Apply button
+      return;
+    } else {
+      // All invoices
+      fetchInvoices();
+      return;
+    }
+
+    fetchInvoices(formatDateAPI(startDate), formatDateAPI(endDate));
   };
 
   return (
@@ -121,13 +155,49 @@ const SuperadminInvoice = () => {
               />
             </div>
             <div className="filItems relative">
-              <select defaultValue="0" className="select pe-7.5">
+              <select
+                value={filterType}
+                className="select pe-7.5"
+                onChange={(e) => applyDateFilter(e.target.value)}
+              >
                 <option value="0">All Invoice</option>
                 <option value="1">Last 3 Months</option>
                 <option value="2">Last 6 Months</option>
                 <option value="3">Custom Date</option>
               </select>
             </div>
+
+            {filterType === "3" && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  className="input"
+                  value={customRange.start}
+                  onChange={(e) =>
+                    setCustomRange((p) => ({ ...p, start: e.target.value }))
+                  }
+                />
+                <input
+                  type="date"
+                  className="input"
+                  value={customRange.end}
+                  onChange={(e) =>
+                    setCustomRange((p) => ({ ...p, end: e.target.value }))
+                  }
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    fetchInvoices(
+                      formatDateAPI(customRange.start),
+                      formatDateAPI(customRange.end)
+                    )
+                  }
+                >
+                  Apply
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button className="btn btn-primary" title="Download">

@@ -20,27 +20,32 @@ const MemberProfile = () => {
   const [showAddTicketModal, setShowAddTicketModal] = useState(false);
   const [showMemberDetails, setShowMemberDetails] = useState(true);
 
-  // Sample tickets data - replace with API call
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
 
   const [editTicketData, setEditTicketData] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [userdata, setUserData] = useState([]);
 
   useEffect(() => {
     const fetchMemberDetails = async () => {
       try {
         setLoading(true);
+
         const response = await GetALLMemberDetailsByID(id);
         console.log("API RESPONSE:", response);
+
         const userDetails = response?.data?.data?.["User Details"];
+        const user = userDetails?.[0];
+
+        console.log("✅ LOGO FROM API:", user?.logo);
 
         if (
-          response.data.success &&
+          response?.data?.success &&
           Array.isArray(userDetails) &&
           userDetails.length > 0
         ) {
-          setMemberData(userDetails[0]);
+          setMemberData(user);
         } else {
           setError("Member not found");
         }
@@ -138,20 +143,25 @@ const MemberProfile = () => {
     setShowAddTicketModal(true);
   };
 
+  const handleDownload = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusColor = (status) => {
-    switch (status) {
-      case "In Progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "Opened":
-        return "bg-blue-100 text-blue-800";
-      case "Pending":
-        return "bg-orange-100 text-orange-800";
-      case "Resolved":
-        return "bg-green-100 text-green-800";
-      case "Closed":
-        return "bg-gray-100 text-gray-800";
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-orange-100 text-orange-700";
+      case "partial":
+        return "bg-yellow-100 text-yellow-700";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -208,12 +218,39 @@ const MemberProfile = () => {
 
             {/* Profile Avatar */}
             <div className="flex flex-col items-center mb-6">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-3 overflow-hidden shadow-md">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-3 overflow-hidden shadow-md relative">
                 <img
-                  src={toAbsoluteUrl(`/images/user_img.jpg`)}
-                  alt="User Avatar"
+                  src={
+                    memberData?.logo &&
+                    memberData.logo !== "null" &&
+                    memberData.logo !== ""
+                      ? memberData.logo
+                      : toAbsoluteUrl("/media/menu/noImage.jpg")
+                  }
+                  alt="User Logo"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("❌ LOGO LOAD FAILED:", memberData?.logo);
+                    e.currentTarget.src = toAbsoluteUrl(
+                      "/media/menu/noImage.jpg"
+                    );
+                  }}
+                  onLoad={() => {
+                    console.log("✅ LOGO LOADED:", memberData?.logo);
+                  }}
                 />
+
+                {/* DEBUG BADGE */}
+                <span
+                  className="absolute bottom-1 right-1 text-[10px] px-2 py-0.5 rounded-full
+      bg-black/70 text-white"
+                >
+                  {memberData?.logo &&
+                  memberData.logo !== "null" &&
+                  memberData.logo !== ""
+                    ? "API LOGO"
+                    : "DEFAULT"}
+                </span>
               </div>
 
               <div className="flex items-center gap-2 mb-1">
@@ -258,62 +295,129 @@ const MemberProfile = () => {
                 Member Interactions
               </button>
             </div>
+
             {/* Member Details */}
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="text-gray-800">User Code:</p>
-                <p className="font-medium text-gray-600">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">User Code</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
                   {memberData.userCode}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Registration:</p>
-                <p className="font-medium text-gray-600">
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Registration</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
                   {memberData.createdAt}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Mobile No:</p>
-                <p className="font-medium text-gray-600">
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Mobile No</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
                   {memberData.countryCode} {memberData.contactNo}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Email Id:</p>
-                <p className="font-medium text-gray-600">{memberData.email}</p>
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Email</span>
+                </div>
+                <span
+                  className="text-sm font-bold text-gray-800 block truncate"
+                  title={memberData.email}
+                >
+                  {memberData.email}
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Member Type:</p>
-                <p className="font-medium text-gray-600 capitalize">
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Member Type</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block capitalize">
                   {memberData.memberType}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Membership Price:</p>
-                <p className="font-medium text-gray-600">
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Price</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
                   ₹{memberData.userPlan?.plan?.price || 0}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Plan:</p>
-                <p className="font-medium text-gray-600">
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Plan</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
                   {memberData.userPlan?.plan?.name || "N/A"}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p className="text-gray-800">Status:</p>
-                <p
-                  className={`font-medium ${memberData.isActive ? "text-green-600" : "text-red-600"}`}
+              <div className="p-3  rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Status</span>
+                </div>
+                <span
+                  className={`text-sm font-bold block ${memberData.isActive ? "text-green-600" : "text-red-600"}`}
                 >
                   {memberData.isActive ? "Active" : "Inactive"}
-                </p>
+                </span>
+              </div>
+              <div className="p-3  rounded-lg border border-blue-100 col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-gray-500">Database Assign</span>
+                </div>
+                <span className="text-sm font-bold text-gray-800 block">
+                  {memberData.database || "Not Assigned"}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg border border-blue-100 col-span-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs text-gray-500">
+                    User Themes Assigned
+                  </span>
+                </div>
+
+                {memberData?.userThemes?.length > 0 ? (
+                  <div className="space-y-4">
+                    {memberData.userThemes.map((module) => (
+                      <div key={module.templateModuleId}>
+                        {/* Module Name */}
+                        <p className="text-sm font-semibold text-gray-800 mb-1">
+                          {module.templateModuleName}
+                        </p>
+
+                        {/* Themes */}
+                        <div className="flex flex-wrap gap-2 ml-2">
+                          {module.themes?.map((theme) => (
+                            <span
+                              key={theme.themeId}
+                              className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
+                            >
+                              {theme.themeName}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">
+                    No Themes Assigned
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -477,7 +581,6 @@ const MemberProfile = () => {
                 )}
               </div>
             ) : showMemberDetails ? (
-              // Original Profile View (unchanged)
               <>
                 {/* Personal Information */}
                 <div className="bg-white rounded-lg shadow-lg border border-blue-100">
@@ -828,25 +931,261 @@ const MemberProfile = () => {
                   </div>
                 </div>
 
+                {/* AMC Details */}
+                <div className="bg-white rounded-lg shadow-lg p-6 border border-blue-100">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+                    AMC Details
+                  </h3>
+
+                  {memberData.userAmc && memberData.userAmc.length > 0 ? (
+                    <div className="overflow-x-auto rounded-lg border border-blue-100">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-primary text-white">
+                            <th className="text-left py-2 px-3 font-medium">
+                              AMC Type
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Amount
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              AMC Date
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Receivable Amount
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Receivable Date
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Status
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Remarks
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Document
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {memberData.userAmc.map((amc) => (
+                            <tr
+                              key={amc.id}
+                              className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
+                            >
+                              <td className="py-3 px-3 capitalize">
+                                {amc.amcType || "-"}
+                              </td>
+                              <td className="py-3 px-3">
+                                ₹{amc.amcAmount?.toFixed(2) || 0}
+                              </td>
+                              <td className="py-3 px-3">{amc.amcDate}</td>
+                              <td className="py-3 px-3">
+                                ₹{amc.amcRecivableAmount?.toFixed(2) || 0}
+                              </td>
+                              <td className="py-3 px-3">
+                                {amc.amcRecivableDate}
+                              </td>
+                              <td className="py-3 px-3">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(
+                                    amc.status
+                                  )}`}
+                                >
+                                  {amc.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3">
+                                {amc.amcRemarks || "-"}
+                              </td>
+                              <td className="py-3 px-3">
+                                {amc.file && !amc.file.includes("null") ? (
+                                  <div className="flex gap-2 items-center">
+                                    {/* VIEW */}
+                                    <button
+                                      onClick={() =>
+                                        window.open(amc.file, "_blank")
+                                      }
+                                      className="text-blue-600 hover:text-blue-800 text-xs underline"
+                                    >
+                                      View
+                                    </button>
+
+                                    <span className="text-gray-400">|</span>
+
+                                    {/* DOWNLOAD */}
+                                    <button
+                                      onClick={() => handleDownload(amc.file)}
+                                      className="text-green-600 hover:text-green-800 text-xs underline"
+                                    >
+                                      Download
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400 text-xs">
+                                    No file
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      No AMC details available
+                    </p>
+                  )}
+                </div>
+
+                {/* Refund Details */}
+                <div className="bg-white rounded-lg shadow-lg p-6 border border-blue-100">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+                    Refund Details
+                  </h3>
+
+                  {memberData?.refundDetails?.length > 0 ? (
+                    <div className="overflow-x-auto rounded-lg border border-blue-100">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-primary text-white">
+                            <th className="text-left py-2 px-3 font-medium">
+                              Payment Mode
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Amount
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Refund Date
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Refund Type
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Details
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Remarks
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Updated At
+                            </th>
+                            <th className="text-left py-2 px-3 font-medium">
+                              Document
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {memberData.refundDetails.map((refund) => (
+                            <tr
+                              key={refund.id}
+                              className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
+                            >
+                              <td className="py-3 px-3 capitalize">
+                                {refund.refundPaymentMode || "-"}
+                              </td>
+
+                              <td className="py-3 px-3">
+                                ₹
+                                {refund.amount
+                                  ? refund.amount.toFixed(2)
+                                  : "0.00"}
+                              </td>
+
+                              <td className="py-3 px-3">
+                                {refund.refundDate || "-"}
+                              </td>
+
+                              <td className="py-3 px-3">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(
+                                    refund.refundType
+                                  )}`}
+                                >
+                                  {refund.refundType || "-"}
+                                </span>
+                              </td>
+
+                              <td className="py-3 px-3">
+                                {refund.refundDetails || "-"}
+                              </td>
+
+                              <td className="py-3 px-3">
+                                {refund.remarks || "-"}
+                              </td>
+
+                              <td className="py-3 px-3">
+                                {refund.updatedAt || "-"}
+                              </td>
+                              <td className="py-3 px-3">
+                                {refund.file &&
+                                !refund.file.includes("null") ? (
+                                  <div className="flex gap-2 items-center">
+                                    {/* VIEW */}
+                                    <button
+                                      onClick={() =>
+                                        window.open(refund.file, "_blank")
+                                      }
+                                      className="text-blue-600 hover:text-blue-800 text-xs underline"
+                                    >
+                                      View
+                                    </button>
+
+                                    <span className="text-gray-400">|</span>
+
+                                    {/* DOWNLOAD */}
+                                    <a
+                                      href={refund.file}
+                                      download
+                                      className="text-green-600 hover:text-green-800 text-xs underline"
+                                    >
+                                      Download
+                                    </a>
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400 text-xs">
+                                    No file
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      No refund details available
+                    </p>
+                  )}
+                </div>
+
                 {/* Plan Features */}
                 {memberData.userPlan?.plan?.features &&
                   memberData.userPlan.plan.features.length > 0 && (
                     <div className="bg-white rounded-lg shadow-lg p-6 border border-blue-100">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                      <h3 className="text-lg font-semibold mb-6 text-gray-800 flex items-center gap-2">
                         <span className="w-2 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
                         Plan Features
                       </h3>
-                      <ul className="space-y-2">
+                      <div className="flex flex-wrap gap-3">
                         {memberData.userPlan.plan.features.map((feature) => (
-                          <li
+                          <div
                             key={feature.id}
-                            className="flex items-start gap-2 text-sm text-gray-700"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full hover:shadow-md transition-all"
                           >
-                            <i className="fas fa-check-circle text-green-600 mt-1"></i>
-                            <span>{feature.featureText}</span>
-                          </li>
+                            <i className="fas fa-check-circle text-green-600"></i>
+                            <span className="text-sm text-gray-700 font-medium">
+                              {feature.featureText}
+                            </span>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
               </>
