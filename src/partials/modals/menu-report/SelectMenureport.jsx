@@ -233,7 +233,7 @@ export default function SelectMenureport({
           </div>
 
           {/* Dynamic Tabs */}
-          <div className="flex gap-10 border-b border-gray-200 mb-6">
+          <div className="flex gap-10 border-b border-gray-200 mb-6 overflow-x-scroll scrollbar-hide">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;
 
@@ -259,7 +259,9 @@ export default function SelectMenureport({
                   />
 
                   {/* Label */}
-                  <span>{tab.label}</span>
+                  <span className="min-w-[200px] max-w-[300px]">
+                    {tab.label}
+                  </span>
 
                   {/* Bottom underline */}
                   <span

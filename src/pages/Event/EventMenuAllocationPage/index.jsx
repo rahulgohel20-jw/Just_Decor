@@ -453,24 +453,15 @@ const EventMenuAllocationPage = () => {
       let allMenuData = [];
 
       if (isAllFunctions) {
-        // ✅ Fetch data for ALL functions
-        const functionIds = eventData?.eventFunctions?.map((f) => f.id) || [];
+        // ✅ When -1 is passed, API returns all functions data in one response
+        const menudata = await GetMenuAllocation(eventId, -1);
 
-        // Fetch all functions in parallel
-        const promises = functionIds.map((fId) =>
-          GetMenuAllocation(eventId, fId)
-        );
-        const results = await Promise.all(promises);
-
-        // Merge all results
-        results.forEach((menudata) => {
-          if (
-            menudata?.data?.success &&
-            menudata.data.data["Menu Allocation Details"]?.length > 0
-          ) {
-            allMenuData.push(...menudata.data.data["Menu Allocation Details"]);
-          }
-        });
+        if (
+          menudata?.data?.success &&
+          menudata.data.data["Menu Allocation Details"]?.length > 0
+        ) {
+          allMenuData = menudata.data.data["Menu Allocation Details"];
+        }
       } else {
         // ✅ Fetch single function data
         const menudata = await GetMenuAllocation(eventId, eventFunctionId);
@@ -494,7 +485,7 @@ const EventMenuAllocationPage = () => {
 
       const transformedRows =
         mergedMenuAllocation.map((item) => ({
-          key: `${item.menuItemId}-${item.menuCategoryId}`,
+          key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`, // Added eventFunctionId to make key unique
           id: item.id,
           categoryName: item.menuCategoryName || "",
           itemName: item.menuItemName || "",
@@ -567,7 +558,7 @@ const EventMenuAllocationPage = () => {
         (detail) => detail?.selectedItemDetails || []
       );
 
-      // Group by category and merge items
+      // Group by category - Fixed to avoid duplicates properly
       const categoryMap = new Map();
 
       allSelectedItems.forEach((category) => {
@@ -577,7 +568,7 @@ const EventMenuAllocationPage = () => {
           categoryMap.set(categoryId, {
             categoryId: category.menuCategoryId,
             categoryName: category.menuCategoryName,
-            items: [],
+            itemsMap: new Map(), // Use Map for items too
           });
         }
 
@@ -585,12 +576,8 @@ const EventMenuAllocationPage = () => {
 
         // Add items, avoiding duplicates by menuItemId
         category.selectedMenuPreparationItems?.forEach((item) => {
-          const existingItemIndex = existingCategory.items.findIndex(
-            (i) => i.menuItemId === item.menuItemId
-          );
-
-          if (existingItemIndex === -1) {
-            existingCategory.items.push(item);
+          if (!existingCategory.itemsMap.has(item.menuItemId)) {
+            existingCategory.itemsMap.set(item.menuItemId, item);
           }
         });
       });
@@ -600,38 +587,43 @@ const EventMenuAllocationPage = () => {
           categoryId: category.categoryId,
           categoryName: category.categoryName,
           items:
-            category.items?.map((summaryItem) => {
-              const matchingRow = transformedRows.find(
+            Array.from(category.itemsMap.values())?.map((summaryItem) => {
+              // Find ALL matching rows for this item across all functions
+              const matchingRows = transformedRows.filter(
                 (r) => r.menuItemId === summaryItem.menuItemId
               );
 
               const basePrice = Number(summaryItem.totalPrice) || 0;
-
               let finalPrice = basePrice;
 
-              if (matchingRow) {
-                // INSIDE → base price only
-                if (matchingRow.inside) {
-                  finalPrice = basePrice;
-                }
+              if (matchingRows.length > 0) {
+                // Sum up prices from all matching rows
+                finalPrice = matchingRows.reduce((total, matchingRow) => {
+                  let rowPrice = basePrice;
 
-                // OUTSIDE → only additional cost
-                else if (matchingRow.outside) {
-                  finalPrice =
-                    matchingRow.eventFunctionMenuAllocations
-                      ?.filter((a) => a.isOutside)
-                      .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
-                }
+                  // INSIDE → base price only
+                  if (matchingRow.inside) {
+                    rowPrice = basePrice;
+                  }
+                  // OUTSIDE → only additional cost
+                  else if (matchingRow.outside) {
+                    rowPrice =
+                      matchingRow.eventFunctionMenuAllocations
+                        ?.filter((a) => a.isOutside)
+                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+                  }
+                  // CHEF LABOUR → base + chef cost
+                  else if (matchingRow.chefLabour) {
+                    const chefCost =
+                      matchingRow.eventFunctionMenuAllocations
+                        ?.filter((a) => a.isChefLabour)
+                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
 
-                // CHEF LABOUR → base + chef cost
-                else if (matchingRow.chefLabour) {
-                  const chefCost =
-                    matchingRow.eventFunctionMenuAllocations
-                      ?.filter((a) => a.isChefLabour)
-                      .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+                    rowPrice = basePrice + chefCost;
+                  }
 
-                  finalPrice = basePrice + chefCost;
-                }
+                  return total + rowPrice;
+                }, 0);
               }
 
               return {
@@ -644,11 +636,11 @@ const EventMenuAllocationPage = () => {
 
       setOrderSummaryGroups(summaryGroups);
 
-      // Fetch raw materials...
+      // Fetch raw materials for all items
       const updatedRowsPromises = transformedRows.map(async (row) => {
         try {
           const res = await SelectedItemNameMenuAllocation(
-            row.eventFunctionId, // Use the row's own eventFunctionId
+            row.eventFunctionId,
             row.menuItemId
           );
 
@@ -666,7 +658,7 @@ const EventMenuAllocationPage = () => {
           }
         } catch (error) {
           console.error(
-            `❌ Error fetching raw materials for item ${row.menuItemId}:`,
+            `Error fetching raw materials for item ${row.menuItemId}:`,
             error
           );
         }
@@ -684,7 +676,6 @@ const EventMenuAllocationPage = () => {
     }
   };
 
-  // ✅ Helper to get a valid function ID for operations (never -1)
   const getValidFunctionId = (functionItem) => {
     if (!functionItem) return null;
 
@@ -716,7 +707,6 @@ const EventMenuAllocationPage = () => {
       const original = originalRows[index];
       if (!original) return true;
 
-      // Check basic fields
       if (
         row.chefLabour !== original.chefLabour ||
         row.outside !== original.outside ||
@@ -728,7 +718,6 @@ const EventMenuAllocationPage = () => {
         return true;
       }
 
-      // Check allocations
       const currentAllocations = row.eventFunctionMenuAllocations || [];
       const originalAllocations = original.eventFunctionMenuAllocations || [];
 
@@ -751,7 +740,6 @@ const EventMenuAllocationPage = () => {
     });
   };
 
-  // Update the updateRow function to detect changes
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
@@ -760,7 +748,6 @@ const EventMenuAllocationPage = () => {
 
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
 
-      // Check if there are changes
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
       return updatedRows;
@@ -768,7 +755,6 @@ const EventMenuAllocationPage = () => {
   };
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
-    // ✅ Pass actual ID (including -1 for "All Functions")
     const functionId = functionItem?.id;
     console.log("under handle function change Id", functionId);
     fetchMenuAllocation(functionId);
@@ -801,7 +787,6 @@ const EventMenuAllocationPage = () => {
     return filteredRows.map((r) => ({
       ...r,
       openSidebar: () => {
-        // if (isAllFunctions) return;
         setIsChefModal(false);
         setOpen(false);
         setIsInsideModal(false);
@@ -813,7 +798,6 @@ const EventMenuAllocationPage = () => {
         setTimeout(() => setOpen(true), 0);
       },
       openChefSidebar: () => {
-        // if (isAllFunctions) return;
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
@@ -900,7 +884,6 @@ const EventMenuAllocationPage = () => {
             return { ...item, totalPrice: basePrice };
           }
 
-          // OUTSIDE
           if (matchingRow.outside) {
             const additionalCost =
               matchingRow.eventFunctionMenuAllocations
@@ -913,7 +896,6 @@ const EventMenuAllocationPage = () => {
             return { ...item, totalPrice: additionalCost };
           }
 
-          // CHEF
           if (matchingRow.chefLabour) {
             const chefLabourCost =
               matchingRow.eventFunctionMenuAllocations
@@ -1277,7 +1259,6 @@ const EventMenuAllocationPage = () => {
 
       if (!confirm.isConfirmed) return;
 
-      // 🔵 LOADER
       Swal.fire({
         title: "Syncing Raw Materials...",
         text: "Please wait",
@@ -1300,13 +1281,12 @@ const EventMenuAllocationPage = () => {
           confirmButtonColor: "#3085d6",
         });
 
-        // ✅ Refresh menu allocation
         fetchMenuAllocation(eventFunctionId);
       } else {
         throw new Error(res?.data?.message || "Sync failed");
       }
     } catch (error) {
-      Swal.close(); // ensure loader closes on error
+      Swal.close();
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -1320,13 +1300,11 @@ const EventMenuAllocationPage = () => {
     <Fragment>
       <Container>
         <div className="flex justify-between items-center mb-4">
-          {/* LEFT: Page Title + 3 Custom Buttons */}
           <div className="flex items-center gap-6">
             <h2 className="text-xl text-black font-semibold">
               3. Menu Execution
             </h2>
 
-            {/* ONLY FOR THIS SCREEN */}
             <div className="flex gap-2">
               <button
                 onClick={() => navigate(`/menu-preparation/${eventId}`)}
@@ -1369,7 +1347,7 @@ const EventMenuAllocationPage = () => {
             </div>
           </div>
         </div>
-        {/* Event Details */}
+
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
             <div className="flex items-center gap-3">
@@ -1460,7 +1438,6 @@ const EventMenuAllocationPage = () => {
                 className="btn btn-sm btn-primary"
                 title="Sync Raw Material"
                 onClick={handleSyncRawMaterial}
-                // disabled={isAllFunctions}
               >
                 <FormattedMessage
                   id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
@@ -1472,9 +1449,7 @@ const EventMenuAllocationPage = () => {
         </div>
 
         <div className="flex gap-4">
-          {/* Left side - Table Section */}
           <div className="w-[70%] flex flex-col">
-            {/* Top Tabs */}
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-[#FAFAFA] p-3 rounded-lg overflow-x-auto mb-3">
               <TopTabs
                 value={activeFunction}
@@ -1486,7 +1461,6 @@ const EventMenuAllocationPage = () => {
               />
             </div>
 
-            {/* Sticky Header Section */}
             <div
               className="sticky z-10 bg-white pb-2 rounded-lg shadow-sm mb-3"
               style={{ top: "70px" }}
@@ -1635,7 +1609,6 @@ const EventMenuAllocationPage = () => {
               </div>
             )} */}
 
-            {/* Table Section - No individual scroll */}
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
               <TableHeader />
               {filtered.length === 0 ? (

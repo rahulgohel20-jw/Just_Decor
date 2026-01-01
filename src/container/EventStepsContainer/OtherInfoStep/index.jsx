@@ -9,12 +9,16 @@ import AddMeal from "@/partials/modals/add-meal/AddMeal";
 import useStyles from "./style";
 import { GetMealType, Fetchmanager } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
+import dayjs from "dayjs";
+
 const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const classes = useStyles();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [options, setOptions] = useState([]);
   const [manager, setManager] = useState([]);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
+  const dateFormat = "DD/MM/YYYY";
 
   const handleAddClick = () => {
     setShowCustomerModal(true);
@@ -25,6 +29,17 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
 
   const handleMealTypeChange = (value) => {
     setFormData({ ...formData, mealTypeId: value });
+  };
+
+  const handleGroomBirthDateChange = (date) => {
+    const formattedDate = date ? dayjs(date).format(dateFormat) : "";
+    setFormData({ ...formData, groomBirthDate: formattedDate });
+  };
+
+  // ✅ Handle date change for bride birthdate
+  const handleBrideBirthDateChange = (date) => {
+    const formattedDate = date ? dayjs(date).format(dateFormat) : "";
+    setFormData({ ...formData, brideBirthDate: formattedDate });
   };
 
   useEffect(() => {
@@ -320,12 +335,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <DatePicker
                   className="input"
                   placeholder="Groom Birth Date"
-                  value={formData.groomBirthDate}
-                  onChange={(date) =>
-                    handleInputChange({
-                      target: { value: date, name: "groomBirthDate" },
-                    })
+                  format={dateFormat}
+                  value={
+                    formData.groomBirthDate
+                      ? dayjs(formData.groomBirthDate, dateFormat)
+                      : null
                   }
+                  onChange={handleGroomBirthDateChange}
                 />
               </div>
               <div className="flex flex-col">
@@ -360,6 +376,8 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     className="h-full"
                     type="tel"
                     name="groomMobileno"
+                    maxLength={10}
+                    minLength={10}
                     placeholder="Groom number"
                     value={formData.groomMobileno || ""}
                     onChange={handleInputChange}
@@ -429,12 +447,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                 <DatePicker
                   className="input"
                   placeholder="Bride Birth Date"
-                  value={formData.brideBirthDate}
-                  onChange={(date) =>
-                    handleInputChange({
-                      target: { value: date, name: "brideBirthDate" },
-                    })
+                  format={dateFormat}
+                  value={
+                    formData.brideBirthDate
+                      ? dayjs(formData.brideBirthDate, dateFormat)
+                      : null
                   }
+                  onChange={handleBrideBirthDateChange}
                 />
               </div>
               <div className="flex flex-col">
@@ -449,9 +468,9 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="text"
-                    name="groom_community"
+                    name="bride_community"
                     placeholder="Bride Community"
-                    value={formData.groom_community || ""}
+                    value={formData.bride_community || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -468,6 +487,8 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <input
                     className="h-full"
                     type="tel"
+                    maxLength={10}
+                    minLength={10}
                     name="brideMobileno"
                     placeholder="Bride number"
                     value={formData.brideMobileno || ""}

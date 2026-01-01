@@ -392,11 +392,7 @@ const CreateEventPage = () => {
         response = await CreateEventMaster(payload);
         console.log("Create Response:", response);
 
-        if (
-          response?.data?.msg?.toLowerCase().includes("success") ||
-          response?.status === 200 ||
-          response?.data?.status === 200
-        ) {
+        if (response?.data?.success === true) {
           const statusMessage = getStatusMessage(formData.status, false);
 
           Swal.fire({
@@ -577,40 +573,37 @@ const CreateEventPage = () => {
     [formData, errors, onInputChange, handleInputChange]
   );
 
+  return (
+    <Fragment>
+      <Container>
+        {/* Page Title */}
+        <div className="pb-2 mb-3">
+          <h1 className="text-xl font-semibold text-gray-900">
+            {mode === "edit" ? (
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
+                defaultMessage="Edit Event"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
+                defaultMessage="Create Event"
+              />
+            )}
+          </h1>
+        </div>
 
-
- return (
-   <Fragment>
-     <Container>
-       {/* Page Title */}
-       <div className="pb-2 mb-3">
-         <h1 className="text-xl font-semibold text-gray-900">
-           {mode === "edit" ? (
-             <FormattedMessage
-               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
-               defaultMessage="Edit Event"
-             />
-           ) : (
-             <FormattedMessage
-               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
-               defaultMessage="Create Event"
-             />
-           )}
-         </h1>
-       </div>
-
-       <StepsComponent
-         direction="vertical"
-         current={current}
-         steps={steps}
-         onNext={handleNext}
-         onPrev={handlePrev}
-         onFinish={handleFinish}
-       />
-     </Container>
-   </Fragment>
- );
-
+        <StepsComponent
+          direction="vertical"
+          current={current}
+          steps={steps}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onFinish={handleFinish}
+        />
+      </Container>
+    </Fragment>
+  );
 };
 
 export default CreateEventPage;
