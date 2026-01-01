@@ -1310,6 +1310,10 @@ export const AddCustomTheme = (data) => {
   return POST("/templatemaster/add", data);
 };
 
+export const UpdateCustomTheme = (formData) => {
+  return PUT(`/templatemaster/update`, formData);
+};
+
 export const DeleteKyc = (id) => {
   return DELETE(`/user/deleteuserdocumentbyid?id=${id}`);
 };

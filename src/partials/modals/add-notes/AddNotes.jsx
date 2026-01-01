@@ -67,32 +67,26 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name fields */}
           <InputWithIcon
-            label={
-              <FormattedMessage
-                id="COMMON.NOTES_ENGLISH"
-                defaultMessage="Notes (English)"
-              />
-            }
+            label={intl.formatMessage({
+              id: "COMMON.NOTES_ENGLISH",
+              defaultMessage: "Notes (English)",
+            })}
             value={notes.notesEnglish}
             onChange={(e) => handleChange("notesEnglish", e.target.value)}
           />
           <InputWithIcon
-            label={
-              <FormattedMessage
-                id="COMMON.NOTES_GUJARATI"
-                defaultMessage="Notes (ગુજરાતી)"
-              />
-            }
+            label={intl.formatMessage({
+              id: "COMMON.NOTES_GUJARATI",
+              defaultMessage: "Notes (ગુજરાતી)",
+            })}
             value={notes.notesGujarati}
             onChange={(e) => handleChange("notesGujarati", e.target.value)}
           />
           <InputWithIcon
-            label={
-              <FormattedMessage
-                id="COMMON.NOTES_HINDI"
-                defaultMessage="Notes (हिंदी)"
-              />
-            }
+            label={intl.formatMessage({
+              id: "COMMON.NOTES_HINDI",
+              defaultMessage: "Notes (हिन्दी)",
+            })}
             value={notes.notesHindi}
             onChange={(e) => handleChange("notesHindi", e.target.value)}
           />

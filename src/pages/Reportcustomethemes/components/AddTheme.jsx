@@ -6,8 +6,15 @@ import {
   GetAllThemeType,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { UpdateCustomTheme } from "../../../services/apiServices";
 
-const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
+const AddTheme = ({
+  isModalOpen,
+  setIsModalOpen,
+  refreshData,
+  isEditMode = false,
+  editingTheme = null,
+}) => {
   const [templateName, setTemplateName] = useState("");
   const [nameplateName, setNameplateName] = useState("");
   const [templates, setTemplates] = useState([]);
@@ -22,7 +29,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [templateModule, setTemplateModule] = useState("");
   const [moduleOptions, setModuleOptions] = useState([]);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
-  const [activeTab, setActiveTab] = useState("template"); // 'template' or 'nameplate'
+  const [activeTab, setActiveTab] = useState("template");
 
   useEffect(() => {
     if (isModalOpen) {
@@ -33,7 +40,9 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   useEffect(() => {
     if (!templateName) {
       setModuleOptions([]);
-      setTemplateModule("");
+      if (!isEditMode) {
+        setTemplateModule("");
+      }
       return;
     }
 
@@ -52,7 +61,20 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           }));
 
           setModuleOptions(moduleOptions);
-          setTemplateModule("");
+
+          // ✅ Only clear templateModule if not in edit mode or if the current value is not in the new options
+          if (!isEditMode) {
+            setTemplateModule("");
+          } else {
+            // Check if current templateModule exists in the new options
+            const currentModuleExists = moduleOptions.some(
+              (opt) => opt.id.toString() === templateModule.toString()
+            );
+            if (!currentModuleExists && moduleOptions.length > 0) {
+              // If current module doesn't exist in new options, clear it
+              setTemplateModule("");
+            }
+          }
         } else {
           setModuleOptions([]);
         }
@@ -72,6 +94,100 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
     fetchModulesByTemplate();
   }, [templateName]);
+
+  useEffect(() => {
+    if (isEditMode && editingTheme) {
+      if (editingTheme.isNamePlate) {
+        setActiveTab("nameplate");
+        setNameplateName(editingTheme.name || "");
+
+        if (editingTheme.namePlateBg) {
+          setNameplate({
+            file: null,
+            url: editingTheme.namePlateBg,
+            isExisting: true,
+          });
+        }
+      } else {
+        setActiveTab("template");
+
+        setNameplateName(editingTheme.name || "");
+        setHeadingColor(editingTheme.headingFontColor || "rgba(31,41,55,1)");
+        setContentColor(editingTheme.contentFontColor || "rgba(75,85,99,1)");
+
+        // ✅ First set templateName (this will trigger module fetch)
+        setTemplateName(
+          editingTheme.templateModuleMaster?.id?.toString() || ""
+        );
+
+        // Set existing templates
+        const existingTemplates = [];
+        if (editingTheme.frontPage) {
+          existingTemplates.push({
+            file: null,
+            url: editingTheme.frontPage,
+            isExisting: true,
+          });
+        }
+        if (
+          editingTheme.secondFrontPage &&
+          !editingTheme.secondFrontPage.includes("null")
+        ) {
+          existingTemplates.push({
+            file: null,
+            url: editingTheme.secondFrontPage,
+            isExisting: true,
+          });
+        }
+        if (
+          editingTheme.watermark &&
+          !editingTheme.watermark.includes("null")
+        ) {
+          existingTemplates.push({
+            file: null,
+            url: editingTheme.watermark,
+            isExisting: true,
+          });
+        }
+        if (
+          editingTheme.lastMainPage &&
+          !editingTheme.lastMainPage.includes("null")
+        ) {
+          existingTemplates.push({
+            file: null,
+            url: editingTheme.lastMainPage,
+            isExisting: true,
+          });
+        }
+        setTemplates(existingTemplates);
+
+        if (editingTheme.dummyPdf) {
+          setDummyPdf({
+            name: "Existing PDF",
+            isExisting: true,
+            url: editingTheme.dummyPdf,
+          });
+        }
+      }
+    }
+  }, [isEditMode, editingTheme]);
+
+  // ✅ NEW: Separate effect to set templateModule after modules are loaded
+  useEffect(() => {
+    if (isEditMode && editingTheme && moduleOptions.length > 0) {
+      const templateMappingId = editingTheme.templateMapping?.id?.toString();
+      if (templateMappingId) {
+        // Check if the ID exists in moduleOptions
+        const moduleExists = moduleOptions.some(
+          (opt) => opt.id.toString() === templateMappingId
+        );
+
+        if (moduleExists) {
+          setTemplateModule(templateMappingId);
+        }
+      }
+    }
+  }, [moduleOptions, isEditMode, editingTheme]);
 
   const fetchTemplateOptions = async () => {
     setIsLoadingTemplates(true);
@@ -162,51 +278,45 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     try {
       const userId = localStorage.getItem("userId");
 
-      const selectedTemplate = templateOptions.find(
-        (template) => String(template.id) === String(templateName)
-      );
-
-      const selectedTemplateName = selectedTemplate?.name || "";
-
-      console.log("name", selectedTemplateName);
-
       const formData = new FormData();
 
       formData.append("contentFontColor", contentColor);
       formData.append("headingFontColor", headingColor);
-      formData.append("isNamePlate", "false"); // Template tab doesn't include nameplate
+      formData.append("isNamePlate", "false");
       formData.append("name", nameplateName);
       formData.append("templateMappingId", templateModule);
       formData.append("templateModuleId", templateName);
       formData.append("userId", userId);
 
-      if (dummyPdf) {
+      if (isEditMode && editingTheme) {
+        formData.append("id", editingTheme.id);
+      }
+
+      if (dummyPdf && !dummyPdf.isExisting) {
         formData.append("dummyPdf", dummyPdf);
+      } else {
+        formData.append("dummyPdf", null);
       }
 
       templates.forEach((template) => {
-        formData.append("menuReportPages", template.file);
-      });
-
-      console.log("=== FormData Contents (Template) ===");
-      for (let pair of formData.entries()) {
-        if (pair[1] instanceof File) {
-          console.log(
-            pair[0],
-            `[File: ${pair[1].name}, Size: ${pair[1].size} bytes]`
-          );
-        } else {
-          console.log(pair[0], pair[1]);
+        if (!template.isExisting && template.file) {
+          formData.append("menuReportPages", template.file);
         }
+      });
+      if (isEditMode && editingTheme) {
+        formData.append("menuReportPages", "[]");
       }
 
-      const response = await AddCustomTheme(formData);
-      console.log("API Response:", response);
+      const response = isEditMode
+        ? await UpdateCustomTheme(formData)
+        : await AddCustomTheme(formData);
 
       if (response?.data?.success) {
         Swal.fire({
           title: "Success!",
-          text: response.data.msg || "Template added successfully",
+          text:
+            response.data.msg ||
+            `Template ${isEditMode ? "updated" : "added"} successfully`,
           icon: "success",
           timer: 1500,
           showConfirmButton: false,
@@ -217,31 +327,18 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
         if (refreshData) refreshData();
       } else {
-        throw new Error(response?.data?.msg || "Failed to add template");
+        throw new Error(
+          response?.data?.msg ||
+            `Failed to ${isEditMode ? "update" : "add"} template`
+        );
       }
     } catch (error) {
-      console.error("=== Error Details ===");
       console.error("Error:", error);
-
-      if (error.response) {
-        console.error("Response Data:", error.response.data);
-        console.error("Response Status:", error.response.status);
-        console.error("Response Headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No Response Received");
-        console.error("Request:", error.request);
-      } else {
-        console.error("Error Message:", error.message);
-      }
 
       Swal.fire({
         title: "Error!",
         text:
-          error.response?.data?.msg ||
-          error.response?.data?.message ||
-          error.response?.data?.errors?.[0]?.message ||
-          error.message ||
-          "Something went wrong. Please try again.",
+          error.response?.data?.msg || error.message || "Something went wrong",
         icon: "error",
       });
     } finally {
@@ -259,40 +356,32 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       const formData = new FormData();
 
-      formData.append("isNamePlate", "true"); // Nameplate tab includes nameplate
+      formData.append("isNamePlate", "true");
       formData.append("name", nameplateName);
       formData.append("userId", userId);
 
-      // formData.append("contentFontColor", null);
-      // formData.append("headingFontColor", null);
+      // ✅ Add ID for edit mode
+      if (isEditMode && editingTheme) {
+        formData.append("id", editingTheme.id);
+      }
 
-      // formData.append("dummyPdf", null);
-
-      // formData.append("menuReportPages", null);
-
-      if (nameplate) {
+      // Add nameplate only if it's a new file
+      if (nameplate && !nameplate.isExisting && nameplate.file) {
         formData.append("namePlateBg", nameplate.file);
+      } else {
+        formData.append("namePlateBg", null);
       }
 
-      console.log("=== FormData Contents (Nameplate) ===");
-      for (let pair of formData.entries()) {
-        if (pair[1] instanceof File) {
-          console.log(
-            pair[0],
-            `[File: ${pair[1].name}, Size: ${pair[1].size} bytes]`
-          );
-        } else {
-          console.log(pair[0], pair[1]);
-        }
-      }
-
-      const response = await AddCustomTheme(formData);
-      console.log("API Response:", response);
+      const response = isEditMode
+        ? await UpdateCustomTheme(editingTheme.id, formData) // ✅ New API call
+        : await AddCustomTheme(formData);
 
       if (response?.data?.success) {
         Swal.fire({
           title: "Success!",
-          text: response.data.msg || "Nameplate added successfully",
+          text:
+            response.data.msg ||
+            `Nameplate ${isEditMode ? "updated" : "added"} successfully`,
           icon: "success",
           timer: 1500,
           showConfirmButton: false,
@@ -303,31 +392,18 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
         if (refreshData) refreshData();
       } else {
-        throw new Error(response?.data?.msg || "Failed to add nameplate");
+        throw new Error(
+          response?.data?.msg ||
+            `Failed to ${isEditMode ? "update" : "add"} nameplate`
+        );
       }
     } catch (error) {
-      console.error("=== Error Details ===");
       console.error("Error:", error);
-
-      if (error.response) {
-        console.error("Response Data:", error.response.data);
-        console.error("Response Status:", error.response.status);
-        console.error("Response Headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No Response Received");
-        console.error("Request:", error.request);
-      } else {
-        console.error("Error Message:", error.message);
-      }
 
       Swal.fire({
         title: "Error!",
         text:
-          error.response?.data?.msg ||
-          error.response?.data?.message ||
-          error.response?.data?.errors?.[0]?.message ||
-          error.message ||
-          "Something went wrong. Please try again.",
+          error.response?.data?.msg || error.message || "Something went wrong",
         icon: "error",
       });
     } finally {
@@ -471,7 +547,7 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           resetForm();
           setIsModalOpen(false);
         }}
-        title="Add Template"
+        title={isEditMode ? "Edit Template" : "Add Template"}
         width={900}
         footer={[
           <button
@@ -492,10 +568,14 @@ const AddTheme = ({ isModalOpen, setIsModalOpen, refreshData }) => {
             disabled={isLoading}
           >
             {isLoading
-              ? "Saving..."
-              : activeTab === "template"
-                ? "Save Theme"
-                : "Save Nameplate"}
+              ? `${isEditMode ? "Updating" : "Saving"}...`
+              : isEditMode
+                ? activeTab === "template"
+                  ? "Update Theme"
+                  : "Update Nameplate"
+                : activeTab === "template"
+                  ? "Save Theme"
+                  : "Save Nameplate"}
           </button>,
         ]}
       >
