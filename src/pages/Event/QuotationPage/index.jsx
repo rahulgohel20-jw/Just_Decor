@@ -30,6 +30,8 @@ const QuotationPage = () => {
   const [isEdited, setIsEdited] = useState(false);
   const [isQuotationDateEditing, setIsQuotationDateEditing] = useState(false);
   const [quotationDate, setQuotationDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [originalFunctions, setOriginalFunctions] = useState([]);
 
   const intl = useIntl();
 
@@ -69,6 +71,38 @@ const QuotationPage = () => {
     remainingPayment: "0.00",
     notes: "",
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!searchTerm.trim()) {
+        setQuotationData((prev) => ({
+          ...prev,
+          functions: originalFunctions,
+        }));
+        return;
+      }
+
+      const normalize = (v = "") =>
+        v.toString().toLowerCase().replace(/\s+/g, "");
+
+      const filtered = originalFunctions.filter((fn) => {
+        return (
+          normalize(fn.name).includes(normalize(searchTerm)) ||
+          (fn.date &&
+            normalize(fn.date.format("DD/MM/YYYY hh:mm A")).includes(
+              normalize(searchTerm)
+            ))
+        );
+      });
+
+      setQuotationData((prev) => ({
+        ...prev,
+        functions: filtered,
+      }));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, originalFunctions]);
 
   useEffect(() => {
     if (quotationData?.QuotationDate) {
@@ -228,6 +262,7 @@ const QuotationPage = () => {
 
           setQuotationId(mappedData.quotationId);
           setQuotationData(mappedData);
+          setOriginalFunctions(mappedData.functions);
         }
       })
       .catch((error) => {
@@ -825,7 +860,10 @@ const QuotationPage = () => {
                       defaultMessage: "Search function...",
                     })}
                     type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
+
                   <button
                     className="btn btn-sm btn-primary"
                     title={

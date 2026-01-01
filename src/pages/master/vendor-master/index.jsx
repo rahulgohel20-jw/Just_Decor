@@ -73,7 +73,7 @@ const VendorMaster = () => {
         customerid: cust.id,
         customer: getNameByLang(cust),
         address: getAddressByLang(cust),
-        contact_type: cust.contact.id,
+        contact_type: cust.contact.nameEnglish,
         email: cust.email || "-",
         mobile: cust.mobileno || "-",
         gst: cust.gst || "-",
@@ -90,7 +90,6 @@ const VendorMaster = () => {
         addressGujarati: cust.addressGujarati,
       }));
 
-  // ------------------ FETCH CUSTOMER ------------------
   useEffect(() => {
     FetchCustomer();
   }, [lang]);
@@ -106,7 +105,6 @@ const VendorMaster = () => {
       .catch((error) => console.error("Error fetching customers:", error));
   };
 
-  // ------------------ SEARCH CUSTOMER ------------------
   useEffect(() => {
     const handler = setTimeout(() => {
       if (!searchQuery.trim()) {

@@ -39,7 +39,9 @@ const RawMaterialAllocation = () => {
   const [eventData, setEventData] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
-  const [isSaving, setIsSaving] = useState(false); // Add this line after other useState declarations
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [originalData, setOriginalData] = useState([]);
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
@@ -49,6 +51,30 @@ const RawMaterialAllocation = () => {
       fetchEventData();
     }
   }, [eventId]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const query = searchTerm.trim().toLowerCase();
+
+      if (!query) {
+        setData(originalData);
+        return;
+      }
+
+      const normalize = (val = "") =>
+        val.toString().toLowerCase().replace(/\s+/g, "");
+
+      const filtered = originalData.filter(
+        (item) =>
+          normalize(item.material).includes(normalize(query)) ||
+          normalize(item.agency).includes(normalize(query)) ||
+          normalize(item.place).includes(normalize(query))
+      );
+
+      setData(filtered);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, originalData]);
 
   const fetchEventData = async () => {
     try {
@@ -65,6 +91,7 @@ const RawMaterialAllocation = () => {
       console.error("Error fetching event data:", error);
     }
   };
+
   const FetchUnit = async () => {
     try {
       const data = await GetUnitData(userId);
@@ -74,9 +101,11 @@ const RawMaterialAllocation = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     FetchUnit();
   }, []);
+
   const unitSelectOptions = unit.map((u) => ({
     value: u.nameEnglish,
     label: u.nameEnglish,
@@ -214,6 +243,7 @@ const RawMaterialAllocation = () => {
         });
 
         setData(formatted);
+        setOriginalData(formatted);
         setHasUnsavedChanges(false); // Reset unsaved changes flag
       } else {
         setData([]);
@@ -795,6 +825,8 @@ const RawMaterialAllocation = () => {
                   defaultMessage: "Search...",
                 })}
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
