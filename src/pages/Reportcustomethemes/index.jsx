@@ -25,6 +25,14 @@ const ReportcustomeTheme = () => {
   const userId = localStorage.getItem("userId");
 
   const hasFetched = useRef(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingTheme, setEditingTheme] = useState(null);
+
+  const handleEditTheme = (theme) => {
+    setEditingTheme(theme);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
 
   // Listen for language changes
   useEffect(() => {
@@ -337,15 +345,47 @@ const ReportcustomeTheme = () => {
                   className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                 >
                   {/* PDF View Button - Only show for themes with PDF */}
+                  <div className="absolute top-2 right-2 flex flex-col gap-2 z-10">
+                    {/* PDF View Button */}
+                    {theme.dummyPdf && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPDF(theme);
+                        }}
+                        className="bg-white/80 hover:bg-white text-green-700 hover:text-green-900 p-2 rounded-full shadow-md transition"
+                        title="View PDF"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </button>
+                    )}
 
-                  {theme.dummyPdf && (
+                    {/* Edit Button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        openPDF(theme);
+                        handleEditTheme(theme);
                       }}
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition z-10"
-                      title="View PDF"
+                      className="bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition"
+                      title="Edit Theme"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -358,16 +398,11 @@ const ReportcustomeTheme = () => {
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                         />
                       </svg>
                     </button>
-                  )}
+                  </div>
 
                   <div className="h-[250px] w-full overflow-hidden bg-gray-100">
                     {activeTab === "nameplate" && theme.namePlateBg ? (
@@ -489,8 +524,16 @@ const ReportcustomeTheme = () => {
 
       <AddTheme
         isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        setIsModalOpen={(value) => {
+          setIsModalOpen(value);
+          if (!value) {
+            setIsEditMode(false);
+            setEditingTheme(null);
+          }
+        }}
         refreshData={refreshTemplates}
+        isEditMode={isEditMode} // ✅ Pass edit mode
+        editingTheme={editingTheme} // ✅ Pass theme data
       />
     </Fragment>
   );

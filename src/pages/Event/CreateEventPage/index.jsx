@@ -390,11 +390,7 @@ const CreateEventPage = () => {
         response = await CreateEventMaster(payload);
         console.log("Create Response:", response);
 
-        if (
-          response?.data?.msg?.toLowerCase().includes("success") ||
-          response?.status === 200 ||
-          response?.data?.status === 200
-        ) {
+        if (response?.data?.success === true) {
           const statusMessage = getStatusMessage(formData.status, false);
 
           Swal.fire({
