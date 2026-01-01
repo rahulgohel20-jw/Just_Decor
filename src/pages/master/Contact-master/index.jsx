@@ -21,6 +21,7 @@ const ContactTypeMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
+  const [originalData, setOriginalData] = useState([]);
 
   // 🔥 Load language from localStorage
   const lang = localStorage.getItem("lang") || "en";
@@ -46,43 +47,21 @@ const ContactTypeMaster = () => {
       const query = searchQuery.trim().toLowerCase();
 
       if (!query) {
-        FetchContactType();
+        setTableData(originalData);
         return;
       }
 
-      SearchContactCategory(query, Id, lang)
-        .then(({ data: { data } }) => {
-          const list = data?.["Contact Type Details"] || [];
+      const normalize = (str) => str.toLowerCase().replace(/[\s.,()\-]/g, "");
 
-          // 🔥 Normalize search to support GU/HI/EN loose matching
-          const formatted = list
-            .filter((cust) => {
-              const name = getNameByLang(cust).toLowerCase();
+      const filtered = originalData.filter((item) =>
+        normalize(item.contact_type).includes(normalize(query))
+      );
 
-              // remove special characters & spaces for better matching
-              const normalize = (str) => str.replace(/[\s.,()\-]/g, "");
-
-              return (
-                normalize(name).includes(normalize(query)) ||
-                name.startsWith(query) ||
-                name.includes(query)
-              );
-            })
-            .map((cust, index) => ({
-              sr_no: index + 1,
-              contact_type: getNameByLang(cust),
-              contacttypeid: cust.id,
-            }));
-
-          setTableData(formatted);
-        })
-        .catch((error) => {
-          console.error("Search error:", error);
-        });
-    }, 350);
+      setTableData(filtered);
+    }, 300);
 
     return () => clearTimeout(handler);
-  }, [searchQuery, lang]);
+  }, [searchQuery, originalData]);
 
   const FetchContactType = () => {
     GetAllContactType(1)
@@ -96,12 +75,14 @@ const ContactTypeMaster = () => {
           })
         );
 
+        setOriginalData(formatted);
         setTableData(formatted);
       })
       .catch((error) => {
         console.error("Error fetching contact types:", error);
       });
   };
+
   // ---------------------------------------------------------
 
   const DeleteContactType = (contacttypeid) => {
