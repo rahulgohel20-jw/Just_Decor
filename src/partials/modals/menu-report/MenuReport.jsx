@@ -139,7 +139,7 @@ const MenuReport = ({
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
       adminTemplateModuleId: selectedTemplateId ?? 0,
-      type: reportType,
+      type: reportType || null,
       userId,
       lang:
         selectedLanguage === "english"
@@ -155,7 +155,7 @@ const MenuReport = ({
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
       isCompanyDetails: options.companyDetails,
-      iscompanyLogo: options.companyLogo,
+      isCompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
     };

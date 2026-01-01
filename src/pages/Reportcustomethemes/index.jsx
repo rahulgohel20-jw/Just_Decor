@@ -337,6 +337,7 @@ const ReportcustomeTheme = () => {
                   className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                 >
                   {/* PDF View Button - Only show for themes with PDF */}
+
                   {theme.dummyPdf && (
                     <button
                       onClick={(e) => {

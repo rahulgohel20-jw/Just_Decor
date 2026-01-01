@@ -70,6 +70,10 @@ export default function SelectMenureport({
             modules = modules.filter(
               (module) => module.nameEnglish === "Raw Material Theme"
             );
+          } else if (mode === "labour") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Labour Agency Theme"
+            );
           }
 
           const formattedModules = modules.map((module) => ({
