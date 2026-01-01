@@ -267,7 +267,7 @@ const AppRoutingSetup = () => {
           />
           <Route
             path="/menu-allocation/:eventId"
-            element={<EventMenuAllocationPage />}
+            element={<EventMenuAllocationPage mode="allocation" />}
           />
           <Route
             path="/raw-material-allocation"
@@ -275,7 +275,7 @@ const AppRoutingSetup = () => {
           />
           <Route
             path="/raw-material-allocation/:eventId"
-            element={<RawMaterialAllocationPage />}
+            element={<RawMaterialAllocationPage mode="raw" />}
           />
           <Route path="/custom-package" element={<CustomPackage />} />
           <Route path="/report-configuration" element={<ReportsConfig />} />

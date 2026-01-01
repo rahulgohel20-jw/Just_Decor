@@ -1,16 +1,18 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { GetAllContactCategory, Translateapi } from "@/services/apiServices";
+import {
+  GetAllContactCategory,
+  Translateapi,
+  AddCustomerapi,
+  EditCustomerApi,
+} from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import AddContactCategory from "@/partials/modals/add-contact-category/AddContactCategory";
 import { FormattedMessage, useIntl } from "react-intl";
-import Select from "react-select";
 
 const AddVendor = ({
   isModalOpen,
-  isModalClose,
   setIsModalOpen,
   selectedCustomer,
   filterType = "all",
@@ -19,39 +21,11 @@ const AddVendor = ({
   if (!isModalOpen) return null;
   const intl = useIntl();
 
-  const getAuthHeaders = () => {
-    const token =
-      localStorage.getItem("token") || localStorage.getItem("authToken");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  const getBaseURL = () => {
-    // Try to get base URL from existing axios instance or use relative path
-    return "/v1/api";
-  };
-
-  const AddCustomerapi = (formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-        // Don't set Content-Type, let axios set it with boundary
-      },
-    });
-  };
-
-  const EditCustomerApi = (id, formData) => {
-    return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-  };
-
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null); // ✅ Added selectedFile state
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
@@ -62,12 +36,12 @@ const AddVendor = ({
     mobileno: Yup.string()
       .required("Mobile number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-
     contactCategoryId: Yup.string().required("Contact category is required"),
   });
 
   // Initial form state
   const initialFormState = {
+    id: "",
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
@@ -185,7 +159,10 @@ const AddVendor = ({
           gst: selectedCustomer.gst || "",
           bdate: parsedDate,
           document: selectedCustomer.document || "",
-          contactCategoryId: selectedCustomer.contactCategoryId || "",
+          contactCategoryId:
+            selectedCustomer.contactCategoryId ||
+            selectedCustomer.contact_type ||
+            "",
         });
 
         if (selectedCustomer.image) {
@@ -194,7 +171,7 @@ const AddVendor = ({
       } else {
         setFormData(initialFormState);
         setImagePreview(null);
-        setSelectedFile(null); // ✅ Reset selectedFile
+        setSelectedFile(null);
       }
       setErrors({});
     }
@@ -211,12 +188,12 @@ const AddVendor = ({
       let filteredCategories = allCategories;
 
       if (filterType === "labour") {
-        // Show only Labour categories
+        // Show only Labour categories (contactType.id === 2)
         filteredCategories = allCategories.filter(
-          (cat) => cat.contactType?.id === 2 // <-- use Labour ID
+          (cat) => cat.contactType?.id === 2
         );
       } else {
-        // Exclude system type if needed
+        // Exclude Customer type (contactType.id === 1)
         filteredCategories = allCategories.filter(
           (cat) => cat.contactType?.id !== 1
         );
@@ -225,15 +202,13 @@ const AddVendor = ({
       setCategories(filteredCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      if (!isModalOpen) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to fetch categories. Please try again.",
-          timer: 3000,
-          showConfirmButton: false,
-        });
-      }
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch categories. Please try again.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
     }
   };
 
@@ -244,8 +219,8 @@ const AddVendor = ({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file); // ✅ Store the actual file object
-      setImagePreview(URL.createObjectURL(file)); // ✅ Create preview URL
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -253,6 +228,7 @@ const AddVendor = ({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
+    // Clear specific field error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -290,6 +266,7 @@ const AddVendor = ({
   };
 
   const CustomerAddApi = async () => {
+    // Validate form before submission
     const isValid = await validateForm();
     if (!isValid) return;
 
@@ -299,10 +276,10 @@ const AddVendor = ({
         throw new Error("User data not found");
       }
 
-      // ✅ Create FormData object (same as AddCustomer)
+      // Create FormData object
       const formDataObj = new FormData();
 
-      // ✅ Append all form fields
+      // Append all form fields
       Object.entries({
         ...formData,
         userId: userData,
@@ -313,13 +290,15 @@ const AddVendor = ({
         }
       });
 
-      // ✅ Append file if exists
+      // Append file if exists
       if (selectedFile) {
         formDataObj.append("file", selectedFile);
       }
 
       if (formData.id) {
         await EditCustomerApi(formData.id, formDataObj);
+
+        // Success alert for edit
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -329,6 +308,8 @@ const AddVendor = ({
         });
       } else {
         await AddCustomerapi(formDataObj);
+
+        // Success alert for add
         Swal.fire({
           icon: "success",
           title: "Success!",
@@ -342,10 +323,12 @@ const AddVendor = ({
       refreshData();
       setFormData(initialFormState);
       setImagePreview(null);
-      setSelectedFile(null); // ✅ Clear selectedFile
+      setSelectedFile(null);
       setErrors({});
     } catch (error) {
       console.error("Error saving vendor:", error);
+
+      // Error alert
       Swal.fire({
         icon: "error",
         title: "Error!",
@@ -358,47 +341,19 @@ const AddVendor = ({
     }
   };
 
-  const handleModalClose = (force = false) => {
-    const closeModal = () => {
-      isModalClose(false);
-      setFormData(initialFormState);
-      setImagePreview(null);
-      setSelectedFile(null); // ✅ Clear selectedFile
-      setErrors({});
-      setIsContactModalOpen(false);
-    };
+  const handleModalClose = () => {
+    // Show confirmation dialog if form has data
+    const hasFormData = Object.values(formData).some(
+      (value) =>
+        value &&
+        value !== "" &&
+        value !==
+          initialFormState[
+            Object.keys(formData).find((key) => formData[key] === value)
+          ]
+    );
 
-    // Force close (X button) - close immediately
-    if (force) {
-      closeModal();
-      return;
-    }
-
-    // If editing existing record, close immediately
-    if (formData.id) {
-      closeModal();
-      return;
-    }
-
-    // Only check user-entered fields (not auto-translated ones)
-    const userEnteredFields = [
-      "nameEnglish",
-      "addressEnglish",
-      "email",
-      "mobileno",
-      "altMobileno",
-      "gst",
-      "bdate",
-      "contactCategoryId",
-      "document",
-    ];
-
-    const hasFormData = userEnteredFields.some((key) => {
-      const value = formData[key];
-      return value && value !== "" && value !== initialFormState[key];
-    });
-
-    if (hasFormData) {
+    if (hasFormData && !formData.id) {
       Swal.fire({
         title: "Are you sure?",
         text: "You have unsaved changes. Do you want to close without saving?",
@@ -408,25 +363,21 @@ const AddVendor = ({
         cancelButtonColor: "#3085d6",
         confirmButtonText: "Yes, close it!",
         cancelButtonText: "Cancel",
-        backdrop: true,
-        allowOutsideClick: false,
-        customClass: {
-          container: "swal-high-zindex",
-        },
-        didOpen: () => {
-          // Ensure SweetAlert appears above the modal
-          const swalContainer = document.querySelector(".swal2-container");
-          if (swalContainer) {
-            swalContainer.style.zIndex = "99999";
-          }
-        },
       }).then((result) => {
         if (result.isConfirmed) {
-          closeModal();
+          setIsModalOpen(false);
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setSelectedFile(null);
+          setErrors({});
         }
       });
     } else {
-      closeModal();
+      setIsModalOpen(false);
+      setFormData(initialFormState);
+      setImagePreview(null);
+      setSelectedFile(null);
+      setErrors({});
     }
   };
 
@@ -447,12 +398,12 @@ const AddVendor = ({
             ) : (
               <FormattedMessage
                 id="USER.MASTER.NEW_CUSTOMER"
-                defaultMessage="Create New Vendor"
+                defaultMessage="New Vendor"
               />
             )}
           </h2>
           <button
-            onClick={() => handleModalClose(true)}
+            onClick={handleModalClose}
             className="text-2xl text-gray-600 hover:text-gray-800"
             disabled={isLoading}
           >
@@ -527,13 +478,13 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_ENGLISH"
-                  defaultMessage=" Address (English)"
+                  defaultMessage="Address (English)"
                 />
               }
               name="addressEnglish"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_ENGLISH",
-                defaultMessage: " Address (English)",
+                defaultMessage: "Address (English)",
               })}
               value={formData.addressEnglish}
               onChange={handleChange}
@@ -543,13 +494,13 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_GUJARATI"
-                  defaultMessage=" Address (ગુજરાતી)"
+                  defaultMessage="Address (ગુજરાતી)"
                 />
               }
               name="addressGujarati"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_GUJARATI",
-                defaultMessage: " Address (ગુજરાતી)",
+                defaultMessage: "Address (ગુજરાતી)",
               })}
               value={formData.addressGujarati}
               onChange={handleChange}
@@ -559,57 +510,54 @@ const AddVendor = ({
               label={
                 <FormattedMessage
                   id="COMMON.HOME_ADDRESS_HINDI"
-                  defaultMessage=" Address (हिंदी)"
+                  defaultMessage="Address (हिंदी)"
                 />
               }
               name="addressHindi"
               placeholder={intl.formatMessage({
                 id: "COMMON.HOME_ADDRESS_HINDI",
-                defaultMessage: " Address (हिंदी)",
+                defaultMessage: "Address (हिंदी)",
               })}
               value={formData.addressHindi}
               onChange={handleChange}
               lng="hi"
             />
 
+            {/* Contact Category */}
             <div className="flex flex-col gap-1">
               <label className="text-gray-600">
                 <FormattedMessage
                   id="USER.MASTER.CONTACT_CATEGORY"
-                  defaultMessage=" Categories"
+                  defaultMessage="Contact Category"
                 />
                 <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
                   *
                 </span>
               </label>
               <div className="flex items-center gap-2">
-                <Select
-                  options={categories.map((cat) => ({
-                    value: cat.id,
-                    label: cat.nameEnglish,
-                  }))}
-                  value={
-                    formData.contactCategoryId
-                      ? {
-                          value: formData.contactCategoryId,
-                          label: categories.find(
-                            (c) => c.id === formData.contactCategoryId
-                          )?.nameEnglish,
-                        }
-                      : null
-                  }
-                  onChange={(selected) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contactCategoryId: selected?.value || "",
-                    }))
-                  }
-                  placeholder={intl.formatMessage({
-                    id: "USER.MASTER.SELECT_CATEGORY",
-                    defaultMessage: "-- Select Category --",
-                  })}
-                  className={`w-full ${errors.contactCategoryId ? "border-red-500" : ""}`}
-                />
+                <select
+                  className={`border rounded-lg p-2 w-full ${
+                    errors.contactCategoryId
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  name="contactCategoryId"
+                  value={formData.contactCategoryId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">
+                    <FormattedMessage
+                      id="USER.MASTER.SELECT_CATEGORY"
+                      defaultMessage="-- Select Category --"
+                    />
+                  </option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nameEnglish}
+                    </option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 text-xl leading-none"
@@ -624,6 +572,7 @@ const AddVendor = ({
                 </p>
               )}
             </div>
+
             {/* Email */}
             <div>
               <InputSimple
@@ -641,12 +590,7 @@ const AddVendor = ({
                 })}
                 value={formData.email}
                 onChange={handleChange}
-                required={false}
-                error={errors.email}
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
             </div>
 
             {/* Mobile */}
@@ -834,7 +778,7 @@ const AddVendor = ({
           <div className="flex w-full justify-end mt-6 gap-3">
             <button
               type="button"
-              onClick={() => handleModalClose(false)}
+              onClick={handleModalClose}
               className="btn btn-secondary"
               disabled={isLoading}
             >
@@ -862,9 +806,9 @@ const AddVendor = ({
       </div>
       <AddContactCategory
         isOpen={isconatctModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
         refreshData={fetchCategories}
         excludeCustomerType={true}
-        onClose={() => setIsContactModalOpen(false)}
       />
     </div>
   );
@@ -883,7 +827,7 @@ const InputSimple = ({
   <div>
     <label className="block text-gray-600 mb-1">
       {label}
-      {required && type !== "email" && (
+      {required && (
         <span className="mandatory ms-0.5 text-base text-red-500 font-medium ml-1">
           *
         </span>

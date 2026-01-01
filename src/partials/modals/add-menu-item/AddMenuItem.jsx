@@ -6,11 +6,11 @@ import {
   GetAllCategoryformenu,
   Getmenusubcategory,
   AddMenuItems,
-  uploadFile,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
+
 const { Dragger } = Upload;
 
 const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
@@ -18,27 +18,25 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
-  const userId = localStorage.getItem("userId");
+
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
+
+  const userId = localStorage.getItem("userId");
+
   const fetchCategories = async () => {
     try {
       const res = await GetAllCategoryformenu(userId);
-      console.log(res?.data?.data["Menu Category Details"]);
 
-      if (res) {
-        const options = res?.data?.data["Menu Category Details"].map(
-          (item) => ({
-            label: item.nameEnglish,
-            value: item.id,
-          })
-        );
+      const options =
+        res?.data?.data?.["Menu Category Details"]?.map((item) => ({
+          label: item.nameEnglish,
+          value: item.id,
+        })) || [];
 
-        setCategoryOptions(options);
-      }
-      console.log("out");
-    } catch (err) {
-      console.log("Category API Error:", err);
+      setCategoryOptions(options);
+    } catch (error) {
+      console.log("Category API Error:", error);
     }
   };
 
@@ -46,21 +44,16 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
     try {
       setLoadingSubCategories(true);
       const res = await Getmenusubcategory(categoryId, userId);
-      console.log(res);
 
-      if (res) {
-        const options = res?.data?.data?.["Menu Sub Category Details"]?.map(
-          (item) => ({
-            label: item.nameEnglish,
-            value: item.id,
-          })
-        );
-        setSubCategoryOptions(options);
-      } else {
-        setSubCategoryOptions([]);
-      }
-    } catch (err) {
-      console.log("Sub Category API Error:", err);
+      const options =
+        res?.data?.data?.["Menu Sub Category Details"]?.map((item) => ({
+          label: item.nameEnglish,
+          value: item.id,
+        })) || [];
+
+      setSubCategoryOptions(options);
+    } catch (error) {
+      console.log("Sub Category API Error:", error);
       setSubCategoryOptions([]);
     } finally {
       setLoadingSubCategories(false);
@@ -87,49 +80,33 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values);
-
       const file = values?.image?.file || null;
 
-      const payload = {
-        userId: Number(userId),
-        menuCategoryId: values.menuCategory,
-        menuSubCategoryId: values.menuSubCategory || "",
-        nameEnglish: values.nameEnglish || "",
-        nameGujarati: values.nameGujarati || "",
-        nameHindi: values.nameHindi || "",
-        slogan: values.slogan || "",
-        price: values.price || 0,
-        sequence: Number(values.priority) || 0,
-        remarks: values.remarks || "",
-        url: values.url || "",
-        menuItemRawMaterials: [],
-        menuItemAllocationConfigRequest: null,
-        dishCosting: 0,
-        totalRate: 0,
-      };
+      const formData = new FormData();
 
-      const res = await AddMenuItems(payload);
-      const data = res?.data;
-      const success = data?.success;
+      formData.append("userId", Number(userId));
+      formData.append("menuCategoryId", values.menuCategory);
+      formData.append("menuSubCategoryId", values.menuSubCategory || "");
+      formData.append("nameEnglish", values.nameEnglish || "");
+      formData.append("nameGujarati", values.nameGujarati || "");
+      formData.append("nameHindi", values.nameHindi || "");
+      formData.append("slogan", values.slogan || "");
+      formData.append("price", values.price || 0);
+      formData.append("sequence", Number(values.priority) || 0);
 
-      if (success && file) {
-        const formData = new FormData();
-        formData.append("moduleId", data.moduleId);
-        formData.append("moduleName", data.moduleName);
-        formData.append("fileType", data.fileType);
+      if (file) {
         formData.append("file", file);
-
-        await uploadFile(formData);
       }
 
+      const res = await AddMenuItems(formData);
+
       Swal.fire({
-        title: success ? "Success!" : "Failed",
-        text: data?.msg,
-        icon: success ? "success" : "error",
+        title: res?.data?.success ? "Success!" : "Failed",
+        text: res?.data?.msg,
+        icon: res?.data?.success ? "success" : "error",
       });
 
-      if (success) {
+      if (res?.data?.success) {
         refreshData();
         setIsModalOpen(false);
         form.resetFields();
@@ -163,205 +140,103 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       }
     >
       <Form layout="vertical" form={form} className="space-y-5">
-        {/* 3 Names */}
+        {/* ===================== NAMES ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Name (English) <span className="text-red-500">*</span>
-              </span>
-            }
-            name="nameEnglish"
-          >
-            <Input
-              className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-              placeholder="Enter Name (English)"
-            />
+          <Form.Item name="nameEnglish" label="Name (English) *">
+            <Input placeholder="Enter Name (English) " />
           </Form.Item>
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Name (Gujarati)
-              </span>
-            }
-            name="nameGujarati"
-          >
-            <Input
-              className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-              placeholder="Enter Name (Gujarati)"
-            />
+
+          <Form.Item name="nameGujarati" label="Name (Gujarati)">
+            <Input placeholder="Enter Name (Gujarati)" />
           </Form.Item>
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Name (Hindi)
-              </span>
-            }
-            name="nameHindi"
-          >
-            <Input
-              className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-              placeholder="Enter Name (Hindi)"
-            />
+
+          <Form.Item name="nameHindi" label="Name (Hindi)">
+            <Input placeholder="Enter Name (Hindi)" />
           </Form.Item>
         </div>
 
-        {/* Slogan */}
-        <Form.Item
-          label={
-            <span className="text-[#6A7C94] text-base font-medium">Slogan</span>
-          }
-          name="slogan"
-        >
-          <Input
-            className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-            placeholder="Enter Slogan"
-          />
+        <Form.Item name="slogan" label="Slogan">
+          <Input placeholder="Enter Slogan" />
         </Form.Item>
 
-        {/* Price & Priority */}
+        {/* ===================== PRICE / PRIORITY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Price
-              </span>
-            }
-            name="price"
-          >
-            <Input
-              className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-              placeholder="Enter Price"
-              type="text"
-            />
+          <Form.Item name="price" label="Price">
+            <Input type="number" placeholder="Enter Price" />
           </Form.Item>
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Priority
-              </span>
-            }
-            name="priority"
-          >
-            <Input
-              className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-              placeholder="Enter Priority"
-              type="number"
-            />
+
+          <Form.Item name="priority" label="Priority">
+            <Input type="number" placeholder="Enter Priority" />
           </Form.Item>
         </div>
 
-        {/* Category & Sub Category */}
+        {/* ===================== CATEGORY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Form.Item
-            label={
-              <span className="text-[#6A7C94] text-base font-medium">
-                Menu Item Category <span className="text-red-500">*</span>
-              </span>
-            }
-          >
-            <div className="flex gap-3 w-full">
+          <Form.Item label="Menu Category *">
+            <div className="flex gap-2">
               <Form.Item name="menuCategory" noStyle>
                 <Select
-                  placeholder="Select Menu Category"
-                  allowClear
+                  placeholder="Select Category"
                   options={categoryOptions}
                   onChange={handleCategoryChange}
-                  className="bg-[#F8FAFC] h-10 w-full"
+                  className="w-full"
                 />
               </Form.Item>
-
               <button
-                type="button"
-                className="p-1 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow"
+                className="bg-blue-900 px-2 py-1 rounded-lg text-white"
                 onClick={() => setIsCategoryModalOpen(true)}
               >
-                <i className="ki-filled ki-plus"></i>
+                +
               </button>
             </div>
           </Form.Item>
 
-          <Form.Item label="Menu Item Sub Category">
-            <div className="flex gap-3">
+          <Form.Item label="Menu Sub Category">
+            <div className="flex gap-2">
               <Form.Item name="menuSubCategory" noStyle>
                 <Select
-                  placeholder="Select Menu Sub Category"
+                  placeholder="Select Sub Category"
                   options={subCategoryOptions}
                   loading={loadingSubCategories}
                   disabled={!form.getFieldValue("menuCategory")}
-                  className="bg-[#F8FAFC] h-10 w-full"
+                  className="w-full"
                 />
               </Form.Item>
-
               <button
-                type="button"
-                className="p-1 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full shadow"
+                className="bg-blue-900 px-2 py-1 rounded-lg text-white"
                 onClick={() => setIsSubCategoryModalOpen(true)}
               >
-                <i className="ki-filled ki-plus"></i>
+                +
               </button>
             </div>
           </Form.Item>
         </div>
 
-        {/* Remarks */}
-        <Form.Item
-          label={
-            <span className="text-[#6A7C94] text-base font-medium">
-              Remarks
-            </span>
-          }
-          name="remarks"
-        >
-          <Input
-            className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-            placeholder="Enter Remarks"
-          />
+        <Form.Item name="remarks" label="Remarks">
+          <Input placeholder="Enter Remarks" />
         </Form.Item>
 
-        {/* Image Upload */}
-        <Form.Item
-          label={
-            <span className="text-[#6A7C94] text-base font-medium">Image</span>
-          }
-          name="image"
-        >
-          <Dragger
-            maxCount={1}
-            accept=".jpg,.jpeg,.png,.svg,.zip"
-            beforeUpload={() => false}
-          >
+        {/* ===================== IMAGE ===================== */}
+        <Form.Item name="image" label="Image">
+          <Dragger beforeUpload={() => false} maxCount={1}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
-            <p className="font-medium">Drag your file(s) or browse</p>
-            <p className="text-gray-400 text-sm">Max 10 MB files are allowed</p>
+            <p>Drag or Upload Image</p>
           </Dragger>
-          <p className="text-xs mt-1 text-gray-500">
-            Only support .jpg, .png and .svg and zip files
-          </p>
         </Form.Item>
 
-        {/* URL */}
-        <Form.Item
-          label={
-            <span className="text-[#6A7C94] text-base font-medium">
-              Enter URL
-            </span>
-          }
-          name="url"
-        >
-          <Input
-            className="bg-[#F8FAFC] h-10 hover:border-[#d9d9d9] focus:border-[#d9d9d9]"
-            placeholder="Insert URL"
-          />
+        <Form.Item name="url" label="URL">
+          <Input placeholder="Enter URL" />
         </Form.Item>
       </Form>
+
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}
         refreshData={refreshData}
       />
+
       <AddMenuSubCategory
         isModalOpen={isSubCategoryModalOpen}
         setIsModalOpen={setIsSubCategoryModalOpen}

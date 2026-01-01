@@ -22,7 +22,7 @@ import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPack
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import EditPaxModal from "./components/EditPaxModal";
-const EventPlanningPage = () => {
+const EventPlanningPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState(null);
@@ -524,6 +524,7 @@ const EventPlanningPage = () => {
       }
 
       setHasExistingData(true);
+      setIsDirty(true);
       setShowCustomPackageModal(false);
 
       Swal.fire({
@@ -1059,11 +1060,11 @@ const EventPlanningPage = () => {
                       : "bg-primary text-white"
                   }`}
                   onClick={() => {
-                    // user switches back to FULL CUSTOM mode
                     setPackageAppliedForFunction((prev) => ({
                       ...prev,
                       [selectedFunction]: false,
                     }));
+                    setIsDirty(true); // ✅ enable Save
                   }}
                 >
                   A La Carte
@@ -1280,6 +1281,7 @@ const EventPlanningPage = () => {
           setIsMenuReport(true);
         }}
         disabled={!hasSelectedItems || isDirty}
+        mode={mode}
       />
 
       <AddMenuItem

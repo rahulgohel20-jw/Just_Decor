@@ -176,8 +176,15 @@ const AccountUserProfilePage = () => {
                   <img
                     className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow"
                     src={
-                      profileData.image ||
-                      toAbsoluteUrl("/media/menu/noImage.jpg")
+                      profileData?.image &&
+                      typeof profileData.image === "string" &&
+                      profileData.image.trim() !== "" &&
+                      profileData.image !== "null" &&
+                      profileData.image !== "undefined" &&
+                      !profileData.image.toLowerCase().includes("/null") &&
+                      /\.(jpg|jpeg|png|webp|gif)$/i.test(profileData.image)
+                        ? profileData.image
+                        : toAbsoluteUrl("/media/menu/noImage.jpg")
                     }
                     alt="profile"
                   />

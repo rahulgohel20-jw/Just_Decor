@@ -21,6 +21,7 @@ export default function SelectMenureport({
   activeFunctionName,
   setEventFunctionId,
   disabled = false,
+  mode,
 }) {
   const navigate = useNavigate();
 
@@ -31,10 +32,8 @@ export default function SelectMenureport({
 
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
-  const [moduleId, setModuleId] = useState(null);
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [selectedFunctionId, setSelectedFunctionId] = useState(null);
@@ -54,27 +53,34 @@ export default function SelectMenureport({
     );
   }, [eventData, setEventFunctionId]);
 
-  // Fetch template modules for tabs
   useEffect(() => {
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
+        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
-          const modules = res.data.data
-            .filter((module) => module.isActive && !module.isDelete)
-            .map((module) => ({
-              key: module.id,
-              label: module.nameEnglish,
-              moduleId: module.id,
-              img: "/media/icons/simple.png",
-            }));
+          let modules = res.data.data.filter(
+            (module) => module.isActive && !module.isDelete
+          );
 
-          setTabs(modules);
+          if (mode !== "menu") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Simple Theme"
+            );
+          }
 
-          // Set first tab as active by default
-          if (modules.length > 0) {
-            setActiveTab(modules[0].key);
+          const formattedModules = modules.map((module) => ({
+            key: module.id,
+            label: module.nameEnglish,
+            moduleId: module.id,
+            img: "/media/icons/simple.png",
+          }));
+
+          setTabs(formattedModules);
+
+          if (formattedModules.length > 0) {
+            setActiveTab(formattedModules[0].key);
           }
         }
       } catch (error) {
@@ -83,7 +89,7 @@ export default function SelectMenureport({
     };
 
     fetchTemplateModules();
-  }, [isSelectMenureport, finalEventId]);
+  }, [isSelectMenureport, finalEventId, mode]);
 
   useEffect(() => {
     const fetchTemplates = async () => {
