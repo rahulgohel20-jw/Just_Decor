@@ -313,9 +313,9 @@ const AddReportConfig = ({
             className="w-full border rounded px-3 py-2"
           >
             <option value="">Select Labour Type</option>
-            <option value="OUTSIDE">Outside</option>
-            <option value="INSIDE">Inside</option>
-            <option value="CHEF_LABOUR">Chef</option>
+            <option value="outside">Outside</option>
+            <option value="inside">Inside</option>
+            <option value="chef">Chef</option>
           </select>
         </div>
       </div>

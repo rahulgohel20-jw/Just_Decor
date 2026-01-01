@@ -63,7 +63,7 @@ const createEmptyLabourRow = (labourType = "") => ({
   notesHindi: "",
 });
 
-const LabourOtherManagementPage = () => {
+const LabourOtherManagementPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
 
@@ -860,6 +860,8 @@ const LabourOtherManagementPage = () => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
+          setEventFunctionId={activeFunction?.id}
+          mode={mode}
         />
         {/* Add Labour Type Modal */}
         {isAddLabourModalOpen && (

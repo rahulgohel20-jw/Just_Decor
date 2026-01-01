@@ -480,57 +480,6 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
           className="flex flex-col gap-y-4 overflow-auto scrollable-y"
         >
           {/* Image Upload Section */}
-          <div className="flex flex-col">
-            <label className="form-label">
-              <FormattedMessage
-                id="USER.RAWMATERIAL.IMAGE"
-                defaultMessage="Raw Material Image"
-              />
-            </label>
-            <div className="flex items-center gap-4">
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
-                  >
-                    <i className="ki-filled ki-cross text-xs"></i>
-                  </button>
-                </div>
-              )}
-
-              {/* Upload Button */}
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="image-upload"
-                  className="btn btn-light cursor-pointer"
-                >
-                  <i className="ki-filled ki-file-up"></i>
-                  <FormattedMessage
-                    id="COMMON.UPLOAD_IMAGE"
-                    defaultMessage="Upload Image"
-                  />
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                <span className="text-xs text-gray-500">
-                  Max size: 5MB | Formats: JPG, PNG, GIF
-                </span>
-              </div>
-            </div>
-          </div>
 
           <div className="grid grid-cols-3 gap-x-4">
             {/* English Name */}
@@ -740,7 +689,57 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
               )}
             </div>
           </div>
+          <div className="flex flex-col">
+            <label className="form-label">
+              <FormattedMessage
+                id="USER.RAWMATERIAL.IMAGE"
+                defaultMessage="Raw Material Image"
+              />
+            </label>
+            <div className="flex items-center gap-4">
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                  >
+                    <i className="ki-filled ki-cross text-xs"></i>
+                  </button>
+                </div>
+              )}
 
+              {/* Upload Button */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="image-upload"
+                  className="btn btn-light cursor-pointer"
+                >
+                  <i className="ki-filled ki-file-up"></i>
+                  <FormattedMessage
+                    id="COMMON.UPLOAD_IMAGE"
+                    defaultMessage="Upload Image"
+                  />
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <span className="text-xs text-gray-500">
+                  Max size: 5MB | Formats: JPG, PNG, GIF
+                </span>
+              </div>
+            </div>
+          </div>
           {/* General Fix */}
           <div className="flex items-center gap-2 mt-2">
             <label className="form-label">

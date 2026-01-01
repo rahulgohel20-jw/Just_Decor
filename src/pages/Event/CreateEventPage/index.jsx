@@ -3,13 +3,11 @@ import dayjs from "dayjs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
 import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
 import FunctionsDetails from "@/container/EventStepsContainer/FunctionDetails";
-import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import {
   eventValidationSchema,
   stepValidationSchemas,

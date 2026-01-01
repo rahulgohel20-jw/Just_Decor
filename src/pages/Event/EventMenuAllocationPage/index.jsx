@@ -319,7 +319,7 @@ const TableRow = ({ row, onChange, disabled }) => {
   );
 };
 
-const EventMenuAllocationPage = () => {
+const EventMenuAllocationPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
   const [activeFunction, setActiveFunction] = useState(null);
@@ -1712,6 +1712,8 @@ const EventMenuAllocationPage = () => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
+          setEventFunctionId={getEventFunctionId(activeFunction)}
+          mode={mode}
         />
         <SummaryItemModalchefoutside
           open={isModalOpen}

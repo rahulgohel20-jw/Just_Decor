@@ -1,7 +1,5 @@
-import React from "react";
 import { useEffect, useState } from "react";
-import { FormattedMessage } from "react-intl";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { toAbsoluteUrl } from "@/utils";
 import {
@@ -17,19 +15,13 @@ export default function SelectMenureport({
   eventId,
   isSelectMenureport,
   setIsSelectMenuReport,
-  onConfirm,
-  activeFunctionName,
   setEventFunctionId,
   disabled = false,
   mode,
 }) {
-  const navigate = useNavigate();
-
   const params = useParams();
   const finalEventId = eventId || params.eventId;
-
   const [selectedCard, setSelectedCard] = useState(null);
-
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tabs, setTabs] = useState([]);
@@ -44,29 +36,43 @@ export default function SelectMenureport({
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
 
-  // Get userId from your auth context or storage
   const userId = localStorage.getItem("userId");
 
   const selectedEventFunction = useMemo(() => {
+    if (selectedFunctionId === -1) return null;
+
     return eventData?.eventFunctions?.find(
-      (item) => item.id === setEventFunctionId
+      (item) => item.id === selectedFunctionId
     );
-  }, [eventData, setEventFunctionId]);
+  }, [eventData, selectedFunctionId]);
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
-        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
             (module) => module.isActive && !module.isDelete
           );
 
-          if (mode !== "menu") {
+          if (mode === "menu") {
+            modules = modules.filter((module) =>
+              ["Exclusive Theme", "Simple Theme", "Back Office Theme"].includes(
+                module.nameEnglish
+              )
+            );
+          } else if (mode === "allocation") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Simple Theme"
+              (module) => module.nameEnglish === "Menu Allocation Theme"
+            );
+          } else if (mode === "raw") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Raw Material Theme"
+            );
+          } else if (mode === "labour") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Labour Agency Theme"
             );
           }
 
@@ -180,6 +186,10 @@ export default function SelectMenureport({
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
   };
+  const handleFunctionChange = (e) => {
+    const value = e.target.value;
+    setSelectedFunctionId(value ? Number(value) : null);
+  };
 
   return (
     <>
@@ -217,7 +227,9 @@ export default function SelectMenureport({
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/funtionname.png")}
                 label="Function"
-                value={selectedEventFunction?.function?.nameEnglish || "-"}
+                value={
+                  selectedEventFunction?.function?.nameEnglish || "All Function"
+                }
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/date&time.png")}
@@ -230,6 +242,26 @@ export default function SelectMenureport({
                 value={eventData?.venue?.nameEnglish || "-"}
               />
             </div>
+          </div>
+
+          <div className="mb-6 max-w-sm">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Select Function
+            </label>
+
+            <select
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BA8]"
+              value={selectedFunctionId ?? ""}
+              onChange={handleFunctionChange}
+            >
+              <option value={-1}>All Functions</option>
+
+              {eventData?.eventFunctions?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.function?.nameEnglish}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Dynamic Tabs */}
