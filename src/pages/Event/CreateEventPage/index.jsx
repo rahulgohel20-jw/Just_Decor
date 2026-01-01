@@ -3,13 +3,11 @@ import dayjs from "dayjs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
 import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
 import FunctionsDetails from "@/container/EventStepsContainer/FunctionDetails";
-import { errorMsgPopup, successMsgPopup } from "../../../underConstruction";
 import {
   eventValidationSchema,
   stepValidationSchemas,
@@ -577,40 +575,37 @@ const CreateEventPage = () => {
     [formData, errors, onInputChange, handleInputChange]
   );
 
+  return (
+    <Fragment>
+      <Container>
+        {/* Page Title */}
+        <div className="pb-2 mb-3">
+          <h1 className="text-xl font-semibold text-gray-900">
+            {mode === "edit" ? (
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
+                defaultMessage="Edit Event"
+              />
+            ) : (
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
+                defaultMessage="Create Event"
+              />
+            )}
+          </h1>
+        </div>
 
-
- return (
-   <Fragment>
-     <Container>
-       {/* Page Title */}
-       <div className="pb-2 mb-3">
-         <h1 className="text-xl font-semibold text-gray-900">
-           {mode === "edit" ? (
-             <FormattedMessage
-               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
-               defaultMessage="Edit Event"
-             />
-           ) : (
-             <FormattedMessage
-               id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_CREATE_EVENT_BUTTON"
-               defaultMessage="Create Event"
-             />
-           )}
-         </h1>
-       </div>
-
-       <StepsComponent
-         direction="vertical"
-         current={current}
-         steps={steps}
-         onNext={handleNext}
-         onPrev={handlePrev}
-         onFinish={handleFinish}
-       />
-     </Container>
-   </Fragment>
- );
-
+        <StepsComponent
+          direction="vertical"
+          current={current}
+          steps={steps}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onFinish={handleFinish}
+        />
+      </Container>
+    </Fragment>
+  );
 };
 
 export default CreateEventPage;

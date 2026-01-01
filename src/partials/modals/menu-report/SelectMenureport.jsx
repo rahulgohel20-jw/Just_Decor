@@ -1,7 +1,5 @@
-import React from "react";
 import { useEffect, useState } from "react";
-import { FormattedMessage } from "react-intl";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { toAbsoluteUrl } from "@/utils";
 import {
@@ -41,10 +39,12 @@ export default function SelectMenureport({
   const userId = localStorage.getItem("userId");
 
   const selectedEventFunction = useMemo(() => {
+    if (selectedFunctionId === -1) return null;
+
     return eventData?.eventFunctions?.find(
-      (item) => item.id === setEventFunctionId
+      (item) => item.id === selectedFunctionId
     );
-  }, [eventData, setEventFunctionId]);
+  }, [eventData, selectedFunctionId]);
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -186,6 +186,10 @@ export default function SelectMenureport({
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
   };
+  const handleFunctionChange = (e) => {
+    const value = e.target.value;
+    setSelectedFunctionId(value ? Number(value) : null);
+  };
 
   return (
     <>
@@ -238,6 +242,26 @@ export default function SelectMenureport({
                 value={eventData?.venue?.nameEnglish || "-"}
               />
             </div>
+          </div>
+
+          <div className="mb-6 max-w-sm">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Select Function
+            </label>
+
+            <select
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BA8]"
+              value={selectedFunctionId ?? ""}
+              onChange={handleFunctionChange}
+            >
+              <option value={-1}>All Functions</option>
+
+              {eventData?.eventFunctions?.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.function?.nameEnglish}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Dynamic Tabs */}
