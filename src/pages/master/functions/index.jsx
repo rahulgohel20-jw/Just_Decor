@@ -24,6 +24,7 @@ const FunctionsMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [originalData, setOriginalData] = useState([]);
 
   const intl = useIntl();
 
@@ -120,30 +121,50 @@ const FunctionsMaster = () => {
       ),
     }));
 
-  const fetchFunctions = (name = "") => {
+  const fetchFunctions = () => {
     const Id = JSON.parse(localStorage.getItem("userId"));
-    const apiCall = name
-      ? GetFunctionsByFunctionName(name)
-      : GetAllFunctionsByUserId(Id);
 
-    apiCall
+    GetAllFunctionsByUserId(Id)
       .then((res) => {
-        if (res?.data?.data?.["Function Details"]) {
-          setTableData(formatData(res.data.data["Function Details"]));
-        } else {
-          setTableData([]);
-        }
+        const list = res?.data?.data?.["Function Details"] || [];
+        const formatted = formatData(list);
+
+        setOriginalData(formatted);
+        setTableData(formatted);
       })
       .catch((err) => {
         console.error("Error fetching functions:", err);
+        setOriginalData([]);
         setTableData([]);
       });
   };
 
   // ✅ Initial load - fetch all (re-fetch when language changes)
   useEffect(() => {
-    fetchFunctions(searchTerm);
+    fetchFunctions();
   }, [lang]); // 🔥 Re-fetch when language changes
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const query = searchTerm.trim().toLowerCase();
+
+      if (!query) {
+        setTableData(originalData);
+        return;
+      }
+
+      const normalize = (str = "") =>
+        str.toLowerCase().replace(/[\s.,()\-]/g, "");
+
+      const filtered = originalData.filter((item) =>
+        normalize(item.function_name).includes(normalize(query))
+      );
+
+      setTableData(filtered);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, originalData]);
 
   // ✅ Debounced search (auto search after typing stops)
   useEffect(() => {
