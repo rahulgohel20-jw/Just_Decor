@@ -118,32 +118,37 @@ const AddReportConfig = ({
     const fetchData = async () => {
       try {
         const res = await GetReportConfigurationById(editId);
+
         if (res?.data?.success) {
           const data = res.data.data;
 
+          // ✅ CORRECT — this fixes select issue
+          setLabourType(data?.type || "");
+
           setTemplateId(data.templateModuleId);
           setTemplateModuleId(data.templateMappingId || "");
-          setLabourType(data.labourType || "");
 
+          // ✅ ONLY toggle fields here
           setOptions({
             categoryImage: !!data.isCategoryImage,
             CompanyDetails: !!data.isCompanyDetails,
-
             categorySlogan: !!data.isCategorySlogan,
             CompanyLogo: !!data.isCompanyLogo,
             categoryInstruction: !!data.isCategoryInstruction,
-
             ItemImage: !!data.isItemImage,
             itemInstruction: !!data.isItemInstruction,
             itemSlogan: !!data.isItemSlogan,
             PartyDetails: !!data.isPartyDetails,
             WithQuantity: !!data.isWithQty,
           });
+
+          console.log("✅ TYPE FROM API:", data.type);
         }
       } catch (error) {
         console.error(error);
       }
     };
+
     fetchData();
   }, [editId, isModalOpen]);
 
@@ -301,7 +306,7 @@ const AddReportConfig = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Labour Type</label>
+          <label className="block text-sm font-medium mb-1">Vendor Type</label>
           <select
             value={labourType}
             onChange={(e) => setLabourType(e.target.value)}
@@ -310,7 +315,7 @@ const AddReportConfig = ({
             <option value="">Select Labour Type</option>
             <option value="OUTSIDE">Outside</option>
             <option value="INSIDE">Inside</option>
-            <option value="CHEF_LABOUR">Chef Labour</option>
+            <option value="CHEF_LABOUR">Chef</option>
           </select>
         </div>
       </div>
