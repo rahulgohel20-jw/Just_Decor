@@ -32,7 +32,8 @@ const SuperReportConfig = () => {
         isCompanyLogo: item.isCompanyLogo,
         isCompanyDetails: item.isCompanyDetails,
         isPartyDetails: item.isPartyDetails,
-        isWithQuantity: item.isWithQty, // ✅ true / false
+        isWithQuantity: item.isWithQty,
+        labourType: item.type, // ✅ true / false
         rawid: item.id,
         mappingId: item.templateMappingId,
         moduleId: item.templateModuleId,

@@ -19,7 +19,6 @@ const AddVendor = ({
   if (!isModalOpen) return null;
   const intl = useIntl();
 
-  // Define API functions directly in the component
   const getAuthHeaders = () => {
     const token =
       localStorage.getItem("token") || localStorage.getItem("authToken");

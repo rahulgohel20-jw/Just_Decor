@@ -66,7 +66,11 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     header: "With Quantity",
     cell: ({ row }) => <YesNoIcon value={row.original.isWithQuantity} />,
   },
-
+  {
+    accessorKey: "labourType",
+    header: "Vendor Type",
+    cell: ({ row }) => <span>{row.original.labourType || "-"}</span>,
+  },
   {
     accessorKey: "action",
     header: "Action",
