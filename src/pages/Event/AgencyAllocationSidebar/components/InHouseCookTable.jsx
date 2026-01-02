@@ -30,9 +30,20 @@ export default function InHouseCookTable({
     }
   };
 
+  const handlePaxChange = (menuIndex, value) => {
+    const menuItem = menuItems[menuIndex];
+
+    const updatedMenuItem = {
+      ...menuItem,
+      personCount: value,
+    };
+
+    onUpdate(menuIndex, updatedMenuItem);
+  };
   const handleAllocationChange = (menuIndex, allocationIndex, field, value) => {
     const menuItem = menuItems[menuIndex];
     const updatedAllocations = [...menuItem.eventFunctionMenuAllocations];
+
     updatedAllocations[allocationIndex] = {
       ...updatedAllocations[allocationIndex],
       [field]: value,
@@ -41,7 +52,6 @@ export default function InHouseCookTable({
     const updatedMenuItem = {
       ...menuItem,
       eventFunctionMenuAllocations: updatedAllocations,
-      ...(field === "pax" && { personCount: value }),
     };
 
     onUpdate(menuIndex, updatedMenuItem);
@@ -117,7 +127,6 @@ export default function InHouseCookTable({
             <col className="w-[220px]" />
             <col className="w-[160px]" />
             <col className="w-[140px]" />
-            <col className="w-[140px]" />
           </colgroup>
 
           {/* ✅ Single header for all items */}
@@ -135,7 +144,6 @@ export default function InHouseCookTable({
               <th className="p-3 text-left">Pax</th>
               <th className="p-3 text-left">Contact Name</th>
               <th className="p-3 text-left">Number</th>
-              <th className="p-3 text-left">Person</th>
               <th className="p-3 text-left">Remarks</th>
             </tr>
           </thead>
@@ -186,12 +194,7 @@ export default function InHouseCookTable({
                               placeholder="0"
                               value={menuItem.personCount || ""}
                               onChange={(e) =>
-                                handleAllocationChange(
-                                  menuIndex,
-                                  allocationIndex,
-                                  "pax",
-                                  e.target.value
-                                )
+                                handlePaxChange(menuIndex, e.target.value)
                               }
                             />
                           </td>
@@ -228,7 +231,7 @@ export default function InHouseCookTable({
                               ))}
                             </BaseSelect>
                           </td>
-                          <td className="p-2">
+                          {/* <td className="p-2">
                             <BaseInput
                               placeholder="0"
                               value={allocation.number || ""}
@@ -241,7 +244,7 @@ export default function InHouseCookTable({
                                 )
                               }
                             />
-                          </td>
+                          </td> */}
                           <td className="p-2">
                             <BaseInput
                               type="number"

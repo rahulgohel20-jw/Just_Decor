@@ -4,7 +4,6 @@ import MealTypeDropdown from "@/components/dropdowns/MealTypeDropdown";
 import { useEffect, useState } from "react";
 import ManagerDropdown from "@/components/dropdowns/ManagerDropdown";
 import AddMember from "@/partials/modals/add-member/AddMember";
-
 import AddMeal from "@/partials/modals/add-meal/AddMeal";
 import useStyles from "./style";
 import { GetMealType, Fetchmanager } from "@/services/apiServices";
@@ -40,6 +39,18 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const handleBrideBirthDateChange = (date) => {
     const formattedDate = date ? dayjs(date).format(dateFormat) : "";
     setFormData({ ...formData, brideBirthDate: formattedDate });
+  };
+
+  const handleCommunityChange = (e) => {
+    const { name, value } = e.target;
+
+    // Count digits only
+    const digitCount = (value.match(/\d/g) || []).length;
+
+    // Allow max 10 digits only
+    if (digitCount > 10) return;
+
+    setFormData({ ...formData, [name]: value });
   };
 
   useEffect(() => {
@@ -359,7 +370,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     name="groom_community"
                     placeholder="Groom Community"
                     value={formData.groom_community || ""}
-                    onChange={handleInputChange}
+                    onChange={handleCommunityChange}
                   />
                 </div>
               </div>
@@ -471,7 +482,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                     name="bride_community"
                     placeholder="Bride Community"
                     value={formData.bride_community || ""}
-                    onChange={handleInputChange}
+                    onChange={handleCommunityChange}
                   />
                 </div>
               </div>
