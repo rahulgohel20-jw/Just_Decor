@@ -177,11 +177,14 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
 };
 
 const TableHeader = () => (
-  <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+  <div
+    className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-30"
+    style={{ top: "230px" }}
+  >
     <div className="col-span-2">
       <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
     </div>
-    <div className="col-span-1  text-center">
+    <div className="col-span-1 text-center">
       <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
     </div>
     <div className="col-span-2 text-center">
@@ -1608,7 +1611,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                 edit menu allocation.
               </div>
             )} */}
-
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
               <TableHeader />
               {filtered.length === 0 ? (
@@ -1621,7 +1623,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                     key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                     row={row}
                     onChange={updateRow}
-                    // disabled={isAllFunctions}
                   />
                 ))
               )}
@@ -1630,7 +1631,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
           {/* Right side - Order Summary (Sticky) */}
           <div className="w-[30%]">
-            <div className="sticky bg-white z-10" style={{ top: "70px" }}>
+            <div className="sticky bg-white " style={{ top: "70px" }}>
               <div className="max-h-[calc(100vh-100px)] overflow-y-auto">
                 <OrderSummary
                   groups={orderSummaryGroups}

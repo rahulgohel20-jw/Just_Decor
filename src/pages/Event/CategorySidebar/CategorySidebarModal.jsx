@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip, DatePicker, Form } from "antd";
+import { Tooltip } from "antd"; // Keep only Tooltip from antd
+import DatePicker from "react-datepicker"; // Add react-datepicker
+import "react-datepicker/dist/react-datepicker.css"; // Add CSS
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import {
@@ -67,6 +69,22 @@ export default function CategorySidebarModal({
     FetchAllSuplier();
   }, []);
 
+  // Helper function to parse date from various formats to Date object
+  const parseDateToObject = (dateValue) => {
+    if (!dateValue) return null;
+    if (dateValue instanceof Date) return dateValue;
+
+    // Try dayjs parsing
+    const parsed = dayjs(dateValue, "DD/MM/YYYY hh:mm a", true);
+    if (parsed.isValid()) return parsed.toDate();
+
+    // Try ISO parsing
+    const isoDate = new Date(dateValue);
+    if (!isNaN(isoDate.getTime())) return isoDate;
+
+    return null;
+  };
+
   useEffect(() => {
     if (!open) {
       return;
@@ -86,9 +104,7 @@ export default function CategorySidebarModal({
         name: item.rawMaterialName || "",
         menuItemName: item.menuItemName || "-",
         agency: item.partyName || "",
-        dateTime: item.dateTime
-          ? dayjs(item.dateTime, "DD/MM/YYYY hh:mm a")
-          : null,
+        dateTime: parseDateToObject(item.dateTime), // Convert to Date object
         weight: item.weight || "",
         unit: item.unitName || "",
         place: item.place || "",
@@ -116,7 +132,6 @@ export default function CategorySidebarModal({
   const handleRemoveRow = async (id) => {
     const rowToDelete = rawMaterials.find((r) => r.id === id);
 
-    // If the item has an itemId (saved in database), show confirmation and delete from backend
     if (rowToDelete?.itemId && rowToDelete.itemId !== 0) {
       const result = await Swal.fire({
         title: intl.formatMessage({
@@ -186,7 +201,6 @@ export default function CategorySidebarModal({
         });
       }
     } else {
-      // If the item is not saved yet, just remove it from the state
       setRawMaterials((prev) => prev.filter((r) => r.id !== id));
     }
   };
@@ -356,9 +370,7 @@ export default function CategorySidebarModal({
                 name: item.rawMaterialName || "",
                 menuItemName: item.menuItemName || "-",
                 agency: item.partyName || "",
-                dateTime: item.dateTime
-                  ? dayjs(item.dateTime, "DD/MM/YYYY hh:mm a")
-                  : null,
+                dateTime: parseDateToObject(item.dateTime),
                 weight: item.weight || "",
                 unit: item.unitName || "",
                 place: item.place || "",
@@ -443,9 +455,7 @@ export default function CategorySidebarModal({
 
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="p-5 flex-shrink-0">
-                  {/* Bulk Allocate Section */}
                   <div className="flex items-start justify-start gap-4 mt-4">
-                    {/* Bulk Allocate Agency */}
                     <div className="flex items-end gap-2">
                       <select
                         className="select pe-7.5"
@@ -496,7 +506,6 @@ export default function CategorySidebarModal({
                       </button>
                     </div>
 
-                    {/* Bulk Allocate Place */}
                     <div className="flex items-end gap-2">
                       <select
                         className="select pe-7.5"
@@ -536,9 +545,7 @@ export default function CategorySidebarModal({
                   </div>
                 </div>
 
-                {/* Scrollable Table Section */}
                 <div className="flex-1 overflow-y-auto px-5 min-h-0">
-                  {/* 🔥 FIX: Show message when no raw materials */}
                   {rawMaterials.length === 0 ? (
                     <div className="flex items-center justify-center h-full p-8">
                       <div className="text-center">
@@ -559,7 +566,6 @@ export default function CategorySidebarModal({
                     </div>
                   ) : (
                     <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                      {/* Head */}
                       <div
                         className={`${GRID} items-center px-5 py-3 bg-[#F9FAFC] text-[13px] font-medium text-gray-900`}
                       >
@@ -613,7 +619,6 @@ export default function CategorySidebarModal({
                         </div>
                       </div>
 
-                      {/* Rows */}
                       {rawMaterials.map((row, idx) => (
                         <div
                           key={row.id}
@@ -649,13 +654,17 @@ export default function CategorySidebarModal({
 
                           <div>
                             <DatePicker
-                              className="input"
-                              showTime
-                              value={row.dateTime}
-                              format="MM/DD/YYYY hh:mm A"
-                              onChange={(val) =>
-                                handleChange(row.id, "dateTime", val)
+                              selected={row.dateTime}
+                              onChange={(date) =>
+                                handleChange(row.id, "dateTime", date)
                               }
+                              showTimeSelect
+                              timeFormat="hh:mm aa"
+                              timeIntervals={15}
+                              dateFormat="MM/dd/yyyy hh:mm aa"
+                              className={baseField}
+                              placeholderText="Select date & time"
+                              popperPlacement="bottom-start"
                             />
                           </div>
 
@@ -739,7 +748,6 @@ export default function CategorySidebarModal({
                   )}
                 </div>
 
-                {/* Footer with Save/Cancel buttons */}
                 <div className="flex-shrink-0 p-5 border-t border-gray-200 bg-white">
                   <div className="flex items-center justify-between gap-3">
                     <button

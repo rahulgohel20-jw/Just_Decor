@@ -167,6 +167,18 @@ const CreateEventPage = () => {
             service: event.service || "",
             theme: event.theme || "",
             remark: event.remark || "",
+            groomName: event.groomName || "",
+            groomInstaLink: event.groomInstaLink || "",
+            groomBirthDate: event.groomBirthDate || "",
+            groom_community: event.groom_community || "",
+            groomMobileno: event.groomMobileno || "",
+
+            // 🔹 ✅ BRIDE DATA
+            brideName: event.brideName || "",
+            brideInstaLink: event.brideInstaLink || "",
+            brideBirthDate: event.brideBirthDate || "",
+            bride_community: event.bride_community || "",
+            brideMobileno: event.brideMobileno || "",
           }));
         })
         .catch((err) => console.error("Error fetching event:", err))

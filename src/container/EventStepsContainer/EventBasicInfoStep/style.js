@@ -1,6 +1,21 @@
 import { makeStyles } from "@mui/styles";
 const useStyles = makeStyles({
   basicInfo: {
+
+    // Add these new styles
+    '& .react-datepicker-wrapper': {
+      width: '100%',
+    },
+    '& .react-datepicker__input-container input': {
+      width: '100%',
+      padding: '0.5rem',
+      border: '1px solid #d1d5db',
+      borderRadius: '0.375rem',
+      '&:disabled': {
+        backgroundColor: '#f3f4f6',
+        cursor: 'not-allowed',
+      },
+    },
     "& .select__grp": {
       "& > .form-label": {},
       "& .sg__inner": {
