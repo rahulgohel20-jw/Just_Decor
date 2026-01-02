@@ -30,6 +30,9 @@ const AddFunctionType = ({
     endTime: null,
   };
 
+  const capitalizeFirst = (value = "") =>
+    value.charAt(0).toUpperCase() + value.slice(1);
+
   const validationSchema = Yup.object({
     nameEnglish: Yup.string().required("Name is required"),
     startTime: Yup.mixed().required("Start Time is required"),
@@ -173,7 +176,10 @@ const AddFunctionType = ({
               })}
               value={formik.values.nameEnglish}
               onChange={(e) =>
-                formik.setFieldValue("nameEnglish", e.target.value)
+                formik.setFieldValue(
+                  "nameEnglish",
+                  capitalizeFirst(e.target.value)
+                )
               }
               lng="en-US"
               required
