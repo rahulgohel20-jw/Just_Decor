@@ -54,9 +54,6 @@ const AddContactCategory = ({
   const validationSchema = Yup.object().shape({
     nameEnglish: Yup.string().required("Name is required"),
     contcatTypeId: Yup.string().required("Contact Type is required"),
-    sequence: Yup.number()
-      .typeError("Priority must be a number")
-      .required("Priority is required"),
   });
 
   // ✅ Submit handler
@@ -70,15 +67,27 @@ const AddContactCategory = ({
       const payload = { ...values, userId: Id };
 
       if (contactCategory) {
-        await EditContactCategory(contactCategory.contactid, payload);
-        Swal.fire(
-          "Updated!",
-          "Contact category updated successfully.",
-          "success"
+        const res = await EditContactCategory(
+          contactCategory.contactid,
+          payload
         );
+
+        if (res?.data?.success === true) {
+          Swal.fire(
+            "Updated!",
+            "Contact category updated successfully.",
+            "success"
+          );
+        }
       } else {
-        await Addcontactcategory(payload);
-        Swal.fire("Saved!", "Contact category added successfully.", "success");
+        const res = await Addcontactcategory(payload);
+        if (res?.data?.success === true) {
+          Swal.fire(
+            "Saved!",
+            "Contact category added successfully.",
+            "success"
+          );
+        }
       }
 
       refreshData();
@@ -93,7 +102,7 @@ const AddContactCategory = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-101 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -245,6 +254,7 @@ const AddContactCategory = ({
                     }
                     name="sequence"
                     type="number"
+                    required={false}
                     placeholder={intl.formatMessage({
                       id: "USER.MASTER.PRIORITY",
                       defaultMessage: "Priority",
@@ -291,11 +301,17 @@ const AddContactCategory = ({
   );
 };
 
-const InputWithFormik = ({ label, name, type = "text", placeholder }) => (
+const InputWithFormik = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  required = true, // 👈 default true
+}) => (
   <div className="flex flex-col">
     <label className="block text-gray-600 mb-1">
       {label}
-      <span className="text-red-500">*</span>
+      {required && <span className="text-red-500">*</span>}
     </label>
     <Field
       type={type}

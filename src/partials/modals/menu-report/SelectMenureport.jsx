@@ -28,15 +28,16 @@ export default function SelectMenureport({
   const [activeTab, setActiveTab] = useState(null);
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  const [selectedFunctionId, setSelectedFunctionId] = useState(null);
+  const [selectedFunctionId, setSelectedFunctionId] = useState(-1);
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [mappingId, setmappingId] = useState(null);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
-
+  const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const userId = localStorage.getItem("userId");
+  console.log(setEventFunctionId);
 
   const selectedEventFunction = useMemo(() => {
     if (selectedFunctionId === -1) return null;
@@ -155,6 +156,7 @@ export default function SelectMenureport({
         setLoading(true);
         const res = await GetEventMasterById(finalEventId);
 
+        console.log(res);
         if (res?.data?.data?.["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
 
@@ -173,22 +175,28 @@ export default function SelectMenureport({
       fetchEventData();
     }
   }, [isSelectMenureport, finalEventId]);
+  useEffect(() => {
+    if (!eventData) return;
+
+    if (setEventFunctionId !== undefined && setEventFunctionId !== null) {
+      setSelectedFunctionId(Number(setEventFunctionId));
+    } else {
+      setSelectedFunctionId(-1);
+    }
+  }, [eventData, setEventFunctionId, isSelectMenureport]);
 
   const handleGenerateReport = (template) => {
     setSelectedCard(template.id);
     setSelectedTemplateId(template.id);
-
+    setSelectedTemplateName(template.name);
     setmappingId(template.mappingId);
     setSelectedModuleId(activeTab);
-
-    setSelectedFunctionId(setEventFunctionId);
 
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
   };
   const handleFunctionChange = (e) => {
-    const value = e.target.value;
-    setSelectedFunctionId(value ? Number(value) : null);
+    setSelectedFunctionId(Number(e.target.value));
   };
 
   return (
@@ -245,13 +253,13 @@ export default function SelectMenureport({
           </div>
 
           <div className="mb-6 max-w-sm">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2">
               Select Function
             </label>
 
             <select
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BA8]"
-              value={selectedFunctionId ?? ""}
+              className="w-full border rounded-lg px-4 py-2"
+              value={selectedFunctionId}
               onChange={handleFunctionChange}
             >
               <option value={-1}>All Functions</option>
@@ -388,6 +396,7 @@ export default function SelectMenureport({
         mappingId={mappingId}
         selectedTemplateId={selectedTemplateId}
         eventName={eventName}
+        selectedTemplateName={selectedTemplateName}
         PartyNumber={PartyNumber}
       />
     </>

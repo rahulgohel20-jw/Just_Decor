@@ -158,6 +158,9 @@ const EventPlanningPage = ({ mode }) => {
 
       const selectedCats = data.selectedMenuPreparationItems || [];
       const flatItems = data.menuPreparationItems || [];
+      const menuData = data.menuPreparation || [];
+
+      setDefaultRate(menuData?.defaultPrice ?? "");
 
       const categories = {};
       const order = [];
@@ -1062,7 +1065,10 @@ const EventPlanningPage = ({ mode }) => {
                       min={0}
                       className="input input-sm w-28"
                       value={defaultRate}
-                      onChange={(e) => setDefaultRate(e.target.value)}
+                      onChange={(e) => {
+                        setDefaultRate(e.target.value);
+                        setIsDirty(true);
+                      }}
                     />
                   </div>
                 </div>

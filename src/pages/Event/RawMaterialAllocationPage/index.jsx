@@ -112,26 +112,42 @@ const RawMaterialAllocation = ({ mode }) => {
     unitId: u.id,
   }));
 
+  // ✅ UPDATED: Build unit options from units object first, then fallback to unitHierarchyDto
   const buildUnitOptions = (
+    unitsObject,
     unitHierarchyDto,
     currentUnitId,
     currentUnitName
   ) => {
     const options = [];
 
-    // ✅ If hierarchy exists
-    if (unitHierarchyDto) {
+    // ✅ Priority 1: Use units object if available
+    if (unitsObject && unitsObject.id) {
       options.push({
-        value: unitHierarchyDto.unitId,
-        label: unitHierarchyDto.nameEnglish,
+        value: unitsObject.id,
+        label: unitsObject.nameEnglish,
       });
+    }
 
+    // ✅ Priority 2: Use hierarchy if available
+    if (unitHierarchyDto) {
+      // Only add if not already added from units object
+      if (!options.some((o) => o.value === unitHierarchyDto.unitId)) {
+        options.push({
+          value: unitHierarchyDto.unitId,
+          label: unitHierarchyDto.nameEnglish,
+        });
+      }
+
+      // Add children
       if (Array.isArray(unitHierarchyDto.children)) {
         unitHierarchyDto.children.forEach((child) => {
-          options.push({
-            value: child.unitId,
-            label: child.nameEnglish,
-          });
+          if (!options.some((o) => o.value === child.unitId)) {
+            options.push({
+              value: child.unitId,
+              label: child.nameEnglish,
+            });
+          }
         });
       }
     }
@@ -202,6 +218,7 @@ const RawMaterialAllocation = ({ mode }) => {
     fetchAgencies();
   }, []);
 
+  // ✅ UPDATED: Store units object and prioritize it for unit display
   const fetchRawMaterialItems = async (categoryId) => {
     setLoading(true);
     try {
@@ -227,8 +244,17 @@ const RawMaterialAllocation = ({ mode }) => {
             qty: item.qty || 0,
             finalQty: item.finalQty || item.qty || 0,
             unitHierarchyDto: item.unitHierarchyDto,
-            unit: item.unitHierarchyDto?.nameEnglish || "KILO",
-            unitId: item.unitHierarchyDto?.unitId || item.unitId || 1,
+            units: item.units, // ✅ Store the units object
+            // ✅ Prioritize units object for display
+            unit:
+              item.units?.nameEnglish ||
+              item.unitHierarchyDto?.nameEnglish ||
+              "KILO",
+            unitId:
+              item.units?.id ||
+              item.unitHierarchyDto?.unitId ||
+              item.unitId ||
+              1,
 
             agency: item.supplierName || "-",
             supplierId: item.supplierId || 0,
@@ -256,6 +282,7 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
+  // ✅ UPDATED: When unit changes, update both unitId and the units object
   const handleChange = (index, field, value) => {
     const updated = [...data];
 
@@ -274,7 +301,31 @@ const RawMaterialAllocation = ({ mode }) => {
       }
     }
 
-    if (field === "date" && value) {
+    // ✅ Handle unit change - update units object
+    if (field === "unitId") {
+      const newUnitId = Number(value);
+      updated[index].unitId = newUnitId;
+
+      // Find the unit name from available options
+      const unitOptions = buildUnitOptions(
+        updated[index].units,
+        updated[index].unitHierarchyDto,
+        updated[index].unitId,
+        updated[index].unit
+      );
+
+      const selectedUnit = unitOptions.find((u) => u.value === newUnitId);
+
+      if (selectedUnit) {
+        // Update the units object with new selection
+        updated[index].units = {
+          ...updated[index].units,
+          id: newUnitId,
+          nameEnglish: selectedUnit.label,
+        };
+        updated[index].unit = selectedUnit.label;
+      }
+    } else if (field === "date" && value) {
       updated[index][field] = dayjs(value);
     } else {
       updated[index][field] = value;
@@ -335,7 +386,7 @@ const RawMaterialAllocation = ({ mode }) => {
             rawMaterialId: item.rawMaterialId || 0,
             supplierId: supplierId,
             totalprice: parseFloat(item.total) || 0,
-            unitId: item.unitId || 0,
+            unitId: item.unitId || 0, // ✅ This will now have the updated unit ID
             date:
               item.date && dayjs(item.date).isValid()
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
@@ -920,6 +971,7 @@ const RawMaterialAllocation = ({ mode }) => {
                           className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
                         >
                           {buildUnitOptions(
+                            item.units,
                             item.unitHierarchyDto,
                             item.unitId,
                             item.unit
