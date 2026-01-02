@@ -11,7 +11,6 @@ export const requiredFields = {
   client_info: {
     prefix: "Mr.",
     customer_name: "",
-    address: "",
     mobileno: "",
     isHighPriority: "Yes",
     reference: "",

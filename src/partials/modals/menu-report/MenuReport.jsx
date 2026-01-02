@@ -23,9 +23,9 @@ const MenuReport = ({
   selectedTemplateId,
   eventName,
   PartyNumber,
+  selectedTemplateName,
 }) => {
   const intl = useIntl();
-  console.log(eventId);
 
   // Configure plugin with default scale of 1 (100%)
   const pdfPlugin = defaultLayoutPlugin({
@@ -59,11 +59,9 @@ const MenuReport = ({
   /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
-    console.log("EventId in MenuReport:", eventId);
     const fetchConfig = async () => {
       try {
         const res = await GetReportConfiguration(mappingId, moduleId);
-        console.log(res);
 
         const config = res?.data?.data?.[0];
         if (!config) return;
@@ -174,8 +172,6 @@ const MenuReport = ({
       }
     });
 
-    for (let p of formData.entries()) console.log(p[0], p[1]);
-
     setLoading(true);
     try {
       const { data } = await AddExclusiveReport(formData);
@@ -221,7 +217,7 @@ const MenuReport = ({
   return (
     <CustomModal
       open={isModalOpen}
-      title="Menu Report"
+      title={selectedTemplateName || "Report "}
       onClose={handleClose}
       width={900}
       footer={
