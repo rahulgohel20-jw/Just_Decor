@@ -48,27 +48,19 @@ export default function OutsideAgencyTable({
   };
 
   useEffect(() => {
-    console.log("menuItems received:", menuItems);
-
-    const updatedMenuItems = menuItems.map((menuItem) => {
-      console.log("personCount:", menuItem.personCount);
-
-      return {
-        ...menuItem,
-        eventFunctionMenuAllocations:
-          menuItem.eventFunctionMenuAllocations?.map((allocation) => {
-            console.log("existing quantity:", allocation.quantity);
-            const newQuantity =
-              allocation.quantity || menuItem.personCount || "";
-            console.log("new quantity:", newQuantity);
-
-            return {
-              ...allocation,
-              quantity: newQuantity,
-            };
-          }),
-      };
-    });
+    const updatedMenuItems = menuItems.map((menuItem) => ({
+      ...menuItem,
+      eventFunctionMenuAllocations: menuItem.eventFunctionMenuAllocations?.map(
+        (allocation) => ({
+          ...allocation,
+          quantity:
+            allocation.quantity === undefined
+              ? (menuItem.personCount ?? "")
+              : allocation.quantity,
+          isQuantityEdited: allocation.isQuantityEdited ?? false,
+        })
+      ),
+    }));
 
     setLocalMenuItems(updatedMenuItems);
   }, [menuItems]);
@@ -83,16 +75,22 @@ export default function OutsideAgencyTable({
       ...updatedAllocations[allocationIndex],
       [field]: value,
     };
-
-    // If pax is changed, automatically update the quantity to match
-    // But quantity changes should NOT update pax
-    if (field === "pax") {
+    if (field === "quantity") {
       updatedAllocations[allocationIndex].quantity = value;
-      // Update personCount when pax field is changed
+      updatedAllocations[allocationIndex].isQuantityEdited = true;
+    }
+
+    if (field === "pax") {
+      // update pax
       updatedMenuItems[menuIndex] = {
         ...updatedMenuItems[menuIndex],
         personCount: value,
       };
+
+      // ONLY sync if user never edited quantity
+      if (!updatedAllocations[allocationIndex].isQuantityEdited) {
+        updatedAllocations[allocationIndex].quantity = value;
+      }
     }
 
     // Recalculate total price based on quantity and price
@@ -306,7 +304,7 @@ export default function OutsideAgencyTable({
                         <BaseInput
                           type="number"
                           placeholder="0"
-                          value={allocation.quantity || ""}
+                          value={allocation.quantity ?? ""}
                           onChange={(e) =>
                             handleAllocationChange(
                               menuIndex,

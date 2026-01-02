@@ -581,7 +581,7 @@ const FunctionsDetails = ({
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <DatePicker
-                          className="w-full"
+                          className="w-full border border-gray-500 rounded px px-2 py-1"
                           showTimeSelect
                           timeFormat="hh:mm aa"
                           timeIntervals={30}
@@ -620,7 +620,7 @@ const FunctionsDetails = ({
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
                       >
                         <DatePicker
-                          className="w-full"
+                          className="w-full border border-gray-500 rounded px px-2 py-1"
                           showTimeSelect
                           timeFormat="hh:mm aa"
                           timeIntervals={30}

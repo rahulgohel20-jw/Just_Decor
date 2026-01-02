@@ -415,7 +415,7 @@ const AddContactName = ({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/50"
-      style={{ zIndex: 1100 }}
+      style={{ zIndex: 100 }}
     >
       <div className="bg-[#F2F7FB] rounded-xl w-full max-w-5xl p-6 relative">
         {/* Header */}
