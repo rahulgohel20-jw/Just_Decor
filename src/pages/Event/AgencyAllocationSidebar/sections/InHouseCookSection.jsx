@@ -68,7 +68,6 @@ export default function InHouseCookSection({ data, onDataUpdate, close }) {
                 partyId,
                 partyName,
                 number: number || "",
-                pax,
               };
             }
 

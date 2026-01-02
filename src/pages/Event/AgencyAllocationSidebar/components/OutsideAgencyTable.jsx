@@ -48,7 +48,29 @@ export default function OutsideAgencyTable({
   };
 
   useEffect(() => {
-    setLocalMenuItems(menuItems);
+    console.log("menuItems received:", menuItems);
+
+    const updatedMenuItems = menuItems.map((menuItem) => {
+      console.log("personCount:", menuItem.personCount);
+
+      return {
+        ...menuItem,
+        eventFunctionMenuAllocations:
+          menuItem.eventFunctionMenuAllocations?.map((allocation) => {
+            console.log("existing quantity:", allocation.quantity);
+            const newQuantity =
+              allocation.quantity || menuItem.personCount || "";
+            console.log("new quantity:", newQuantity);
+
+            return {
+              ...allocation,
+              quantity: newQuantity,
+            };
+          }),
+      };
+    });
+
+    setLocalMenuItems(updatedMenuItems);
   }, [menuItems]);
 
   const handleAllocationChange = (menuIndex, allocationIndex, field, value) => {
@@ -62,6 +84,17 @@ export default function OutsideAgencyTable({
       [field]: value,
     };
 
+    // If pax is changed, automatically update the quantity to match
+    // But quantity changes should NOT update pax
+    if (field === "pax") {
+      updatedAllocations[allocationIndex].quantity = value;
+      // Update personCount when pax field is changed
+      updatedMenuItems[menuIndex] = {
+        ...updatedMenuItems[menuIndex],
+        personCount: value,
+      };
+    }
+
     // Recalculate total price based on quantity and price
     const allocation = updatedAllocations[allocationIndex];
     const qty = parseFloat(allocation.quantity) || 0;
@@ -71,14 +104,11 @@ export default function OutsideAgencyTable({
     updatedMenuItems[menuIndex] = {
       ...updatedMenuItems[menuIndex],
       eventFunctionMenuAllocations: updatedAllocations,
-      // Update personCount if pax field is changed
-      ...(field === "pax" && { personCount: value }),
     };
 
     setLocalMenuItems(updatedMenuItems);
     onUpdate(menuIndex, updatedMenuItems[menuIndex]);
   };
-
   const handleCheckboxChange = (menuIndex, allocationIndex, isChecked) => {
     const itemKey = `${menuIndex}-${allocationIndex}`;
     onItemSelect(itemKey, isChecked, menuIndex, allocationIndex);
@@ -94,9 +124,14 @@ export default function OutsideAgencyTable({
     });
   };
 
-  if (!localMenuItems || localMenuItems.length === 0) return null;
+  if (!localMenuItems || localMenuItems.length === 0) {
+    return (
+      <div className="p-8 text-center text-gray-500">
+        No menu items available
+      </div>
+    );
+  }
 
-  // Check if all items are selected
   const allSelected = localMenuItems?.every((menuItem, menuIndex) =>
     menuItem.eventFunctionMenuAllocations?.every((_, allocationIndex) => {
       const itemKey = `${menuIndex}-${allocationIndex}`;
@@ -130,8 +165,8 @@ export default function OutsideAgencyTable({
                 />
               </th>
               <th className="p-3 text-left">No.</th>
-              <th className="p-3 text-left">Contact Name</th>
               <th className="p-3 text-left">Item Name</th>
+              <th className="p-3 text-left">Contact Name</th>
               <th className="p-3 text-left">Pax</th>
               <th className="p-3 text-left">Unit</th>
               <th className="p-3 text-left">Quantity</th>
@@ -245,7 +280,6 @@ export default function OutsideAgencyTable({
                         >
                           <option value="">Select Unit</option>
 
-                          {/* Show existing unit if it's not in the fetched list */}
                           {(allocation.unitId || menuItem.unitId) &&
                             !unit.some(
                               (u) =>
@@ -261,7 +295,6 @@ export default function OutsideAgencyTable({
                               </option>
                             )}
 
-                          {/* Show all fetched units */}
                           {unit.map((u) => (
                             <option key={u.id} value={u.id}>
                               {u.nameEnglish}

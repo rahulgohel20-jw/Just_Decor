@@ -70,6 +70,14 @@ const AddContactName = ({
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
 
     contactCategoryId: Yup.string().required("Contact category is required"),
+
+    email: Yup.string()
+      .nullable()
+      .notRequired()
+      .test("is-valid-email", "Please enter a valid email address", (value) => {
+        if (!value) return true; // ✅ allow empty
+        return Yup.string().email().isValidSync(value);
+      }),
   });
 
   // Initial form state
@@ -597,6 +605,7 @@ const AddContactName = ({
             </div>
 
             {/* Email */}
+            {/* Email */}
             <div>
               <InputSimple
                 label={
@@ -613,7 +622,12 @@ const AddContactName = ({
                 })}
                 value={formData.email}
                 onChange={handleChange}
+                error={errors.email} // ✅ ADD THIS
               />
+
+              {errors.email && ( // ✅ ADD THIS
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Mobile */}

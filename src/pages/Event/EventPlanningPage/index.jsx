@@ -884,6 +884,10 @@ const EventPlanningPage = ({ mode }) => {
                   ></i>{" "}
                   5. Agency Distribution
                 </button>
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-wite hover:!border-primary"
+                  onClick={() => navigate(``)}
+                ></button>
               </div>
             </div>
           </div>

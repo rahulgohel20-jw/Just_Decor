@@ -219,7 +219,7 @@ export default function AgencyAllocationSidebar({
                   }}
                   className="flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
                 >
-                  <span>Add Venodr</span>
+                  <span>Add Vendor</span>
                   <Plus className="w-5 h-5 bg-blue-700 text-white rounded-full p-1" />
                 </button>
               )}
