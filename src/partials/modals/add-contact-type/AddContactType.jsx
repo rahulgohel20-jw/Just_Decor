@@ -46,7 +46,6 @@ const AddContactType = ({ isOpen, onClose, contactType, refreshData }) => {
       resetForm();
     } catch (error) {
       console.error("Error saving contact type:", error);
-      Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setSubmitting(false);
     }

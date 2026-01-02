@@ -84,7 +84,6 @@ const AddContactCategory = ({
       resetForm();
     } catch (error) {
       console.error("Error saving category:", error);
-      Swal.fire("Error", "Something went wrong!", "error");
     } finally {
       setSubmitting(false);
     }

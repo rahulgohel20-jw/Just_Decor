@@ -75,6 +75,35 @@ const EventPlanningPage = ({ mode }) => {
     return totalItems > 0;
   }, [selectedByFunction, selectedFunction]);
 
+  const handleFunctionChange = async (newFunctionId) => {
+    if (isDirty) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before switching functions?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        denyButtonColor: "#6c757d",
+        confirmButtonText: "Save & Switch",
+        denyButtonText: "Switch Without Saving",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        await handleSaveOrUpdate();
+        setSelectedFunction(newFunctionId);
+        setIsDirty(false);
+      } else if (result.isDenied) {
+        setSelectedFunction(newFunctionId);
+        setIsDirty(false);
+      }
+    } else {
+      setSelectedFunction(newFunctionId);
+    }
+  };
+
   const fetchEventData = async () => {
     try {
       setLoading(true);
@@ -885,9 +914,15 @@ const EventPlanningPage = ({ mode }) => {
                   5. Agency Distribution
                 </button>
                 <button
-                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-wite hover:!border-primary"
-                  onClick={() => navigate(``)}
-                ></button>
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() => navigate(`/quotation/${eventId}`)}
+                >
+                  <i
+                    className="ki-filled ki-note"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  6. Quotation
+                </button>
               </div>
             </div>
           </div>
@@ -1042,7 +1077,7 @@ const EventPlanningPage = ({ mode }) => {
                 {eventData?.eventFunctions?.map((func) => (
                   <div
                     key={func.id}
-                    onClick={() => setSelectedFunction(func.id)}
+                    onClick={() => handleFunctionChange(func.id)} // ✅ Changed this line
                     className="cursor-pointer"
                   >
                     <FunctionCard

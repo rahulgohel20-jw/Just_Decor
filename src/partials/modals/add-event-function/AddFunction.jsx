@@ -1,7 +1,9 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { DatePicker, Tooltip } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import { Textarea } from "@/components/ui/textarea";
+
 const AddFunctionModel = ({
   isModalOpen,
   setIsModalOpen,
@@ -17,6 +19,13 @@ const AddFunctionModel = ({
     setEventModalData({
       ...eventData,
       [name]: value,
+    });
+  };
+
+  const handleDateChange = (date, name) => {
+    setEventModalData({
+      ...eventData,
+      [name]: date,
     });
   };
 
@@ -65,27 +74,22 @@ const AddFunctionModel = ({
           <div className="flex flex-col">
             <label className="form-label">Start Date</label>
             <DatePicker
-              className="input"
-              date={eventData.start_date}
-              name={"start_date"}
-              onChange={(date) =>
-                handleInputChange({
-                  target: { value: date, name: "start_date" },
-                })
-              }
+              className="input w-full"
+              selected={eventData.start_date}
+              onChange={(date) => handleDateChange(date, "start_date")}
+              dateFormat="MM/dd/yyyy"
+              placeholderText="Select start date"
             />
           </div>
           <div className="flex flex-col">
             <label className="form-label">End Date</label>
             <DatePicker
-              className="input"
-              date={eventData.end_date}
-              name={"end_date"}
-              onChange={(date) =>
-                handleInputChange({
-                  target: { value: date, name: "end_date" },
-                })
-              }
+              className="input w-full"
+              selected={eventData.end_date}
+              onChange={(date) => handleDateChange(date, "end_date")}
+              dateFormat="MM/dd/yyyy"
+              placeholderText="Select end date"
+              minDate={eventData.start_date}
             />
           </div>
           <div className="flex flex-col">
@@ -115,4 +119,5 @@ const AddFunctionModel = ({
     )
   );
 };
+
 export default AddFunctionModel;

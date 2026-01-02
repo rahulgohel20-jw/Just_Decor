@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { DatePicker } from "antd";
-import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import AddVendor from "../../add-vendor/AddVendor";
 import { FormattedMessage } from "react-intl";
 
@@ -14,7 +14,7 @@ const AddGrossary = ({
   onAllocateDate,
   agencies = [],
   loading,
-  FetchSuplier, // ✅ PASS FROM PARENT
+  FetchSuplier,
 }) => {
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
@@ -94,14 +94,7 @@ const AddGrossary = ({
                         {agency.nameEnglish || agency.name}
                       </option>
                     ))
-                  : !loading && (
-                      <option>
-                        <FormattedMessage
-                          id="COMMON.NO_AGENCY_FOUND"
-                          defaultMessage="No agencies found"
-                        />
-                      </option>
-                    )}
+                  : null}
               </select>
 
               {/* Add Vendor */}
@@ -172,10 +165,13 @@ const AddGrossary = ({
             <div className="flex items-end gap-2">
               <DatePicker
                 className="input"
-                showTime
-                format="MM/DD/YYYY hh:mm A"
-                value={selectedDate}
+                selected={selectedDate}
                 onChange={(date) => setSelectedDate(date)}
+                showTimeSelect
+                timeFormat="hh:mm aa"
+                timeIntervals={15}
+                dateFormat="MM/dd/yyyy hh:mm aa"
+                placeholderText="Select date and time"
               />
               <button
                 className="btn btn-primary"

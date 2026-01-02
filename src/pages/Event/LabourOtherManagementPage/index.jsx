@@ -1,7 +1,9 @@
 import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { DatePicker, Select } from "antd";
+import { Select } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -1053,144 +1055,166 @@ const LabourRow = ({
   onDelete,
   onViewDetails,
   onAddNotes,
-}) => (
-  <tr className="border-t">
-    <td className="text-center !px-[3px]">{index + 1}.</td>
-    <td className="!px-[3px]">
-      <Select
-        className="custom-select-sm"
-        showSearch
-        placeholder="Select Labour Type"
-        value={row.labourType || undefined}
-        onChange={(value) => onLabourTypeChange(row.id, value)}
-        style={{ width: "100%" }}
-      >
-        {labourCategories.map((item) => {
-          return (
-            <Select.Option key={item.id} value={item.nameEnglish}>
-              {item.nameEnglish}
+}) => {
+  // Helper function to parse date string to Date object
+  const parseDateToObject = (dateString) => {
+    if (!dateString) return null;
+
+    const parsed = dayjs(dateString, "DD/MM/YYYY hh:mm A", true);
+    if (parsed.isValid()) {
+      return parsed.toDate();
+    }
+
+    return null;
+  };
+
+  // Get the date value
+  const getDateValue = () => {
+    if (row.dateTime) {
+      return parseDateToObject(row.dateTime);
+    }
+    if (eventData?.eventStartDateTime) {
+      return parseDateToObject(eventData.eventStartDateTime);
+    }
+    return null;
+  };
+
+  return (
+    <tr className="border-t">
+      <td className="text-center !px-[3px]">{index + 1}.</td>
+      <td className="!px-[3px]">
+        <Select
+          className="custom-select-sm"
+          showSearch
+          placeholder="Select Labour Type"
+          value={row.labourType || undefined}
+          onChange={(value) => onLabourTypeChange(row.id, value)}
+          style={{ width: "100%" }}
+        >
+          {labourCategories.map((item) => {
+            return (
+              <Select.Option key={item.id} value={item.nameEnglish}>
+                {item.nameEnglish}
+              </Select.Option>
+            );
+          })}
+        </Select>
+      </td>
+      <td className="!px-[3px]">
+        <Select
+          className="custom-select-sm"
+          showSearch
+          placeholder="Select Contact"
+          value={row.contact || undefined}
+          onChange={(value) => onContactChange(row.id, value)}
+          style={{ width: "100%" }}
+        >
+          {(filteredContacts[row.id] || []).map((c) => (
+            <Select.Option key={c.id} value={c.nameEnglish}>
+              {c.nameEnglish}
             </Select.Option>
-          );
-        })}
-      </Select>
-    </td>
-    <td className="!px-[3px]">
-      <Select
-        className="custom-select-sm"
-        showSearch
-        placeholder="Select Contact"
-        value={row.contact || undefined}
-        onChange={(value) => onContactChange(row.id, value)}
-        style={{ width: "100%" }}
-      >
-        {(filteredContacts[row.id] || []).map((c) => (
-          <Select.Option key={c.id} value={c.nameEnglish}>
-            {c.nameEnglish}
-          </Select.Option>
-        ))}
-      </Select>
-    </td>
-    <td className="!px-[3px]">
-      <select
-        className="select select-sm w-full"
-        value={row.shift}
-        onChange={(e) => onRowChange(row.id, "shift", e.target.value)}
-      >
-        <option value="">Select Shift</option>
-        {shiftOptions.map((shift) => (
-          <option key={shift} value={shift}>
-            {shift}
-          </option>
-        ))}
-      </select>
-    </td>
-    <td className="!px-[3px]">
-      <DatePicker
-        className="input input-sm w-full"
-        format="DD/MM/YYYY hh:mm A"
-        showTime={{ use12Hours: true, format: "hh:mm A" }}
-        value={
-          row.dateTime
-            ? dayjs(row.dateTime, "DD/MM/YYYY hh:mm A")
-            : eventData?.eventStartDateTime
-              ? dayjs(eventData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
-              : null
-        }
-        onChange={(date) =>
-          onRowChange(
-            row.id,
-            "dateTime",
-            date ? date.format("DD/MM/YYYY hh:mm A") : ""
-          )
-        }
-      />
-    </td>
-    <td className="!px-[3px]">
-      <input
-        type="number"
-        className="input input-sm w-full"
-        placeholder="Price"
-        value={row.price}
-        onChange={(e) => onRowChange(row.id, "price", e.target.value)}
-      />
-    </td>
-    <td className="!px-[3px]">
-      <input
-        type="number"
-        className="input input-sm w-full"
-        placeholder="Qty"
-        value={row.quantity}
-        onChange={(e) => onRowChange(row.id, "quantity", e.target.value)}
-      />
-    </td>
-    <td className="!px-[3px]">
-      <input
-        type="number"
-        className="input input-sm w-full bg-gray-100"
-        value={row.total}
-        readOnly
-      />
-    </td>
-    <td className="!px-[3px]">
-      <select
-        className="select select-sm w-full"
-        value={row.place}
-        onChange={(e) => onRowChange(row.id, "place", e.target.value)}
-      >
-        <option value="">Select Place</option>
-        {PLACES.map((place) => (
-          <option key={place} value={place}>
-            {place}
-          </option>
-        ))}
-      </select>
-    </td>
-    <td className="!px-[3px]">
-      <div className="flex items-center justify-center">
-        <button
-          className="btn btn-sm btn-icon btn-clear"
-          onClick={() => onViewDetails(row)}
+          ))}
+        </Select>
+      </td>
+      <td className="!px-[3px]">
+        <select
+          className="select select-sm w-full"
+          value={row.shift}
+          onChange={(e) => onRowChange(row.id, "shift", e.target.value)}
         >
-          <i className="ki-filled ki-eye text-success"></i>
-        </button>
-        <button
-          className="btn btn-sm btn-icon btn-clear"
-          onClick={() => onAddNotes(row)}
+          <option value="">Select Shift</option>
+          {shiftOptions.map((shift) => (
+            <option key={shift} value={shift}>
+              {shift}
+            </option>
+          ))}
+        </select>
+      </td>
+      <td className="!px-[3px]">
+        <DatePicker
+          selected={getDateValue()}
+          onChange={(date) => {
+            const formattedDate = date
+              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+              : "";
+            onRowChange(row.id, "dateTime", formattedDate);
+          }}
+          showTimeSelect
+          timeFormat="hh:mm aa"
+          timeIntervals={15}
+          dateFormat="dd/MM/yyyy hh:mm aa"
+          className="input input-sm w-full"
+          placeholderText="Select date & time"
+          popperPlacement="bottom-start"
+        />
+      </td>
+      <td className="!px-[3px]">
+        <input
+          type="number"
+          className="input input-sm w-full"
+          placeholder="Price"
+          value={row.price}
+          onChange={(e) => onRowChange(row.id, "price", e.target.value)}
+        />
+      </td>
+      <td className="!px-[3px]">
+        <input
+          type="number"
+          className="input input-sm w-full"
+          placeholder="Qty"
+          value={row.quantity}
+          onChange={(e) => onRowChange(row.id, "quantity", e.target.value)}
+        />
+      </td>
+      <td className="!px-[3px]">
+        <input
+          type="number"
+          className="input input-sm w-full bg-gray-100"
+          value={row.total}
+          readOnly
+        />
+      </td>
+      <td className="!px-[3px]">
+        <select
+          className="select select-sm w-full"
+          value={row.place}
+          onChange={(e) => onRowChange(row.id, "place", e.target.value)}
         >
-          <i className="ki-filled ki-notepad text-primary"></i>
-        </button>
-        <button className="btn btn-sm btn-icon btn-clear">
-          <i className="ki-filled ki-whatsapp text-green-600"></i>
-        </button>
-        <button
-          className="btn btn-sm btn-icon btn-clear"
-          onClick={() => onDelete(row.id)}
-        >
-          <i className="ki-filled ki-trash text-danger"></i>
-        </button>
-      </div>
-    </td>
-  </tr>
-);
+          <option value="">Select Place</option>
+          {PLACES.map((place) => (
+            <option key={place} value={place}>
+              {place}
+            </option>
+          ))}
+        </select>
+      </td>
+      <td className="!px-[3px]">
+        <div className="flex items-center justify-center">
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            onClick={() => onViewDetails(row)}
+          >
+            <i className="ki-filled ki-eye text-success"></i>
+          </button>
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            onClick={() => onAddNotes(row)}
+          >
+            <i className="ki-filled ki-notepad text-primary"></i>
+          </button>
+          <button className="btn btn-sm btn-icon btn-clear">
+            <i className="ki-filled ki-whatsapp text-green-600"></i>
+          </button>
+          <button
+            className="btn btn-sm btn-icon btn-clear"
+            onClick={() => onDelete(row.id)}
+          >
+            <i className="ki-filled ki-trash text-danger"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 export default LabourOtherManagementPage;
