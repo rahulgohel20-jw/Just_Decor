@@ -217,10 +217,10 @@ export default function AgencyAllocationSidebar({
                     setContactTypeId(typeId);
                     setIsMemberModalOpen(true);
                   }}
-                  className="flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                  className="flex items-center gap-1 p-2 rounded-lg bg-[#005BA8] text-md text-white font-semibold "
                 >
-                  <span>Add Venodr</span>
-                  <Plus className="w-5 h-5 bg-blue-700 text-white rounded-full p-1" />
+                  <span>Add Vendor</span>
+                  <Plus className="w-5 h-5  text-white rounded-full" />
                 </button>
               )}
             </div>

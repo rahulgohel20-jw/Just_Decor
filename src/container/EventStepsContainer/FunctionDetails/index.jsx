@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Input, DatePicker, Tooltip } from "antd";
+import { Input, Tooltip } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import { Plus } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
@@ -98,7 +100,6 @@ const FunctionsDetails = ({
           );
           if (selectedVenue) {
             const venueName = getLocalizedVenueName(selectedVenue);
-
             setSelectedVenueName(venueName);
           }
         }
@@ -337,7 +338,6 @@ const FunctionsDetails = ({
     const updatedArray = [...formData.eventFunction];
     updatedArray[index][field] = value;
 
-    // Ensure sortorder is maintained
     const functionsWithSortOrder = updatedArray.map((func, idx) => ({
       ...func,
       sortorder: idx + 1,
@@ -357,14 +357,11 @@ const FunctionsDetails = ({
       );
     });
 
-    // Re-assign sortorder after sorting
     return sorted.map((func, index) => ({
       ...func,
       sortorder: index + 1,
     }));
   };
-  // Find this function in your FunctionsDetails component (around line 240)
-  // REPLACE the entire handleFunctionSelect function with this:
 
   const handleFunctionSelect = (index, functionId) => {
     const selected = options.find((opt) => opt.value === functionId);
@@ -373,13 +370,11 @@ const FunctionsDetails = ({
 
     const currentRow = updatedArray[index];
 
-    // Always update the times when a function is selected
     const eventStartDate = dayjs(eventStartDateTime, "DD/MM/YYYY hh:mm A");
     const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
     const startTime = dayjs(selected.functionstartTime, "HH:mm");
     const endTime = dayjs(selected.functionendTime, "HH:mm");
 
-    // Use existing date if available, otherwise use event date
     const baseStartDate = currentRow.functionStartDateTime
       ? dayjs(currentRow.functionStartDateTime, "DD/MM/YYYY hh:mm A")
       : eventStartDate;
@@ -388,7 +383,6 @@ const FunctionsDetails = ({
       ? dayjs(currentRow.functionEndDateTime, "DD/MM/YYYY hh:mm A")
       : eventEndDate;
 
-    // Update with new function times while preserving the date
     updatedArray[index].functionStartDateTime = baseStartDate
       .hour(startTime.hour())
       .minute(startTime.minute())
@@ -423,7 +417,6 @@ const FunctionsDetails = ({
       newIndex
     );
 
-    // Update sortorder for all functions after reordering
     const functionsWithSortOrder = reorderedFunctions.map((func, index) => ({
       ...func,
       sortorder: index + 1,
@@ -435,11 +428,21 @@ const FunctionsDetails = ({
     });
   };
 
-  // Check if there's a general eventFunction error (from Yup duplicate validation)
   const hasDuplicateError =
     errors.eventFunction &&
     typeof errors.eventFunction === "string" &&
     errors.eventFunction.toLowerCase().includes("duplicate");
+
+  // Helper to parse date string to Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    try {
+      const parsed = dayjs(dateStr, "DD/MM/YYYY hh:mm A", true);
+      return parsed.isValid() ? parsed.toDate() : null;
+    } catch (error) {
+      return null;
+    }
+  };
 
   return (
     <div className="rounded-md border border-gray-200 bg-white">
@@ -454,7 +457,6 @@ const FunctionsDetails = ({
         </Tooltip>
       </div>
 
-      {/* Show duplicate error message */}
       {errors.eventFunction && typeof errors.eventFunction === "string" && (
         <div className="mx-3 mb-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
           <strong>⚠️ {errors.eventFunction}</strong>
@@ -579,8 +581,30 @@ const FunctionsDetails = ({
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
                       >
                         <DatePicker
+                          className="w-full"
+                          showTimeSelect
+                          timeFormat="hh:mm aa"
+                          timeIntervals={30}
+                          dateFormat="dd/MM/yyyy hh:mm aa"
+                          selected={parseDate(func.functionStartDateTime)}
+                          onChange={(date) => {
+                            if (date) {
+                              handleInputChange(
+                                index,
+                                "functionStartDateTime",
+                                dayjs(date).format("DD/MM/YYYY hh:mm A")
+                              );
+                            } else {
+                              handleInputChange(
+                                index,
+                                "functionStartDateTime",
+                                null
+                              );
+                            }
+                          }}
+                          placeholderText="Select start date"
+                          wrapperClassName="w-full"
                           style={{
-                            width: "175px",
                             borderColor:
                               isDuplicate ||
                               getFunctionFieldError(
@@ -590,33 +614,36 @@ const FunctionsDetails = ({
                                 ? "#ef4444"
                                 : undefined,
                           }}
-                          showTime={{ format: "hh:mm A" }}
-                          format="DD/MM/YYYY hh:mm A"
-                          value={
-                            func.functionStartDateTime
-                              ? dayjs(
-                                  func.functionStartDateTime,
-                                  "DD/MM/YYYY hh:mm A"
-                                )
-                              : null
-                          }
-                          onChange={(date) =>
-                            handleInputChange(
-                              index,
-                              "functionStartDateTime",
-                              date
-                                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-                                : null
-                            )
-                          }
                         />
                       </td>
                       <td
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
                       >
                         <DatePicker
+                          className="w-full"
+                          showTimeSelect
+                          timeFormat="hh:mm aa"
+                          timeIntervals={30}
+                          dateFormat="dd/MM/yyyy hh:mm aa"
+                          selected={parseDate(func.functionEndDateTime)}
+                          onChange={(date) => {
+                            if (date) {
+                              handleInputChange(
+                                index,
+                                "functionEndDateTime",
+                                dayjs(date).format("DD/MM/YYYY hh:mm A")
+                              );
+                            } else {
+                              handleInputChange(
+                                index,
+                                "functionEndDateTime",
+                                null
+                              );
+                            }
+                          }}
+                          placeholderText="Select end date"
+                          wrapperClassName="w-full"
                           style={{
-                            width: "175px",
                             borderColor: getFunctionFieldError(
                               index,
                               "functionEndDateTime"
@@ -624,25 +651,6 @@ const FunctionsDetails = ({
                               ? "#ef4444"
                               : undefined,
                           }}
-                          showTime={{ format: "hh:mm A" }}
-                          format="DD/MM/YYYY hh:mm A"
-                          value={
-                            func.functionEndDateTime
-                              ? dayjs(
-                                  func.functionEndDateTime,
-                                  "DD/MM/YYYY hh:mm A"
-                                )
-                              : null
-                          }
-                          onChange={(date) =>
-                            handleInputChange(
-                              index,
-                              "functionEndDateTime",
-                              date
-                                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-                                : null
-                            )
-                          }
                         />
                         {getFunctionFieldError(
                           index,
@@ -719,11 +727,6 @@ const FunctionsDetails = ({
                         className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
                       >
                         <div className="text-center">
-                          {/* <Tooltip title="Map">
-                            <button className="btn btn-sm btn-icon btn-clear btn-primary">
-                              <i className="ki-filled ki-geolocation"></i>
-                            </button>
-                          </Tooltip> */}
                           <Tooltip title="Add Notes">
                             <button
                               className="btn btn-sm btn-icon btn-clear btn-success"
