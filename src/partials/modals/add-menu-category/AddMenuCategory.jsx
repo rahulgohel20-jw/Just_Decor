@@ -114,7 +114,7 @@ const AddMenuCategory = ({
     if (editData) {
       editCategory(editData.id, payload)
         .then((res) => {
-          if (res.data?.status === true) {
+          if (res.data?.success === true) {
             Swal.fire("Success", res.data.msg, "success");
             refreshData();
             setIsModalOpen(false);
