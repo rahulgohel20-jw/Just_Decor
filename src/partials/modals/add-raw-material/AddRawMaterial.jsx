@@ -133,7 +133,7 @@ const AddRawMaterial = ({ isOpen, onClose, refreshData, rawmaterial }) => {
             if (refreshData) refreshData();
           });
         } else {
-          throw new Error(response?.message || "API call failed");
+          throw new Error(response?.data?.msg || "API call failed");
         }
       } catch (error) {
         Swal.fire({

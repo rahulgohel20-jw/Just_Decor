@@ -65,7 +65,7 @@ function CategoryListpackage({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           <button
             type="button"
             onClick={onAddCategory}
