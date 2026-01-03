@@ -1,7 +1,9 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { Form, Input, Select, Upload } from "antd";
 import { useState, useEffect } from "react";
 import { InboxOutlined } from "@ant-design/icons";
+import { Form, Input, Select, Upload } from "antd";
+import ReactSelect from "react-select"; // rename react-select import
+
 import {
   GetAllCategoryformenu,
   Getmenusubcategory,
@@ -18,7 +20,8 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
-
+  const [menuCategories, setMenuCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
 
@@ -36,7 +39,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       setCategoryOptions(options);
     } catch (error) {
-      console.log("Category API Error:", error);
+      console.log("❌ AddMenuItem: Category API Error:", error);
     }
   };
 
@@ -53,7 +56,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       setSubCategoryOptions(options);
     } catch (error) {
-      console.log("Sub Category API Error:", error);
+      console.log("❌ AddMenuItem: Sub Category API Error:", error);
       setSubCategoryOptions([]);
     } finally {
       setLoadingSubCategories(false);
@@ -76,6 +79,21 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       setSubCategoryOptions([]);
     }
   }, [isModalOpen]);
+
+  useEffect(() => {
+    if (!isCategoryModalOpen && isModalOpen) {
+      fetchCategories();
+    }
+  }, [isCategoryModalOpen]);
+
+  useEffect(() => {
+    if (!isSubCategoryModalOpen && isModalOpen) {
+      const currentCategoryId = form.getFieldValue("menuCategory");
+      if (currentCategoryId) {
+        fetchSubCategories(currentCategoryId);
+      }
+    }
+  }, [isSubCategoryModalOpen]);
 
   const handleSave = async () => {
     try {
@@ -140,7 +158,6 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       }
     >
       <Form layout="vertical" form={form} className="space-y-5">
-        {/* ===================== NAMES ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Form.Item name="nameEnglish" label="Name (English) *">
             <Input placeholder="Enter Name (English) " />
@@ -159,7 +176,6 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           <Input placeholder="Enter Slogan" />
         </Form.Item>
 
-        {/* ===================== PRICE / PRIORITY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item name="price" label="Price">
             <Input type="number" placeholder="Enter Price" />
@@ -170,25 +186,25 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           </Form.Item>
         </div>
 
-        {/* ===================== CATEGORY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item label="Menu Category *">
-            <div className="flex gap-2">
-              <Form.Item name="menuCategory" noStyle>
-                <Select
-                  placeholder="Select Category"
-                  options={categoryOptions}
-                  onChange={handleCategoryChange}
-                  className="w-full"
-                />
-              </Form.Item>
-              <button
-                className="bg-blue-900 px-2 py-1 rounded-lg text-white"
-                onClick={() => setIsCategoryModalOpen(true)}
-              >
-                +
-              </button>
-            </div>
+            <Form.Item name="menuCategory" noStyle>
+              <Select
+                placeholder="Select menu category..."
+                options={categoryOptions}
+                value={form.getFieldValue("menuCategory")}
+                onChange={(value) => {
+                  form.setFieldsValue({ menuCategory: value });
+                  handleCategoryChange(value); // fetch subcategories
+                }}
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                allowClear
+              />
+            </Form.Item>
           </Form.Item>
 
           <Form.Item label="Menu Sub Category">
@@ -200,9 +216,15 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
                   loading={loadingSubCategories}
                   disabled={!form.getFieldValue("menuCategory")}
                   className="w-full"
+                  showSearch
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
                 />
               </Form.Item>
               <button
+                type="button"
                 className="bg-blue-900 px-2 py-1 rounded-lg text-white"
                 onClick={() => setIsSubCategoryModalOpen(true)}
               >
@@ -240,7 +262,15 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       <AddMenuSubCategory
         isModalOpen={isSubCategoryModalOpen}
         setIsModalOpen={setIsSubCategoryModalOpen}
-        refreshData={refreshData}
+        refreshData={() => {
+          const currentCategoryId = form.getFieldValue("menuCategory");
+          if (currentCategoryId) {
+            fetchSubCategories(currentCategoryId).then(() => {
+              // Optionally clear or auto-select the new subcategory
+              form.setFieldsValue({ menuSubCategory: undefined });
+            });
+          }
+        }}
       />
     </CustomModal>
   );

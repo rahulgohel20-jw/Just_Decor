@@ -97,6 +97,7 @@ const AddEventType = ({
           return;
         }
         Swal.fire("Success", "Event updated successfully!", "success");
+        refreshData();
       } else {
         const res = await Addeventtype(payload);
         if (res?.data.success === false) {
@@ -104,13 +105,17 @@ const AddEventType = ({
           return;
         }
         Swal.fire("Success", "Event added successfully!", "success");
+
+        // Get the newly created event type ID from response
+        const newEventTypeId = res?.data?.data?.id || res?.data?.id;
+
+        // Refresh data first, then auto-select
+        await refreshData(newEventTypeId);
       }
 
-      refreshData();
       setIsModalOpen(false);
     } catch (err) {
       if (err.inner) {
-        // Collect Yup validation errors
         const formErrors = {};
         err.inner.forEach((validationError) => {
           formErrors[validationError.path] = validationError.message;

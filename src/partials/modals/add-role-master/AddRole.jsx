@@ -7,83 +7,126 @@ import { AddRights, GetAllRole } from "@/services/apiServices";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
+const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const [formData, setFormData] = useState({});
   const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
   const [pages, setPages] = useState([]);
   const [roles, setRoles] = useState([]);
   const [rights, setRights] = useState({});
+  const [activeTab, setActiveTab] = useState("pages");
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  const userId = localStorage.getItem("userId");
+
+  /* ---------------- RESET ---------------- */
   const resetForm = () => {
     setFormData({});
     setRights({});
     setActiveTab("pages");
   };
 
+  /* ---------------- FETCH ROLES ---------------- */
+  const fetchRoles = async () => {
+    try {
+      const res = await GetAllRole(userId);
+      setRoles(res.data?.data?.["Role Details"] || []);
+    } catch {
+      setRoles([]);
+    }
+  };
+
+  /* ---------------- FETCH PAGES ---------------- */
+  const fetchPages = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/user-rights/getPages`);
+      setPages(res.data?.data?.["UserRightsPages"] || []);
+    } catch {
+      setPages([]);
+    }
+  };
+
+  /* ---------------- FETCH ROLE RIGHTS (EDIT) ---------------- */
+  const fetchRoleRights = async (roleId) => {
+    try {
+      const res = await axios.get(
+        `${API_BASE}/user-rights/getRoleRights/${roleId}`
+      );
+
+      const assignedRights = res.data?.data || [];
+      const formatted = {};
+
+      assignedRights.forEach((item) => {
+        formatted[item.pageid] = {
+          pageid: item.pageid,
+          view: item.view,
+          edit: item.edit,
+          delete: item.delete,
+          add: item.add,
+        };
+      });
+
+      setRights(formatted);
+    } catch (err) {
+      console.error("Error fetching role rights", err);
+    }
+  };
+
+  /* ---------------- EFFECT ---------------- */
   useEffect(() => {
     if (!isModalOpen) return;
-    const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-    axios.get(`${API_BASE}/user-rights/getPages`).then((res) => {
-      console.log(res);
+    fetchPages();
+    fetchRoles();
 
-      setPages(res.data?.data["UserRightsPages"] || []);
-    });
-
-    const userid = localStorage.getItem("userId");
-
-    // Fetch all roles
-    GetAllRole(userid).then((res) => {
-      const list = res.data?.data["Role Details"] || [];
-      setRoles(list);
-
-      // If edit mode: prefill role
-      if (editData) {
-        setFormData({ role_name: editData.role_name });
-      }
-    });
-
-    // Fetch assigned rights if edit mode
     if (editData) {
-      axios
-        .get(`${API_BASE}/user-rights/getRoleRights/${editData.id}`)
-        .then((res) => {
-          const assignedRights = res.data?.data || [];
-          let formattedRights = {};
-
-          assignedRights.forEach((item) => {
-            formattedRights[item.pageid] = {
-              pageid: item.pageid,
-              view: item.view,
-              edit: item.edit,
-              delete: item.delete,
-              add: item.add,
-            };
-          });
-
-          setRights(formattedRights);
-        })
-        .catch((err) => console.log("Error fetching role rights:", err));
+      setFormData({ role_name: editData.role_name });
+      fetchRoleRights(editData.id);
     } else {
-      setRights({});
+      resetForm();
     }
   }, [isModalOpen, editData]);
 
+  /* ---------------- HANDLERS ---------------- */
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleCheckboxChange = (pageId, action, checked) => {
     setRights((prev) => ({
       ...prev,
       [pageId]: {
         ...prev[pageId],
-        [action]: checked,
         pageid: pageId,
+        [action]: checked,
       },
     }));
   };
 
-  const handleAddRole = () => {
+  /* ---------------- HANDLE ROLE ADDED FROM NESTED MODAL ---------------- */
+  const handleRoleAddedFromModal = async () => {
+    await fetchRoles(); // Update AddRole's own dropdown
+
+    // ✅ Notify parent (AddMember) to update its dropdown
+    if (onRoleAdded) {
+      onRoleAdded();
+    }
+  };
+  const handleAddRole = async () => {
     const role = roles.find((r) => r.name === formData.role_name);
+
+    if (!role) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Role not selected",
+      });
+      return;
+    }
 
     const actions = ["view", "edit", "delete", "add"];
 
@@ -96,57 +139,46 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
     }));
 
     const payload = {
-      roleId: role?.id || 0,
+      roleId: role.id,
       rightsList,
     };
 
-    console.log("FINAL UPDATED PAYLOAD:", payload);
+    try {
+      const res = await AddRights(payload);
 
-    AddRights(payload)
-      .then((res) => {
-        console.log(res.data.success);
+      // ✅ Handle both success and failure from backend
+      if (res?.data?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: res.data.msg, // show BE success message
+          position: "top-end",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-        if (res.data.success === true) {
-          Swal.fire(
-            {
-              icon: "success",
-              title: "Success",
-              text: "User rights added successfully!",
-              position: "top-end",
-              timer: 1500,
-              showConfirmButton: false,
-              zIndex: 9999,
-            },
-            200
-          );
-          resetForm();
-          handleModalClose();
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: res?.message || "Something went wrong!",
-          });
-        }
-      })
-      .catch((err) => {
+        resetForm();
+        handleModalClose();
+        onRoleAdded?.(); // refresh parent's dropdown
+      } else {
+        // ❌ Backend returned success: false
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: err?.response?.data?.message || "Something went wrong!",
+          text: res?.data?.msg || "Something went wrong!", // <-- show BE msg
         });
+      }
+    } catch (err) {
+      // ❌ catch network or server errors
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.response?.data?.msg || "Server error",
       });
+    }
   };
 
-  const [activeTab, setActiveTab] = useState("pages");
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  /* ---------------- UI ---------------- */
   return (
     isModalOpen && (
       <CustomModal
@@ -155,29 +187,20 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
         title="Assign User Rights"
         width={650}
         footer={[
-          <div className="flex justify-between" key={"footer-buttons"}>
-            <button
-              key="cancel"
-              className="btn btn-light"
-              onClick={handleModalClose}
-              title="Cancel"
-            >
+          <div className="flex justify-between" key="footer">
+            <button className="btn btn-light" onClick={handleModalClose}>
               Cancel
             </button>
-            <button
-              key="save"
-              className="btn btn-success"
-              title="Save"
-              onClick={handleAddRole}
-            >
+            <button className="btn btn-success" onClick={handleAddRole}>
               Save
             </button>
           </div>,
         ]}
       >
-        <div className="flex flex-col gap-y-2 max-h-[500px] overflow-auto scrollable-y">
+        <div className="flex flex-col gap-y-3 max-h-[500px] overflow-auto">
+          {/* ROLE SELECT */}
           <div className="flex flex-col">
-            <label className="form-label"> Department</label>
+            <label className="form-label">Department</label>
 
             <div className="relative input flex items-center">
               <i className="ki-filled ki-user"></i>
@@ -189,7 +212,6 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
                 onChange={handleInputChange}
               >
                 <option value="">Select Department</option>
-
                 {roles.map((role) => (
                   <option key={role.id} value={role.name}>
                     {role.name}
@@ -207,73 +229,65 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData }) => {
             </div>
           </div>
 
-          <div className="flex flex-col border mt-2 rounded-lg overflow-hidden">
-            <div className="flex border-b pt-3 mb-3 bg-gray-200">
-              <button
-                onClick={() => setActiveTab("pages")}
-                className={`px-4 py-2 text-sm font-medium ${
-                  activeTab === "pages"
-                    ? "border-b-2 border-primary text-primary font-bold"
-                    : "text-gray-700 border-b-2 border-gray-200"
-                }`}
-              >
-                <i className="ki-filled ki-notepad-bookmark me-2"></i>
+          {/* RIGHTS TABLE */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="flex border-b bg-gray-200">
+              <button className="px-4 py-2 font-bold text-primary border-b-2 border-primary">
                 Pages
               </button>
             </div>
 
-            {activeTab === "pages" && (
-              <div className="w-full overflow-x-auto">
-                <table className="min-w-full table-auto">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="p-3">Page Name</th>
-                      <th className="p-3 text-center">View</th>
-                      <th className="p-3 text-center">Edit</th>
-                      <th className="p-3 text-center">Delete</th>
-                      <th className="p-3 text-center">Add</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {pages.map((page) => (
-                      <tr key={page.pageId} className="border-t">
-                        <td className="p-3">{page.pagename}</td>
-
-                        {["view", "edit", "delete", "add"].map((action) => (
-                          <td key={action} className="p-4 text-center">
-                            <Checkbox
-                              size="medium"
-                              checked={rights[page.pageId]?.[action] || false}
-                              onChange={(e) =>
-                                handleCheckboxChange(
-                                  page.pageId,
-                                  action,
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          </td>
-                        ))}
-                      </tr>
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-3">Page Name</th>
+                  <th className="p-3 text-center">View</th>
+                  <th className="p-3 text-center">Edit</th>
+                  <th className="p-3 text-center">Delete</th>
+                  <th className="p-3 text-center">Add</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pages.map((page) => (
+                  <tr key={page.pageId} className="border-t">
+                    <td className="p-3">{page.pagename}</td>
+                    {["view", "edit", "delete", "add"].map((action) => (
+                      <td key={action} className="text-center">
+                        <Checkbox
+                          checked={rights[page.pageId]?.[action] || false}
+                          onChange={(e) =>
+                            handleCheckboxChange(
+                              page.pageId,
+                              action,
+                              e.target.checked
+                            )
+                          }
+                        />
+                      </td>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+
+        {/* ADD ROLE MODAL */}
         <AddRoleModal
           isModalOpen={openAddRoleModal}
           setIsModalOpen={setOpenAddRoleModal}
+          onRoleAdded={handleRoleAddedFromModal} // ✅ Updated to use new handler
         />
       </CustomModal>
     )
   );
 };
+
 AddRole.propTypes = {
   isModalOpen: PropTypes.bool.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
+  editData: PropTypes.object,
+  onRoleAdded: PropTypes.func, // ✅ ADD THIS
 };
 
 export default AddRole;

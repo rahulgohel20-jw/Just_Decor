@@ -34,7 +34,7 @@ const AddMember = ({
   const [searchCity, setSearchCity] = useState("");
 
   const [roles, setRoles] = useState([]);
-  const [selectedRole, setSelectedRole] = useState(""); // roleId will be stored here
+  const [selectedRole, setSelectedRole] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -53,29 +53,97 @@ const AddMember = ({
   });
   const Id = localStorage.getItem("userId");
 
-  // ✅ Close modal
+  const fetchRoles = async () => {
+    console.log("🔄 AddMember: Fetching roles...");
+    try {
+      const res = await GetAllRole(Id);
+      const rolesList = res?.data?.data?.["Role Details"] || [];
+      setRoles(rolesList);
+      console.log("✅ AddMember: Roles updated", rolesList);
+    } catch (error) {
+      console.log("❌ AddMember: Error fetching roles", error);
+      setRoles([]);
+    }
+  };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchRoles();
+    }
+  }, [isModalOpen]);
+
+  // ✅ NEW: Refresh roles when AddRole modal closes
+  useEffect(() => {
+    if (!openAddRoleModal && isModalOpen) {
+      // When AddRole modal closes, refresh the roles
+      console.log("🔄 AddMember: AddRole modal closed, refreshing roles...");
+      fetchRoles();
+    }
+  }, [openAddRoleModal]);
+
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
 
-  // ✅ Input change handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Fetch roles when modal opens
-  useEffect(() => {
-    if (isModalOpen) {
-      GetAllRole(Id)
-        .then((res) => {
-          setRoles(res.data.data["Role Details"]);
-        })
-        .catch(() => setRoles([]));
+  const validateForm = () => {
+    if (!formData.lastName?.trim()) {
+      return "Last name is required";
     }
-  }, [isModalOpen]);
 
-  // ✅ Fetch countries when modal opens
+    if (!formData.contactNo) {
+      return "Contact number is required";
+    }
+
+    if (!/^\d{10}$/.test(formData.contactNo)) {
+      return "Contact number must be exactly 10 digits";
+    }
+
+    if (!formData.email?.trim()) {
+      return "Email is required";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      return "Invalid email format";
+    }
+
+    if (!formData.countryId) {
+      return "Country is required";
+    }
+
+    if (!formData.stateId) {
+      return "State is required";
+    }
+
+    if (!formData.cityId) {
+      return "City is required";
+    }
+
+    if (!selectedRole) {
+      return "Role is required";
+    }
+
+    if (!formData.memberid) {
+      if (!formData.password) {
+        return "Password is required";
+      }
+
+      if (!formData.confirmpassword) {
+        return "Confirm password is required";
+      }
+
+      if (formData.password !== formData.confirmpassword) {
+        return "Password and confirm password do not match";
+      }
+    }
+
+    return null;
+  };
+
   useEffect(() => {
     if (isModalOpen) {
       fetchCountries(searchCountry)
@@ -84,7 +152,6 @@ const AddMember = ({
     }
   }, [isModalOpen, searchCountry]);
 
-  // ✅ Fetch states when country changes
   useEffect(() => {
     if (formData.countryId) {
       fetchStatesByCountry(formData.countryId, searchState)
@@ -93,7 +160,6 @@ const AddMember = ({
     }
   }, [formData.countryId, searchState]);
 
-  // ✅ Fetch cities when state changes
   useEffect(() => {
     if (formData.stateId) {
       fetchCitiesByState(formData.stateId, searchCity)
@@ -102,11 +168,9 @@ const AddMember = ({
     }
   }, [formData.stateId, searchCity]);
 
-  // ✅ Fetch member details when editing
   useEffect(() => {
     const fetchMember = async () => {
       if (!selectedMember?.id) {
-        // reset form if adding new member
         setFormData({
           firstName: "",
           lastName: "",
@@ -150,7 +214,7 @@ const AddMember = ({
           };
 
           setFormData(prefilled);
-          setSelectedRole(member.userBasicDetails.role?.id || ""); // ✅ store id
+          setSelectedRole(member.userBasicDetails.role?.id || "");
           setTaskAccess(member.userBasicDetails.isTaskAccess ?? false);
           setLeaveAccess(
             member.userBasicDetails.isAttendanceLeaveAccess ?? false
@@ -177,23 +241,32 @@ const AddMember = ({
     if (isModalOpen) fetchMember();
   }, [selectedMember, isModalOpen]);
 
-  // ✅ Save Member
   const handleSave = async () => {
     try {
+      const validationError = validateForm();
+
+      if (validationError) {
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error",
+          text: validationError,
+        });
+        return;
+      }
+
       setLoading(true);
+
       const res = await getUserById(Id);
-      const user_Data = res?.data?.data["User Details"][0];
+      const user_Data = res?.data?.data?.["User Details"]?.[0];
 
       if (!user_Data) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "User not found!",
+          text: "User not found",
         });
         return;
       }
-
-      const parsedData = user_Data;
 
       const payload = {
         firstName: formData.firstName,
@@ -201,84 +274,62 @@ const AddMember = ({
         email: formData.email,
         companyEmail: formData.companyEmail,
         contactNo: formData.contactNo,
-        address: formData.address || parsedData.userBasicDetails.address,
-        officeNo: formData.officeNo || parsedData.userBasicDetails.officeNo,
+        address: formData.address || user_Data.userBasicDetails.address,
+        officeNo: formData.officeNo || user_Data.userBasicDetails.officeNo,
         companyName:
-          formData.companyName || parsedData.userBasicDetails.companyName,
-
+          formData.companyName || user_Data.userBasicDetails.companyName,
         countryCode: "+91",
         cityId: Number(formData.cityId),
         stateId: Number(formData.stateId),
         countryId: Number(formData.countryId),
         reportingManagerId: 0,
-
-        clientId: parsedData.id,
-        planId: parsedData?.plan?.id || null,
-
+        clientId: user_Data.id,
+        planId: user_Data?.plan?.id || null,
         roleId: Number(selectedRole),
         isTaskAccess: taskAccess,
         isAttendanceLeaveAccess: leaveAccess,
       };
 
-      // 👉 Add password only if given
       if (formData.password && formData.confirmpassword) {
         payload.password = formData.password;
         payload.confirmPassword = formData.confirmpassword;
-      } else {
-        payload.password = "";
-        payload.confirmPassword = "";
       }
 
       let apiRes;
-      if (formData.memberid) {
-        payload.memberId = formData.memberid;
-        apiRes = await UpdateMember(payload.memberId, payload);
 
-        if (apiRes?.data?.success === true) {
-          Swal.fire({
-            icon: "success",
-            title: "Updated!",
-            text: "Member updated successfully!",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Update Failed",
-            text: apiRes?.data?.message || "Something went wrong!",
-          });
-          return;
-        }
+      if (formData.memberid) {
+        apiRes = await UpdateMember(formData.memberid, payload);
       } else {
         apiRes = await AddMemberapi(payload);
-
-        if (apiRes?.data?.success === true) {
-          Swal.fire({
-            icon: "success",
-            title: "Created!",
-            text: "Member added successfully!",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Creation Failed",
-            text: apiRes?.data?.message || "Something went wrong!",
-          });
-          return;
-        }
       }
-      setLoading(false);
 
-      refreshData();
-      handleModalClose();
+      if (apiRes?.data?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: apiRes?.data?.msg || apiRes?.data?.message,
+        });
+
+        refreshData();
+        handleModalClose();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: apiRes?.data?.msg || apiRes?.data?.message,
+        });
+      }
     } catch (err) {
-      setLoading(false);
-
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: err?.response?.data?.message || "Something went wrong!",
+        text:
+          err?.response?.data?.msg ||
+          err?.response?.data?.message ||
+          "Something went wrong!",
       });
-      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -311,7 +362,6 @@ const AddMember = ({
         )}
 
         <div className="flex flex-col gap-y-2">
-          {/* First & Last Name */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
               <label className="form-label">First Name</label>
@@ -326,7 +376,9 @@ const AddMember = ({
             </div>
 
             <div className="flex flex-col">
-              <label className="form-label">Last Name</label>
+              <label className="form-label">
+                Last Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="lastName"
@@ -338,10 +390,11 @@ const AddMember = ({
             </div>
           </div>
 
-          {/* Country, State */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label">Country</label>
+              <label className="form-label">
+                Country <span className="text-red-500">*</span>
+              </label>
               <Select
                 options={countries.map((c) => ({ value: c.id, label: c.name }))}
                 value={
@@ -365,7 +418,9 @@ const AddMember = ({
               />
             </div>
             <div className="flex flex-col">
-              <label className="form-label">State</label>
+              <label className="form-label">
+                State <span className="text-red-500">*</span>
+              </label>
               <Select
                 options={states.map((s) => ({ value: s.id, label: s.name }))}
                 value={
@@ -390,10 +445,11 @@ const AddMember = ({
             </div>
           </div>
 
-          {/* City & WhatsApp */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label">City</label>
+              <label className="form-label">
+                City <span className="text-red-500">*</span>
+              </label>
               <Select
                 options={cities.map((ct) => ({ value: ct.id, label: ct.name }))}
                 value={
@@ -417,21 +473,28 @@ const AddMember = ({
               />
             </div>
             <div className="flex flex-col">
-              <label className="form-label">Mobile No</label>
+              <label className="form-label">
+                Mobile No <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="contactNo"
                 value={formData.contactNo}
-                onChange={handleChange}
+                onChange={(e) => {
+                  if (/^\d{0,10}$/.test(e.target.value)) {
+                    handleChange(e);
+                  }
+                }}
                 className="input"
                 placeholder="Mobile No"
               />
             </div>
           </div>
 
-          {/* Role */}
           <div className="flex flex-col">
-            <label className="form-label">Role</label>
+            <label className="form-label">
+              Role <span className="text-red-500">*</span>
+            </label>
 
             <div className="relative flex items-center">
               <select
@@ -461,10 +524,11 @@ const AddMember = ({
             </div>
           </div>
 
-          {/* Email fields */}
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label">Email</label>
+              <label className="form-label">
+                Email <span className="text-red-500">*</span>
+              </label>
               <input
                 type="email"
                 name="email"
@@ -475,7 +539,7 @@ const AddMember = ({
               />
             </div>
             <div className="flex flex-col">
-              <label className="form-label">Office Email</label>
+              <label className="form-label">Office Email </label>
               <input
                 type="email"
                 name="companyEmail"
@@ -489,7 +553,9 @@ const AddMember = ({
 
           <div className="grid grid-cols-2 gap-x-4">
             <div className="flex flex-col">
-              <label className="form-label">Password</label>
+              <label className="form-label">
+                Password <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="password"
@@ -500,7 +566,9 @@ const AddMember = ({
               />
             </div>
             <div className="flex flex-col">
-              <label className="form-label">Confirm Password</label>
+              <label className="form-label">
+                Confirm Password <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="confirmpassword"
@@ -517,8 +585,8 @@ const AddMember = ({
             <label className="switch switch-lg">
               <input
                 type="checkbox"
-                checked={taskAccess} // bind directly to state
-                onChange={() => setTaskAccess(!taskAccess)} // toggle state
+                checked={taskAccess}
+                onChange={() => setTaskAccess(!taskAccess)}
               />
             </label>
           </div>
@@ -537,6 +605,7 @@ const AddMember = ({
         <AddRole
           isModalOpen={openAddRoleModal}
           setIsModalOpen={setOpenAddRoleModal}
+          onRoleAdded={fetchRoles}
         />
       </CustomModal>
     )
