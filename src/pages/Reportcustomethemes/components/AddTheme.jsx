@@ -172,7 +172,6 @@ const AddTheme = ({
     }
   }, [isEditMode, editingTheme]);
 
-  // ✅ NEW: Separate effect to set templateModule after modules are loaded
   useEffect(() => {
     if (isEditMode && editingTheme && moduleOptions.length > 0) {
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
@@ -188,6 +187,95 @@ const AddTheme = ({
       }
     }
   }, [moduleOptions, isEditMode, editingTheme]);
+
+  const rgbaToHex = (rgba) => {
+    if (!rgba || rgba === "") return "#1f2937"; // Default gray
+
+    if (rgba.startsWith("#")) return rgba;
+
+    const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+
+    if (!match) return "#1f2937"; // Fallback if format is invalid
+
+    const r = parseInt(match[1]);
+    const g = parseInt(match[2]);
+    const b = parseInt(match[3]);
+
+    // Convert each component to hex
+    const toHex = (n) => {
+      const hex = n.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    };
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+  <div>
+    <label className="block text-sm font-medium mb-2">Color Scheme</label>
+    <div className="space-y-3">
+      {/* Heading Color */}
+      <div className="flex items-center gap-3">
+        <label className="text-sm w-32">Heading Text</label>
+
+        {/* 🔥 FIXED: Convert RGBA to Hex for display, Hex to RGBA on change */}
+        <input
+          type="color"
+          value={rgbaToHex(headingColor)}
+          onChange={(e) => setHeadingColor(hexToRgba(e.target.value))}
+          className="w-12 h-10 border rounded cursor-pointer"
+        />
+
+        {/* Show the actual RGBA value */}
+        <span className="text-xs text-gray-600 font-mono">{headingColor}</span>
+
+        {/* Visual preview circle */}
+        <div
+          className="w-6 h-6 rounded-full border-2 border-gray-300"
+          style={{ backgroundColor: headingColor }}
+          title="Color Preview"
+        />
+      </div>
+
+      {/* Content Color - Same pattern */}
+      <div className="flex items-center gap-3">
+        <label className="text-sm w-32">Content Text</label>
+
+        <input
+          type="color"
+          value={rgbaToHex(contentColor)}
+          onChange={(e) => setContentColor(hexToRgba(e.target.value))}
+          className="w-12 h-10 border rounded cursor-pointer"
+        />
+
+        <span className="text-xs text-gray-600 font-mono">{contentColor}</span>
+
+        <div
+          className="w-6 h-6 rounded-full border-2 border-gray-300"
+          style={{ backgroundColor: contentColor }}
+          title="Color Preview"
+        />
+      </div>
+    </div>
+  </div>;
+
+  const hexToRgba = (hex) => {
+    let r = 0,
+      g = 0,
+      b = 0;
+
+    hex = hex.replace("#", "");
+
+    if (hex.length === 6) {
+      r = parseInt(hex.substring(0, 2), 16);
+      g = parseInt(hex.substring(2, 4), 16);
+      b = parseInt(hex.substring(4, 6), 16);
+    } else if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    }
+
+    return `rgba(${r},${g},${b},1)`;
+  };
 
   const fetchTemplateOptions = async () => {
     setIsLoadingTemplates(true);
@@ -425,8 +513,8 @@ const AddTheme = ({
     setNameplateName("");
     setTemplates([]);
     setNameplate(null);
-    setHeadingColor("rgba(31,41,55,1)");
-    setContentColor("rgba(75,85,99,1)");
+    setHeadingColor("");
+    setContentColor("");
     setDummyPdf(null);
     setErrors({});
     setTemplateModule("");
@@ -525,18 +613,6 @@ const AddTheme = ({
       URL.revokeObjectURL(nameplate.url);
     }
     setNameplate(null);
-  };
-
-  const hexToRgba = (hex) => {
-    let r = 0,
-      g = 0,
-      b = 0;
-    if (hex.length === 7) {
-      r = parseInt(hex.substring(1, 3), 16);
-      g = parseInt(hex.substring(3, 5), 16);
-      b = parseInt(hex.substring(5, 7), 16);
-    }
-    return `rgba(${r},${g},${b},1)`;
   };
 
   return (
@@ -815,38 +891,36 @@ const AddTheme = ({
                     Color Scheme
                   </label>
                   <div className="space-y-3">
-                    {/* Heading Color */}
                     <div className="flex items-center gap-3">
                       <label className="text-sm w-32">Heading Text</label>
+
                       <input
                         type="color"
-                        value={
-                          headingColor.match(/#[0-9A-Fa-f]{6}/) || "#1f2937"
-                        }
+                        value={rgbaToHex(headingColor)}
                         onChange={(e) =>
                           setHeadingColor(hexToRgba(e.target.value))
                         }
                         className="w-12 h-10 border rounded cursor-pointer"
                       />
-                      <span className="text-sm text-gray-600">
+
+                      <span className="text-xs text-gray-600 font-mono">
                         {headingColor}
                       </span>
                     </div>
 
-                    {/* Content Color */}
                     <div className="flex items-center gap-3">
                       <label className="text-sm w-32">Content Text</label>
+
                       <input
                         type="color"
-                        value={
-                          contentColor.match(/#[0-9A-Fa-f]{6}/) || "#4b5563"
-                        }
+                        value={rgbaToHex(contentColor)}
                         onChange={(e) =>
                           setContentColor(hexToRgba(e.target.value))
                         }
                         className="w-12 h-10 border rounded cursor-pointer"
                       />
-                      <span className="text-sm text-gray-600">
+
+                      <span className="text-xs text-gray-600 font-mono">
                         {contentColor}
                       </span>
                     </div>
@@ -855,9 +929,7 @@ const AddTheme = ({
               </div>
             </div>
           ) : (
-            // NAMEPLATE TAB
             <div className="grid grid-cols-2 gap-6">
-              {/* LEFT SIDE - NAMEPLATE PREVIEW */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg">Nameplate Preview</h3>
                 {nameplate ? (

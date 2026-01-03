@@ -299,9 +299,7 @@ export default function SelectMenureport({
                   />
 
                   {/* Label */}
-                  <span className="min-w-[200px] max-w-[300px]">
-                    {tab.label}
-                  </span>
+                  <span className=" max-w-[300px]">{tab.label}</span>
 
                   {/* Bottom underline */}
                   <span
