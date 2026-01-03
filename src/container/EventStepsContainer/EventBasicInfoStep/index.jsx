@@ -40,7 +40,7 @@ const EventBasicInfoStep = ({
     Fetcheventtype();
   }, []);
 
-  const Fetcheventtype = async () => {
+  const Fetcheventtype = async (newEventTypeId = null) => {
     try {
       const res = await GetEventType(Id);
       const items = res.data.data["EventTypes Details"] || [];
@@ -54,6 +54,11 @@ const EventBasicInfoStep = ({
       );
 
       setEventTypes(translated);
+
+      // Auto-select the newly added event type
+      if (newEventTypeId) {
+        handleDropdownChange("eventTypeId", newEventTypeId);
+      }
     } catch (error) {
       console.log(error);
     }

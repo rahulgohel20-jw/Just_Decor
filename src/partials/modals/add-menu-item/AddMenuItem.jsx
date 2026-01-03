@@ -1,7 +1,9 @@
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { Form, Input, Select, Upload } from "antd";
 import { useState, useEffect } from "react";
 import { InboxOutlined } from "@ant-design/icons";
+import { Form, Input, Select, Upload } from "antd";
+import ReactSelect from "react-select"; // rename react-select import
+
 import {
   GetAllCategoryformenu,
   Getmenusubcategory,
@@ -21,7 +23,8 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
-
+  const [menuCategories, setMenuCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
 
@@ -43,7 +46,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       setCategoryOptions(options);
     } catch (error) {
-      console.log("Category API Error:", error);
+      console.log("❌ AddMenuItem: Category API Error:", error);
     }
   };
 
@@ -60,7 +63,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       setSubCategoryOptions(options);
     } catch (error) {
-      console.log("Sub Category API Error:", error);
+      console.log("❌ AddMenuItem: Sub Category API Error:", error);
       setSubCategoryOptions([]);
     } finally {
       setLoadingSubCategories(false);
@@ -117,6 +120,21 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       setSubCategoryOptions([]);
     }
   }, [isModalOpen]);
+
+  useEffect(() => {
+    if (!isCategoryModalOpen && isModalOpen) {
+      fetchCategories();
+    }
+  }, [isCategoryModalOpen]);
+
+  useEffect(() => {
+    if (!isSubCategoryModalOpen && isModalOpen) {
+      const currentCategoryId = form.getFieldValue("menuCategory");
+      if (currentCategoryId) {
+        fetchSubCategories(currentCategoryId);
+      }
+    }
+  }, [isSubCategoryModalOpen]);
 
   const handleSave = async () => {
     try {
