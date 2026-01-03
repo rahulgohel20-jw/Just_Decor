@@ -53,22 +53,22 @@ const QuotationPage = () => {
       },
     ],
     taxDetails: [
-      { label: "CGST", percentage: "", amount: "0.00" },
-      { label: "SGST", percentage: "", amount: "0.00" },
-      { label: "IGST", percentage: "", amount: "0.00" },
-      { label: "Discount", percentage: "", amount: "0.00" },
-      { label: "Round Off", percentage: "", amount: "0.00" },
+      { label: "CGST", percentage: "", amount: "0" },
+      { label: "SGST", percentage: "", amount: "0" },
+      { label: "IGST", percentage: "", amount: "0" },
+      { label: "Discount", percentage: "", amount: "0" },
+      { label: "Round Off", percentage: "", amount: "0" },
     ],
-    grandTotal: "0.00",
+    grandTotal: "0",
     advancePayments: [
       {
-        amount: "0.00",
+        amount: "0",
         date: dayjs(),
         description: "",
       },
     ],
-    totalPaid: "0.00",
-    remainingPayment: "0.00",
+    totalPaid: "0",
+    remainingPayment: "0",
     notes: "",
   });
 
@@ -114,6 +114,11 @@ const QuotationPage = () => {
     FetchGetQuotation();
   }, []);
 
+  const formatAmount = (value) => {
+    const num = Number(value) || 0;
+    return num % 1 === 0 ? num.toString() : num;
+  };
+
   const FetchGetQuotation = () => {
     GetQuotation(eventId)
       .then((res) => {
@@ -158,7 +163,7 @@ const QuotationPage = () => {
                   persons: item.pax?.toString() || "",
                   extra: item.extraPax?.toString() || "0",
                   rate: item.ratePerPlate?.toString() || "",
-                  totalPrice: item.amount?.toFixed(2) || "0.00",
+                  totalPrice: formatAmount(item.amount),
                   isFromQuotationItems: item.isEventFunction,
                 }))
               : quotationInfo.event?.eventFunctions?.length > 0
@@ -178,8 +183,8 @@ const QuotationPage = () => {
                       rate: eventFunc.rate?.toString() || "",
                       totalPrice:
                         eventFunc.pax && eventFunc.rate
-                          ? (eventFunc.pax * eventFunc.rate).toFixed(2)
-                          : "0.00",
+                          ? eventFunc.pax * eventFunc.rate
+                          : "0",
                       isFromQuotationItems: true,
                     })
                   )
@@ -191,7 +196,7 @@ const QuotationPage = () => {
                       persons: "",
                       extra: "",
                       rate: "",
-                      totalPrice: "0.00",
+                      totalPrice: "0",
                       isFromQuotationItems: false,
                     },
                   ],
@@ -200,39 +205,39 @@ const QuotationPage = () => {
               {
                 label: "CGST",
                 percentage: quotationInfo.cgst || "0",
-                amount: (quotationInfo.cgstAmnt || 0).toFixed(2),
+                amount: quotationInfo.cgstAmnt || 0,
               },
               {
                 label: "SGST",
                 percentage: quotationInfo.sgst || "0",
-                amount: (quotationInfo.sgstAmnt || 0).toFixed(2),
+                amount: quotationInfo.sgstAmnt || 0,
               },
               {
                 label: "IGST",
                 percentage: quotationInfo.igst || "0",
-                amount: (quotationInfo.igstAmnt || 0).toFixed(2),
+                amount: quotationInfo.igstAmnt || 0,
               },
               {
                 label: "Discount",
                 percentage: "0",
-                amount: (quotationInfo.discount || 0).toFixed(2),
+                amount: quotationInfo.discount || 0,
               },
               {
                 label: "Round Off",
                 percentage: "0",
-                amount: (quotationInfo.roundOff || 0).toFixed(2),
+                amount: quotationInfo.roundOff || 0,
               },
             ],
 
-            grandTotal: (quotationInfo.grandTotal || 0).toFixed(2),
-            totalPaid: (quotationInfo.advancePayment || 0).toFixed(2),
-            remainingPayment: (quotationInfo.remainingAmount || 0).toFixed(2),
+            grandTotal: quotationInfo.grandTotal || 0,
+            totalPaid: quotationInfo.advancePayment || 0,
+            remainingPayment: quotationInfo.remainingAmount || 0,
 
             advancePayments:
               quotationInfo.advancePayments &&
               Array.isArray(quotationInfo.advancePayments)
                 ? quotationInfo.advancePayments.map((p) => ({
-                    amount: (p.amount || 0).toFixed(2),
+                    amount: p.amount || 0,
                     date:
                       p.date && dayjs(p.date, "DD/MM/YYYY hh:mm A").isValid()
                         ? dayjs(p.date, "DD/MM/YYYY hh:mm A")
@@ -241,7 +246,7 @@ const QuotationPage = () => {
                   }))
                 : [
                     {
-                      amount: (quotationInfo.advancePayment || 0).toFixed(2),
+                      amount: quotationInfo.advancePayment || 0,
                       date:
                         quotationInfo.advancePaymentDate &&
                         dayjs(
@@ -306,15 +311,15 @@ const QuotationPage = () => {
     const remaining = Math.max(0, grandTotal - totalPaid);
 
     return {
-      subtotal: subtotal.toFixed(2),
-      cgstAmount: cgstAmount.toFixed(2),
-      sgstAmount: sgstAmount.toFixed(2),
-      igstAmount: igstAmount.toFixed(2),
-      totalTaxAmount: totalTaxAmount.toFixed(2),
-      roundOffAmount: roundOffAmount.toFixed(2),
-      grandTotal: grandTotal.toFixed(2),
-      totalPaid: totalPaid.toFixed(2),
-      remainingPayment: remaining.toFixed(2),
+      subtotal: formatAmount(subtotal),
+      cgstAmount: formatAmount(cgstAmount),
+      sgstAmount: formatAmount(sgstAmount),
+      igstAmount: formatAmount(igstAmount),
+      totalTaxAmount: formatAmount(totalTaxAmount),
+      roundOffAmount: formatAmount(roundOffAmount),
+      grandTotal: formatAmount(grandTotal),
+      totalPaid: formatAmount(totalPaid),
+      remainingPayment: formatAmount(remaining),
     };
   };
 
@@ -331,7 +336,7 @@ const QuotationPage = () => {
           date: null,
           persons: "",
           rate: "",
-          totalPrice: "0.00",
+          totalPrice: "0",
           isFromQuotationItems: false,
           isNewFunction: true,
           isLocked: false, // NEW
@@ -370,11 +375,15 @@ const QuotationPage = () => {
       const extra = parseFloat(newFunctions[index].extra) || 0;
       const rate = parseFloat(newFunctions[index].rate) || 0;
 
-      newFunctions[index].totalPrice = ((persons + extra) * rate).toFixed(2);
+      const total = (persons + extra) * rate;
+      newFunctions[index].totalPrice =
+        total % 1 === 0 ? total.toString() : total;
     }
 
     if (field === "totalPrice") {
-      newFunctions[index].totalPrice = parseFloat(value || 0).toFixed(2);
+      const total = parseFloat(value) || 0;
+      newFunctions[index].totalPrice =
+        total % 1 === 0 ? total.toString() : total;
     }
 
     setQuotationData((prev) => ({
@@ -529,7 +538,7 @@ const QuotationPage = () => {
       ...prev,
       advancePayments: [
         ...prev.advancePayments,
-        { amount: "0.00", date: null, description: "" },
+        { amount: "0", date: null, description: "" },
       ],
     }));
   };
@@ -569,7 +578,7 @@ const QuotationPage = () => {
     ) {
       newTaxDetails[index].percentage = value;
       const percentage = parseFloat(value) || 0;
-      const calculatedAmount = ((subtotal * percentage) / 100).toFixed(2);
+      const calculatedAmount = (subtotal * percentage) / 100;
       newTaxDetails[index].amount = calculatedAmount;
     } else if (field === "amount") {
       newTaxDetails[index].amount = value;
@@ -581,14 +590,14 @@ const QuotationPage = () => {
           newTaxDetails[index].label === "IGST")
       ) {
         const enteredAmount = parseFloat(value) || 0;
-        const percentage = ((enteredAmount / subtotal) * 100).toFixed(2);
+        const percentage = (enteredAmount / subtotal) * 100;
         newTaxDetails[index].percentage = percentage;
       } else if (
         newTaxDetails[index].label === "CGST" ||
         newTaxDetails[index].label === "SGST" ||
         newTaxDetails[index].label === "IGST"
       ) {
-        newTaxDetails[index].percentage = "0.00";
+        newTaxDetails[index].percentage = "0";
       }
     } else {
       newTaxDetails[index][field] = value;
@@ -646,7 +655,7 @@ const QuotationPage = () => {
                 {
                   title: intl.formatMessage({
                     id: "COMMON.QUOTATION",
-                    defaultMessage: "Quotation",
+                    defaultMessage: "Quotation ",
                   }),
                 },
               ]}
@@ -1152,9 +1161,8 @@ const QuotationPage = () => {
                               className="h-full text-gray-900 w-[0px]"
                               value={tax.percentage}
                               type="number"
-                              step="0.01"
                               min="0"
-                              placeholder="0.00"
+                              placeholder="0"
                               onChange={(e) =>
                                 handleTaxChange(
                                   idx,
@@ -1182,23 +1190,21 @@ const QuotationPage = () => {
                                 className="h-full text-gray-900 w-[80px]"
                                 value={tax.amount}
                                 type="number"
-                                step="0.01"
                                 onChange={(e) =>
                                   handleTaxChange(idx, "amount", e.target.value)
                                 }
-                                placeholder="0.00"
+                                placeholder="0"
                               />
                             ) : (
                               <input
                                 className="h-full text-gray-900 w-[80px]"
                                 value={tax.amount}
                                 type="number"
-                                step="0.01"
                                 min="0"
                                 onChange={(e) =>
                                   handleTaxChange(idx, "amount", e.target.value)
                                 }
-                                placeholder="0.00"
+                                placeholder="0"
                               />
                             )}
                           </>
@@ -1281,7 +1287,7 @@ const QuotationPage = () => {
                                   e.target.value
                                 )
                               }
-                              placeholder="0.00"
+                              placeholder="0"
                             />
                           </div>
                         </div>

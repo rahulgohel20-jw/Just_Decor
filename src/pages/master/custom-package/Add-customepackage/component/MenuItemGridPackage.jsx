@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { Search, Check, Loader2, Plus } from "lucide-react";
+import { toAbsoluteUrl } from "@/utils";
 
 function MenuItemGridPackage({
   onToggleItem,
@@ -57,6 +58,7 @@ function MenuItemGridPackage({
         );
 
         const newItems = response.data?.data?.items || [];
+
         const totalCount = response.data?.data?.totalItems || 0;
 
         setMenuItems((prevItems) => {
@@ -133,7 +135,7 @@ function MenuItemGridPackage({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           <button
             type="button"
             onClick={onAddMenuItem}
@@ -173,12 +175,16 @@ function MenuItemGridPackage({
               <div className="aspect-square bg-gray-100 rounded-md mb-2 flex items-center justify-center overflow-hidden">
                 {item.image ? (
                   <img
-                    src={item.image}
-                    alt={item.nameEnglish || item.name}
+                    src={item.imagePath}
+                    alt={item.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="text-gray-400 text-xs">No Image</div>
+                  <img
+                    src={toAbsoluteUrl("/media/menu/noImage.jpg")}
+                    alt={"logo"}
+                    className=""
+                  />
                 )}
               </div>
               <p className="text-sm font-medium text-gray-800 text-center leading-tight">

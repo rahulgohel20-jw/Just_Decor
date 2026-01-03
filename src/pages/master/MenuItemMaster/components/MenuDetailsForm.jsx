@@ -19,6 +19,7 @@ import { defaultData } from "../constant";
 import useMenuApi from "../hooks/useMenuApi";
 import useRecipe from "../hooks/useRecipe";
 import RawMaterialTable from "./RawMaterialTable";
+import { Spin } from "antd";
 import { buildPayload } from "../utils/buildMenuPayload";
 import {
   AddMenuItems,
@@ -60,6 +61,7 @@ const MenuDetailsForm = ({
   const [isCopyRecipe, setIsCopyRecipe] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     tableData,
@@ -240,6 +242,8 @@ const MenuDetailsForm = ({
   };
 
   const refreshData = async () => {
+    setIsRefreshing(true);
+
     try {
       const [rawRes, catRes] = await Promise.all([
         getRawMaterial(),
@@ -274,9 +278,10 @@ const MenuDetailsForm = ({
     } catch (error) {
       console.error(error);
       message.error("Failed to refresh data");
+    } finally {
+      setIsRefreshing(false);
     }
   };
-
   const handleTranslate = async (value) => {
     if (!value || value.trim() === "") return;
 
@@ -475,6 +480,14 @@ const MenuDetailsForm = ({
 
   return (
     <>
+      {isRefreshing && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex flex-col items-center gap-4">
+            <Spin size="large" />
+            <p className="text-white text-lg font-medium">Refreshing data...</p>
+          </div>
+        </div>
+      )}
       <Form form={form} layout="vertical" onFinish={onFinish} className="mt-4">
         {/* Names */}
         <div className="grid gap-4 md:grid-cols-3">

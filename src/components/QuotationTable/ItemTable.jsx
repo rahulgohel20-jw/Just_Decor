@@ -13,7 +13,9 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       dataIndex: "index",
       width: 60,
       align: "center",
-      render: (_, __, index) => <span className="font-semibold">{index + 1}</span>,
+      render: (_, __, index) => (
+        <span className="font-semibold">{index + 1}</span>
+      ),
     },
     {
       title: "Image",
@@ -25,7 +27,11 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
           showUploadList={false}
           onChange={(info) => {
             const file = info.file.originFileObj;
-            onInputChange(index, "image", file ? URL.createObjectURL(file) : "");
+            onInputChange(
+              index,
+              "image",
+              file ? URL.createObjectURL(file) : ""
+            );
           }}
         >
           {record.image ? (
@@ -116,9 +122,14 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
       width: 120,
       align: "center",
       render: (_, record) => {
-        const total =
-          Number(record.qty || 0) * Number(record.rate || 0) || 0;
-        return <span className="font-semibold text-[#005BA8]">₹ {total.toFixed(2)}</span>;
+        const total = Number(record.qty || 0) * Number(record.rate || 0) || 0;
+        // Show .00 only if there are decimals
+        const formattedTotal = total % 1 === 0 ? total : total.toFixed(2);
+        return (
+          <span className="font-semibold text-[#005BA8]">
+            ₹ {formattedTotal}
+          </span>
+        );
       },
     },
     {

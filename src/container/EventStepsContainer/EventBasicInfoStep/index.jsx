@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { DatePicker, Form } from "antd";
+import { Form } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import UserDropdown from "@/components/dropdowns/UserDropdown";
 import VenueDropdown from "../../../components/dropdowns/VenueDropdown";
@@ -25,7 +27,6 @@ const EventBasicInfoStep = ({
 }) => {
   const classes = useStyles();
   const [eventTypes, setEventTypes] = useState([]);
-
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [venueList, setVenueList] = useState([]);
@@ -79,12 +80,10 @@ const EventBasicInfoStep = ({
       .catch(console.error);
   };
 
-  // Helper function to handle form data changes
   const handleFormDataChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Handler specifically for dropdowns that need synthetic event
   const handleDropdownChange = (fieldName, value) => {
     const syntheticEvent = {
       target: {
@@ -133,6 +132,35 @@ const EventBasicInfoStep = ({
     }
   };
 
+  // Helper to parse date string to Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    try {
+      const parsed = dayjs(dateStr, "DD/MM/YYYY hh:mm A", true);
+      if (!parsed.isValid()) {
+        // Try alternative format without time
+        const altParsed = dayjs(dateStr, "DD/MM/YYYY", true);
+        return altParsed.isValid() ? altParsed.toDate() : null;
+      }
+      return parsed.toDate();
+    } catch (error) {
+      console.error("Date parse error:", error);
+      return null;
+    }
+  };
+
+  // Helper to format Date object to string
+  const formatDate = (date) => {
+    if (!date) return "";
+    try {
+      const formatted = dayjs(date);
+      return formatted.isValid() ? formatted.format("DD/MM/YYYY hh:mm A") : "";
+    } catch (error) {
+      console.error("Date format error:", error);
+      return "";
+    }
+  };
+
   return (
     <Form>
       <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
@@ -150,19 +178,20 @@ const EventBasicInfoStep = ({
             </label>
             <DatePicker
               disabled
-              className="input"
-              format="DD/MM/YYYY"
-              value={
-                formData.inquiryDate
-                  ? dayjs(formData.inquiryDate, "DD/MM/YYYY")
-                  : null
-              }
-              onChange={(date) =>
-                handleFormDataChange(
-                  "inquiryDate",
-                  date ? date.format("DD/MM/YYYY") : ""
-                )
-              }
+              className="input w-full"
+              dateFormat="dd/MM/yyyy"
+              selected={parseDate(formData.inquiryDate)}
+              onChange={(date) => {
+                if (date && dayjs(date).isValid()) {
+                  handleFormDataChange(
+                    "inquiryDate",
+                    dayjs(date).format("DD/MM/YYYY")
+                  );
+                } else {
+                  handleFormDataChange("inquiryDate", "");
+                }
+              }}
+              placeholderText="DD/MM/YYYY"
             />
             {errors.inquiryDate && (
               <span className="text-red-600 font-normal text-sm mt-0.50">
@@ -240,27 +269,22 @@ const EventBasicInfoStep = ({
               </span>
             </label>
             <DatePicker
-              className="input"
-              showTime={{
-                use12Hours: true,
-                format: "hh:mm A",
-                minuteStep: 30,
+              className="input w-full"
+              showTimeSelect
+              timeFormat="hh:mm aa"
+              timeIntervals={30}
+              dateFormat="dd/MM/yyyy hh:mm aa"
+              selected={parseDate(formData.eventStartDateTime)}
+              onChange={(date) => {
+                if (date) {
+                  handleFormDataChange("eventStartDateTime", formatDate(date));
+                } else {
+                  handleFormDataChange("eventStartDateTime", "");
+                }
               }}
-              format="DD/MM/YYYY hh:mm A"
-              value={
-                formData.eventStartDateTime
-                  ? dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
-                  : null
-              }
-              onChange={(date) =>
-                handleFormDataChange(
-                  "eventStartDateTime",
-                  date ? date.format("DD/MM/YYYY hh:mm A") : ""
-                )
-              }
-              disabledDate={(current) => {
-                return current && current < dayjs().startOf("day");
-              }}
+              minDate={new Date()}
+              timeCaption="Time"
+              placeholderText="DD/MM/YYYY hh:mm AM/PM"
             />
             {errors.eventStartDateTime && (
               <span className="text-red-600 font-normal text-sm mt-0.50">
@@ -270,7 +294,7 @@ const EventBasicInfoStep = ({
           </div>
 
           {/* End Event Date */}
-          <div className="flex flex-col ">
+          <div className="flex flex-col">
             <label className="form-label">
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_END_EVENT_DATE_LABEL"
@@ -281,33 +305,32 @@ const EventBasicInfoStep = ({
               </span>
             </label>
             <DatePicker
-              className="input"
-              showTime={{
-                use12Hours: true,
-                format: "hh:mm A",
-                minuteStep: 30,
-              }}
-              format="DD/MM/YYYY hh:mm A"
-              value={
+              className="input w-full"
+              showTimeSelect
+              timeFormat="hh:mm aa"
+              timeIntervals={30}
+              dateFormat="dd/MM/yyyy hh:mm aa"
+              selected={
                 formData.eventEndDateTime
-                  ? dayjs(formData.eventEndDateTime, "DD/MM/YYYY hh:mm A")
+                  ? parseDate(formData.eventEndDateTime)
                   : formData.eventStartDateTime
-                    ? dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
+                    ? parseDate(formData.eventStartDateTime)
                     : null
               }
-              onChange={(date) =>
-                handleFormDataChange(
-                  "eventEndDateTime",
-                  date ? date.format("DD/MM/YYYY hh:mm A") : ""
-                )
-              }
-              disabledDate={(current) => {
-                // End date cannot be before start date
-                return current && formData.eventStartDateTime
-                  ? current <
-                      dayjs(formData.eventStartDateTime, "DD/MM/YYYY hh:mm A")
-                  : current && current < dayjs().startOf("day");
+              onChange={(date) => {
+                if (date) {
+                  handleFormDataChange("eventEndDateTime", formatDate(date));
+                } else {
+                  handleFormDataChange("eventEndDateTime", "");
+                }
               }}
+              minDate={
+                formData.eventStartDateTime
+                  ? parseDate(formData.eventStartDateTime) || new Date()
+                  : new Date()
+              }
+              timeCaption="Time"
+              placeholderText="DD/MM/YYYY hh:mm AM/PM"
             />
             {errors.eventEndDateTime && (
               <span className="text-red-600 font-normal text-sm mt-0.5">

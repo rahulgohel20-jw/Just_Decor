@@ -76,7 +76,7 @@ export default function SummaryItemModalOutsideAgency({
         agencyResponse: [
           {
             contactId: 4,
-            contactName: "Parth",
+            contactName: "",
             totalPax: 100,
             totalPrice: 1000.0,
             type: "Outside",

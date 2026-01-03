@@ -10,7 +10,7 @@ import { GetAllItemByType } from "@/services/apiServices";
 
 // Tab configuration
 const TABS = [
-  { id: "cheflabour", label: "Chef Labour" },
+  { id: "chef", label: "Chef Labour" },
   { id: "outside", label: "Outsource Agency" },
   { id: "inside", label: "Inside Kitchen" },
 ];
@@ -21,7 +21,7 @@ export default function AgencyAllocationSidebar({
   eventId,
   eventFunctionId,
 }) {
-  const [tab, setTab] = useState("cheflabour");
+  const [tab, setTab] = useState("chef");
   const [loading, setLoading] = useState(false);
   const [allocationData, setAllocationData] = useState(null);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -91,9 +91,9 @@ export default function AgencyAllocationSidebar({
   // ✅ Reset and fetch on modal open
   useEffect(() => {
     if (open) {
-      setTab("cheflabour");
+      setTab("chef");
       setAllocationData(null);
-      fetchAllocationData("cheflabour");
+      fetchAllocationData("chef");
     }
   }, [open, fetchAllocationData]);
 
@@ -130,7 +130,7 @@ export default function AgencyAllocationSidebar({
     }
 
     switch (tab) {
-      case "cheflabour":
+      case "chef":
         return <ChefLabourSection data={allocationData} close={onClose} />;
       case "outside":
         return <OutsideAgencySection data={allocationData} close={onClose} />;
@@ -209,7 +209,7 @@ export default function AgencyAllocationSidebar({
                   onClick={() => {
                     let typeId = null;
 
-                    if (tab === "cheflabour") typeId = 5;
+                    if (tab === "chef") typeId = 5;
                     if (tab === "outside") typeId = 6;
                     if (tab === "inside") typeId = 7;
 
@@ -217,10 +217,10 @@ export default function AgencyAllocationSidebar({
                     setContactTypeId(typeId);
                     setIsMemberModalOpen(true);
                   }}
-                  className="flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                  className="flex items-center gap-1 p-2 rounded-lg bg-[#005BA8] text-md text-white font-semibold "
                 >
                   <span>Add Vendor</span>
-                  <Plus className="w-5 h-5 bg-blue-700 text-white rounded-full p-1" />
+                  <Plus className="w-5 h-5  text-white rounded-full" />
                 </button>
               )}
             </div>

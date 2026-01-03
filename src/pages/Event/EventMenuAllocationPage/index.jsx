@@ -23,6 +23,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
+
 const TopTabs = ({ value, onChange, functions }) => {
   return (
     <div className="flex gap-3 overflow-x-auto">
@@ -73,7 +74,13 @@ const TopTabs = ({ value, onChange, functions }) => {
   );
 };
 
-const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
+const OrderSummary = ({
+  groups,
+  onItemClick,
+  loading,
+  pax,
+  groupedByFunction,
+}) => {
   const grandTotal = Math.round(
     groups.reduce((total, group) => {
       const groupTotal = group.items.reduce((sum, item) => {
@@ -115,7 +122,148 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
               defaultMessage="No items available"
             />
           </div>
+        ) : groupedByFunction ? (
+          // FUNCTION-WISE VIEW
+          <>
+            <div className="divide-y">
+              {groupedByFunction.map((functionGroup, fIdx) => {
+                // Calculate function total
+                const functionTotal = functionGroup.selectedItemDetails.reduce(
+                  (total, category) => {
+                    const categoryTotal =
+                      category.selectedMenuPreparationItems.reduce(
+                        (sum, item) => {
+                          return sum + (item.totalPrice || 0);
+                        },
+                        0
+                      );
+                    return total + categoryTotal;
+                  },
+                  0
+                );
+
+                const functionDishCosting =
+                  functionGroup.pax > 0
+                    ? Math.round(functionTotal / functionGroup.pax)
+                    : 0;
+
+                return (
+                  <div
+                    key={`function-summary-${functionGroup.eventFunctionId}-${fIdx}`}
+                    className="border-b-2 border-gray-300 last:border-b-0"
+                  >
+                    {/* Function Header */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-l-4 border-primary">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <i className="ki-filled ki-calendar text-primary"></i>
+                          <span className="font-bold text-gray-800 uppercase text-sm">
+                            {functionGroup.functionName}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md">
+                          <i className="ki-filled ki-people text-primary text-xs"></i>
+                          <span className="text-xs font-semibold text-primary">
+                            {functionGroup.pax}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Categories for this function */}
+                    {functionGroup.selectedItemDetails.map((category, cIdx) => (
+                      <div
+                        key={`${functionGroup.eventFunctionId}-${category.menuCategoryId}-${cIdx}`}
+                        className="p-4"
+                      >
+                        <div className="mb-2 flex items-center gap-2">
+                          <Badge color="#22c55e" />
+                          <span className="font-medium text-gray-900">
+                            {category.menuCategoryName}
+                          </span>
+                        </div>
+                        <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
+                          {category.selectedMenuPreparationItems.map(
+                            (item, iIdx) => (
+                              <Fragment
+                                key={`${category.menuCategoryId}-${item.menuItemId}-${iIdx}`}
+                              >
+                                <div
+                                  className="col-span-9 pl-6 hover:text-primary"
+                                  onClick={() => onItemClick(item, category)}
+                                >
+                                  {item.menuItemName}
+                                </div>
+                                <div className="col-span-3 text-right tabular-nums">
+                                  ₹{item.totalPrice?.toFixed(2) || "0.00"}
+                                </div>
+                              </Fragment>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Function Subtotal */}
+                    <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                      <div className="flex justify-between text-sm">
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            <FormattedMessage
+                              id="EVENT_MENU_ALLOCATION.DISH_COSTING"
+                              defaultMessage="Dish Costing :"
+                            />
+                          </span>
+                          <span className="font-semibold text-gray-800">
+                            ₹{functionDishCosting.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            <FormattedMessage
+                              id="EVENT_MENU_ALLOCATION.SUBTOTAL"
+                              defaultMessage="Subtotal :"
+                            />
+                          </span>
+                          <span className="font-semibold text-primary">
+                            ₹{Math.round(functionTotal).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Grand Total for All Functions */}
+            <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA] border-t-2 border-primary">
+              <div className="flex flex-row gap-1">
+                <span className="font-bold text-gray-900">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.OVERALL_DISH_COSTING"
+                    defaultMessage="Overall Dish Costing :"
+                  />
+                </span>
+                <span className="font-bold text-gray-900">
+                  ₹{dishCosting.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex flex-row gap-1">
+                <span className="font-bold text-gray-900">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.GRAND_TOTAL"
+                    defaultMessage="Grand Total :"
+                  />
+                </span>
+                <span className="font-bold text-primary text-lg">
+                  ₹{grandTotal.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </>
         ) : (
+          // SINGLE FUNCTION VIEW (Original)
           <>
             <div className="divide-y">
               {groups.map((g, gi) => (
@@ -178,7 +326,7 @@ const OrderSummary = ({ groups, onItemClick, loading, pax }) => {
 
 const TableHeader = () => (
   <div
-    className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-30"
+    className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-10"
     style={{ top: "230px" }}
   >
     <div className="col-span-2">
@@ -322,6 +470,37 @@ const TableRow = ({ row, onChange, disabled }) => {
   );
 };
 
+// NEW COMPONENT: Function Section Label
+const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
+  return (
+    <div
+      className="sticky bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary px-6 py-4 mb-2 shadow-sm"
+      style={{ top: "280px", zIndex: 5 }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <i className="ki-filled ki-calendar text-primary text-xl"></i>
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 uppercase">
+                {functionName}
+              </h3>
+              <p className="text-sm text-gray-600">{functionDateTime}</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
+          <i className="ki-filled ki-people text-primary"></i>
+          <span className="text-sm font-medium text-gray-700">
+            <FormattedMessage id="COMMON.PAX" defaultMessage="Pax:" />
+          </span>
+          <span className="text-lg font-bold text-primary">{pax}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const EventMenuAllocationPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
@@ -355,6 +534,9 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [initialRows, setInitialRows] = useState([]);
 
+  // NEW STATE: Store raw API data for function grouping
+  const [allMenuData, setAllMenuData] = useState([]);
+
   const allFunctionTab = useMemo(
     () => ({
       id: -1,
@@ -367,9 +549,43 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const getEventFunctionId = (functionItem) => {
     if (!functionItem) return null;
-    return functionItem.id; // Return -1 for "All Functions"
+    return functionItem.id;
   };
+
   const isAllFunctions = activeFunction?.id === -1;
+
+  // NEW: Group data by function when "All Functions" is selected
+  const groupedByFunction = useMemo(() => {
+    if (activeFunction?.id !== -1 || !allMenuData.length) return null;
+
+    return allMenuData.map((detail) => {
+      const firstItem = detail.menuAllocation[0];
+      return {
+        eventFunctionId: firstItem?.eventFunctionId,
+        functionName: firstItem?.eventFunctionName,
+        functionDateTime: "", // We'll get this from eventData
+        pax: 0, // We'll get this from eventData
+        menuAllocation: detail.menuAllocation,
+        selectedItemDetails: detail.selectedItemDetails,
+      };
+    });
+  }, [allMenuData, activeFunction]);
+
+  // NEW: Enrich grouped data with function details from eventData
+  const enrichedGroupedByFunction = useMemo(() => {
+    if (!groupedByFunction || !eventData?.eventFunctions) return null;
+
+    return groupedByFunction.map((group) => {
+      const functionDetail = eventData.eventFunctions.find(
+        (f) => f.id === group.eventFunctionId
+      );
+      return {
+        ...group,
+        functionDateTime: functionDetail?.functionStartDateTime || "",
+        pax: functionDetail?.pax || 0,
+      };
+    });
+  }, [groupedByFunction, eventData]);
 
   useEffect(() => {
     const FetchEventDetails = async () => {
@@ -380,10 +596,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         if (res?.data?.data && res.data.data["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
           setEventData(event);
-          // if (event.eventFunctions && event.eventFunctions.length > 0) {
-          //   setActiveFunction(allFunctionTab);
-          //   fetchMenuAllocation(-1);
-          // }
         } else {
           console.warn("No event data found.");
         }
@@ -401,10 +613,24 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
-      const eventFunctionId = getEventFunctionId(activeFunction);
+      // Determine the correct eventFunctionId based on context
+      let eventFunctionId;
+
+      if (isAllFunctions) {
+        // In "All Functions" view, get the function ID from the item itself
+        const matchingRow = rows.find((r) => r.menuItemId === item.menuItemId);
+        eventFunctionId = matchingRow?.eventFunctionId;
+      } else {
+        // In single function view, use the active function's ID
+        eventFunctionId = getEventFunctionId(activeFunction);
+      }
+
       const menuItemId = item.menuItemId || item.id;
 
-      const matchingRow = rows.find((r) => r.menuItemId === menuItemId);
+      const matchingRow = rows.find(
+        (r) =>
+          r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId
+      );
 
       if (matchingRow?.outside) {
         return;
@@ -414,6 +640,8 @@ const EventMenuAllocationPage = ({ mode }) => {
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
         menuItemId: menuItemId,
+        eventFunctionId: eventFunctionId, // Add this
+        eventId: eventId, // Add this
       });
 
       setIsCategoryModal(true);
@@ -437,6 +665,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           "MenuItem RawMaterial Details": rawMaterials,
           menuItemName: item.menuItemName || apiData.menuItemName || "-",
           menuItemId: menuItemId,
+          eventFunctionId: eventFunctionId, // Add this
+          eventId: eventId, // Add this
         });
       }
     } catch (error) {
@@ -445,50 +675,50 @@ const EventMenuAllocationPage = ({ mode }) => {
       setMenuLoading(false);
     }
   };
-
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
 
-      // ✅ Check if "All Functions" is selected
       const isAllFunctions = eventFunctionId === -1;
 
-      let allMenuData = [];
+      let allMenuDataResponse = [];
 
       if (isAllFunctions) {
-        // ✅ When -1 is passed, API returns all functions data in one response
         const menudata = await GetMenuAllocation(eventId, -1);
 
         if (
           menudata?.data?.success &&
           menudata.data.data["Menu Allocation Details"]?.length > 0
         ) {
-          allMenuData = menudata.data.data["Menu Allocation Details"];
+          allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
+          // NEW: Store the raw API data
+          setAllMenuData(allMenuDataResponse);
         }
       } else {
-        // ✅ Fetch single function data
         const menudata = await GetMenuAllocation(eventId, eventFunctionId);
         if (
           menudata?.data?.success &&
           menudata.data.data["Menu Allocation Details"]?.length > 0
         ) {
-          allMenuData = menudata.data.data["Menu Allocation Details"];
+          allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
+          setAllMenuData(allMenuDataResponse);
         }
       }
 
-      if (allMenuData.length === 0) {
+      if (allMenuDataResponse.length === 0) {
         setRows([]);
         setOrderSummaryGroups([]);
+        setAllMenuData([]);
         return;
       }
 
-      const mergedMenuAllocation = allMenuData.flatMap(
+      const mergedMenuAllocation = allMenuDataResponse.flatMap(
         (d) => d.menuAllocation || []
       );
 
       const transformedRows =
         mergedMenuAllocation.map((item) => ({
-          key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`, // Added eventFunctionId to make key unique
+          key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
           id: item.id,
           categoryName: item.menuCategoryName || "",
           itemName: item.menuItemName || "",
@@ -511,7 +741,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
               let allocationTotal = 0;
 
-              // 🔥 CHEF LABOUR TOTAL
               if (isChefLabour) {
                 allocationTotal =
                   (Number(alloc.counterPrice) || 0) *
@@ -519,7 +748,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                   (Number(alloc.helperPrice) || 0) *
                     (Number(alloc.helperQuantity) || 0);
               } else {
-                // 🔹 OUTSIDE / NORMAL
                 allocationTotal =
                   (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
               }
@@ -538,14 +766,10 @@ const EventMenuAllocationPage = ({ mode }) => {
                 helperQuantity: alloc.helperQuantity || 0,
                 counterPrice: alloc.counterPrice || 0,
                 helperPrice: alloc.helperPrice || 0,
-
-                // ✅ FIXED
                 totalPrice: allocationTotal,
-
                 isOutside,
                 isChefLabour,
                 isInside,
-
                 number: alloc.number ?? null,
                 remarks: alloc.remarks ?? null,
                 pax: alloc.pax ?? null,
@@ -557,11 +781,10 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setRows(transformedRows);
 
-      const allSelectedItems = allMenuData.flatMap(
+      const allSelectedItems = allMenuDataResponse.flatMap(
         (detail) => detail?.selectedItemDetails || []
       );
 
-      // Group by category - Fixed to avoid duplicates properly
       const categoryMap = new Map();
 
       allSelectedItems.forEach((category) => {
@@ -571,13 +794,12 @@ const EventMenuAllocationPage = ({ mode }) => {
           categoryMap.set(categoryId, {
             categoryId: category.menuCategoryId,
             categoryName: category.menuCategoryName,
-            itemsMap: new Map(), // Use Map for items too
+            itemsMap: new Map(),
           });
         }
 
         const existingCategory = categoryMap.get(categoryId);
 
-        // Add items, avoiding duplicates by menuItemId
         category.selectedMenuPreparationItems?.forEach((item) => {
           if (!existingCategory.itemsMap.has(item.menuItemId)) {
             existingCategory.itemsMap.set(item.menuItemId, item);
@@ -591,7 +813,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           categoryName: category.categoryName,
           items:
             Array.from(category.itemsMap.values())?.map((summaryItem) => {
-              // Find ALL matching rows for this item across all functions
               const matchingRows = transformedRows.filter(
                 (r) => r.menuItemId === summaryItem.menuItemId
               );
@@ -600,23 +821,17 @@ const EventMenuAllocationPage = ({ mode }) => {
               let finalPrice = basePrice;
 
               if (matchingRows.length > 0) {
-                // Sum up prices from all matching rows
                 finalPrice = matchingRows.reduce((total, matchingRow) => {
                   let rowPrice = basePrice;
 
-                  // INSIDE → base price only
                   if (matchingRow.inside) {
                     rowPrice = basePrice;
-                  }
-                  // OUTSIDE → only additional cost
-                  else if (matchingRow.outside) {
+                  } else if (matchingRow.outside) {
                     rowPrice =
                       matchingRow.eventFunctionMenuAllocations
                         ?.filter((a) => a.isOutside)
                         .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
-                  }
-                  // CHEF LABOUR → base + chef cost
-                  else if (matchingRow.chefLabour) {
+                  } else if (matchingRow.chefLabour) {
                     const chefCost =
                       matchingRow.eventFunctionMenuAllocations
                         ?.filter((a) => a.isChefLabour)
@@ -639,7 +854,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setOrderSummaryGroups(summaryGroups);
 
-      // Fetch raw materials for all items
       const updatedRowsPromises = transformedRows.map(async (row) => {
         try {
           const res = await SelectedItemNameMenuAllocation(
@@ -674,6 +888,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
       setOrderSummaryGroups([]);
+      setAllMenuData([]);
     } finally {
       setMenuLoading(false);
     }
@@ -702,6 +917,18 @@ const EventMenuAllocationPage = ({ mode }) => {
       setHasUnsavedChanges(false);
     }
   }, [rows]);
+
+  const totalPax = useMemo(() => {
+    if (activeFunction?.id === -1) {
+      return (
+        eventData?.eventFunctions?.reduce(
+          (sum, func) => sum + (func.pax || 0),
+          0
+        ) || 0
+      );
+    }
+    return activeFunction?.pax || 0;
+  }, [activeFunction, eventData?.eventFunctions]);
 
   const checkForChanges = (currentRows, originalRows) => {
     if (currentRows.length !== originalRows.length) return true;
@@ -756,10 +983,10 @@ const EventMenuAllocationPage = ({ mode }) => {
       return updatedRows;
     });
   };
+
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
     const functionId = functionItem?.id;
-    console.log("under handle function change Id", functionId);
     fetchMenuAllocation(functionId);
   };
 
@@ -812,7 +1039,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         setTimeout(() => setIsChefModal(true), 0);
       },
       openInsideSidebar: () => {
-        // if (isAllFunctions) return;
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
@@ -867,6 +1093,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setIsInsideModal(false);
   };
+
   const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
     setOrderSummaryGroups((prevGroups) =>
       prevGroups.map((group) => ({
@@ -882,7 +1109,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
           const basePrice = item.originalTotalPrice || 0;
 
-          // INSIDE
           if (matchingRow.inside) {
             return { ...item, totalPrice: basePrice };
           }
@@ -1044,6 +1270,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       </Container>
     );
   }
+
   const handleMainSave = async () => {
     try {
       let Id = localStorage.getItem("userId");
@@ -1194,7 +1421,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
       }
     } catch (error) {
-      Swal.close(); // 🔴 Ensure loader is closed on error
+      Swal.close();
       console.error("❌ Error saving menu allocation:", error);
 
       Swal.fire({
@@ -1210,6 +1437,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     setMenuReportEventId(eventId);
     setIsMenuReport(true);
   };
+
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -1274,7 +1502,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const res = await SyncRawmaterialMenuallocation(eventFunctionId);
 
-      Swal.close(); // close loader
+      Swal.close();
 
       if (res?.data?.success) {
         Swal.fire({
@@ -1499,11 +1727,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                       className="p-1 w-[70px] text-black text-center"
                       type="text"
                       readOnly
-                      value={
-                        activeFunction?.id === -1
-                          ? "-"
-                          : activeFunction?.pax || 0
-                      }
+                      value={totalPax}
                     />
                   </div>
                 </div>
@@ -1523,7 +1747,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                       className="btn btn-sm btn-primary"
                       title="Adjust Person"
                       onClick={handleAdjustPerson}
-                      // disabled={isAllFunctions}
                     >
                       <FormattedMessage
                         id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
@@ -1534,7 +1757,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                 </div>
               </div>
 
-              {/* Second Sticky Row - Search and Buttons */}
               <div className="flex gap-2 p-4">
                 <div className="flex w-fit items-center gap-3">
                   <div className="filItems relative">
@@ -1605,27 +1827,67 @@ const EventMenuAllocationPage = ({ mode }) => {
                 </div>
               </div>
             </div>
-            {/* {isAllFunctions && (
-              <div className="mb-3 p-3 bg-blue-50 text-[#005BA8] rounded-md text-sm">
-                All Functions view is read-only. Select a specific function to
-                edit menu allocation.
-              </div>
-            )} */}
+
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
               <TableHeader />
-              {filtered.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  No menu items available
-                </div>
-              ) : (
-                filtered.map((row, index) => (
-                  <TableRow
-                    key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
-                    row={row}
-                    onChange={updateRow}
-                  />
-                ))
-              )}
+
+              {/* CONDITIONAL RENDERING: Show grouped by function or normal list */}
+              {isAllFunctions && enrichedGroupedByFunction
+                ? // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
+                  enrichedGroupedByFunction.map((functionGroup, idx) => {
+                    // Filter rows for this specific function
+                    const functionRows = filtered.filter(
+                      (row) =>
+                        row.eventFunctionId === functionGroup.eventFunctionId
+                    );
+
+                    return (
+                      <div
+                        key={`function-${functionGroup.eventFunctionId}-${idx}`}
+                      >
+                        <FunctionSectionLabel
+                          functionName={functionGroup.functionName}
+                          functionDateTime={functionGroup.functionDateTime}
+                          pax={functionGroup.pax}
+                        />
+                        {functionRows.length === 0 ? (
+                          <div className="p-8 text-center text-gray-500">
+                            No menu items available for this function
+                          </div>
+                        ) : (
+                          functionRows.map((row, rowIdx) => (
+                            <TableRow
+                              key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
+                              row={row}
+                              onChange={updateRow}
+                            />
+                          ))
+                        )}
+                      </div>
+                    );
+                  })
+                : // SINGLE FUNCTION VIEW - Filter rows for current function
+                  (() => {
+                    const currentFunctionRows = filtered.filter(
+                      (row) =>
+                        row.eventFunctionId ===
+                        getEventFunctionId(activeFunction)
+                    );
+
+                    return currentFunctionRows.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        No menu items available for this function
+                      </div>
+                    ) : (
+                      currentFunctionRows.map((row, index) => (
+                        <TableRow
+                          key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
+                          row={row}
+                          onChange={updateRow}
+                        />
+                      ))
+                    );
+                  })()}
             </div>
           </div>
 
@@ -1637,7 +1899,8 @@ const EventMenuAllocationPage = ({ mode }) => {
                   groups={orderSummaryGroups}
                   loading={menuLoading}
                   onItemClick={handleOrderSummaryItemClick}
-                  pax={activeFunction?.pax || 0}
+                  pax={totalPax}
+                  groupedByFunction={enrichedGroupedByFunction}
                 />
               </div>
             </div>
