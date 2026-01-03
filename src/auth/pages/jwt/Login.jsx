@@ -9,6 +9,7 @@ import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
 import PlanExpire from "../../../partials/modals/planExpire/PlanExpire";
+import { Hand, Handshake } from "lucide-react";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Wrong email format")
@@ -158,7 +159,10 @@ const Login = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">
             Sign In
           </h3>
-          <span className="text-sm text-gray-700">
+          <h4 className="flex gap-2 align-center font-semibold">
+            Welcome back
+          </h4>
+          <span className="text-md text-gray-700">
             Hey, Enter your details below to sign in and access your account
             securely and easily.
           </span>

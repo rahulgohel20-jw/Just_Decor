@@ -16,21 +16,27 @@ const CategoryList = ({
   );
   const userId = localStorage.getItem("userId");
 
-  // Listen for language changes - Multiple methods to catch it
+  // Listen for language changes
   useEffect(() => {
-    const handleLanguageChange = () => {
-      const newLang = localStorage.getItem("lang") || "en";
-      console.log("CategoryList - Language changed to:", newLang); // Debug log
+    const handleLanguageChange = (e) => {
+      const newLang =
+        e.detail?.newLanguage || localStorage.getItem("lang") || "en";
+      console.log("CategoryList - Language changed to:", newLang);
       setCurrentLanguage(newLang);
     };
 
-    // Method 1: Custom event
+    const handleStorage = () => {
+      const newLang = localStorage.getItem("lang") || "en";
+      if (newLang !== currentLanguage) {
+        console.log("CategoryList - Language detected via storage:", newLang);
+        setCurrentLanguage(newLang);
+      }
+    };
+
     window.addEventListener("languageChange", handleLanguageChange);
+    window.addEventListener("storage", handleStorage);
 
-    // Method 2: Storage event (for other tabs)
-    window.addEventListener("storage", handleLanguageChange);
-
-    // Method 3: Polling (check every 500ms as fallback)
+    // Polling fallback
     const intervalId = setInterval(() => {
       const currentLang = localStorage.getItem("lang") || "en";
       if (currentLang !== currentLanguage) {
@@ -44,7 +50,7 @@ const CategoryList = ({
 
     return () => {
       window.removeEventListener("languageChange", handleLanguageChange);
-      window.removeEventListener("storage", handleLanguageChange);
+      window.removeEventListener("storage", handleStorage);
       clearInterval(intervalId);
     };
   }, [currentLanguage]);
@@ -59,8 +65,6 @@ const CategoryList = ({
       };
 
       const field = languageMap[currentLanguage] || "nameEnglish";
-
-      // Return localized name or fallback to nameEnglish or name
       return cat[field] || cat.nameEnglish || cat.name || "";
     };
   }, [currentLanguage]);
@@ -73,20 +77,18 @@ const CategoryList = ({
       if (response?.data) {
         const categoryData = response.data.data["Menu Category Details"] || [];
 
-        // Debug: Log first category to see available fields
-        if (categoryData.length > 0) {
-          console.log("Sample category fields:", Object.keys(categoryData[0]));
-          console.log("Sample category:", categoryData[0]);
-        }
-
         const categoryList = [
-          { id: 0, nameEnglish: "All", nameHindi: "सभी", nameGujarati: "બધા" },
+          {
+            id: 0,
+            nameEnglish: "All",
+            nameHindi: "सभी",
+            nameGujarati: "બધા",
+          },
           ...categoryData.map((cat) => ({
             id: cat.id,
-            nameEnglish: cat.nameEnglish || cat.name,
-            nameHindi: cat.nameHindi || cat.nameEnglish || cat.name,
-            nameGujarati: cat.nameGujarati || cat.nameEnglish || cat.name,
-            // Keep original object for any other fields
+            nameEnglish: cat.nameEnglish || cat.name || "",
+            nameHindi: cat.nameHindi || cat.nameEnglish || cat.name || "",
+            nameGujarati: cat.nameGujarati || cat.nameEnglish || cat.name || "",
             ...cat,
           })),
         ];
@@ -100,7 +102,12 @@ const CategoryList = ({
     } catch (error) {
       console.error("Error loading categories:", error);
       setCategories([
-        { id: 0, nameEnglish: "All", nameHindi: "सभी", nameGujarati: "બધા" },
+        {
+          id: 0,
+          nameEnglish: "All",
+          nameHindi: "सभी",
+          nameGujarati: "બધા",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -109,22 +116,14 @@ const CategoryList = ({
 
   useEffect(() => {
     fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    fetchCategories();
   }, [refreshKey]);
 
+  // Sort categories based on saved order and package categories
   const sortedCategories = useMemo(() => {
     const cats = [...categories];
-
-    // Find "All" category
     const allCat = cats.find((c) => c.id === 0);
-
-    // Get the localized names for comparison
     const getDisplayName = (cat) => getLocalizedCategoryName(cat);
 
-    // Map saved order using localized names
     const savedOrderedCats = savedCategoriesOrder
       .map((catName) => cats.find((c) => getDisplayName(c) === catName))
       .filter(Boolean);
@@ -152,14 +151,31 @@ const CategoryList = ({
     currentLanguage,
   ]);
 
+  // 🔥 ENHANCED MULTI-LANGUAGE SEARCH
   const filteredCategories = useMemo(() => {
-    if (!searchTerm) return sortedCategories;
-    const lower = searchTerm.toLowerCase();
+    if (!searchTerm || !searchTerm.trim()) return sortedCategories;
+
+    const searchLower = searchTerm.toLowerCase().trim();
+
     return sortedCategories.filter((cat) => {
-      const displayName = getLocalizedCategoryName(cat);
-      return displayName.toLowerCase().includes(lower);
+      // Search across ALL language fields
+      const searchableText = [
+        cat.nameEnglish,
+        cat.nameHindi,
+        cat.nameGujarati,
+        cat.name,
+      ]
+        .filter(Boolean) // Remove null/undefined
+        .map((text) => text.toLowerCase())
+        .join(" "); // Combine all text
+
+      return searchableText.includes(searchLower);
     });
-  }, [sortedCategories, searchTerm, getLocalizedCategoryName, currentLanguage]);
+  }, [sortedCategories, searchTerm]);
+
+  // Show message when no results found
+  const showNoResults =
+    !loading && filteredCategories.length === 0 && searchTerm.trim();
 
   if (loading) {
     return (
@@ -171,35 +187,71 @@ const CategoryList = ({
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-2">
-        {filteredCategories.map((cat) => {
-          const displayName = getLocalizedCategoryName(cat);
-          const isPkgCat = packageCategories.includes(displayName);
-
-          return (
-            <div
-              key={cat.id}
-              onClick={() => onCategoryChange(displayName, cat.id)}
-              className={`cursor-pointer px-3 py-2 rounded transition-all relative
-                ${
-                  selectedCategoryId === cat.id
-                    ? "bg-blue-100 text-blue-700 border border-blue-400 font-semibold"
-                    : isPkgCat
-                      ? "bg-blue-50 text-primary border border-primary"
-                      : "text-gray-700 hover:bg-gray-100"
-                }
-              `}
+      {showNoResults ? (
+        <div className="flex flex-col items-center justify-center py-8 px-4">
+          <div className="text-gray-400 mb-2">
+            <svg
+              className="w-16 h-16"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {isPkgCat && (
-                <span className="absolute top-1 right-2 bg-primary text-white text-[10px] px-2 py-0.5 rounded-full">
-                  PKG
-                </span>
-              )}
-              {displayName}
-            </div>
-          );
-        })}
-      </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-500 text-sm font-medium">
+            No categories found
+          </p>
+          <p className="text-gray-400 text-xs mt-1">
+            Try searching with different keywords
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {filteredCategories.map((cat) => {
+            const displayName = getLocalizedCategoryName(cat);
+            const isPkgCat = packageCategories.includes(displayName);
+
+            return (
+              <div
+                key={cat.id}
+                onClick={() => onCategoryChange(displayName, cat.id)}
+                className={`cursor-pointer px-3 py-2 rounded transition-all relative
+                  ${
+                    selectedCategoryId === cat.id
+                      ? "bg-blue-100 text-blue-700 border border-blue-400 font-semibold"
+                      : isPkgCat
+                        ? "bg-blue-50 text-primary border border-primary"
+                        : "text-gray-700 hover:bg-gray-100 border border-transparent"
+                  }
+                `}
+              >
+                {isPkgCat && (
+                  <span className="absolute top-1 right-2 bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                    PKG
+                  </span>
+                )}
+                <span className="block truncate pr-8">{displayName}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Optional: Show search result count */}
+      {searchTerm.trim() && filteredCategories.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-center">
+            Found {filteredCategories.length}{" "}
+            {filteredCategories.length === 1 ? "category" : "categories"}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

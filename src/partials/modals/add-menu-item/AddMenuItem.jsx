@@ -6,21 +6,28 @@ import {
   GetAllCategoryformenu,
   Getmenusubcategory,
   AddMenuItems,
+  Translateapi,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
 import AddMenuSubCategory from "@/partials/modals/add-menu-sub-category/AddMenuSubCategory";
+import { Plus } from "lucide-react";
 
 const { Dragger } = Upload;
 
 const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
   const [form] = Form.useForm();
+
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
+
+  const [nameEnglish, setNameEnglish] = useState("");
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -68,6 +75,40 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       fetchSubCategories(categoryId);
     }
   };
+
+  useEffect(() => {
+    // Clear translations when English is cleared
+    if (!nameEnglish.trim()) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      form.setFieldsValue({
+        nameGujarati: "",
+        nameHindi: "",
+      });
+
+      return;
+    }
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const timer = setTimeout(() => {
+      setIsTranslating(true);
+
+      Translateapi(nameEnglish)
+        .then((res) => {
+          form.setFieldsValue({
+            nameGujarati: res?.data?.gujarati || "",
+            nameHindi: res?.data?.hindi || "",
+          });
+        })
+        .catch((err) => console.error("Translation error:", err))
+        .finally(() => setIsTranslating(false));
+    }, 500);
+
+    setDebounceTimer(timer);
+
+    return () => clearTimeout(timer);
+  }, [nameEnglish]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -140,18 +181,54 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       }
     >
       <Form layout="vertical" form={form} className="space-y-5">
-        {/* ===================== NAMES ===================== */}
+        {/* ===================== NAMES with Auto-Translate ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Form.Item name="nameEnglish" label="Name (English) *">
-            <Input placeholder="Enter Name (English) " />
+          <Form.Item
+            name="nameEnglish"
+            label="Name (English) *"
+            rules={[{ required: true, message: "Please enter English name" }]}
+          >
+            <Input
+              placeholder="Enter Name (English)"
+              value={nameEnglish}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNameEnglish(value);
+                form.setFieldValue("nameEnglish", value);
+              }}
+            />
           </Form.Item>
 
-          <Form.Item name="nameGujarati" label="Name (Gujarati)">
-            <Input placeholder="Enter Name (Gujarati)" />
+          <Form.Item
+            name="nameGujarati"
+            label={
+              <span className="flex items-center gap-2">Name (Gujarati)</span>
+            }
+          >
+            <Input
+              placeholder="Enter Name (Gujarati)"
+              suffix={
+                isTranslating ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />
+                ) : null
+              }
+            />
           </Form.Item>
 
-          <Form.Item name="nameHindi" label="Name (Hindi)">
-            <Input placeholder="Enter Name (Hindi)" />
+          <Form.Item
+            name="nameHindi"
+            label={
+              <span className="flex items-center gap-2">Name (Hindi)</span>
+            }
+          >
+            <Input
+              placeholder="Enter Name (Hindi)"
+              suffix={
+                isTranslating ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500" />
+                ) : null
+              }
+            />
           </Form.Item>
         </div>
 
@@ -159,7 +236,6 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           <Input placeholder="Enter Slogan" />
         </Form.Item>
 
-        {/* ===================== PRICE / PRIORITY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item name="price" label="Price">
             <Input type="number" placeholder="Enter Price" />
@@ -170,23 +246,31 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
           </Form.Item>
         </div>
 
-        {/* ===================== CATEGORY ===================== */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Form.Item label="Menu Category *">
+          <Form.Item label="Menu Category *" required>
             <div className="flex gap-2">
-              <Form.Item name="menuCategory" noStyle>
+              <Form.Item
+                name="menuCategory"
+                noStyle
+                rules={[
+                  { required: true, message: "Please select a category" },
+                ]}
+              >
                 <Select
                   placeholder="Select Category"
                   options={categoryOptions}
                   onChange={handleCategoryChange}
                   className="w-full"
+                  showSearch
+                  optionFilterProp="label"
                 />
               </Form.Item>
               <button
-                className="bg-blue-900 px-2 py-1 rounded-lg text-white"
+                type="button"
+                className="bg-blue-900 px-2 py-1 rounded-full text-white hover:bg-blue-800 transition-colors"
                 onClick={() => setIsCategoryModalOpen(true)}
               >
-                +
+                <Plus size={16} />
               </button>
             </div>
           </Form.Item>
@@ -200,29 +284,41 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
                   loading={loadingSubCategories}
                   disabled={!form.getFieldValue("menuCategory")}
                   className="w-full"
+                  showSearch
+                  optionFilterProp="label"
                 />
               </Form.Item>
               <button
-                className="bg-blue-900 px-2 py-1 rounded-lg text-white"
+                type="button"
+                className="bg-blue-900 px-2 py-1 rounded-full text-white hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => setIsSubCategoryModalOpen(true)}
+                disabled={!form.getFieldValue("menuCategory")}
               >
-                +
+                <Plus size={16} />
               </button>
             </div>
           </Form.Item>
         </div>
 
         <Form.Item name="remarks" label="Remarks">
-          <Input placeholder="Enter Remarks" />
+          <Input.TextArea placeholder="Enter Remarks" rows={3} />
         </Form.Item>
 
         {/* ===================== IMAGE ===================== */}
         <Form.Item name="image" label="Image">
-          <Dragger beforeUpload={() => false} maxCount={1}>
+          <Dragger
+            beforeUpload={() => false}
+            maxCount={1}
+            accept="image/*"
+            listType="picture"
+          >
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
-            <p>Drag or Upload Image</p>
+            <p className="ant-upload-text">Click or drag image to upload</p>
+            <p className="ant-upload-hint">
+              Support for JPG, PNG, GIF (Max 5MB)
+            </p>
           </Dragger>
         </Form.Item>
 
@@ -234,13 +330,18 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
       <AddMenuCategory
         isModalOpen={isCategoryModalOpen}
         setIsModalOpen={setIsCategoryModalOpen}
-        refreshData={refreshData}
+        refreshData={fetchCategories}
       />
 
       <AddMenuSubCategory
         isModalOpen={isSubCategoryModalOpen}
         setIsModalOpen={setIsSubCategoryModalOpen}
-        refreshData={refreshData}
+        refreshData={() => {
+          const categoryId = form.getFieldValue("menuCategory");
+          if (categoryId) {
+            fetchSubCategories(categoryId);
+          }
+        }}
       />
     </CustomModal>
   );

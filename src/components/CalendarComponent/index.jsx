@@ -83,18 +83,15 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
         eventDidMount={(info) => {
           const { event, el } = info;
 
-          // ✅ Detect if it’s a “User Calendar” event (from Super Calendar)
           const company = event.extendedProps.company;
           const contact = event.extendedProps.contact;
           const email = event.extendedProps.email;
 
-          // ✅ Otherwise, fallback to default event details
           const time = event.extendedProps.time || "";
           const address = event.extendedProps.address || "";
           const events = event.extendedProps.event || "";
           const mobile = event.extendedProps.mobile || "";
 
-          // ✅ Tooltip content logic
           const tooltipContent =
             company || email || contact
               ? `
@@ -118,7 +115,6 @@ const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
                 </div>
               `;
 
-          // ✅ Initialize Tippy Tooltip
           tippy(el, {
             content: tooltipContent,
             allowHTML: true,

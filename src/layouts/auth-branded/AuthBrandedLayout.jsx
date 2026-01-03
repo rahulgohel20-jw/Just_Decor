@@ -32,11 +32,15 @@ const Layout = () => {
               <h3 className="text-xl font-semibold text-white">
                 Welcome to Just Catering Software
               </h3>
+              <h4 className="text-lg font-semibold text-white">
+                One platform. Total control. Complete automation.
+              </h4>
               <div className="text-sm text-white opacity-90">
-                It has survived not only five centuries, but also the leap{" "}
-                <span className="font-bold">into electronic</span>
+                One refined platform crafted to give you complete control{" "}
+                <span className="font-bold">over your catering operations</span>
                 <br className="hidden md:inline" />
-                <span className="font-bold">typesetting</span>, remaining essentially unchanged.
+                <span className="font-bold">from planning </span>
+                to performance.
               </div>
             </div>
           </div>

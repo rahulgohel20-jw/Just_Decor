@@ -28,7 +28,7 @@ const CalendarPage = () => {
   const getStatusColor = (statusCode, isRMenu) => {
     console.log(isRMenu);
 
-    if (isRMenu === true) {
+    if (isRMenu === true && statusCode !== 0) {
       return "#E75480";
     } else {
       switch (statusCode) {
@@ -119,10 +119,10 @@ const CalendarPage = () => {
                 );
                 const { date: endDate } = splitDateTime(
                   item.eventEndDateTime || item.eventStartDateTime
-                ); // fallback if no end
+                );
 
                 const color = getStatusColor(item.status, item.isRMenu);
-                console.log("Event Item:", item); // Debug log
+                console.log("Event Item:", item);
                 return {
                   eventid: item.id,
                   eventTypeId: item.eventType?.id || null,
@@ -217,13 +217,13 @@ const CalendarPage = () => {
             }}
           >
             <i className="ki-filled ki-plus text-base sm:text-lg"></i>
-            <span className="hidden xs:inline">
+            <span className=" inline xs:hidden">
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
                 defaultMessage="Create New Event"
               />
             </span>
-            <span className="inline xs:hidden">
+            <span className="hidden xs:inline">
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON_SHORT"
                 defaultMessage="Add Event"
