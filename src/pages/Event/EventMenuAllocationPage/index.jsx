@@ -613,10 +613,24 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
-      const eventFunctionId = getEventFunctionId(activeFunction);
+      // Determine the correct eventFunctionId based on context
+      let eventFunctionId;
+
+      if (isAllFunctions) {
+        // In "All Functions" view, get the function ID from the item itself
+        const matchingRow = rows.find((r) => r.menuItemId === item.menuItemId);
+        eventFunctionId = matchingRow?.eventFunctionId;
+      } else {
+        // In single function view, use the active function's ID
+        eventFunctionId = getEventFunctionId(activeFunction);
+      }
+
       const menuItemId = item.menuItemId || item.id;
 
-      const matchingRow = rows.find((r) => r.menuItemId === menuItemId);
+      const matchingRow = rows.find(
+        (r) =>
+          r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId
+      );
 
       if (matchingRow?.outside) {
         return;
@@ -626,6 +640,8 @@ const EventMenuAllocationPage = ({ mode }) => {
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
         menuItemId: menuItemId,
+        eventFunctionId: eventFunctionId, // Add this
+        eventId: eventId, // Add this
       });
 
       setIsCategoryModal(true);
@@ -649,6 +665,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           "MenuItem RawMaterial Details": rawMaterials,
           menuItemName: item.menuItemName || apiData.menuItemName || "-",
           menuItemId: menuItemId,
+          eventFunctionId: eventFunctionId, // Add this
+          eventId: eventId, // Add this
         });
       }
     } catch (error) {
@@ -657,7 +675,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       setMenuLoading(false);
     }
   };
-
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
@@ -1815,54 +1832,62 @@ const EventMenuAllocationPage = ({ mode }) => {
               <TableHeader />
 
               {/* CONDITIONAL RENDERING: Show grouped by function or normal list */}
-              {isAllFunctions && enrichedGroupedByFunction ? (
-                // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
-                enrichedGroupedByFunction.map((functionGroup, idx) => {
-                  // Filter rows for this specific function
-                  const functionRows = filtered.filter(
-                    (row) =>
-                      row.eventFunctionId === functionGroup.eventFunctionId
-                  );
+              {isAllFunctions && enrichedGroupedByFunction
+                ? // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
+                  enrichedGroupedByFunction.map((functionGroup, idx) => {
+                    // Filter rows for this specific function
+                    const functionRows = filtered.filter(
+                      (row) =>
+                        row.eventFunctionId === functionGroup.eventFunctionId
+                    );
 
-                  return (
-                    <div
-                      key={`function-${functionGroup.eventFunctionId}-${idx}`}
-                    >
-                      <FunctionSectionLabel
-                        functionName={functionGroup.functionName}
-                        functionDateTime={functionGroup.functionDateTime}
-                        pax={functionGroup.pax}
-                      />
-                      {functionRows.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
-                          No menu items available for this function
-                        </div>
-                      ) : (
-                        functionRows.map((row, rowIdx) => (
-                          <TableRow
-                            key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
-                            row={row}
-                            onChange={updateRow}
-                          />
-                        ))
-                      )}
-                    </div>
-                  );
-                })
-              ) : // SINGLE FUNCTION VIEW - NORMAL LIST
-              filtered.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  No menu items available
-                </div>
-              ) : (
-                filtered.map((row, index) => (
-                  <TableRow
-                    key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
-                    row={row}
-                    onChange={updateRow}
-                  />
-                ))
-              )}
+                    return (
+                      <div
+                        key={`function-${functionGroup.eventFunctionId}-${idx}`}
+                      >
+                        <FunctionSectionLabel
+                          functionName={functionGroup.functionName}
+                          functionDateTime={functionGroup.functionDateTime}
+                          pax={functionGroup.pax}
+                        />
+                        {functionRows.length === 0 ? (
+                          <div className="p-8 text-center text-gray-500">
+                            No menu items available for this function
+                          </div>
+                        ) : (
+                          functionRows.map((row, rowIdx) => (
+                            <TableRow
+                              key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
+                              row={row}
+                              onChange={updateRow}
+                            />
+                          ))
+                        )}
+                      </div>
+                    );
+                  })
+                : // SINGLE FUNCTION VIEW - Filter rows for current function
+                  (() => {
+                    const currentFunctionRows = filtered.filter(
+                      (row) =>
+                        row.eventFunctionId ===
+                        getEventFunctionId(activeFunction)
+                    );
+
+                    return currentFunctionRows.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        No menu items available for this function
+                      </div>
+                    ) : (
+                      currentFunctionRows.map((row, index) => (
+                        <TableRow
+                          key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
+                          row={row}
+                          onChange={updateRow}
+                        />
+                      ))
+                    );
+                  })()}
             </div>
           </div>
 
