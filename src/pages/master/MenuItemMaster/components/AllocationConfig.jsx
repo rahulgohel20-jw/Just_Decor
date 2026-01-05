@@ -6,6 +6,7 @@ import RenderAllocationFields from "./RenderAllocationFields";
 import { AddMenuItems, UpdateMenuItem } from "@/services/apiServices";
 import { buildPayload } from "../utils/buildMenuPayload";
 import AddContactName from "../components/AddContactName";
+import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect"; // Import PlaceSelect component
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
@@ -25,6 +26,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   const [insideCookNames, setInsideCookNames] = useState([]);
   const [concatId, setConcatId] = useState(null);
   const [pendingEditValues, setPendingEditValues] = useState(null);
+
   useEffect(() => {
     const loadOptions = async () => {
       try {
@@ -93,6 +95,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       message.error("Failed to load contact names");
     }
   };
+
   useEffect(() => {
     if (!isEdit || !editData) return;
     const alloc = editData.menuItemAllocationConfigs;
@@ -113,7 +116,14 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     if (!alloc) return;
 
     const values = {};
-    values.venue = alloc.godownLocation === "AT VENUE" ? "at_venue" : "go_down";
+    // Update venue field to use the actual value from godownLocation
+    // If it's "AT VENUE", use "venue", otherwise use the godown ID
+    if (alloc.godownLocation === "AT VENUE") {
+      values.venue = "venue";
+    } else {
+      // If you're storing godown IDs, use the ID directly
+      values.venue = alloc.godownId || alloc.godownLocation;
+    }
 
     // Chef
     if (alloc.selectChefLabourAgency && alloc.chefLabourItem) {
@@ -244,6 +254,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     chefunit,
     outsideName,
   ]);
+
   const handleAddContact = (fieldName) => {
     switch (fieldName) {
       case "chef_contactName":
@@ -268,7 +279,9 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
         isEdit && editData?.menuItemAllocationConfigs?.id
           ? editData.menuItemAllocationConfigs.id
           : 0,
-      godownLocation: v.venue === "at_venue" ? "AT VENUE" : "GO DOWN",
+      // Update godownLocation to handle both venue and godown IDs
+      godownLocation: v.venue === "venue" ? "AT VENUE" : "GO DOWN",
+      godownId: v.venue !== "venue" ? v.venue : null, // Store godown ID if not venue
       remarks: v.chef_remarks || v.outside_remarks || v.remarks || "",
       partyId:
         v.chef_contactName || v.outside_contactName || v.chef_name || null,
@@ -431,17 +444,12 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     <div className="mt-6">
       <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
-          label={<span className="text-[#6A7C94] font-medium"> Venue</span>}
+          label={<span className="text-[#6A7C94] font-medium">Venue</span>}
           name="venue"
         >
-          <Select
-            showSearch
-            optionFilterProp="label"
-            className="bg-[#F8FAFC] h-10"
-            options={[
-              { label: "At Venue", value: "at_venue" },
-              { label: "Go Down", value: "go_down" },
-            ]}
+          <PlaceSelect
+            value={form.getFieldValue("venue")}
+            onChange={(value) => form.setFieldsValue({ venue: value })}
           />
         </Form.Item>
 

@@ -309,7 +309,7 @@ export default function SidebarInsideModal({
                       />
                     </button>
                   </div>
-                  {rawMaterials.length > 0 && (
+                  {/* {rawMaterials.length > 0 && (
                     <div className="flex items-center gap-2 ml-auto">
                       <button
                         className="btn btn-sm btn-light border border-gray-300"
@@ -319,10 +319,10 @@ export default function SidebarInsideModal({
                         {rawMaterials.length})
                       </button>
                     </div>
-                  )}
+                  )} */}
                 </div>
 
-                {showRawMaterials && rawMaterials.length > 0 && (
+                {/* {showRawMaterials && rawMaterials.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -375,7 +375,7 @@ export default function SidebarInsideModal({
                       )}
                     </div>
                   </motion.div>
-                )}
+                )} */}
 
                 {contactsError && (
                   <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200">

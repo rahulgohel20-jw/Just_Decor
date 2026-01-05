@@ -22,6 +22,7 @@ import {
 } from "@/services/apiServices";
 import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 
 const TopTabs = ({ value, onChange, functions }) => {
@@ -445,15 +446,9 @@ const TableRow = ({ row, onChange, disabled }) => {
       </div>
 
       <div className="col-span-2">
-        <Select
-          size="small"
+        <PlaceSelect
           value={row.place}
           onChange={(val) => onChange({ ...row, place: val })}
-          className="w-full"
-          options={[
-            { value: "venue", label: "At venue" },
-            { value: "godown", label: "GoDown" },
-          ]}
         />
       </div>
 

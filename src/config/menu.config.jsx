@@ -115,7 +115,15 @@ export const allMenuItems = [
         ),
         path: "/master/venue-type",
       },
-
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.GODOWNSIDEBAR_MASTER"
+            defaultMessage="Godown"
+          />
+        ),
+        path: "/master/godown",
+      },
       {
         title: (
           <FormattedMessage

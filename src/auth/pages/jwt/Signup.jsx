@@ -338,13 +338,13 @@ export default function Signup() {
         <div className="flex flex-col gap-2">
           <div>
             <h2 className="text-2xl font-semibold text-primary mb-2">Signup</h2>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-md">
               Please fill in all required fields to create your account.
             </p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold mb-4 border-b pb-2">
+            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
               Personal Details
             </h3>
 

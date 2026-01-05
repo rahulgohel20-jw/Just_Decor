@@ -3,6 +3,7 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddVendor from "../../add-vendor/AddVendor";
+import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
 import { FormattedMessage } from "react-intl";
 
 const AddGrossary = ({
@@ -122,32 +123,14 @@ const AddGrossary = ({
               </button>
             </div>
 
-            {/* Place */}
+            {/* Place - Using PlaceSelect component */}
             <div className="flex items-end gap-2">
-              <select
-                className="select w-[200px]"
-                value={selectedPlace}
-                onChange={(e) => setSelectedPlace(e.target.value)}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.SELECT_PLACE"
-                    defaultMessage="Select Place"
-                  />
-                </option>
-                <option value="At Venue">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.AT_VENUE"
-                    defaultMessage="At Venue"
-                  />
-                </option>
-                <option value="Godown">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.GO_DOWN"
-                    defaultMessage="At Godown"
-                  />
-                </option>
-              </select>
+              <div className="w-[200px]">
+                <PlaceSelect
+                  value={selectedPlace}
+                  onChange={(value) => setSelectedPlace(value)}
+                />
+              </div>
 
               <button
                 className="btn btn-primary"
