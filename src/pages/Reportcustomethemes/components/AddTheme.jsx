@@ -354,7 +354,7 @@ const AddTheme = ({
     }
 
     setDummyPdf({
-      ...file,
+      file: file,
       name: file.name,
       isExisting: false,
     });
@@ -362,6 +362,7 @@ const AddTheme = ({
 
   const removeDummyPdf = () => {
     setDummyPdf(null);
+    setFileInputKey(Date.now());
   };
 
   const handleSaveTemplate = async () => {
@@ -385,9 +386,15 @@ const AddTheme = ({
         formData.append("id", editingTheme.id);
       }
 
-      if (dummyPdf && !dummyPdf.isExisting) {
-        formData.append("dummyPdf", dummyPdf);
-      } else if (!dummyPdf) {
+      if (dummyPdf) {
+        if (!dummyPdf.isExisting && dummyPdf.file) {
+          // New PDF uploaded - append the actual file
+          formData.append("dummyPdf", dummyPdf.file);
+        }
+        // If isExisting is true, don't append anything (backend already has it)
+        // Unless your API requires you to explicitly send something
+      } else {
+        // No PDF selected at all
         formData.append("dummyPdf", null);
       }
 
@@ -874,6 +881,7 @@ const AddTheme = ({
                     Dummy PDF <span className="text-red-500">*</span>
                   </label>
                   <input
+                    key={fileInputKey}
                     id="dummypdfUpload"
                     type="file"
                     accept="application/pdf"
