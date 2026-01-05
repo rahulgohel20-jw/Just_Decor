@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { OutsideContactName } from "@/services/apiServices";
+import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
 
 /* ---------- UI ATOMS ---------- */
 
@@ -459,16 +460,12 @@ export default function SidebarRawMaterial({
                           </td>
 
                           <td className="p-3 w-[140px]">
-                            <BaseSelect
+                            <PlaceSelect
                               value={row.place}
-                              onChange={(e) =>
-                                handleInputChange(idx, "place", e.target.value)
+                              onChange={(value) =>
+                                handleInputChange(idx, "place", value)
                               }
-                            >
-                              <option value="">Select</option>
-                              <option value="At Venue">At Venue</option>
-                              <option value="Godown">Godown</option>
-                            </BaseSelect>
+                            />
                           </td>
 
                           <td className="p-3 w-[200px]">

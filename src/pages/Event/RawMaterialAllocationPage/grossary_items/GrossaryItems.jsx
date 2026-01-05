@@ -8,6 +8,7 @@ import {
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
+import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
 
 const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -489,37 +490,12 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <select
-                className="select"
+              <PlaceSelect
                 value={func.place || ""}
-                onChange={(e) =>
-                  handleFunctionChange(
-                    main_index,
-                    index,
-                    "place",
-                    e.target.value
-                  )
+                onChange={(val) =>
+                  handleFunctionChange(main_index, index, "place", val)
                 }
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.SELECT_PLACE"
-                    defaultMessage="Select Place"
-                  />
-                </option>
-                <option value="At Venue">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.AT_VENUE"
-                    defaultMessage="At Venue"
-                  />
-                </option>
-                <option value="Godown">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.GO_DOWN"
-                    defaultMessage="At Godown"
-                  />
-                </option>
-              </select>
+              />
             </div>
             <div className="mr-2 mb-2">
               <input
@@ -633,30 +609,10 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
               </select>
             </div>
             <div className="mr-2 mb-2">
-              <select
-                className="select"
+              <PlaceSelect
                 value={item.place || ""}
-                onChange={(e) => handleRowPlaceChange(index, e.target.value)}
-              >
-                <option value="">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.SELECT_PLACE"
-                    defaultMessage="Select Place"
-                  />
-                </option>
-                <option value="At Venue">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.AT_VENUE"
-                    defaultMessage="At Venue"
-                  />
-                </option>
-                <option value="Godown">
-                  <FormattedMessage
-                    id="SIDEBAR_MODAL.GO_DOWN"
-                    defaultMessage="At Godown"
-                  />
-                </option>
-              </select>
+                onChange={(val) => handleRowPlaceChange(index, val)}
+              />
             </div>
             <div className="mr-2 mb-2">
               <input

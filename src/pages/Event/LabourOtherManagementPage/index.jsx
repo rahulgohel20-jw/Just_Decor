@@ -17,7 +17,7 @@ import AddContactCategory from "../../../partials/modals/add-contact-category/Ad
 import { useExtraExpense } from "./hooks/useExtraExpense";
 import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
 import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
-
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import { Plus } from "lucide-react";
 import {
   GetEventMasterById,
@@ -1175,18 +1175,10 @@ const LabourRow = ({
         />
       </td>
       <td className="!px-[3px]">
-        <select
-          className="select select-sm w-full"
+        <PlaceSelect
           value={row.place}
-          onChange={(e) => onRowChange(row.id, "place", e.target.value)}
-        >
-          <option value="">Select Place</option>
-          {PLACES.map((place) => (
-            <option key={place} value={place}>
-              {place}
-            </option>
-          ))}
-        </select>
+          onChange={(val) => onRowChange(row.id, "place", val)}
+        />
       </td>
       <td className="!px-[3px]">
         <div className="flex items-center justify-center">

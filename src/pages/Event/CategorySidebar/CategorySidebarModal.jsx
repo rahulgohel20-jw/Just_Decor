@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip } from "antd"; // Keep only Tooltip from antd
-import DatePicker from "react-datepicker"; // Add react-datepicker
-import "react-datepicker/dist/react-datepicker.css"; // Add CSS
+import { Tooltip, Select } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import {
   OutsideContactName,
   GetUnitData,
@@ -104,7 +105,7 @@ export default function CategorySidebarModal({
         name: item.rawMaterialName || "",
         menuItemName: item.menuItemName || "-",
         agency: item.partyName || "",
-        dateTime: parseDateToObject(item.dateTime), // Convert to Date object
+        dateTime: parseDateToObject(item.dateTime),
         weight: item.weight || "",
         unit: item.unitName || "",
         place: item.place || "",
@@ -507,30 +508,14 @@ export default function CategorySidebarModal({
                     </div>
 
                     <div className="flex items-end gap-2">
-                      <select
-                        className="select pe-7.5"
-                        value={selectedPlace}
-                        onChange={(e) => setSelectedPlace(e.target.value)}
-                      >
-                        <option value="">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.SELECT_PLACE"
-                            defaultMessage="Select Place"
-                          />
-                        </option>
-                        <option value="At Venue">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.AT_VENUE"
-                            defaultMessage="At Venue"
-                          />
-                        </option>
-                        <option value="GoDown">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.GO_DOWN"
-                            defaultMessage="GoDown"
-                          />
-                        </option>
-                      </select>
+                      <div className="h-[50px] w-[200px]">
+                        <PlaceSelect
+                          value={selectedPlace}
+                          className="select h-full"
+                          onChange={(value) => setSelectedPlace(value)}
+                        />
+                      </div>
+
                       <button
                         className="btn btn-primary"
                         onClick={handleAllocatePlace}
@@ -704,31 +689,12 @@ export default function CategorySidebarModal({
                           </div>
 
                           <div>
-                            <BaseSelect
-                              value={row.place || ""}
-                              onChange={(e) =>
-                                handleChange(row.id, "place", e.target.value)
+                            <PlaceSelect
+                              value={row.place}
+                              onChange={(value) =>
+                                handleChange(row.id, "place", value)
                               }
-                            >
-                              <option value="">
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.SELECT_PLACE"
-                                  defaultMessage="Select Place"
-                                />
-                              </option>
-                              <option>
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.AT_VENUE"
-                                  defaultMessage="At Venue"
-                                />
-                              </option>
-                              <option>
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.GO_DOWN"
-                                  defaultMessage="GoDown"
-                                />
-                              </option>
-                            </BaseSelect>
+                            />
                           </div>
 
                           <div className="flex items-center justify-center">

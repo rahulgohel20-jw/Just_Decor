@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import {
-  UpdateVenueTypeApi,
-  AddVenueTypeApi,
+  AddorUpdategodown,
   Translateapi,
+  GetGodownbyid,
 } from "@/services/apiServices";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { FormattedMessage } from "react-intl";
 
-const AddVenueType = ({
+const Addgodown = ({
   isModalOpen,
   setIsModalOpen,
   refreshData = () => {},
@@ -17,11 +17,13 @@ const AddVenueType = ({
 }) => {
   if (!isModalOpen) return null;
   const [debounceTimer, setDebounceTimer] = useState(null);
-
   const initialFormState = {
     nameEnglish: "",
     nameGujarati: "",
     nameHindi: "",
+    addressEnglish: "",
+    addressGujarati: "",
+    addressHindi: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -31,7 +33,7 @@ const AddVenueType = ({
     nameEnglish: Yup.string().required("Name is required"),
   });
 
-  const triggerTranslate = (text) => {
+  const triggerTranslate = (text, type = "name") => {
     if (!text?.trim()) return;
 
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -41,8 +43,14 @@ const AddVenueType = ({
         .then((res) => {
           setFormData((prev) => ({
             ...prev,
-            nameGujarati: res.data.gujarati || "",
-            nameHindi: res.data.hindi || "",
+            ...(type === "name" && {
+              nameGujarati: res.data.gujarati || "",
+              nameHindi: res.data.hindi || "",
+            }),
+            ...(type === "address" && {
+              addressGujarati: res.data.gujarati || "",
+              addressHindi: res.data.hindi || "",
+            }),
           }));
         })
         .catch((err) => console.error("Translation error:", err));
@@ -52,18 +60,30 @@ const AddVenueType = ({
   };
 
   useEffect(() => {
-    if (selectedEvent) {
-      console.log("Editing Item:", selectedEvent);
-
-      setFormData({
-        nameEnglish:
-          selectedEvent.venue_type || selectedEvent.nameEnglish || "",
-        nameGujarati: selectedEvent.nameGujarati || "",
-        nameHindi: selectedEvent.nameHindi || "",
-      });
-    } else {
+    if (!selectedEvent?.id) {
       setFormData(initialFormState);
+      return;
     }
+
+    GetGodownbyid(selectedEvent.id)
+      .then((res) => {
+        const data = res?.data?.data;
+        if (!data) return;
+
+        setFormData({
+          nameEnglish: data.nameEnglish || "",
+          nameGujarati: data.nameGujarati || "",
+          nameHindi: data.nameHindi || "",
+          addressEnglish: data.addressEnglish || "",
+          addressGujarati: data.addressGujarati || "",
+          addressHindi: data.addressHindi || "",
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching godown by id:", error);
+        Swal.fire("Error", "Failed to load godown data", "error");
+      });
+
     setErrors({});
   }, [selectedEvent]);
 
@@ -72,76 +92,65 @@ const AddVenueType = ({
       triggerTranslate(formData.nameEnglish);
     }
   }, [formData.nameEnglish]);
+  useEffect(() => {
+    if (formData.addressEnglish) {
+      triggerTranslate(formData.addressEnglish, "address");
+    }
+  }, [formData.addressEnglish]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
   const handleSubmit = async () => {
-    if (!formData.nameEnglish?.trim()) {
-      Swal.fire("Required", "Please enter venue name in English", "warning");
-      return;
-    }
-
-    let userId;
     try {
-      userId = localStorage.getItem("userId");
-    } catch (e) {
-      console.error("Failed to parse userID:", e);
-      Swal.fire("Error", "Invalid user session", "error");
-      return;
-    }
+      await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
 
-    if (!userId) {
-      Swal.fire("Error", "User not logged in", "error");
-      return;
-    }
-
-    const payload = {
-      nameEnglish: formData.nameEnglish.trim(),
-      nameGujarati: formData.nameGujarati?.trim() || "",
-      nameHindi: formData.nameHindi?.trim() || "",
-      userId: userId,
-    };
-
-    console.log("Final Payload Sent to API:", payload);
-
-    try {
-      let res;
-      if (selectedEvent?.venueid) {
-        // Edit existing venue
-        res = await UpdateVenueTypeApi(selectedEvent.venueid, payload);
-        console.log("Selected Event in Edit Mode:", selectedEvent);
-      } else {
-        // Add new venue
-        res = await AddVenueTypeApi(payload);
-      }
-
-      console.log("API Response:", res);
-
-      if (res?.data?.success === false && res.data.msg?.includes("exists")) {
-        Swal.fire(
-          "Already Exists",
-          `Venue with the name '${formData.nameEnglish}' already exists.`,
-          "warning"
-        );
+      const userId = Number(localStorage.getItem("userId"));
+      if (!userId) {
+        Swal.fire("Error", "User data not found", "error");
         return;
       }
+
+      const payload = {
+        id: selectedEvent?.id || 0, // 🔥 0 = ADD, >0 = UPDATE
+        nameEnglish: formData.nameEnglish,
+        nameGujarati: formData.nameGujarati,
+        nameHindi: formData.nameHindi,
+        addressEnglish: formData.addressEnglish,
+        addressGujarati: formData.addressGujarati,
+        addressHindi: formData.addressHindi,
+        userId,
+      };
+
+      const res = await AddorUpdategodown(payload);
 
       if (res?.data?.success === false) {
-        Swal.fire("Failed", res.data.msg || "Could not save", "error");
+        Swal.fire("Error", res.data.msg || "Something went wrong", "error");
         return;
       }
 
-      Swal.fire("Success!", "Venue type saved successfully", "success");
-      setFormData(initialFormState);
-      await refreshData(formData.nameEnglish);
+      Swal.fire(
+        "Success",
+        selectedEvent
+          ? "Godown updated successfully!"
+          : "Godown added successfully!",
+        "success"
+      );
+
+      refreshData();
       setIsModalOpen(false);
     } catch (err) {
-      console.error("API Error:", err);
-      Swal.fire("Error", err.response?.data?.msg || "Database error", "error");
+      if (err.inner) {
+        const formErrors = {};
+        err.inner.forEach((validationError) => {
+          formErrors[validationError.path] = validationError.message;
+        });
+        setErrors(formErrors);
+      }
     }
   };
 
@@ -154,12 +163,12 @@ const AddVenueType = ({
             {selectedEvent ? (
               <FormattedMessage
                 id="USER.MASTER.EDIT_EVENT_TYPE"
-                defaultMessage="Edit Venue"
+                defaultMessage="Edit Event"
               />
             ) : (
               <FormattedMessage
                 id="USER.MASTER.ADD_EVENT_TYPE"
-                defaultMessage="Create New Venue"
+                defaultMessage="Create New Godown"
               />
             )}
           </h2>
@@ -220,6 +229,60 @@ const AddVenueType = ({
             onChange={handleChange}
             lng={"hi"}
           />
+          {/* Address English */}
+          {/* Address English - Full Width */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <FormattedMessage
+                id="COMMON.ADDRESS_ENGLISH"
+                defaultMessage="Address (English)"
+              />
+            </label>
+            <textarea
+              name="addressEnglish"
+              value={formData.addressEnglish}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter address"
+            />
+          </div>
+
+          {/* Address Gujarati - Left */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <FormattedMessage
+                id="COMMON.ADDRESS_GUJARATI"
+                defaultMessage="Address (ગુજરાતી)"
+              />
+            </label>
+            <textarea
+              name="addressGujarati"
+              value={formData.addressGujarati}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Address (ગુજરાતી)"
+            />
+          </div>
+
+          {/* Address Hindi - Right */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <FormattedMessage
+                id="COMMON.ADDRESS_HINDI"
+                defaultMessage="Address (हिंदी)"
+              />
+            </label>
+            <textarea
+              name="addressHindi"
+              value={formData.addressHindi}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Address (हिंदी)"
+            />
+          </div>
         </div>
 
         {/* Buttons */}
@@ -248,4 +311,4 @@ const AddVenueType = ({
   );
 };
 
-export default AddVenueType;
+export default Addgodown;

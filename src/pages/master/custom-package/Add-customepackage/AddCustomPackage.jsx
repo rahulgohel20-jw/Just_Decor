@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import CategoryListpackage from "./component/CategoryListpackage";
 import MenuItemGridPackage from "./component/MenuItemGridPackage";
 import SelectedItemPackage from "./component/SelectedItemPackage";
+import { useNavigate } from "react-router-dom";
 import AddMenuCategory from "../../../../partials/modals/add-menu-category/AddMenuCategory";
 import {
   AddCustomPackageapi,
@@ -21,7 +22,9 @@ import { useRef } from "react";
 
 function AddCustomPackage() {
   const [searchParams] = useSearchParams();
-  const packageId = searchParams.get("id"); // Get package ID from URL query params
+  const navigate = useNavigate();
+
+  const packageId = searchParams.get("id");
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedItems, setSelectedItems] = useState([]);
@@ -54,20 +57,17 @@ function AddCustomPackage() {
     };
   }, []);
 
-  // ✅ Load Package Data if editing
   useEffect(() => {
     if (packageId) {
       loadPackageData(packageId);
     }
   }, [packageId]);
 
-  // ✅ Load Categories on First Render
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const handleSaveNotes = (newNotes) => {
-    // If this is category-level notes
     if (String(notesModal.itemIndex).startsWith("cat-")) {
       const categoryId = notesModal.itemIndex.replace("cat-", "");
 
@@ -78,9 +78,7 @@ function AddCustomPackage() {
           menuInstruction: newNotes.itemsNotes || "",
         },
       }));
-    }
-    // Otherwise, this is item-level notes
-    else {
+    } else {
       setSelectedItems((prev) =>
         prev.map((item, idx) =>
           idx === notesModal.itemIndex
@@ -504,20 +502,21 @@ function AddCustomPackage() {
   };
 
   const handleCancel = () => {
-    if (confirm("Are you sure you want to cancel? All changes will be lost.")) {
-      setSelectedItems([]);
-      setFormData({
-        nameEnglish: "",
-        nameGujarati: "",
-        nameHindi: "",
-        price: "",
-      });
-      setErrors({});
-      setCategoryItemCounts({});
-
-      // Optionally navigate back
-      // window.history.back();
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "All changes will be lost.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, cancel",
+      cancelButtonText: "No, stay",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/master/custom-package");
+      }
+    });
   };
 
   const selectedItemIds = useMemo(() => {
@@ -656,7 +655,7 @@ function AddCustomPackage() {
         <div className="bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
           <button
             onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
           >
             Cancel
           </button>

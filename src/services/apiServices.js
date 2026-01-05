@@ -1378,3 +1378,20 @@ export const DeleteReportConfiguration = (id) => {
 export const GetReportConfigurationById = (id) => {
   return GET(`/report/configuration/getbyid?id=${id}`);
 };
+
+
+export const AddorUpdategodown = (data) => {
+  return POST(`/godown/addorupdate`, data);
+};
+
+export const GETallGodown = (userId) => {
+  return GET(`/godown/getall?userId=${userId}`);
+};
+
+export const GetGodownbyid = (id) => {
+  return GET(`/godown/getbyid?id=${id}`);
+};
+
+export const DeleteGoDown = (id) => {
+  return DELETE(`/godown/deleteById?id=${id}`);
+};
