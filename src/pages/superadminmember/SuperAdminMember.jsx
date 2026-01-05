@@ -5,6 +5,7 @@ import {
   GetALLMemberDetailsByID,
   GetAllTicketsByUserId,
   DeleteTicket,
+  DeleteAssignedTheme,
 } from "@/services/apiServices";
 import AddTicketModal from "../../partials/modals/add-ticket/AddTitcketModal";
 import { Edit, Trash } from "lucide-react";
@@ -88,6 +89,73 @@ const MemberProfile = () => {
 
     fetchTickets();
   }, [showTickets, id]);
+
+  const handleDeleteAssignedTheme = async (themeId, themeName) => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `You want to delete "${themeName}" theme?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        // Show loading
+        Swal.fire({
+          title: "Deleting...",
+          text: "Please wait",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        // Call delete API
+        const response = await DeleteAssignedTheme(themeId);
+
+        if (response?.data?.success) {
+          // Success message
+          await Swal.fire({
+            title: "Deleted!",
+            text: response.data.msg || "Theme has been deleted successfully.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          // Refresh member data to update the UI
+          const refreshResponse = await GetALLMemberDetailsByID(id);
+          const userDetails = refreshResponse?.data?.data?.["User Details"];
+          const user = userDetails?.[0];
+
+          if (
+            refreshResponse?.data?.success &&
+            Array.isArray(userDetails) &&
+            userDetails.length > 0
+          ) {
+            setMemberData(user);
+          }
+        } else {
+          throw new Error(response?.data?.msg || "Failed to delete theme");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting theme:", error);
+
+      Swal.fire({
+        title: "Error!",
+        text:
+          error.response?.data?.msg ||
+          error.message ||
+          "Failed to delete theme",
+        icon: "error",
+      });
+    }
+  };
 
   const calculatePaymentSummary = () => {
     if (!memberData) return { totalPaid: 0, remaining: 0, percentage: 0 };
@@ -402,12 +470,29 @@ const MemberProfile = () => {
                         {/* Themes */}
                         <div className="flex flex-wrap gap-2 ml-2">
                           {module.themes?.map((theme) => (
-                            <span
+                            <div
                               key={theme.themeId}
-                              className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
+                              className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full group hover:bg-blue-200 transition-colors"
                             >
-                              {theme.themeName}
-                            </span>
+                              <span className="text-xs">{theme.themeName}</span>
+
+                              {/* ✅ Delete Button */}
+                              <button
+                                onClick={() =>
+                                  handleDeleteAssignedTheme(
+                                    theme.themeId,
+                                    theme.themeName
+                                  )
+                                }
+                                className="opacity-0 group-hover:opacity-100 transition-opacity ml-1"
+                                title="Delete theme"
+                              >
+                                <Trash
+                                  size={20}
+                                  className="text-white bg-red-700 p-1 font-md rounded-full hover:bg-red-800 hover:shadow-md"
+                                />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       </div>
