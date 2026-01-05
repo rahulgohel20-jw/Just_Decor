@@ -81,10 +81,13 @@ const AddMeal = ({ isOpen, onClose, refreshData, selectedMeal }) => {
             }),
             "success"
           );
+
+          onClose();
+          refreshData(true);
         }
 
-        refreshData();
-        onClose();
+        // refreshData();
+        // onClose();
       } catch (err) {
         console.error("Error submitting meal:", err);
         Swal.fire("Error", "Something went wrong", "error");

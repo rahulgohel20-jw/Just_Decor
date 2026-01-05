@@ -185,19 +185,55 @@ const FunctionsDetails = ({
     );
   };
 
-  const FetchFunction = () => {
+  // Modified FetchFunction with auto-select support
+  const FetchFunction = (autoSelectLatest = false) => {
     const Id = localStorage.getItem("userId");
     GetAllFunctionsByUserId(Id)
       .then((res) => {
         const data = res?.data?.data?.["Function Details"] || [];
-        setOptions(
-          data.map((item) => ({
-            label: item.nameEnglish,
-            value: item.id,
-            functionstartTime: item.startTime,
-            functionendTime: item.endTime,
-          }))
-        );
+        const functionOptions = data.map((item) => ({
+          label: item.nameEnglish,
+          value: item.id,
+          functionstartTime: item.startTime,
+          functionendTime: item.endTime,
+        }));
+
+        setOptions(functionOptions);
+
+        // Auto-select the latest function if flag is true
+        if (autoSelectLatest && functionOptions.length > 0) {
+          const latestFunction = functionOptions[functionOptions.length - 1];
+
+          // Find the first empty row or create a new one
+          const emptyRowIndex = formData?.eventFunction?.findIndex(
+            (func) => !func.functionId
+          );
+
+          if (emptyRowIndex !== -1) {
+            // Update existing empty row
+            handleFunctionSelect(emptyRowIndex, latestFunction.value);
+          } else {
+            // Add new row and select the function
+            const newRow = createEmptyRow();
+            const updatedFunctions = [
+              ...(formData.eventFunction || []),
+              newRow,
+            ];
+
+            setFormData({
+              ...formData,
+              eventFunction: updatedFunctions,
+            });
+
+            // Select the function in the new row after a short delay
+            setTimeout(() => {
+              handleFunctionSelect(
+                updatedFunctions.length - 1,
+                latestFunction.value
+              );
+            }, 100);
+          }
+        }
       })
       .catch((err) => console.error("Error fetching functions:", err));
   };
@@ -774,7 +810,7 @@ const FunctionsDetails = ({
       <AddFunctionType
         isOpen={showFunctionModal}
         onClose={() => setShowFunctionModal(false)}
-        onSuccess={FetchFunction}
+        oonSuccess={FetchFunction}
       />
       <AddNotes
         isOpen={showNoteModal}

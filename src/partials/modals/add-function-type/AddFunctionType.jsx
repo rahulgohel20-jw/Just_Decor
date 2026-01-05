@@ -79,6 +79,8 @@ const AddFunctionType = ({
             return;
           }
           Swal.fire("Success", "Function added successfully!", "success");
+          onClose(false);
+          if (onSuccess) onSuccess(true);
         }
 
         // GetAllFunctionsByUserId();
