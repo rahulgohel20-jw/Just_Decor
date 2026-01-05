@@ -30,6 +30,8 @@ const AddTheme = ({
   const [moduleOptions, setModuleOptions] = useState([]);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
   const [activeTab, setActiveTab] = useState("template");
+  const [removedExistingImages, setRemovedExistingImages] = useState([]);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   useEffect(() => {
     if (isModalOpen) {
@@ -341,24 +343,27 @@ const AddTheme = ({
       return;
     }
 
-    const maxSize = 15 * 1024 * 1024; // 10MB
+    const maxSize = 15 * 1024 * 1024;
     if (file.size > maxSize) {
       Swal.fire({
         title: "File Too Large",
-        text: "PDF file must be less than 10MB",
+        text: "PDF file must be less than 15MB",
         icon: "error",
       });
       return;
     }
 
-    setDummyPdf(file);
+    setDummyPdf({
+      ...file,
+      name: file.name,
+      isExisting: false,
+    });
   };
 
   const removeDummyPdf = () => {
     setDummyPdf(null);
   };
 
-  // Save handler for Template Tab
   const handleSaveTemplate = async () => {
     if (!validateTemplateTab()) return;
 
@@ -382,17 +387,20 @@ const AddTheme = ({
 
       if (dummyPdf && !dummyPdf.isExisting) {
         formData.append("dummyPdf", dummyPdf);
-      } else {
+      } else if (!dummyPdf) {
         formData.append("dummyPdf", null);
       }
 
-      templates.forEach((template) => {
-        if (!template.isExisting && template.file) {
+      const newImages = templates.filter((t) => !t.isExisting && t.file);
+
+      if (newImages.length > 0) {
+        newImages.forEach((template) => {
           formData.append("menuReportPages", template.file);
-        }
-      });
-      if (isEditMode && editingTheme) {
-        formData.append("menuReportPages", "[]");
+        });
+      }
+
+      if (isEditMode && removedExistingImages.length > 0) {
+        formData.append("removedPages", JSON.stringify(removedExistingImages));
       }
 
       const response = isEditMode
@@ -434,7 +442,6 @@ const AddTheme = ({
     }
   };
 
-  // Save handler for Nameplate Tab
   const handleSaveNameplate = async () => {
     if (!validateNameplateTab()) return;
 
@@ -448,12 +455,10 @@ const AddTheme = ({
       formData.append("name", nameplateName);
       formData.append("userId", userId);
 
-      // ✅ Add ID for edit mode
       if (isEditMode && editingTheme) {
         formData.append("id", editingTheme.id);
       }
 
-      // Add nameplate only if it's a new file
       if (nameplate && !nameplate.isExisting && nameplate.file) {
         formData.append("namePlateBg", nameplate.file);
       } else {
@@ -499,7 +504,6 @@ const AddTheme = ({
     }
   };
 
-  // Main save handler that routes to appropriate function
   const handleSave = () => {
     if (activeTab === "template") {
       handleSaveTemplate();
@@ -513,13 +517,15 @@ const AddTheme = ({
     setNameplateName("");
     setTemplates([]);
     setNameplate(null);
-    setHeadingColor("");
-    setContentColor("");
+    setHeadingColor("rgba(31,41,55,1)");
+    setContentColor("rgba(75,85,99,1)");
     setDummyPdf(null);
     setErrors({});
     setTemplateModule("");
     setModuleOptions([]);
     setActiveTab("template");
+    setRemovedExistingImages([]);
+    setFileInputKey(Date.now());
   };
 
   const handleAddTemplate = (files) => {
@@ -527,18 +533,17 @@ const AddTheme = ({
 
     const fileArr = Array.from(files);
 
-    // Check total count - MAX 6
     if (templates.length + fileArr.length > 6) {
       Swal.fire({
         title: "Too Many Files",
         text: "Maximum 6 templates allowed",
         icon: "warning",
       });
+      setFileInputKey(Date.now());
       return;
     }
 
-    // Validate file types and sizes
-    const maxSize = 15 * 1024 * 1024; // 5MB
+    const maxSize = 15 * 1024 * 1024; // 15MB
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
     for (let file of fileArr) {
@@ -548,15 +553,17 @@ const AddTheme = ({
           text: `${file.name} is not a valid image file. Please upload JPG, PNG, or WEBP images.`,
           icon: "error",
         });
+        setFileInputKey(Date.now());
         return;
       }
 
       if (file.size > maxSize) {
         Swal.fire({
           title: "File Too Large",
-          text: `${file.name} exceeds 5MB limit`,
+          text: `${file.name} exceeds 15MB limit`,
           icon: "error",
         });
+        setFileInputKey(Date.now());
         return;
       }
     }
@@ -564,23 +571,33 @@ const AddTheme = ({
     const newTemplates = fileArr.map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      isExisting: false,
     }));
 
-    setTemplates([...templates, ...newTemplates]);
+    setTemplates((prev) => [...prev, ...newTemplates]);
+
+    setFileInputKey(Date.now());
   };
 
   const removeTemplate = (index) => {
     const updated = [...templates];
-    // Revoke object URL to free memory
-    URL.revokeObjectURL(updated[index].url);
+    const removed = updated[index];
+
+    if (removed.isExisting) {
+      setRemovedExistingImages((prev) => [...prev, removed.url]);
+    } else if (removed.url && !removed.isExisting) {
+      URL.revokeObjectURL(removed.url);
+    }
+
     updated.splice(index, 1);
     setTemplates(updated);
+
+    setFileInputKey(Date.now());
   };
 
   const handleAddNameplate = (file) => {
     if (!file) return;
 
-    // Validate file type
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
       Swal.fire({
@@ -588,24 +605,32 @@ const AddTheme = ({
         text: "Please upload a valid image file (JPG, PNG, WEBP)",
         icon: "error",
       });
+      setFileInputKey(Date.now());
       return;
     }
 
-    // Validate file size (5MB limit)
-    const maxSize = 15 * 1024 * 1024; // 5MB
+    const maxSize = 15 * 1024 * 1024;
     if (file.size > maxSize) {
       Swal.fire({
         title: "File Too Large",
-        text: "Nameplate image must be less than 5MB",
+        text: "Nameplate image must be less than 15MB",
         icon: "error",
       });
+      setFileInputKey(Date.now());
       return;
+    }
+
+    if (nameplate && nameplate.url && !nameplate.isExisting) {
+      URL.revokeObjectURL(nameplate.url);
     }
 
     setNameplate({
       file,
       url: URL.createObjectURL(file),
+      isExisting: false,
     });
+
+    setFileInputKey(Date.now());
   };
 
   const removeNameplate = () => {
@@ -815,6 +840,7 @@ const AddTheme = ({
                     <span className="text-red-500">*</span>
                   </label>
                   <input
+                    key={fileInputKey} // ✅ Add this key prop
                     id="templateUpload"
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -995,6 +1021,7 @@ const AddTheme = ({
                     Nameplate Image <span className="text-red-500">*</span>
                   </label>
                   <input
+                    key={fileInputKey}
                     id="nameplateUpload"
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
