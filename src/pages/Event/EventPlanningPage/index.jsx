@@ -63,7 +63,12 @@ const EventPlanningPage = ({ mode }) => {
   const userId = localStorage.getItem("userId");
   const [editPax, setEditPax] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-
+  const [selectedCategoryInfo, setSelectedCategoryInfo] = useState({
+    id: 0,
+    nameEnglish: "All",
+    nameHindi: "सभी",
+    nameGujarati: "બધા",
+  });
   const hasSelectedItems = useMemo(() => {
     const bucket = selectedByFunction[selectedFunction];
     if (!bucket || !bucket.categories) return false;
@@ -294,14 +299,49 @@ const EventPlanningPage = ({ mode }) => {
       setIsDirty(true);
       const functionId = selectedFunction;
       if (!functionId) return;
+      let categoryName,
+        categoryNameHindi,
+        categoryNameGujarati,
+        categoryIdToUse;
 
-      const categoryName =
-        overrideCategoryName ||
-        menuItem.menuCategory?.nameEnglish ||
-        menuItem.menuCategory?.name ||
-        menuItem.menuCategoryName ||
-        "Uncategorized";
+      // const categoryName =
+      //   overrideCategoryName ||
+      //   menuItem.menuCategory?.nameEnglish ||
+      //   menuItem.menuCategory?.name ||
+      //   menuItem.menuCategoryName ||
+      //   "Uncategorized";
 
+      if (selectedCategoryId !== 0 && selectedCategory !== "All") {
+        // Use the currently selected category
+        categoryName = selectedCategoryInfo.nameEnglish;
+        categoryNameHindi =
+          selectedCategoryInfo.nameHindi || selectedCategoryInfo.nameEnglish;
+        categoryNameGujarati =
+          selectedCategoryInfo.nameGujarati || selectedCategoryInfo.nameEnglish;
+        categoryIdToUse = selectedCategoryInfo.id;
+      } else {
+        // Use the item's original category (when "All" is selected)
+        categoryName =
+          overrideCategoryName ||
+          menuItem.menuCategory?.nameEnglish ||
+          menuItem.menuCategory?.name ||
+          menuItem.menuCategoryName ||
+          "Uncategorized";
+
+        categoryNameHindi =
+          menuItem.menuCategory?.nameHindi ||
+          menuItem.menuCategoryNameHindi ||
+          categoryName;
+
+        categoryNameGujarati =
+          menuItem.menuCategory?.nameGujarati ||
+          menuItem.menuCategoryNameGujarati ||
+          categoryName;
+
+        categoryIdToUse = Number(
+          menuItem.menuCategory?.id || menuItem.menuCategoryId || 0
+        );
+      }
       const itemId = Number(menuItem.id ?? menuItem.menuItemId);
 
       setSelectedByFunction((prev) => {
@@ -353,18 +393,9 @@ const EventPlanningPage = ({ mode }) => {
           imagePath: menuItem.imagePath || "",
           rate: appliedRate,
           menuCategoryName: categoryName,
-          // ⭐ Store category translations too
-          menuCategoryNameHindi:
-            menuItem.menuCategory?.nameHindi ||
-            menuItem.menuCategoryNameHindi ||
-            categoryName,
-          menuCategoryNameGujarati:
-            menuItem.menuCategory?.nameGujarati ||
-            menuItem.menuCategoryNameGujarati ||
-            categoryName,
-          catId: Number(
-            menuItem.menuCategory?.id || menuItem.menuCategoryId || 0
-          ),
+          menuCategoryNameHindi: categoryNameHindi,
+          menuCategoryNameGujarati: categoryNameGujarati,
+          catId: categoryIdToUse,
         });
 
         categories[categoryName] = list;
@@ -382,7 +413,13 @@ const EventPlanningPage = ({ mode }) => {
         };
       });
     },
-    [selectedFunction, defaultRate]
+    [
+      selectedFunction,
+      defaultRate,
+      selectedCategoryId,
+      selectedCategory,
+      selectedCategoryInfo,
+    ]
   );
 
   const onRemoveSelectedItem = useCallback(
@@ -734,9 +771,20 @@ const EventPlanningPage = ({ mode }) => {
     []
   );
 
-  const handleCategoryChange = (categoryName, categoryId) => {
+  const handleCategoryChange = (categoryName, categoryId, categoryInfo) => {
     setSelectedCategory(categoryName);
     setSelectedCategoryId(categoryId);
+
+    if (categoryInfo) {
+      setSelectedCategoryInfo(categoryInfo);
+    } else {
+      setSelectedCategoryInfo({
+        id: 0,
+        nameEnglish: "All",
+        nameHindi: "सभी",
+        nameGujarati: "બધા",
+      });
+    }
   };
 
   const openItemNotesModal = (itemId) => {
