@@ -349,9 +349,11 @@ const RawMaterialAllocation = ({ mode }) => {
         console.warn("No data to save, skipping auto-save");
         return false;
       }
+      console.log(activeTab);
 
       const payload = {
         eventId: parseInt(eventId),
+        rawMaterialCategoryId: parseInt(activeTab || 0),
         eventRawMaterial: data.map((item) => {
           const supplierId =
             agencies.find(

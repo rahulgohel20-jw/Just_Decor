@@ -315,24 +315,58 @@ const AddContactName = ({
 
       if (formData.id) {
         response = await EditCustomerApi(formData.id, formDataObj);
+
+        if (response?.data?.success === true) {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: response?.data?.msg,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(false);
+          refreshData();
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setSelectedFile(null);
+          setErrors({});
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: response?.data?.msg,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(true);
+        }
       } else {
         response = await AddCustomerapi(formDataObj);
+        if (response?.data?.success === true) {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: response?.data?.msg,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(false);
+          refreshData();
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setSelectedFile(null);
+          setErrors({});
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: response?.data?.msg,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(true);
+        }
       }
-
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: response?.data?.msg,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-
-      setIsModalOpen(false);
-      refreshData();
-      setFormData(initialFormState);
-      setImagePreview(null);
-      setSelectedFile(null);
-      setErrors({});
     } catch (error) {
       Swal.fire({
         icon: "error",

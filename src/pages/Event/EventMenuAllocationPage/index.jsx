@@ -631,13 +631,24 @@ const EventMenuAllocationPage = ({ mode }) => {
         return;
       }
 
-      // IMPORTANT: Set the eventFunctionId here before opening the modal
+      // NEW: Determine the type based on the matching row's checkboxes
+      let allocationType = "inside"; // default
+      if (matchingRow?.chefLabour) {
+        allocationType = "chef";
+      } else if (matchingRow?.outside) {
+        allocationType = "outsource";
+      } else if (matchingRow?.inside) {
+        allocationType = "inside";
+      }
+
+      // IMPORTANT: Set the eventFunctionId AND type here before opening the modal
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
         menuItemId: menuItemId,
         eventFunctionId: eventFunctionId, // Store the specific function ID
         eventId: eventId,
+        allocationType: allocationType, // NEW: Store the allocation type
       });
 
       setIsCategoryModal(true);
@@ -663,6 +674,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuItemId: menuItemId,
           eventFunctionId: eventFunctionId, // Keep the specific function ID
           eventId: eventId,
+          allocationType: allocationType, // NEW: Keep the allocation type
         });
       }
     } catch (error) {
@@ -1430,11 +1442,6 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
-  const openMenuReport = (eventId) => {
-    setMenuReportEventId(eventId);
-    setIsMenuReport(true);
-  };
-
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -1956,6 +1963,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventFunctionId={selectedRow?.eventFunctionId} // Use from selectedRow instead of activeFunction
           eventId={eventId}
           onSave={handleCategorySave}
+          allocationType={selectedRow?.allocationType}
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}
