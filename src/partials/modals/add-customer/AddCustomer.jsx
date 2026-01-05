@@ -282,32 +282,58 @@ const AddCustomer = ({
       }
 
       if (formData.id) {
-        await EditCustomerApi(formData.id, formDataObj);
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Customer updated successfully!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        const res = await EditCustomerApi(formData.id, formDataObj);
+        if (res?.data.success === false) {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: res.data.msg || "Failed to update customer",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(true);
+        } else {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: res.data.msg || "Customer updated successfully!",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(false);
+          refreshData();
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setSelectedFile(null);
+          setErrors({});
+        }
       } else {
-        await AddCustomerapi(formDataObj);
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Customer added successfully!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        const res = await AddCustomerapi(formDataObj);
+        if (res?.data.success === false) {
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: res.data.msg || "Failed to add customer",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(true);
+        } else {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: res.data.msg || "Customer added successfully!",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setIsModalOpen(false);
+          refreshData();
+          setFormData(initialFormState);
+          setImagePreview(null);
+          setSelectedFile(null);
+          setErrors({});
+        }
       }
-
-      setIsModalOpen(false);
-      refreshData();
-      setFormData(initialFormState);
-      setImagePreview(null);
-      setSelectedFile(null);
-      setSelectedFile(null);
-      setErrors({});
     } catch (error) {
       Swal.fire({
         icon: "error",

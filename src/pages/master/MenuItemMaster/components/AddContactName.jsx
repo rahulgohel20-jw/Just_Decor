@@ -232,13 +232,6 @@ const AddContactName = ({
       setCategories(filteredCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch categories. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
   };
 
@@ -297,20 +290,13 @@ const AddContactName = ({
   };
 
   const CustomerAddApi = async () => {
-    // Validate form before submission
     const isValid = await validateForm();
     if (!isValid) return;
 
     setIsLoading(true);
     try {
-      if (!userData) {
-        throw new Error("User data not found");
-      }
-
-      // ✅ Create FormData object (same as AddCustomer)
       const formDataObj = new FormData();
 
-      // ✅ Append all form fields
       Object.entries({
         ...formData,
         userId: userData,
@@ -321,51 +307,40 @@ const AddContactName = ({
         }
       });
 
-      // ✅ Append file if exists
       if (selectedFile) {
         formDataObj.append("file", selectedFile);
       }
 
+      let response;
+
       if (formData.id) {
-        await EditCustomerApi(formData.id, formDataObj);
-
-        // Success alert for edit
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Customer updated successfully!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        response = await EditCustomerApi(formData.id, formDataObj);
       } else {
-        await AddCustomerapi(formDataObj);
-
-        // Success alert for add
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Customer added successfully!",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        response = await AddCustomerapi(formDataObj);
       }
+
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: response?.data?.msg,
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
       setIsModalOpen(false);
       refreshData();
       setFormData(initialFormState);
       setImagePreview(null);
-      setSelectedFile(null); // ✅ Clear selectedFile
+      setSelectedFile(null);
       setErrors({});
     } catch (error) {
-      console.error("Error saving customer:", error);
-
-      // Error alert
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: error.message || "Failed to save customer. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
+        text:
+          error?.response?.data?.msg ||
+          error.message ||
+          "Failed to save customer",
       });
     } finally {
       setIsLoading(false);

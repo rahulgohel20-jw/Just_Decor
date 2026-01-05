@@ -73,7 +73,6 @@ const AddEventType = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -97,7 +96,8 @@ const AddEventType = ({
           return;
         }
         Swal.fire("Success", "Event updated successfully!", "success");
-        refreshData();
+        setIsModalOpen(false);
+        refreshData(false); // Just refresh, don't auto-select
       } else {
         const res = await Addeventtype(payload);
         if (res?.data.success === false) {
@@ -105,16 +105,11 @@ const AddEventType = ({
           return;
         }
         Swal.fire("Success", "Event added successfully!", "success");
-
-        // Get the newly created event type ID from response
-        const newEventTypeId = res?.data?.data?.id || res?.data?.id;
-
-        // Refresh data first, then auto-select
-        await refreshData(newEventTypeId);
+        setIsModalOpen(false);
+        refreshData(true); // Pass true to auto-select the latest
       }
-
-      setIsModalOpen(false);
     } catch (err) {
+      console.error("Submit Error:", err);
       if (err.inner) {
         const formErrors = {};
         err.inner.forEach((validationError) => {

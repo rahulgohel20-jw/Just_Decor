@@ -230,6 +230,7 @@ const RawMaterialAllocation = ({ mode }) => {
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
+      console.log(items);
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => {

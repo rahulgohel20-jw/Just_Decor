@@ -137,8 +137,10 @@ const AddVenueType = ({
 
       Swal.fire("Success!", "Venue type saved successfully", "success");
       setFormData(initialFormState);
-      await refreshData(formData.nameEnglish);
       setIsModalOpen(false);
+
+      // Pass true to auto-select the latest venue when adding new
+      refreshData(!selectedEvent?.venueid);
     } catch (err) {
       console.error("API Error:", err);
       Swal.fire("Error", err.response?.data?.msg || "Database error", "error");

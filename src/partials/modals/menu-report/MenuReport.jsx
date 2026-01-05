@@ -67,16 +67,16 @@ const MenuReport = ({
         if (!config) return;
         setReportType(config.type);
         setOptions({
-          categorySlogan: config.isCategorySlogan === 1,
-          categoryInstruction: config.isCategoryInstruction === 1,
-          categoryImage: config.isCategoryImage === 1,
-          itemSlogan: config.isItemSlogan === 1,
+          categorySlogan: config.isCategorySlogan === 0,
+          categoryInstruction: config.isCategoryInstruction === 0,
+          categoryImage: config.isCategoryImage === 0,
+          itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
-          companyDetails: config.isCompanyDetails === 1,
-          companyLogo: config.isCompanyLogo === 1,
-          itemImage: config.isItemImage === 1,
-          partyDetails: config.isPartyDetails === 1,
-          isWithQty: config.isWithQty === 1,
+          companyDetails: config.isCompanyDetails === 0,
+          companyLogo: config.isCompanyLogo === 0,
+          itemImage: config.isItemImage === 0,
+          partyDetails: config.isPartyDetails === 0,
+          isWithQty: config.isWithQty === 0,
         });
 
         setVisibleOptions(

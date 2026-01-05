@@ -1314,6 +1314,10 @@ export const UpdateCustomTheme = (formData) => {
   return PUT(`/templatemaster/update`, formData);
 };
 
+export const DeleteAssignedTheme = (id) => {
+  return DELETE(`/admintemplatemodule/deletebyid?adminTemplateModuleid=${id}`);
+};
+
 export const DeleteKyc = (id) => {
   return DELETE(`/user/deleteuserdocumentbyid?id=${id}`);
 };
