@@ -1184,6 +1184,21 @@ const EventPlanningPage = ({ mode }) => {
                 >
                   Report
                 </button>
+                <button
+                  type="button"
+                  onClick={handleSaveOrUpdate}
+                  disabled={isSaving || !isDirty}
+                  className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>{hasExistingData ? "Update Menu" : "Save Menu"}</span>
+                  )}
+                </button>
               </div>
 
               {packageAppliedForFunction[selectedFunction] &&

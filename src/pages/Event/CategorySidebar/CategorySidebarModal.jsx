@@ -4,6 +4,8 @@ import { Tooltip } from "antd"; // Keep only Tooltip from antd
 import DatePicker from "react-datepicker"; // Add react-datepicker
 import "react-datepicker/dist/react-datepicker.css"; // Add CSS
 import Swal from "sweetalert2";
+import AddContactName from "../../master/MenuItemMaster/components/AddContactName";
+import { Plus } from "lucide-react";
 import dayjs from "dayjs";
 import {
   OutsideContactName,
@@ -12,6 +14,7 @@ import {
   DeleteRawMaterialItem,
   SelectedItemNameMenuAllocation,
 } from "@/services/apiServices";
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -42,12 +45,33 @@ export default function CategorySidebarModal({
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
   const intl = useIntl();
+  const [concatId, setConcatId] = useState(null);
+  const [contactType, setContactType] = useState(5); // Default: Outside
+  const [contactTypeName, setContactTypeName] = useState("Outside");
 
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!selectedRowData) return;
+
+    // Priority: inside > chefLabour > outside (default)
+    if (selectedRowData.inside) {
+      setContactType(6); // Inside contact type
+      setContactTypeName("Inside Kitchen");
+    } else if (selectedRowData.chefLabour) {
+      setContactType(7); // Chef Labour contact type
+      setContactTypeName("Chef Labour");
+    } else {
+      setContactType(5); // Outside/Outsource contact type
+      setContactTypeName("Outside");
+    }
+  }, [selectedRowData]);
   const FetchAllSuplier = async () => {
     setLoading(true);
     try {
       const userId = localStorage.getItem("userId");
-      const res = await OutsideContactName(5, userId);
+      // Use dynamic contactType instead of hardcoded 5
+      const res = await OutsideContactName(contactType, userId);
       console.log(res);
 
       const supplierData = res?.data?.data?.["Party Details"] || [];
@@ -65,9 +89,12 @@ export default function CategorySidebarModal({
     }
   };
 
+  // Refetch suppliers when contactType changes
   useEffect(() => {
-    FetchAllSuplier();
-  }, []);
+    if (open) {
+      FetchAllSuplier();
+    }
+  }, [contactType, open]);
 
   // Helper function to parse date from various formats to Date object
   const parseDateToObject = (dateValue) => {
@@ -400,8 +427,12 @@ export default function CategorySidebarModal({
       } else {
         Swal.fire({
           icon: "error",
-          title: "Failed",
-          text: res?.data?.message || "Something went wrong.",
+          title: "Error",
+          text:
+            err?.response?.data?.msg ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "An unexpected error occurred.",
         });
       }
     } catch (err) {
@@ -455,93 +486,92 @@ export default function CategorySidebarModal({
 
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="p-5 flex-shrink-0">
-                  <div className="flex items-start justify-start gap-4 mt-4">
-                    <div className="flex items-end gap-2">
-                      <select
-                        className="select pe-7.5"
-                        value={selectedAgency}
-                        onChange={(e) => setSelectedAgency(e.target.value)}
-                      >
-                        <option value="">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.SELECT_AGENCY"
-                            defaultMessage="Select Agency"
-                          />
-                        </option>
-                        {loading && (
-                          <option>
+                  <div className="flex items-start justify-between gap-4 mt-4">
+                    {/* LEFT SIDE CONTROLS */}
+                    <div className="flex items-end gap-4">
+                      {/* Agency */}
+                      <div className="flex items-end gap-2">
+                        <select
+                          className="select pe-7.5"
+                          value={selectedAgency}
+                          onChange={(e) => setSelectedAgency(e.target.value)}
+                        >
+                          <option value="">
                             <FormattedMessage
-                              id="SIDEBAR_MODAL.LOADING"
-                              defaultMessage="Loading..."
+                              id="SIDEBAR_MODAL.SELECT_AGENCY"
+                              defaultMessage="Select Agency"
                             />
                           </option>
-                        )}
-                        {!loading && suppliers.length > 0
-                          ? suppliers.map((agency) => (
-                              <option
-                                key={agency.id}
-                                value={agency.nameEnglish}
-                              >
-                                {agency.nameEnglish}
-                              </option>
-                            ))
-                          : !loading && (
-                              <option>
-                                <FormattedMessage
-                                  id="COMMON.NO_AGENCY_FOUND"
-                                  defaultMessage="No agencies found"
-                                />
-                              </option>
-                            )}
-                      </select>
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleAllocateAgency}
-                        disabled={!selectedAgency}
-                      >
-                        <FormattedMessage
-                          id="COMMON.ALLOCATE"
-                          defaultMessage="Allocate"
+
+                          {loading && (
+                            <option>
+                              <FormattedMessage
+                                id="SIDEBAR_MODAL.LOADING"
+                                defaultMessage="Loading..."
+                              />
+                            </option>
+                          )}
+
+                          {!loading && suppliers.length > 0
+                            ? suppliers.map((agency) => (
+                                <option
+                                  key={agency.id}
+                                  value={agency.nameEnglish}
+                                >
+                                  {agency.nameEnglish}
+                                </option>
+                              ))
+                            : !loading && (
+                                <option>
+                                  <FormattedMessage
+                                    id="COMMON.NO_AGENCY_FOUND"
+                                    defaultMessage="No agencies found"
+                                  />
+                                </option>
+                              )}
+                        </select>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={handleAllocateAgency}
+                          disabled={!selectedAgency}
+                        >
+                          <FormattedMessage
+                            id="COMMON.ALLOCATE"
+                            defaultMessage="Allocate"
+                          />
+                        </button>
+                      </div>
+
+                      {/* Place */}
+                      <div className="flex items-end gap-2 w-[200px]">
+                        <PlaceSelect
+                          placeholder="Select venue"
+                          value={selectedPlace}
+                          onChange={(value) => setSelectedPlace(value)}
                         />
-                      </button>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={handleAllocatePlace}
+                          disabled={!selectedPlace}
+                        >
+                          <FormattedMessage
+                            id="COMMON.ALLOCATE"
+                            defaultMessage="Allocate"
+                          />
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="flex items-end gap-2">
-                      <select
-                        className="select pe-7.5"
-                        value={selectedPlace}
-                        onChange={(e) => setSelectedPlace(e.target.value)}
-                      >
-                        <option value="">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.SELECT_PLACE"
-                            defaultMessage="Select Place"
-                          />
-                        </option>
-                        <option value="At Venue">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.AT_VENUE"
-                            defaultMessage="At Venue"
-                          />
-                        </option>
-                        <option value="GoDown">
-                          <FormattedMessage
-                            id="SIDEBAR_MODAL.GO_DOWN"
-                            defaultMessage="GoDown"
-                          />
-                        </option>
-                      </select>
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleAllocatePlace}
-                        disabled={!selectedPlace}
-                      >
-                        <FormattedMessage
-                          id="COMMON.ALLOCATE"
-                          defaultMessage="Allocate"
-                        />
-                      </button>
-                    </div>
+                    {/* RIGHT SIDE BUTTON */}
+                    <button
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#005BA8] text-white font-semibold hover:bg-[#004a8a]"
+                      onClick={() => setIsMemberModalOpen(true)}
+                    >
+                      <span>Add Vendor</span>
+                      <Plus className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
 
@@ -704,7 +734,14 @@ export default function CategorySidebarModal({
                           </div>
 
                           <div>
-                            <BaseSelect
+                            <PlaceSelect
+                              value={row.place || "venue"}
+                              onChange={(val) =>
+                                handleChange(row.id, "place", val)
+                              }
+                            />
+
+                            {/* <BaseSelect
                               value={row.place || ""}
                               onChange={(e) =>
                                 handleChange(row.id, "place", e.target.value)
@@ -728,7 +765,7 @@ export default function CategorySidebarModal({
                                   defaultMessage="GoDown"
                                 />
                               </option>
-                            </BaseSelect>
+                            </BaseSelect> */}
                           </div>
 
                           <div className="flex items-center justify-center">
@@ -775,7 +812,12 @@ export default function CategorySidebarModal({
             </motion.div>
           </div>
         </div>
-      )}
+      )}{" "}
+      <AddContactName
+        isModalOpen={isMemberModalOpen}
+        setIsModalOpen={setIsMemberModalOpen}
+        refreshData={fetchCategories}
+      />
     </AnimatePresence>
   );
 }

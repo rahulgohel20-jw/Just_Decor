@@ -4,6 +4,8 @@ import AddGrossary from "@/partials/modals/event/add-grossary/AddGrossary";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import { useNavigate } from "react-router-dom";
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
+
 import { GetUnitData } from "@/services/apiServices";
 import {
   GetAllRawMaterialAllocationCategory,
@@ -602,11 +604,8 @@ const RawMaterialAllocation = ({ mode }) => {
                         />
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <Select
-                          size="small"
-                          className="w-full"
+                        <PlaceSelect
                           value={item.place}
-                          options={placeOptions}
                           onChange={(value) =>
                             handleChange(index, "place", value)
                           }

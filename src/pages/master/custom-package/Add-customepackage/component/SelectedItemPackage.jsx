@@ -9,42 +9,36 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 export default function SelectedItemPackage({
   selectedItems,
   onRemoveItem,
   onUpdateRate,
   categoryMap = {},
-  onReorder, // Single callback for all reordering
+  onReorder,
   categoryItemCounts,
   onUpdateNotes,
   onOpenNotes,
-
-  // NEW: Callback to update notes
 }) {
   const [showRates, setShowRates] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [categoryOrder, setCategoryOrder] = useState([]);
+  const navigate = useNavigate();
+
   const [notesModal, setNotesModal] = useState({
     isOpen: false,
     itemIndex: null,
     notes: null,
   });
 
-  // Debug: Check if DragDropContext is available
-  useEffect(() => {
-    console.log("🔍 SelectedItemPackage mounted");
-    console.log("🔍 DragDropContext available:", !!DragDropContext);
-    console.log("🔍 Selected items count:", selectedItems.length);
-    console.log("🔍 onReorder callback:", typeof onReorder);
-  }, []);
+  useEffect(() => {}, []);
 
-  // GROUP ITEMS BY CATEGORY
   const groupedItems = useMemo(() => {
     const grouped = selectedItems.reduce((acc, item, index) => {
       const catId = item.category;
       if (!acc[catId]) acc[catId] = [];
-      // Use the current index, not a stored originalIndex
       acc[catId].push({ ...item, currentIndex: index });
       return acc;
     }, {});
@@ -52,18 +46,15 @@ export default function SelectedItemPackage({
     return grouped;
   }, [selectedItems]);
 
-  // Initialize and maintain category order
   useEffect(() => {
     const currentCategories = Object.keys(groupedItems);
 
-    // If categoryOrder is empty, initialize it
     if (categoryOrder.length === 0 && currentCategories.length > 0) {
       console.log("🔧 Initializing category order:", currentCategories);
       setCategoryOrder(currentCategories);
       return;
     }
 
-    // Add any new categories that appear
     const newCategories = currentCategories.filter(
       (cat) => !categoryOrder.includes(cat)
     );
@@ -72,7 +63,6 @@ export default function SelectedItemPackage({
       setCategoryOrder((prev) => [...prev, ...newCategories]);
     }
 
-    // Remove categories that no longer have items
     const validCategories = categoryOrder.filter((cat) =>
       currentCategories.includes(cat)
     );
@@ -379,7 +369,7 @@ export default function SelectedItemPackage({
                                               </div>
                                             )}
                                           </div>
-                                          <button
+                                          {/* <button
                                             onClick={() =>
                                               onOpenNotes(item.currentIndex)
                                             }
@@ -389,7 +379,7 @@ export default function SelectedItemPackage({
                                             className="text-purple-500 hover:text-purple-700 p-1"
                                           >
                                             <FileText className="w-4 h-4" />
-                                          </button>
+                                          </button> */}
 
                                           <button
                                             onClick={(e) => {

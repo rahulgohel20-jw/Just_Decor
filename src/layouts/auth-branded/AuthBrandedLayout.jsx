@@ -9,43 +9,49 @@ const Layout = () => {
   return (
     <Fragment>
       <style>
-        {`
+        {/* {`
           .branded-bg {
-            background-image: url('${toAbsoluteUrl("/images/account_img.jpg")}');
+            background-image: url('${toAbsoluteUrl("/images/login_img.png")}');
           }
           .dark .branded-bg {
-            background-image: url('${toAbsoluteUrl("/images/account_img.jpg")}');
+            background-image: url('${toAbsoluteUrl("/images/login_img.png")}');
           }
-        `}
+        `} */}
       </style>
       <div className="grid lg:grid-cols-2 grow">
-        <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-2 lg:order-1 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
-          <div className="flex flex-col p-8 lg:p-16 gap-4 text-center">
-            <Link to="/" className="m-auto">
-              <img
-                src={toAbsoluteUrl("/images/monogram_white.svg")}
-                className="h-[42px] max-w-none"
-                alt=""
-              />
-            </Link>
-            <div className="flex flex-col gap-3">
-              <h3 className="text-xl font-semibold text-white">
-                Welcome to Just Catering Software
-              </h3>
-              <h4 className="text-lg font-semibold text-white">
-                One platform. Total control. Complete automation.
-              </h4>
-              <div className="text-sm text-white opacity-90">
-                One refined platform crafted to give you complete control{" "}
-                <span className="font-bold">over your catering operations</span>
-                <br className="hidden md:inline" />
-                <span className="font-bold">from planning </span>
-                to performance.
-              </div>
-            </div>
+        <div className="relative lg:rounded-xl w-full   order-1 lg:order-1  flex items-center justify-center">
+          {/* Logo top-left */}
+
+          {/* Center Card */}
+          <div className="  w-full px-8 py-10 md:pb-0 text-center rounded-sm flex flex-col items-center justify-center">
+            {/* Heading */}
+            <h3 className="text-3xl font-semibold text-black mb-2">
+              Welcome to <span className="text-[#005BA8]">Just Catering</span>
+            </h3>
+
+            {/* Subheading */}
+            <p className="text-md text-gray-800 mb-3">
+              One platform. Total control. Complete automation.
+            </p>
+
+            {/* Image */}
+            <img
+              src={toAbsoluteUrl("/images/login_img.png")}
+              alt="Just Catering Illustration"
+              className="w-[500px]  mb-3 md:hidden sm:hidden lg:flex"
+            />
+
+            {/* Description */}
+            <p className="text-md text-gray-700 leading-relaxed px-5 md:hidden sm:hidden lg:block">
+              Streamline your kitchen operations, manage orders efficiently, and
+              grow your hospitality business with our{" "}
+              <span className="font-semibold">all-in-one digital solution</span>
+              .
+            </p>
           </div>
         </div>
-        <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-1 lg:order-2">
+
+        <div className=" flex justify-center flex-col items-center p-4 md:p-0 lg:p-10 order-2 lg:order-2">
           <Link to="/" className="ms-auto me-auto mt-auto mb-5 lg:hidden">
             <img
               src={toAbsoluteUrl("/images/monogram_white.svg")}
