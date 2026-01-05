@@ -220,7 +220,7 @@ const CategoryList = ({
             return (
               <div
                 key={cat.id}
-                onClick={() => onCategoryChange(displayName, cat.id)}
+                onClick={() => onCategoryChange(displayName, cat.id, cat)}
                 className={`cursor-pointer px-3 py-2 rounded transition-all relative
                   ${
                     selectedCategoryId === cat.id
