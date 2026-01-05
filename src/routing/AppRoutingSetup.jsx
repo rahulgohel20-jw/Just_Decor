@@ -208,6 +208,7 @@ import ReportLabelConfiguration from "../pages/Reports/ReportLabelConfiguration"
 import AdminReportCustomThem from "../pages/master/AdminReportCustomTheme";
 import AllReportsConfig from "../pages/super-admin/master/super-report-config";
 import RightsModule from "../pages/super-admin/master/RightsModule";
+import GodownMaster from "../pages/master/Godown-master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -359,6 +360,7 @@ const AppRoutingSetup = () => {
           />
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/venue-type" element={<VenuetypeMaster />} />
+          <Route path="/master/godown" element={<GodownMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />

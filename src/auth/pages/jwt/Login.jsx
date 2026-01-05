@@ -156,13 +156,13 @@ const Login = () => {
         noValidate
       >
         <div className="mb-2.5">
-          <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">
+          <h3 className="text-2xl font-semibold text-gray-900 leading-none mb-2.5">
             Sign In
           </h3>
-          <h4 className="flex gap-2 align-center font-semibold">
+          <h3 className="flex text-lg gap-2 align-center font-semibold">
             Welcome back
-          </h4>
-          <span className="text-md text-gray-700">
+          </h3>
+          <span className="text-lg text-gray-700">
             Hey, Enter your details below to sign in and access your account
             securely and easily.
           </span>
@@ -172,7 +172,7 @@ const Login = () => {
 
         {/* Email */}
         <div className="flex flex-col">
-          <label className="form-label">Email Address</label>
+          <label className="form-label text-md">Email Address</label>
           <div className="input">
             <i className="ki-filled ki-sms"></i>
             <input
@@ -185,7 +185,7 @@ const Login = () => {
             />
           </div>
           {formik.touched.email && formik.errors.email && (
-            <span role="alert" className="text-danger text-xs mt-1">
+            <span role="alert" className="text-danger text-sm mt-1">
               {formik.errors.email}
             </span>
           )}
@@ -193,7 +193,7 @@ const Login = () => {
 
         {/* Password */}
         <div className="flex flex-col">
-          <label className="form-label">Password</label>
+          <label className="form-label text-md">Password</label>
           <div className="input">
             <i className="ki-filled ki-lock-2"></i>
             <input
@@ -217,7 +217,7 @@ const Login = () => {
             </button>
           </div>
           {formik.touched.password && formik.errors.password && (
-            <span role="alert" className="text-danger text-xs mt-1">
+            <span role="alert" className="text-danger text-sm mt-1">
               {formik.errors.password}
             </span>
           )}
@@ -257,14 +257,14 @@ const Login = () => {
 
         <div className="flex items-center gap-2 my-2">
           <span className="border-t border-gray-200 w-full"></span>
-          <span className="text-2xs text-gray-500 font-medium uppercase">
+          <span className="text-md text-gray-500 font-medium uppercase">
             Or
           </span>
           <span className="border-t border-gray-200 w-full"></span>
         </div>
 
         <div className="flex items-center justify-center ">
-          <span className="text-sm text-gray-700 me-1.5">
+          <span className="text-md text-gray-700 me-1.5">
             Don't have an account?
           </span>
           <Link
@@ -273,7 +273,7 @@ const Login = () => {
                 ? "/auth/signup"
                 : "/auth/classic/signup"
             }
-            className="text-2sm link hover:underline font-medium no-underline"
+            className="text-md link hover:underline font-medium no-underline"
           >
             Sign Up
           </Link>

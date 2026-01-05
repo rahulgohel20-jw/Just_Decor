@@ -3,6 +3,7 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { DatePicker, Form, Select } from "antd";
 import dayjs from "dayjs";
 import { FormattedMessage, useIntl } from "react-intl";
+import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect"; // Import PlaceSelect component
 
 const AddGeneralfix = ({
   isModalOpen,
@@ -18,42 +19,21 @@ const AddGeneralfix = ({
   const [selectedPlace, setSelectedPlace] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [data, setData] = useState([
-    
-  ]);
+  const [data, setData] = useState([]);
 
   const handleModalClose = () => setIsModalOpen(false);
   const intl = useIntl();
+
   // Dropdown options
   const agencyOptions = agencies.map((a) => ({
     label: a.nameEnglish || a.name,
     value: a.nameEnglish || a.name,
   }));
 
-  const placeOptions = [
-    [
-  { 
-    label: <FormattedMessage id="COMMON.AT_VENUE" defaultMessage="At Venue" />, 
-    value: "At Venue" 
-  },
-  { 
-    label: <FormattedMessage id="COMMON.KITCHEN" defaultMessage="Kitchen" />, 
-    value: "Kitchen" 
-  },
-  { 
-    label: <FormattedMessage id="COMMON.STORE" defaultMessage="Store" />, 
-    value: "Store" 
-  },
-]
-
-  ];
-
   // Handle inline table changes
   const handleChange = (index, field, value) => {
     setData((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
   };
 
@@ -79,9 +59,7 @@ const AddGeneralfix = ({
   const handleAllocateDate = () => {
     if (selectedDate) {
       onAllocateDate(selectedDate);
-      setData((prev) =>
-        prev.map((item) => ({ ...item, date: selectedDate }))
-      );
+      setData((prev) => prev.map((item) => ({ ...item, date: selectedDate })));
     }
   };
 
@@ -91,10 +69,9 @@ const AddGeneralfix = ({
         open={isModalOpen}
         onClose={handleModalClose}
         title={intl.formatMessage({
-  id: "RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE",
-  defaultMessage: "Agency, Place & Date Allocation",
-})}
-
+          id: "RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE",
+          defaultMessage: "Agency, Place & Date Allocation",
+        })}
         width={900}
         footer={[
           <div className="flex justify-between" key={"footer-buttons"}>
@@ -103,7 +80,7 @@ const AddGeneralfix = ({
               className="btn btn-light"
               onClick={handleModalClose}
             >
-              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel"  />
+              <FormattedMessage id="COMMON.CANCEL" defaultMessage="Cancel" />
             </button>
             <button
               className="btn btn-primary save-btn"
@@ -123,51 +100,69 @@ const AddGeneralfix = ({
               value={selectedAgency}
               onChange={(e) => setSelectedAgency(e.target.value)}
             >
-              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_AGENCY" defaultMessage="Select Agency" /></option>
-              {loading && <option><FormattedMessage id="SIDEBAR_MODAL.LOADING" defaultMessage="Loading..." /></option>} 
-              {!loading && agencies.length > 0 ? (  
-                agencies.map((agency) => (
-                  <option
-                    key={agency.id}
-                    value={agency.nameEnglish || agency.name}
-                  >
-                    {agency.nameEnglish || agency.name}
-                  </option>
-                ))
-              ) : (
-                !loading && <option><FormattedMessage id="COMMON.NO_AGENCY_FOUND" defaultMessage="no agencies found" /></option>
+              <option value="">
+                <FormattedMessage
+                  id="SIDEBAR_MODAL.SELECT_AGENCY"
+                  defaultMessage="Select Agency"
+                />
+              </option>
+              {loading && (
+                <option>
+                  <FormattedMessage
+                    id="SIDEBAR_MODAL.LOADING"
+                    defaultMessage="Loading..."
+                  />
+                </option>
               )}
+              {!loading && agencies.length > 0
+                ? agencies.map((agency) => (
+                    <option
+                      key={agency.id}
+                      value={agency.nameEnglish || agency.name}
+                    >
+                      {agency.nameEnglish || agency.name}
+                    </option>
+                  ))
+                : !loading && (
+                    <option>
+                      <FormattedMessage
+                        id="COMMON.NO_AGENCY_FOUND"
+                        defaultMessage="no agencies found"
+                      />
+                    </option>
+                  )}
             </select>
             <button
               className="btn btn-primary"
               onClick={handleAllocateAgency}
               disabled={!selectedAgency}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
 
-          {/* Place Allocation */}
+          {/* Place Allocation - Using PlaceSelect */}
           <div className="flex items-end gap-2">
-            <select
-              className="select pe-7.5"
-              value={selectedPlace}
-              onChange={(e) => setSelectedPlace(e.target.value)}
-            >
-              <option value=""><FormattedMessage id="SIDEBAR_MODAL.SELECT_PLACE" defaultMessage="Select place" /></option>
-              <option value="At Venue"><FormattedMessage id="SIDEBAR_MODAL.AT_VENUE" defaultMessage="At Venue" /></option>
-              <option value="Godown"><FormattedMessage id="SIDEBAR_MODAL.GO_DOWN" defaultMessage="At Godown" /></option>
-             
-            </select>
+            <div className="w-[200px]">
+              <PlaceSelect
+                value={selectedPlace}
+                onChange={(value) => setSelectedPlace(value)}
+              />
+            </div>
             <button
               className="btn btn-primary"
               onClick={handleAllocatePlace}
               disabled={!selectedPlace}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
-
 
           {/* Date Allocation */}
           <div className="flex items-end gap-2">
@@ -183,83 +178,94 @@ const AddGeneralfix = ({
               onClick={handleAllocateDate}
               disabled={!selectedDate}
             >
-              <FormattedMessage id="COMMON.ALLOCATE" defaultMessage="Alloacte" />
+              <FormattedMessage
+                id="COMMON.ALLOCATE"
+                defaultMessage="Allocate"
+              />
             </button>
           </div>
         </div>
 
         {/* Table Section */}
-     <div className="overflow-x-auto">
-            <table className="min-w-full text-sm text-gray-700">
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-gray-700">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+              <tr>
+                <th className="px-4 py-3 text-left">
+                  <FormattedMessage
+                    id="COMMON.RAW_MATERIAL"
+                    defaultMessage="Raw Material"
+                  />
+                </th>
+                <th className="px-4 py-3 text-left">
+                  <FormattedMessage
+                    id="COMMON.AGENCY"
+                    defaultMessage="Agency"
+                  />
+                </th>
+                <th className="px-4 py-3 text-left">
+                  <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
+                </th>
+                <th className="px-4 py-3 text-left">
+                  <FormattedMessage
+                    id="COMMON.DATE_AND_TIME"
+                    defaultMessage="Date & Time"
+                  />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
                 <tr>
-                  <th className="px-4 py-3 text-left">
-  <FormattedMessage id="COMMON.RAW_MATERIAL" defaultMessage="Raw Material" />
-</th>
-<th className="px-4 py-3 text-left">
-  <FormattedMessage id="COMMON.AGENCY" defaultMessage="Agency" />
-</th>
-<th className="px-4 py-3 text-left">
-  <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
-</th>
-<th className="px-4 py-3 text-left">
-  <FormattedMessage id="COMMON.DATE_AND_TIME" defaultMessage="Date & Time" />
-</th>
-
+                  <td colSpan="4" className="text-center py-4 text-gray-500">
+                    <FormattedMessage
+                      id="COMMON.NO_MATERIALS_FOUND"
+                      defaultMessage="No materials found"
+                    />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {data.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-4 text-gray-500">
-                      <FormattedMessage
-  id="COMMON.NO_MATERIALS_FOUND"
-  defaultMessage="No materials found"
-/>
-
+              ) : (
+                data.map((item, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="px-4 py-3">{item.material}</td>
+                    <td className="px-4 py-3">
+                      <Select
+                        size="small"
+                        className="w-full"
+                        value={item.agency}
+                        options={agencyOptions}
+                        onChange={(value) =>
+                          handleChange(index, "agency", value)
+                        }
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <PlaceSelect
+                        value={item.place}
+                        onChange={(value) =>
+                          handleChange(index, "place", value)
+                        }
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <DatePicker
+                        className="input input-sm"
+                        showTime
+                        format="MM/DD/YYYY hh:mm A"
+                        value={
+                          item.date && dayjs(item.date).isValid()
+                            ? dayjs(item.date)
+                            : null
+                        }
+                        onChange={(date) => handleChange(index, "date", date)}
+                      />
                     </td>
                   </tr>
-                ) : (
-                  data.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td className="px-4 py-3">{item.material}</td>
-                      <td className="px-4 py-3">
-                        <Select
-                          size="small"
-                          className="w-full"
-                          value={item.agency}
-                          options={agencyOptions}
-                          onChange={(value) => handleChange(index, "agency", value)}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Select
-                          size="small"
-                          className="w-full"
-                          value={item.place}
-                          options={placeOptions}
-                          onChange={(value) => handleChange(index, "place", value)}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <DatePicker
-                          className="input input-sm"
-                          showTime
-                          format="MM/DD/YYYY hh:mm A"
-                          value={
-                            item.date && dayjs(item.date).isValid()
-                              ? dayjs(item.date)
-                              : null
-                          }
-                          onChange={(date) => handleChange(index, "date", date)}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
         {/* Optional Custom Data Section */}
         <div className="mt-4">{modalData()}</div>
       </CustomModal>
