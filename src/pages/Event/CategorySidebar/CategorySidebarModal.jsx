@@ -37,6 +37,7 @@ export default function CategorySidebarModal({
   eventFunctionId,
   eventId,
   onSave,
+  allocationType,
 }) {
   const [suppliers, setSuppliers] = useState([]);
   const [unit, setUnit] = useState([]);
@@ -45,24 +46,32 @@ export default function CategorySidebarModal({
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
   const intl = useIntl();
-  const [concatId, setConcatId] = useState(null);
-  const [contactType, setContactType] = useState(5); // Default: Outside
+  const [contactType, setContactType] = useState(); // Default: Outside
   const [contactTypeName, setContactTypeName] = useState("Outside");
 
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  let concatId = null;
+  if (allocationType === "inside") {
+    concatId = 7;
+  } else if (allocationType === "chef") {
+    concatId = 5;
+  } else if (allocationType === "outsource") {
+    concatId = 6;
+  }
 
   useEffect(() => {
     if (!selectedRowData) return;
+    console.log(selectedRowData);
 
     // Priority: inside > chefLabour > outside (default)
-    if (selectedRowData.inside) {
-      setContactType(6); // Inside contact type
+    if (selectedRowData.allocationType === "inside") {
+      setContactType(7); // Inside contact type
       setContactTypeName("Inside Kitchen");
-    } else if (selectedRowData.chefLabour) {
-      setContactType(7); // Chef Labour contact type
+    } else if (selectedRowData.allocationType === "chef") {
+      setContactType(5); // Chef Labour contact type
       setContactTypeName("Chef Labour");
-    } else {
-      setContactType(5); // Outside/Outsource contact type
+    } else if (selectedRowData.allocationType === "outsource") {
+      setContactType(6); // Outside/Outsource contact type
       setContactTypeName("Outside");
     }
   }, [selectedRowData]);
@@ -544,8 +553,9 @@ export default function CategorySidebarModal({
                       </div>
 
                       {/* Place */}
-                      <div className="flex items-end gap-2 w-[200px]">
+                      <div className="flex items-end gap-2 w-[200px] h-10">
                         <PlaceSelect
+                          className="h-10"
                           placeholder="Select venue"
                           value={selectedPlace}
                           onChange={(value) => setSelectedPlace(value)}
@@ -816,7 +826,8 @@ export default function CategorySidebarModal({
       <AddContactName
         isModalOpen={isMemberModalOpen}
         setIsModalOpen={setIsMemberModalOpen}
-        refreshData={fetchCategories}
+        refreshData={FetchAllSuplier}
+        concatId={concatId}
       />
     </AnimatePresence>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Select } from "antd";
 import { GETallGodown } from "@/services/apiServices";
 
-const PlaceSelect = ({ value, onChange }) => {
+const PlaceSelect = ({ value, onChange, className }) => {
   const [options, setOptions] = useState([
     { value: "venue", label: "At venue" },
   ]);
@@ -49,7 +49,7 @@ const PlaceSelect = ({ value, onChange }) => {
       size="small"
       value={value}
       onChange={onChange}
-      className="w-full"
+      className="w-full h-10 "
       options={options}
       loading={loading}
       placeholder="Select place"
