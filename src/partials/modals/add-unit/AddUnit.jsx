@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
-import { AddUnitdata, EditUnit, Translateapi } from "@/services/apiServices";
+import {
+  AddUnitdata,
+  EditUnit,
+  Translateapi,
+  GetUnitData,
+} from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -15,6 +20,12 @@ const AddUnit = ({
   if (!isModalOpen) return null;
 
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [unitOptions, setUnitOptions] = useState([]);
+  let userId = localStorage.getItem("userId");
+  if (!userId) return null;
+  useEffect(() => {
+    fetchUnits();
+  }, []);
 
   const validationSchema = Yup.object({
     nameEnglish: Yup.string().required("Name is required"),
@@ -60,7 +71,6 @@ const AddUnit = ({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const userId = JSON.parse(localStorage.getItem("userId"));
       if (!userId) return Swal.fire("Error", "User data not found", "error");
 
       // Transform payload to match API requirements
@@ -127,8 +137,24 @@ const AddUnit = ({
     enableReinitialize: true,
   });
 
+  const fetchUnits = async () => {
+    const res = await GetUnitData(userId);
+
+    if (res?.data.success === true) {
+      setUnitOptions(res?.data?.data["Unit Details"] || []);
+    }
+  };
+
+  const parentUnitOptions = useMemo(() => {
+    return unitOptions.filter(
+      (u) =>
+        u.isParentUnit === true &&
+        (!selectedUnit || u.id !== selectedUnit.unitId)
+    );
+  }, [unitOptions, selectedUnit]);
+
   useEffect(() => {
-    if (formik.values.nameEnglish && !selectedUnit)
+    if (formik.values.nameEnglish)
       handleTranslate(formik.values.nameEnglish, {
         gujarati: "nameGujarati",
         hindi: "nameHindi",
@@ -136,16 +162,17 @@ const AddUnit = ({
   }, [formik.values.nameEnglish]);
 
   useEffect(() => {
-    if (formik.values.symbolEnglish && !selectedUnit)
+    if (formik.values.symbolEnglish)
       handleTranslate(formik.values.symbolEnglish, {
         gujarati: "symbolGujarati",
         hindi: "symbolHindi",
       });
   }, [formik.values.symbolEnglish]);
 
-  // ✅ Load selectedUnit data when editing
   useEffect(() => {
     if (selectedUnit && isModalOpen) {
+      console.log(selectedUnit);
+
       const mappedRanges =
         selectedUnit.ranges?.length > 0
           ? selectedUnit.ranges.map((r) => ({
@@ -165,7 +192,10 @@ const AddUnit = ({
         symbolHindi: selectedUnit.symbolHindi || "",
         isParentUnit: selectedUnit.isParentUnit || false,
         decimalLimit: selectedUnit.decimalLimit?.toString() || "",
-        parentUnit: selectedUnit.parentUnit?.toString() || "",
+        parentUnit: selectedUnit.parentUnit?.id
+          ? selectedUnit.parentUnit.id.toString()
+          : "",
+
         equivalent: selectedUnit.equivalentValue?.toString() || "",
         rangeType: selectedUnit.rangeType || "RANGE",
         ranges: mappedRanges,
@@ -180,12 +210,6 @@ const AddUnit = ({
       { minValue: "", maxValue: "", roundOffValue: "" },
     ]);
 
-  const removeRangeRow = (index) =>
-    formik.setFieldValue(
-      "ranges",
-      formik.values.ranges.filter((_, i) => i !== index)
-    );
-
   const renderSelect = (name, label, options) => (
     <div>
       <label className="text-sm text-gray-600 mb-1 block">{label}</label>
@@ -197,12 +221,24 @@ const AddUnit = ({
         className="w-full border text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         <option value="">Select</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
+
+        {options?.map((opt) => {
+          if (typeof opt === "string" || typeof opt === "number") {
+            return (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            );
+          }
+
+          return (
+            <option key={opt.id} value={opt.id}>
+              {opt.nameEnglish}
+            </option>
+          );
+        })}
       </select>
+
       {formik.touched[name] && formik.errors[name] && (
         <p className="text-red-500 text-sm mt-1">{formik.errors[name]}</p>
       )}
@@ -338,7 +374,6 @@ const AddUnit = ({
                     <td className="py-2 px-3">
                       <input
                         type="number"
-                        step="any"
                         className="w-full border rounded-md px-2 py-1 h-10 text-gray-600"
                         value={range.minValue}
                         onChange={(e) =>
@@ -434,7 +469,7 @@ const AddUnit = ({
           {/* Names */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { label: "Name (English*)", name: "nameEnglish", lang: "en-US" },
+              { label: "Name (English*)", name: "nameEnglish", lang: "en" },
               { label: "Name (ગુજરાતી*)", name: "nameGujarati", lang: "gu" },
               { label: "Name (हिंदी*)", name: "nameHindi", lang: "hi" },
             ].map((f) => (
@@ -495,13 +530,14 @@ const AddUnit = ({
           {/* Conditional fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderSelect("decimalLimit", "Decimal Limit For Quantity*", [
+              "-1",
               "0",
               "1",
               "2",
             ])}
             {!formik.values.isParentUnit && (
               <>
-                {renderSelect("parentUnit", "Parent Unit", [])}
+                {renderSelect("parentUnit", "Parent Unit", parentUnitOptions)}
                 <div>
                   <label className="text-sm text-gray-600 mb-1 block">
                     Equivalent
