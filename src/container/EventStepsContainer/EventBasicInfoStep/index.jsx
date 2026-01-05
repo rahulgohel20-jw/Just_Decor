@@ -33,73 +33,14 @@ const EventBasicInfoStep = ({
   const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
+
   let Id = JSON.parse(localStorage.getItem("userId"));
 
   useEffect(() => {
-    fetchVenueTypes();
-    Fetcheventtype();
+    fetchVenueTypes(false);
+    Fetcheventtype(false);
   }, []);
 
-  const Fetcheventtype = async (newEventTypeId = null) => {
-    try {
-      const res = await GetEventType(Id);
-      const items = res.data.data["EventTypes Details"] || [];
-
-      const translated = await Promise.all(
-        items.map(async (event, index) => ({
-          sr_no: index + 1,
-          value: event.id,
-          label: await translateText(event.nameEnglish || "-"),
-        }))
-      );
-
-      setEventTypes(translated);
-
-      // Auto-select the newly added event type
-      if (newEventTypeId) {
-        handleDropdownChange("eventTypeId", newEventTypeId);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchVenueTypes = () => {
-    GetVenueType(Id)
-      .then((res) => {
-        const venueArray = res?.data?.data?.["Venue Details"] || [];
-
-        const venues = venueArray.map((item, index) => ({
-          sr_no: index + 1,
-          value: item.id,
-          label: item.nameEnglish || "-",
-        }));
-
-        setVenueList(venues);
-      })
-      .catch(console.error);
-  };
-
-  const handleFormDataChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleDropdownChange = (fieldName, value) => {
-    const syntheticEvent = {
-      target: {
-        name: fieldName,
-        value: value,
-      },
-    };
-    onInputChange(syntheticEvent, fieldName);
-  };
-
-  const handleOpenEventTypeModal = () => {
-    setSelectedEvent(null);
-    setIsEventTypeModalOpen(true);
-  };
-
-  const { isRTL } = useLanguage();
   const getSelectedLanguage = () => {
     try {
       const config = JSON.parse(localStorage.getItem("i18nConfig"));
@@ -131,6 +72,83 @@ const EventBasicInfoStep = ({
       return text;
     }
   };
+
+  const Fetcheventtype = async (autoSelectLatest = false) => {
+    try {
+      const res = await GetEventType(Id);
+      const items = res.data.data["EventTypes Details"] || [];
+
+      const translated = await Promise.all(
+        items.map(async (event, index) => ({
+          sr_no: index + 1,
+          value: event.id,
+          label: await translateText(event.nameEnglish || "-"),
+        }))
+      );
+
+      setEventTypes(translated);
+
+      // Auto-select the latest event type if flag is true
+      if (autoSelectLatest && translated.length > 0) {
+        const latestEventType = translated[translated.length - 1];
+
+        setFormData((prev) => ({
+          ...prev,
+          eventTypeId: latestEventType.value,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchVenueTypes = async (autoSelectLatest = false) => {
+    try {
+      const res = await GetVenueType(Id);
+      const venueArray = res?.data?.data?.["Venue Details"] || [];
+
+      const venues = venueArray.map((item, index) => ({
+        sr_no: index + 1,
+        value: item.id,
+        label: item.nameEnglish || "-",
+      }));
+
+      setVenueList(venues);
+
+      // Auto-select the latest venue if flag is true
+      if (autoSelectLatest && venues.length > 0) {
+        const latestVenue = venues[venues.length - 1];
+
+        setFormData((prev) => ({
+          ...prev,
+          venueId: latestVenue.value,
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleFormDataChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleDropdownChange = (fieldName, value) => {
+    const syntheticEvent = {
+      target: {
+        name: fieldName,
+        value: value,
+      },
+    };
+    onInputChange(syntheticEvent, fieldName);
+  };
+
+  const handleOpenEventTypeModal = () => {
+    setSelectedEvent(null);
+    setIsEventTypeModalOpen(true);
+  };
+
+  const { isRTL } = useLanguage();
 
   // Helper to parse date string to Date object
   const parseDate = (dateStr) => {

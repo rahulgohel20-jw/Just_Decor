@@ -310,8 +310,8 @@ const AddMember = ({
           text: apiRes?.data?.msg || apiRes?.data?.message,
         });
 
-        refreshData();
         handleModalClose();
+        refreshData(!formData.memberid);
       } else {
         Swal.fire({
           icon: "error",

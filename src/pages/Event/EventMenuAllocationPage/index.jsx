@@ -636,12 +636,13 @@ const EventMenuAllocationPage = ({ mode }) => {
         return;
       }
 
+      // IMPORTANT: Set the eventFunctionId here before opening the modal
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
         menuItemId: menuItemId,
-        eventFunctionId: eventFunctionId, // Add this
-        eventId: eventId, // Add this
+        eventFunctionId: eventFunctionId, // Store the specific function ID
+        eventId: eventId,
       });
 
       setIsCategoryModal(true);
@@ -665,8 +666,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           "MenuItem RawMaterial Details": rawMaterials,
           menuItemName: item.menuItemName || apiData.menuItemName || "-",
           menuItemId: menuItemId,
-          eventFunctionId: eventFunctionId, // Add this
-          eventId: eventId, // Add this
+          eventFunctionId: eventFunctionId, // Keep the specific function ID
+          eventId: eventId,
         });
       }
     } catch (error) {
@@ -675,6 +676,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       setMenuLoading(false);
     }
   };
+
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
@@ -1956,7 +1958,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
           selectedRowData={selectedRow}
-          eventFunctionId={getEventFunctionId(activeFunction)}
+          eventFunctionId={selectedRow?.eventFunctionId} // Use from selectedRow instead of activeFunction
           eventId={eventId}
           onSave={handleCategorySave}
         />

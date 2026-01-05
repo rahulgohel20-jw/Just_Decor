@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import InputToTextLang from "@/components/form-inputs/InputToTextLang";
 import {
   AddUnitdata,
@@ -9,7 +9,98 @@ import {
 import Swal from "sweetalert2";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useMemo } from "react";
+
+// Move RangeTable OUTSIDE the component
+const RangeTable = ({ ranges, onRangeChange, onRangeRemove }) => {
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <table className="w-full text-sm text-black">
+        <thead className="bg-[#F7FAFF]">
+          <tr>
+            {[
+              "#",
+              "Minimum Value*",
+              "Maximum Value*",
+              "Round Off Value*",
+              "Action",
+            ].map((header) => (
+              <th
+                key={header}
+                className={`py-2 px-3 ${header === "Action" ? "text-center" : "text-left"}`}
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {ranges.map((range, index) => {
+            const prevMax =
+              index > 0 ? parseFloat(ranges[index - 1].maxValue) : null;
+            const currMin = parseFloat(range.minValue);
+            const validationError =
+              prevMax !== null && !isNaN(currMin) && currMin <= prevMax
+                ? `Min must be greater than the ${index} record's Max (${prevMax}).`
+                : "";
+
+            return (
+              <tr key={index} className="border-t align-top">
+                <td className="py-2 px-3">{index + 1}</td>
+                <td className="py-2 px-3">
+                  <input
+                    type="number"
+                    className="w-full border rounded-md px-2 py-1 h-10 text-gray-600"
+                    value={range.minValue}
+                    onChange={(e) =>
+                      onRangeChange(index, "minValue", e.target.value)
+                    }
+                  />
+                  {validationError && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {validationError}
+                    </p>
+                  )}
+                </td>
+                <td className="py-2 px-3">
+                  <input
+                    type="number"
+                    step="any"
+                    className="w-full border text-gray-600 rounded-md px-2 py-1 h-10"
+                    value={range.maxValue}
+                    onChange={(e) =>
+                      onRangeChange(index, "maxValue", e.target.value)
+                    }
+                  />
+                </td>
+                <td className="py-2 px-3">
+                  <input
+                    type="number"
+                    step="any"
+                    className="w-full border text-gray-600 rounded-md px-2 py-1 h-10 bg-gray-50"
+                    value={range.roundOffValue}
+                    onChange={(e) =>
+                      onRangeChange(index, "roundOffValue", e.target.value)
+                    }
+                    readOnly
+                  />
+                </td>
+                <td className="text-center align-middle">
+                  <button
+                    type="button"
+                    onClick={() => onRangeRemove(index)}
+                    className="text-red-500 hover:text-red-700 text-lg"
+                  >
+                    <i className="ki-filled ki-trash text-danger"></i>
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 const AddUnit = ({
   isModalOpen,
@@ -23,6 +114,7 @@ const AddUnit = ({
   const [unitOptions, setUnitOptions] = useState([]);
   let userId = localStorage.getItem("userId");
   if (!userId) return null;
+
   useEffect(() => {
     fetchUnits();
   }, []);
@@ -48,6 +140,7 @@ const AddUnit = ({
     }, 500);
     setDebounceTimer(timer);
   };
+
   const initialValues = useMemo(
     () => ({
       nameEnglish: "",
@@ -73,7 +166,6 @@ const AddUnit = ({
     onSubmit: async (values) => {
       if (!userId) return Swal.fire("Error", "User data not found", "error");
 
-      // Transform payload to match API requirements
       const payload = {
         nameEnglish: values.nameEnglish,
         nameGujarati: values.nameGujarati,
@@ -139,7 +231,6 @@ const AddUnit = ({
 
   const fetchUnits = async () => {
     const res = await GetUnitData(userId);
-
     if (res?.data.success === true) {
       setUnitOptions(res?.data?.data["Unit Details"] || []);
     }
@@ -171,8 +262,6 @@ const AddUnit = ({
 
   useEffect(() => {
     if (selectedUnit && isModalOpen) {
-      console.log(selectedUnit);
-
       const mappedRanges =
         selectedUnit.ranges?.length > 0
           ? selectedUnit.ranges.map((r) => ({
@@ -195,7 +284,6 @@ const AddUnit = ({
         parentUnit: selectedUnit.parentUnit?.id
           ? selectedUnit.parentUnit.id.toString()
           : "",
-
         equivalent: selectedUnit.equivalentValue?.toString() || "",
         rangeType: selectedUnit.rangeType || "RANGE",
         ranges: mappedRanges,
@@ -203,6 +291,22 @@ const AddUnit = ({
       });
     }
   }, [selectedUnit, isModalOpen]);
+
+  // Use useCallback to prevent function recreation
+  const handleRangeChange = useCallback((index, field, value) => {
+    formik.setFieldValue(`ranges[${index}].${field}`, value);
+    if (field === "maxValue" && value) {
+      formik.setFieldValue(`ranges[${index}].roundOffValue`, value);
+    }
+  }, []);
+
+  const handleRangeRemove = useCallback(
+    (index) => {
+      const newRanges = formik.values.ranges.filter((_, i) => i !== index);
+      formik.setFieldValue("ranges", newRanges);
+    },
+    [formik.values.ranges]
+  );
 
   const addRangeRow = () =>
     formik.setFieldValue("ranges", [
@@ -221,7 +325,6 @@ const AddUnit = ({
         className="w-full border text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         <option value="">Select</option>
-
         {options?.map((opt) => {
           if (typeof opt === "string" || typeof opt === "number") {
             return (
@@ -230,7 +333,6 @@ const AddUnit = ({
               </option>
             );
           }
-
           return (
             <option key={opt.id} value={opt.id}>
               {opt.nameEnglish}
@@ -238,7 +340,6 @@ const AddUnit = ({
           );
         })}
       </select>
-
       {formik.touched[name] && formik.errors[name] && (
         <p className="text-red-500 text-sm mt-1">{formik.errors[name]}</p>
       )}
@@ -277,7 +378,6 @@ const AddUnit = ({
             0.5, then values from 0.1–0.5 round to 0.5, and 0.6–1.0 round to
             1.0.
           </p>
-
           <div className="mt-4">
             <label className="block text-gray-700 text-sm mb-1">
               Step Wise Range*
@@ -314,117 +414,6 @@ const AddUnit = ({
           be rounded to 200.
         </p>
       </div>
-    );
-  };
-
-  const RangeTable = () => {
-    const handleChange = (index, field, value) => {
-      const updated = [...formik.values.ranges];
-      updated[index][field] = value;
-      if (field === "maxValue" && value) {
-        updated[index].roundOffValue = value;
-      }
-      formik.setFieldValue("ranges", updated);
-    };
-
-    const handleRemove = (index) => {
-      formik.setFieldValue(
-        "ranges",
-        formik.values.ranges.filter((_, i) => i !== index)
-      );
-    };
-
-    return (
-      formik.values.rangeType !== "STEPWISE" && (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm text-black">
-            <thead className="bg-[#F7FAFF]">
-              <tr>
-                {[
-                  "#",
-                  "Minimum Value*",
-                  "Maximum Value*",
-                  "Round Off Value*",
-                  "Action",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className={`py-2 px-3 ${header === "Action" ? "text-center" : "text-left"}`}
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {formik.values.ranges.map((range, index) => {
-                const prevMax =
-                  index > 0
-                    ? parseFloat(formik.values.ranges[index - 1].maxValue)
-                    : null;
-                const currMin = parseFloat(range.minValue);
-                const validationError =
-                  prevMax !== null && !isNaN(currMin) && currMin <= prevMax
-                    ? `Min must be greater than the ${index} record's Max (${prevMax}).`
-                    : "";
-
-                return (
-                  <tr key={index} className="border-t align-top">
-                    <td className="py-2 px-3">{index + 1}</td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        className="w-full border rounded-md px-2 py-1 h-10 text-gray-600"
-                        value={range.minValue}
-                        onChange={(e) =>
-                          handleChange(index, "minValue", e.target.value)
-                        }
-                      />
-                      {validationError && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {validationError}
-                        </p>
-                      )}
-                    </td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        step="any"
-                        className="w-full border text-gray-600 rounded-md px-2 py-1 h-10"
-                        value={range.maxValue}
-                        onChange={(e) =>
-                          handleChange(index, "maxValue", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        step="any"
-                        className="w-full border text-gray-600 rounded-md px-2 py-1 h-10 bg-gray-50"
-                        value={range.roundOffValue}
-                        onChange={(e) =>
-                          handleChange(index, "roundOffValue", e.target.value)
-                        }
-                        readOnly
-                      />
-                    </td>
-                    <td className="text-center align-middle">
-                      <button
-                        type="button"
-                        onClick={() => handleRemove(index)}
-                        className="text-red-500 hover:text-red-700 text-lg"
-                      >
-                        <i className="ki-filled ki-trash text-danger"></i>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )
     );
   };
 
@@ -466,7 +455,6 @@ const AddUnit = ({
         </div>
 
         <form onSubmit={formik.handleSubmit} className="space-y-8">
-          {/* Names */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { label: "Name (English*)", name: "nameEnglish", lang: "en" },
@@ -485,7 +473,6 @@ const AddUnit = ({
             ))}
           </div>
 
-          {/* Symbols */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
@@ -512,7 +499,6 @@ const AddUnit = ({
             ))}
           </div>
 
-          {/* Is Parent Unit */}
           <div className="flex items-center gap-3">
             <label className="inline-flex items-center cursor-pointer">
               <input
@@ -527,7 +513,6 @@ const AddUnit = ({
             <span className="text-gray-700 font-medium">Is Parent Unit</span>
           </div>
 
-          {/* Conditional fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {renderSelect("decimalLimit", "Decimal Limit For Quantity*", [
               "-1",
@@ -556,10 +541,16 @@ const AddUnit = ({
             )}
           </div>
 
-          {/* Dynamic Range Info */}
           <RangeTypeRadios />
           <RangeInfoSection />
-          <RangeTable />
+
+          {formik.values.rangeType !== "STEPWISE" && (
+            <RangeTable
+              ranges={formik.values.ranges}
+              onRangeChange={handleRangeChange}
+              onRangeRemove={handleRangeRemove}
+            />
+          )}
 
           {formik.values.rangeType !== "STEPWISE" && (
             <button
@@ -571,7 +562,6 @@ const AddUnit = ({
             </button>
           )}
 
-          {/* Buttons */}
           <div className="flex justify-end gap-4 pt-4 border-t">
             <button
               type="button"

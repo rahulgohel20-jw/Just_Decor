@@ -69,12 +69,19 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
         const mealdata = res?.data?.data?.["MealType Details"] || [];
         console.log(mealdata);
 
-        setOptions(
-          mealdata.map((item) => ({
-            label: item.nameEnglish,
-            value: item.id,
-          }))
-        );
+        const mealOptions = mealdata.map((item) => ({
+          label: item.nameEnglish,
+          value: item.id,
+        }));
+
+        setOptions(mealOptions);
+        if (autoSelectLatest && mealOptions.length > 0) {
+          const latestMeal = mealOptions[mealOptions.length - 1];
+          setFormData((prev) => ({
+            ...prev,
+            mealTypeId: latestMeal.value,
+          }));
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -89,6 +96,13 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
         label: man.firstName || "-",
       }));
       setManager(managerList);
+      if (autoSelectLatest && managerList.length > 0) {
+        const latestManager = managerList[managerList.length - 1];
+        setFormData((prev) => ({
+          ...prev,
+          managerId: latestManager.value,
+        }));
+      }
     });
   };
   return (
