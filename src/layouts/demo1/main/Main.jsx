@@ -16,8 +16,10 @@ const Main = () => {
 
   const getPageTitle = () => {
     if (!menuItem?.title) {
+      // Fallback: Extract readable title from pathname
       const pathSegments = pathname.split("/").filter(Boolean);
       if (pathSegments.length > 0) {
+        // Get the first segment and format it
         return pathSegments[0]
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -26,6 +28,7 @@ const Main = () => {
       return "Default Title";
     }
 
+    // If title is a FormattedMessage component (React element)
     if (menuItem.title?.props) {
       return intl.formatMessage({
         id: menuItem.title.props.id,
