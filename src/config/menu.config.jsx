@@ -411,7 +411,7 @@ export const allMenuItems = [
             defaultMessage="Subscription"
           />
         ),
-        path: "settings/subscription",
+        path: "/settings/subscription",
       },
       {
         title: (
@@ -420,7 +420,7 @@ export const allMenuItems = [
             defaultMessage="Payment History"
           />
         ),
-        path: "setting/payment-history",
+        path: "/setting/payment-history",
       },
 
       // {

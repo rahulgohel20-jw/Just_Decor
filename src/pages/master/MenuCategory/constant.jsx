@@ -18,7 +18,11 @@ export const columns = (onEdit, onDelete, onStatus, handleView) => [
     },
     cell: ({ row }) => {
       return (
-        <img src={row.original.imagePath} alt={row.original.nameEnglish} />
+        <img
+          src={row.original.imagePath}
+          alt={row.original.nameEnglish}
+          className="w-16 h-16 object-cover rounded-md border"
+        />
       );
     },
   },

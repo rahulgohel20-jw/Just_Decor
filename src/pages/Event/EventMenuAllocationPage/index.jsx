@@ -82,6 +82,8 @@ const OrderSummary = ({
   pax,
   groupedByFunction,
 }) => {
+  console.log(groups);
+
   const grandTotal = Math.round(
     groups.reduce((total, group) => {
       const groupTotal = group.items.reduce((sum, item) => {
@@ -194,6 +196,10 @@ const OrderSummary = ({
                                   onClick={() => onItemClick(item, category)}
                                 >
                                   {item.menuItemName}
+
+                                  <span className="ml-1 text-primary font-bold">
+                                    - {item.typeName}
+                                  </span>
                                 </div>
                                 <div className="col-span-3 text-right tabular-nums">
                                   ₹{item.totalPrice?.toFixed(2) || "0.00"}
@@ -282,7 +288,10 @@ const OrderSummary = ({
                           className="col-span-9 pl-6 hover:text-primary"
                           onClick={() => onItemClick(it, g)}
                         >
-                          {it.menuItemName}
+                          {it.menuItemName}{" "}
+                          <span className="text-primary font-bold">
+                            - {it.typeName}
+                          </span>
                         </div>
                         <div className="col-span-3 text-right tabular-nums">
                           ₹{it.totalPrice?.toFixed(2) || "0.00"}

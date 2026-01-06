@@ -27,6 +27,15 @@ export const columns = (onEdit, onDelete, onstatus) => [
       cellClassName: "w-[8%]",
     },
   },
+  {
+    accessorKey: "isActive",
+
+    header: <FormattedMessage id="COMMON.NAME" defaultMessage="Is Active" />,
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
 
   {
     accessorKey: "action",

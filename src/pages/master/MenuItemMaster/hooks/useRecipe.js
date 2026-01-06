@@ -110,7 +110,7 @@ export default function useRecipe(rawmaterialList, initialData = []) {
 
     try {
       const payload = {
-        id: row.menuRmId,
+        id: [row.menuRmId],
       };
       await deleteRawmatrialcatidInmenuitem(payload);
       setTableData((prev) => prev.filter((item) => item.sr_no !== row.sr_no));
