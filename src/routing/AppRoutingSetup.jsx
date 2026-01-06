@@ -209,6 +209,7 @@ import AdminReportCustomThem from "../pages/master/AdminReportCustomTheme";
 import AllReportsConfig from "../pages/super-admin/master/super-report-config";
 import RightsModule from "../pages/super-admin/master/RightsModule";
 import GodownMaster from "../pages/master/Godown-master";
+import PageMaster from "../pages/super-admin/master/pages-master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -375,6 +376,9 @@ const AppRoutingSetup = () => {
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
           />
+
+          <Route path="/pages-master" element={<PageMaster />} />
+
           <Route
             path="/super-raw-material-type-master"
             element={<SuperRawMaterialType />}
@@ -440,7 +444,7 @@ const AppRoutingSetup = () => {
           <Route path="officesetting" element={<OfficeSetting />}></Route>
           {/* Settings routes */}
           <Route path="/settings/general" element={<GeneralSettingsPage />} />
-          <Route path="/settings/utility" element={<UtilityPage />} />
+          <Route path="/utility" element={<UtilityPage />} />
           <Route
             path="/settings/subscription"
             element={<SubscriptionSettingsPage />}

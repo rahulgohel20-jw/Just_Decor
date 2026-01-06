@@ -1399,3 +1399,24 @@ export const GetGodownbyid = (id) => {
 export const DeleteGoDown = (id) => {
   return DELETE(`/godown/deleteById?id=${id}`);
 };
+
+
+export const AddUserRightsPage = (data) => {
+  return POST(`/user-rights/addPage`, data);
+};
+
+export const GetAllPages = () => {
+  return GET(`/user-rights/getPages`);
+};
+
+export const GetModuleRights = () => {
+  return GET(`/modulerights/getall`);
+};
+
+export const AddUtility = (data) => {
+  return POST(`/user-config/saveUserConfig`, data);
+};
+
+export const GetUtility = (userId) => {
+  return GET(`/user-config/getUserConfig/${userId}`);
+};
