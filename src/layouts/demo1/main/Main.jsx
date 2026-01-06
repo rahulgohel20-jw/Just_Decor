@@ -14,13 +14,18 @@ const Main = () => {
   const menuConfig = getMenuConfig("primary");
   const menuItem = useMenuCurrentItem(pathname, menuConfig);
 
-  // Convert menuItem title to string for Helmet
   const getPageTitle = () => {
-    if (!menuItem?.title) return "Default Title";
+    if (!menuItem?.title) {
+      const pathSegments = pathname.split("/").filter(Boolean);
+      if (pathSegments.length > 0) {
+        return pathSegments[0]
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      }
+      return "Default Title";
+    }
 
-    console.log("ddd", menuItem);
-
-    // If title is a FormattedMessage component (React element)
     if (menuItem.title?.props) {
       return intl.formatMessage({
         id: menuItem.title.props.id,

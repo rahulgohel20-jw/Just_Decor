@@ -110,7 +110,6 @@ import {
   TaskDashboard,
   MyTask,
 } from "@/pages/tasks";
-
 import { Holiday } from "@/pages/Leave/holiday";
 import { MyLeaves } from "@/pages/Leave/my-leaves";
 import { Approval } from "@/pages/Leave/approval";

@@ -104,7 +104,22 @@ const MenuItems = () => {
           subCategory: item.menuSubCategory?.[field] || "-",
           kitchenArea: item.kitchenArea?.[field] || "-",
           slogan: item.slogan || "-",
-          price: item.price || "-",
+
+          price: (() => {
+            const allocation = item.menuItemAllocationConfigs;
+            const outside = allocation?.outsideItem;
+
+            if (!allocation || !outside) {
+              return item.totalRate || "-";
+            }
+
+            const pricePerHelper = Number(outside.pricePerHelper) || 0;
+            const quantityPer100Person =
+              Number(outside.quantityPer100Person) || 0;
+
+            return pricePerHelper * quantityPer100Person;
+          })(),
+
           priority: item.sequence || "-",
           cost: item.dishCosting || 0,
           image: item.imagePath || "",
