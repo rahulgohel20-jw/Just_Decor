@@ -384,7 +384,7 @@ export const allMenuItems = [
             defaultMessage="Company Profile"
           />
         ),
-        path: "settings/general",
+        path: "/settings/general",
       },
       {
         title: (
@@ -395,15 +395,15 @@ export const allMenuItems = [
         ),
         path: "/user-rights",
       },
-      // {
-      //   title: (
-      //     <FormattedMessage
-      //       id="COMMON.UTILITY_PAGE"
-      //       defaultMessage="Utility Page"
-      //     />
-      //   ),
-      //   path: "settings/utility",
-      // },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.UTILITY_PAGE"
+            defaultMessage="Utility Page"
+          />
+        ),
+        path: "/utility",
+      },
       {
         title: (
           <FormattedMessage
@@ -579,6 +579,20 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/ModuleRights",
+      },
+    ],
+  },
+  {
+    title: (
+      <FormattedMessage id="COMMON.MASTER" defaultMessage="User Right Master" />
+    ),
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Pages" />
+        ),
+        path: "/pages-master",
       },
     ],
   },
