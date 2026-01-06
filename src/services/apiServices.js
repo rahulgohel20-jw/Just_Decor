@@ -1369,7 +1369,9 @@ export const AddExclusiveReport = (formData) => {
 };
 
 export const GetReportConfiguration = (mappingId, moduleId) => {
-  return GET(`/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`);
+  return GET(
+    `/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`
+  );
 };
 
 export const AddReportConfiguration = (data) => {
@@ -1378,18 +1380,15 @@ export const AddReportConfiguration = (data) => {
 
 export const GETAllreportconfiguration = () => {
   return GET(`report/configuration/get`);
-
 };
 
 export const DeleteReportConfiguration = (id) => {
   return DELETE(`/report/configuration/delete?id=${id}`);
 };
 
-
 export const GetReportConfigurationById = (id) => {
   return GET(`/report/configuration/getbyid?id=${id}`);
 };
-
 
 export const AddorUpdategodown = (data) => {
   return POST(`/godown/addorupdate`, data);
@@ -1406,7 +1405,6 @@ export const GetGodownbyid = (id) => {
 export const DeleteGoDown = (id) => {
   return DELETE(`/godown/deleteById?id=${id}`);
 };
-
 
 export const AddUserRightsPage = (data) => {
   return POST(`/user-rights/addPage`, data);
