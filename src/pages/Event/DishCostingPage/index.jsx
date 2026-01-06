@@ -576,6 +576,8 @@ const renderFunctionDateTime = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           viewType={viewType}
+          eventId={eventId}
+          selectedFunctionId={selectedFunctionId}
         />
         <TotalAgencySidebar
           isOpen={agencySidebar}
