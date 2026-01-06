@@ -3,6 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import useStyles from "./style";
 import DishCostingModal from "./CostingSidebar/DishCostingModal";
+import TotalAgencySidebar from "./CostingSidebar/TotalAgencySidebar";
 import { FormattedMessage, useIntl } from "react-intl";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import { useParams } from "react-router-dom";
@@ -28,6 +29,16 @@ const DishCostingPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [allFunctionWiseCosting, setAllFunctionWiseCosting] = useState([]);
+  const [agencySidebar,setAgencySidebar] = useState(false);
+
+  const handleTotalWiseClick = () => {
+    setViewType("Total Wise");
+
+    // 🔥 IMPORTANT: clear function selection
+    setSelectedFunctionId(null);
+    setFunctionType("");
+    setSelectedFunctionPax(0);
+  };
 
   const openMenuReport = (eventId) => {
     setMenuReportEventId(eventId);
@@ -50,9 +61,12 @@ const DishCostingPage = () => {
     ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.raw || 0), 0)
     : Number(dishCostingData?.rawmaterialcharge || 0);
 
-  const totalAgency = isTotal
-    ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.agency || 0), 0)
-    : Number(dishCostingData?.outsideagencycharge || 0);
+const totalAgency = isTotal
+  ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.agency || 0), 0)
+  : Number(dishCostingData?.cheflaborcharge || 0) +
+    Number(dishCostingData?.laborcharge || 0) +
+    Number(dishCostingData?.outsideagencycharge || 0);
+
 
   const totalExtra = isTotal
     ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.extra || 0), 0)
@@ -86,22 +100,41 @@ const DishCostingPage = () => {
       ),
       value: totalAgency.toLocaleString(),
     },
-    {
-      label: (
-        <FormattedMessage
-          id="COMMON.EXTRA_EXPENSES_CHARGES"
-          defaultMessage="Total Extra Expense"
-        />
-      ),
-      value: totalExtra.toLocaleString(),
-    },
+    // {
+    //   label: (
+    //     <FormattedMessage
+    //       id="COMMON.EXTRA_EXPENSES_CHARGES"
+    //       defaultMessage="Total Extra Expense"
+    //     />
+    //   ),
+    //   value: totalExtra.toLocaleString(),
+    // },
   ];
 
   const handleRawMaterialClick = () => {
     setIsModalOpen(true);
   };
 
-  // Fetch event data on mount
+  const handeAgencySidebarCLick =() => {
+    setAgencySidebar(true);
+  };
+
+
+useEffect(() => {
+  if (
+    viewType === "Function Wise" &&
+    eventData?.eventFunctions?.length > 0 &&
+    !selectedFunctionId
+  ) {
+    const firstFunction = eventData.eventFunctions[0];
+
+    setSelectedFunctionId(firstFunction.id);
+    setFunctionType(firstFunction.function?.nameEnglish || "");
+    setSelectedFunctionPax(firstFunction.pax || 0);
+  }
+}, [viewType, eventData, selectedFunctionId]);
+
+
   useEffect(() => {
     const fetchEventData = async () => {
       try {
@@ -114,12 +147,7 @@ const DishCostingPage = () => {
           setEventData(event);
 
           // Auto-select first function by default
-          if (event?.eventFunctions?.length > 0) {
-            const firstFunction = event.eventFunctions[0];
-            setFunctionType(firstFunction.function?.nameEnglish || "");
-            setSelectedFunctionPax(firstFunction.pax || 0);
-            setSelectedFunctionId(firstFunction.id);
-          }
+        
         }
       } catch (error) {
         console.error("❌ Error fetching event details:", error);
@@ -141,14 +169,20 @@ const DishCostingPage = () => {
       for (const func of eventData.eventFunctions) {
         try {
           const res = await GetDishCostingByEventFunction(eventId, func.id);
-          allData.push({
-            eventFunctionId: func.id,
-            name: func.function?.nameEnglish,
-            pax: func.pax,
-            raw: res.data.data.rawmaterialcharge || 0,
-            agency: res.data.data.outsideagencycharge || 0,
-            extra: res.data.data.extraexpensecharge || 0,
-          });
+       const data = res.data.data;
+
+       allData.push({
+         eventFunctionId: func.id,
+         name: func.function?.nameEnglish,
+         pax: func.pax,
+         raw: Number(data.rawmaterialcharge || 0),
+         agency:
+           Number(data.cheflaborcharge || 0) +
+           Number(data.laborcharge || 0) +
+           Number(data.outsideagencycharge || 0),
+         extra: Number(data.extraexpensecharge || 0),
+       });
+
         } catch (err) {
           console.error(`Error fetching costing for ${func.id}`, err);
         }
@@ -180,23 +214,41 @@ const DishCostingPage = () => {
     fetchDishCosting();
   }, [eventId, selectedFunctionId]);
 
+const renderFunctionDateTime = () => {
+  // TOTAL WISE → show all functions
+  if (viewType === "Total Wise") {
+    return (
+      <div className="flex flex-col gap-1">
+      
+        All Function
+           
+    
+      </div>
+    );
+  }
+
+  // FUNCTION WISE → selected function only
+  return (
+    <span className="text-sm font-semibold text-gray-900">
+      {dishCostingData?.eventFunction?.functionStartDateTime || "-"}{" "}
+
+    </span>
+  );
+};
+
   return (
     <Fragment>
       <Container>
+        {" "}
         {/* Breadcrumbs */}
-        <div className="gap-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: intl.formatMessage({
-                  id: "COMMON.DISH_COSTING",
-                  defaultMessage: "Dish Costing",
-                }),
-              },
-            ]}
-          />
+        <div className=" pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="COMMON.DISH_COSTING"
+              defaultMessage="Dish Costing"
+            />
+          </h1>
         </div>
-
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
             <div className="flex flex-col gap-2.5">
@@ -280,95 +332,127 @@ const DishCostingPage = () => {
 
             <div className="flex flex-row items-end gap-2">
               {/* Total-wise button */}
-              <button
-                className={`text-sm px-3 py-2 rounded-md transition ${
-                  viewType === "Total Wise"
-                    ? "bg-[#005BA8] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                onClick={() => setViewType("Total Wise")}
-                title="Total Wise"
-              >
-                Total Wise
-              </button>
+              <div className="relative group">
+                <button
+                  className={`text-sm px-3 py-2 rounded-md transition ${
+                    viewType === "Total Wise"
+                      ? "bg-[#005BA8] text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  onClick={handleTotalWiseClick}
+                  title="" // prevent default browser tooltip
+                >
+                  Total Wise
+                </button>
 
-              {/* Function-wise button */}
-              <button
-                className={`text-sm px-3 py-2 rounded-md transition ${
-                  viewType === "Function Wise"
-                    ? "bg-[#005BA8] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                onClick={() => setViewType("Function Wise")}
-                title="Function Wise"
-              >
-                Function Wise
-              </button>
+                {/* Tooltip */}
+                <div
+                  className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap
+                  bg-gray-900 text-white text-xs rounded-md px-3 py-2
+                  opacity-0 group-hover:opacity-100 transition-opacity
+                  pointer-events-none shadow-lg z-50"
+                >
+                  Sum of all persons and all charges
+                </div>
+              </div>
+
+              <div className="relative group">
+                <button
+                  className={`text-sm px-3 py-2 rounded-md transition ${
+                    viewType === "Function Wise"
+                      ? "bg-[#005BA8] text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  onClick={() => setViewType("Function Wise")}
+                  title=""
+                >
+                  Function Wise
+                </button>
+
+                {/* Tooltip */}
+                <div
+                  className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap
+               bg-gray-900 text-white text-xs rounded-md px-3 py-2
+               opacity-0 group-hover:opacity-100 transition-opacity
+               pointer-events-none shadow-lg z-50"
+                >
+                  Shows charges and persons for the <br />
+                  selected function
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
         {/* Tabs */}
-        <div className="w-[full] flex gap-2 my-5 overflow-x-auto">
-          {eventData?.eventFunctions?.length > 0 ? (
-            eventData.eventFunctions.map((func, index) => {
-              const funcName =
-                func.function?.nameEnglish || `Function ${index + 1}`;
-              return (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setFunctionType(funcName);
-                    setSelectedFunctionPax(func.pax || 0);
-                    setSelectedFunctionId(func.id);
-                  }}
-                  className={`flex-1 max-w-[200px] btn btn-sm p-5 whitespace-nowrap ${
-                    functionType === funcName ? "btn-primary" : "btn-light"
-                  }`}
-                >
-                  {funcName}
-                </button>
-              );
-            })
-          ) : (
-            <p className="text-gray-500 text-sm">No functions found</p>
-          )}
-        </div>
-
+        {viewType === "Function Wise" && (
+          <div className="w-[full] flex gap-2 my-5 overflow-x-auto">
+            {eventData?.eventFunctions?.length > 0 ? (
+              eventData.eventFunctions.map((func, index) => {
+                const funcName =
+                  func.function?.nameEnglish || `Function ${index + 1}`;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setFunctionType(funcName);
+                      setSelectedFunctionPax(func.pax || 0);
+                      setSelectedFunctionId(func.id);
+                    }}
+                    className={`flex-1 max-w-[200px] btn btn-sm p-5 whitespace-nowrap ${
+                      functionType === funcName ? "btn-primary" : "btn-light"
+                    }`}
+                  >
+                    {funcName}
+                  </button>
+                );
+              })
+            ) : (
+              <p className="text-gray-500 text-sm">No functions found</p>
+            )}
+          </div>
+        )}
         {/* Date, Time, and Person Info */}
         <div className="card mb-5">
-          <div className="card-body p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span>
-                  <i className="ki-filled ki-users text-primary"></i>
-                </span>
-                <span className="text-2sm font-medium text-gray-700">
-                  <FormattedMessage
-                    id="COMMON.PERSON"
-                    defaultMessage="Person"
-                  />
-                </span>
-                <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
-                  {totalPax || "-"}
-                </span>
+          <div className="card-body px-6 py-4">
+            <div className="flex items-center gap-10 flex-wrap">
+              {/* Event Date & Time */}
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center mt-1">
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                </div>
+
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500">
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.FUNCTION_DATE_TIME"
+                      defaultMessage="Function Date & Time"
+                    />
+                  </span>
+
+                  {renderFunctionDateTime()}
+                </div>
               </div>
+
+              {/* Person (Pax) – NEXT TO DATE */}
               <div className="flex items-center gap-3">
-                <button
-                  onClick={openSelectMenureport}
-                  className="btn btn-light btn-sm"
-                >
-                  <i className="ki-filled ki-document"></i>{" "}
-                  <FormattedMessage
-                    id="COMMON.REPORT"
-                    defaultMessage="Report"
-                  />
-                </button>
+                <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <i className="ki-filled ki-users text-primary"></i>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500">
+                    <FormattedMessage
+                      id="COMMON.PERSON"
+                      defaultMessage="Person"
+                    />
+                  </span>
+                  <span className="text-sm font-bold text-gray-900 bg-gray-200 rounded-md px-4 py-1">
+                    {totalPax || "-"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
         {/* Main Content Grid */}
         <div className="grid grid-cols-12 gap-5">
           {/* Charges Breakdown - Left Side */}
@@ -405,8 +489,8 @@ const DishCostingPage = () => {
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Total Raw Material Charges */}
               <div
-                onClick={handleRawMaterialClick}
                 className="bg-white-50 rounded-lg p-5 border border-blue-100 relative cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={handleRawMaterialClick}
               >
                 <div className="absolute top-4 right-4 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <i className="ki-filled ki-cube-2 text-blue-600 text-xl"></i>
@@ -423,7 +507,10 @@ const DishCostingPage = () => {
               </div>
 
               {/* Total Agency Charges */}
-              <div className="bg-white-50 rounded-lg p-5 border border-green-100 relative">
+              <div
+                onClick={handeAgencySidebarCLick}
+                className="bg-white-50 rounded-lg p-5 border border-green-100 relative"
+              >
                 <div className="absolute top-4 right-4 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <i className="ki-filled ki-people text-green-600 text-xl"></i>
                 </div>
@@ -438,7 +525,7 @@ const DishCostingPage = () => {
                 </div>
               </div>
 
-              {/* Total General Fix Charges */}
+              {/* Total General Fix Charges
               <div className="bg-white-50 rounded-lg p-5 border border-purple-100 relative">
                 <div className="absolute top-4 right-4 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <i className="ki-filled ki-setting-2 text-purple-600 text-xl"></i>
@@ -452,7 +539,7 @@ const DishCostingPage = () => {
                 <div className="text-3xl font-bold text-gray-900">
                   ₹ {totalExtra.toLocaleString()}
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Bottom Summary Cards */}
@@ -489,6 +576,14 @@ const DishCostingPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           viewType={viewType}
+        />
+        <TotalAgencySidebar
+          isOpen={agencySidebar}
+          onClose={() => setAgencySidebar(false)}
+          viewType={viewType}
+          eventId={eventId}
+          selectedFunctionId={selectedFunctionId}
+          eventData={eventData}
         />
         <MenuReport
           isModalOpen={isMenuReport}
