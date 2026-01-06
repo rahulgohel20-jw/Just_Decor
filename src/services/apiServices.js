@@ -177,10 +177,6 @@ export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
 
-export const GetModuleRights = () => {
-  return GET(`/modulerights/getall`);
-};
-
 export const GetAllQuotationByFilter = (enddate, startdate, id) => {
   return GET(
     `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
