@@ -1,5 +1,6 @@
 import { matchPath } from "react-router";
 const useMenuCurrentItem = (pathname, items) => {
+
   pathname = pathname.trim();
   const findCurrentItem = (items) => {
     if (!items) return null;
