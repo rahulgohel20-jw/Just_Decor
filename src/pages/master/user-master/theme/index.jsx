@@ -124,7 +124,6 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
       setAssignLoading(true);
 
       const res = await AssignThemeAdmin(payload);
-      console.log(res);
 
       if (res.data?.success === true) {
         Swal.fire({

@@ -70,8 +70,6 @@ const UnitMaster = () => {
   const Fetchunit = () => {
     Getunit(Id)
       .then((res) => {
-        console.log(res);
-
         if (res?.data?.data?.["Unit Details"]) {
           const formatted = res.data.data["Unit Details"].map(
             (cust, index) => ({
@@ -206,7 +204,6 @@ const UnitMaster = () => {
     setIsLoadingUnit(true);
     try {
       const response = await GetUnitById(event.unitId);
-      console.log("Fetched Unit Details:", response);
 
       if (
         response?.data?.success &&
@@ -313,12 +310,12 @@ const UnitMaster = () => {
     <Fragment>
       <Container>
         <div className=" pb-2 mb-3">
-         <h1 className="text-xl text-gray-900">
-                  <FormattedMessage
-                    id="USER.MASTER.UNIT_MASTER"
-                    defaultMessage="Unit Master"
-                  />
-               </h1>
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="USER.MASTER.UNIT_MASTER"
+              defaultMessage="Unit Master"
+            />
+          </h1>
         </div>
 
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">

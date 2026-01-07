@@ -3,9 +3,7 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { GetAllRole } from "@/services/apiServices"; // <-- adjust path if needed
 import { set } from "date-fns";
 
-
-const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => { 
-  
+const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => {
   const [taskAccess, setTaskAccess] = useState(true);
   const [leaveAccess, setLeaveAccess] = useState(true);
 
@@ -20,20 +18,18 @@ const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => {
     setIsModalOpen(false);
   };
 
-   useEffect(() => {
-  if (isModalOpen) {
-    GetAllRole()
-      .then((res) => {
-        console.log("Roles API response:", res.data.data["Role Details"]); // 👈 debug
-        setRoles(res.data.data["Role Details"]);
-      })
-      .catch((err) => {
-        console.error("Error fetching roles:", err);
-        setRoles([]);
-      });
-  }
-}, [isModalOpen]);
-
+  useEffect(() => {
+    if (isModalOpen) {
+      GetAllRole()
+        .then((res) => {
+          setRoles(res.data.data["Role Details"]);
+        })
+        .catch((err) => {
+          console.error("Error fetching roles:", err);
+          setRoles([]);
+        });
+    }
+  }, [isModalOpen]);
 
   return (
     isModalOpen && (
@@ -51,7 +47,12 @@ const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button key="save" className="btn btn-success" title="Save"  onClick={handleModalSave}>
+            <button
+              key="save"
+              className="btn btn-success"
+              title="Save"
+              onClick={handleModalSave}
+            >
               Save
             </button>
           </div>,
@@ -60,11 +61,7 @@ const AddLeadPersonal = ({ isModalOpen, setIsModalOpen }) => {
         <div className="flex flex-col gap-y-2">
           <div className="flex flex-col">
             <label className="form-label">Name</label>
-             <input
-                  type="text"
-                  className="input"
-                  placeholder="Name"
-                />
+            <input type="text" className="input" placeholder="Name" />
           </div>
           {/* <div className="flex flex-col">
               <label className="form-label">Role</label>

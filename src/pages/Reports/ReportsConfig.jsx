@@ -341,7 +341,7 @@ const ReportsConfig = () => {
           <button
             onClick={() => {
               // Handle save logic here
-              console.log("Saved selections:", tabSelections);
+
               alert("Configuration saved successfully!");
             }}
             className="px-6 py-2.5 text-sm font-medium text-white bg-[#005BA8] border border-transparent rounded-lg hover:bg-[#005BA8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"

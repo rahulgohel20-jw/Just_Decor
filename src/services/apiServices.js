@@ -940,6 +940,13 @@ export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
   );
 };
 
+export const GetDishCostingbyRawmaterial = (eventId, eventFunctionId) => {
+  return GET(
+    `/dish-costing/raw-material-category-wise?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
+  );
+};
+
+
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
   return GET(
     `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`

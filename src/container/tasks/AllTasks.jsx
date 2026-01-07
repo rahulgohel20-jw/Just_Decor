@@ -4,7 +4,7 @@ import AddTask from "@/partials/modals/add-task/AddTask";
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
 
-const AllTasks = ({itemList}) => {
+const AllTasks = ({ itemList }) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const renderItem = (item) => {
     return (
@@ -1033,8 +1033,7 @@ const AllTasks = ({itemList}) => {
           Add Task
         </button>
       </div>
-      {console.log(itemList)
-      }
+      (itemList)
       <div>{itemList.map((item) => renderItem(item))}</div>
       <AddTask
         isModalOpen={isTaskModalOpen}

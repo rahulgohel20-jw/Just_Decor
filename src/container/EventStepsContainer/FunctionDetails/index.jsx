@@ -379,7 +379,6 @@ const FunctionsDetails = ({
       sortorder: idx + 1,
     }));
 
-    console.log(`📝 Updated ${field} at index ${index}:`, value);
     setFormData({ ...formData, eventFunction: functionsWithSortOrder });
   };
 

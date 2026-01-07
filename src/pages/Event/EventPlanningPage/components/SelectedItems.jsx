@@ -93,7 +93,6 @@ const SelectedItems = ({
   useEffect(() => {
     const handleLanguageChange = () => {
       const newLang = localStorage.getItem("lang") || "en";
-      console.log("SelectedItems - Language changed to:", newLang);
       setCurrentLanguage(newLang);
     };
 
@@ -103,10 +102,6 @@ const SelectedItems = ({
     const intervalId = setInterval(() => {
       const currentLang = localStorage.getItem("lang") || "en";
       if (currentLang !== currentLanguage) {
-        console.log(
-          "SelectedItems - Language detected via polling:",
-          currentLang
-        );
         setCurrentLanguage(currentLang);
       }
     }, 500);

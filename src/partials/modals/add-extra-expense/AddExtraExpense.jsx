@@ -84,8 +84,6 @@ const AddExtraExpense = ({
         userId: Id,
       };
 
-      console.log("Sending payload:", payload);
-
       try {
         if (selectedMeal) {
           const res = await UpdateExtraExpense(selectedMeal.id, payload);

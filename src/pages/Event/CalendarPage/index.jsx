@@ -26,8 +26,6 @@ const CalendarPage = () => {
   let Id = localStorage.getItem("userId");
 
   const getStatusColor = (statusCode, isRMenu) => {
-    console.log(isRMenu);
-
     if (isRMenu === true && statusCode !== 0) {
       return "#E75480";
     } else {
@@ -122,7 +120,6 @@ const CalendarPage = () => {
                 );
 
                 const color = getStatusColor(item.status, item.isRMenu);
-                console.log("Event Item:", item);
                 return {
                   eventid: item.id,
                   eventTypeId: item.eventType?.id || null,

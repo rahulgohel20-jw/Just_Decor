@@ -111,8 +111,6 @@ export default function SummaryItemModalOutsideAgency({
     success: true,
   };
 
-  console.log(outsidesummary);
-
   // Use provided data or sample data
   const responseData = outsidesummary || sampleData;
 

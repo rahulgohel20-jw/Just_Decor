@@ -69,8 +69,6 @@ const InvoiceDetail = ({ Eventid }) => {
       const response = await GetInvoice(id);
       const invoiceArray = response?.data?.data?.["Event Invoice Details"];
 
-      console.log("Full Response:", response?.data);
-
       if (
         !invoiceArray ||
         !Array.isArray(invoiceArray) ||
@@ -84,9 +82,6 @@ const InvoiceDetail = ({ Eventid }) => {
       const invoice = invoiceArray[0];
       const event = invoice?.event || {};
       const party = event?.party || {};
-
-      console.log("Invoice:", invoice);
-      console.log("Event:", event);
 
       // Set subtotal and total
       setSubTotal(invoice?.subTotal || 0);
@@ -132,8 +127,6 @@ const InvoiceDetail = ({ Eventid }) => {
         })) || [];
 
       setFunctionData(functions);
-
-      console.log("Function Data:", functions);
     } catch (err) {
       console.error("Error fetching invoice data:", err);
     }

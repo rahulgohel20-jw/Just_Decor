@@ -35,7 +35,7 @@ export default function QuotationViewPage() {
   const FetchQuotation = async (eventId) => {
     try {
       const response = await GetQuotation(eventId);
-      console.log("Quotation response:", response);
+
       setQuotationId(response);
     } catch (error) {
       console.error("Error fetching quotation:", error);

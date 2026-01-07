@@ -10,8 +10,6 @@ import * as Yup from "yup";
 import AddTemplateName from "../Template-modal/AddTemplateName";
 
 const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
-  console.log(rawdata);
-
   if (!isOpen) return null;
 
   const [debounceTimer, setDebounceTimer] = useState(null);

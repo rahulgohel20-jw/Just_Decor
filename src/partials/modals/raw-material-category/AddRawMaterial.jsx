@@ -57,8 +57,6 @@ const AddRawMaterial = ({
   const FetchRawTypeCategory = () => {
     GetRawType(1)
       .then((res) => {
-        console.log(res);
-
         const rawData =
           res?.data?.data?.["Raw Material Category Type Details"] || [];
         setOptions(

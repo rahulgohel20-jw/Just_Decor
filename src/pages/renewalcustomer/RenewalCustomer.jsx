@@ -68,7 +68,6 @@ const RenewalCustomer = () => {
       );
 
       const resData = response?.data;
-      console.log("📥 API Response:", resData);
 
       if (
         resData?.success &&

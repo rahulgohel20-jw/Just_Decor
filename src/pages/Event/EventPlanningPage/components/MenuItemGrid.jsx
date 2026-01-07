@@ -32,7 +32,6 @@ const MenuItemGrid = ({
   useEffect(() => {
     const handleLanguageChange = () => {
       const newLang = localStorage.getItem("lang") || "en";
-      console.log("Language changed to:", newLang); // Debug log
       setCurrentLanguage(newLang);
     };
 
@@ -46,7 +45,6 @@ const MenuItemGrid = ({
     const intervalId = setInterval(() => {
       const currentLang = localStorage.getItem("lang") || "en";
       if (currentLang !== currentLanguage) {
-        console.log("Language detected via polling:", currentLang);
         setCurrentLanguage(currentLang);
       }
     }, 500);
@@ -58,9 +56,7 @@ const MenuItemGrid = ({
     };
   }, [currentLanguage]);
 
-  useEffect(() => {
-    console.log("Current language:", currentLanguage); // Debug log
-  }, [currentLanguage]);
+  useEffect(() => {}, [currentLanguage]);
 
   const getLocalizedName = useMemo(() => {
     return (item) => {

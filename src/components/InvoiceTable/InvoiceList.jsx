@@ -10,7 +10,7 @@ export default function InvoiceList({ onSelectInvoice }) {
   const fetchInvoices = async () => {
     try {
       const response = await GeteventInvoicedata(PartyId);
-      console.log("invoicelist", response);
+
       const invoiceList =
         response?.data?.data?.["Event Details"]?.map((event) => ({
           eventId: event?.id || "-",
@@ -22,7 +22,6 @@ export default function InvoiceList({ onSelectInvoice }) {
         })) || [];
 
       setInvoices(invoiceList);
-      console.log("Invoice list", invoiceList);
     } catch (error) {
       console.error("Error fetching invoices:", error);
       setInvoices([]);

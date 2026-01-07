@@ -59,15 +59,12 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   }, []);
   let Id = localStorage.getItem("userId");
 
-  useEffect(() => {
-    console.log("Form Data Updated:", formData);
-  }, [formData]);
+  useEffect(() => {}, [formData]);
 
   const FetchMealtype = () => {
     GetMealType(Id)
       .then((res) => {
         const mealdata = res?.data?.data?.["MealType Details"] || [];
-        console.log(mealdata);
 
         const mealOptions = mealdata.map((item) => ({
           label: item.nameEnglish,

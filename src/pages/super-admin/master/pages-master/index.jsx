@@ -30,8 +30,6 @@ const PageMaster = () => {
       // Filter tableData based on search query
       GetAllPages()
         .then((res) => {
-          console.log("Search API Response:", res);
-
           // Handle different response structures
           const pages = res?.data?.data?.["UserRightsPages"];
 
@@ -65,11 +63,8 @@ const PageMaster = () => {
   const FetchPages = () => {
     GetAllPages()
       .then((res) => {
-        console.log("API Response:", res);
-
         // Handle different response structures
         const pages = res?.data?.data?.["UserRightsPages"];
-        console.log("pages", pages);
 
         if (pages && Array.isArray(pages)) {
           const formatted = pages.map((page, index) => ({
@@ -83,7 +78,6 @@ const PageMaster = () => {
 
           setTableData(formatted);
         } else {
-          console.error("Pages data is not an array:", pages);
           setTableData([]);
         }
       })

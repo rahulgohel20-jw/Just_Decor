@@ -99,7 +99,6 @@ const ViewEventDetail = ({ isModalOpen, setIsModalOpen, eventId }) => {
       translatedObj[item.key] = item.value;
     });
 
-    console.log("Translated data:", translatedObj);
     setTranslatedData(translatedObj);
   };
 
@@ -141,7 +140,6 @@ const ViewEventDetail = ({ isModalOpen, setIsModalOpen, eventId }) => {
     const checkLanguageChange = setInterval(() => {
       const newLang = getCurrentLanguage();
       if (newLang !== currentLang) {
-        console.log("Language changed from", currentLang, "to", newLang);
         setCurrentLang(newLang);
         translateAllFields();
       }

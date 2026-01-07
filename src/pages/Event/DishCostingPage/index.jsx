@@ -29,7 +29,7 @@ const DishCostingPage = () => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [allFunctionWiseCosting, setAllFunctionWiseCosting] = useState([]);
-  const [agencySidebar,setAgencySidebar] = useState(false);
+  const [agencySidebar, setAgencySidebar] = useState(false);
 
   const handleTotalWiseClick = () => {
     setViewType("Total Wise");
@@ -61,12 +61,11 @@ const DishCostingPage = () => {
     ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.raw || 0), 0)
     : Number(dishCostingData?.rawmaterialcharge || 0);
 
-const totalAgency = isTotal
-  ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.agency || 0), 0)
-  : Number(dishCostingData?.cheflaborcharge || 0) +
-    Number(dishCostingData?.laborcharge || 0) +
-    Number(dishCostingData?.outsideagencycharge || 0);
-
+  const totalAgency = isTotal
+    ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.agency || 0), 0)
+    : Number(dishCostingData?.cheflaborcharge || 0) +
+      Number(dishCostingData?.laborcharge || 0) +
+      Number(dishCostingData?.outsideagencycharge || 0);
 
   const totalExtra = isTotal
     ? allFunctionWiseCosting.reduce((sum, f) => sum + Number(f.extra || 0), 0)
@@ -115,39 +114,35 @@ const totalAgency = isTotal
     setIsModalOpen(true);
   };
 
-  const handeAgencySidebarCLick =() => {
+  const handeAgencySidebarCLick = () => {
     setAgencySidebar(true);
   };
 
+  useEffect(() => {
+    if (
+      viewType === "Function Wise" &&
+      eventData?.eventFunctions?.length > 0 &&
+      !selectedFunctionId
+    ) {
+      const firstFunction = eventData.eventFunctions[0];
 
-useEffect(() => {
-  if (
-    viewType === "Function Wise" &&
-    eventData?.eventFunctions?.length > 0 &&
-    !selectedFunctionId
-  ) {
-    const firstFunction = eventData.eventFunctions[0];
-
-    setSelectedFunctionId(firstFunction.id);
-    setFunctionType(firstFunction.function?.nameEnglish || "");
-    setSelectedFunctionPax(firstFunction.pax || 0);
-  }
-}, [viewType, eventData, selectedFunctionId]);
-
+      setSelectedFunctionId(firstFunction.id);
+      setFunctionType(firstFunction.function?.nameEnglish || "");
+      setSelectedFunctionPax(firstFunction.pax || 0);
+    }
+  }, [viewType, eventData, selectedFunctionId]);
 
   useEffect(() => {
     const fetchEventData = async () => {
       try {
         setLoading(true);
         const res = await GetEventMasterById(eventId);
-        console.log("🔍 API Response:", res.data.data);
 
         if (res?.data?.data?.["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
           setEventData(event);
 
           // Auto-select first function by default
-        
         }
       } catch (error) {
         console.error("❌ Error fetching event details:", error);
@@ -169,20 +164,19 @@ useEffect(() => {
       for (const func of eventData.eventFunctions) {
         try {
           const res = await GetDishCostingByEventFunction(eventId, func.id);
-       const data = res.data.data;
+          const data = res.data.data;
 
-       allData.push({
-         eventFunctionId: func.id,
-         name: func.function?.nameEnglish,
-         pax: func.pax,
-         raw: Number(data.rawmaterialcharge || 0),
-         agency:
-           Number(data.cheflaborcharge || 0) +
-           Number(data.laborcharge || 0) +
-           Number(data.outsideagencycharge || 0),
-         extra: Number(data.extraexpensecharge || 0),
-       });
-
+          allData.push({
+            eventFunctionId: func.id,
+            name: func.function?.nameEnglish,
+            pax: func.pax,
+            raw: Number(data.rawmaterialcharge || 0),
+            agency:
+              Number(data.cheflaborcharge || 0) +
+              Number(data.laborcharge || 0) +
+              Number(data.outsideagencycharge || 0),
+            extra: Number(data.extraexpensecharge || 0),
+          });
         } catch (err) {
           console.error(`Error fetching costing for ${func.id}`, err);
         }
@@ -204,7 +198,6 @@ useEffect(() => {
           eventId,
           selectedFunctionId
         );
-        console.log("Dish Costing API Response:", res.data);
         setDishCostingData(res.data.data);
       } catch (err) {
         console.error("Error fetching dish costing:", err);
@@ -214,27 +207,19 @@ useEffect(() => {
     fetchDishCosting();
   }, [eventId, selectedFunctionId]);
 
-const renderFunctionDateTime = () => {
-  // TOTAL WISE → show all functions
-  if (viewType === "Total Wise") {
+  const renderFunctionDateTime = () => {
+    // TOTAL WISE → show all functions
+    if (viewType === "Total Wise") {
+      return <div className="flex flex-col gap-1">All Function</div>;
+    }
+
+    // FUNCTION WISE → selected function only
     return (
-      <div className="flex flex-col gap-1">
-      
-        All Function
-           
-    
-      </div>
+      <span className="text-sm font-semibold text-gray-900">
+        {dishCostingData?.eventFunction?.functionStartDateTime || "-"}{" "}
+      </span>
     );
-  }
-
-  // FUNCTION WISE → selected function only
-  return (
-    <span className="text-sm font-semibold text-gray-900">
-      {dishCostingData?.eventFunction?.functionStartDateTime || "-"}{" "}
-
-    </span>
-  );
-};
+  };
 
   return (
     <Fragment>
@@ -576,6 +561,8 @@ const renderFunctionDateTime = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           viewType={viewType}
+          eventId={eventId}
+          selectedFunctionId={selectedFunctionId}
         />
         <TotalAgencySidebar
           isOpen={agencySidebar}

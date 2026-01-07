@@ -3,7 +3,6 @@ import { Switch } from "@/components/ui/switch";
 import { Popconfirm, Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
 
-
 // ✅ Use onEdit callback instead of navigate
 export const columns = (onEdit, onDelete, onStatusChange) => [
   {
@@ -61,8 +60,6 @@ export const columns = (onEdit, onDelete, onStatusChange) => [
               className="btn btn-sm btn-icon btn-clear"
               title="Edit"
               onClick={() => {
-                console.log("📝 Edit clicked! packageId:", packageId);
-                console.log("📝 Type of packageId:", typeof packageId);
                 if (packageId === undefined || packageId === null) {
                   console.error("❌ Package ID is undefined/null!");
                   console.error(
@@ -86,7 +83,6 @@ export const columns = (onEdit, onDelete, onStatusChange) => [
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
               onClick={() => {
-                console.log("🗑️ Delete clicked! packageId:", packageId);
                 if (packageId === undefined || packageId === null) {
                   console.error("❌ Package ID is undefined/null!");
                   alert(

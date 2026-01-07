@@ -56,11 +56,6 @@ export default function AgencyAllocationSidebar({
 
       try {
         setLoading(true);
-        console.log("🚀 Fetching data:", {
-          eventId,
-          eventFunctionId,
-          tab: selectedTab,
-        });
 
         const res = await GetAllItemByType(
           eventFunctionId,
@@ -77,7 +72,6 @@ export default function AgencyAllocationSidebar({
         }
 
         setAllocationData(details);
-        console.log("✅ Data loaded:", details.length, "items");
       } catch (error) {
         console.error("❌ API Error:", error?.message || error);
         setAllocationData(null);

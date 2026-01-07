@@ -32,8 +32,6 @@ const MenuCategory = () => {
   const FetchCategoryData = async () => {
     setLoading(true);
     try {
-      console.log("📥 Fetching all categories...");
-
       const res = await GetAllCategory({
         userid: Id,
         menuCategoryName: "",
@@ -41,8 +39,6 @@ const MenuCategory = () => {
 
       const list = res.data.data["Menu Category Details"] || [];
       setOriginalData(list);
-
-      console.log(`✅ Loaded ${list.length} categories`, list);
     } catch (error) {
       console.error("Error fetching category:", error);
       setOriginalData([]);
@@ -59,7 +55,6 @@ const MenuCategory = () => {
   // Map data based on language
   useEffect(() => {
     const language = localStorage.getItem("lang");
-    console.log("🌍 Current language:", language);
 
     const languageMap = {
       en: "nameEnglish",
@@ -81,20 +76,16 @@ const MenuCategory = () => {
       imagePath: item.imagePath || "",
     }));
 
-    console.log("📊 Mapped table data:", mapped);
     setAllTableData(mapped);
   }, [originalData]);
 
   // Client-side filtering - searches across ALL language fields
   const filteredTableData = useMemo(() => {
     if (!searchQuery.trim()) {
-      console.log("🔍 No search query - showing all data");
       return allTableData;
     }
 
     const query = searchQuery.toLowerCase().trim();
-    console.log(`🔍 Filtering with query: "${query}"`);
-    console.log("📋 Total data to search:", allTableData.length);
 
     const filtered = allTableData.filter((item) => {
       // Search across all language fields
@@ -112,19 +103,11 @@ const MenuCategory = () => {
         searchInEnglish || searchInHindi || searchInGujarati;
 
       if (matchesSearch) {
-        console.log(`✅ Match found:`, {
-          english: item.nameEnglish,
-          hindi: item.nameHindi,
-          gujarati: item.nameGujarati,
-        });
       }
 
       return matchesSearch;
     });
 
-    console.log(
-      `✅ Filtered results: ${filtered.length} out of ${allTableData.length}`
-    );
     return filtered;
   }, [allTableData, searchQuery]);
 
@@ -224,7 +207,7 @@ const MenuCategory = () => {
                 value={searchQuery}
                 onChange={(e) => {
                   const value = e.target.value;
-                  console.log("⌨️ Search input changed:", value);
+
                   setSearchQuery(value);
                 }}
               />

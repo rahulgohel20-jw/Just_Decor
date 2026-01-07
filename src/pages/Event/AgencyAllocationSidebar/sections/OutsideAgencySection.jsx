@@ -25,12 +25,6 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
   const handleAllocate = (allocationData) => {
     const { partyId, partyName, pax } = allocationData;
 
-    console.log("Allocate called with:", {
-      partyId,
-      partyName,
-      pax,
-    });
-
     if (!partyId || !pax) {
       Swal.fire({
         title: "Success",
@@ -65,12 +59,6 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
           if (selectedItems[itemKey]) {
             allocatedCount++;
 
-            console.log("Updating allocation:", {
-              allocationIndex,
-              oldPartyId: allocation.partyId,
-              newPartyId: partyId,
-            });
-
             return {
               ...allocation,
               partyId: partyId,
@@ -100,8 +88,6 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
       };
     });
 
-    console.log("Updated menu items:", updatedMenuItems);
-
     setMenuItems(updatedMenuItems);
 
     if (onDataUpdate) {
@@ -127,8 +113,6 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
     }
   };
   const buildPayload = useCallback(() => {
-    console.log(menuItems);
-
     const userId = Number(localStorage.getItem("userId"));
 
     return menuItems.map((menuItem) => ({
@@ -171,8 +155,6 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
       setSaving(true);
 
       const payload = buildPayload();
-
-      console.log("📦 Final Payload:", payload);
 
       const res = await MenuAllocationSave(payload);
 

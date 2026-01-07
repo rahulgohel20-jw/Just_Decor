@@ -53,8 +53,6 @@ const AddVenueType = ({
 
   useEffect(() => {
     if (selectedEvent) {
-      console.log("Editing Item:", selectedEvent);
-
       setFormData({
         nameEnglish:
           selectedEvent.venue_type || selectedEvent.nameEnglish || "",
@@ -106,20 +104,15 @@ const AddVenueType = ({
       userId: userId,
     };
 
-    console.log("Final Payload Sent to API:", payload);
-
     try {
       let res;
       if (selectedEvent?.venueid) {
         // Edit existing venue
         res = await UpdateVenueTypeApi(selectedEvent.venueid, payload);
-        console.log("Selected Event in Edit Mode:", selectedEvent);
       } else {
         // Add new venue
         res = await AddVenueTypeApi(payload);
       }
-
-      console.log("API Response:", res);
 
       if (res?.data?.success === false && res.data.msg?.includes("exists")) {
         Swal.fire(

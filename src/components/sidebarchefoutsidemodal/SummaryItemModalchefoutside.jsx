@@ -22,8 +22,6 @@ export default function SummaryItemModalchefoutside({
   const [activeTab, setActiveTab] = useState("dinner");
   const [expandedItems, setExpandedItems] = useState({});
 
-  console.log("Chef Summary:", chefsummary);
-
   useEffect(() => {
     if (!open) return;
     const handleEscape = (e) => {
@@ -43,7 +41,6 @@ export default function SummaryItemModalchefoutside({
         );
         const data =
           response.data.data["Menu Allocation Details"].agencyResponse;
-        console.log("Fetched summary data:", data);
       } catch (error) {
         console.error("Error fetching summary data:", error);
       }

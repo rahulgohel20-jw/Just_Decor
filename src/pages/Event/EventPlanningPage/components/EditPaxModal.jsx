@@ -41,7 +41,6 @@ const EditPaxModal = ({ isOpen, onClose, eventData, onRefreshEvent }) => {
       }));
 
       const res = await UpdateEventPax(eventData.id, payload);
-      console.log("Update Successful:", res);
       onRefreshEvent();
       onClose();
     } catch (err) {
