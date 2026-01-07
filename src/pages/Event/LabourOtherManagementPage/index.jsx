@@ -1,6 +1,5 @@
 import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Select } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -32,7 +31,7 @@ dayjs.extend(customParseFormat);
 
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
-const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
+const SHIFTS = [];
 const PLACES = ["At Venue", "At Godown"];
 
 // Utility functions
@@ -75,7 +74,6 @@ const LabourOtherManagementPage = ({ mode }) => {
   );
   const [activeFunctionName, setActiveFunctionName] = useState("");
   const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
-  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [contactTypeId, setContactTypeId] = useState(2);
@@ -185,12 +183,8 @@ const LabourOtherManagementPage = ({ mode }) => {
   );
 
   const {
-    extraExpenseData,
     selectedExpense,
     isModalOpen: isExtraExpenseModalOpen,
-    deleteExpense,
-    editExpense,
-    addExpense,
     closeModal,
     refetchExpenses,
   } = useExtraExpense(activeFunction?.id, eventData?.id);
@@ -207,29 +201,28 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [activeFunction?.id, eventData?.id]);
 
   useEffect(() => {
-    const fetchContactCategories = async () => {
-      if (!userId) return;
-
-      try {
-        const res = await GetAllContactCategory(userId);
-
-        const allCategories =
-          res?.data?.data?.["Contact Category Details"] || [];
-
-        const labour = allCategories.filter((cat) => {
-          const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
-
-          return typeName === LABOUR_TYPE;
-        });
-
-        setLabourCategories(labour);
-      } catch (error) {
-        console.error("❌ Error fetching contact categories:", error);
-      }
-    };
-
     fetchContactCategories();
   }, [userId]);
+
+  const fetchContactCategories = async () => {
+    if (!userId) return;
+
+    try {
+      const res = await GetAllContactCategory(userId);
+
+      const allCategories = res?.data?.data?.["Contact Category Details"] || [];
+
+      const labour = allCategories.filter((cat) => {
+        const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
+
+        return typeName === LABOUR_TYPE;
+      });
+
+      setLabourCategories(labour);
+    } catch (error) {
+      console.error("❌ Error fetching contact categories:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -870,7 +863,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           <AddContactCategory
             isOpen={isAddLabourModalOpen}
             onClose={() => setIsAddLabourModalOpen(false)}
-            refreshData={() => {}}
+            refreshData={fetchContactCategories}
             contactCategory={null} // Adding new
             labourOnly={true}
             onSave={(newCategory) => {

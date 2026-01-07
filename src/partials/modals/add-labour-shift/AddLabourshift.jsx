@@ -141,20 +141,10 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
                     {({ field, form }) => (
                       <input
                         {...field}
-                        type="text"
-                        placeholder="HH:mm"
-                        maxLength={5}
-                        className="border border-gray-300 rounded-md p-2 w-32"
+                        type="time"
+                        className="border border-gray-300 rounded-md p-2 w-40"
                         onChange={(e) => {
-                          let value = e.target.value.replace(/[^0-9]/g, "");
-
-                          if (value.length >= 3) {
-                            value = value.slice(0, 2) + ":" + value.slice(2, 4);
-                          }
-
-                          if (value.length > 5) value = value.slice(0, 5);
-
-                          form.setFieldValue(field.name, value);
+                          form.setFieldValue(field.name, e.target.value);
                         }}
                         value={field.value}
                       />
