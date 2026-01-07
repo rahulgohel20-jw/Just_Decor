@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import axios from "axios";
 import {
   GetAllContactCategorybycontacttype,
   Translateapi,
@@ -22,6 +21,7 @@ const AddContactName = ({
 }) => {
   if (!isModalOpen) return null;
   const intl = useIntl();
+  console.log(contactTypeId);
 
   // Define API functions directly in the component
   const getAuthHeaders = () => {
@@ -217,6 +217,8 @@ const AddContactName = ({
 
   const fetchCategories = async () => {
     try {
+      console.log(contactTypeId);
+
       const concatById = contactTypeId || concatId;
       const {
         data: { data },
