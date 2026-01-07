@@ -53,7 +53,7 @@ export const itemcolumns = [
   {
     accessorKey: "quantity",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Quantity" column={column} />
+      <DataGridColumnHeader title=" Current Quantity" column={column} />
     ),
   },
   {
