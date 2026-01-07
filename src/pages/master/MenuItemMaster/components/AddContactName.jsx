@@ -217,16 +217,20 @@ const AddContactName = ({
 
   const fetchCategories = async () => {
     try {
-      const concatById = concatId;
+      const concatById = contactTypeId || concatId;
       const {
         data: { data },
       } = await GetAllContactCategorybycontacttype(concatById, userData);
 
       // Filter out Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
-      const filteredCategories = allCategories.filter((cat) => {
-        return cat.contactType?.id !== 1;
-      });
+      const filteredCategories = contactTypeId
+        ? allCategories.filter(
+            (cat) => cat.contactType?.id === contactTypeId // 👈 ONLY SUPPLIER (3)
+          )
+        : allCategories.filter(
+            (cat) => cat.contactType?.id !== 1 // 👈 EXISTING BEHAVIOR
+          );
 
       setCategories(filteredCategories);
     } catch (error) {
