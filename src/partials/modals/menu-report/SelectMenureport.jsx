@@ -59,7 +59,7 @@ export default function SelectMenureport({
 
           if (mode === "menu") {
             modules = modules.filter((module) =>
-              ["Exclusive Theme", "Simple Theme", "Back Office Theme"].includes(
+              ["Exclusive Theme", "Back Office Theme"].includes(
                 module.nameEnglish
               )
             );
@@ -319,60 +319,64 @@ export default function SelectMenureport({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : templates.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-4">
               {templates.map((template) => {
                 const isActive = selectedCard === template.id;
+
                 return (
                   <div
                     key={template.id}
                     className={`
-          relative bg-white rounded-2xl
-          border-2 ${isActive ? "border-[#005BA8]" : "border-gray-200"}
-          shadow-md hover:shadow-lg transition-all duration-300
-        `}
+            flex items-center gap-6 bg-white rounded-xl  
+            border-2 ${isActive ? "border-[#005BA8]" : "border-gray-200"}
+            shadow-sm hover:shadow-md transition-all duration-300
+          `}
                   >
-                    <div className="p-6 flex flex-col items-left">
-                      {/* Icon or Preview */}
-                      <div className="w-16 h-16 flex items-center justify-center mb-4">
-                        {template.frontPage ? (
+                    {/* Image (Left) */}
+                    <div className="w-24 h-24 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
+                      {template.frontPage ? (
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
                           <img
-                            src={template.frontPage}
-                            alt={template.name}
-                            className="w-full h-full object-cover rounded-lg"
+                            src={toAbsoluteUrl("/media/icons/reportcard.png")}
+                            alt={template.name || "Template"}
+                            className="w-8 h-8 object-contain"
                           />
-                        ) : (
-                          <img
-                            src={toAbsoluteUrl("/media/icons/selectmenu.png")}
-                            className="w-15 h-15"
-                            alt="Template icon"
-                          />
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={toAbsoluteUrl("/media/icons/reportcard.png")}
+                          alt="Template"
+                          className="w-12 h-12 object-contain"
+                        />
+                      )}
+                    </div>
 
-                      {/* Title */}
+                    {/* Content (Middle) */}
+                    <div className="flex-1">
                       <h3
-                        className={`text-lg font-bold mb-2 ${isActive ? "text-[#005BA8]" : "text-gray-800"}`}
+                        className={`text-base font-bold ${
+                          isActive ? "text-[#005BA8]" : "text-gray-800"
+                        }`}
                       >
                         {template.name}
                       </h3>
 
-                      {/* Description */}
-                      <p className="text-sm text-gray-700 text-left">
+                      <p className="text-sm text-gray-500 mt-1">
                         {template.description}
                       </p>
+                    </div>
 
-                      {/* Centered Button */}
-                      <div className="flex justify-center mt-6">
-                        <button
-                          className="btn btn-primary px-6 py-2 rounded-lg"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGenerateReport(template);
-                          }}
-                        >
-                          Generate Report
-                        </button>
-                      </div>
+                    {/* Action (Right) */}
+                    <div className="flex-shrink-0 pe-3">
+                      <button
+                        className="btn btn-primary px-6 h-[50px] w-[200px] text-md rounded-full flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGenerateReport(template);
+                        }}
+                      >
+                        Generate Report
+                      </button>
                     </div>
                   </div>
                 );

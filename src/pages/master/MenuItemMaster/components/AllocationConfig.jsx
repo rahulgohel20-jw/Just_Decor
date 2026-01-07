@@ -16,7 +16,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     useMenuApi(userId);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("chef");
+  const [activeTab, setActiveTab] = useState("details");
   const [isSaveOnly, setIsSaveOnly] = useState(false);
 
   const [chefunit, setChefunit] = useState([]);
@@ -55,6 +55,11 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
 
       try {
         const chefRes = await getContactNames(5);
+
+        console.log(
+          "Category 5 parties:",
+          chefRes?.data?.data?.["Party Details"]
+        );
         setChefNames(
           chefRes?.data?.data?.["Party Details"]?.map((i) => ({
             id: i.id,
@@ -98,13 +103,16 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
 
   useEffect(() => {
     if (!isEdit || !editData) return;
-    const alloc = editData.menuItemAllocationConfigs;
-    if (!alloc) return;
 
-    if (alloc.selectChefLabourAgency) setActiveTab("chef");
-    else if (alloc.selectOutsideAgency) setActiveTab("outside");
-    else if (alloc.selectInsideAgency) setActiveTab("inside");
-  }, [isEdit, editData]);
+    const alloc = editData.menuItemAllocationConfigs;
+    if (!alloc?.outsideItem?.contactCategory?.id) return;
+
+    console.log(
+      "Fetching outside contact names for category:",
+      alloc.outsideItem.contactCategory.id
+    );
+    fetchChefcontactname(alloc.outsideItem.contactCategory.id);
+  }, [isEdit, editData]); // ✅ This should run BEFORE pendingEditValues is set
 
   // Initialize edit values when component receives editData or menuDetails
   useEffect(() => {
@@ -200,60 +208,70 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
   useEffect(() => {
     if (!pendingEditValues) return;
 
-    console.log("Pending edit values check:", {
-      pendingEditValues,
-      chefNamesLength: chefNames.length,
-      insideCookNamesLength: insideCookNames.length,
-      contactLength: contact.length,
-      chefunitLength: chefunit.length,
-      outsideNameLength: outsideName.length,
-    });
-
-    const dropdownsLoaded =
-      chefNames.length &&
-      insideCookNames.length &&
-      contact.length &&
-      chefunit.length;
-
-    if (!dropdownsLoaded) {
-      console.log("Base dropdowns not loaded yet");
+    // wait until correct tab is mounted
+    if (pendingEditValues.chef_contactName && activeTab !== "chef") {
+      setActiveTab("chef");
       return;
     }
 
-    // If Outside agency tab and needs contact name fetch
-    if (
-      pendingEditValues.contactCategory &&
-      pendingEditValues.outside_contactName
-    ) {
-      // Check if we need to fetch or if data is already there
-      const needsFetch =
-        outsideName.length === 0 ||
-        !outsideName.find(
-          (item) => item.partyId === pendingEditValues.outside_contactName
-        );
-
-      if (needsFetch) {
-        console.log(
-          "Fetching outside contact names for category:",
-          pendingEditValues.contactCategory
-        );
-        fetchChefcontactname(pendingEditValues.contactCategory);
-        return; // Wait for next render after fetch
-      }
+    if (pendingEditValues.outside_contactName && activeTab !== "outside") {
+      setActiveTab("outside");
+      return;
     }
 
-    // All dropdowns are ready, set form values
+    if (pendingEditValues.chef_name && activeTab !== "inside") {
+      setActiveTab("inside");
+      return;
+    }
+
+    // ✅ Wait for chef options to load
+    if (pendingEditValues.chef_contactName && chefNames.length === 0) {
+      console.log("Waiting for chefNames to load...");
+      return;
+    }
+
+    // ✅ Wait for outside options to load
+    if (pendingEditValues.outside_contactName && outsideName.length === 0) {
+      console.log("Waiting for outsideName options to load...");
+      return;
+    }
+
+    // ✅ Wait for inside cook options to load
+    if (pendingEditValues.chef_name && insideCookNames.length === 0) {
+      console.log("Waiting for insideCookNames to load...");
+      return;
+    }
+
     console.log("Setting form values:", pendingEditValues);
-    form.setFieldsValue(pendingEditValues);
-    setPendingEditValues(null); // Clear to prevent re-setting
+
+    // ✅ Use setTimeout to ensure DOM has updated with new options
+    setTimeout(() => {
+      form.setFieldsValue(pendingEditValues);
+      // ✅ Verify what value was actually set
+      console.log(
+        "Form value after setting:",
+        form.getFieldValue("chef_contactName")
+      );
+      setPendingEditValues(null);
+    }, 0);
   }, [
     pendingEditValues,
+    activeTab,
+    outsideName,
     chefNames,
     insideCookNames,
-    contact,
-    chefunit,
-    outsideName,
+    form,
   ]);
+
+  useEffect(() => {
+    if (!pendingEditValues?.outside_contactName) return;
+    if (outsideName.length === 0) return;
+
+    // Options are now loaded, re-apply the form value
+    form.setFieldsValue({
+      outside_contactName: pendingEditValues.outside_contactName,
+    });
+  }, [outsideName]);
 
   const handleAddContact = (fieldName) => {
     switch (fieldName) {
@@ -385,7 +403,10 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     f.name === "chef_contactName"
       ? {
           ...f,
-          options: chefNames.map((i) => ({ label: i.name, value: i.id })),
+          options: chefNames.map((i) => {
+            console.log("Chef option:", { label: i.name, value: i.id }); // ✅ Debug
+            return { label: i.name, value: i.id };
+          }),
         }
       : f
   );
