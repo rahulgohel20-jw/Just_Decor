@@ -1,5 +1,6 @@
 import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
+import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Select } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -31,7 +32,8 @@ dayjs.extend(customParseFormat);
 
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
-const SHIFTS = [];
+const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
+const PLACES = ["At Venue", "At Godown"];
 
 // Utility functions
 const parseDate = (date, fallbackDate) => {
@@ -73,6 +75,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   );
   const [activeFunctionName, setActiveFunctionName] = useState("");
   const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [contactTypeId, setContactTypeId] = useState(2);
@@ -112,10 +115,12 @@ const LabourOtherManagementPage = ({ mode }) => {
 
       const mapped =
         Array.isArray(apiShifts) && apiShifts.length
-          ? apiShifts
-              .map((s) => (typeof s === "string" ? s : s.nameEnglish || ""))
-              .filter(Boolean)
-          : SHIFTS;
+          ? apiShifts.map((s) => ({
+              id: s.id,
+              name: s.nameEnglish,
+              time: s.shiftTime, // "10:00"
+            }))
+          : SHIFTS.map((s) => ({ name: s, time: null }));
 
       setShiftOptions(mapped);
     } catch (err) {
@@ -182,8 +187,12 @@ const LabourOtherManagementPage = ({ mode }) => {
   );
 
   const {
+    extraExpenseData,
     selectedExpense,
     isModalOpen: isExtraExpenseModalOpen,
+    deleteExpense,
+    editExpense,
+    addExpense,
     closeModal,
     refetchExpenses,
   } = useExtraExpense(activeFunction?.id, eventData?.id);
@@ -200,28 +209,29 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [activeFunction?.id, eventData?.id]);
 
   useEffect(() => {
+    const fetchContactCategories = async () => {
+      if (!userId) return;
+
+      try {
+        const res = await GetAllContactCategory(userId);
+
+        const allCategories =
+          res?.data?.data?.["Contact Category Details"] || [];
+
+        const labour = allCategories.filter((cat) => {
+          const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
+
+          return typeName === LABOUR_TYPE;
+        });
+
+        setLabourCategories(labour);
+      } catch (error) {
+        console.error("❌ Error fetching contact categories:", error);
+      }
+    };
+
     fetchContactCategories();
   }, [userId]);
-
-  const fetchContactCategories = async () => {
-    if (!userId) return;
-
-    try {
-      const res = await GetAllContactCategory(userId);
-
-      const allCategories = res?.data?.data?.["Contact Category Details"] || [];
-
-      const labour = allCategories.filter((cat) => {
-        const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
-
-        return typeName === LABOUR_TYPE;
-      });
-
-      setLabourCategories(labour);
-    } catch (error) {
-      console.error("❌ Error fetching contact categories:", error);
-    }
-  };
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -862,7 +872,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           <AddContactCategory
             isOpen={isAddLabourModalOpen}
             onClose={() => setIsAddLabourModalOpen(false)}
-            refreshData={fetchContactCategories}
+            refreshData={() => {}}
             contactCategory={null} // Adding new
             labourOnly={true}
             onSave={(newCategory) => {
@@ -1112,12 +1122,35 @@ const LabourRow = ({
         <select
           className="select select-sm w-full"
           value={row.shift}
-          onChange={(e) => onRowChange(row.id, "shift", e.target.value)}
+          onChange={(e) => {
+            const selectedShiftName = e.target.value;
+            const selectedShift = shiftOptions.find(
+              (s) => s.name === selectedShiftName
+            );
+
+            let finalDateTime = "";
+
+            if (eventData?.eventStartDateTime && selectedShift?.time) {
+              const [hour, minute] = selectedShift.time.split(":");
+
+              finalDateTime = dayjs(
+                eventData.eventStartDateTime,
+                "DD/MM/YYYY hh:mm A"
+              )
+                .hour(Number(hour))
+                .minute(Number(minute))
+                .second(0)
+                .format("DD/MM/YYYY hh:mm A");
+            }
+
+            onRowChange(row.id, "shift", selectedShiftName);
+            onRowChange(row.id, "dateTime", finalDateTime);
+          }}
         >
           <option value="">Select Shift</option>
           {shiftOptions.map((shift) => (
-            <option key={shift} value={shift}>
-              {shift}
+            <option key={shift.id} value={shift.name}>
+              {shift.name}
             </option>
           ))}
         </select>
