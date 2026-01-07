@@ -45,7 +45,6 @@ export default function ReportEditor() {
   });
 
   const handleSave = () => {
-    console.log("💾 Saving Design:", design);
     alert("Design saved successfully!");
   };
 

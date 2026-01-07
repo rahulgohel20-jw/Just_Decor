@@ -104,7 +104,7 @@ const ViewMember = ({ isModalOpen, setIsModalOpen, selectedMember }) => {
           <div className="mt-3 text-sm">
             <p>
               <span className="font-semibold">Country:</span>{" "}
-              {console.log(selectedMember, "ASd")}
+              {(selectedMember, "ASd")}
               {memberData?.userBasicDetails?.country?.name}
             </p>
             <p>

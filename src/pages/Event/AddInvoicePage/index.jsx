@@ -21,8 +21,7 @@ const { TextArea } = Input;
 const AddInvoicePage = () => {
   const location = useLocation();
   const { eventId, eventTypeId } = location.state || {};
-  console.log("Event ID:", eventId);
-  console.log("Event Type ID:", eventTypeId);
+
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
@@ -107,15 +106,12 @@ const AddInvoicePage = () => {
       setLoading(true);
       const response = await GetInvoiceByEventId(eventId);
 
-      console.log("API Response:", response);
-
       if (response.status === 200 && response.data.data) {
         const invoiceDetailsArray =
           response?.data?.data?.["Event Invoice Details"];
 
         if (invoiceDetailsArray && invoiceDetailsArray.length > 0) {
           const invoiceDetails = invoiceDetailsArray[0];
-          console.log("Fetched Invoice Data:", invoiceDetails);
           setInvoiceData(invoiceDetails);
 
           // Set due date if available
@@ -124,7 +120,6 @@ const AddInvoicePage = () => {
           }
 
           let mappedRows = [];
-          console.log("Invoice Details for Rows:", invoiceDetails);
 
           const formatDateForDisplay = (dateString) => {
             if (!dateString) return "";
@@ -192,8 +187,6 @@ const AddInvoicePage = () => {
               })
             );
           }
-
-          console.log("Mapped Rows:", mappedRows, rows);
 
           setRows(mappedRows.length > 0 ? mappedRows : rows);
 
@@ -456,10 +449,7 @@ const AddInvoicePage = () => {
         userId: UserId,
       };
 
-      console.log("🧾 Invoice Payload =>", payload);
-      console.log("Invoice Data ID:", invoiceData?.id);
       const response = await UpdateInvoice(invoiceData?.id, payload);
-      console.log("API Response:", response);
 
       if (response?.data?.success === true) {
         setIsEdited(false);

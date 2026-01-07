@@ -3,7 +3,6 @@ import { Mic } from "lucide-react";
 
 const MenuNotes = ({ isOpen, onClose, itemId, notes = "", onSave }) => {
   const [itemSlogan, setItemSlogan] = useState("");
-  console.log(notes);
 
   useEffect(() => {
     if (isOpen && notes !== undefined) {
@@ -68,7 +67,7 @@ const InputWithIcon = ({ label, value, onChange }) => (
     />
     <button
       type="button"
-      onClick={() => console.log("Mic clicked")}
+      onClick={() => "Mic clicked"}
       title="Mic"
       className="sga__btn me-1 btn btn-primary flex items-center justify-center rounded-full p-0 w-8 h-8 absolute top-[70%] right-2 transform -translate-y-1/2"
     >

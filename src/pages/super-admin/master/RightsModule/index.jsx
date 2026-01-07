@@ -28,7 +28,6 @@ const RightsModule = () => {
     GetModuleRights()
       .then((res) => {
         const templateList = res?.data.data || [];
-        console.log(templateList);
 
         setRawOriginalData(templateList);
       })

@@ -4,63 +4,56 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { FormattedMessage } from "react-intl";
 import { GetDishCostingbyRawmaterial } from "@/services/apiServices";
 
-
 const DishCostingModal = ({
   isOpen,
   onClose,
   viewType: parentViewType,
   eventId,
-  selectedFunctionId
-
+  selectedFunctionId,
 }) => {
   const [viewType, setViewType] = useState(parentViewType || "Function Wise");
   const [categoryData, setCategoryData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  if (!isOpen || !eventId) return;
+  useEffect(() => {
+    if (!isOpen || !eventId) return;
 
-  const fetchRawMaterialCosting = async () => {
-    try {
-      setLoading(true);
+    const fetchRawMaterialCosting = async () => {
+      try {
+        setLoading(true);
 
-      const res = await GetDishCostingbyRawmaterial(
-        eventId,
-        viewType === "Function Wise" ? selectedFunctionId : 0
-      );
-
-      if (res?.data?.success) {
-        const data = res.data.data?.RawMaterialData || [];
-        console.log("Raw Material Data:", data);
-
-        setCategoryData(data);
-
-        const total = data.reduce(
-          (sum, item) => sum + Number(item.totalRate || 0),
-          0
+        const res = await GetDishCostingbyRawmaterial(
+          eventId,
+          viewType === "Function Wise" ? selectedFunctionId : 0
         );
 
-        setTotalAmount(total.toFixed(2));
-      } else {
+        if (res?.data?.success) {
+          const data = res.data.data?.RawMaterialData || [];
+
+          setCategoryData(data);
+
+          const total = data.reduce(
+            (sum, item) => sum + Number(item.totalRate || 0),
+            0
+          );
+
+          setTotalAmount(total.toFixed(2));
+        } else {
+          setCategoryData([]);
+          setTotalAmount(0);
+        }
+      } catch (err) {
+        console.error("Raw material costing error:", err);
         setCategoryData([]);
         setTotalAmount(0);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Raw material costing error:", err);
-      setCategoryData([]);
-      setTotalAmount(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchRawMaterialCosting();
-}, [isOpen, eventId, selectedFunctionId, viewType]);
-
-
-
-
+    fetchRawMaterialCosting();
+  }, [isOpen, eventId, selectedFunctionId, viewType]);
 
   return (
     <AnimatePresence>

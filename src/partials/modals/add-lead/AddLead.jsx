@@ -155,7 +155,6 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           </div>
         );
       case "tab_2":
-        console.log(formData && formData.product_data, "formData.product_data");
         return (
           <div id="tab_2" className="tab-content mb-2">
             <div className="text-end mb-2 mt-4">

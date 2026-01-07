@@ -26,7 +26,7 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
     const timer = setTimeout(() => {
       Translateapi(notes.notesEnglish)
         .then((res) => {
-          console.log("Translation Response:", res);
+          s;
           setNotes((prev) => ({
             ...prev,
             notesGujarati: res.data.gujarati || "",

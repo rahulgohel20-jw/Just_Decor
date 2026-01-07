@@ -82,8 +82,6 @@ const OrderSummary = ({
   pax,
   groupedByFunction,
 }) => {
-  console.log(groups);
-
   const grandTotal = Math.round(
     groups.reduce((total, group) => {
       const groupTotal = group.items.reduce((sum, item) => {

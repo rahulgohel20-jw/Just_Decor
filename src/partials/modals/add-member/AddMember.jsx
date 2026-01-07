@@ -54,14 +54,11 @@ const AddMember = ({
   const Id = localStorage.getItem("userId");
 
   const fetchRoles = async () => {
-    console.log("🔄 AddMember: Fetching roles...");
     try {
       const res = await GetAllRole(Id);
       const rolesList = res?.data?.data?.["Role Details"] || [];
       setRoles(rolesList);
-      console.log("✅ AddMember: Roles updated", rolesList);
     } catch (error) {
-      console.log("❌ AddMember: Error fetching roles", error);
       setRoles([]);
     }
   };
@@ -76,7 +73,6 @@ const AddMember = ({
   useEffect(() => {
     if (!openAddRoleModal && isModalOpen) {
       // When AddRole modal closes, refresh the roles
-      console.log("🔄 AddMember: AddRole modal closed, refreshing roles...");
       fetchRoles();
     }
   }, [openAddRoleModal]);

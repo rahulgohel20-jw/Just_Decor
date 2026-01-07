@@ -37,7 +37,6 @@ const DropdownUser = ({ menuItemRef }) => {
 
         const res = await getUserById(Id);
         const user = res.data.data["User Details"][0];
-        console.log(user);
 
         setUserData(user);
       } catch (error) {

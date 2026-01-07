@@ -75,11 +75,6 @@ const CreateEventPage = () => {
     if (mode === "create") {
       // Check if dates are coming from calendar navigation
       if (selectedDateFromCalendar) {
-        console.log(
-          "Auto-filling dates from calendar:",
-          selectedDateFromCalendar
-        );
-
         const selectedDate = dayjs(selectedDateFromCalendar);
         const startDateTime = selectedDate.hour(8).minute(0); // 8:00 AM
         const endDateTime = selectedDate.hour(12).minute(0); // 12:00 PM
@@ -92,8 +87,6 @@ const CreateEventPage = () => {
       }
       // If no date from calendar, set default dates with today's date
       else if (!formData.eventStartDateTime && !formData.eventEndDateTime) {
-        console.log("Setting default dates for manual event creation");
-
         const today = dayjs();
         const startDateTime = today.hour(8).minute(0).second(0); // 8:00 AM today
         const endDateTime = today.hour(12).minute(0).second(0); // 12:00 PM today
@@ -112,7 +105,6 @@ const CreateEventPage = () => {
       GetEventMasterById(eventId)
         .then((res) => {
           const event = res.data.data["Event Details"][0];
-          console.log(event, "data");
 
           const statusId =
             event?.status != null
@@ -191,7 +183,6 @@ const CreateEventPage = () => {
       await schema.validate(data, { abortEarly: false });
       return {};
     } catch (err) {
-      console.log("Yup validation error:", err);
       const validationErrors = {};
 
       if (err.inner && Array.isArray(err.inner)) {
@@ -214,27 +205,18 @@ const CreateEventPage = () => {
   const validateStep = useCallback(
     async (step) => {
       const stepKey = STEP_KEYS[step];
-      console.log("Validating step:", stepKey, "with data:", formData);
 
       if (!stepKey) {
-        console.log("Invalid step key:", stepKey);
         return true;
       }
 
       const stepSchema = stepValidationSchemas[stepKey];
       if (!stepSchema) {
-        console.log("No schema found for step:", stepKey);
         return true;
       }
 
       try {
         const validationErrors = await validateWithYup(formData, stepSchema);
-        console.log(
-          "Validation errors for step",
-          stepKey,
-          ":",
-          validationErrors
-        );
 
         setErrors(validationErrors);
         return Object.keys(validationErrors).length === 0;
@@ -252,7 +234,6 @@ const CreateEventPage = () => {
         formData,
         eventValidationSchema
       );
-      console.log("All steps validation errors:", validationErrors);
 
       setErrors(validationErrors);
       return Object.keys(validationErrors).length === 0;
@@ -265,7 +246,6 @@ const CreateEventPage = () => {
   const handleNext = useCallback(async () => {
     const isValid = await validateStep(current);
     if (!isValid) {
-      console.log("Validation failed. Errors:", errors);
       return;
     }
     setCurrent((prev) => prev + 1);
@@ -279,7 +259,6 @@ const CreateEventPage = () => {
   const handleFinish = useCallback(async () => {
     const isValid = await validateAllSteps();
     if (!isValid) {
-      console.log("Final validation failed. Errors:", errors);
       return;
     }
 
@@ -343,7 +322,6 @@ const CreateEventPage = () => {
 
       if (mode === "edit" && eventId) {
         response = await UpdateEventMaster(eventId, payload);
-        console.log("Update Response:", response);
 
         if (
           response?.data?.msg?.toLowerCase().includes("success") ||
@@ -400,7 +378,6 @@ const CreateEventPage = () => {
         }
       } else {
         response = await CreateEventMaster(payload);
-        console.log("Create Response:", response);
 
         if (response?.data?.success === true) {
           const statusMessage = getStatusMessage(formData.status, false);

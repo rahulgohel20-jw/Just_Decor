@@ -123,7 +123,6 @@ const QuotationPage = () => {
     GetQuotation(eventId)
       .then((res) => {
         const apiData = res?.data?.data?.["Event Functions Quotation Details"];
-        console.log(apiData);
 
         if (apiData && apiData.length > 0) {
           const quotationInfo = apiData[0];

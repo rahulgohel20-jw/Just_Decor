@@ -37,7 +37,6 @@ export default function SelectMenureport({
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const userId = localStorage.getItem("userId");
-  console.log(setEventFunctionId);
 
   const selectedEventFunction = useMemo(() => {
     if (selectedFunctionId === -1) return null;
@@ -156,7 +155,6 @@ export default function SelectMenureport({
         setLoading(true);
         const res = await GetEventMasterById(finalEventId);
 
-        console.log(res);
         if (res?.data?.data?.["Event Details"]?.length > 0) {
           const event = res.data.data["Event Details"][0];
 

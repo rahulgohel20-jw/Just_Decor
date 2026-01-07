@@ -53,8 +53,6 @@ const AddKitchenAreaModal = ({
 
     Translateapi(englishText)
       .then((res) => {
-        console.log(res);
-
         setFormData((prev) => ({
           ...prev,
           nameHindi: res.data.hindi || " ",

@@ -61,7 +61,6 @@ export default function CategorySidebarModal({
 
   useEffect(() => {
     if (!selectedRowData) return;
-    console.log(selectedRowData);
 
     // Priority: inside > chefLabour > outside (default)
     if (selectedRowData.allocationType === "inside") {
@@ -81,10 +80,8 @@ export default function CategorySidebarModal({
       const userId = localStorage.getItem("userId");
       // Use dynamic contactType instead of hardcoded 5
       const res = await OutsideContactName(contactType, userId);
-      console.log(res);
 
       const supplierData = res?.data?.data?.["Party Details"] || [];
-      console.log(supplierData, "data");
 
       setSuppliers(supplierData);
 
@@ -98,7 +95,6 @@ export default function CategorySidebarModal({
     }
   };
 
-  // Refetch suppliers when contactType changes
   useEffect(() => {
     if (open) {
       FetchAllSuplier();
@@ -153,7 +149,6 @@ export default function CategorySidebarModal({
 
       setRawMaterials(details);
     } else {
-      console.log("⚠️ No raw materials found, resetting to empty array");
       setRawMaterials([]);
     }
   }, [selectedRowData, open]);
@@ -198,7 +193,6 @@ export default function CategorySidebarModal({
       }
 
       try {
-        console.log("Deleting raw material item with ID:", rowToDelete.itemId);
         const response = await DeleteRawMaterialItem(rowToDelete.itemId);
 
         if (response?.data?.success) {

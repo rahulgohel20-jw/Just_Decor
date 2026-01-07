@@ -39,14 +39,12 @@ const OtpLogin = () => {
         }
 
         // ✅ Call your API
-        console.log("Sending OTP request for:", values.phone);
         const response = await LoginWithOtp(values.phone);
-        console.log("LoginWithOtp response:", response);
 
         if (response?.data?.success) {
           localStorage.setItem("phone", values.phone); // store for verify step
           message.success("OTP sent to your mobile number");
-          navigate(from, { replace: true }); // redirect to OTP verify page
+          navigate(from, { replace: true });
         } else {
           setStatus(response?.data?.msg || "Unable to send OTP");
         }

@@ -145,8 +145,6 @@ const MenuDetailsForm = ({
   }, [editData?.menuCategory?.id, getSubCategories]);
 
   useEffect(() => {
-    console.log(editData);
-
     if (!editData) return;
 
     form.setFieldsValue({
@@ -189,7 +187,7 @@ const MenuDetailsForm = ({
         supplierRate: rm.rawMaterial.supplierRate,
         rate: rm.rate,
       }));
-      console.log("Mapped raw materials:", mapped);
+
       setTableData(mapped);
     }
   }, [editData, form, setTableData]);
@@ -203,8 +201,6 @@ const MenuDetailsForm = ({
     setLoadingItems(true);
     try {
       const res = await GetRawmaterialItemByRecipe(editData.id, userId, true);
-
-      console.log("Sync API Response:", res);
 
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Failed to sync raw materials");
@@ -224,8 +220,6 @@ const MenuDetailsForm = ({
         supplierRate: rm.rawMaterial?.supplierRate,
         rate: rm.rate,
       }));
-
-      console.log("Synced Items:", syncedItems);
 
       if (syncedItems.length > 0) {
         setTableData(syncedItems);

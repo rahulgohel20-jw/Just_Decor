@@ -48,7 +48,6 @@ const Login = () => {
 
       try {
         const auth = await login(values.email, values.password);
-        console.log(auth, "auth");
 
         const userId = auth?.userId;
 
@@ -64,7 +63,6 @@ const Login = () => {
           !Array.isArray(userData["User Details"]) ||
           userData["User Details"].length === 0
         ) {
-          console.log("Full API response:", userResponse);
           throw new Error("Failed to fetch user details.");
         }
         window.history.pushState(null, "", "/auth/login");
@@ -76,12 +74,6 @@ const Login = () => {
         const userPlan = userDetails?.userPlan?.plan ?? null;
         const plan = userDetails?.plan ?? null;
         const isApprove = userDetails?.isApprove;
-
-        console.log(plan);
-
-        console.log("Role ID:", roleId);
-        console.log("User Plan:", userPlan);
-        console.log("Approved:", isApprove);
 
         if (roleId === 1) {
           // 🧑‍💼 Super Admin

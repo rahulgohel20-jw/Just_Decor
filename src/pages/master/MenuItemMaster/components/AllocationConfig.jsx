@@ -37,9 +37,7 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
             unitname: i.nameEnglish,
           })) || []
         );
-      } catch (e) {
-        console.error("getUnits failed", e);
-      }
+      } catch (e) {}
 
       try {
         const contactRes = await getContactCategory();
@@ -56,10 +54,6 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       try {
         const chefRes = await getContactNames(5);
 
-        console.log(
-          "Category 5 parties:",
-          chefRes?.data?.data?.["Party Details"]
-        );
         setChefNames(
           chefRes?.data?.data?.["Party Details"]?.map((i) => ({
             id: i.id,
@@ -107,17 +101,11 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
     const alloc = editData.menuItemAllocationConfigs;
     if (!alloc?.outsideItem?.contactCategory?.id) return;
 
-    console.log(
-      "Fetching outside contact names for category:",
-      alloc.outsideItem.contactCategory.id
-    );
     fetchChefcontactname(alloc.outsideItem.contactCategory.id);
   }, [isEdit, editData]); // ✅ This should run BEFORE pendingEditValues is set
 
   // Initialize edit values when component receives editData or menuDetails
   useEffect(() => {
-    console.log("Checking edit data:", { isEdit, editData, menuDetails });
-
     if (!isEdit || !editData) return;
 
     const alloc = editData.menuItemAllocationConfigs;
@@ -157,7 +145,6 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       values.remarks = alloc.remarks;
     }
 
-    console.log("Setting pending values:", values);
     setPendingEditValues(values);
   }, [isEdit, editData, menuDetails]);
 
@@ -226,32 +213,24 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
 
     // ✅ Wait for chef options to load
     if (pendingEditValues.chef_contactName && chefNames.length === 0) {
-      console.log("Waiting for chefNames to load...");
       return;
     }
 
     // ✅ Wait for outside options to load
     if (pendingEditValues.outside_contactName && outsideName.length === 0) {
-      console.log("Waiting for outsideName options to load...");
       return;
     }
 
     // ✅ Wait for inside cook options to load
     if (pendingEditValues.chef_name && insideCookNames.length === 0) {
-      console.log("Waiting for insideCookNames to load...");
       return;
     }
-
-    console.log("Setting form values:", pendingEditValues);
 
     // ✅ Use setTimeout to ensure DOM has updated with new options
     setTimeout(() => {
       form.setFieldsValue(pendingEditValues);
       // ✅ Verify what value was actually set
-      console.log(
-        "Form value after setting:",
-        form.getFieldValue("chef_contactName")
-      );
+
       setPendingEditValues(null);
     }, 0);
   }, [
@@ -404,7 +383,6 @@ const AllocationConfig = ({ form, onPrev, menuDetails, isEdit, editData }) => {
       ? {
           ...f,
           options: chefNames.map((i) => {
-            console.log("Chef option:", { label: i.name, value: i.id }); // ✅ Debug
             return { label: i.name, value: i.id };
           }),
         }

@@ -42,12 +42,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
   // Fetch raw material items when categoryId or eventId changes
   useEffect(() => {
     if (categoryId && eventId) {
-      console.log(
-        "Fetching raw materials for categoryId:",
-        categoryId,
-        "eventId:",
-        eventId
-      );
       fetchRawMaterialItems(categoryId, eventId);
     }
   }, [categoryId, eventId]);
@@ -60,10 +54,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
       const response = await GetAllRawMaterialAllocationItems(
         categoryId,
         eventId
-      );
-      console.log(
-        "Raw Material API Response:",
-        response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]
       );
 
       if (response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"]) {
@@ -84,7 +74,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
           }));
           setTableData(mappedData);
         } else {
-          console.error("API response is not an array:", rawData);
           setTableData([]);
         }
       } else {
@@ -200,16 +189,8 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         eventRawMaterial: eventRawMaterial,
       };
 
-      console.log("=== PAYLOAD TO SEND ===");
-      console.log(JSON.stringify(payload, null, 2));
-      console.log("======================");
-
       // Call the API
       const response = await RawMaterialallocation(payload);
-
-      console.log("=== API RESPONSE ===");
-      console.log(response);
-      console.log("===================");
 
       // Check for successful response
       if (
@@ -234,12 +215,6 @@ const GrossaryItems = ({ categoryId, eventId, eventTypeId }) => {
         });
       }
     } catch (error) {
-      console.error("=== ERROR SAVING ===");
-      console.error("Error object:", error);
-      console.error("Error response:", error?.response);
-      console.error("Error message:", error?.message);
-      console.error("==================");
-
       Swal.fire({
         icon: "error",
         title: "Error",

@@ -14,7 +14,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
       // Extract the menuAllocation array from the first data item
       const allocations = data[0]?.menuAllocation || [];
 
-      console.log("✅ Menu items initialized:", allocations);
       setMenuItems(allocations);
     } else {
       setMenuItems([]);
@@ -109,8 +108,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
         };
       });
 
-      console.log("✅ Allocated to", allocatedCount, "items");
-
       setMenuItems(updatedMenuItems);
 
       if (onDataUpdate) {
@@ -150,8 +147,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
   );
 
   const buildPayload = useCallback(() => {
-    console.log(menuItems);
-
     const userId = Number(localStorage.getItem("userId"));
 
     return menuItems.map((menuItem) => ({
@@ -194,8 +189,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
       setSaving(true);
 
       const payload = buildPayload();
-
-      console.log("📦 Final Payload:", payload);
 
       const res = await MenuAllocationSave(payload);
       if (res?.data?.success === true) {

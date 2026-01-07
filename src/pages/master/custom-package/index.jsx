@@ -68,8 +68,6 @@ const CustomPackageMaster = () => {
       const res = await GetCustomPackageapi(Id);
       const allPackages = res?.data?.data?.["Package Details"] || [];
 
-      console.log("📦 Fetched packages:", allPackages);
-
       // Store raw API data
       setOriginalData(allPackages);
 
@@ -90,7 +88,6 @@ const CustomPackageMaster = () => {
   // 🔥 Re-translate when language changes
   // --------------------------
   useEffect(() => {
-    console.log("🌍 Language changed to:", intl.locale);
     if (originalData.length > 0) {
       const formatted = formatPackageData(originalData);
       setTableData(formatted);
@@ -129,9 +126,6 @@ const CustomPackageMaster = () => {
   }, [searchQuery, originalData, intl.locale]);
 
   const deletePackage = async (packageid) => {
-    console.log("=== DELETE DEBUG ===");
-    console.log("Package ID to delete:", packageid);
-
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",

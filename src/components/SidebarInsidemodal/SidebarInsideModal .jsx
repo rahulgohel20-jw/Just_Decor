@@ -60,8 +60,6 @@ export default function SidebarInsideModal({
 
     const allocations = row?.eventFunctionMenuAllocations || [];
 
-    console.log("RAW ALLOCATIONS =>", allocations);
-
     const isInsideRow = row?.inside === true;
 
     const insideAllocations = allocations
@@ -79,10 +77,7 @@ export default function SidebarInsideModal({
         isInside: true,
       }));
 
-    console.log("FILTERED insideAllocations =>", insideAllocations);
-
     if (insideAllocations.length === 0) {
-      console.log("NO inside allocations found — using empty default row");
       setMenuAllocations([
         {
           partyId: null,
