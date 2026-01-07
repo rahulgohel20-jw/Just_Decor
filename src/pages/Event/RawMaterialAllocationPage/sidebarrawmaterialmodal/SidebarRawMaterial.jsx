@@ -106,16 +106,17 @@ export default function SidebarRawMaterial({
   /* ---------- SUPPLIER ---------- */
 
   useEffect(() => {
-    const fetchSupplier = async () => {
-      try {
-        const data = await OutsideContactName(3, userId);
-        setSupplier(data?.data?.data["Party Details"] || []);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchSupplier();
   }, []);
+
+  const fetchSupplier = async () => {
+    try {
+      const data = await OutsideContactName(3, userId);
+      setSupplier(data?.data?.data["Party Details"] || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   /* ---------- HANDLERS ---------- */
 
@@ -416,7 +417,8 @@ export default function SidebarRawMaterial({
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         contactTypeId={3} // 👈 Supplier / Vendor ONLY
-        refreshData={FetchSupplier}
+        refreshData={fetchSupplier}
+        concatId={3}
       />
     </AnimatePresence>
   );
