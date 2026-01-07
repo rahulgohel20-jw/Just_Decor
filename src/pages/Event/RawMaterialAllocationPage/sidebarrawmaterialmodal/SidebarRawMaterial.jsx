@@ -4,6 +4,8 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { OutsideContactName } from "@/services/apiServices";
 import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
+import { Plus } from "lucide-react";
+import AddContactName from "../../../master/MenuItemMaster/components/AddContactName";
 
 /* ---------- UI ATOMS ---------- */
 
@@ -38,6 +40,7 @@ export default function SidebarRawMaterial({
 }) {
   const [functionRows, setFunctionRows] = useState([]);
   const [unit, setUnit] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplier, setSupplier] = useState([]);
   const userId = localStorage.getItem("userId");
 
@@ -208,7 +211,21 @@ export default function SidebarRawMaterial({
                       <th className="p-3 text-left">Sr.</th>
                       <th className="p-3 text-left">Function</th>
                       <th className="p-3 text-left">Item Name</th>
-                      <th className="p-3 text-left">Agency</th>
+                      <th className="p-3 text-left">
+                        <div className="flex items-center gap-2">
+                          <span>Agency</span>
+
+                          <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            title="Add Agency"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </th>
+
                       <th className="p-3 text-left">Qty</th>
                       <th className="p-3 text-left">Unit</th>
                       <th className="p-3 text-left">Place</th>
@@ -395,6 +412,12 @@ export default function SidebarRawMaterial({
           </motion.div>
         </div>
       )}
+      <AddContactName
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        contactTypeId={3} // 👈 Supplier / Vendor ONLY
+        refreshData={FetchSupplier}
+      />
     </AnimatePresence>
   );
 }
