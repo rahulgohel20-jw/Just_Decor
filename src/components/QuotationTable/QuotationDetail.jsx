@@ -16,13 +16,128 @@ const QuotationDetail = ({ Eventid }) => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [subTotal, setSubTotal] = useState(0);
 
+  const numberToIndianWords = (num) => {
+    if (!num || isNaN(num)) return "";
+
+    const ones = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+
+    const tens = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const convertLessThanThousand = (n) => {
+      let str = "";
+      if (n > 99) {
+        str += ones[Math.floor(n / 100)] + " Hundred ";
+        n = n % 100;
+      }
+      if (n > 19) {
+        str += tens[Math.floor(n / 10)] + " ";
+        n = n % 10;
+      }
+      if (n > 0) {
+        str += ones[n] + " ";
+      }
+      return str.trim();
+    };
+
+    let result = "";
+    let crore = Math.floor(num / 10000000);
+    num %= 10000000;
+
+    let lakh = Math.floor(num / 100000);
+    num %= 100000;
+
+    let thousand = Math.floor(num / 1000);
+    num %= 1000;
+
+    if (crore) result += convertLessThanThousand(crore) + " Crore ";
+    if (lakh) result += convertLessThanThousand(lakh) + " Lakh ";
+    if (thousand) result += convertLessThanThousand(thousand) + " Thousand ";
+    if (num) result += convertLessThanThousand(num);
+
+    return result.trim() + " Only";
+  };
+
   const columns = [
-    { title: <FormattedMessage id="SALES.QUOTATION_FUNCTIONS" defaultMessage="Function" />, dataIndex: "function", key: "function" },
-    { title: <FormattedMessage id="SALES.QUOTATION_DATE_TIME" defaultMessage="Date & Time" />, dataIndex: "date", key: "date" },
-    { title: <FormattedMessage id="SALES.QUOTATION_PERSON" defaultMessage="Person" />, dataIndex: "person", key: "person" },
-    { title: <FormattedMessage id="SALES.QUOTATION_EXTRA" defaultMessage="Extra" />, dataIndex: "extra", key: "extra" },
-    { title: <FormattedMessage id="SALES.QUOTATION_RATE" defaultMessage="Rate" />, dataIndex: "rate", key: "rate" },
-    { title: <FormattedMessage id="SALES.QUOTATION_AMOUNT" defaultMessage="Amount" />, dataIndex: "amount", key: "amount" },
+    {
+      title: (
+        <FormattedMessage
+          id="SALES.QUOTATION_FUNCTIONS"
+          defaultMessage="Function"
+        />
+      ),
+      dataIndex: "function",
+      key: "function",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="SALES.QUOTATION_DATE_TIME"
+          defaultMessage="Date & Time"
+        />
+      ),
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: (
+        <FormattedMessage id="SALES.QUOTATION_PERSON" defaultMessage="Person" />
+      ),
+      dataIndex: "person",
+      key: "person",
+    },
+    {
+      title: (
+        <FormattedMessage id="SALES.QUOTATION_EXTRA" defaultMessage="Extra" />
+      ),
+      dataIndex: "extra",
+      key: "extra",
+    },
+    {
+      title: (
+        <FormattedMessage id="SALES.QUOTATION_RATE" defaultMessage="Rate" />
+      ),
+      dataIndex: "rate",
+      key: "rate",
+    },
+    {
+      title: (
+        <FormattedMessage id="SALES.QUOTATION_AMOUNT" defaultMessage="Amount" />
+      ),
+      dataIndex: "amount",
+      key: "amount",
+    },
   ];
 
   const fetchEventData = async (id) => {
@@ -104,8 +219,15 @@ const QuotationDetail = ({ Eventid }) => {
       {/* Header */}
       <div className="flex justify-between items-start p-6 border-b border-gray-100">
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-[#005BA8]"><FormattedMessage id="QUOTATION.TITLE" defaultMessage="Quotation" /></h2>
-          <p className="text-gray-500 text-sm break-words">{invoiceInfo.Address}</p>
+          <h2 className="text-2xl font-bold text-[#005BA8]">
+            <FormattedMessage
+              id="QUOTATION.TITLE"
+              defaultMessage={`Quotation - ${invoiceInfo.quotationNumber}`}
+            />
+          </h2>
+          <p className="text-gray-500 text-sm break-words">
+            {invoiceInfo.Address}
+          </p>
         </div>
 
         <div className="flex flex-col items-end gap-2 ml-4 flex-shrink-0">
@@ -114,7 +236,10 @@ const QuotationDetail = ({ Eventid }) => {
             className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all whitespace-nowrap"
             onClick={() => navigate(`/quotation/${Eventid || EventId}`)}
           >
-            <FormattedMessage id="COMMON.CUSTOMIZE" defaultMessage="Customize" />
+            <FormattedMessage
+              id="COMMON.CUSTOMIZE"
+              defaultMessage="Customize"
+            />
           </Button>
         </div>
       </div>
@@ -123,34 +248,74 @@ const QuotationDetail = ({ Eventid }) => {
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm border-b border-gray-100">
         <div className="md:border-r border-gray-200 md:pr-6">
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.BILLING_NAME" defaultMessage="Billing Name" /></span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.BILLING_NAME"
+                defaultMessage="Billing Name"
+              />
+            </span>
             <span className="font-medium text-right break-words">
               {invoiceInfo.billingname || invoiceInfo.customerName}
             </span>
           </p>
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.QUOTATION_NUMBER" defaultMessage="Quotation Number" /></span>
-            <span className="font-medium text-right">{invoiceInfo.quotationNumber}</span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.QUOTATION_NUMBER"
+                defaultMessage="Quotation Number"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.quotationNumber}
+            </span>
           </p>
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.QUOTATION_DATE" defaultMessage="Quotation Date" /></span>
-            <span className="font-medium text-right">{invoiceInfo.quotationDate}</span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.QUOTATION_DATE"
+                defaultMessage="Quotation Date"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.quotationDate}
+            </span>
           </p>
 
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.EVENT_DATE" defaultMessage="Event Date" /></span>
-            <span className="font-medium text-right">{invoiceInfo.eventDate}</span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.EVENT_DATE"
+                defaultMessage="Event Date"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.eventDate}
+            </span>
           </p>
         </div>
 
         <div>
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.GST_NUMBER" defaultMessage="GST Number" /></span>
-            <span className="font-medium text-right break-all">{invoiceInfo.gstnumber}</span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.GST_NUMBER"
+                defaultMessage="GST Number"
+              />
+            </span>
+            <span className="font-medium text-right break-all">
+              {invoiceInfo.gstnumber}
+            </span>
           </p>
           <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.DUE_DATE" defaultMessage="Due Date" /></span>
-            <span className="font-medium text-right">{invoiceInfo.duedate}</span>
+            <span className="text-gray-500 flex-shrink-0">
+              <FormattedMessage
+                id="INVOICE.DUE_DATE"
+                defaultMessage="Due Date"
+              />
+            </span>
+            <span className="font-medium text-right">
+              {invoiceInfo.duedate}
+            </span>
           </p>
         </div>
       </div>
@@ -158,7 +323,10 @@ const QuotationDetail = ({ Eventid }) => {
       {/* Items Table */}
       <div className="mt-6 overflow-x-auto">
         <h4 className="p-4 font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
-          <FormattedMessage id="FUNCTION.DETAILS" defaultMessage="Function Details" />
+          <FormattedMessage
+            id="FUNCTION.DETAILS"
+            defaultMessage="Function Details"
+          />
         </h4>
         <Table
           columns={columns}
@@ -173,16 +341,34 @@ const QuotationDetail = ({ Eventid }) => {
         {/* Left Side */}
         <div className="p-6 text-sm text-gray-700">
           <p>
-            <strong><FormattedMessage id="INVOICE.TOTAL_IN_WORDS" defaultMessage="Total in Words:" /></strong> <br />
-            <FormattedMessage id="INVOICE.TOTAL_IN_WORDS_VALUE" defaultMessage="Indian Rupee Twenty-Three Thousand Six Hundred Only" />
+            <strong>
+              <FormattedMessage
+                id="INVOICE.TOTAL_IN_WORDS"
+                defaultMessage="Total in Words:"
+              />
+            </strong>{" "}
+            <br />
+            <p>Indian Rupee: {numberToIndianWords(totalAmount)}</p>
           </p>
           <p className="mt-4">
-            <strong><FormattedMessage id="INVOICE.NOTES" defaultMessage="Notes:" /></strong> <br />
+            <strong>
+              <FormattedMessage id="INVOICE.NOTES" defaultMessage="Notes:" />
+            </strong>{" "}
+            <br />
             <span className="break-words">{invoiceInfo.notes}</span>
           </p>
           <p className="mt-4 text-xs text-gray-500 leading-relaxed">
-            <strong><FormattedMessage id="INVOICE.TERMS_CONDITIONS" defaultMessage="Terms & Conditions:" /></strong> <br />
-            <FormattedMessage id="INVOICE.TERMS_CONDITIONS_VALUE" defaultMessage="Your company's Terms and Conditions will appear here." />
+            <strong>
+              <FormattedMessage
+                id="INVOICE.TERMS_CONDITIONS"
+                defaultMessage="Terms & Conditions:"
+              />
+            </strong>{" "}
+            <br />
+            <FormattedMessage
+              id="INVOICE.TERMS_CONDITIONS_VALUE"
+              defaultMessage="Your company's Terms and Conditions will appear here."
+            />
           </p>
         </div>
 
@@ -190,27 +376,57 @@ const QuotationDetail = ({ Eventid }) => {
         <div className="flex flex-col justify-between p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-sm">
           <div>
             <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.SUB_TOTAL" defaultMessage="Sub Total" /></span>
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.SUB_TOTAL"
+                  defaultMessage="Sub Total"
+                />
+              </span>
               <span className="text-right">₹ {subTotal}</span>
             </div>
             <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.CGST" defaultMessage="CGST" values={{ percent: gstInfo.cgst }} /></span>
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.CGST"
+                  defaultMessage="CGST"
+                  values={{ percent: gstInfo.cgst }}
+                />
+              </span>
               <span className="text-right">₹{gstInfo.cgstAmnt}</span>
             </div>
             <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.SGST" defaultMessage="SGST" values={{ percent: gstInfo.sgst }} /></span>
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.SGST"
+                  defaultMessage="SGST"
+                  values={{ percent: gstInfo.sgst }}
+                />
+              </span>
               <span className="text-right">₹{gstInfo.sgstAmnt}</span>
             </div>
             <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.IGST" defaultMessage="IGST" values={{ percent: gstInfo.igst }} /></span>
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.IGST"
+                  defaultMessage="IGST"
+                  values={{ percent: gstInfo.igst }}
+                />
+              </span>
               <span className="text-right">₹{gstInfo.igstAmnt}</span>
             </div>
             <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0"><FormattedMessage id="INVOICE.DISCOUNT" defaultMessage="Discount" /></span>
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.DISCOUNT"
+                  defaultMessage="Discount"
+                />
+              </span>
               <span className="text-right">₹{invoiceInfo.discount}</span>
             </div>
             <div className="flex justify-between font-bold text-[#005BA8] text-base gap-4">
-              <span className="flex-shrink-0"><FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" /></span>
+              <span className="flex-shrink-0">
+                <FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" />
+              </span>
               <span className="text-right">₹ {totalAmount}</span>
             </div>
           </div>

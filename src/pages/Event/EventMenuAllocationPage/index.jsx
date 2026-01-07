@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/container";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
 import Swal from "sweetalert2";
-import { Input, Checkbox, Select, Card, Badge, Tooltip, Spin } from "antd";
+import { Input, Checkbox, Card, Badge, Tooltip, Spin } from "antd";
 import SidebarModal from "../../../components/SidebarModal/SidebarModal";
 import CategorySidebarModal from "../CategorySidebar/CategorySidebarModal";
 import SidebarInsideModal from "../../../components/SidebarInsidemodal/SidebarInsideModal ";
@@ -81,17 +81,76 @@ const OrderSummary = ({
   loading,
   pax,
   groupedByFunction,
+  rows,
 }) => {
-  console.log(groups);
+  // Helper function to calculate item price based on row configuration
+  const calculateItemPrice = (item, matchingRow) => {
+    if (!matchingRow) return item.totalPrice || 0;
 
-  const grandTotal = Math.round(
-    groups.reduce((total, group) => {
-      const groupTotal = group.items.reduce((sum, item) => {
-        return sum + (item.totalPrice || 0);
-      }, 0);
-      return total + groupTotal;
-    }, 0)
-  );
+    const basePrice = Number(item.totalPrice) || 0;
+
+    if (matchingRow.inside) {
+      return basePrice;
+    }
+
+    if (matchingRow.outside) {
+      return (
+        matchingRow.eventFunctionMenuAllocations
+          ?.filter((a) => a.isOutside)
+          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0
+      );
+    }
+
+    if (matchingRow.chefLabour) {
+      const chefCost =
+        matchingRow.eventFunctionMenuAllocations
+          ?.filter((a) => a.isChefLabour)
+          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+      return basePrice + chefCost;
+    }
+
+    return basePrice;
+  };
+
+  // Calculate grand total
+  const grandTotal = useMemo(() => {
+    if (groupedByFunction) {
+      // For "All Functions" view, sum across all functions
+      return Math.round(
+        groupedByFunction.reduce((total, functionGroup) => {
+          const functionTotal = functionGroup.selectedItemDetails.reduce(
+            (ftotal, category) => {
+              const categoryTotal =
+                category.selectedMenuPreparationItems.reduce((sum, item) => {
+                  // Find the matching row for this specific function
+                  const matchingRow = rows.find(
+                    (r) =>
+                      r.menuItemId === item.menuItemId &&
+                      r.eventFunctionId === functionGroup.eventFunctionId
+                  );
+
+                  const itemPrice = calculateItemPrice(item, matchingRow);
+                  return sum + itemPrice;
+                }, 0);
+              return ftotal + categoryTotal;
+            },
+            0
+          );
+          return total + functionTotal;
+        }, 0)
+      );
+    } else {
+      // For single function view
+      return Math.round(
+        groups.reduce((total, group) => {
+          const groupTotal = group.items.reduce((sum, item) => {
+            return sum + (item.totalPrice || 0);
+          }, 0);
+          return total + groupTotal;
+        }, 0)
+      );
+    }
+  }, [groups, groupedByFunction, rows]);
 
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
 
@@ -118,7 +177,7 @@ const OrderSummary = ({
           <div className="flex items-center justify-center p-8">
             <Spin />
           </div>
-        ) : groups.length === 0 ? (
+        ) : groups.length === 0 && !groupedByFunction ? (
           <div className="p-4 text-center text-gray-500">
             <FormattedMessage
               id="EVENT_MENU_ALLOCATION.NO_ITEMS"
@@ -130,13 +189,25 @@ const OrderSummary = ({
           <>
             <div className="divide-y">
               {groupedByFunction.map((functionGroup, fIdx) => {
-                // Calculate function total
+                // Calculate function total with proper row matching
                 const functionTotal = functionGroup.selectedItemDetails.reduce(
                   (total, category) => {
                     const categoryTotal =
                       category.selectedMenuPreparationItems.reduce(
                         (sum, item) => {
-                          return sum + (item.totalPrice || 0);
+                          // Find the matching row for this specific function
+                          const matchingRow = rows.find(
+                            (r) =>
+                              r.menuItemId === item.menuItemId &&
+                              r.eventFunctionId ===
+                                functionGroup.eventFunctionId
+                          );
+
+                          const itemPrice = calculateItemPrice(
+                            item,
+                            matchingRow
+                          );
+                          return sum + itemPrice;
                         },
                         0
                       );
@@ -187,25 +258,39 @@ const OrderSummary = ({
                         </div>
                         <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
                           {category.selectedMenuPreparationItems.map(
-                            (item, iIdx) => (
-                              <Fragment
-                                key={`${category.menuCategoryId}-${item.menuItemId}-${iIdx}`}
-                              >
-                                <div
-                                  className="col-span-9 pl-6 hover:text-primary"
-                                  onClick={() => onItemClick(item, category)}
-                                >
-                                  {item.menuItemName}
+                            (item, iIdx) => {
+                              // Find the matching row for price calculation
+                              const matchingRow = rows.find(
+                                (r) =>
+                                  r.menuItemId === item.menuItemId &&
+                                  r.eventFunctionId ===
+                                    functionGroup.eventFunctionId
+                              );
 
-                                  <span className="ml-1 text-primary font-bold">
-                                    - {item.typeName}
-                                  </span>
-                                </div>
-                                <div className="col-span-3 text-right tabular-nums">
-                                  ₹{item.totalPrice?.toFixed(2) || "0.00"}
-                                </div>
-                              </Fragment>
-                            )
+                              const displayPrice = calculateItemPrice(
+                                item,
+                                matchingRow
+                              );
+
+                              return (
+                                <Fragment
+                                  key={`${category.menuCategoryId}-${item.menuItemId}-${iIdx}`}
+                                >
+                                  <div
+                                    className="col-span-9 pl-6 hover:text-primary"
+                                    onClick={() => onItemClick(item, category)}
+                                  >
+                                    {item.menuItemName}
+                                    <span className="ml-1 text-primary font-bold">
+                                      - {item.typeName}
+                                    </span>
+                                  </div>
+                                  <div className="col-span-3 text-right tabular-nums">
+                                    ₹{displayPrice.toFixed(2)}
+                                  </div>
+                                </Fragment>
+                              );
+                            }
                           )}
                         </div>
                       </div>
@@ -245,17 +330,6 @@ const OrderSummary = ({
 
             {/* Grand Total for All Functions */}
             <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA] border-t-2 border-primary">
-              <div className="flex flex-row gap-1">
-                <span className="font-bold text-gray-900">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.OVERALL_DISH_COSTING"
-                    defaultMessage="Overall Dish Costing :"
-                  />
-                </span>
-                <span className="font-bold text-gray-900">
-                  ₹{dishCosting.toFixed(2)}
-                </span>
-              </div>
               <div className="flex flex-row gap-1">
                 <span className="font-bold text-gray-900">
                   <FormattedMessage
@@ -693,6 +767,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
+  // Replace the entire fetchMenuAllocation function with this updated version
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
@@ -709,7 +784,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           menudata.data.data["Menu Allocation Details"]?.length > 0
         ) {
           allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
-          // NEW: Store the raw API data
           setAllMenuData(allMenuDataResponse);
         }
       } else {
@@ -799,78 +873,88 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setRows(transformedRows);
 
-      const allSelectedItems = allMenuDataResponse.flatMap(
-        (detail) => detail?.selectedItemDetails || []
-      );
+      // ============= NEW: Calculate order summary based on view mode =============
+      if (isAllFunctions) {
+        // For "All Functions" view, don't create aggregated summary
+        // The OrderSummary component will handle function-wise grouping
+        setOrderSummaryGroups([]);
+      } else {
+        // For single function view, create the summary as before
+        const allSelectedItems = allMenuDataResponse.flatMap(
+          (detail) => detail?.selectedItemDetails || []
+        );
 
-      const categoryMap = new Map();
+        const categoryMap = new Map();
 
-      allSelectedItems.forEach((category) => {
-        const categoryId = category.menuCategoryId;
+        allSelectedItems.forEach((category) => {
+          const categoryId = category.menuCategoryId;
 
-        if (!categoryMap.has(categoryId)) {
-          categoryMap.set(categoryId, {
-            categoryId: category.menuCategoryId,
-            categoryName: category.menuCategoryName,
-            itemsMap: new Map(),
-          });
-        }
-
-        const existingCategory = categoryMap.get(categoryId);
-
-        category.selectedMenuPreparationItems?.forEach((item) => {
-          if (!existingCategory.itemsMap.has(item.menuItemId)) {
-            existingCategory.itemsMap.set(item.menuItemId, item);
+          if (!categoryMap.has(categoryId)) {
+            categoryMap.set(categoryId, {
+              categoryId: category.menuCategoryId,
+              categoryName: category.menuCategoryName,
+              itemsMap: new Map(),
+            });
           }
+
+          const existingCategory = categoryMap.get(categoryId);
+
+          category.selectedMenuPreparationItems?.forEach((item) => {
+            if (!existingCategory.itemsMap.has(item.menuItemId)) {
+              existingCategory.itemsMap.set(item.menuItemId, item);
+            }
+          });
         });
-      });
 
-      const summaryGroups =
-        Array.from(categoryMap.values())?.map((category) => ({
-          categoryId: category.categoryId,
-          categoryName: category.categoryName,
-          items:
-            Array.from(category.itemsMap.values())?.map((summaryItem) => {
-              const matchingRows = transformedRows.filter(
-                (r) => r.menuItemId === summaryItem.menuItemId
-              );
+        const summaryGroups =
+          Array.from(categoryMap.values())?.map((category) => ({
+            categoryId: category.categoryId,
+            categoryName: category.categoryName,
+            items:
+              Array.from(category.itemsMap.values())?.map((summaryItem) => {
+                const matchingRows = transformedRows.filter(
+                  (r) => r.menuItemId === summaryItem.menuItemId
+                );
 
-              const basePrice = Number(summaryItem.totalPrice) || 0;
-              let finalPrice = basePrice;
+                const basePrice = Number(summaryItem.totalPrice) || 0;
+                let finalPrice = basePrice;
 
-              if (matchingRows.length > 0) {
-                finalPrice = matchingRows.reduce((total, matchingRow) => {
-                  let rowPrice = basePrice;
+                if (matchingRows.length > 0) {
+                  finalPrice = matchingRows.reduce((total, matchingRow) => {
+                    let rowPrice = basePrice;
 
-                  if (matchingRow.inside) {
-                    rowPrice = basePrice;
-                  } else if (matchingRow.outside) {
-                    rowPrice =
-                      matchingRow.eventFunctionMenuAllocations
-                        ?.filter((a) => a.isOutside)
-                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
-                  } else if (matchingRow.chefLabour) {
-                    const chefCost =
-                      matchingRow.eventFunctionMenuAllocations
-                        ?.filter((a) => a.isChefLabour)
-                        .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+                    if (matchingRow.inside) {
+                      rowPrice = basePrice;
+                    } else if (matchingRow.outside) {
+                      rowPrice =
+                        matchingRow.eventFunctionMenuAllocations
+                          ?.filter((a) => a.isOutside)
+                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) ||
+                        0;
+                    } else if (matchingRow.chefLabour) {
+                      const chefCost =
+                        matchingRow.eventFunctionMenuAllocations
+                          ?.filter((a) => a.isChefLabour)
+                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) ||
+                        0;
 
-                    rowPrice = basePrice + chefCost;
-                  }
+                      rowPrice = basePrice + chefCost;
+                    }
 
-                  return total + rowPrice;
-                }, 0);
-              }
+                    return total + rowPrice;
+                  }, 0);
+                }
 
-              return {
-                ...summaryItem,
-                originalTotalPrice: basePrice,
-                totalPrice: finalPrice,
-              };
-            }) || [],
-        })) || [];
+                return {
+                  ...summaryItem,
+                  originalTotalPrice: basePrice,
+                  totalPrice: finalPrice,
+                };
+              }) || [],
+          })) || [];
 
-      setOrderSummaryGroups(summaryGroups);
+        setOrderSummaryGroups(summaryGroups);
+      }
 
       const updatedRowsPromises = transformedRows.map(async (row) => {
         try {
@@ -1107,56 +1191,126 @@ const EventMenuAllocationPage = ({ mode }) => {
     setIsInsideModal(false);
   };
 
-  const updateOrderSummaryPrices = (menuItemId, currentRows = rows) => {
+  const updateOrderSummaryPrices = (
+    menuItemId,
+    currentRows = rows,
+    specificFunctionId = null
+  ) => {
     setOrderSummaryGroups((prevGroups) =>
       prevGroups.map((group) => ({
         ...group,
         items: group.items.map((item) => {
           if (item.menuItemId !== menuItemId) return item;
 
-          const matchingRow = currentRows.find(
-            (row) => row.menuItemId === menuItemId
+          // Find matching row(s) - if specificFunctionId is provided, filter by it
+          const matchingRows = currentRows.filter(
+            (row) =>
+              row.menuItemId === menuItemId &&
+              (specificFunctionId
+                ? row.eventFunctionId === specificFunctionId
+                : true)
           );
 
-          if (!matchingRow) return item;
+          if (matchingRows.length === 0) return item;
 
-          const basePrice = item.originalTotalPrice || 0;
+          // Calculate total price from all matching rows
+          const totalPrice = matchingRows.reduce((total, matchingRow) => {
+            const basePrice = item.originalTotalPrice || 0;
 
-          if (matchingRow.inside) {
-            return { ...item, totalPrice: basePrice };
-          }
+            if (matchingRow.inside) {
+              return total + basePrice;
+            }
 
-          if (matchingRow.outside) {
-            const additionalCost =
-              matchingRow.eventFunctionMenuAllocations
-                ?.filter((a) => a.isOutside)
-                .reduce(
-                  (sum, allocation) => sum + (allocation.totalPrice || 0),
-                  0
-                ) || 0;
+            if (matchingRow.outside) {
+              const additionalCost =
+                matchingRow.eventFunctionMenuAllocations
+                  ?.filter((a) => a.isOutside)
+                  .reduce(
+                    (sum, allocation) => sum + (allocation.totalPrice || 0),
+                    0
+                  ) || 0;
+              return total + additionalCost;
+            }
 
-            return { ...item, totalPrice: additionalCost };
-          }
+            if (matchingRow.chefLabour) {
+              const chefLabourCost =
+                matchingRow.eventFunctionMenuAllocations
+                  ?.filter((a) => a.isChefLabour)
+                  .reduce(
+                    (sum, allocation) => sum + (allocation.totalPrice || 0),
+                    0
+                  ) || 0;
+              return total + (basePrice + chefLabourCost);
+            }
 
-          if (matchingRow.chefLabour) {
-            const chefLabourCost =
-              matchingRow.eventFunctionMenuAllocations
-                ?.filter((a) => a.isChefLabour)
-                .reduce(
-                  (sum, allocation) => sum + (allocation.totalPrice || 0),
-                  0
-                ) || 0;
+            return total + basePrice;
+          }, 0);
 
-            const finalPrice = basePrice + chefLabourCost;
-
-            return { ...item, totalPrice: finalPrice };
-          }
-
-          return { ...item, totalPrice: basePrice };
+          return { ...item, totalPrice };
         }),
       }))
     );
   };
+
+  // Add this new function to calculate prices for all functions view
+  const calculateAllFunctionsPrices = () => {
+    if (!enrichedGroupedByFunction) return;
+
+    setOrderSummaryGroups((prevGroups) =>
+      prevGroups.map((group) => ({
+        ...group,
+        items: group.items.map((item) => {
+          // Find all rows for this menu item across all functions
+          const matchingRows = rows.filter(
+            (row) => row.menuItemId === item.menuItemId
+          );
+
+          if (matchingRows.length === 0) return item;
+
+          // Calculate total price from all matching rows across all functions
+          const totalPrice = matchingRows.reduce((total, matchingRow) => {
+            const basePrice = item.originalTotalPrice || 0;
+
+            if (matchingRow.inside) {
+              return total + basePrice;
+            }
+
+            if (matchingRow.outside) {
+              const additionalCost =
+                matchingRow.eventFunctionMenuAllocations
+                  ?.filter((a) => a.isOutside)
+                  .reduce(
+                    (sum, allocation) => sum + (allocation.totalPrice || 0),
+                    0
+                  ) || 0;
+              return total + additionalCost;
+            }
+
+            if (matchingRow.chefLabour) {
+              const chefLabourCost =
+                matchingRow.eventFunctionMenuAllocations
+                  ?.filter((a) => a.isChefLabour)
+                  .reduce(
+                    (sum, allocation) => sum + (allocation.totalPrice || 0),
+                    0
+                  ) || 0;
+              return total + (basePrice + chefLabourCost);
+            }
+
+            return total + basePrice;
+          }, 0);
+
+          return { ...item, totalPrice };
+        }),
+      }))
+    );
+  };
+
+  useEffect(() => {
+    if (isAllFunctions && rows.length > 0) {
+      calculateAllFunctionsPrices();
+    }
+  }, [rows, isAllFunctions]);
 
   const handleOutsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1234,6 +1388,9 @@ const EventMenuAllocationPage = ({ mode }) => {
       });
 
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
+
+      // ADD THESE TWO LINES - they were missing!
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
       return updatedRows;
     });
@@ -1909,6 +2066,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   onItemClick={handleOrderSummaryItemClick}
                   pax={totalPax}
                   groupedByFunction={enrichedGroupedByFunction}
+                  rows={rows}
                 />
               </div>
             </div>
