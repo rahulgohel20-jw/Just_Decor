@@ -14,6 +14,79 @@ const InvoiceDetail = ({ Eventid }) => {
   const [subTotal, setSubTotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
 
+  const numberToIndianWords = (num) => {
+    if (!num || isNaN(num)) return "";
+
+    const ones = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+
+    const tens = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const convertLessThanThousand = (n) => {
+      let str = "";
+      if (n > 99) {
+        str += ones[Math.floor(n / 100)] + " Hundred ";
+        n = n % 100;
+      }
+      if (n > 19) {
+        str += tens[Math.floor(n / 10)] + " ";
+        n = n % 10;
+      }
+      if (n > 0) {
+        str += ones[n] + " ";
+      }
+      return str.trim();
+    };
+
+    let result = "";
+    let crore = Math.floor(num / 10000000);
+    num %= 10000000;
+
+    let lakh = Math.floor(num / 100000);
+    num %= 100000;
+
+    let thousand = Math.floor(num / 1000);
+    num %= 1000;
+
+    if (crore) result += convertLessThanThousand(crore) + " Crore ";
+    if (lakh) result += convertLessThanThousand(lakh) + " Lakh ";
+    if (thousand) result += convertLessThanThousand(thousand) + " Thousand ";
+    if (num) result += convertLessThanThousand(num);
+
+    return result.trim() + " Only";
+  };
+
   const columns = [
     {
       title: (
@@ -146,7 +219,10 @@ const InvoiceDetail = ({ Eventid }) => {
       <div className="flex justify-between items-start p-6 border-b border-gray-100">
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-[#005BA8]">
-            <FormattedMessage id="INVOICE.TITLE" defaultMessage="Invoice" />
+            <FormattedMessage
+              id="INVOICE.TITLE"
+              defaultMessage={`Invoice - ${invoiceInfo?.invoiceCode}`}
+            />
           </h2>
           <p className="text-gray-500 text-sm break-words">
             {invoiceInfo.address}
@@ -270,10 +346,7 @@ const InvoiceDetail = ({ Eventid }) => {
               />
             </strong>{" "}
             <br />
-            <FormattedMessage
-              id="INVOICE.TOTAL_IN_WORDS_VALUE"
-              defaultMessage="Indian Rupee Amount in Words Here"
-            />
+            <p>Indian Rupee : {numberToIndianWords(totalAmount)}</p>
           </p>
           <p className="mt-4">
             <strong>

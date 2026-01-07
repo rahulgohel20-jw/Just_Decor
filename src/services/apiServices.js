@@ -176,6 +176,11 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+export const GetQuotationReport = (eventId, userId) => {
+  return POST(
+    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}`
+  );
+};
 
 export const GetAllQuotationByFilter = (enddate, startdate, id) => {
   return GET(
