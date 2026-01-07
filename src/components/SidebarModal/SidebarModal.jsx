@@ -55,7 +55,6 @@ export default function SidebarModal({
   useEffect(() => {
     if (!open || !row) return;
     const allocations = row.eventFunctionMenuAllocations || [];
-    console.log("aloocationn", allocations);
 
     const outsideAllocations = allocations
       .filter((alloc) => alloc.isOutside === true)
@@ -224,11 +223,7 @@ export default function SidebarModal({
         })),
     };
 
-    console.log("Save Data with Unit IDs:", saveData); // Debug log
-
     if (onSave) {
-      console.log(saveData);
-
       onSave(saveData);
     }
 

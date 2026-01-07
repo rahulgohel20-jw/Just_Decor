@@ -35,8 +35,6 @@ const AddPermission = ({
   };
   const handleSubmit = async () => {
     try {
-      console.log(permissionsData[0].roleId);
-
       const payload = {
         roleId: permissionsData[0].roleId,
         rightsList: permissions.map((perm) => ({
@@ -47,8 +45,6 @@ const AddPermission = ({
           add: perm.Add || false,
         })),
       };
-
-      console.log("Payload => ", payload);
 
       const res = await AddRights(payload);
 

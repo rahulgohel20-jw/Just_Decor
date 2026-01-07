@@ -106,11 +106,9 @@ const ReportLabelConfiguration = () => {
 
   const handleCancel = () => {
     // Reset to default values or previous saved state
-    console.log("Cancelled");
   };
 
   const handleSave = () => {
-    console.log("Saved data:", formData);
     Swal.fire("Success", "Changes saved successfully!", "success");
   };
 

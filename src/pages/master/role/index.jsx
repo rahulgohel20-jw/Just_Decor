@@ -94,7 +94,6 @@ const RoleMaster = () => {
   };
 
   const handleDelete = (roleId) => {
-    console.log("Delete role with ID:", roleId);
     DeleteRole(roleId)
       .then((res) => {
         message.success("Role Deleted Successfully");

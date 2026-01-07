@@ -20,15 +20,11 @@ const FollowUpListPage = () => {
   const [editData, setEditData] = useState(null);
 
   const handleEdit = (data) => {
-    console.log(data);
-
     setEditData(data);
     setIsModalOpen(true);
   };
 
-  const removeContact = () => {
-    console.log("Contact removed");
-  };
+  const removeContact = () => {};
 
   const handleModalOpen = () => {
     setIsModalOpen(true);

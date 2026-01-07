@@ -34,12 +34,9 @@ const MemberProfile = () => {
         setLoading(true);
 
         const response = await GetALLMemberDetailsByID(id);
-        console.log("API RESPONSE:", response);
 
         const userDetails = response?.data?.data?.["User Details"];
         const user = userDetails?.[0];
-
-        console.log("✅ LOGO FROM API:", user?.logo);
 
         if (
           response?.data?.success &&
@@ -69,7 +66,6 @@ const MemberProfile = () => {
         try {
           setTicketsLoading(true);
           const response = await GetAllTicketsByUserId(id);
-          console.log("TICKETS RESPONSE:", response);
 
           if (response.data.success) {
             const ticketDetails =
@@ -303,9 +299,7 @@ const MemberProfile = () => {
                       "/media/menu/noImage.jpg"
                     );
                   }}
-                  onLoad={() => {
-                    console.log("✅ LOGO LOADED:", memberData?.logo);
-                  }}
+                  onLoad={() => {}}
                 />
 
                 {/* DEBUG BADGE */}

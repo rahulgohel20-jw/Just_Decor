@@ -224,7 +224,6 @@ const AddContactName = ({
 
       // Filter out Customer type (contactType.id === 2)
       const allCategories = data["Contact Category Details"] || [];
-      console.log("Contact category API response:", data);
       const filteredCategories = allCategories.filter((cat) => {
         return cat.contactType?.id !== 1;
       });

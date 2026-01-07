@@ -284,9 +284,7 @@ const EventPlanningPage = ({ mode }) => {
       }
 
       if (order.length > 0) setHasExistingData(true);
-    } catch (err) {
-      console.log("Menu Prep fetch failed", err);
-    }
+    } catch (err) {}
   }, [selectedFunction]);
 
   useEffect(() => {
@@ -758,7 +756,6 @@ const EventPlanningPage = ({ mode }) => {
         timer: 1500,
       });
     } catch (err) {
-      console.log("Save failed", err);
       Swal.fire({
         icon: "error",
         title: "Failed to save menu!",

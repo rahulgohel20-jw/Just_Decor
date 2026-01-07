@@ -300,7 +300,6 @@ const EventBasicInfoStep = ({
                   handleFormDataChange("eventStartDateTime", "");
                 }
               }}
-              minDate={new Date()}
               timeCaption="Time"
               placeholderText="DD/MM/YYYY hh:mm AM/PM"
             />

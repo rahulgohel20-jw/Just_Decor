@@ -14,13 +14,8 @@ const initalProps = {
   highlight: false,
   multipleExpand: false,
   dropdownTimeout: 0,
-  setOpenAccordion: (parentId, id) => {
-    console.log(`Accordion at level ${parentId}, with ID ${id} is now open`);
-  },
+  setOpenAccordion: (parentId, id) => {},
   isOpenAccordion: (parentId, id) => {
-    console.log(
-      `Checking if accordion at level ${parentId}, with ID ${id} is open`
-    );
     return false;
   },
 };

@@ -46,7 +46,6 @@ export default function AddSupplierCustomerModal({
 
     GetAllCustomer(userId)
       .then((res) => {
-        console.log("API RESPONSE", res);
         const list = res?.data?.data?.["Party Details"] || [];
 
         // Filter based on type
@@ -134,8 +133,6 @@ export default function AddSupplierCustomerModal({
         partyId: Number(selectedParty),
         userType: form.type.toUpperCase(), // SUPPLIER / CUSTOMER
       };
-
-      console.log("Submitting payload 👉", payload);
 
       const res = await AddExpensemanagement(payload);
 

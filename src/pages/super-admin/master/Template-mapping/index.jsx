@@ -52,8 +52,6 @@ const TemplateMapping = () => {
       item[field]?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    console.log(filteredData);
-
     const mapped = filteredData.map((item, index) => ({
       sr_no: index + 1,
       name: item[field] || "-",

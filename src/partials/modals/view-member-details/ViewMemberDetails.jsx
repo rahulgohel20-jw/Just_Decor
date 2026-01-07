@@ -2,7 +2,6 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 
 const ViewMemberDetails = ({ isModalOpen, setIsModalOpen, memberData }) => {
   if (!isModalOpen) return null;
-  console.log(memberData);
 
   return (
     <CustomModal
@@ -44,8 +43,6 @@ const ViewMemberDetails = ({ isModalOpen, setIsModalOpen, memberData }) => {
           <span className="w-28 font-semibold text-gray-700">Priority:</span>
           <span className="text-gray-800">{memberData.sequence || "-"}</span>
         </div>
-
-        
       </div>
     </CustomModal>
   );

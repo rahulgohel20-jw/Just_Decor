@@ -168,8 +168,6 @@ export default function InHouseCookSection({ data, onDataUpdate, close }) {
 
       const payload = buildPayload();
 
-      console.log("📦 Final Payload:", payload);
-
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {

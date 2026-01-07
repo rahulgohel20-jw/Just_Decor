@@ -22,7 +22,6 @@ export default function OutsideAgencyTable({
   const fetchUnit = async () => {
     try {
       const data = await GetUnitData(localStorage.getItem("userId"));
-      console.log("Fetched units:", data);
       const unitData = data?.data?.data["Unit Details"] || [];
       setUnit(unitData);
     } catch (error) {
@@ -37,7 +36,6 @@ export default function OutsideAgencyTable({
       const data = await OutsideContactName(6, localStorage.getItem("userId"));
       const vendorList = data?.data?.data["Party Details"] || [];
 
-      console.log("Fetched vendors:", vendorList);
       setVendors(vendorList);
     } catch (error) {
       console.error("Error fetching vendors:", error);

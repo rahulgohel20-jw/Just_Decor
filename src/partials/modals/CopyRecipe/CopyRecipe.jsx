@@ -35,7 +35,6 @@ const CopyRecipe = ({ isOpen, onClose, onCopy }) => {
       setSelectedRecipe(null);
       setItems([]);
     } catch (err) {
-      console.log("Error fetching recipes:", err);
     } finally {
       setLoadingRecipes(false);
     }

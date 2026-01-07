@@ -7,9 +7,7 @@ const RaiseTicketPage = () => {
 
   const [editData] = useState(null);
   const handleModalOpen = () => {
-    console.log("Opening modal");
     setIsAddticketOpen(true); // Use correct setter
-    console.log("Modal state set to:", true);
   };
 
   return (

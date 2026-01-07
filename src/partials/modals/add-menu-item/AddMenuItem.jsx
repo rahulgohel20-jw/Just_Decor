@@ -45,9 +45,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
         })) || [];
 
       setCategoryOptions(options);
-    } catch (error) {
-      console.log("❌ AddMenuItem: Category API Error:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchSubCategories = async (categoryId) => {
@@ -63,7 +61,6 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
 
       setSubCategoryOptions(options);
     } catch (error) {
-      console.log("❌ AddMenuItem: Sub Category API Error:", error);
       setSubCategoryOptions([]);
     } finally {
       setLoadingSubCategories(false);
@@ -170,9 +167,7 @@ const AddMenuItem = ({ isModalOpen, setIsModalOpen, refreshData }) => {
         setIsModalOpen(false);
         form.resetFields();
       }
-    } catch (error) {
-      console.log("Save Menu Item Error:", error);
-    }
+    } catch (error) {}
   };
 
   return (

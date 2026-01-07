@@ -70,7 +70,6 @@ const Priceplan = () => {
   useEffect(() => {
     if (!token) return;
     const decoded = parseJwt(token);
-    console.log(decoded);
 
     const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
     if (idFromToken) {
@@ -121,7 +120,6 @@ const Priceplan = () => {
   useEffect(() => {
     if (!token) return;
     const decoded = parseJwt(token);
-    console.log(decoded);
 
     const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
     if (idFromToken) {
@@ -212,7 +210,6 @@ const Priceplan = () => {
   })();
 
   const handlePayment = async (plan) => {
-    console.log("Selected Plan:", plan);
     if (!userId) {
       Swal.fire({
         icon: "warning",

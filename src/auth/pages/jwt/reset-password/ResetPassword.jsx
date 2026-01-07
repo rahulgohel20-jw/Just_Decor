@@ -35,53 +35,52 @@ const ResetPassword = () => {
       setHasErrors(undefined);
 
       try {
-  const response = await requestPasswordResetLink(values.email);
+        const response = await requestPasswordResetLink(values.email);
 
-  console.log("API Response:", response);
+        // ✅ Backend returns { success: true/false, msg: "..." }
+        if (response?.data?.success) {
+          message.success(response.data.msg);
+          localStorage.setItem("successMsg", response.data.msg);
+          setHasErrors(null); // no error
 
-  // ✅ Backend returns { success: true/false, msg: "..." }
-  if (response?.data?.success) {
-    console.log("✅ Success:", response.data.msg);
-    message.success(response.data.msg);
-  localStorage.setItem("successMsg", response.data.msg);
-  setHasErrors(null); // no error
+          // Save email + navigate
+          const params = new URLSearchParams();
+          params.append("email", values.email);
+          localStorage.setItem("email", values.email);
 
-    // Save email + navigate
-    const params = new URLSearchParams();
-    params.append("email", values.email);
-    localStorage.setItem("email", values.email);
+          navigate({
+            pathname:
+              currentLayout?.name === "auth-branded"
+                ? "/auth/2fa"
+                : "/auth/classic/reset-password/check-email",
+            search: params.toString(),
+          });
+        } else {
+          console.log(
+            "❌ Failed:",
+            response?.data?.msg || "Something went wrong"
+          );
+          const failMsg =
+            response?.data?.msg || "Password reset failed. Please try again.";
+          // message.error(failMsg);
+          setHasErrors(failMsg); // store error message
+        }
 
-    navigate({
-      pathname:
-        currentLayout?.name === "auth-branded"
-          ? "/auth/2fa"
-          : "/auth/classic/reset-password/check-email",
-      search: params.toString(),
-    });
-  } else {
-  console.log("❌ Failed:", response?.data?.msg || "Something went wrong");
-  const failMsg = response?.data?.msg || "Password reset failed. Please try again.";
-  // message.error(failMsg);
-  setHasErrors(failMsg); // store error message
-}
+        setLoading(false);
+      } catch (error) {
+        console.error("🚨 API Error:", error);
 
-  setLoading(false);
-} catch (error) {
-  console.error("🚨 API Error:", error);
+        const errorMsg =
+          error.response?.data?.msg ||
+          error.response?.data?.message ||
+          "Something went wrong. Please try again.";
 
-  const errorMsg =
-    error.response?.data?.msg ||
-    error.response?.data?.message ||
-    "Something went wrong. Please try again.";
-
-  setStatus(errorMsg);
-  message.error(errorMsg);
-  setHasErrors(errorMsg); // store error message
-  setLoading(false);
-  setSubmitting(false);
-}
-
-
+        setStatus(errorMsg);
+        message.error(errorMsg);
+        setHasErrors(errorMsg); // store error message
+        setLoading(false);
+        setSubmitting(false);
+      }
     },
   });
 
@@ -101,13 +100,12 @@ const ResetPassword = () => {
             with your account
           </span>
         </div>
-{hasErrors && <Alert variant="danger">{hasErrors}</Alert>}
-{/* {hasErrors === null && (
+        {hasErrors && <Alert variant="danger">{hasErrors}</Alert>}
+        {/* {hasErrors === null && (
   <Alert variant="success">
     Password reset link sent. Please check your email to proceed
   </Alert>
 )} */}
-
 
         <div className="flex flex-col">
           <label className="form-label">Email Address</label>

@@ -141,8 +141,6 @@ const AddReportConfig = ({
             PartyDetails: !!data.isPartyDetails,
             WithQuantity: !!data.isWithQty,
           });
-
-          console.log("✅ TYPE FROM API:", data.type);
         }
       } catch (error) {
         console.error(error);

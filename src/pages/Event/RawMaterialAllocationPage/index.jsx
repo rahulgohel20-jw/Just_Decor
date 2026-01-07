@@ -230,7 +230,6 @@ const RawMaterialAllocation = ({ mode }) => {
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
-      console.log(items);
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => {
@@ -349,7 +348,6 @@ const RawMaterialAllocation = ({ mode }) => {
         console.warn("No data to save, skipping auto-save");
         return false;
       }
-      console.log(activeTab);
 
       const payload = {
         eventId: parseInt(eventId),
@@ -644,8 +642,6 @@ const RawMaterialAllocation = ({ mode }) => {
 
   // ✅ UPDATED: Handle save from sidebar with quantity calculation
   const handleSaveFromSidebar = (updatedRow) => {
-    console.log("📦 Updated row from sidebar:", updatedRow);
-
     const updatedData = data.map((item) => {
       if (
         item.id === updatedRow.id ||

@@ -12,47 +12,28 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
   const parseDateValue = (dateValue) => {
     if (!dateValue) return null;
 
-    console.log("Parsing date value:", dateValue, "Type:", typeof dateValue);
-
     let parsed = dayjs(dateValue);
     if (parsed.isValid()) {
-      console.log("✅ Parsed as ISO:", parsed.format("DD-MM-YYYY hh:mm A"));
       return parsed;
     }
 
     parsed = dayjs(dateValue, "DD-MM-YYYY HH:mm", true);
     if (parsed.isValid()) {
-      console.log(
-        "✅ Parsed as DD-MM-YYYY HH:mm:",
-        parsed.format("DD-MM-YYYY hh:mm A")
-      );
       return parsed;
     }
 
     parsed = dayjs(dateValue, "DD-MM-YYYY", true);
     if (parsed.isValid()) {
-      console.log(
-        "✅ Parsed as DD-MM-YYYY:",
-        parsed.format("DD-MM-YYYY hh:mm A")
-      );
       return parsed;
     }
 
     parsed = dayjs(dateValue, "YYYY-MM-DD HH:mm:ss", true);
     if (parsed.isValid()) {
-      console.log(
-        "✅ Parsed as YYYY-MM-DD HH:mm:ss:",
-        parsed.format("DD-MM-YYYY hh:mm A")
-      );
       return parsed;
     }
 
     parsed = dayjs(dateValue, "YYYY-MM-DD", true);
     if (parsed.isValid()) {
-      console.log(
-        "✅ Parsed as YYYY-MM-DD:",
-        parsed.format("DD-MM-YYYY hh:mm A")
-      );
       return parsed;
     }
 

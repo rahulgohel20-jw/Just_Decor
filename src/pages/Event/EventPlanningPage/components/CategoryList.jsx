@@ -21,14 +21,12 @@ const CategoryList = ({
     const handleLanguageChange = (e) => {
       const newLang =
         e.detail?.newLanguage || localStorage.getItem("lang") || "en";
-      console.log("CategoryList - Language changed to:", newLang);
       setCurrentLanguage(newLang);
     };
 
     const handleStorage = () => {
       const newLang = localStorage.getItem("lang") || "en";
       if (newLang !== currentLanguage) {
-        console.log("CategoryList - Language detected via storage:", newLang);
         setCurrentLanguage(newLang);
       }
     };
@@ -40,10 +38,6 @@ const CategoryList = ({
     const intervalId = setInterval(() => {
       const currentLang = localStorage.getItem("lang") || "en";
       if (currentLang !== currentLanguage) {
-        console.log(
-          "CategoryList - Language detected via polling:",
-          currentLang
-        );
         setCurrentLanguage(currentLang);
       }
     }, 500);

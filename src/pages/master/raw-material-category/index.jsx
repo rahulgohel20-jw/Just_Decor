@@ -134,8 +134,6 @@ const AddRawMaterialCategory = () => {
   };
 
   const handleEdit = (event) => {
-    console.log(event);
-
     setSelectedRawMaterialCategory(event);
     setIsContactModalOpen(true);
   };

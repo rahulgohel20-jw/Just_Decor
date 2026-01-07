@@ -38,7 +38,6 @@ export default function AddNewManagerModal({
 
   useEffect(() => {
     if (open) {
-      console.log("AddNewManagerModal opened with eventId:", eventId);
       FetchManager();
     }
   }, [open, eventId]);

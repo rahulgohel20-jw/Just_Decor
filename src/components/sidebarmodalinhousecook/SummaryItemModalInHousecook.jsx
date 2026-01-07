@@ -18,8 +18,6 @@ export default function SummaryItemModalInHousecook({
   onClose,
   insidesummary,
 }) {
-  console.log(insidesummary);
-
   const [expandedRows, setExpandedRows] = useState({});
 
   useEffect(() => {

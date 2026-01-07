@@ -104,8 +104,6 @@ const AdduserRight = ({ isOpen, onClose, contactType, refreshData }) => {
               const timer = setTimeout(() => {
                 Translateapi(values.nameEnglish)
                   .then((res) => {
-                    console.log(res);
-
                     setFieldValue("nameGujarati", res.data.gujarati || "");
                     setFieldValue("nameHindi", res.data.hindi || "");
                   })
