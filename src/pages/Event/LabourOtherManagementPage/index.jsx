@@ -32,7 +32,6 @@ dayjs.extend(customParseFormat);
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
 const SHIFTS = [];
-const PLACES = ["At Venue", "At Godown"];
 
 // Utility functions
 const parseDate = (date, fallbackDate) => {
