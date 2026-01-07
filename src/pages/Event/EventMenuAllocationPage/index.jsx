@@ -938,12 +938,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const totalPax = useMemo(() => {
     if (activeFunction?.id === -1) {
-      return (
-        eventData?.eventFunctions?.reduce(
-          (sum, func) => sum + (func.pax || 0),
-          0
-        ) || 0
-      );
+      return "";
     }
     return activeFunction?.pax || 0;
   }, [activeFunction, eventData?.eventFunctions]);
@@ -1724,7 +1719,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                       readOnly
                       value={
                         activeFunction?.id === -1
-                          ? "All Functions"
+                          ? ""
                           : activeFunction?.functionStartDateTime || "-"
                       }
                     />
