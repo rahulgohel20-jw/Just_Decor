@@ -1220,7 +1220,7 @@ const EventPlanningPage = ({ mode }) => {
                   type="button"
                   onClick={handleSaveOrUpdate}
                   disabled={isSaving || !isDirty}
-                  className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn bg-success text-white px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSaving ? (
                     <>

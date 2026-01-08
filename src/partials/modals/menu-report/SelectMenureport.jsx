@@ -10,6 +10,7 @@ import {
 import { useMemo } from "react";
 
 import MenuReport from "./MenuReport";
+import { FormattedMessage, useIntl } from "react-intl";
 
 export default function SelectMenureport({
   eventId,
@@ -38,6 +39,8 @@ export default function SelectMenureport({
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const userId = localStorage.getItem("userId");
 
+  const intl = useIntl();
+
   const selectedEventFunction = useMemo(() => {
     if (selectedFunctionId === -1) return null;
 
@@ -45,6 +48,21 @@ export default function SelectMenureport({
       (item) => item.id === selectedFunctionId
     );
   }, [eventData, selectedFunctionId]);
+
+  const activeLang = localStorage.getItem("lang") || "en";
+
+  const getLangValue = (obj, baseKey, lang) => {
+    if (!obj) return "";
+
+    switch (lang) {
+      case "hi":
+        return obj[`${baseKey}Hindi`] || obj[`${baseKey}English`] || "";
+      case "gu":
+        return obj[`${baseKey}Gujarati`] || obj[`${baseKey}English`] || "";
+      default:
+        return obj[`${baseKey}English`] || "";
+    }
+  };
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -82,7 +100,7 @@ export default function SelectMenureport({
 
           const formattedModules = modules.map((module) => ({
             key: module.id,
-            label: module.nameEnglish,
+            label: getLangValue(module, "name", activeLang),
             moduleId: module.id,
             img: "/media/icons/simple.png",
           }));
@@ -125,6 +143,7 @@ export default function SelectMenureport({
           dynamicTemplates = res.data.data.map((item) => ({
             id: item.id,
             name: item.templateMaster.name,
+
             description: `${item.templateMaster.name} - Custom theme template`,
             headingFontColor: item.templateMaster.headingFontColor,
             contentFontColor: item.templateMaster.contentFontColor,
@@ -213,7 +232,10 @@ export default function SelectMenureport({
               <i className="ki-filled ki-document text-white text-xl"></i>
             </div>
             <span className="text-xl font-bold text-gray-800">
-              Select Report Type
+              <FormattedMessage
+                id="REPORTS.SELECT_REPORT_TYPE"
+                defaultMessage="Select Report Type"
+              />
             </span>
           </div>
         }
@@ -225,31 +247,62 @@ export default function SelectMenureport({
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/partyname.png")}
-                label="Party Name"
-                value={eventData?.party?.nameEnglish || "-"}
+                label={intl.formatMessage({
+                  id: "EVENT_MENU_ALLOCATION.PARTY_NAME",
+                  defaultMessage: "Party Name",
+                })}
+                value={
+                  getLangValue(eventData?.party, "name", activeLang) || "-"
+                }
               />
 
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/eventname.png")}
-                label="Event Name"
-                value={eventData?.eventType?.nameEnglish || "-"}
+                label={intl.formatMessage({
+                  id: "EVENT_MENU_ALLOCATION.EVENT_NAME",
+                  defaultMessage: "Event Name",
+                })}
+                value={
+                  getLangValue(eventData?.eventType, "name", activeLang) || "-"
+                }
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/funtionname.png")}
-                label="Function"
+                label={intl.formatMessage({
+                  id: "COMMON.FUNCTION",
+                  defaultMessage: "Function",
+                })}
                 value={
-                  selectedEventFunction?.function?.nameEnglish || "All Function"
+                  selectedEventFunction
+                    ? getLangValue(
+                        selectedEventFunction.function,
+                        "name",
+                        activeLang
+                      )
+                    : activeLang === "hi"
+                      ? "सभी फंक्शन"
+                      : activeLang === "gu"
+                        ? "બધા ફંક્શન"
+                        : "All Function"
                 }
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/date&time.png")}
-                label="Date & Time"
+                label={intl.formatMessage({
+                  id: "TABLE.EVENT_DATE_TIME",
+                  defaultMessage: "Event Date & Time",
+                })}
                 value={eventData?.eventStartDateTime || "-"}
               />
               <InfoItem
                 icon={toAbsoluteUrl("/media/icons/venue.png")}
-                label="Venue"
-                value={eventData?.venue?.nameEnglish || "-"}
+                label={intl.formatMessage({
+                  id: "TABLE.VENUE",
+                  defaultMessage: "Venue",
+                })}
+                value={
+                  getLangValue(eventData?.venue, "name", activeLang) || "-"
+                }
               />
             </div>
           </div>
@@ -268,7 +321,7 @@ export default function SelectMenureport({
 
               {eventData?.eventFunctions?.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.function?.nameEnglish}
+                  {getLangValue(item.function, "name", activeLang)}
                 </option>
               ))}
             </select>
@@ -377,7 +430,10 @@ export default function SelectMenureport({
                           handleGenerateReport(template);
                         }}
                       >
-                        Generate Report
+                        <FormattedMessage
+                          id="REPORTS.GENERATE_REPORT"
+                          defaultMessage="Generate Report"
+                        />
                       </button>
                     </div>
                   </div>

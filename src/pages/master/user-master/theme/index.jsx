@@ -5,13 +5,13 @@ import {
   GetAllThemeByModuleId,
   AssignThemeAdmin,
 } from "@/services/apiServices";
-import { EyeIcon } from "lucide-react";
+import { Check, CheckIcon, EyeIcon } from "lucide-react";
 import Swal from "sweetalert2";
 
 const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
   const [activeTab, setActiveTab] = useState("theme");
-  const [selectedTheme, setSelectedTheme] = useState(null);
-  const [selectedNameplate, setSelectedNameplate] = useState(null);
+  const [selectedTheme, setSelectedTheme] = useState([]);
+  const [selectedNameplate, setSelectedNameplate] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [themes, setThemes] = useState([]);
@@ -60,29 +60,31 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
       setLoading(false);
     }
   };
-  let isNameplate = activeTab === "nameplate";
 
   const fetchThemesByCategory = async () => {
     try {
       setLoadingItems(true);
+      const isNameplate = activeTab === "nameplate";
 
       const response = await GetAllThemeByModuleId(
         isNameplate,
-        selectedCategory
+        selectedCategory,
+        userId
       );
 
       if (response?.data) {
         const items = response.data.data || response.data;
 
         const mappedItems = items.map((item) => ({
-          id: item.id || item._id, // templateMasterId
+          id: item.id || item._id,
           title: item.name || item.nameEnglish,
           frontPage: item.frontPage || "",
           secondFrontPage: item.secondFrontPage || "",
           watermark: item.watermark || "",
           lastMainPage: item.lastMainPage || "",
-          templateMappingId: item?.templateMappingResponseDto?.id || 0,
+          templateMappingId: item?.templateMapping?.id || 0,
           templateModuleMasterId: item?.templateModuleMaster?.id || 0,
+          isSelected: item.isSelected === true,
         }));
 
         isNameplate ? setNameplates(mappedItems) : setThemes(mappedItems);
@@ -97,28 +99,52 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setSelectedTheme(null);
-    setSelectedNameplate(null);
+    setSelectedTheme([]);
+    setSelectedNameplate([]);
+  };
+
+  const toggleSelectItem = (item) => {
+    if (item.isSelected) return; // Already assigned
+
+    const isTheme = activeTab === "theme";
+    const setter = isTheme ? setSelectedTheme : setSelectedNameplate;
+
+    setter((prev) => {
+      if (prev.includes(item.id)) {
+        return prev.filter((id) => id !== item.id);
+      } else {
+        return [...prev, item.id];
+      }
+    });
   };
 
   const currentItems = activeTab === "theme" ? themes : nameplates;
-  const selectedItem =
+  const selectedItems =
     activeTab === "theme" ? selectedTheme : selectedNameplate;
-  const setSelectedItem =
-    activeTab === "theme" ? setSelectedTheme : setSelectedNameplate;
 
   const handleSave = async () => {
-    if (!selectedItem) return;
+    // ✅ FIX: Use correct state variables
+    const ids = activeTab === "theme" ? selectedTheme : selectedNameplate;
 
-    const selectedData = currentItems.find((item) => item.id === selectedItem);
+    if (!ids.length) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Selection",
+        text: `Please select at least one ${activeTab === "theme" ? "theme" : "nameplate"}.`,
+      });
+      return;
+    }
 
-    if (!selectedData) return;
+    // ✅ Build payload matching API format
+    const payload = ids.map((id) => {
+      const item = currentItems.find((x) => x.id === id);
 
-    const payload = {
-      templateMasterId: selectedData.id || 0,
-      templateModuleMasterId: selectedData.templateModuleMasterId || 0,
-      userId: userId,
-    };
+      return {
+        templateMasterId: item?.id || 0,
+        templateModuleMasterId: item?.templateModuleMasterId || 0,
+        userId: userId,
+      };
+    });
 
     try {
       setAssignLoading(true);
@@ -130,20 +156,22 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
           icon: "success",
           title: "Assigned Successfully",
           text: `${
-            activeTab === "theme" ? "Theme" : "Nameplate"
+            activeTab === "theme" ? "Themes" : "Nameplates"
           } assigned to user successfully.`,
           confirmButtonColor: "#3085d6",
         });
 
+        // Reset and close
         setIsModalOpen(false);
-        setSelectedTheme(null);
-        setSelectedNameplate(null);
+        setSelectedTheme([]);
+        setSelectedNameplate([]);
+
+        // Optionally refetch to update isSelected status
+        if (selectedCategory) {
+          fetchThemesByCategory();
+        }
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Assignment Failed",
-          text: "Something went wrong. Please try again.",
-        });
+        throw new Error("Assignment failed");
       }
     } catch (error) {
       console.error("AssignThemeAdmin failed:", error);
@@ -151,7 +179,9 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
       Swal.fire({
         icon: "error",
         title: "Assignment Failed",
-        text: "Something went wrong. Please try again.",
+        text:
+          error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
       });
     } finally {
       setAssignLoading(false);
@@ -210,34 +240,45 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
                 {currentItems.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() =>
-                      setSelectedItem(selectedItem === item.id ? null : item.id)
-                    }
-                    className={`relative border rounded-lg overflow-hidden cursor-pointer transition
+                    onClick={() => toggleSelectItem(item)}
+                    className={`relative border rounded-lg overflow-hidden transition
                       ${
-                        selectedItem === item.id
+                        item.isSelected
+                          ? "opacity-50 cursor-not-allowed bg-gray-100"
+                          : "cursor-pointer hover:shadow-md"
+                      }
+                      ${
+                        selectedItems.includes(item.id)
                           ? "border-primary ring-2 ring-primary"
                           : "border-gray-200"
                       }
                     `}
                   >
-                    {/* Eye */}
+                    {/* Eye Icon */}
                     <button
+                      disabled={item.isSelected}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (item.isSelected) return;
                         setPreviewItem(item);
                         setPreviewPage("frontPage");
                         setPreviewOpen(true);
                       }}
-                      className="absolute top-2 left-2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100"
+                      className={`absolute top-2 left-2 z-10 p-2 rounded-full shadow
+                        ${
+                          item.isSelected
+                            ? "bg-gray-200 cursor-not-allowed"
+                            : "bg-white hover:bg-gray-100"
+                        }
+                      `}
                     >
                       <EyeIcon className="text-primary w-4 h-4" />
                     </button>
 
-                    {/* Selected ✔ */}
-                    {selectedItem === item.id && (
+                    {/* Selected Checkmark */}
+                    {selectedItems.includes(item.id) && (
                       <div className="absolute top-2 right-2 z-10 bg-success text-white rounded-full w-7 h-7 flex items-center justify-center shadow">
-                        ✔
+                        <CheckIcon className="w-4 h-4" />
                       </div>
                     )}
 
@@ -267,7 +308,7 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
 
             <button
               onClick={handleSave}
-              disabled={!selectedItem || assignLoading}
+              disabled={selectedItems.length === 0 || assignLoading}
               className="px-4 py-2 bg-primary text-white rounded disabled:opacity-60"
             >
               {assignLoading

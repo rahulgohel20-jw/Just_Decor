@@ -905,7 +905,12 @@
   "TABLE.EVENT_NAME": "इवेंट नेम",
   "TABLE.EVENT_DATE_TIME": "इवेंट डेट और टाइम",
   "TABLE.VENUE": "वेन्यू",
-  "TABLE.STATUS": "स्टेटस"
+  "TABLE.STATUS": "स्टेटस",
+"REPORTS.SELECT_REPORT_TYPE": "रिपोर्ट टाइप चुनें",
+"REPORTS.GENERATE_REPORT": "रिपोर्ट जनरेट करें"
+
+
+
 
 
 
