@@ -882,5 +882,7 @@
   "TABLE.EVENT_NAME": "ઇવેન્ટ નેમ",
   "TABLE.EVENT_DATE_TIME": "ઇવેન્ટ તારીખ અને સમય",
   "TABLE.VENUE": "વેન્યુ",
-  "TABLE.STATUS": "સ્ટેટસ"
+  "TABLE.STATUS": "સ્ટેટસ",
+  "REPORTS.SELECT_REPORT_TYPE": "રિપોર્ટ ટાઇપ પસંદ કરો",
+  "REPORTS.GENERATE_REPORT": "રિપોર્ટ જનરેટ કરો"
 }
