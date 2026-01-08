@@ -32,7 +32,7 @@ dayjs.extend(customParseFormat);
 
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
-const SHIFTS = ["Morning Shift", "Evening Shift", "Full Day"];
+const SHIFTS = [];
 const PLACES = ["At Venue", "At Godown"];
 
 // Utility functions
@@ -201,29 +201,28 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [activeFunction?.id, eventData?.id]);
 
   useEffect(() => {
-    const fetchContactCategories = async () => {
-      if (!userId) return;
-
-      try {
-        const res = await GetAllContactCategory(userId);
-
-        const allCategories =
-          res?.data?.data?.["Contact Category Details"] || [];
-
-        const labour = allCategories.filter((cat) => {
-          const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
-
-          return typeName === LABOUR_TYPE;
-        });
-
-        setLabourCategories(labour);
-      } catch (error) {
-        console.error("❌ Error fetching contact categories:", error);
-      }
-    };
-
     fetchContactCategories();
   }, [userId]);
+
+  const fetchContactCategories = async () => {
+    if (!userId) return;
+
+    try {
+      const res = await GetAllContactCategory(userId);
+
+      const allCategories = res?.data?.data?.["Contact Category Details"] || [];
+
+      const labour = allCategories.filter((cat) => {
+        const typeName = cat?.contactType?.nameEnglish?.trim()?.toLowerCase();
+
+        return typeName === LABOUR_TYPE;
+      });
+
+      setLabourCategories(labour);
+    } catch (error) {
+      console.error("❌ Error fetching contact categories:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -820,8 +819,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           />
         )}
 
-        {/* Extra Expense Table */}
-
         {/* Modals */}
         <AddNotes
           isOpen={isNotesOpen}
@@ -884,7 +881,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           <AddContactCategory
             isOpen={isAddLabourModalOpen}
             onClose={() => setIsAddLabourModalOpen(false)}
-            refreshData={() => {}}
+            refreshData={fetchContactCategories}
             contactCategory={null} // Adding new
             labourOnly={true}
             onSave={(newCategory) => {
@@ -894,13 +891,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           />
         )}
 
-        {/* <AddVendor
-          isModalOpen={isAddVendorOpen}
-          isModalClose={setIsAddVendorOpen}
-          filterType="labour"
-          setIsModalOpen={setIsAddVendorOpen}
-          refreshData={() => {}}
-        /> */}
         <AddContactName
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}

@@ -1355,9 +1355,9 @@ export const DeleteRefund = (id) => {
   return DELETE(`/user/deleteuserrefundbyid?id=${id}`);
 };
 
-export const GetAllThemeByModuleId = (namePlate, Id) => {
+export const GetAllThemeByModuleId = (namePlate, Id, userId) => {
   return GET(
-    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}`
+    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}&userId=${userId}`
   );
 };
 

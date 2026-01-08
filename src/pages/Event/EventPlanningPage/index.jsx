@@ -174,6 +174,7 @@ const EventPlanningPage = ({ mode }) => {
 
       selectedCats.forEach((cat) => {
         const catName = cat.menuCategoryName || "Uncategorized";
+
         const catNameHindi = cat.menuCategoryNameHindi || catName;
         const catNameGujarati = cat.menuCategoryNameGujarati || catName;
 
@@ -649,6 +650,7 @@ const EventPlanningPage = ({ mode }) => {
         const items = bucket.categories[catName] || [];
 
         const firstItem = items[0] || {};
+        const catNameEnglish = firstItem.menuCategoryName || catName;
         const catNameHindi = firstItem.menuCategoryNameHindi || catName;
         const catNameGujarati = firstItem.menuCategoryNameGujarati || catName;
 
@@ -657,7 +659,7 @@ const EventPlanningPage = ({ mode }) => {
 
         return {
           menuCategoryId: items[0]?.catId || 0,
-          menuCategoryName: catName,
+          menuCategoryName: catNameEnglish,
           menuCategoryNameHindi: catNameHindi,
           menuCategoryNameGujarati: catNameGujarati,
           menuNotes: categoryNotes,
@@ -1220,7 +1222,7 @@ const EventPlanningPage = ({ mode }) => {
                   type="button"
                   onClick={handleSaveOrUpdate}
                   disabled={isSaving || !isDirty}
-                  className="btn bg-success text-white px-8 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn bg-success text-white px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSaving ? (
                     <>

@@ -147,15 +147,28 @@ const SelectedItems = ({
     };
   }, [currentLanguage]);
 
-  // Helper function to get localized category name
   const getLocalizedCategoryName = useMemo(() => {
     return (categoryName) => {
-      // For saved categories, we need to check if we have translation data
-      // Since categories are stored by their English name, we'll display as-is
-      // unless we have translation mapping
-      return categoryName;
+      const items = categories[categoryName] || [];
+      if (items.length === 0) return categoryName;
+
+      const firstItem = items[0];
+
+      const languageMap = {
+        en: firstItem.menuCategoryName || categoryName,
+        hi:
+          firstItem.menuCategoryNameHindi ||
+          firstItem.menuCategoryName ||
+          categoryName,
+        gu:
+          firstItem.menuCategoryNameGujarati ||
+          firstItem.menuCategoryName ||
+          categoryName,
+      };
+
+      return languageMap[currentLanguage] || categoryName;
     };
-  }, [currentLanguage]);
+  }, [currentLanguage, categories]);
 
   const toggleCategory = useCallback((catName) => {
     setExpandedCategories((prev) => ({
