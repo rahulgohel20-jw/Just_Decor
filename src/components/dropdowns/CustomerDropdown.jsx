@@ -2,8 +2,15 @@ import { Select } from "antd";
 
 const CustomerDropdown = ({ value, onChange, options = [], ...rest }) => {
   const handleChange = (val) => {
-    // send in same format as your other inputs
-    onChange({ target: { name: "customer_name", value: val } });
+    const selectedCustomer = options.find((opt) => opt.value === val);
+
+    onChange({
+      target: {
+        name: "customer_name",
+        value: val,
+      },
+      customer: selectedCustomer,
+    });
   };
 
   return (
@@ -16,6 +23,9 @@ const CustomerDropdown = ({ value, onChange, options = [], ...rest }) => {
       placeholder="Please select"
       style={{ width: "100%" }}
       options={options}
+      filterOption={(input, option) =>
+        (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+      }
       {...rest}
     />
   );

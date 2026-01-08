@@ -2,6 +2,7 @@ import { Select } from "antd";
 
 const VenueDropdown = ({ value, onChange, options, ...rest }) => {
   const handleChange = (val) => {
+    console.log("Venue selected:", val); // ✅ log selected venue
     onChange({ target: { name: "venueId", value: val } });
   };
 

@@ -15,41 +15,43 @@ const ClientDetailsStep = ({
   errors,
 }) => {
   const classes = useStyles();
-  const languageContext = useLanguage();
+  const { isRTL, locale } = useLanguage();
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [customer, setCustomer] = useState([]);
 
-  useEffect(() => {
-    FetchCustomerName();
-  }, []);
+  // ✅ Get language from localStorage
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
 
   let Id = localStorage.getItem("userId");
 
-  // Helper function to get the correct language field
+  // ✅ Update lang state when language changes
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+    console.log("[ClientDetailsStep] Language changed:", storedLang);
+  }, [isRTL, locale]);
+
+  // ✅ Simplified function to get localized field based on localStorage lang
   const getLocalizedField = (item, fieldName) => {
-    const currentLocale =
-      languageContext?.locale || languageContext?.language || "en";
-
-    const languageMap = {
-      en: "English",
-      "en-US": "English",
-      "en-GB": "English",
-      hi: "Hindi",
-      "hi-IN": "Hindi",
-      gu: "Gujarati",
-      "gu-IN": "Gujarati",
-    };
-
-    const suffix = languageMap[currentLocale] || "English";
-    const fieldKey = `${fieldName}${suffix}`;
-
-    return item[fieldKey] || item[`${fieldName}English`] || "";
+    switch (lang) {
+      case "hi":
+        return item[`${fieldName}Hindi`] || item[`${fieldName}English`] || "";
+      case "gu":
+        return (
+          item[`${fieldName}Gujarati`] || item[`${fieldName}English`] || ""
+        );
+      default:
+        return item[`${fieldName}English`] || "";
+    }
   };
 
   const handleCustomerChange = (selectedId) => {
+    // ✅ Now receiving customer ID instead of name
     const selectedCustomer = customer.find(
       (c) => c.value === selectedId["target"].value
     );
+
+    console.log("Selected Customer:", selectedCustomer);
 
     if (selectedCustomer) {
       setFormData({
@@ -83,7 +85,6 @@ const ClientDetailsStep = ({
       .then((res) => {
         const partyDetails = res.data.data["Party Details"];
 
-        // ✅ fetch only customers
         const onlyCustomers = partyDetails.filter(
           (p) =>
             p.contact?.contactType?.nameEnglish?.trim().toLowerCase() ===
@@ -97,7 +98,7 @@ const ClientDetailsStep = ({
           return {
             sr_no: index + 1,
             value: customer.id,
-            label: `${localizedName} - ${customer.mobileno}`,
+            label: `${localizedName}`,
             mobile: customer.mobileno,
             address: localizedAddress,
             customername: localizedName,
@@ -110,10 +111,12 @@ const ClientDetailsStep = ({
           };
         });
 
+        console.log("Fetched Customers with lang:", lang, customername);
         setCustomer(customername);
 
         if (autoSelectLatest && customername.length > 0) {
           const latestCustomer = customername[customername.length - 1];
+          console.log("Auto-selected Customer:", latestCustomer);
 
           setFormData((prev) => ({
             ...prev,
@@ -134,9 +137,8 @@ const ClientDetailsStep = ({
   };
 
   useEffect(() => {
-    const currentLocale = languageContext?.locale || languageContext?.language;
     FetchCustomerName();
-  }, [languageContext?.locale, languageContext?.language]);
+  }, [lang]);
 
   return (
     <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
@@ -175,8 +177,9 @@ const ClientDetailsStep = ({
                 </select>
                 <div className="sg__inner flex items-center gap-1 relative w-full">
                   <i className="ki-filled ki-user ms-2.5"></i>
+
                   <CustomerDropdown
-                    value={formData.customer_name}
+                    value={formData.partyId}
                     onChange={handleCustomerChange}
                     options={customer}
                   />
