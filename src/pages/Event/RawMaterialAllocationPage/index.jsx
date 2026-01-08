@@ -15,7 +15,7 @@ import {
   GetEventMasterById,
 } from "@/services/apiServices";
 import { useLocation } from "react-router-dom";
-import { Select, DatePicker } from "antd";
+import { Select, DatePicker, Spin } from "antd";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
@@ -44,6 +44,7 @@ const RawMaterialAllocation = ({ mode }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [originalData, setOriginalData] = useState([]);
+  const [tableLoading, setTableLoading] = useState(false);
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
@@ -223,6 +224,7 @@ const RawMaterialAllocation = ({ mode }) => {
   // ✅ UPDATED: Store units object and prioritize it for unit display
   const fetchRawMaterialItems = async (categoryId) => {
     setLoading(true);
+    setTableLoading(true);
     try {
       const response = await GetAllRawMaterialAllocationItems(
         categoryId,
@@ -281,6 +283,7 @@ const RawMaterialAllocation = ({ mode }) => {
       setData([]);
     } finally {
       setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -550,79 +553,82 @@ const RawMaterialAllocation = ({ mode }) => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.length === 0 ? (
+              {/* ===== TABLE BODY ===== */}
+              <tbody>
+                {tableLoading ? (
                   <tr>
-                    <td colSpan="9" className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center justify-center">
-                        <svg
-                          className="w-12 h-12 text-gray-300 mb-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                          />
-                        </svg>
-                        <p className="text-sm font-medium text-gray-500">
-                          <FormattedMessage
-                            id="COMMON.NO_DATA"
-                            defaultMessage="No materials found"
-                          />
-                        </p>
-                      </div>
+                    <td colSpan="10" className="text-center py-8">
+                      <Spin />
+                    </td>
+                  </tr>
+                ) : data.length === 0 ? (
+                  <tr>
+                    <td colSpan="10" className="text-center py-6 text-gray-500">
+                      No materials found
                     </td>
                   </tr>
                 ) : (
                   data.map((item, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-blue-50 transition-colors duration-150"
-                    >
-                      <td className="px-4 py-4 text-sm font-semibold text-gray-900">
-                        <div
-                          className="truncate max-w-[130px]"
-                          title={item.material}
-                        >
-                          {item.material}
-                        </div>
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="px-4 py-3">{item.id}</td>
+                      <td
+                        className="px-4 py-2 text-xs text-gray-700 truncate max-w-[150px]"
+                        title={item.material}
+                      >
+                        {item.material}
+                      </td>
+                      <td className="px-4 py-3">{item.qty}</td>
+
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={item.finalQty}
+                          onChange={(e) =>
+                            handleChange(index, "finalQty", e.target.value)
+                          }
+                          className="w-full border border-gray-300 rounded px-2 py-1"
+                        />
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <Select
-                          size="small"
-                          className="w-full"
-                          value={item.agency}
-                          options={agencyOptions}
-                          onChange={(value) =>
-                            handleChange(index, "agency", value)
+                      <td className="px-4 py-3">
+                        <select
+                          value={item.unitId}
+                          onChange={(e) =>
+                            handleChange(
+                              index,
+                              "unitId",
+                              Number(e.target.value)
+                            )
                           }
-                        />
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
+                        >
+                          {buildUnitOptions(
+                            item.units,
+                            item.unitHierarchyDto,
+                            item.unitId,
+                            item.unit
+                          ).map((u) => (
+                            <option key={u.value} value={u.value}>
+                              {u.label}
+                            </option>
+                          ))}
+                        </select>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <PlaceSelect
-                          value={item.place}
-                          onChange={(value) =>
-                            handleChange(index, "place", value)
-                          }
-                        />
+
+                      <td className="px-4 py-3">{item.agency}</td>
+                      <td className="px-4 py-3">{item.place}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {item.date
+                          ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
+                          : "-"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <DatePicker
-                          className="input input-sm w-full"
-                          showTime
-                          format="MM/DD/YYYY hh:mm A"
-                          value={
-                            item.date && dayjs(item.date).isValid()
-                              ? dayjs(item.date)
-                              : null
-                          }
-                          onChange={(date) => handleChange(index, "date", date)}
-                        />
+                      <td className="px-4 py-3">{item.total}</td>
+
+                      <td className="px-4 py-3 text-center">
+                        <i
+                          className="ki-filled ki-notepad-edit text-primary cursor-pointer"
+                          onClick={() => handleEditRow(item)}
+                        ></i>
                       </td>
                     </tr>
                   ))
@@ -923,8 +929,8 @@ const RawMaterialAllocation = ({ mode }) => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="10" className="text-center py-6">
-                      Loading...
+                    <td colSpan="10" className="text-center py-8">
+                      <Spin />
                     </td>
                   </tr>
                 ) : data.length === 0 ? (

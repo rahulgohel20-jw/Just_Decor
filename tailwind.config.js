@@ -739,6 +739,24 @@ module.exports = {
     }),
   },
   plugins: [
+    function ({ addBase }) {
+      addBase({
+        'body': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+        },
+        'body::-webkit-scrollbar': {
+          display: 'none',
+        },
+        'html': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+        },
+        'html::-webkit-scrollbar': {
+          display: 'none',
+        },
+      });
+    },
     require("tailwindcss-animate"),
     require("./src/plugins/plugin"),
     require("./src/plugins/components/theme"),

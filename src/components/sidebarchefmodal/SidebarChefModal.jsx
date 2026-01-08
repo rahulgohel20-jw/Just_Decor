@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  GetMenuAllocation,
-  OutsideContactName,
-  GetUnitData,
-} from "@/services/apiServices";
+import { OutsideContactName, GetUnitData } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import AddVendor from "@/partials/modals/add-vendor/AddVendor";
 import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
@@ -43,6 +39,7 @@ export default function SidebarChefModal({
   eventId,
   eventFunctionId,
   row,
+  chefModalData,
   functionName,
   functionDateTime,
   onSave,
@@ -61,31 +58,31 @@ export default function SidebarChefModal({
   let userId = localStorage.getItem("userId");
   const intl = useIntl();
 
+  // ✅ ADD THIS NEW useEffect
   useEffect(() => {
-    const FetchDetails = async () => {
-      try {
-        setLoading(true);
+    if (!open || !chefModalData) return;
 
-        const menudata = await GetMenuAllocation(eventId, eventFunctionId);
+    setLoading(true);
 
-        const raw =
-          menudata?.data?.data["Menu Allocation Details"][0]?.menuAllocation ||
-          [];
-
-        const processedAllocations = raw.map((allocation) => ({
-          ...allocation,
+    try {
+      // Process the data passed from parent
+      const processedAllocations = [
+        {
+          menuItemId: chefModalData.menuItemId,
+          menuCategoryId: chefModalData.menuCategoryId,
+          chefLabour: chefModalData.chefLabour,
+          personCount: chefModalData.personCount,
           eventFunctionMenuAllocations:
-            allocation.eventFunctionMenuAllocations?.map((alloc) => {
-              // ✅ NORMALIZE serviceType (FIX FOR FIRST LOAD)
+            chefModalData.eventFunctionMenuAllocations?.map((alloc) => {
+              // Normalize serviceType
               let normalizedServiceType = alloc.serviceType;
-
               if (alloc.serviceType === "plate_wise") {
                 normalizedServiceType = "Plate Wise";
               } else if (alloc.serviceType === "counter_wise") {
                 normalizedServiceType = "Counter Wise";
               }
 
-              // 🔵 PLATE WISE
+              // Calculate based on service type
               if (normalizedServiceType === "Plate Wise") {
                 const qty = parseFloat(alloc.quantity) || 0;
                 const price = parseFloat(alloc.price) || 0;
@@ -93,7 +90,7 @@ export default function SidebarChefModal({
 
                 return {
                   ...alloc,
-                  serviceType: normalizedServiceType, // ✅ FIXED
+                  serviceType: normalizedServiceType,
                   totalPrice:
                     alloc.totalPrice && alloc.totalPrice > 0
                       ? alloc.totalPrice
@@ -105,45 +102,33 @@ export default function SidebarChefModal({
                 };
               }
 
-              // 🔵 COUNTER WISE
+              // Counter Wise
               const counterQty = parseFloat(alloc.counterQuantity) || 0;
               const helperQty = parseFloat(alloc.helperQuantity) || 0;
               const counterPrice = parseFloat(alloc.counterPrice) || 0;
               const helperPrice = parseFloat(alloc.helperPrice) || 0;
-
               const calculatedTotal =
                 counterQty * counterPrice + helperQty * helperPrice;
 
               return {
                 ...alloc,
-                serviceType: normalizedServiceType, // ✅ FIXED
+                serviceType: normalizedServiceType,
                 totalPrice:
                   alloc.totalPrice && alloc.totalPrice > 0
                     ? alloc.totalPrice
                     : calculatedTotal,
               };
             }) || [],
-        }));
+        },
+      ];
 
-        setMenuAllocations(processedAllocations);
-
-        const currentItem = processedAllocations.find(
-          (m) =>
-            m.menuItemId === row?.menuItemId &&
-            m.menuCategoryId === row?.menuCategoryId &&
-            m.chefLabour === true
-        );
-      } catch (error) {
-        console.error("❌ Error fetching event details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (eventId && eventFunctionId && open) {
-      FetchDetails();
+      setMenuAllocations(processedAllocations);
+    } catch (error) {
+      console.error("❌ Error processing chef modal data:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [eventId, eventFunctionId, open, row?.menuItemId, row?.menuCategoryId]);
+  }, [open, chefModalData]);
 
   useEffect(() => {
     if (!open) return;
