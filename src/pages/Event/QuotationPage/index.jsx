@@ -241,15 +241,19 @@ const QuotationPage = () => {
             remainingPayment: quotationInfo.remainingAmount || 0,
 
             advancePayments:
-              quotationInfo.advancePayments &&
-              Array.isArray(quotationInfo.advancePayments)
-                ? quotationInfo.advancePayments.map((p) => ({
-                    amount: p.amount || 0,
+              quotationInfo.eventFunctionQuotationPayments &&
+              Array.isArray(quotationInfo.eventFunctionQuotationPayments)
+                ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
+                    amount: p.advancePayment || 0,
                     date:
-                      p.date && dayjs(p.date, "DD/MM/YYYY hh:mm A").isValid()
-                        ? dayjs(p.date, "DD/MM/YYYY hh:mm A")
+                      p.advancePaymentDate &&
+                      dayjs(
+                        p.advancePaymentDate,
+                        "DD/MM/YYYY hh:mm A"
+                      ).isValid()
+                        ? dayjs(p.advancePaymentDate, "DD/MM/YYYY hh:mm A")
                         : null,
-                    description: p.description || "",
+                    description: p.advancePaymentNotes || "",
                   }))
                 : [
                     {
@@ -445,9 +449,9 @@ const QuotationPage = () => {
     const grandTotal =
       subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
     const payments = (quotationData.advancePayments || []).map((p) => ({
-      amount: parseFloat(p.amount) || 0,
-      date: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
-      description: p.description || "",
+      advancePayment: parseFloat(p.amount) || 0,
+      advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
+      advancePaymentNotes: p.description || "",
     }));
     const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
       const val = parseFloat(p.amount) || 0;
@@ -457,10 +461,7 @@ const QuotationPage = () => {
     const sumAdvance = payments.reduce((s, p) => s + (p.amount || 0), 0);
     const remainingAmount = Math.max(0, totalAmount - sumAdvance);
     return {
-      advancePayment: sumAdvance,
-      advancePaymentNotes: payments[0]?.description || "",
-      advancePaymentDate: payments[0]?.date || null,
-      advancePayments: payments,
+      eventFunctionQuotationPayments: payments,
       discount: discount,
       eventId: parseInt(eventId),
       functionQuotationItems: quotationData.functions.map((fn) => ({
