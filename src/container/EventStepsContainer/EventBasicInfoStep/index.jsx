@@ -33,64 +33,51 @@ const EventBasicInfoStep = ({
   const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState("");
+  const { isRTL, locale } = useLanguage();
 
   let Id = JSON.parse(localStorage.getItem("userId"));
+
+  // ✅ Get language from localStorage instead of relying on locale
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+  }, [isRTL, locale]);
+
+  // ✅ Use lang state instead of locale for label selection
+  const getLabel = (item, field) => {
+    switch (lang) {
+      case "hi":
+        return item[`${field}Hindi`] || item[`${field}English`] || "-";
+      case "gu":
+        return item[`${field}Gujarati`] || item[`${field}English`] || "-";
+      default:
+        return item[`${field}English`] || "-";
+    }
+  };
 
   useEffect(() => {
     fetchVenueTypes(false);
     Fetcheventtype(false);
-  }, []);
-
-  const getSelectedLanguage = () => {
-    try {
-      const config = JSON.parse(localStorage.getItem("i18nConfig"));
-      return config?.locale || "en";
-    } catch {
-      return "en";
-    }
-  };
-
-  const translateText = async (text) => {
-    const lang = getSelectedLanguage();
-    if (!text || lang === "en") return text;
-
-    try {
-      let res;
-      if (lang === "hi") {
-        res = await TranslateHindi({ text });
-      } else if (lang === "gu") {
-        res = await TranslateGujarati({ text });
-      }
-
-      return (
-        res?.data?.translatedText ||
-        res?.data?.text ||
-        res?.translatedText ||
-        text
-      );
-    } catch {
-      return text;
-    }
-  };
+  }, [lang]); // ✅ Changed from locale to lang
 
   const Fetcheventtype = async (autoSelectLatest = false) => {
     try {
       const res = await GetEventType(Id);
       const items = res.data.data["EventTypes Details"] || [];
 
-      const translated = await Promise.all(
-        items.map(async (event, index) => ({
-          sr_no: index + 1,
-          value: event.id,
-          label: await translateText(event.nameEnglish || "-"),
-        }))
-      );
+      const formattedEventTypes = items.map((event, index) => ({
+        sr_no: index + 1,
+        value: event.id,
+        label: getLabel(event, "name"),
+      }));
 
-      setEventTypes(translated);
+      setEventTypes(formattedEventTypes);
 
-      // Auto-select the latest event type if flag is true
-      if (autoSelectLatest && translated.length > 0) {
-        const latestEventType = translated[translated.length - 1];
+      if (autoSelectLatest && formattedEventTypes.length > 0) {
+        const latestEventType =
+          formattedEventTypes[formattedEventTypes.length - 1];
 
         setFormData((prev) => ({
           ...prev,
@@ -98,7 +85,7 @@ const EventBasicInfoStep = ({
         }));
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching Event Types:", error);
     }
   };
 
@@ -110,12 +97,12 @@ const EventBasicInfoStep = ({
       const venues = venueArray.map((item, index) => ({
         sr_no: index + 1,
         value: item.id,
-        label: item.nameEnglish || "-",
+        label: getLabel(item, "name"),
+        rawData: item, // ✅ Store raw data for debugging
       }));
 
       setVenueList(venues);
 
-      // Auto-select the latest venue if flag is true
       if (autoSelectLatest && venues.length > 0) {
         const latestVenue = venues[venues.length - 1];
 
@@ -125,7 +112,7 @@ const EventBasicInfoStep = ({
         }));
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching Venues:", error);
     }
   };
 
@@ -148,15 +135,12 @@ const EventBasicInfoStep = ({
     setIsEventTypeModalOpen(true);
   };
 
-  const { isRTL } = useLanguage();
-
   // Helper to parse date string to Date object
   const parseDate = (dateStr) => {
     if (!dateStr) return null;
     try {
       const parsed = dayjs(dateStr, "DD/MM/YYYY hh:mm A", true);
       if (!parsed.isValid()) {
-        // Try alternative format without time
         const altParsed = dayjs(dateStr, "DD/MM/YYYY", true);
         return altParsed.isValid() ? altParsed.toDate() : null;
       }
@@ -369,9 +353,10 @@ const EventBasicInfoStep = ({
             <div className="sg__inner flex items-center gap-1">
               <VenueDropdown
                 value={formData.venueId}
-                onChange={onInputChange}
+                onChange={(e) => {
+                  onInputChange(e);
+                }}
                 options={venueList}
-                name="venueId"
               />
 
               <button
@@ -393,13 +378,13 @@ const EventBasicInfoStep = ({
         <AddEventType
           isModalOpen={isEventTypeModalOpen}
           setIsModalOpen={setIsEventTypeModalOpen}
-          refreshData={Fetcheventtype}
+          refreshData={() => Fetcheventtype(true)} // ✅ Pass true to auto-select
           selectedEvent={selectedEvent}
         />
         <AddVenueType
           isModalOpen={isVenueModalOpen}
           setIsModalOpen={setIsVenueModalOpen}
-          refreshData={fetchVenueTypes}
+          refreshData={() => fetchVenueTypes(true)} // ✅ Pass true to auto-select
           selectedEvent={selectedVenue}
         />
       </div>

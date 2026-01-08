@@ -21,28 +21,52 @@ const CalendarPage = () => {
     setIsModalOpen(true);
   };
 
-  const { isRTL } = useLanguage();
-
   let Id = localStorage.getItem("userId");
+  const { isRTL, locale } = useLanguage();
 
-  const getStatusColor = (statusCode, isRMenu) => {
-    if (isRMenu === true && statusCode !== 0) {
-      return "#E75480";
-    } else {
-      switch (statusCode) {
-        case 0:
-          return "info";
-        case 1:
-          return "rgba(40, 167, 69, 1)";
-        case 2:
-          return "rgba(191, 34, 37, 1)";
-        default:
-          return "#6b7280";
-      }
+  // if your useLanguage exposes locale
+
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+
+    console.log("[CalendarPage] Language changed:", storedLang);
+  }, [isRTL]);
+
+  const getLocalizedText = (obj, field) => {
+    if (!obj) return "";
+
+    switch (lang) {
+      case "hi":
+        return obj[`${field}Hindi`] || obj[`${field}English`] || "";
+      case "gu":
+        return obj[`${field}Gujarati`] || obj[`${field}English`] || "";
+      default:
+        return obj[`${field}English`] || "";
     }
   };
 
-  // helper: parse "15/09/2025 10:09 AM" into ISO date + time
+  const getStatusColor = (statusCode, isRMenu) => {
+    if (statusCode === 2) {
+      return "rgba(191, 34, 37, 1)";
+    }
+
+    if (isRMenu === true && statusCode === 1) {
+      return "#E75480";
+    }
+
+    switch (statusCode) {
+      case 0:
+        return "info";
+      case 1:
+        return "rgba(40, 167, 69, 1)";
+      default:
+        return "#6b7280";
+    }
+  };
+
   const splitDateTime = (dateTimeString) => {
     if (!dateTimeString) {
       const today = new Date();
@@ -101,7 +125,7 @@ const CalendarPage = () => {
 
   useEffect(() => {
     FetchEventdetails();
-  }, []);
+  }, [lang]);
 
   const FetchEventdetails = () => {
     GetEventMaster(Id)
@@ -115,27 +139,36 @@ const CalendarPage = () => {
                 const { date: startDate, time12 } = splitDateTime(
                   item.eventStartDateTime
                 );
+
                 const { date: endDate } = splitDateTime(
                   item.eventEndDateTime || item.eventStartDateTime
                 );
 
                 const color = getStatusColor(item.status, item.isRMenu);
+
                 return {
                   eventid: item.id,
                   eventTypeId: item.eventType?.id || null,
+
+                  // ✅ MULTI-LANGUAGE TITLE
                   title:
                     (item.prefix || "") +
-                    (item.party?.nameEnglish || "") +
+                    getLocalizedText(item.party, "name") +
                     " - " +
-                    (item.eventType?.nameEnglish || ""),
+                    getLocalizedText(item.eventType, "name"),
+
                   start: startDate,
                   end: addOneDay(endDate),
                   time: time12,
+
                   mobile: item.party?.mobileno || "N/A",
                   statusCode: item.status,
                   isRMenu: item?.isRMenu,
-                  address: item.address || "N/A",
-                  event: item.eventType?.nameEnglish || "Event",
+
+                  // ✅ MULTI-LANGUAGE ADDRESS & EVENT TYPE
+                  address: getLocalizedText(item.party, "address"),
+                  event: getLocalizedText(item.eventType, "name"),
+
                   color: color,
                   allDay: true,
                 };
@@ -150,6 +183,7 @@ const CalendarPage = () => {
             })
             .filter((item) => item !== null)
         );
+
         setEvents(res.data);
       })
       .catch((error) => {
@@ -235,6 +269,7 @@ const CalendarPage = () => {
             data={data}
             openEvent={openEvent}
             handleDateClick={handleDateClick}
+            lang={lang}
           />
         </div>
       </Container>

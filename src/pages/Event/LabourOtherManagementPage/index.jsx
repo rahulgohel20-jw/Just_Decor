@@ -104,7 +104,8 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // Add this line after other useState declarations
+  const [isSaving, setIsSaving] = useState(false);
+  const [rowCategoryMap, setRowCategoryMap] = useState({});
 
   const userId = localStorage.getItem("userId");
   const FetchLabourShift = useCallback(async () => {
@@ -140,37 +141,28 @@ const LabourOtherManagementPage = ({ mode }) => {
     setIsContactModalOpen(true);
   };
 
-  const refetchContactsForCategory = useCallback(
-    async (categoryId = null) => {
-      if (!userId) return;
+  const handleVendorAdded = async () => {
+    if (!selectedRow) return;
 
-      try {
-        if (categoryId) {
-          // Refetch contacts for specific category
-          const res = await GetPartyMasterByCatId(categoryId, userId);
-          const contacts = res?.data?.data?.["Party Details"] || [];
+    const categoryId = rowCategoryMap[selectedRow.id];
+    if (!categoryId) return;
 
-          setAllContacts((prev) => ({
-            ...prev,
-            [categoryId]: contacts,
-          }));
-        } else {
-          // Refetch all contacts
-          const contactsMap = {};
-          await Promise.all(
-            labourCategories.map(async (cat) => {
-              const res = await GetPartyMasterByCatId(cat.id, userId);
-              contactsMap[cat.id] = res?.data?.data?.["Party Details"] || [];
-            })
-          );
-          setAllContacts(contactsMap);
-        }
-      } catch (err) {
-        console.error("Error refetching contacts:", err);
-      }
-    },
-    [userId, labourCategories]
-  );
+    // 1️⃣ Refetch vendors for that category
+    const res = await GetPartyMasterByCatId(categoryId, userId);
+    const updatedContacts = res?.data?.data?.["Party Details"] || [];
+
+    // 2️⃣ Update master contacts
+    setAllContacts((prev) => ({
+      ...prev,
+      [categoryId]: updatedContacts,
+    }));
+
+    // 3️⃣ Update row-specific dropdown
+    setFilteredContacts((prev) => ({
+      ...prev,
+      [selectedRow.id]: updatedContacts,
+    }));
+  };
 
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
@@ -363,6 +355,11 @@ const LabourOtherManagementPage = ({ mode }) => {
       const selectedCategory = labourCategories.find(
         (c) => c.nameEnglish === value
       );
+
+      setRowCategoryMap((prev) => ({
+        ...prev,
+        [rowId]: selectedCategory?.id,
+      }));
 
       setLabourData((prev) =>
         prev.map((r) =>
@@ -569,31 +566,46 @@ const LabourOtherManagementPage = ({ mode }) => {
       </div>
     );
   }
-
   const handleAddLabourType = async (newCategory) => {
     const category = {
-      id: newCategory.id || Date.now(), // ID returned by API
+      id: newCategory.id,
       nameEnglish: newCategory.nameEnglish,
       contactType: { nameEnglish: LABOUR_TYPE },
     };
 
+    // 1️⃣ Add category to dropdown immediately
     setLabourCategories((prev) => [...prev, category]);
 
-    // Fetch contacts for this new category
+    // 2️⃣ Fetch vendors for this category immediately
+    let contacts = [];
     try {
       const res = await GetPartyMasterByCatId(category.id, userId);
-      const contacts = res?.data?.data?.["Party Details"] || [];
-      setAllContacts((prev) => ({ ...prev, [category.id]: contacts }));
-    } catch (err) {
-      console.error("Failed to fetch contacts for new category", err);
-      setAllContacts((prev) => ({ ...prev, [category.id]: [] }));
+      contacts = res?.data?.data?.["Party Details"] || [];
+    } catch (e) {
+      console.error(e);
     }
 
-    // Add new row with this category pre-selected
-    setLabourData((prev) => [
+    // 3️⃣ Store vendors
+    setAllContacts((prev) => ({
       ...prev,
-      createEmptyLabourRow(category.nameEnglish),
-    ]);
+      [category.id]: contacts,
+    }));
+
+    // 4️⃣ Add new row WITH category pre-selected
+    const newRow = createEmptyLabourRow(category.nameEnglish);
+
+    setLabourData((prev) => [...prev, newRow]);
+
+    // 5️⃣ Bind row → category → contacts
+    setRowCategoryMap((prev) => ({
+      ...prev,
+      [newRow.id]: category.id,
+    }));
+
+    setFilteredContacts((prev) => ({
+      ...prev,
+      [newRow.id]: contacts,
+    }));
   };
 
   return (
@@ -894,7 +906,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           setIsModalOpen={setIsMemberModalOpen}
           concatId={concatId}
           contactTypeId={contactTypeId}
-          refreshData={refetchContactsForCategory}
+          refreshData={handleVendorAdded}
         />
         <AddLabourshift
           isOpen={isContactModalOpen}
@@ -1107,6 +1119,13 @@ const LabourRow = ({
           className="custom-select-sm"
           showSearch
           placeholder="Select Contact"
+          // value={
+          //   (filteredContacts[row.id] || []).some(
+          //     (c) => c.nameEnglish === row.contact
+          //   )
+          //     ? row.contact
+          //     : undefined
+          // }
           value={row.contact || undefined}
           onChange={(value) => onContactChange(row.id, value)}
           style={{ width: "100%" }}

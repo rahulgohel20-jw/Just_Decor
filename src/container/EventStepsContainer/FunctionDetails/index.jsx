@@ -65,7 +65,7 @@ const FunctionsDetails = ({
   eventEndDateTime,
   errors = {},
 }) => {
-  const { locale } = useLanguage();
+  const { isRTL, locale } = useLanguage();
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [options, setOptions] = useState([]);
@@ -73,16 +73,35 @@ const FunctionsDetails = ({
   const [venueList, setVenueList] = useState([]);
   const [selectedVenueName, setSelectedVenueName] = useState("");
 
+  // ✅ Get language from localStorage
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  // ✅ Update lang state when language changes
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+    console.log("[FunctionsDetails] Language changed:", storedLang);
+  }, [isRTL, locale]);
+
+  // ✅ Simplified function to get localized field based on localStorage lang
+  const getLocalizedField = (item, fieldName) => {
+    if (!item) return "";
+
+    switch (lang) {
+      case "hi":
+        return item[`${fieldName}Hindi`] || item[`${fieldName}English`] || "";
+      case "gu":
+        return (
+          item[`${fieldName}Gujarati`] || item[`${fieldName}English`] || ""
+        );
+      default:
+        return item[`${fieldName}English`] || "";
+    }
+  };
+
   const getLocalizedVenueName = (venue) => {
     if (!venue) return "";
-
-    const localeMap = {
-      en: venue.nameEnglish,
-      gu: venue.nameGujarati,
-      hi: venue.nameHindi,
-    };
-
-    return localeMap[locale] || venue.nameEnglish || "";
+    return getLocalizedField(venue, "name");
   };
 
   useEffect(() => {
@@ -109,7 +128,7 @@ const FunctionsDetails = ({
     };
 
     fetchVenues();
-  }, [formData.venueId, locale]);
+  }, [formData.venueId, lang]); // ✅ Added lang dependency
 
   useEffect(() => {
     if (selectedVenueName && formData?.eventFunction?.length > 0) {
@@ -185,19 +204,29 @@ const FunctionsDetails = ({
     );
   };
 
-  // Modified FetchFunction with auto-select support
+  // ✅ Modified FetchFunction with language support and auto-select
   const FetchFunction = (autoSelectLatest = false) => {
     const Id = localStorage.getItem("userId");
     GetAllFunctionsByUserId(Id)
       .then((res) => {
         const data = res?.data?.data?.["Function Details"] || [];
-        const functionOptions = data.map((item) => ({
-          label: item.nameEnglish,
-          value: item.id,
-          functionstartTime: item.startTime,
-          functionendTime: item.endTime,
-        }));
 
+        // ✅ Map function options with localized names
+        const functionOptions = data.map((item) => {
+          const localizedName = getLocalizedField(item, "name");
+
+          return {
+            label: localizedName,
+            value: item.id,
+            functionstartTime: item.startTime,
+            functionendTime: item.endTime,
+            nameEnglish: item.nameEnglish,
+            nameHindi: item.nameHindi,
+            nameGujarati: item.nameGujarati,
+          };
+        });
+
+        console.log("Fetched Functions with lang:", lang, functionOptions);
         setOptions(functionOptions);
 
         // Auto-select the latest function if flag is true
@@ -246,7 +275,7 @@ const FunctionsDetails = ({
       }
       return prev;
     });
-  }, [selectedVenueName]);
+  }, [selectedVenueName, lang]); // ✅ Added lang dependency
 
   const handleAddClick = () => setShowFunctionModal(true);
 
@@ -477,6 +506,11 @@ const FunctionsDetails = ({
     } catch (error) {
       return null;
     }
+  };
+
+  // ✅ Handler for when a new function type is added
+  const handleFunctionTypeAdded = () => {
+    FetchFunction(true); // Auto-select the newly added function
   };
 
   return (
