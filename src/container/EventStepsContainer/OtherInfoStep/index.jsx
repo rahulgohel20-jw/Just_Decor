@@ -75,10 +75,8 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const handleCommunityChange = (e) => {
     const { name, value } = e.target;
 
-    // Count digits only
     const digitCount = (value.match(/\d/g) || []).length;
 
-    // Allow max 10 digits only
     if (digitCount > 10) return;
 
     setFormData({ ...formData, [name]: value });
