@@ -23,40 +23,11 @@ const AddContactName = ({
   const intl = useIntl();
   console.log(contactTypeId);
 
-  // Define API functions directly in the component
-  const getAuthHeaders = () => {
-    const token =
-      localStorage.getItem("token") || localStorage.getItem("authToken");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  // const getBaseURL = () => {
-  //   // Try to get base URL from existing axios instance or use relative path
-  //   return "/v1/api";
-  // };
-
-  // const AddCustomerapi = (formData) => {
-  //   return axios.post(`${getBaseURL()}/partymaster/add`, formData, {
-  //     headers: {
-  //       ...getAuthHeaders(),
-  //       // Don't set Content-Type, let axios set it with boundary
-  //     },
-  //   });
-  // };
-
-  // const EditCustomerApi = (id, formData) => {
-  //   return axios.post(`${getBaseURL()}/partymaster/edit/${id}`, formData, {
-  //     headers: {
-  //       ...getAuthHeaders(),
-  //     },
-  //   });
-  // };
-
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null); // ✅ Added selectedFile state
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
