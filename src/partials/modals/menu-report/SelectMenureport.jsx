@@ -63,8 +63,12 @@ export default function SelectMenureport({
               )
             );
           } else if (mode === "allocation") {
-            modules = modules.filter(
-              (module) => module.nameEnglish === "Menu Allocation Theme"
+            modules = modules.filter((module) =>
+              [
+                "Menu Allocation Theme",
+                "Chef Agency Theme",
+                "Outside Agency Theme",
+              ].includes(module.nameEnglish)
             );
           } else if (mode === "raw") {
             modules = modules.filter(
