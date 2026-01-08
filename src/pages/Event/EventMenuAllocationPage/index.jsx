@@ -20,7 +20,7 @@ import {
   SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
 } from "@/services/apiServices";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
@@ -155,7 +155,7 @@ const OrderSummary = ({
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 no-scrollbar">
       <Card
         className="w-full border border-gray-200 shadow-sm"
         bodyStyle={{ padding: 0 }}
@@ -611,9 +611,69 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [isAgencyAllocationModal, setIsAgencyAllocationModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [initialRows, setInitialRows] = useState([]);
+  const [chefModalData, setChefModalData] = useState(null);
+  const [tableLoading, setTableLoading] = useState(false);
 
-  // NEW STATE: Store raw API data for function grouping
   const [allMenuData, setAllMenuData] = useState([]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  const handleNavigateWithWarning = async (path, state = null) => {
+    if (hasUnsavedChanges) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before leaving?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "Save & Leave",
+        denyButtonText: "Leave Without Saving",
+        cancelButtonText: "Stay",
+        confirmButtonColor: "#3085d6",
+        denyButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+      });
+
+      if (result.isConfirmed) {
+        // Save first, then navigate
+        await handleMainSave();
+        if (state) {
+          navigate(path, { state });
+        } else {
+          navigate(path);
+        }
+      } else if (result.isDenied) {
+        // Navigate without saving
+        if (state) {
+          navigate(path, { state });
+        } else {
+          navigate(path);
+        }
+      }
+      // If cancelled, do nothing (stay on page)
+    } else {
+      // No unsaved changes, navigate directly
+      if (state) {
+        navigate(path, { state });
+      } else {
+        navigate(path);
+      }
+    }
+  };
 
   const allFunctionTab = useMemo(
     () => ({
@@ -771,6 +831,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
+      setTableLoading(true);
 
       const isAllFunctions = eventFunctionId === -1;
 
@@ -993,6 +1054,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       setAllMenuData([]);
     } finally {
       setMenuLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -1113,21 +1175,22 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     return filteredRows.map((r) => ({
       ...r,
-      openSidebar: () => {
-        setIsChefModal(false);
-        setOpen(false);
-        setIsInsideModal(false);
-        setSelectedRow({
-          ...r,
-          eventId,
-          eventFunctionId: getEventFunctionId(activeFunction),
-        });
-        setTimeout(() => setOpen(true), 0);
-      },
+      // ... other handlers
       openChefSidebar: () => {
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
+
+        // Prepare chef modal data from current row
+        setChefModalData({
+          menuItemId: r.menuItemId,
+          menuCategoryId: r.menuCategoryId,
+          itemName: r.itemName,
+          personCount: r.personCount,
+          eventFunctionMenuAllocations: r.eventFunctionMenuAllocations || [],
+          chefLabour: r.chefLabour,
+        });
+
         setSelectedRow({
           ...r,
           eventId,
@@ -1135,17 +1198,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
         setTimeout(() => setIsChefModal(true), 0);
       },
-      openInsideSidebar: () => {
-        setOpen(false);
-        setIsChefModal(false);
-        setIsInsideModal(false);
-        setSelectedRow({
-          ...r,
-          eventId,
-          eventFunctionId: getEventFunctionId(activeFunction),
-        });
-        setTimeout(() => setIsInsideModal(true), 0);
-      },
+      // ... rest of handlers
     }));
   }, [rows, eventId, activeFunction, searchTerm]);
 
@@ -1703,7 +1756,9 @@ const EventMenuAllocationPage = ({ mode }) => {
 
             <div className="flex gap-2">
               <button
-                onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                onClick={() =>
+                  handleNavigateWithWarning(`/menu-preparation/${eventId}`)
+                }
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
               >
                 <i
@@ -1716,7 +1771,7 @@ const EventMenuAllocationPage = ({ mode }) => {
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 onClick={() =>
-                  navigate("/raw-material-allocation", {
+                  handleNavigateWithWarning("/raw-material-allocation", {
                     state: {
                       eventId: eventId,
                       eventTypeId: eventData?.eventType?.id,
@@ -1731,7 +1786,9 @@ const EventMenuAllocationPage = ({ mode }) => {
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
                 onClick={() =>
-                  navigate(`/labour-and-other-management/${eventId}`)
+                  handleNavigateWithWarning(
+                    `/labour-and-other-management/${eventId}`
+                  )
                 }
               >
                 <i
@@ -1996,63 +2053,67 @@ const EventMenuAllocationPage = ({ mode }) => {
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
               <TableHeader />
 
-              {/* CONDITIONAL RENDERING: Show grouped by function or normal list */}
-              {isAllFunctions && enrichedGroupedByFunction
-                ? // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
-                  enrichedGroupedByFunction.map((functionGroup, idx) => {
-                    // Filter rows for this specific function
-                    const functionRows = filtered.filter(
-                      (row) =>
-                        row.eventFunctionId === functionGroup.eventFunctionId
-                    );
+              {/* Table Body with Loading State */}
+              {tableLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Spin />
+                </div>
+              ) : isAllFunctions && enrichedGroupedByFunction ? (
+                // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
+                enrichedGroupedByFunction.map((functionGroup, idx) => {
+                  const functionRows = filtered.filter(
+                    (row) =>
+                      row.eventFunctionId === functionGroup.eventFunctionId
+                  );
 
-                    return (
-                      <div
-                        key={`function-${functionGroup.eventFunctionId}-${idx}`}
-                      >
-                        <FunctionSectionLabel
-                          functionName={functionGroup.functionName}
-                          functionDateTime={functionGroup.functionDateTime}
-                          pax={functionGroup.pax}
-                        />
-                        {functionRows.length === 0 ? (
-                          <div className="p-8 text-center text-gray-500">
-                            No menu items available for this function
-                          </div>
-                        ) : (
-                          functionRows.map((row, rowIdx) => (
-                            <TableRow
-                              key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
-                              row={row}
-                              onChange={updateRow}
-                            />
-                          ))
-                        )}
-                      </div>
-                    );
-                  })
-                : // SINGLE FUNCTION VIEW - Filter rows for current function
-                  (() => {
-                    const currentFunctionRows = filtered.filter(
-                      (row) =>
-                        row.eventFunctionId ===
-                        getEventFunctionId(activeFunction)
-                    );
+                  return (
+                    <div
+                      key={`function-${functionGroup.eventFunctionId}-${idx}`}
+                    >
+                      <FunctionSectionLabel
+                        functionName={functionGroup.functionName}
+                        functionDateTime={functionGroup.functionDateTime}
+                        pax={functionGroup.pax}
+                      />
+                      {functionRows.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                          No menu items available for this function
+                        </div>
+                      ) : (
+                        functionRows.map((row, rowIdx) => (
+                          <TableRow
+                            key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
+                            row={row}
+                            onChange={updateRow}
+                          />
+                        ))
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                // SINGLE FUNCTION VIEW
+                (() => {
+                  const currentFunctionRows = filtered.filter(
+                    (row) =>
+                      row.eventFunctionId === getEventFunctionId(activeFunction)
+                  );
 
-                    return currentFunctionRows.length === 0 ? (
-                      <div className="p-8 text-center text-gray-500">
-                        No menu items available for this function
-                      </div>
-                    ) : (
-                      currentFunctionRows.map((row, index) => (
-                        <TableRow
-                          key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
-                          row={row}
-                          onChange={updateRow}
-                        />
-                      ))
-                    );
-                  })()}
+                  return currentFunctionRows.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">
+                      No menu items available for this function
+                    </div>
+                  ) : (
+                    currentFunctionRows.map((row, index) => (
+                      <TableRow
+                        key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
+                        row={row}
+                        onChange={updateRow}
+                      />
+                    ))
+                  );
+                })()
+              )}
             </div>
           </div>
 
@@ -2099,10 +2160,14 @@ const EventMenuAllocationPage = ({ mode }) => {
         />
         <SidebarChefModal
           open={isChefModal}
-          onClose={() => setIsChefModal(false)}
+          onClose={() => {
+            setIsChefModal(false);
+            setChefModalData(null); // Clear data on close
+          }}
           eventId={selectedRow?.eventId}
           eventFunctionId={selectedRow?.eventFunctionId}
           row={selectedRow}
+          chefModalData={chefModalData} // Pass the prepared data
           functionName={activeFunction?.function?.nameEnglish}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleChefLabourSave}
