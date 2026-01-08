@@ -197,6 +197,8 @@ const OrderSummary = ({
   rows,
 }) => {
   // Helper function to get localized names
+  console.log(groups, groupedByFunction);
+
   const getItemName = (item) => {
     return getLocalizedValue(item, "menuItemName", item.menuItemName);
   };
@@ -279,6 +281,8 @@ const OrderSummary = ({
   }, [groups, groupedByFunction, rows]);
 
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
+  let totalChefPrice = groups[0]?.totalChefPrice;
+  let totalOutSidePrice = groups[0]?.totalOutSidePrice;
 
   return (
     <div className="flex flex-col gap-2 no-scrollbar">
@@ -347,6 +351,8 @@ const OrderSummary = ({
                     ? Math.round(functionTotal / functionGroup.pax)
                     : 0;
 
+                const totalChefPrice = functionGroup?.totalChefPrice;
+                const totalOutSidePrice = functionGroup?.totalOutSidePrice;
                 return (
                   <div
                     key={`function-summary-${functionGroup.eventFunctionId}-${fIdx}`}
@@ -449,6 +455,27 @@ const OrderSummary = ({
                         </div>
                       </div>
                     </div>
+                    <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                      <div className="flex justify-between text-sm">
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            Total Chef Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            {totalChefPrice}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            Total OutSide Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            {totalOutSidePrice}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
@@ -525,6 +552,28 @@ const OrderSummary = ({
                 <span className="font-semibold text-primary">
                   ₹{grandTotal.toFixed(2)}
                 </span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+              <div className="flex justify-between text-sm">
+                <div className="flex gap-1">
+                  <span className="font-medium text-gray-700">
+                    Total Chef Price:
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {totalChefPrice}
+                  </span>
+                </div>
+
+                <div className="flex gap-1">
+                  <span className="font-medium text-gray-700">
+                    Total OutSide Price:
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {totalOutSidePrice}
+                  </span>
+                </div>
               </div>
             </div>
           </>
@@ -849,6 +898,8 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     return allMenuData.map((detail) => {
       const firstItem = detail.menuAllocation[0];
+      const totalChefPrice = detail.totalChefPrice;
+      const totalOutSidePrice = detail.totalOutSidePrice;
       return {
         eventFunctionId: firstItem?.eventFunctionId,
         functionName: firstItem?.eventFunctionName,
@@ -856,6 +907,8 @@ const EventMenuAllocationPage = ({ mode }) => {
         pax: 0,
         menuAllocation: detail.menuAllocation,
         selectedItemDetails: detail.selectedItemDetails,
+        totalChefPrice: totalChefPrice,
+        totalOutSidePrice: totalOutSidePrice,
       };
     });
   }, [allMenuData, activeFunction]);
@@ -1090,9 +1143,14 @@ const EventMenuAllocationPage = ({ mode }) => {
       if (isAllFunctions) {
         setOrderSummaryGroups([]);
       } else {
+        console.log(allMenuDataResponse, "all");
+
         const allSelectedItems = allMenuDataResponse.flatMap(
           (detail) => detail?.selectedItemDetails || []
         );
+
+        const totalChefPrice = allMenuDataResponse[0].totalChefPrice;
+        const totalOutSidePrice = allMenuDataResponse[0].totalOutSidePrice;
 
         const categoryMap = new Map();
 
@@ -1120,6 +1178,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           Array.from(categoryMap.values())?.map((category) => ({
             categoryId: category.categoryId,
             categoryName: category.categoryName,
+            totalChefPrice,
+            totalOutSidePrice,
             items:
               Array.from(category.itemsMap.values())?.map((summaryItem) => {
                 const matchingRows = transformedRows.filter(
@@ -1159,6 +1219,8 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ...summaryItem,
                   originalTotalPrice: basePrice,
                   totalPrice: finalPrice,
+                  totalChefPrice,
+                  totalOutSidePrice,
                 };
               }) || [],
           })) || [];
@@ -2370,16 +2432,25 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           chefsummary={chefsummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"chef"}
         />
         <SummaryItemModalOutsideAgency
           open={isOutsideAgencyModalOpen}
           onClose={() => setIsOutsideAgencyModalOpen(false)}
           outsidesummary={outsidesummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"outside"}
         />
         <SummaryItemModalInHousecook
           open={isInHouseCookModalOpen}
           onClose={() => setIsInHouseCookModalOpen(false)}
           insidesummary={insidesummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"inside"}
         />
         <AgencyAllocationSidebar
           open={isAgencyAllocationModal}
