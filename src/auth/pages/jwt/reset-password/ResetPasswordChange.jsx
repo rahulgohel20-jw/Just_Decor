@@ -56,7 +56,6 @@ const ResetPasswordChange = () => {
           values.newPassword,
           values.confirmPassword
         );
-        console.log("Password reset response:", data);
 
         if (!data.success) {
           throw new Error(data.message || "Password reset failed");
@@ -68,7 +67,9 @@ const ResetPasswordChange = () => {
             ? "/auth/reset-password/changed"
             : "/auth/classic/reset-password/changed"
         );
-        message.success("Password reset successfully. Please login with your new password");
+        message.success(
+          "Password reset successfully. Please login with your new password"
+        );
         localStorage.removeItem("email");
         localStorage.removeItem("successMsg");
       } catch (error) {
@@ -184,12 +185,11 @@ const ResetPasswordChange = () => {
               />
             </button>
           </label>
-          {formik.touched.confirmPassword &&
-            formik.errors.confirmPassword && (
-              <span role="alert" className="text-danger text-xs mt-1">
-                {formik.errors.confirmPassword}
-              </span>
-            )}
+          {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+            <span role="alert" className="text-danger text-xs mt-1">
+              {formik.errors.confirmPassword}
+            </span>
+          )}
         </div>
 
         <button

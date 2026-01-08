@@ -81,7 +81,6 @@ const ReportcustomeTheme = () => {
   const fetchTemplateModules = async () => {
     try {
       const response = await GettemplatebyuserId();
-      console.log("Template Modules:", response);
 
       if (response?.data?.success && response?.data?.data) {
         const modules = response.data.data.filter(
@@ -103,7 +102,6 @@ const ReportcustomeTheme = () => {
     setIsLoading(true);
     try {
       const response = await GetAllCustomTheme(userId);
-      console.log("customeTheme", response);
 
       if (response?.data?.success && response?.data?.data) {
         setTemplateList(response.data.data);
@@ -166,7 +164,6 @@ const ReportcustomeTheme = () => {
     setSelectedTheme(theme);
 
     const pdfFullUrl = getFullImageUrl(theme.dummyPdf);
-    console.log("PDF URL:", pdfFullUrl);
 
     setTimeout(() => {
       setPdfUrl(pdfFullUrl);

@@ -87,29 +87,40 @@ const ClientDashboard = () => {
 
     switch (range) {
       case "today":
-        start = end = today;
-        break;
-      case "week":
-        start = today.subtract(7, "day");
+        start = today;
         end = today;
         break;
+
+      case "week":
+        // Monday → Sunday
+        start = today.startOf("week").add(1, "day");
+        end = start.add(6, "day");
+        break;
+
       case "month":
         start = today.startOf("month");
-        end = today;
+        end = today.endOf("month");
         break;
+
       case "custom":
-        if (!custom || !custom[0] || !custom[1]) {
-          const fallback = today;
-          start = end = fallback;
-        } else {
+        if (custom?.[0] && custom?.[1]) {
           start = dayjs(custom[0]);
           end = dayjs(custom[1]);
+        } else {
+          start = today;
+          end = today;
         }
         break;
+
       default:
-        start = end = today;
+        start = today;
+        end = today;
     }
-    return { startDate: formatDate(start), endDate: formatDate(end) };
+
+    return {
+      startDate: start.format("DD/MM/YYYY"),
+      endDate: end.format("DD/MM/YYYY"),
+    };
   };
 
   // ---------------- DASHBOARD SUMMARY ----------------
@@ -162,7 +173,6 @@ const ClientDashboard = () => {
 
         userId
       );
-      console.log(res?.data?.data);
 
       setInvoiceChartData(res?.data?.data);
       setSelectedInvoicePeriod(period);
@@ -240,7 +250,6 @@ const ClientDashboard = () => {
           amount: item?.statusValue,
         }))
       );
-      console.log(itemData);
     } catch (error) {
       console.log("Error fetching most selling items:", error);
     }
@@ -600,9 +609,7 @@ const ClientDashboard = () => {
         {/* -------------------- EVENTS SECTION -------------------- */}
         <div className="border border-primary p-3 rounded-lg mb-6">
           <div className="flex flex-col gap-3 mb-4">
-            <h2 className="text-base font-semibold text-gray-800">
-              Upcoming Events
-            </h2>
+            <h2 className="text-base font-semibold text-gray-800">Events</h2>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
               <input
@@ -616,7 +623,14 @@ const ClientDashboard = () => {
               <select
                 className="border rounded px-3 py-2 text-sm cursor-pointer h-10"
                 value={eventDateRange}
-                onChange={(e) => setEventDateRange(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEventDateRange(value);
+
+                  if (value !== "custom") {
+                    fetchEventData(value);
+                  }
+                }}
               >
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
@@ -682,7 +696,14 @@ const ClientDashboard = () => {
               <select
                 className="border rounded px-3 py-2 text-sm cursor-pointer h-10"
                 value={invoiceDateRange}
-                onChange={(e) => setInvoiceDateRange(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setInvoiceDateRange(value);
+
+                  if (value !== "custom") {
+                    fetchInvoices(value);
+                  }
+                }}
               >
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
@@ -753,7 +774,14 @@ const ClientDashboard = () => {
                 <select
                   className="border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm text-gray-700 shadow-sm cursor-pointer"
                   value={itemDateRange}
-                  onChange={(e) => setItemDateRange(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setItemDateRange(value);
+
+                    if (value !== "custom") {
+                      fetchMostSelling(value); // 🔴 your API function
+                    }
+                  }}
                 >
                   <option value="today">Today</option>
                   <option value="week">This Week</option>

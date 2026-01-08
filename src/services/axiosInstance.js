@@ -103,9 +103,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const newToken = await getNewToken();
-        console.log(newToken, "newToken");
-        console.log(localStorage.getItem("token"), "local");
-
+      
         originalRequest.headers["x-am-authorization"] = newToken;
         return axiosInstance(originalRequest);
       } catch (err) {

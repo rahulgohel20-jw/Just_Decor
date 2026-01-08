@@ -39,8 +39,6 @@ const LabourDetailSidebar = ({
         ? rawData["Contact Category Details"]
         : [];
 
-      console.log("✅ Final labourTypes list:", list);
-
       setLabourTypes(list);
     } catch (err) {
       console.error("❌ Error fetching labour types:", err);

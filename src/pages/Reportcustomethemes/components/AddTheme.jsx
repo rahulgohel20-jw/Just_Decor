@@ -283,7 +283,6 @@ const AddTheme = ({
     setIsLoadingTemplates(true);
     try {
       const response = await GettemplatebyuserId();
-      console.log("template", response);
 
       if (response?.data?.success && response?.data?.data) {
         const options = response.data.data.map((template) => ({

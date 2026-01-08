@@ -145,8 +145,6 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     const planId = initialValues.plan;
     const roleId = initialValues.role;
 
-    console.log(planId, roleId);
-
     if (!planId && !roleId) return message.error("Missing Plan or Role ID.");
 
     // Validate required location fields

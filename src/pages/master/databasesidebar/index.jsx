@@ -17,7 +17,6 @@ export default function DatabaseSidebar({ open, onClose, selectedRow }) {
   };
 
   const handleSave = () => {
-    console.log("Saving data:", formData, uploadedFile);
     // Add your save logic here
   };
 

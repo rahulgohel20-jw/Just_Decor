@@ -2,27 +2,58 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { FormattedMessage } from "react-intl";
+import { GetDishCostingbyRawmaterial } from "@/services/apiServices";
 
-const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
+const DishCostingModal = ({
+  isOpen,
+  onClose,
+  viewType: parentViewType,
+  eventId,
+  selectedFunctionId,
+}) => {
   const [viewType, setViewType] = useState(parentViewType || "Function Wise");
-
-  const categoryData = [
-    { category: "Grocery", amount: "103210.19" },
-    { category: "Dairy", amount: "67529.58" },
-    { category: "Vegetables", amount: "15287.37" },
-    { category: "Fruits", amount: "27853.93" },
-    { category: "Ready To Eat", amount: "373.03" },
-    { category: "Crockery & Utensils Department", amount: "386873.9" },
-  ];
-
-  const totalAmount = "1575471.46";
+  const [categoryData, setCategoryData] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => e.key === "Escape" && onClose?.();
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, onClose]);
+    if (!isOpen || !eventId) return;
+
+    const fetchRawMaterialCosting = async () => {
+      try {
+        setLoading(true);
+
+        const res = await GetDishCostingbyRawmaterial(
+          eventId,
+          viewType === "Function Wise" ? selectedFunctionId : 0
+        );
+
+        if (res?.data?.success) {
+          const data = res.data.data?.RawMaterialData || [];
+
+          setCategoryData(data);
+
+          const total = data.reduce(
+            (sum, item) => sum + Number(item.totalRate || 0),
+            0
+          );
+
+          setTotalAmount(total.toFixed(2));
+        } else {
+          setCategoryData([]);
+          setTotalAmount(0);
+        }
+      } catch (err) {
+        console.error("Raw material costing error:", err);
+        setCategoryData([]);
+        setTotalAmount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRawMaterialCosting();
+  }, [isOpen, eventId, selectedFunctionId, viewType]);
 
   return (
     <AnimatePresence>
@@ -176,17 +207,18 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                   <div className="space-y-3">
                     {categoryData.map((item, index) => (
                       <motion.div
-                        key={index}
+                        key={item.categoryId}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                         className="grid grid-cols-2 gap-4 py-3 border-b border-gray-200"
                       >
                         <div className="text-sm text-gray-800">
-                          {item.category}
+                          {item.categoryNameEng}
                         </div>
+
                         <div className="text-sm text-gray-800 text-right font-medium tabular-nums">
-                          {item.amount}
+                          ₹ {Number(item.totalRate).toFixed(2)}
                         </div>
                       </motion.div>
                     ))}
@@ -206,7 +238,7 @@ const DishCostingModal = ({ isOpen, onClose, viewType: parentViewType }) => {
                       />
                     </div>
                     <div className="text-base font-bold text-primary text-right tabular-nums">
-                      {totalAmount}
+                      ₹ {totalAmount}
                     </div>
                   </motion.div>
                 </motion.div>

@@ -16,9 +16,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
 
   useEffect(() => {
     if (open) {
-      console.log("🔔 Modal opened");
-      console.log("Selected row:", selectedRow);
-
       if (selectedRow) {
         setFormData({
           databaseName: selectedRow.database_name || "",
@@ -33,15 +30,10 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
 
   const fetchCustomers = async () => {
     try {
-      console.log("🔍 Fetching users with roleId = 2...");
-      const res = await GetUsersByRoleId(2);
-      console.log("📥 Full API Response:", res);
-
       const users = Array.isArray(res.data.data["User Details"])
         ? res.data.data["User Details"]
         : [];
 
-      console.log("✔️ Extracted Users:", users);
       setCustomers(users);
     } catch (err) {
       console.error("❌ Error fetching role-based users:", err);
@@ -51,7 +43,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`📝 Input changed: ${name} = ${value}`);
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -74,8 +65,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
         userId: formData.customer.toString(), // customer/user ID
       };
 
-      console.log("💾 Sending payload:", payload);
-
       const res = await AssignDb(payload);
 
       if (res?.data?.success) {
@@ -93,7 +82,6 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
   };
 
   const handleCancel = () => {
-    console.log("❌ Cancel clicked, resetting form...");
     setFormData({
       databaseName: "",
       customer: "",

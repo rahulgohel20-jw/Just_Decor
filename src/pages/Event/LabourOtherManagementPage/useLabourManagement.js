@@ -106,7 +106,6 @@ const useLabourManagement = () => {
   };
 
   const openMenuReport = () => {
-    console.log("📊 Open report modal...");
   };
 
   return {

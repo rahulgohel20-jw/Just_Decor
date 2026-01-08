@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
-  GettemplatebyuserId,
+  GetModuleRights,
   Deletetemplatebyid,
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
@@ -24,27 +24,28 @@ const RightsModule = () => {
   let userId = localStorage.getItem("userId");
   let language = localStorage.getItem("lang");
 
-  const FetchTemplateName = () => {
-    GettemplatebyuserId(userId)
+  const FetchModuleName = () => {
+    GetModuleRights()
       .then((res) => {
-        const templateList = res?.data?.data || [];
+        const templateList = res?.data.data || [];
+
         setRawOriginalData(templateList);
       })
       .catch((error) => console.error(error));
   };
 
   useEffect(() => {
-    FetchTemplateName();
+    FetchModuleName();
   }, []);
 
   useEffect(() => {
     const languageMap = {
-      en: "nameEnglish",
+      en: "name",
       hi: "nameHindi",
       gu: "nameGujarati",
     };
 
-    const field = languageMap[language] || "nameEnglish";
+    const field = languageMap[language] || "name";
 
     // Apply Search Filter
     const filteredData = rawOriginalData.filter((item) =>
@@ -55,6 +56,7 @@ const RightsModule = () => {
       sr_no: index + 1,
       name: item[field] || "-",
       rawid: item.id,
+      isActive: item.isActive,
       createdAt: item.createdAt,
       status: item.isActive,
     }));
@@ -76,7 +78,7 @@ const RightsModule = () => {
         Deletetemplatebyid(rawid)
           .then((response) => {
             if (response?.data?.success) {
-              FetchTemplateName();
+              FetchModuleName();
               Swal.fire(
                 "Removed!",
                 "Template deleted successfully.",
@@ -92,7 +94,7 @@ const RightsModule = () => {
   const handleStatusChange = async (rawid, currentStatus) => {
     try {
       await updatestatusrawmaterialtype(rawid, !currentStatus);
-      FetchTemplateName();
+      FetchModuleName();
     } catch (error) {
       console.error("Status update error:", error);
     }
@@ -113,7 +115,7 @@ const RightsModule = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
-                    defaultMessage="Template Name Master"
+                    defaultMessage="Module Name Master"
                   />
                 ),
               },
@@ -136,14 +138,14 @@ const RightsModule = () => {
               setIsRawModalOpen(true);
             }}
           >
-            <i className="ki-filled ki-plus"></i> Add Template Name
+            <i className="ki-filled ki-plus"></i> Add Module Name
           </button>
         </div>
 
         <AddTemplateName
           isOpen={isRawModalOpen}
           onClose={setIsRawModalOpen}
-          refreshData={FetchTemplateName}
+          refreshData={FetchModuleName}
           rawdata={selectedRawCategory}
         />
 

@@ -115,10 +115,12 @@ const LabourOtherManagementPage = ({ mode }) => {
 
       const mapped =
         Array.isArray(apiShifts) && apiShifts.length
-          ? apiShifts
-              .map((s) => (typeof s === "string" ? s : s.nameEnglish || ""))
-              .filter(Boolean)
-          : SHIFTS;
+          ? apiShifts.map((s) => ({
+              id: s.id,
+              name: s.nameEnglish,
+              time: s.shiftTime, // "10:00"
+            }))
+          : SHIFTS.map((s) => ({ name: s, time: null }));
 
       setShiftOptions(mapped);
     } catch (err) {
@@ -1120,12 +1122,35 @@ const LabourRow = ({
         <select
           className="select select-sm w-full"
           value={row.shift}
-          onChange={(e) => onRowChange(row.id, "shift", e.target.value)}
+          onChange={(e) => {
+            const selectedShiftName = e.target.value;
+            const selectedShift = shiftOptions.find(
+              (s) => s.name === selectedShiftName
+            );
+
+            let finalDateTime = "";
+
+            if (eventData?.eventStartDateTime && selectedShift?.time) {
+              const [hour, minute] = selectedShift.time.split(":");
+
+              finalDateTime = dayjs(
+                eventData.eventStartDateTime,
+                "DD/MM/YYYY hh:mm A"
+              )
+                .hour(Number(hour))
+                .minute(Number(minute))
+                .second(0)
+                .format("DD/MM/YYYY hh:mm A");
+            }
+
+            onRowChange(row.id, "shift", selectedShiftName);
+            onRowChange(row.id, "dateTime", finalDateTime);
+          }}
         >
           <option value="">Select Shift</option>
           {shiftOptions.map((shift) => (
-            <option key={shift} value={shift}>
-              {shift}
+            <option key={shift.id} value={shift.name}>
+              {shift.name}
             </option>
           ))}
         </select>

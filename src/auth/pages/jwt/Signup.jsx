@@ -302,7 +302,6 @@ export default function Signup() {
       setLoading(true);
 
       const res = await registerUser(payload);
-      console.log(res);
 
       if (res?.data?.success === true) {
         await Swal.fire({

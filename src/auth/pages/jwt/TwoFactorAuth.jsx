@@ -55,7 +55,6 @@ const TwoFactorAuth = () => {
 
         const email = localStorage.getItem("email");
         const phone = localStorage.getItem("phone");
-        console.log("Verifying OTP for:", email || phone);
 
         let data;
 
@@ -69,7 +68,6 @@ const TwoFactorAuth = () => {
           if (data.token) {
             localStorage.setItem("authToken", data.token);
           }
-          console.log("Mobile OTP verification response:", data);
           message.success(data.msg || "Mobile login successful ✅");
           localStorage.removeItem("phone");
 

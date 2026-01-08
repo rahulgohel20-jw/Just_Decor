@@ -254,7 +254,7 @@ function AddCustomPackage() {
   };
 
   const refreshMenuItems = () => {
-    console.log("Refreshing menu items...");
+
   };
 
   const handleOpenNotes = (index) => {
@@ -326,7 +326,6 @@ function AddCustomPackage() {
   };
 
   const handleReorder = (reorderedItems) => {
-    console.log("Parent received reorder:", reorderedItems);
     setSelectedItems([...reorderedItems]);
   };
 

@@ -51,22 +51,16 @@ export default function ViewAssignDatabase({ open, onClose, selectedRow }) {
   };
 
   useEffect(() => {
-    console.log("🔥 rawData:", rawData);
-    console.log("🧾 userMap:", userMap);
-
     if (!rawData) return; // only wait for rawData, NOT userMap
 
     const formatted = formatData(rawData, userMap);
     setSelectedDetails(formatted);
     setTableData([formatted]);
-    console.log;
-    ("formated", formatted);
   }, [userMap, rawData]);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await getAllByRoleId();
-        console.log("📌 getAllByRoleId API Response:", res);
 
         const list = res?.data?.["User Details"] || [];
 
@@ -75,8 +69,6 @@ export default function ViewAssignDatabase({ open, onClose, selectedRow }) {
         list.forEach((user) => {
           mapObj[user.userCode] = `${user.firstName} ${user.lastName}`.trim();
         });
-
-        console.log("🧍 Final User Map:", mapObj);
 
         setUserMap(mapObj);
       } catch (err) {

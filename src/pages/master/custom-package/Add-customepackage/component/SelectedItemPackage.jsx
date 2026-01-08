@@ -50,7 +50,6 @@ export default function SelectedItemPackage({
     const currentCategories = Object.keys(groupedItems);
 
     if (categoryOrder.length === 0 && currentCategories.length > 0) {
-      console.log("🔧 Initializing category order:", currentCategories);
       setCategoryOrder(currentCategories);
       return;
     }
@@ -59,7 +58,6 @@ export default function SelectedItemPackage({
       (cat) => !categoryOrder.includes(cat)
     );
     if (newCategories.length > 0) {
-      console.log("🆕 Adding new categories:", newCategories);
       setCategoryOrder((prev) => [...prev, ...newCategories]);
     }
 
@@ -67,7 +65,6 @@ export default function SelectedItemPackage({
       currentCategories.includes(cat)
     );
     if (validCategories.length !== categoryOrder.length) {
-      console.log("🗑️ Removing empty categories");
       setCategoryOrder(validCategories);
     }
   }, [groupedItems]);
@@ -92,12 +89,9 @@ export default function SelectedItemPackage({
 
   // Handle drag end for both categories and items
   const handleDragEnd = (result) => {
-    console.log("🔥 Drag End Called:", result);
-
     const { destination, source, type } = result;
 
     if (!destination) {
-      console.log("❌ No destination - drag cancelled");
       return;
     }
 
@@ -105,26 +99,15 @@ export default function SelectedItemPackage({
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
-      console.log("❌ Same position - no change");
       return;
     }
 
     // CATEGORY REORDERING
     if (type === "CATEGORY") {
-      console.log(
-        "📦 Reordering CATEGORY from",
-        source.index,
-        "to",
-        destination.index
-      );
-
       // Create new array with reordered categories
       const newCategoryOrder = Array.from(categoryOrder);
       const [movedCategory] = newCategoryOrder.splice(source.index, 1);
       newCategoryOrder.splice(destination.index, 0, movedCategory);
-
-      console.log("Old category order:", categoryOrder);
-      console.log("New category order:", newCategoryOrder);
 
       // Update local state immediately
       setCategoryOrder(newCategoryOrder);
@@ -139,12 +122,6 @@ export default function SelectedItemPackage({
           reorderedItems.push(cleanItem);
         });
       });
-
-      console.log(
-        "✅ Sending reordered items to parent:",
-        reorderedItems.length,
-        "items"
-      );
 
       // Return complete reordered array to parent
       onReorder(reorderedItems);

@@ -13,15 +13,11 @@ const ContactListPage = () => {
   const [editData, setEditData] = useState(null);
 
   const handleEdit = (data) => {
-    console.log(data);
-
     setEditData(data);
     setIsModalOpen(true);
   };
 
-  const removeContact = () => {
-    console.log("Contact removed");
-  };
+  const removeContact = () => {};
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -58,8 +54,8 @@ const ContactListPage = () => {
                   content="Do you really want to delete?"
                   yesText="Proceed"
                   noText="Dismiss"
-                  onConfirm={() => console.log("User confirmed")}
-                  onCancel={() => console.log("User cancelled")}
+                  onConfirm={() => "User confirmed"}
+                  onCancel={() => "User cancelled"}
                 ></Confirmation>
               </span>
             </Tooltip>

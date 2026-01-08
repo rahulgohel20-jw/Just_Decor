@@ -149,7 +149,7 @@ export const columns = (
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 onClick={() => {
-                  console.log("Navigating to edit page with ID:", userId);
+                 
                   navigate(`/Superadmin-member-edit/${userId}`);
                 }}
               >
@@ -160,7 +160,7 @@ export const columns = (
               <button
                 className="btn btn-sm btn-icon btn-clear"
                 onClick={() => {
-                  console.log("Navigating to logs with email:", email);
+              
                   navigate("/superadmin-logs", {
                     state: { email: email },
                   });

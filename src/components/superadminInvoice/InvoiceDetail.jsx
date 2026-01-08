@@ -61,7 +61,6 @@ const InvoiceDetail = ({ invoiceId, invoice, mode }) => {
     setLoading(true);
     try {
       const response = await GetAdminInvoiceById(id);
-      console.log("Invoice Data Response:", response);
       const invoice = response?.data?.data[0];
       if (!invoice) return;
 
@@ -105,7 +104,6 @@ const InvoiceDetail = ({ invoiceId, invoice, mode }) => {
 
   useEffect(() => {
     if (mode === "preview" && invoice) {
-      console.log("Selected Invoice:", invoice); // Inspect fields here
       setInvoiceInfo({
         billingName: invoice.billingName || invoice.partyName || "",
         address: invoice.address || invoice.billingAddress || "",

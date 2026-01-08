@@ -4,6 +4,8 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { OutsideContactName } from "@/services/apiServices";
 import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
+import { Plus } from "lucide-react";
+import AddContactName from "../../../master/MenuItemMaster/components/AddContactName";
 
 /* ---------- UI ATOMS ---------- */
 
@@ -34,99 +36,80 @@ export default function SidebarRawMaterial({
   onClose,
   selectedRow,
   onSave,
-  sidebarunit, // ✅ Unit data from parent
+  sidebarunit,
 }) {
   const [functionRows, setFunctionRows] = useState([]);
   const [unit, setUnit] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplier, setSupplier] = useState([]);
-  let userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId");
 
-  // ✅ Set unit from parent prop
+  /* ---------- SET UNIT FROM PARENT ---------- */
+
   useEffect(() => {
-    if (sidebarunit && Array.isArray(sidebarunit) && sidebarunit.length > 0) {
+    if (sidebarunit && Array.isArray(sidebarunit)) {
       setUnit(sidebarunit);
     }
   }, [sidebarunit]);
 
+  /* ---------- INITIAL DATA MAPPING ---------- */
+
   useEffect(() => {
-    if (selectedRow && open) {
-      const functions = selectedRow.eventRawMaterialFunctions || [];
+    if (!selectedRow || !open) return;
 
-      if (functions.length > 0) {
-        const rows = functions.map((func, index) => {
-          // ✅ Get unitHierarchyDto from func or construct from unit object
-          const unitHierarchy =
-            func.unitHierarchyDto ||
-            (func.unit
-              ? {
-                  unitId: func.unit.id,
-                  nameEnglish: func.unit.nameEnglish,
-                  nameHindi: func.unit.nameHindi || null,
-                  nameGujarati: func.unit.nameGujarati || null,
-                  symbolEnglish: func.unit.symbolEnglish || null,
-                  symbolHindi: func.unit.symbolHindi || null,
-                  symbolGujarati: func.unit.symbolGujarati || null,
-                  children: func.unit.children || [],
-                }
-              : null);
+    const functions = selectedRow.eventRawMaterialFunctions || [];
 
-          return {
-            id: index + 1,
-            functionType: func.functionName || "",
-            menuItemName: func.itemName || "",
-            qty: func.qty ?? selectedRow.qty ?? "",
-            price: func.price ?? 0,
-            supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
-            agency: func.supplierName ?? selectedRow.agency ?? "",
+    const rows = functions.map((func, index) => {
+      const unitHierarchy =
+        func.unitHierarchyDto || selectedRow.unitHierarchyDto || null;
 
-            // ✅ Use unitHierarchyDto for unitId
-            unitId: Number(
-              unitHierarchy?.unitId ??
-                func.unitId ??
-                selectedRow.unitHierarchyDto?.unitId ??
-                selectedRow.unitId ??
-                1
-            ),
+      const baseUnit = func.unit || selectedRow.units || null;
 
-            unit:
-              unitHierarchy?.nameEnglish ??
-              func.unitName ??
-              selectedRow.unit ??
-              "KILO",
+      return {
+        id: index + 1,
+        functionType: func.functionName || "",
+        menuItemName: func.itemName || "",
 
-            // ✅ Store complete unit objects
-            unitObject: func.unit || null,
-            unitHierarchyDto: unitHierarchy,
+        qty: func.qty ?? selectedRow.qty ?? "",
+        price: func.price ?? 0,
 
-            place: func.place || selectedRow.place || "",
+        supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
+        agency: func.supplierName ?? selectedRow.agency ?? "",
 
-            dateTime:
-              func.functiondatetime && dayjs(func.functiondatetime).isValid()
-                ? dayjs(func.functiondatetime)
-                : null,
+        // ✅ unit comes from UNIT OBJECT
+        unitId: baseUnit?.id || unitHierarchy?.unitId || 1,
+        unit: baseUnit?.nameEnglish || unitHierarchy?.nameEnglish || "KILO",
 
-            functionId: func.functionId || null,
-            eventFunctionId: func.eventFunctionId || null,
-            isExtraField: func.isExtraField || false,
-          };
-        });
+        unitObject: baseUnit,
+        unitHierarchyDto: unitHierarchy,
 
-        setFunctionRows(rows);
-      }
-    }
+        place: func.place || selectedRow.place || "",
+
+        dateTime:
+          func.functiondatetime && dayjs(func.functiondatetime).isValid()
+            ? dayjs(func.functiondatetime)
+            : null,
+
+        functionId: func.functionId || null,
+        eventFunctionId: func.eventFunctionId || null,
+        isExtraField: func.isExtraField || false,
+      };
+    });
+
+    setFunctionRows(rows);
   }, [selectedRow, open]);
 
   useEffect(() => {
     if (!open) setFunctionRows([]);
   }, [open]);
 
-  useEffect(() => {}, [unit]);
+  /* ---------- SUPPLIER ---------- */
 
   useEffect(() => {
-    FetchSupplier();
+    fetchSupplier();
   }, []);
 
-  const FetchSupplier = async () => {
+  const fetchSupplier = async () => {
     try {
       const data = await OutsideContactName(3, userId);
       setSupplier(data?.data?.data["Party Details"] || []);
@@ -145,52 +128,32 @@ export default function SidebarRawMaterial({
     );
   };
 
-  const handleSave = () => {
-    for (let i = 0; i < functionRows.length; i++) {
-      const row = functionRows[i];
-      // if (!row.agency || !row.qty || !row.place) {
-      //   alert(`Please fill all required fields in row ${i + 1}`);
-      //   return;
-      // }
-    }
+  /* ---------- SAVE ---------- */
 
-    // ✅ Calculate total quantity from all function rows
-    const totalFunctionQty = functionRows.reduce((sum, row) => {
-      return sum + (parseFloat(row.qty) || 0);
-    }, 0);
+  const handleSave = () => {
+    const totalFunctionQty = functionRows.reduce(
+      (sum, row) => sum + (parseFloat(row.qty) || 0),
+      0
+    );
 
     const enrichedRows = functionRows.map((row) => ({
       functionId: row.functionId || 0,
       eventFunctionId: row.eventFunctionId || 0,
       functionName: row.functionType || "",
-      qty: parseFloat(row.qty) || 0,
       itemName: row.menuItemName || "",
+      qty: parseFloat(row.qty) || 0,
+      price: parseFloat(row.price) || 0,
 
       supplierId: row.supplierId || 0,
       supplierName: row.agency || "",
 
-      unitId: row.unitId || 1,
-      unitName: row.unit || "KILO",
-
-      // ✅ FULL UNIT OBJECT
-      unit: row.unitObject || null,
-
-      // ✅ REQUIRED BY BACKEND
-      unitHierarchyDto: row.unitHierarchyDto
-        ? {
-            unitId: row.unitHierarchyDto.unitId,
-            nameEnglish: row.unitHierarchyDto.nameEnglish,
-            nameHindi: row.unitHierarchyDto.nameHindi || null,
-            nameGujarati: row.unitHierarchyDto.nameGujarati || null,
-            symbolEnglish: row.unitHierarchyDto.symbolEnglish || null,
-            symbolHindi: row.unitHierarchyDto.symbolHindi || null,
-            symbolGujarati: row.unitHierarchyDto.symbolGujarati || null,
-            children: row.unitHierarchyDto.children || [],
-          }
-        : null,
+      // ✅ FINAL UNIT DATA
+      unitId: row.unitId,
+      unitName: row.unit,
+      unit: row.unitObject,
+      unitHierarchyDto: row.unitHierarchyDto,
 
       place: row.place,
-      price: parseFloat(row.price) || 0,
 
       functiondatetime: row.dateTime
         ? dayjs(row.dateTime).format("YYYY-MM-DD HH:mm:ss.0")
@@ -199,15 +162,13 @@ export default function SidebarRawMaterial({
       isExtraField: row.isExtraField || false,
     }));
 
-    const dataToSave = {
+    onSave?.({
       ...selectedRow,
       eventRawMaterialFunctions: enrichedRows,
-      // ✅ Add the calculated total quantity to update finalQty in parent
       calculatedFinalQty: totalFunctionQty,
-      qtyWasModified: true, // Flag to indicate quantity was changed in sidebar
-    };
+      qtyWasModified: true,
+    });
 
-    onSave?.(dataToSave);
     onClose();
   };
 
@@ -251,7 +212,21 @@ export default function SidebarRawMaterial({
                       <th className="p-3 text-left">Sr.</th>
                       <th className="p-3 text-left">Function</th>
                       <th className="p-3 text-left">Item Name</th>
-                      <th className="p-3 text-left">Agency</th>
+                      <th className="p-3 text-left">
+                        <div className="flex items-center gap-2">
+                          <span>Agency</span>
+
+                          <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            title="Add Agency"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </th>
+
                       <th className="p-3 text-left">Qty</th>
                       <th className="p-3 text-left">Unit</th>
                       <th className="p-3 text-left">Place</th>
@@ -274,18 +249,15 @@ export default function SidebarRawMaterial({
                       functionRows.map((row, idx) => (
                         <tr
                           key={idx}
-                          className={`border-t align-top ${
+                          className={`border-t ${
                             row.isExtraField
                               ? "bg-yellow-50"
                               : "hover:bg-gray-50"
                           }`}
                         >
                           <td className="p-3">{row.id}.</td>
-
                           <td className="p-3">{row.functionType || "-"}</td>
-
-                          {/* ✅ FULL ITEM NAME */}
-                          <td className="p-3 text-sm text-gray-800 whitespace-normal break-words max-w-[320px]">
+                          <td className="p-3 whitespace-normal break-words max-w-[320px]">
                             {row.menuItemName || "-"}
                           </td>
 
@@ -293,19 +265,18 @@ export default function SidebarRawMaterial({
                             <BaseSelect
                               value={row.supplierId || ""}
                               onChange={(e) => {
-                                const selectedSupplier = supplier.find(
-                                  (s) => s.id === parseInt(e.target.value)
+                                const s = supplier.find(
+                                  (x) => x.id === Number(e.target.value)
                                 );
-
                                 handleInputChange(
                                   idx,
                                   "supplierId",
-                                  selectedSupplier?.id || ""
+                                  s?.id || ""
                                 );
                                 handleInputChange(
                                   idx,
                                   "agency",
-                                  selectedSupplier?.nameEnglish || ""
+                                  s?.nameEnglish || ""
                                 );
                               }}
                             >
@@ -321,7 +292,6 @@ export default function SidebarRawMaterial({
                           <td className="p-3 w-[90px]">
                             <BaseInput
                               type="number"
-                              className="text-center"
                               value={row.qty}
                               onChange={(e) =>
                                 handleInputChange(idx, "qty", e.target.value)
@@ -329,133 +299,62 @@ export default function SidebarRawMaterial({
                             />
                           </td>
 
-                          {/* ✅ UNIT DROPDOWN - ONLY HIERARCHY */}
+                          {/* ✅ UNIT DROPDOWN (HIERARCHY ONLY) */}
                           <td className="p-3 w-[130px]">
                             <BaseSelect
-                              value={row.unitId || ""}
+                              value={row.unitId}
                               onChange={(e) => {
-                                const selectedUnitId = parseInt(e.target.value);
+                                const selectedId = Number(e.target.value);
+                                if (!selectedId) return;
 
-                                // ✅ Find unit from hierarchy OR fallback to main unit list
                                 let selectedUnit = null;
 
-                                // First try to find in unitHierarchyDto
-                                if (row.unitHierarchyDto) {
-                                  if (
-                                    row.unitHierarchyDto.unitId ===
-                                    selectedUnitId
-                                  ) {
-                                    selectedUnit = {
-                                      id: row.unitHierarchyDto.unitId,
-                                      nameEnglish:
-                                        row.unitHierarchyDto.nameEnglish,
-                                      nameHindi: row.unitHierarchyDto.nameHindi,
-                                      nameGujarati:
-                                        row.unitHierarchyDto.nameGujarati,
-                                      symbolEnglish:
-                                        row.unitHierarchyDto.symbolEnglish,
-                                      symbolHindi:
-                                        row.unitHierarchyDto.symbolHindi,
-                                      symbolGujarati:
-                                        row.unitHierarchyDto.symbolGujarati,
-                                      children:
-                                        row.unitHierarchyDto.children || [],
-                                    };
-                                  } else if (row.unitHierarchyDto.children) {
-                                    const childUnit =
-                                      row.unitHierarchyDto.children.find(
-                                        (c) => c.unitId === selectedUnitId
-                                      );
-                                    if (childUnit) {
-                                      selectedUnit = {
-                                        id: childUnit.unitId,
-                                        nameEnglish: childUnit.nameEnglish,
-                                        nameHindi: childUnit.nameHindi,
-                                        nameGujarati: childUnit.nameGujarati,
-                                        symbolEnglish: childUnit.symbolEnglish,
-                                        symbolHindi: childUnit.symbolHindi,
-                                        symbolGujarati:
-                                          childUnit.symbolGujarati,
-                                        children: [],
-                                      };
-                                    }
-                                  }
+                                if (
+                                  row.unitHierarchyDto?.unitId === selectedId
+                                ) {
+                                  selectedUnit = row.unitHierarchyDto;
+                                } else {
+                                  selectedUnit =
+                                    row.unitHierarchyDto?.children?.find(
+                                      (c) => c.unitId === selectedId
+                                    );
                                 }
 
-                                // Fallback to main unit list if not found in hierarchy
-                                if (!selectedUnit) {
-                                  selectedUnit = unit.find(
-                                    (u) => u.id === selectedUnitId
-                                  );
-                                }
+                                if (!selectedUnit) return;
 
-                                if (selectedUnit) {
-                                  handleInputChange(
-                                    idx,
-                                    "unitId",
-                                    selectedUnit.id
-                                  );
-                                  handleInputChange(
-                                    idx,
-                                    "unit",
-                                    selectedUnit.nameEnglish
-                                  );
-                                  handleInputChange(
-                                    idx,
-                                    "unitObject",
-                                    selectedUnit
-                                  );
-
-                                  // ✅ Create proper unitHierarchyDto
-                                  handleInputChange(idx, "unitHierarchyDto", {
-                                    unitId: selectedUnit.id,
-                                    nameEnglish: selectedUnit.nameEnglish,
-                                    nameHindi: selectedUnit.nameHindi || null,
-                                    nameGujarati:
-                                      selectedUnit.nameGujarati || null,
-                                    symbolEnglish:
-                                      selectedUnit.symbolEnglish || null,
-                                    symbolHindi:
-                                      selectedUnit.symbolHindi || null,
-                                    symbolGujarati:
-                                      selectedUnit.symbolGujarati || null,
-                                    children: selectedUnit.children || [],
-                                  });
-                                }
+                                handleInputChange(
+                                  idx,
+                                  "unitId",
+                                  selectedUnit.unitId
+                                );
+                                handleInputChange(
+                                  idx,
+                                  "unit",
+                                  selectedUnit.nameEnglish
+                                );
+                                handleInputChange(idx, "unitObject", {
+                                  id: selectedUnit.unitId,
+                                  nameEnglish: selectedUnit.nameEnglish,
+                                  symbolEnglish: selectedUnit.symbolEnglish,
+                                });
+                                handleInputChange(idx, "unitHierarchyDto", {
+                                  ...row.unitHierarchyDto,
+                                  unitId: selectedUnit.unitId,
+                                  nameEnglish: selectedUnit.nameEnglish,
+                                });
                               }}
                             >
                               <option value="">Select Unit</option>
-
-                              {/* ✅ Show parent unit from hierarchy */}
                               {row.unitHierarchyDto && (
-                                <option
-                                  key={row.unitHierarchyDto.unitId}
-                                  value={row.unitHierarchyDto.unitId}
-                                >
+                                <option value={row.unitHierarchyDto.unitId}>
                                   {row.unitHierarchyDto.nameEnglish}
                                 </option>
                               )}
-
-                              {/* ✅ Show children units from hierarchy */}
-                              {row.unitHierarchyDto?.children?.map(
-                                (childUnit) => (
-                                  <option
-                                    key={childUnit.unitId}
-                                    value={childUnit.unitId}
-                                  >
-                                    {childUnit.nameEnglish}
-                                  </option>
-                                )
-                              )}
-
-                              {/* ✅ Fallback: Show current unit if not in hierarchy */}
-                              {row.unitId &&
-                                row.unitHierarchyDto?.unitId !== row.unitId &&
-                                !row.unitHierarchyDto?.children?.some(
-                                  (c) => c.unitId === row.unitId
-                                ) && (
-                                  <option value={row.unitId}>{row.unit}</option>
-                                )}
+                              {row.unitHierarchyDto?.children?.map((child) => (
+                                <option key={child.unitId} value={child.unitId}>
+                                  {child.nameEnglish}
+                                </option>
+                              ))}
                             </BaseSelect>
                           </td>
 
@@ -470,7 +369,7 @@ export default function SidebarRawMaterial({
 
                           <td className="p-3 w-[200px]">
                             <DatePicker
-                              className="h-9 w-full text-sm"
+                              className="h-9 w-full"
                               showTime
                               value={row.dateTime}
                               onChange={(date) =>
@@ -482,7 +381,6 @@ export default function SidebarRawMaterial({
                           <td className="p-3 w-[120px]">
                             <BaseInput
                               type="number"
-                              className="text-right"
                               value={row.price}
                               onChange={(e) =>
                                 handleInputChange(idx, "price", e.target.value)
@@ -515,6 +413,13 @@ export default function SidebarRawMaterial({
           </motion.div>
         </div>
       )}
+      <AddContactName
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        contactTypeId={3} // 👈 Supplier / Vendor ONLY
+        refreshData={fetchSupplier}
+        concatId={3}
+      />
     </AnimatePresence>
   );
 }

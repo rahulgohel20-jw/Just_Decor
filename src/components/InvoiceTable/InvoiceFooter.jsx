@@ -37,7 +37,6 @@ const InvoiceFooter = ({
 
   // Calculate subtotal from rows
   useEffect(() => {
-    console.log("Rows in InvoiceFooter:", rows);
     if (rows && rows.length > 0) {
       const calculatedSubTotal = rows.reduce((sum, row) => {
         const person = Number(row.person) || 0;

@@ -176,6 +176,11 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
+export const GetQuotationReport = (eventId, userId) => {
+  return POST(
+    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}`
+  );
+};
 
 export const GetAllQuotationByFilter = (enddate, startdate, id) => {
   return GET(
@@ -940,6 +945,13 @@ export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
   );
 };
 
+export const GetDishCostingbyRawmaterial = (eventId, eventFunctionId) => {
+  return GET(
+    `/dish-costing/raw-material-category-wise?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
+  );
+};
+
+
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
   return GET(
     `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
@@ -1362,7 +1374,9 @@ export const AddExclusiveReport = (formData) => {
 };
 
 export const GetReportConfiguration = (mappingId, moduleId) => {
-  return GET(`/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`);
+  return GET(
+    `/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`
+  );
 };
 
 export const AddReportConfiguration = (data) => {
@@ -1371,18 +1385,15 @@ export const AddReportConfiguration = (data) => {
 
 export const GETAllreportconfiguration = () => {
   return GET(`report/configuration/get`);
-
 };
 
 export const DeleteReportConfiguration = (id) => {
   return DELETE(`/report/configuration/delete?id=${id}`);
 };
 
-
 export const GetReportConfigurationById = (id) => {
   return GET(`/report/configuration/getbyid?id=${id}`);
 };
-
 
 export const AddorUpdategodown = (data) => {
   return POST(`/godown/addorupdate`, data);
@@ -1399,7 +1410,6 @@ export const GetGodownbyid = (id) => {
 export const DeleteGoDown = (id) => {
   return DELETE(`/godown/deleteById?id=${id}`);
 };
-
 
 export const AddUserRightsPage = (data) => {
   return POST(`/user-rights/addPage`, data);

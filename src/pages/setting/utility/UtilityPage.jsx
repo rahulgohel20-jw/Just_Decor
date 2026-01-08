@@ -118,7 +118,6 @@ const UtilityPage = () => {
     try {
       setLoading(true);
       const response = await GetUtility(UserId);
-      console.log("dtaa", response);
 
       if (response.data.success && response.data.data) {
         const data = response?.data?.data;

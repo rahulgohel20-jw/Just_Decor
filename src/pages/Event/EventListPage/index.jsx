@@ -63,7 +63,6 @@ const EventListPage = () => {
     const checkLanguageChange = setInterval(() => {
       const newLang = getCurrentLanguage();
       if (newLang !== currentLang) {
-        console.log("Language changed from", currentLang, "to", newLang);
         setCurrentLang(newLang);
         FetchEvent();
       }
@@ -114,8 +113,6 @@ const EventListPage = () => {
           .slice()
           .reverse()
           .map(async (cust, index) => {
-            console.log("CUST OBJECT:", cust);
-
             // Translate customer name and event type in parallel
             const [translatedCustomer, translatedEventType] = await Promise.all(
               [

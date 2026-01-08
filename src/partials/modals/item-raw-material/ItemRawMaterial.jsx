@@ -149,7 +149,6 @@ const ItemRawmaterial = ({
           selectedEvent ? "updated" : "added"
         } successfully!`,
       });
-      console.log(newRow);
 
       refreshData(newRow);
       setIsModalOpen(false);

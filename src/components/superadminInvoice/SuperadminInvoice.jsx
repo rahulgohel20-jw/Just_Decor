@@ -68,7 +68,6 @@ const SuperadminInvoice = () => {
   const fetchInvoices = async (startDate = "", endDate = "") => {
     try {
       const response = await GetSuperalladmininvoice(startDate, endDate);
-      console.log("API RESPONSE:", response);
 
       const apiData = response?.data?.data || response?.data;
       if (!apiData) return;

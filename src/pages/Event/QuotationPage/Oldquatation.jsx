@@ -62,9 +62,7 @@ const QuotationPage = () => {
 
   const FetchGetQuotation = () => {
     GetQuotation(eventId)
-      .then((res) => {
-        console.log(res?.data?.data["Event Functions Quotation Details"]);
-      })
+      .then((res) => {})
       .catch((error) => {
         console.log(error);
       });
@@ -100,9 +98,7 @@ const QuotationPage = () => {
     setQuotationData((prev) => ({ ...prev, notes: value }));
   };
 
-  const handleSaveNotes = () => {
-    console.log("Notes saved:", quotationData.notes);
-  };
+  const handleSaveNotes = () => {};
 
   return (
     <Fragment>
