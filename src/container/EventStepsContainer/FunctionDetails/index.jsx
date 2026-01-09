@@ -849,7 +849,8 @@ const FunctionsDetails = ({
       <AddFunctionType
         isOpen={showFunctionModal}
         onClose={() => setShowFunctionModal(false)}
-        oonSuccess={FetchFunction}
+        onSuccess={FetchFunction}
+        refreshData={() => FetchFunction(true)}
       />
       <AddNotes
         isOpen={showNoteModal}

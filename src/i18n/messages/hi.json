@@ -915,6 +915,43 @@
   "COMMON.SHOW_LESS": "कम दिखाएं",
   "COMMON.LOADING_PDF": "पीडीएफ लोड हो रही है...",
   "COMMON.NO_PDF_TITLE": "पीडीएफ उपलब्ध नहीं है",
-  "COMMON.NO_PDF_TEXT": "इस टेम्पलेट के लिए डमी पीडीएफ उपलब्ध नहीं है"
+  "COMMON.NO_PDF_TEXT": "इस टेम्पलेट के लिए डमी पीडीएफ उपलब्ध नहीं है",
+
+  "INVOICE.TAX_INVOICE": "टैक्स इनवॉइस",
+
+  "INVOICE.EVENT_NAME": "इवेंट नेम",
+  "INVOICE.PARTY_NAME": "पार्टी नेम",
+  "INVOICE.VENUE_NAME": "वेन्यू नेम",
+
+  "INVOICE.INVOICE_DATE": "इनवॉइस डेट",
+  "INVOICE.EVENT_DATE": "इवेंट डेट",
+  "INVOICE.DUE_DATE": "ड्यू डेट",
+  "INVOICE.SELECT_DUE_DATE": "ड्यू डेट सिलेक्ट करें",
+
+  "COMMON.PRINT": "प्रिंट",
+  "COMMON.SHARE": "शेयर",
+  "COMMON.EDIT": "एडिट",
+  "COMMON.DONE": "डन",
+
+  "INVOICE.CATERING_DETAILS": "केटरिंग डिटेल्स",
+  "INVOICE.BILLING_TO": "बिलिंग टू",
+  "INVOICE.BILLING_ADDRESS": "बिलिंग एड्रेस",
+  "INVOICE.SHIPPING_ADDRESS": "शिपिंग एड्रेस",
+  "INVOICE.BILLING_NAME": "बिलिंग नेम",
+  "INVOICE.GST_NUMBER": "जीएसटी नंबर",
+  "INVOICE.ADD_NEW_ADDRESS": "नया एड्रेस जोड़ें",
+
+  "PLACEHOLDER.ENTER_BILLING_ADDRESS": "बिलिंग एड्रेस एंटर करें",
+  "PLACEHOLDER.ENTER_SHIPPING_ADDRESS": "शिपिंग एड्रेस एंटर करें",
+  "PLACEHOLDER.ENTER_SHIPPING_NAME": "शिपिंग नेम एंटर करें",
+  "PLACEHOLDER.ENTER_BILLING_NAME": "बिलिंग नेम एंटर करें",
+  "PLACEHOLDER.ENTER_GST_NUMBER": "जीएसटी नंबर एंटर करें",
+
+  "COMMON.EDIT": "एडिट",
+  "COMMON.SAVE": "सेव",
+  "COMMON.CANCEL": "कैंसिल",
+  "COMMON.NA": "एन/ए"
+
+
 
 }

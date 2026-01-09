@@ -15,11 +15,13 @@ import {
   GetEventMasterById,
 } from "@/services/apiServices";
 import { useLocation } from "react-router-dom";
-import { Select, DatePicker, Spin } from "antd";
-import dayjs from "dayjs";
+import { Select, Spin } from "antd";
+
 import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
 import { FormattedMessage, useIntl } from "react-intl";
+import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
 
 const RawMaterialAllocation = ({ mode }) => {
   const location = useLocation();
@@ -340,6 +342,13 @@ const RawMaterialAllocation = ({ mode }) => {
     setHasUnsavedChanges(true);
   };
 
+  const handleAgencyChange = (index, value) => {
+    const updated = [...data];
+    updated[index].agency = value;
+    setData(updated);
+    setHasUnsavedChanges(true);
+  };
+
   const autoSave = async (showNotification = false) => {
     try {
       if (!eventId) {
@@ -431,6 +440,13 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
+  const handleDateChange = (index, date) => {
+    const updated = [...data];
+    updated[index].date = date ? dayjs(date) : null;
+    setData(updated);
+    setHasUnsavedChanges(true);
+  };
+
   const handleSave = async () => {
     setIsSaving(true); // 🔥 Start loader
     const success = await autoSave(true);
@@ -487,24 +503,32 @@ const RawMaterialAllocation = ({ mode }) => {
     setHasUnsavedChanges(true); // 🔥 Mark as changed
   };
 
-  const handleAllocatePlace = (place) => {
+  const handleAllocatePlace = (placeName, placeId) => {
+    if (!placeName) return;
+
     const updated = data.map((item) => ({
       ...item,
-      place: place,
+      place: placeName, // only string
+      placeId: Number(placeId) || 0, // for backend
     }));
+
     setData(updated);
-    setHasUnsavedChanges(true); // 🔥 Mark as changed
+    setOriginalData(updated); // important for search/filter
+    setHasUnsavedChanges(true);
   };
 
   const handleAllocateDate = (date) => {
     if (!date) return;
 
-    const updated = data.map((item) => ({
+    const allocatedDate = dayjs(date);
+
+    const updatedData = data.map((item) => ({
       ...item,
-      date: date,
+      date: allocatedDate,
     }));
 
-    setData(updated);
+    setData(updatedData);
+    setOriginalData(updatedData);
     setHasUnsavedChanges(true);
   };
 
@@ -520,32 +544,38 @@ const RawMaterialAllocation = ({ mode }) => {
     ];
 
     return (
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full align-middle">
+      <div className="overflow-x-auto h-[60vh]">
+        <div className="inline-block w-full align-middle">
           <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200 h-[100px] overflow-x-scroll">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-32">
+                <tr className="">
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
+                    <FormattedMessage
+                      id="SIDEBAR_MODAL.RAW_MATERIAL"
+                      defaultMessage="SRNO"
+                    />
+                  </th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
                     <FormattedMessage
                       id="SIDEBAR_MODAL.RAW_MATERIAL"
                       defaultMessage="Raw Material"
                     />
                   </th>
 
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-32">
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
                     <FormattedMessage
                       id="SIDEBAR_MODAL.AGENCY"
                       defaultMessage="Agency"
                     />
                   </th>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-32">
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
                     <FormattedMessage
                       id="SIDEBAR_MODAL.PLACE"
                       defaultMessage="Place"
                     />
                   </th>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-44">
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
                     <FormattedMessage
                       id="SIDEBAR_MODAL.DATE"
                       defaultMessage="Date"
@@ -577,58 +607,40 @@ const RawMaterialAllocation = ({ mode }) => {
                       >
                         {item.material}
                       </td>
-                      <td className="px-4 py-3">{item.qty}</td>
 
                       <td className="px-4 py-3">
                         <input
                           type="text"
-                          value={item.finalQty}
+                          className="border px-2 py-1 w-full"
+                          value={item.agency || ""}
                           onChange={(e) =>
-                            handleChange(index, "finalQty", e.target.value)
+                            handleAgencyChange(index, e.target.value)
                           }
-                          className="w-full border border-gray-300 rounded px-2 py-1"
                         />
                       </td>
 
                       <td className="px-4 py-3">
-                        <select
-                          value={item.unitId}
+                        <input
+                          type="text"
+                          className="border px-2 py-1 "
+                          value={item.place || ""}
                           onChange={(e) =>
-                            handleChange(
-                              index,
-                              "unitId",
-                              Number(e.target.value)
-                            )
+                            handleAgencyChange(index, e.target.value)
                           }
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
-                        >
-                          {buildUnitOptions(
-                            item.units,
-                            item.unitHierarchyDto,
-                            item.unitId,
-                            item.unit
-                          ).map((u) => (
-                            <option key={u.value} value={u.value}>
-                              {u.label}
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </td>
-
-                      <td className="px-4 py-3">{item.agency}</td>
-                      <td className="px-4 py-3">{item.place}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        {item.date
-                          ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
-                          : "-"}
-                      </td>
-                      <td className="px-4 py-3">{item.total}</td>
-
-                      <td className="px-4 py-3 text-center">
-                        <i
-                          className="ki-filled ki-notepad-edit text-primary cursor-pointer"
-                          onClick={() => handleEditRow(item)}
-                        ></i>
+                        <DatePicker
+                          selected={
+                            item.date ? dayjs(item.date).toDate() : null
+                          }
+                          onChange={(date) => handleDateChange(index, date)}
+                          showTimeSelect
+                          timeFormat="hh:mm aa"
+                          dateFormat="MM/dd/yyyy hh:mm aa"
+                          className="border px-2 py-1 w-[180px]"
+                          placeholderText="-"
+                        />
                       </td>
                     </tr>
                   ))
