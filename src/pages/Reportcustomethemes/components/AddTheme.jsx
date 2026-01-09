@@ -15,7 +15,6 @@ const AddTheme = ({
   isEditMode = false,
   editingTheme = null,
 }) => {
-  const [templateName, setTemplateName] = useState("");
   const [nameplateName, setNameplateName] = useState("");
   const [templates, setTemplates] = useState([]);
   const [nameplate, setNameplate] = useState(null);
@@ -26,12 +25,20 @@ const AddTheme = ({
   const [isLoading, setIsLoading] = useState(false);
   const [templateOptions, setTemplateOptions] = useState([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
-  const [templateModule, setTemplateModule] = useState("");
-  const [moduleOptions, setModuleOptions] = useState([]);
-  const [isLoadingModules, setIsLoadingModules] = useState(false);
   const [activeTab, setActiveTab] = useState("template");
   const [removedExistingImages, setRemovedExistingImages] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
+
+  const [themeTemplateName, setThemeTemplateName] = useState("");
+  const [themeTemplateModule, setThemeTemplateModule] = useState("");
+  const [themeModuleOptions, setThemeModuleOptions] = useState([]);
+  const [isLoadingThemeModules, setIsLoadingThemeModules] = useState(false);
+
+  const [nameplateTemplateName, setNameplateTemplateName] = useState("");
+  const [nameplateTemplateModule, setNameplateTemplateModule] = useState("");
+  const [nameplateModuleOptions, setNameplateModuleOptions] = useState([]);
+  const [isLoadingNameplateModules, setIsLoadingNameplateModules] =
+    useState(false);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -39,69 +46,125 @@ const AddTheme = ({
     }
   }, [isModalOpen]);
 
+  // Replace the second useEffect (module fetching) with TWO separate useEffects:
+
+  // Theme Module Fetching
   useEffect(() => {
-    if (!templateName) {
-      setModuleOptions([]);
+    if (!themeTemplateName) {
+      setThemeModuleOptions([]);
       if (!isEditMode) {
-        setTemplateModule("");
+        setThemeTemplateModule("");
       }
       return;
     }
 
     const fetchModulesByTemplate = async () => {
       try {
-        setIsLoadingModules(true);
-
-        const res = await GetAllThemeType(templateName);
+        setIsLoadingThemeModules(true);
+        const res = await GetAllThemeType(themeTemplateName);
 
         if (res?.data?.success) {
           const modules = res.data.data || [];
-
           const moduleOptions = modules.map((module) => ({
             id: module.id,
             name: module.nameEnglish || module.name || module.moduleName,
           }));
 
-          setModuleOptions(moduleOptions);
+          setThemeModuleOptions(moduleOptions);
 
-          // ✅ Only clear templateModule if not in edit mode or if the current value is not in the new options
           if (!isEditMode) {
-            setTemplateModule("");
+            setThemeTemplateModule("");
           } else {
-            // Check if current templateModule exists in the new options
             const currentModuleExists = moduleOptions.some(
-              (opt) => opt.id.toString() === templateModule.toString()
+              (opt) => opt.id.toString() === themeTemplateModule.toString()
             );
             if (!currentModuleExists && moduleOptions.length > 0) {
-              // If current module doesn't exist in new options, clear it
-              setTemplateModule("");
+              setThemeTemplateModule("");
             }
           }
         } else {
-          setModuleOptions([]);
+          setThemeModuleOptions([]);
         }
       } catch (error) {
-        console.error("Error loading modules:", error);
-        setModuleOptions([]);
-
+        console.error("Error loading theme modules:", error);
+        setThemeModuleOptions([]);
         Swal.fire({
           icon: "error",
           title: "Failed",
           text: "Unable to load modules for selected template",
         });
       } finally {
-        setIsLoadingModules(false);
+        setIsLoadingThemeModules(false);
       }
     };
 
     fetchModulesByTemplate();
-  }, [templateName]);
+  }, [themeTemplateName]);
+
+  // Nameplate Module Fetching
+  useEffect(() => {
+    if (!nameplateTemplateName) {
+      setNameplateModuleOptions([]);
+      if (!isEditMode) {
+        setNameplateTemplateModule("");
+      }
+      return;
+    }
+
+    const fetchModulesByTemplate = async () => {
+      try {
+        setIsLoadingNameplateModules(true);
+        const res = await GetAllThemeType(nameplateTemplateName);
+
+        if (res?.data?.success) {
+          const modules = res.data.data || [];
+          const moduleOptions = modules.map((module) => ({
+            id: module.id,
+            name: module.nameEnglish || module.name || module.moduleName,
+          }));
+
+          setNameplateModuleOptions(moduleOptions);
+
+          if (!isEditMode) {
+            setNameplateTemplateModule("");
+          } else {
+            const currentModuleExists = moduleOptions.some(
+              (opt) => opt.id.toString() === nameplateTemplateModule.toString()
+            );
+            if (!currentModuleExists && moduleOptions.length > 0) {
+              setNameplateTemplateModule("");
+            }
+          }
+        } else {
+          setNameplateModuleOptions([]);
+        }
+      } catch (error) {
+        console.error("Error loading nameplate modules:", error);
+        setNameplateModuleOptions([]);
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Unable to load modules for selected template",
+        });
+      } finally {
+        setIsLoadingNameplateModules(false);
+      }
+    };
+
+    fetchModulesByTemplate();
+  }, [nameplateTemplateName]);
+
+  // Update the edit mode useEffect (third useEffect):
 
   useEffect(() => {
     if (isEditMode && editingTheme) {
       if (editingTheme.isNamePlate) {
         setActiveTab("nameplate");
         setNameplateName(editingTheme.name || "");
+
+        setNameplateTemplateName(
+          editingTheme.templateModuleMaster?.id?.toString() || ""
+        );
 
         if (editingTheme.namePlateBg) {
           setNameplate({
@@ -112,13 +175,11 @@ const AddTheme = ({
         }
       } else {
         setActiveTab("template");
-
         setNameplateName(editingTheme.name || "");
         setHeadingColor(editingTheme.headingFontColor || "rgba(31,41,55,1)");
         setContentColor(editingTheme.contentFontColor || "rgba(75,85,99,1)");
 
-        // ✅ First set templateName (this will trigger module fetch)
-        setTemplateName(
+        setThemeTemplateName(
           editingTheme.templateModuleMaster?.id?.toString() || ""
         );
 
@@ -174,21 +235,47 @@ const AddTheme = ({
     }
   }, [isEditMode, editingTheme]);
 
+  // Update the fourth useEffect (setting templateModule when moduleOptions loads):
+
+  // For Theme
   useEffect(() => {
-    if (isEditMode && editingTheme && moduleOptions.length > 0) {
+    if (
+      isEditMode &&
+      editingTheme &&
+      !editingTheme.isNamePlate &&
+      themeModuleOptions.length > 0
+    ) {
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
       if (templateMappingId) {
-        // Check if the ID exists in moduleOptions
-        const moduleExists = moduleOptions.some(
+        const moduleExists = themeModuleOptions.some(
           (opt) => opt.id.toString() === templateMappingId
         );
-
         if (moduleExists) {
-          setTemplateModule(templateMappingId);
+          setThemeTemplateModule(templateMappingId);
         }
       }
     }
-  }, [moduleOptions, isEditMode, editingTheme]);
+  }, [themeModuleOptions, isEditMode, editingTheme]);
+
+  // For Nameplate
+  useEffect(() => {
+    if (
+      isEditMode &&
+      editingTheme &&
+      editingTheme.isNamePlate &&
+      nameplateModuleOptions.length > 0
+    ) {
+      const templateMappingId = editingTheme.templateMapping?.id?.toString();
+      if (templateMappingId) {
+        const moduleExists = nameplateModuleOptions.some(
+          (opt) => opt.id.toString() === templateMappingId
+        );
+        if (moduleExists) {
+          setNameplateTemplateModule(templateMappingId);
+        }
+      }
+    }
+  }, [nameplateModuleOptions, isEditMode, editingTheme]);
 
   const rgbaToHex = (rgba) => {
     if (!rgba || rgba === "") return "#1f2937"; // Default gray
@@ -312,8 +399,9 @@ const AddTheme = ({
 
     if (templates.length === 0) err.templates = "Add at least 1 template";
     if (!dummyPdf) err.dummyPdf = "Add dummy PDF";
-    if (!templateName) err.templateName = "Please select template name";
-    if (!templateModule) err.templateModule = "Please select template module";
+    if (!themeTemplateName) err.templateName = "Please select template name";
+    if (!themeTemplateModule)
+      err.templateModule = "Please select template module";
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -323,6 +411,10 @@ const AddTheme = ({
   const validateNameplateTab = () => {
     let err = {};
 
+    if (!nameplateTemplateName)
+      err.templateName = "Please select template name";
+    if (!nameplateTemplateModule)
+      err.templateModule = "Please select template module";
     if (!nameplateName) err.nameplateName = "Please enter nameplate name";
     if (!nameplate) err.nameplate = "Add one nameplate image";
 
@@ -377,8 +469,8 @@ const AddTheme = ({
       formData.append("headingFontColor", headingColor);
       formData.append("isNamePlate", "false");
       formData.append("name", nameplateName);
-      formData.append("templateMappingId", templateModule);
-      formData.append("templateModuleId", templateName);
+      formData.append("templateMappingId", themeTemplateModule);
+      formData.append("templateModuleId", themeTemplateName);
       formData.append("userId", userId);
 
       if (isEditMode && editingTheme) {
@@ -456,10 +548,13 @@ const AddTheme = ({
       const userId = localStorage.getItem("userId");
 
       const formData = new FormData();
-
+      formData.append("templateMappingId", nameplateTemplateModule);
+      formData.append("templateModuleId", nameplateTemplateName);
       formData.append("isNamePlate", "true");
       formData.append("name", nameplateName);
       formData.append("userId", userId);
+
+      console.log("datatat", formData);
 
       if (isEditMode && editingTheme) {
         formData.append("id", editingTheme.id);
@@ -467,12 +562,13 @@ const AddTheme = ({
 
       if (nameplate && !nameplate.isExisting && nameplate.file) {
         formData.append("namePlateBg", nameplate.file);
+        console.log("under if ");
       } else {
         formData.append("namePlateBg", null);
       }
 
       const response = isEditMode
-        ? await UpdateCustomTheme(editingTheme.id, formData) // ✅ New API call
+        ? await UpdateCustomTheme(formData) // ✅ New API call
         : await AddCustomTheme(formData);
 
       if (response?.data?.success) {
@@ -518,8 +614,17 @@ const AddTheme = ({
     }
   };
 
+  
+
   const resetForm = () => {
-    setTemplateName("");
+    setThemeTemplateName("");
+    setThemeTemplateModule("");
+    setThemeModuleOptions([]);
+
+    setNameplateTemplateName("");
+    setNameplateTemplateModule("");
+    setNameplateModuleOptions([]);
+
     setNameplateName("");
     setTemplates([]);
     setNameplate(null);
@@ -527,8 +632,6 @@ const AddTheme = ({
     setContentColor("rgba(75,85,99,1)");
     setDummyPdf(null);
     setErrors({});
-    setTemplateModule("");
-    setModuleOptions([]);
     setActiveTab("template");
     setRemovedExistingImages([]);
     setFileInputKey(Date.now());
@@ -760,10 +863,10 @@ const AddTheme = ({
                     Template Name <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={templateName}
+                    value={themeTemplateName}
                     onChange={(e) => {
-                      setTemplateName(e.target.value);
-                      setTemplateModule(""); // Reset module when template changes
+                      setThemeTemplateName(e.target.value);
+                      setThemeTemplateModule("");
                     }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                     disabled={isLoadingTemplates}
@@ -794,20 +897,20 @@ const AddTheme = ({
                     Template Module <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={templateModule}
-                    onChange={(e) => setTemplateModule(e.target.value)}
+                    value={themeTemplateModule}
+                    onChange={(e) => setThemeTemplateModule(e.target.value)}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    disabled={!templateName || isLoadingModules}
+                    disabled={!themeTemplateName || isLoadingThemeModules}
                   >
                     <option value="">
-                      {!templateName
+                      {!themeTemplateName
                         ? "Select Template First"
-                        : isLoadingModules
+                        : isLoadingThemeModules
                           ? "Loading modules..."
                           : "Select Template Module"}
                     </option>
 
-                    {moduleOptions.map((module) => (
+                    {themeModuleOptions.map((module) => (
                       <option key={module.id} value={module.id}>
                         {module.name}
                       </option>
@@ -1003,6 +1106,74 @@ const AddTheme = ({
 
               {/* RIGHT SIDE - NAMEPLATE FORM */}
               <div className="space-y-4">
+                {/* TEMPLATE NAME - First Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Template Name <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={nameplateTemplateName}
+                    onChange={(e) => {
+                      setNameplateTemplateName(e.target.value);
+                      setNameplateTemplateModule("");
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    disabled={isLoadingTemplates}
+                  >
+                    <option value="">
+                      {isLoadingTemplates
+                        ? "Loading templates..."
+                        : "Select Template Name"}
+                    </option>
+
+                    {templateOptions.map((template) => (
+                      <option key={template.id} value={template.id}>
+                        {template.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.templateName && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {errors.templateName}
+                    </div>
+                  )}
+                </div>
+
+                {/* TEMPLATE MODULE - Dependent Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Template Module <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={nameplateTemplateModule}
+                    onChange={(e) => setNameplateTemplateModule(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    disabled={
+                      !nameplateTemplateName || isLoadingNameplateModules
+                    }
+                  >
+                    <option value="">
+                      {!nameplateTemplateName
+                        ? "Select Template First"
+                        : isLoadingNameplateModules
+                          ? "Loading modules..."
+                          : "Select Template Module"}
+                    </option>
+
+                    {nameplateModuleOptions.map((module) => (
+                      <option key={module.id} value={module.id}>
+                        {module.name}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  {errors.templateModule && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {errors.templateModule}
+                    </div>
+                  )}
+                </div>
                 {/* NAMEPLATE NAME */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
