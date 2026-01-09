@@ -27,7 +27,6 @@ const MenuReport = ({
 }) => {
   const intl = useIntl();
 
-  // Configure plugin with default scale of 1 (100%)
   const pdfPlugin = defaultLayoutPlugin({
     toolbarPlugin: {
       zoomPlugin: {
@@ -37,9 +36,9 @@ const MenuReport = ({
   });
 
   const userId = localStorage.getItem("userId");
+
   const [visibleOptions, setVisibleOptions] = useState([]);
   const [reportType, setReportType] = useState(null);
-
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -50,39 +49,42 @@ const MenuReport = ({
     categoryImage: false,
     itemSlogan: false,
     itemInstruction: false,
-    companyProfile: false,
-    companyLogo: true,
-    itemImage: true,
-    partyDetails: true,
-    isWithQty: true,
+    CompanyInfo: false,
+    companyLogo: false,
+    itemImage: false,
+    partyDetails: false,
+    isWithQty: false,
   });
 
   /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
+
     const fetchConfig = async () => {
       try {
         const res = await GetReportConfiguration(mappingId, moduleId);
-
         const config = res?.data?.data?.[0];
         if (!config) return;
+
         setReportType(config.type);
+
+        // ✅ FIX: Backend 1 = true, 0 = false
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
           categoryInstruction: config.isCategoryInstruction === 0,
           categoryImage: config.isCategoryImage === 0,
           itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
-          companyProfile: config.isCompanyDetails === 1,
+          CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 0,
           itemImage: config.isItemImage === 0,
-          partyDetails: config.isPartyDetails === 0,
+          // partyDetails: config.isPartyDetails === 0,
           isWithQty: config.isWithQty === 1,
         });
 
         setVisibleOptions(
           Object.entries({
-            companyProfile: config.isCompanyDetails,
+            CompanyInfo: config.isCompanyDetails,
             categorySlogan: config.isCategorySlogan,
             categoryInstruction: config.isCategoryInstruction,
             categoryImage: config.isCategoryImage,
@@ -102,7 +104,7 @@ const MenuReport = ({
     };
 
     fetchConfig();
-  }, [isModalOpen, mappingId]);
+  }, [isModalOpen, mappingId, moduleId]);
 
   const toggleAll = (checked) => {
     setOptions((prev) => {
@@ -114,7 +116,7 @@ const MenuReport = ({
     });
   };
 
-  const Toggle = ({ checked, onChange, disabled }) => (
+  const Toggle = ({ checked, onChange }) => (
     <button
       type="button"
       onClick={onChange}
@@ -133,6 +135,7 @@ const MenuReport = ({
   const isCheckAll =
     visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
+  /* ---------------- SUBMIT ---------------- */
   const handleReport = async () => {
     const payload = {
       eventId,
@@ -150,12 +153,12 @@ const MenuReport = ({
       isCategoryImage: options.categoryImage,
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
-      isItemImage: options.categoryImage,
+      isItemImage: options.itemImage, // ✅ FIXED
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
-      isCompanyDetails: options.companyProfile,
+      isCompanyDetails: options.CompanyInfo,
       isCompanyLogo: options.companyLogo,
-      isPartyDetails: options.partyDetails,
+      isPartyDetails: 0,
       isWithQty: options.isWithQty,
     };
 
@@ -166,11 +169,10 @@ const MenuReport = ({
 
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
-      if (typeof value === "boolean") {
-        formData.append(key, value ? "1" : "0");
-      } else {
-        formData.append(key, String(value));
-      }
+      formData.append(
+        key,
+        value === true ? "1" : value === false ? "0" : value
+      );
     });
 
     setLoading(true);
@@ -198,7 +200,7 @@ const MenuReport = ({
     setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const handleWhatsAppShare = (pdfUrl) => {
-    const name = eventName || " there";
+    const name = eventName || "there";
     const mobile = PartyNumber || "";
 
     if (!mobile) {
@@ -206,19 +208,18 @@ const MenuReport = ({
       return;
     }
 
-    const message = `Hi ${name},\nHope you're doing well!\nPlease find attached the PDF as requested. Let me know if you have any questions or need any adjustments.\n\nThanks!\n${pdfUrl}`;
+    const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
+    const url = `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(
+      message
+    )}`;
 
-    // Direct link for WhatsApp Web
-    const url = `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
-
-    // Open WhatsApp Web in new tab
     window.open(url, "_blank");
   };
 
   return (
     <CustomModal
       open={isModalOpen}
-      title={selectedTemplateName || "Report "}
+      title={selectedTemplateName || "Report"}
       onClose={handleClose}
       width={900}
       footer={
@@ -226,17 +227,14 @@ const MenuReport = ({
           <div className="flex justify-end gap-2">
             <button
               onClick={handleClose}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
+              className="px-4 py-2 bg-gray-600 text-white rounded"
             >
               Close
             </button>
             <button
               onClick={() => handleWhatsAppShare(pdfUrl)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 text-white rounded"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
               Share on WhatsApp
             </button>
           </div>
@@ -245,9 +243,7 @@ const MenuReport = ({
             onClick={handleReport}
             disabled={loading}
             className={`px-6 py-2 text-white rounded ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#005BA8] hover:bg-[#004a8f]"
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#005BA8]"
             }`}
           >
             {loading ? "Generating..." : "Generate Report"}
@@ -257,7 +253,6 @@ const MenuReport = ({
     >
       {!pdfUrl ? (
         <>
-          {/* LANGUAGE */}
           <div className="mb-4">
             <label className="block font-medium mb-2">Select Language</label>
             <div className="flex border rounded overflow-hidden">
@@ -277,7 +272,6 @@ const MenuReport = ({
             </div>
           </div>
 
-          {/* CHECK ALL */}
           <div className="flex justify-between border-b pb-3 mb-3">
             <span className="font-semibold">Check All</span>
             <Toggle
@@ -286,27 +280,24 @@ const MenuReport = ({
             />
           </div>
 
-          {/* OPTIONS */}
           <div className="space-y-2">
-            <div className="space-y-2">
-              {visibleOptions.map((key) => (
-                <div key={key} className="flex justify-between items-center">
-                  <span className="capitalize">
-                    {key.replace(/([A-Z])/g, " $1")}
-                  </span>
-                  <Toggle
-                    checked={options[key]}
-                    onChange={() => toggleOne(key)}
-                  />
-                </div>
-              ))}
-            </div>
+            {visibleOptions.map((key) => (
+              <div key={key} className="flex justify-between items-center">
+                <span className="capitalize">
+                  {key.replace(/([A-Z])/g, " $1")}
+                </span>
+                <Toggle
+                  checked={options[key]}
+                  onChange={() => toggleOne(key)}
+                />
+              </div>
+            ))}
           </div>
         </>
       ) : (
         <div style={{ height: "80vh" }}>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} defaultScale={1.0} />
+            <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />
           </Worker>
         </div>
       )}
