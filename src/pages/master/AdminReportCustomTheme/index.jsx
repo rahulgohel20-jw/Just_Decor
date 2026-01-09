@@ -6,6 +6,7 @@ import { GetAllCustomThemeByUserId } from "@/services/apiServices";
 import { useRef } from "react";
 import Swal from "sweetalert2";
 import { toAbsoluteUrl } from "@/utils";
+import { FormattedMessage } from "react-intl";
 
 const AdminReportCustomThem = () => {
   const [showMore, setShowMore] = useState(false);
@@ -134,7 +135,12 @@ const AdminReportCustomThem = () => {
     <Fragment>
       <Container className="flex flex-col min-h-screen">
         <div className="pb-4 mb-3 border-b border-gray-200">
-          <h1 className="text-xl text-gray-900">Menu Report Themes</h1>
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="ADMIN.REPORT.MENU_REPORT_THEMES"
+              defaultMessage="Menu Report Themes"
+            />
+          </h1>
         </div>
 
         {/* Tab Navigation */}
@@ -150,7 +156,10 @@ const AdminReportCustomThem = () => {
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Themes
+            <FormattedMessage
+              id="ADMIN.REPORT.THEMES"
+              defaultMessage="Themes"
+            />{" "}
             <span
               className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
                 activeTab === "theme"
@@ -158,13 +167,18 @@ const AdminReportCustomThem = () => {
                   : "bg-gray-200 text-gray-600"
               }`}
             >
+              {" "}
+              <FormattedMessage
+                id="ADMIN.REPORT.NAMEPLATES"
+                defaultMessage="Nameplates"
+              />
               {themeTemplates.length}
             </span>
           </button>
           <button
             onClick={() => {
               setActiveTab("nameplate");
-              setShowMore(false); // Reset show more when switching tabs
+              setShowMore(false);
             }}
             className={`px-6 py-3 font-medium text-sm transition-colors relative ${
               activeTab === "nameplate"
@@ -172,7 +186,11 @@ const AdminReportCustomThem = () => {
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Nameplates
+            <FormattedMessage
+              id="ADMIN.REPORT.NAMEPLATES"
+              defaultMessage="Nameplates"
+            />
+
             <span
               className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
                 activeTab === "nameplate"
@@ -189,7 +207,12 @@ const AdminReportCustomThem = () => {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#005BA8] border-t-transparent mb-4"></div>
-              <p className="text-gray-600">Loading templates...</p>
+              <p className="text-gray-600">
+                <FormattedMessage
+                  id="COMMON.LOADING_TEMPLATES"
+                  defaultMessage="Loading templates..."
+                />
+              </p>
             </div>
           </div>
         ) : currentTemplates.length === 0 ? (
@@ -202,7 +225,18 @@ const AdminReportCustomThem = () => {
               />
 
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No {activeTab === "theme" ? "themes" : "nameplates"} found
+                <FormattedMessage
+                  id={
+                    activeTab === "theme"
+                      ? "ADMIN.REPORT.NO_THEMES_FOUND"
+                      : "ADMIN.REPORT.NO_NAMEPLATES_FOUND"
+                  }
+                  defaultMessage={
+                    activeTab === "theme"
+                      ? "No themes found"
+                      : "No nameplates found"
+                  }
+                />
               </h3>
             </div>
           </div>
@@ -304,7 +338,10 @@ const AdminReportCustomThem = () => {
                   onClick={() => setShowMore(!showMore)}
                   className="bg-[#005BA8] text-white px-6 py-2 rounded-full shadow hover:bg-[#004C8C] transition"
                 >
-                  {showMore ? "Show Less" : "Show More"}
+                  <FormattedMessage
+                    id={showMore ? "COMMON.SHOW_LESS" : "COMMON.SHOW_MORE"}
+                    defaultMessage={showMore ? "Show Less" : "Show More"}
+                  />
                 </button>
               </div>
             )}
