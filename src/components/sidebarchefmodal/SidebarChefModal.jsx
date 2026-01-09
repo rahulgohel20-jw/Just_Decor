@@ -227,6 +227,28 @@ export default function SidebarChefModal({
     setExtraRows((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // ✅ NEW FUNCTION: Handle deletion of existing rows from menuAllocations
+  const handleRemoveExistingRow = (allocIndex) => {
+    setMenuAllocations((prev) => {
+      const updated = [...prev];
+      const currentItem = updated.find(
+        (m) =>
+          m.menuItemId === row?.menuItemId &&
+          m.menuCategoryId === row?.menuCategoryId &&
+          m.chefLabour === true
+      );
+
+      if (currentItem && currentItem.eventFunctionMenuAllocations) {
+        currentItem.eventFunctionMenuAllocations =
+          currentItem.eventFunctionMenuAllocations.filter(
+            (_, idx) => idx !== allocIndex
+          );
+      }
+
+      return updated;
+    });
+  };
+
   const handleExtraRowChange = (index, field, value) => {
     setExtraRows((prev) => {
       const updated = [...prev];
@@ -1098,7 +1120,7 @@ export default function SidebarChefModal({
                                 type="button"
                                 className="btn btn-sm btn-icon btn-clear"
                                 title="Remove Row"
-                                onClick={() => handleRemoveRow(idx)}
+                                onClick={() => handleRemoveExistingRow(idx)}
                               >
                                 <i className="ki-filled ki-trash text-danger"></i>
                               </button>
