@@ -24,6 +24,7 @@ const MenuReport = ({
   eventName,
   PartyNumber,
   selectedTemplateName,
+  isNamePlateTheme,
 }) => {
   const intl = useIntl();
 
@@ -271,14 +272,15 @@ const MenuReport = ({
               ))}
             </div>
           </div>
-
-          <div className="flex justify-between border-b pb-3 mb-3">
-            <span className="font-semibold">Check All</span>
-            <Toggle
-              checked={isCheckAll}
-              onChange={() => toggleAll(!isCheckAll)}
-            />
-          </div>
+          {!isNamePlateTheme && (
+            <div className="flex justify-between border-b pb-3 mb-3">
+              <span className="font-semibold">Check All</span>
+              <Toggle
+                checked={isCheckAll}
+                onChange={() => toggleAll(!isCheckAll)}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             {visibleOptions.map((key) => (
