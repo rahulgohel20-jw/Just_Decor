@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddVendor from "../../add-vendor/AddVendor";
+import AddGodown from "@/partials/modals/add-godown/AddGodown";
 import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
 
 import { FormattedMessage } from "react-intl";
+import { GETallGodown } from "../../../../services/apiServices";
+import AddContactName from "../../../../pages/master/MenuItemMaster/components/AddContactName";
 
 const AddGrossary = ({
   isModalOpen,
@@ -22,8 +25,14 @@ const AddGrossary = ({
   const [selectedPlace, setSelectedPlace] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [isGodownOpen, setIsGodownOpen] = useState(false);
+  const [options, setOptions] = useState([
+    { value: "venue", label: "At venue", id: "venue" },
+  ]);
 
   const handleModalClose = () => setIsModalOpen(false);
+
+  let userId = localStorage.getItem("userId");
 
   // Allocation handlers
   const handleAllocateAgency = () => {
@@ -41,6 +50,41 @@ const AddGrossary = ({
   const handleAllocateDate = () => {
     if (selectedDate) {
       onAllocateDate(selectedDate);
+    }
+  };
+
+  useEffect(() => {
+    fetchGodowns();
+  }, []);
+
+  const fetchGodowns = async () => {
+    try {
+      // Get userId from localStorage
+
+      // Validate userId
+      if (!userId || userId === "undefined" || userId === "null") {
+        console.warn("No valid userId found, skipping godown fetch");
+        return;
+      }
+
+      // Pass userId to the API call
+      const res = await GETallGodown(userId);
+
+      if (res?.data?.data?.length) {
+        const godownOptions = res.data.data.map((g) => ({
+          value: g.nameEnglish, // ✅ Changed to nameEnglish for display
+          label: g.nameEnglish,
+          id: g.id, // ✅ Keep the ID in a separate property
+        }));
+
+        setOptions([
+          { value: "At venue", label: "At venue", id: "venue" },
+          ...godownOptions,
+        ]);
+      }
+    } catch (err) {
+      console.error("Error fetching godowns:", err);
+    } finally {
     }
   };
 
@@ -74,7 +118,7 @@ const AddGrossary = ({
             {/* Agency */}
             <div className="flex items-end gap-2">
               <select
-                className="select w-[200px]"
+                className="select w-[150px]"
                 value={selectedAgency}
                 onChange={(e) => setSelectedAgency(e.target.value)}
               >
@@ -129,8 +173,20 @@ const AddGrossary = ({
                 <PlaceSelect
                   value={selectedPlace}
                   onChange={(value) => setSelectedPlace(value)}
+                  options={options}
                 />
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsGodownOpen(true);
+                  setIsModalOpen(false);
+                }}
+                className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full"
+                title="Add Vendor"
+              >
+                <i className="ki-filled ki-plus"></i>
+              </button>
 
               <button
                 className="btn btn-primary"
@@ -175,7 +231,7 @@ const AddGrossary = ({
       )}
 
       {/* ADD VENDOR MODAL */}
-      <AddVendor
+      <AddContactName
         isModalOpen={isVendorModalOpen}
         setIsModalOpen={(val) => {
           setIsVendorModalOpen(val);
@@ -187,6 +243,22 @@ const AddGrossary = ({
           }
         }}
         refreshData={FetchSuplier}
+        contactTypeId={3}
+        concatId={3}
+      />
+
+      <AddGodown
+        isModalOpen={isGodownOpen}
+        setIsModalOpen={(val) => {
+          setIsGodownOpen(val);
+
+          if (!val) {
+            // reopen supplier modal
+            setIsModalOpen(true);
+            fetchGodowns && fetchGodowns();
+          }
+        }}
+        refreshData={fetchGodowns}
       />
     </>
   );
