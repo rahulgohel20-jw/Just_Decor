@@ -73,17 +73,14 @@ const FunctionsDetails = ({
   const [venueList, setVenueList] = useState([]);
   const [selectedVenueName, setSelectedVenueName] = useState("");
 
-  // ✅ Get language from localStorage
   const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
 
-  // ✅ Update lang state when language changes
   useEffect(() => {
     const storedLang = localStorage.getItem("lang") || "en";
     setLang(storedLang);
     console.log("[FunctionsDetails] Language changed:", storedLang);
   }, [isRTL, locale]);
 
-  // ✅ Simplified function to get localized field based on localStorage lang
   const getLocalizedField = (item, fieldName) => {
     if (!item) return "";
 
@@ -204,7 +201,6 @@ const FunctionsDetails = ({
     );
   };
 
-  // ✅ Modified FetchFunction with language support and auto-select
   const FetchFunction = (autoSelectLatest = false) => {
     const Id = localStorage.getItem("userId");
     GetAllFunctionsByUserId(Id)
@@ -254,7 +250,6 @@ const FunctionsDetails = ({
               eventFunction: updatedFunctions,
             });
 
-            // Select the function in the new row after a short delay
             setTimeout(() => {
               handleFunctionSelect(
                 updatedFunctions.length - 1,
@@ -516,12 +511,23 @@ const FunctionsDetails = ({
   return (
     <div className="rounded-md border border-gray-200 bg-white">
       <div className="p-3 flex justify-end items-center">
-        <Tooltip title="Add Function">
+        <Tooltip
+          title={
+            <FormattedMessage
+              id="USER.DASHBOARD.ADD_FUNCTION"
+              defaultMessage="Add Function"
+            />
+          }
+        >
           <button
             className="btn btn-primary btn-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Create New Function
+            <Plus size={16} />{" "}
+            <FormattedMessage
+              id="USER.DASHBOARD.CREATE_NEW_FUNCTION"
+              defaultMessage="Create New Function"
+            />
           </button>
         </Tooltip>
       </div>
