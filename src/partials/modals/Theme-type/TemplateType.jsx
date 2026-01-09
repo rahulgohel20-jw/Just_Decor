@@ -15,17 +15,20 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isRawModalOpen, setIsRawModalOpen] = useState(false);
+  console.log(rawdata);
 
   const initialValues = {
     templateModuleId: rawdata?.templateModuleId || "",
     nameEnglish: rawdata?.nameEnglish || "",
     nameGujarati: rawdata?.nameGujarati || "",
     nameHindi: rawdata?.nameHindi || "",
+    sequence: rawdata?.sortorder || "",
   };
 
   const validationSchema = Yup.object().shape({
     templateModuleId: Yup.string().required("Category is required"),
     nameEnglish: Yup.string().required("Name is required"),
+    sequence: Yup.number().required("Sequence is required"),
   });
 
   useEffect(() => {
@@ -64,6 +67,7 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
         nameGujarati: values.nameGujarati,
         nameHindi: values.nameHindi,
         templateModuleId: Number(values.templateModuleId),
+        sortorder: Number(values.sequence),
       };
 
       const response = await AddThemeType(payload);
@@ -179,6 +183,19 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
                   name="nameHindi"
                   disabled
                   className="border rounded-lg p-2 w-full"
+                />
+
+                <label className="block mt-4 mb-1">
+                  Sequence<span className="text-red-500">*</span>
+                </label>
+                <Field
+                  name="sequence"
+                  className="border rounded-lg p-2 w-full"
+                />
+                <ErrorMessage
+                  name="sequence"
+                  component="div"
+                  className="text-red-500 text-sm"
                 />
 
                 <div className="flex justify-end gap-3 mt-6">

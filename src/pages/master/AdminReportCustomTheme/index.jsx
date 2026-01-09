@@ -34,7 +34,6 @@ const AdminReportCustomThem = () => {
     setIsLoading(true);
     try {
       const response = await GetAllCustomThemeByUserId(userId);
-      console.log("customeTheme", response);
 
       if (response?.data?.success && response?.data?.data) {
         // Map the response to extract templateMaster data
@@ -58,6 +57,7 @@ const AdminReportCustomThem = () => {
           isActive: item.templateMaster?.isActive,
           createdAt: item.createdAt,
         }));
+
         setTemplateList(mappedData);
       } else {
         setTemplateList([]);
