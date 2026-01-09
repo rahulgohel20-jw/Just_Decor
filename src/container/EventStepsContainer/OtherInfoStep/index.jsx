@@ -254,7 +254,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
                   <ManagerDropdown
                     value={formData.managerId || ""}
                     name="managerId"
-                    onChange={handleMangerNameChange}
+                    onChange={onInputChange}
                     options={manager}
                     className="w-full"
                   />
