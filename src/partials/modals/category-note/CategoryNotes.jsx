@@ -7,8 +7,11 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
   });
 
   useEffect(() => {
-    if (isOpen && notes) {
-      setLocalNotes(notes);
+    if (isOpen) {
+      setLocalNotes({
+        categoryNotes: notes?.notes || "",
+        categorySlogan: notes?.slogan || "",
+      });
     }
   }, [isOpen, notes]);
 
@@ -19,8 +22,12 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
   };
 
   const handleSave = () => {
-    onSave(localNotes);
+    onSave({
+      notes: localNotes.categoryNotes,
+      slogan: localNotes.categorySlogan,
+    });
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl w-full max-w-5xl p-6 relative overflow-y-auto max-h-[90vh]">

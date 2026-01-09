@@ -835,13 +835,13 @@ const EventPlanningPage = ({ mode }) => {
     setShowNoteModal(true);
   };
   const openCategoryNotesModal = (categoryName) => {
-    // ✅ Get both notes and slogan from state
     const bucket = selectedByFunction[selectedFunction];
-    const notes = bucket?.categoryNotes?.[categoryName] || "";
-    const slogan = bucket?.categorySlogans?.[categoryName] || "";
 
     setCurrentCategoryForNotes(categoryName);
-    setCategoryNotes(notes);
+    setCategoryNotes({
+      notes: bucket?.categoryNotes?.[categoryName] || "",
+      slogan: bucket?.categorySlogans?.[categoryName] || "",
+    });
     setShowCategoryNoteModal(true);
   };
 
