@@ -50,10 +50,11 @@ const MenuReport = ({
     categoryImage: false,
     itemSlogan: false,
     itemInstruction: false,
-    companyDetails: true,
+    companyProfile: false,
     companyLogo: true,
     itemImage: true,
     partyDetails: true,
+    isWithQty: true,
   });
 
   /* ---------------- FETCH CONFIG ---------------- */
@@ -72,11 +73,11 @@ const MenuReport = ({
           categoryImage: config.isCategoryImage === 0,
           itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
-          companyDetails: config.isCompanyDetails === 0,
+          companyProfile: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 0,
           itemImage: config.isItemImage === 0,
           partyDetails: config.isPartyDetails === 0,
-          isWithQty: config.isWithQty === 0,
+          isWithQty: config.isWithQty === 1,
         });
 
         setVisibleOptions(
@@ -152,7 +153,7 @@ const MenuReport = ({
       isItemImage: options.categoryImage,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
-      isCompanyDetails: options.companyDetails,
+      isCompanyDetails: options.companyProfile,
       isCompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,

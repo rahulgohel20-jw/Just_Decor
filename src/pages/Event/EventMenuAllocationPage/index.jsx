@@ -281,8 +281,8 @@ const OrderSummary = ({
   }, [groups, groupedByFunction, rows]);
 
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
-  let totalChefPrice = groups[0]?.totalChefPrice;
-  let totalOutSidePrice = groups[0]?.totalOutSidePrice;
+  let totalChefPrice = groups[0]?.totalChefPrice || 0;
+  let totalOutSidePrice = groups[0]?.totalOutSidePrice || 0;
 
   return (
     <div className="flex flex-col gap-2 no-scrollbar">
@@ -351,8 +351,8 @@ const OrderSummary = ({
                     ? Math.round(functionTotal / functionGroup.pax)
                     : 0;
 
-                const totalChefPrice = functionGroup?.totalChefPrice;
-                const totalOutSidePrice = functionGroup?.totalOutSidePrice;
+                const totalChefPrice = functionGroup?.totalChefPrice || 0;
+                const totalOutSidePrice = functionGroup?.totalOutSidePrice || 0;
                 return (
                   <div
                     key={`function-summary-${functionGroup.eventFunctionId}-${fIdx}`}
