@@ -60,6 +60,7 @@ const TemplateMapping = () => {
       rawid: item.id,
       createdAt: item.nameEnglish || "-",
       status: item.isActive,
+      sortorder: item.sortorder,
     }));
 
     setTableData(mapped);
