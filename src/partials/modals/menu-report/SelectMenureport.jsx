@@ -37,6 +37,7 @@ export default function SelectMenureport({
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
+  const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
   const userId = localStorage.getItem("userId");
 
   const intl = useIntl();
@@ -104,12 +105,17 @@ export default function SelectMenureport({
             label: getLangValue(module, "name", activeLang),
             moduleId: module.id,
             img: "/media/icons/simple.png",
+            nameEnglish: module.nameEnglish, // KEEP TRACK OF MODULE NAME
           }));
 
           setTabs(formattedModules);
 
           if (formattedModules.length > 0) {
             setActiveTab(formattedModules[0].key);
+            // CHECK IF FIRST TAB IS NAME PLATE THEME
+            setIsNamePlateTheme(
+              formattedModules[0].nameEnglish === "Name Plate Theme"
+            );
           }
         }
       } catch (error) {
@@ -197,6 +203,7 @@ export default function SelectMenureport({
       fetchEventData();
     }
   }, [isSelectMenureport, finalEventId]);
+
   useEffect(() => {
     if (!eventData) return;
 
@@ -217,8 +224,16 @@ export default function SelectMenureport({
     // ✅ OPEN MenuReport modal
     setIsMenuReportOpen(true);
   };
+
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
+  };
+
+  // NEW: Handle tab change and update isNamePlateTheme
+  const handleTabChange = (tabKey) => {
+    setActiveTab(tabKey);
+    const selectedTab = tabs.find((tab) => tab.key === tabKey);
+    setIsNamePlateTheme(selectedTab?.nameEnglish === "Name Plate Theme");
   };
 
   return (
@@ -328,45 +343,99 @@ export default function SelectMenureport({
             </select>
           </div>
 
-          {/* Dynamic Tabs */}
-          <div className="flex gap-10 border-b border-gray-200 mb-6 overflow-x-scroll scrollbar-hide">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.key;
+          {/* Dynamic Tabs - FIXED with proper scroll and arrows */}
+          <div className="relative mb-6">
+            {/* Left Arrow Button */}
+            <button
+              onClick={() => {
+                const container = document.getElementById("tabs-container");
+                container.scrollBy({ left: -200, behavior: "smooth" });
+              }}
+              className="absolute left-[-20px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all"
+              aria-label="Scroll left"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
 
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`group relative pb-4 flex items-center gap-3 font-semibold text-lg transition-all
-          ${isActive ? "text-gray-700 hover:text-[#005BA8]" : "text-gray-700 hover:text-[#005BA8]"}
-        `}
-                  style={isActive ? { color: "#005BA8" } : {}}
-                >
-                  {/* Icon with blue filter when active */}
-                  <img
-                    src={toAbsoluteUrl(tab.img)}
-                    alt={tab.label}
-                    className="w-6 h-6 transition-all duration-300"
-                    style={{
-                      filter: isActive
-                        ? "invert(26%) sepia(95%) saturate(1685%) hue-rotate(192deg) brightness(93%) contrast(101%)"
-                        : "invert(50%) sepia(0%) saturate(0%)",
-                    }}
-                  />
+            {/* Tabs Container */}
+            <div
+              id="tabs-container"
+              className="flex gap-10 border-b border-gray-200 overflow-x-auto scrollbar-hide px-10"
+            >
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.key;
 
-                  {/* Label */}
-                  <span className=" max-w-[300px]">{tab.label}</span>
-
-                  {/* Bottom underline */}
-                  <span
-                    className={`absolute left-0 -bottom-[1px] h-[4px] w-full transition-all duration-300
-            ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => handleTabChange(tab.key)}
+                    className={`group relative pb-4 flex items-center gap-3 font-semibold text-lg transition-all flex-shrink-0 whitespace-nowrap
+            ${isActive ? "text-gray-700 hover:text-[#005BA8]" : "text-gray-700 hover:text-[#005BA8]"}
           `}
-                    style={{ backgroundColor: "#005BA8" }}
-                  />
-                </button>
-              );
-            })}
+                    style={isActive ? { color: "#005BA8" } : {}}
+                  >
+                    {/* Icon with blue filter when active */}
+                    <img
+                      src={toAbsoluteUrl(tab.img)}
+                      alt={tab.label}
+                      className="w-6 h-6 transition-all duration-300"
+                      style={{
+                        filter: isActive
+                          ? "invert(26%) sepia(95%) saturate(1685%) hue-rotate(192deg) brightness(93%) contrast(101%)"
+                          : "invert(50%) sepia(0%) saturate(0%)",
+                      }}
+                    />
+
+                    {/* Label */}
+                    <span className="max-w-[300px]">{tab.label}</span>
+
+                    {/* Bottom underline */}
+                    <span
+                      className={`absolute left-0 -bottom-[1px] h-[4px] w-full transition-all duration-300
+              ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"}
+            `}
+                      style={{ backgroundColor: "#005BA8" }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right Arrow Button */}
+            <button
+              onClick={() => {
+                const container = document.getElementById("tabs-container");
+                container.scrollBy({ left: 200, behavior: "smooth" });
+              }}
+              className="absolute right-[-20px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all"
+              aria-label="Scroll right"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           </div>
 
           {/* Dynamic Template Cards */}
@@ -459,6 +528,7 @@ export default function SelectMenureport({
         eventName={eventName}
         selectedTemplateName={selectedTemplateName}
         PartyNumber={PartyNumber}
+        isNamePlateTheme={isNamePlateTheme} // NEW PROP
       />
     </>
   );
