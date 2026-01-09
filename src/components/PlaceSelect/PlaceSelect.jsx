@@ -4,7 +4,7 @@ import { GETallGodown } from "@/services/apiServices";
 
 const PlaceSelect = ({ value, onChange, className }) => {
   const [options, setOptions] = useState([
-    { value: "venue", label: "At venue" },
+    { value: "venue", label: "At venue", id: "venue" },
   ]);
   const [loading, setLoading] = useState(false);
 
@@ -24,15 +24,19 @@ const PlaceSelect = ({ value, onChange, className }) => {
         }
 
         // Pass userId to the API call
-        const res = await GETallGodown(userId); // or however your API expects it
+        const res = await GETallGodown(userId);
 
         if (res?.data?.data?.length) {
           const godownOptions = res.data.data.map((g) => ({
-            value: g.id.toString(),
+            value: g.nameEnglish, // ✅ Changed to nameEnglish for display
             label: g.nameEnglish,
+            id: g.id, // ✅ Keep the ID in a separate property
           }));
 
-          setOptions([{ value: "venue", label: "At venue" }, ...godownOptions]);
+          setOptions([
+            { value: "At venue", label: "At venue", id: "venue" },
+            ...godownOptions,
+          ]);
         }
       } catch (err) {
         console.error("Error fetching godowns:", err);
@@ -44,12 +48,18 @@ const PlaceSelect = ({ value, onChange, className }) => {
     fetchGodowns();
   }, []);
 
+  // ✅ Custom onChange to pass both name and ID
+  const handleChange = (selectedValue, option) => {
+    // Pass both the name (value) and ID to the parent
+    onChange(selectedValue, option.id);
+  };
+
   return (
     <Select
       size="small"
       value={value}
-      onChange={onChange}
-      className="w-full h-10 "
+      onChange={handleChange}
+      className="w-full h-10"
       options={options}
       loading={loading}
       placeholder="Select place"

@@ -899,7 +899,43 @@
   "COMMON.SHOW_LESS": "ઓછું બતાવો",
   "COMMON.LOADING_PDF": "PDF લોડ થઈ રહ્યું છે...",
   "COMMON.NO_PDF_TITLE": "PDF ઉપલબ્ધ નથી",
-  "COMMN.NO_PDF_TEXT": "આ ટેમ્પ્લેટ માટે ડમી PDF ઉપલબ્ધ નથી"
+  "COMMN.NO_PDF_TEXT": "આ ટેમ્પ્લેટ માટે ડમી PDF ઉપલબ્ધ નથી",
+
+  "INVOICE.TAX_INVOICE": "ટેક્સ ઇન્વોઇસ",
+  "INVOICE.EVENT_NAME": "કાર્યક્રમનું નામ",
+  "INVOICE.PARTY_NAME": "પાર્ટીનું નામ",
+  "INVOICE.VENUE_NAME": "સ્થળનું નામ",
+  "INVOICE.INVOICE_DATE": "ઇન્વોઇસ તારીખ",
+  "INVOICE.EVENT_DATE": "કાર્યક્રમ તારીખ",
+  "INVOICE.DUE_DATE": "બાકી તારીખ",
+  "INVOICE.SELECT_DUE_DATE": "બાકી તારીખ પસંદ કરો",
+
+  "COMMON.PRINT": "પ્રિન્ટ",
+  "COMMON.SHARE": "શેર કરો",
+  "COMMON.EDIT": "ફેરફાર કરો",
+  "COMMON.DOE": "પૂર્ણ",
+  
+  "INVOICE.CATERING_DETAILS": "કેટરિંગ ડિટેલ્સ",
+  "INVOICE.BILLING_TO": "બિલિંગ ટુ",
+  "INVOICE.BILLING_ADDRESS": "બિલિંગ એડ્રેસ",
+  "INVOICE.SHIPPING_ADDRESS": "શિપિંગ એડ્રેસ",
+  "INVOICE.BILLING_NAME": "બિલિંગ નેમ",
+  "INVOICE.GST_NUMBER": "જીએસટી નંબર",
+  "INVOICE.ADD_NEW_ADDRESS": "નવો એડ્રેસ ઉમેરો",
+
+  "PLACEHOLDER.ENTER_BILLING_ADDRESS": "બિલિંગ એડ્રેસ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_SHIPPING_ADDRESS": "શિપિંગ એડ્રેસ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_SHIPPING_NAME": "શિપિંગ નેમ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_BILLING_NAME": "બિલિંગ નેમ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_GST_NUMBER": "જીએસટી નંબર એન્ટર કરો",
+
+  "COMMON.EDIT": "એડિટ",
+  "COMMON.SAVE": "સેવ",
+  "COMMON.CANCEL": "કેનસલ",
+  "COMMON.NA": "એન/એ"
+
+
+
 
 
 }
