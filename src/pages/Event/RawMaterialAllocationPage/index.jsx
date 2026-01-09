@@ -15,11 +15,13 @@ import {
   GetEventMasterById,
 } from "@/services/apiServices";
 import { useLocation } from "react-router-dom";
-import { Select, DatePicker, Spin } from "antd";
-import dayjs from "dayjs";
+import { Select, Spin } from "antd";
+
 import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
 import { FormattedMessage, useIntl } from "react-intl";
+import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
 
 const RawMaterialAllocation = ({ mode }) => {
   const location = useLocation();
@@ -340,6 +342,13 @@ const RawMaterialAllocation = ({ mode }) => {
     setHasUnsavedChanges(true);
   };
 
+  const handleAgencyChange = (index, value) => {
+    const updated = [...data];
+    updated[index].agency = value;
+    setData(updated);
+    setHasUnsavedChanges(true);
+  };
+
   const autoSave = async (showNotification = false) => {
     try {
       if (!eventId) {
@@ -431,6 +440,13 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
+  const handleDateChange = (index, date) => {
+    const updated = [...data];
+    updated[index].date = date ? dayjs(date) : null;
+    setData(updated);
+    setHasUnsavedChanges(true);
+  };
+
   const handleSave = async () => {
     setIsSaving(true); // 🔥 Start loader
     const success = await autoSave(true);
@@ -504,12 +520,15 @@ const RawMaterialAllocation = ({ mode }) => {
   const handleAllocateDate = (date) => {
     if (!date) return;
 
-    const updated = data.map((item) => ({
+    const allocatedDate = dayjs(date);
+
+    const updatedData = data.map((item) => ({
       ...item,
-      date: date,
+      date: allocatedDate,
     }));
 
-    setData(updated);
+    setData(updatedData);
+    setOriginalData(updatedData);
     setHasUnsavedChanges(true);
   };
 
@@ -589,12 +608,39 @@ const RawMaterialAllocation = ({ mode }) => {
                         {item.material}
                       </td>
 
-                      <td className="px-4 py-3">{item.agency}</td>
-                      <td className="px-4 py-3">{item.place}</td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          className="border px-2 py-1 w-full"
+                          value={item.agency || ""}
+                          onChange={(e) =>
+                            handleAgencyChange(index, e.target.value)
+                          }
+                        />
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          className="border px-2 py-1 "
+                          value={item.place || ""}
+                          onChange={(e) =>
+                            handleAgencyChange(index, e.target.value)
+                          }
+                        />
+                      </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        {item.date
-                          ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
-                          : "-"}
+                        <DatePicker
+                          selected={
+                            item.date ? dayjs(item.date).toDate() : null
+                          }
+                          onChange={(date) => handleDateChange(index, date)}
+                          showTimeSelect
+                          timeFormat="hh:mm aa"
+                          dateFormat="MM/dd/yyyy hh:mm aa"
+                          className="border px-2 py-1 w-[180px]"
+                          placeholderText="-"
+                        />
                       </td>
                     </tr>
                   ))
