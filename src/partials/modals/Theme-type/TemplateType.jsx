@@ -15,13 +15,14 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isRawModalOpen, setIsRawModalOpen] = useState(false);
+  console.log(rawdata);
 
   const initialValues = {
     templateModuleId: rawdata?.templateModuleId || "",
     nameEnglish: rawdata?.nameEnglish || "",
     nameGujarati: rawdata?.nameGujarati || "",
     nameHindi: rawdata?.nameHindi || "",
-    sequence: rawdata?.sequence || "",
+    sequence: rawdata?.sortorder || "",
   };
 
   const validationSchema = Yup.object().shape({
