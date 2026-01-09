@@ -86,6 +86,7 @@ export default function SelectMenureport({
                 "Menu Allocation Theme",
                 "Chef Agency Theme",
                 "Outside Agency Theme",
+                "Name Plate Theme",
               ].includes(module.nameEnglish)
             );
           } else if (mode === "raw") {

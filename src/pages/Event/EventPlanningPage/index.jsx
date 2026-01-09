@@ -165,7 +165,7 @@ const EventPlanningPage = ({ mode }) => {
       const flatItems = data.menuPreparationItems || [];
       const menuData = data.menuPreparation || [];
 
-      setDefaultRate(menuData?.defaultPrice ?? "");
+      setDefaultRate(menuData?.eventFunction?.rate ?? "");
 
       const categories = {};
       const order = [];

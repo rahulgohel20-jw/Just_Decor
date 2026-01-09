@@ -1364,12 +1364,16 @@ const EventMenuAllocationPage = ({ mode }) => {
     const adjustment = Number(percentage);
     if (isNaN(adjustment) || adjustment === 0) return;
 
-    setRows((prevRows) =>
-      prevRows.map((row) => ({
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
         ...row,
         personCount: Math.max(0, (row.personCount || 0) + adjustment),
-      }))
-    );
+      }));
+
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+
+      return updatedRows;
+    });
 
     setPercentage("");
   };

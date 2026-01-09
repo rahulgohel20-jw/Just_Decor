@@ -253,9 +253,7 @@ function AddCustomPackage() {
     }
   };
 
-  const refreshMenuItems = () => {
-
-  };
+  const refreshMenuItems = () => {};
 
   const handleOpenNotes = (index) => {
     const item = selectedItems[index];
@@ -479,6 +477,8 @@ function AddCustomPackage() {
           text: response.data.msg,
           timer: 2000,
           showConfirmButton: false,
+        }).then(() => {
+          navigate("/master/custom-package");
         });
 
         // Optionally redirect back or clear form
