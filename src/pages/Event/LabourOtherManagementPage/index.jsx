@@ -18,6 +18,8 @@ import { useExtraExpense } from "./hooks/useExtraExpense";
 import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactName";
 import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
+import { FormattedMessage } from "react-intl";
+
 import { Plus } from "lucide-react";
 import {
   GetEventMasterById,
@@ -616,7 +618,10 @@ const LabourOtherManagementPage = ({ mode }) => {
             {/* LEFT: Page Title + 3 Custom Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
-                5. Agency Distribution
+                <FormattedMessage
+                  id="AGENCY_DISTRIBUTION.TITLE"
+                  defaultMessage="5. Agency Distribution"
+                />
               </h2>
 
               {/* ONLY FOR THIS SCREEN */}
@@ -626,10 +631,13 @@ const LabourOtherManagementPage = ({ mode }) => {
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 >
                   <i
-                    className="ki-filled ki-menu "
+                    className="ki-filled ki-menu"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  2. Menu Planning
+                  <FormattedMessage
+                    id="MENU_PLANNING.BUTTON"
+                    defaultMessage="2. Menu Planning"
+                  />
                 </button>
 
                 <button
@@ -637,10 +645,13 @@ const LabourOtherManagementPage = ({ mode }) => {
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 >
                   <i
-                    className="ki-filled ki-menu "
+                    className="ki-filled ki-menu"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  3. Menu Execution
+                  <FormattedMessage
+                    id="MENU_EXECUTION.BUTTON"
+                    defaultMessage="3. Menu Execution"
+                  />
                 </button>
 
                 <button
@@ -658,7 +669,10 @@ const LabourOtherManagementPage = ({ mode }) => {
                     className="ki-filled ki-gift"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  4. Raw Material Distribution
+                  <FormattedMessage
+                    id="RAW_MATERIAL_DISTRIBUTION.BUTTON"
+                    defaultMessage="4. Raw Material Distribution"
+                  />
                 </button>
               </div>
             </div>
@@ -672,27 +686,56 @@ const LabourOtherManagementPage = ({ mode }) => {
               <div className="flex items-center gap-7">
                 <EventInfoItem
                   icon="ki-calendar-tick"
-                  label="Party Name"
+                  label={
+                    <FormattedMessage
+                      id="EVENT_INFO.PARTY_NAME"
+                      defaultMessage="Party Name"
+                    />
+                  }
                   value={eventData?.party?.nameEnglish}
                 />
+
                 <EventInfoItem
                   icon="ki-user"
-                  label="Event Name"
+                  label={
+                    <FormattedMessage
+                      id="EVENT_INFO.EVENT_NAME"
+                      defaultMessage="Event Name"
+                    />
+                  }
                   value={eventData?.eventType?.nameEnglish}
                 />
+
                 <EventInfoItem
                   icon="ki-geolocation-home"
-                  label="Function Name"
+                  label={
+                    <FormattedMessage
+                      id="EVENT_INFO.FUNCTION_NAME"
+                      defaultMessage="Function Name"
+                    />
+                  }
                   value={eventData?.eventType?.nameEnglish}
                 />
+
                 <EventInfoItem
                   icon="ki-calendar-tick"
-                  label="Event Venue"
+                  label={
+                    <FormattedMessage
+                      id="EVENT_INFO.EVENT_VENUE"
+                      defaultMessage="Event Venue"
+                    />
+                  }
                   value={eventData?.venue?.nameEnglish}
                 />
+
                 <EventInfoItem
                   icon="ki-calendar-tick"
-                  label="Event Date Time"
+                  label={
+                    <FormattedMessage
+                      id="EVENT_INFO.EVENT_DATE_TIME"
+                      defaultMessage="Event Date Time"
+                    />
+                  }
                   value={eventData?.eventStartDateTime}
                 />
               </div>
@@ -702,13 +745,13 @@ const LabourOtherManagementPage = ({ mode }) => {
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
               className={`text-sm px-3 py-2 rounded-md transition
-    ${
-      hasUnsavedChanges && !isSaving
-        ? "bg-[#005BA8] text-white"
-        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-    }`}
+        ${
+          hasUnsavedChanges && !isSaving
+            ? "bg-[#005BA8] text-white"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        }`}
             >
-              Save
+              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
             </button>
           </div>
         </div>
