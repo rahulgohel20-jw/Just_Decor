@@ -14,7 +14,6 @@
   "USER.MENU.LOGOUT": "લૉગઆઉટ",
   "USER.MENU.LANGUAGE": "લેંગ્વેજ",
 
-  
   "COMMON.CONTACTSIDEBAR_TYPE": "ટાઇપ",
   "COMMON.CONTACTSIDEBAR_CATEGORIES": "કેટેગરીઝ",
   "COMMON.CUSTOMERSSIDEBAR": "કસ્ટમર્સ",
@@ -29,7 +28,6 @@
   "COMMON.USERSIDEBAR_MASTER": "યુઝર માસ્ટર",
   "COMMON.DEPARTMENTSIDEBAR": "ડિપાર્ટમેન્ટ",
 
-  
   "COMMON.RAW_MATERIALSIDEBAR_TYPE": "ટાઇપ",
   "COMMON.RAW_MATERIALSIDEBAR_CATEGORY": "કેટેગરી",
   "COMMON.RAWSIDEBAR_MATERIAL": "આઇટમ્સ",
@@ -38,18 +36,13 @@
   "COMMON.MENU_ITEMSIDEBAR_CATEGORY": "કેટેગરી",
   "COMMON.MENU_ITEM_SUBSIDEBAR_CATEGORY": "સબ કેટેગરી",
   "COMMON.MENUSIDEBAR_ITEM": "આઇટમ્સ વિથ રેસીપી",
-  
+
   "COMMONSIDEBAR.CONFIGURATION": "કોન્ફિગરેશન",
 
   "COMMON.CHANGESIDEBARRAWMATIRAL": "ચેન્જ રો મટિરિયલ કેટેગરી",
   "COMMON.CHANGESIDEBARMENUITEM": "ચેન્જ મેનુ આઇટમ કેટેગરી",
   "COMMON.CHANGEMENUITEMALLOCATION": "મેનુ આઇટમ એલોકેશન",
   "COMMON.CHANGEALLOCATESUPLIER": "એલોકેટ સપ્લાયર",
-
-
-
-
-
 
   "USER.DASHBOARD.DASHBOARD_LANGUAGE": "ડેશબોર્ડ",
   "USER.DASHBOARD.DASHBOARD_DESCRIPTION": "પર્સનલ કસ્ટમાઇઝેશન માટે સેન્ટ્રલ હબ",
@@ -176,7 +169,7 @@
   "COMMON.NAME_HINDI": "નેમ (हिंदी)",
   "COMMON.UPDATE": "અપડેટ",
   "USER.MASTER.ADD_CONTACT_TYPE": "એડ કોન્ટેક્ટ ટાઇપ",
-"USER.MASTER.ADD_CONTACT_CATEGORY": "ક્રિએટ ન્યૂ",
+  "USER.MASTER.ADD_CONTACT_CATEGORY": "ક્રિએટ ન્યૂ",
   "USER.MASTER.NEW_CONTACT_CATEGORY": "ન્યૂ કોન્ટેક્ટ કેટેગરી",
   "USER.MASTER.EDIT_CONTACT_CATEGORY": "એડિટ કોન્ટેક્ટ કેટેગરી",
   "USER.MASTER.SELECT_CONTACT_TYPE": "સિલેક્ટ કોન્ટેક્ટ ટાઇપ",
@@ -514,6 +507,7 @@
   "EVENT_MENU_ALLOCATION.ADJUST_PERSON": "એડજસ્ટ પર્સન",
   "EVENT_MENU_ALLOCATION.SEARCH_ITEM": "સર્ચ આઇટમ",
   "EVENT_MENU_ALLOCATION.REPORT": "રિપોર્ટ",
+  "EVENT_MENU_ALLOCATION.AGENCY": "એજન્સી એલોકેશન",
   "EVENT_MENU_ALLOCATION.NO_ITEMS_AVAILABLE": "નો મેનુ આઇટમ્સ એવેલેબલ.",
   "SIDEBAR_MODAL.AGENCY_ORDER": "એજન્સી ઓર્ડર",
   "COMMON.CLOSE": "ક્લોઝ",
@@ -769,7 +763,7 @@
   "USER.EVENT.EVENT_CODE": "ઈવેન્ટ કોડ",
   "USER.PRICE_PLAN.TITLE": "યોજનાઓ અને કિંમતો",
   "USER.PRICE_PLAN.SUBTITLE": "તમારી સમય-બચત automation ની જરૂરિયાતો મોટી હોય કે નાની, અમે તમને વિકાસ કરવામાં મદદ કરવા અહીં છીએ.",
-"USER.MASTER.VENUE_TYPE_MASTER": "વેન્યુ માસ્ટર",
+  "USER.MASTER.VENUE_TYPE_MASTER": "વેન્યુ માસ્ટર",
 
   "USER.MASTER.LABOUR_SHIFT_MASTER": "लेबर शिफ्ट मास्टर",
   "USER.MASTER.SEARCH_SHIFT": "शिफ्ट खोजें",
@@ -792,24 +786,21 @@
   "TABLE.NO": "ના",
   "TABLE.EDIT": "સંપાદિત કરો",
   "TABLE.DELETE": "હટાવો",
-  
+
   "PACKAGE.NAME": "નામ",
   "PACKAGE.PRICE": "કિંમત",
   "PACKAGE.TOTAL_ITEMS": "કુલ આઇટમ",
   "COMMON.ACTION": "એક્શન",
   "COMMON.EDIT": "પેકેજ સંપાદિત કરો",
   "COMMON.DELETE": "હટાવો",
-"COMMON.DEPARTMENT_MASTER": "ડિપાર્ટમેન્ટ માસ્ટર",
-"COMMON.RAW_MATERIAL_ITEM_MASTER": "રૉ મટિરિયલ આઇટમ માસ્ટર",
-
-
+  "COMMON.DEPARTMENT_MASTER": "ડિપાર્ટમેન્ટ માસ્ટર",
+  "COMMON.RAW_MATERIAL_ITEM_MASTER": "રૉ મટિરિયલ આઇટમ માસ્ટર",
 
   "COMMON.ALL_CATEGORIES": "બધી કેટેગરીઝ",
   "COMMON.GENERAL_FIX": "જનરલ ફિક્સ",
   "COMMON.SHOW_ALL": "બધું બતાવો",
   "USER.MASTER.ADD_CONTACT_CATEGORY": "નવું બનાવો",
-  
- 
+
   "COMMON.LOADING": "લોડ થઈ રહ્યું છે...",
   "COMMON.SHOWING_CATEGORIES": "{shown} માંથી {total} કેટેગરીઝ બતાવી રહ્યું છે",
   "COMMON.MENU_ITEM_RECIPE_MASTER": "મેનૂ આઇટમ રેસીપી માસ્ટર",
@@ -826,20 +817,20 @@
   "COMMON.LOADING": "લોડ થઈ રહ્યું છે...",
   "COMMON.SELECT_CATEGORY": "કેટેગરી પસંદ કરો",
   "COMMON.ALL_CATEGORIES": "બધી કેટેગરીઝ",
-  "MENUITEM.CHANGE_CATEGORY":"ચેન્જ મેનૂ આઇટમ કેટેગરી",
-  "MENUITEM.LIST":"મેનૂ આઇટમ લિસ્ટ",
-  "ALLOCATE_SUPPLIER":"એલોકેટ સપ્લાયર",
-  "FORM.FROM_TYPE":"ફ્રોમ ટાઇપ",
-  "FORM.TO_TYPE":"ટુ ટાઇપ",
-  
+  "MENUITEM.CHANGE_CATEGORY": "ચેન્જ મેનૂ આઇટમ કેટેગરી",
+  "MENUITEM.LIST": "મેનૂ આઇટમ લિસ્ટ",
+  "ALLOCATE_SUPPLIER": "એલોકેટ સપ્લાયર",
+  "FORM.FROM_TYPE": "ફ્રોમ ટાઇપ",
+  "FORM.TO_TYPE": "ટુ ટાઇપ",
+
   "RAW_MATERIAL.NAME": "રૉ મટિરિયલ ",
   "RAW_MATERIAL.CATEGORY": "રૉ મટિરિયલ કેટેગરી ",
   "RAW_MATERIAL.SUPPLIER": "સપ્લાયર ",
-  
+
   "TOTAL.OUTSTANDING_RECEIVABLE": "ટોટલ આઉટસ્ટેન્ડિંગ રિસીવેબલ ",
   "TOTAL.REMAINING": "ટોટલ રિમેઇનિંગ ",
   "TOTAL.AMOUNT": "ટોટલ એમાઉન્ટ ",
-  
+
   "INVOICE.SR_NO": "એસ.આર. નંબર ",
   "INVOICE.CUSTOMER_NAME": "કસ્ટમર નેમ ",
   "INVOICE.EVENT_NAME": "ઇવેન્ટ નેમ ",
@@ -849,14 +840,14 @@
   "INVOICE.BALANCE_DUE": "બેલેન્સ ડ્યુ ",
   "COMMON.STATUS": "સ્ટેટસ ",
   "COMMON.VIEW": "વ્યૂ ",
-  
+
   "INVOICE.OVERVIEW": "ઇન્વોઇસ ઓવરવ્યૂ ",
   "INVOICE.SEARCH": "સર્ચ ઇન્વોઇસ ",
   "INVOICE.ALL": "ઓલ ઇન્વોઇસ ",
   "INVOICE.LAST_3_MONTHS": "લાસ્ટ 3 મન્થ્સ ",
   "INVOICE.LAST_6_MONTHS": "લાસ્ટ 6 મન્થ્સ ",
   "INVOICE.CUSTOM_DATE": "કસ્ટમ ડેટ ",
-  
+
   "COMMON.DASHBOARD": "ડેશબોર્ડ ",
   "DASHBOARD.TOTAL_EVENTS": "ટોટલ ઇવેન્ટ્સ ",
   "DASHBOARD.GENERATE_INVOICE": "જનરેટ ઇન્વોઇસ ",
@@ -878,8 +869,6 @@
   "COMMON.CONTACT_WHATSAPP": "વોટ્સએપ પર સંપર્ક કરો ",
   "COMMON.REQUEST_CALLBACK": "કોલબૅક રિક્વેસ્ટ ",
 
-
-
   "INVOICE.SR_NO": "એસ.આર. નં#",
   "INVOICE.CUSTOMER_NAME": "કસ્ટમર નેમ",
   "INVOICE.EVENT_NAME": "ઇવેન્ટ નેમ",
@@ -887,7 +876,7 @@
   "INVOICE.BALANCE_DUE": "બેલેન્સ ડ્યુ",
   "FORM.FROM_TYPE": "ફ્રોમ ટાઇપ",
   "FORM.TO_TYPE": "ટુ ટાઇપ",
-  
+
   "TABLE.SR_NO": "સીરિયલ નંબર",
   "TABLE.CLIENT_NAME": "ક્લાયન્ટ નેમ",
   "TABLE.EVENT_NAME": "ઇવેન્ટ નેમ",
@@ -895,31 +884,55 @@
   "TABLE.VENUE": "વેન્યુ",
   "TABLE.STATUS": "સ્ટેટસ",
   "REPORTS.SELECT_REPORT_TYPE": "રિપોર્ટ ટાઇપ પસંદ કરો",
-  "REPORTS.GENERATE_REPORT": "રિપોર્ટ જનરેટ કરો"
+  "REPORTS.GENERATE_REPORT": "રિપોર્ટ જનરેટ કરો",
+"COMMON.GODOWNSIDEBAR_MASTER":"ગોડાઉન",
 
+  "ADMIN.REPORT.MENU_REPORT_THEMES": "મેનુ રિપોર્ટ થીમ્સ",
+  "ADMIN.REPORT.THEMES": "થીમ્સ",
+  "ADMIN.REPORT.NAMEPLATES": "નેમપ્લેટ્સ",
+  "ADMIN.REPORT.NO_THEMES_FOUND": "કોઈ થીમ ઉપલબ્ધ નથી",
+  "ADMIN.REPORT.NO_NAMEPLATES_FOUND": "કોઈ નેમપ્લેટ ઉપલબ્ધ નથી",
 
+  "COMMON.LOADING_TEMPLATES": "ટેમ્પ્લેટ લોડ થઈ રહ્યા છે...",
+  "COMMON.NO_PDF_AVAILABLE": "PDF ઉપલબ્ધ નથી",
+  "COMMON.SHOW_MORE": "વધુ બતાવો",
+  "COMMON.SHOW_LESS": "ઓછું બતાવો",
+  "COMMON.LOADING_PDF": "PDF લોડ થઈ રહ્યું છે...",
+  "COMMON.NO_PDF_TITLE": "PDF ઉપલબ્ધ નથી",
+  "COMMN.NO_PDF_TEXT": "આ ટેમ્પ્લેટ માટે ડમી PDF ઉપલબ્ધ નથી",
 
+  "INVOICE.TAX_INVOICE": "ટેક્સ ઇન્વોઇસ",
+  "INVOICE.EVENT_NAME": "કાર્યક્રમનું નામ",
+  "INVOICE.PARTY_NAME": "પાર્ટીનું નામ",
+  "INVOICE.VENUE_NAME": "સ્થળનું નામ",
+  "INVOICE.INVOICE_DATE": "ઇન્વોઇસ તારીખ",
+  "INVOICE.EVENT_DATE": "કાર્યક્રમ તારીખ",
+  "INVOICE.DUE_DATE": "બાકી તારીખ",
+  "INVOICE.SELECT_DUE_DATE": "બાકી તારીખ પસંદ કરો",
 
+  "COMMON.PRINT": "પ્રિન્ટ",
+  "COMMON.SHARE": "શેર કરો",
+  "COMMON.EDIT": "ફેરફાર કરો",
+  "COMMON.DOE": "પૂર્ણ",
+  
+  "INVOICE.CATERING_DETAILS": "કેટરિંગ ડિટેલ્સ",
+  "INVOICE.BILLING_TO": "બિલિંગ ટુ",
+  "INVOICE.BILLING_ADDRESS": "બિલિંગ એડ્રેસ",
+  "INVOICE.SHIPPING_ADDRESS": "શિપિંગ એડ્રેસ",
+  "INVOICE.BILLING_NAME": "બિલિંગ નેમ",
+  "INVOICE.GST_NUMBER": "જીએસટી નંબર",
+  "INVOICE.ADD_NEW_ADDRESS": "નવો એડ્રેસ ઉમેરો",
 
+  "PLACEHOLDER.ENTER_BILLING_ADDRESS": "બિલિંગ એડ્રેસ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_SHIPPING_ADDRESS": "શિપિંગ એડ્રેસ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_SHIPPING_NAME": "શિપિંગ નેમ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_BILLING_NAME": "બિલિંગ નેમ એન્ટર કરો",
+  "PLACEHOLDER.ENTER_GST_NUMBER": "જીએસટી નંબર એન્ટર કરો",
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "COMMON.EDIT": "એડિટ",
+  "COMMON.SAVE": "સેવ",
+  "COMMON.CANCEL": "કેનસલ",
+  "COMMON.NA": "એન/એ"
 
 
 

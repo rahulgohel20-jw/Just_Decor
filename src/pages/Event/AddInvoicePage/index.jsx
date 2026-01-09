@@ -13,6 +13,7 @@ import { Tooltip, message } from "antd";
 import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
 import { GetInvoiceByEventId } from "@/services/apiServices";
+import { FormattedMessage, useIntl } from "react-intl";
 
 dayjs.extend(customParseFormat);
 
@@ -20,6 +21,8 @@ const { TextArea } = Input;
 
 const AddInvoicePage = () => {
   const location = useLocation();
+  const intl = useIntl();
+
   const { eventId, eventTypeId } = location.state || {};
 
   const [loading, setLoading] = useState(false);
@@ -532,7 +535,18 @@ const AddInvoicePage = () => {
     <Fragment>
       <Container>
         <div className="gap-2 mb-3">
-          <Breadcrumbs items={[{ title: "Tax Invoice" }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: (
+                  <FormattedMessage
+                    id="INVOICE.TAX_INVOICE"
+                    defaultMessage="Tax Invoice"
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
 
         <div className="flex flex-col bg-gray-100 rounded mb-7">
@@ -541,14 +555,25 @@ const AddInvoicePage = () => {
               <div className="flex flex-wrap items-center justify-between p-4 gap-3">
                 <div className="flex flex-col gap-2.5">
                   <p className="text-lg font-semibold text-gray-900">
-                    Event Name:{" "}
-                    {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
+                    <FormattedMessage
+                      id="INVOICE.EVENT_NAME"
+                      defaultMessage="Event Name"
+                    />{" "}
+                    :{invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
                   </p>
                   <div className="flex items-center gap-14">
                     <div className="flex items-center gap-6">
                       <i className="ki-filled ki-user text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-sm">Party name:</span>
+                        <span className="text-sm">
+                          <span className="text-sm">
+                            <FormattedMessage
+                              id="INVOICE.PARTY_NAME"
+                              defaultMessage="Party name"
+                            />
+                            :
+                          </span>
+                        </span>
                         <span className="text-sm font-medium text-gray-900">
                           {invoiceData?.event?.party?.nameEnglish || "N/A"}
                         </span>
@@ -557,7 +582,15 @@ const AddInvoicePage = () => {
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-sm">Venue name:</span>
+                        <span className="text-sm">
+                          <span className="text-sm">
+                            <FormattedMessage
+                              id="INVOICE.VENUE_NAME"
+                              defaultMessage="Venue name"
+                            />
+                            :
+                          </span>
+                        </span>
                         <span className="text-sm font-medium text-gray-900">
                           {invoiceData?.event?.venue.nameEnglish || "N/A"}
                         </span>
@@ -566,7 +599,15 @@ const AddInvoicePage = () => {
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-xs">Invoice Date:</span>
+                        <span className="text-xs">
+                          <span className="text-xs">
+                            <FormattedMessage
+                              id="INVOICE.INVOICE_DATE"
+                              defaultMessage="Invoice Date"
+                            />
+                            :
+                          </span>
+                        </span>
 
                         <div className="flex items-center gap-2">
                           {!isEditing ? (
@@ -579,7 +620,12 @@ const AddInvoicePage = () => {
                                 type="button"
                                 className="text-primary hover:text-primary-dark"
                                 onClick={() => setIsEditing(true)}
-                                title="Edit Invoice Date"
+                                title={
+                                  <FormattedMessage
+                                    id="COMMON.EDIT"
+                                    defaultMessage="Edit"
+                                  />
+                                }
                               >
                                 <i className="ki-filled ki-pencil"></i>
                               </button>
@@ -601,7 +647,12 @@ const AddInvoicePage = () => {
                                 type="button"
                                 className="text-success hover:text-success-dark"
                                 onClick={() => setIsEditing(false)}
-                                title="Done"
+                                title={
+                                  <FormattedMessage
+                                    id="COMMON.DONE"
+                                    defaultMessage="Done"
+                                  />
+                                }
                               >
                                 <i className="ki-filled ki-check"></i>
                               </button>
@@ -613,7 +664,14 @@ const AddInvoicePage = () => {
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-sm">Event Date:</span>
+                        <span className="text-sm">
+                          <FormattedMessage
+                            id="INVOICE.EVENT_DATE"
+                            defaultMessage="Event Date"
+                          />
+                          :
+                        </span>
+
                         <span className="text-sm font-medium text-gray-900">
                           {formatDate(invoiceData?.event?.inquiryDate)}
                         </span>
@@ -622,16 +680,23 @@ const AddInvoicePage = () => {
                     <div className="flex items-center gap-3">
                       <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
                       <div className="flex flex-col">
-                        <span className="text-sm">Due Date:</span>
+                        <span className="text-sm">
+                          <FormattedMessage
+                            id="INVOICE.DUE_DATE"
+                            defaultMessage="Due Date"
+                          />
+                          :
+                        </span>
+
                         <DatePicker
                           format="DD/MM/YYYY"
                           className="input w-full"
                           value={dueDate}
+                          placeholder="Select due date"
                           onChange={(date) => {
                             setDueDate(date);
                             setIsEdited(true);
                           }}
-                          placeholder="Select due date"
                         />
                       </div>
                     </div>
@@ -639,11 +704,20 @@ const AddInvoicePage = () => {
                 </div>
 
                 <div className="flex flex-row items-end gap-2">
-                  <button className="btn btn-sm btn-primary" title="Print">
-                    <i className="ki-filled ki-printer"></i> Print
+                  <button className="btn btn-sm btn-primary">
+                    <i className="ki-filled ki-printer"></i>{" "}
+                    <FormattedMessage
+                      id="COMMON.PRINT"
+                      defaultMessage="Print"
+                    />
                   </button>
-                  <button className="btn btn-sm btn-primary" title="Share">
-                    <i className="ki-filled ki-exit-right-corner"></i> Share
+
+                  <button className="btn btn-sm btn-primary">
+                    <i className="ki-filled ki-exit-right-corner"></i>{" "}
+                    <FormattedMessage
+                      id="COMMON.SHARE"
+                      defaultMessage="Share"
+                    />
                   </button>
                 </div>
               </div>
@@ -655,16 +729,22 @@ const AddInvoicePage = () => {
                 {/* Billing Address */}
                 <div className="border-r p-4 rounded">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Catering Details:
+                    <FormattedMessage
+                      id="INVOICE.CATERING_DETAILS"
+                      defaultMessage="Catering Details"
+                    />
+                    :
                     {editStates.billingAddress ? (
                       <>
-                        <Tooltip title="Save">
+                        <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
                           <CheckOutlined
                             className="text-green-600 ms-2 cursor-pointer"
                             onClick={() => saveChanges("billingAddress")}
                           />
                         </Tooltip>
-                        <Tooltip title="Cancel">
+                        <Tooltip
+                          title={<FormattedMessage id="COMMON.CANCEL" />}
+                        >
                           <CloseOutlined
                             className="text-red-600 ms-2 cursor-pointer"
                             onClick={() => cancelChanges("billingAddress")}
@@ -672,7 +752,7 @@ const AddInvoicePage = () => {
                         </Tooltip>
                       </>
                     ) : (
-                      <Tooltip title="Edit">
+                      <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
                         <EditOutlined
                           className="text-primary ms-2 cursor-pointer"
                           onClick={() => toggleEdit("billingAddress")}
@@ -680,6 +760,7 @@ const AddInvoicePage = () => {
                       </Tooltip>
                     )}
                   </h4>
+
                   {editStates.billingAddress ? (
                     <div className="space-y-2">
                       <TextArea
@@ -690,13 +771,18 @@ const AddInvoicePage = () => {
                             e.target.value
                           )
                         }
-                        placeholder="Enter billing address"
+                        placeholder={intl.formatMessage({
+                          id: "PLACEHOLDER.ENTER_BILLING_ADDRESS",
+                          defaultMessage: "Enter billing address",
+                        })}
                         rows={3}
                       />
                     </div>
                   ) : (
                     <p className="text-sm text-gray-700">
-                      {invoiceData?.billingaddress || "N/A"}
+                      {invoiceData?.billingaddress || (
+                        <FormattedMessage id="COMMON.NA" />
+                      )}
                       <br />
                       {invoiceData?.billingname || ""}
                     </p>
@@ -706,16 +792,22 @@ const AddInvoicePage = () => {
                 {/* Shipping Address */}
                 <div className="p-4">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Billing To:
+                    <FormattedMessage
+                      id="INVOICE.BILLING_TO"
+                      defaultMessage="Billing To"
+                    />
+                    :
                     {editStates.shippingAddress ? (
                       <>
-                        <Tooltip title="Save">
+                        <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
                           <CheckOutlined
                             className="text-green-600 ms-2 cursor-pointer"
                             onClick={() => saveChanges("shippingAddress")}
                           />
                         </Tooltip>
-                        <Tooltip title="Cancel">
+                        <Tooltip
+                          title={<FormattedMessage id="COMMON.CANCEL" />}
+                        >
                           <CloseOutlined
                             className="text-red-600 ms-2 cursor-pointer"
                             onClick={() => cancelChanges("shippingAddress")}
@@ -723,7 +815,7 @@ const AddInvoicePage = () => {
                         </Tooltip>
                       </>
                     ) : (
-                      <Tooltip title="Edit">
+                      <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
                         <EditOutlined
                           className="text-primary ms-2 cursor-pointer"
                           onClick={() => toggleEdit("shippingAddress")}
@@ -731,6 +823,7 @@ const AddInvoicePage = () => {
                       </Tooltip>
                     )}
                   </h4>
+
                   <div className="flex items-start">
                     {editStates.shippingAddress ? (
                       <div className="space-y-2 w-full">
@@ -739,7 +832,10 @@ const AddInvoicePage = () => {
                           onChange={(e) =>
                             handleTempValueChange("shipaddress", e.target.value)
                           }
-                          placeholder="Enter shipping address"
+                          placeholder={intl.formatMessage({
+                            id: "PLACEHOLDER.ENTER_SHIPPING_ADDRESS",
+                            defaultMessage: "Enter shipping address",
+                          })}
                           rows={3}
                         />
                         <Input
@@ -747,7 +843,10 @@ const AddInvoicePage = () => {
                           onChange={(e) =>
                             handleTempValueChange("shipname", e.target.value)
                           }
-                          placeholder="Enter shipping name"
+                          placeholder={intl.formatMessage({
+                            id: "PLACEHOLDER.ENTER_SHIPPING_NAME",
+                            defaultMessage: "Enter shipping name",
+                          })}
                         />
                       </div>
                     ) : invoiceData?.shipaddress ? (
@@ -760,7 +859,10 @@ const AddInvoicePage = () => {
                       <div>
                         <span className="text-sm text-primary">+</span>
                         <span className="text-sm text-primary cursor-pointer ms-1 hover:underline">
-                          Add a New Address
+                          <FormattedMessage
+                            id="INVOICE.ADD_NEW_ADDRESS"
+                            defaultMessage="Add a New Address"
+                          />
                         </span>
                       </div>
                     )}
@@ -773,8 +875,12 @@ const AddInvoicePage = () => {
                 <div className="border-r p-4">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-gray-900">
-                      Billing Name
+                      <FormattedMessage
+                        id="INVOICE.BILLING_NAME"
+                        defaultMessage="Billing Name"
+                      />
                     </span>
+
                     {editStates.billingName ? (
                       <>
                         <Input
@@ -782,16 +888,21 @@ const AddInvoicePage = () => {
                           onChange={(e) =>
                             handleTempValueChange("billingname", e.target.value)
                           }
-                          placeholder="Enter billing name"
+                          placeholder={intl.formatMessage({
+                            id: "PLACEHOLDER.ENTER_BILLING_NAME",
+                            defaultMessage: "Enter billing name",
+                          })}
                           className="flex-1"
                         />
-                        <Tooltip title="Save">
+                        <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
                           <CheckOutlined
                             className="text-green-600 cursor-pointer"
                             onClick={() => saveChanges("billingName")}
                           />
                         </Tooltip>
-                        <Tooltip title="Cancel">
+                        <Tooltip
+                          title={<FormattedMessage id="COMMON.CANCEL" />}
+                        >
                           <CloseOutlined
                             className="text-red-600 cursor-pointer"
                             onClick={() => cancelChanges("billingName")}
@@ -801,9 +912,11 @@ const AddInvoicePage = () => {
                     ) : (
                       <>
                         <span className="text-gray-700">
-                          {invoiceData?.billingname || "N/A"}
+                          {invoiceData?.billingname || (
+                            <FormattedMessage id="COMMON.NA" />
+                          )}
                         </span>
-                        <Tooltip title="Edit">
+                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
                           <EditOutlined
                             className="text-primary cursor-pointer"
                             onClick={() => toggleEdit("billingName")}
@@ -813,11 +926,16 @@ const AddInvoicePage = () => {
                     )}
                   </div>
                 </div>
+
                 <div className="p-4">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-gray-900">
-                      GST Number
+                      <FormattedMessage
+                        id="INVOICE.GST_NUMBER"
+                        defaultMessage="GST Number"
+                      />
                     </span>
+
                     {editStates.gstNumber ? (
                       <>
                         <Input
@@ -825,16 +943,21 @@ const AddInvoicePage = () => {
                           onChange={(e) =>
                             handleTempValueChange("gstnumber", e.target.value)
                           }
-                          placeholder="Enter GST number"
+                          placeholder={intl.formatMessage({
+                            id: "PLACEHOLDER.ENTER_GST_NUMBER",
+                            defaultMessage: "Enter GST number",
+                          })}
                           className="flex-1"
                         />
-                        <Tooltip title="Save">
+                        <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
                           <CheckOutlined
                             className="text-green-600 cursor-pointer"
                             onClick={() => saveChanges("gstNumber")}
                           />
                         </Tooltip>
-                        <Tooltip title="Cancel">
+                        <Tooltip
+                          title={<FormattedMessage id="COMMON.CANCEL" />}
+                        >
                           <CloseOutlined
                             className="text-red-600 cursor-pointer"
                             onClick={() => cancelChanges("gstNumber")}
@@ -844,9 +967,11 @@ const AddInvoicePage = () => {
                     ) : (
                       <>
                         <span className="text-gray-700">
-                          {invoiceData?.gstnumber || "N/A"}
+                          {invoiceData?.gstnumber || (
+                            <FormattedMessage id="COMMON.NA" />
+                          )}
                         </span>
-                        <Tooltip title="Edit">
+                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
                           <EditOutlined
                             className="text-primary cursor-pointer"
                             onClick={() => toggleEdit("gstNumber")}

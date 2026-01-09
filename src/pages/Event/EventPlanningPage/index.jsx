@@ -174,6 +174,7 @@ const EventPlanningPage = ({ mode }) => {
 
       selectedCats.forEach((cat) => {
         const catName = cat.menuCategoryName || "Uncategorized";
+
         const catNameHindi = cat.menuCategoryNameHindi || catName;
         const catNameGujarati = cat.menuCategoryNameGujarati || catName;
 
@@ -649,6 +650,7 @@ const EventPlanningPage = ({ mode }) => {
         const items = bucket.categories[catName] || [];
 
         const firstItem = items[0] || {};
+        const catNameEnglish = firstItem.menuCategoryName || catName;
         const catNameHindi = firstItem.menuCategoryNameHindi || catName;
         const catNameGujarati = firstItem.menuCategoryNameGujarati || catName;
 
@@ -657,7 +659,7 @@ const EventPlanningPage = ({ mode }) => {
 
         return {
           menuCategoryId: items[0]?.catId || 0,
-          menuCategoryName: catName,
+          menuCategoryName: catNameEnglish,
           menuCategoryNameHindi: catNameHindi,
           menuCategoryNameGujarati: catNameGujarati,
           menuNotes: categoryNotes,

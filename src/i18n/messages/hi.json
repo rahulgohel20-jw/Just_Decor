@@ -23,17 +23,15 @@
   "COMMON.VENUESIDEBAR_TYPE": "वेन्यू",
   "COMMON.CUSTOMSIDEBAR_PACKAGE": "मेनू पैकेज",
 
-
   "COMMON.SIDEBAR_USERS": "यूज़र्स",
   "COMMON.USERSIDEBAR_MASTER": "यूज़र मास्टर",
   "COMMON.DEPARTMENTSIDEBAR": "डिपार्टमेंट",
-
-  
+"COMMON.GODOWNSIDEBAR_MASTER":"गोदाम",
   "COMMON.RAW_MATERIALSIDEBAR_TYPE": "टाइप",
   "COMMON.RAW_MATERIALSIDEBAR_CATEGORY": "कैटेगरी",
   "COMMON.RAWSIDEBAR_MATERIAL": "आइटम्स",
   "COMMONSIDEBAR.UNIT": "यूनिट",
-  
+
   "COMMON.MENU_ITEMSIDEBAR_CATEGORY": "कैटेगरी",
   "COMMON.MENU_ITEM_SUBSIDEBAR_CATEGORY": "सब कैटेगरी",
   "COMMON.MENUSIDEBAR_ITEM": "आइटम्स विद रेसिपी",
@@ -44,7 +42,7 @@
   "COMMON.CHANGESIDEBARMENUITEM": "चेंज मेनू आइटम कैटेगरी",
   "COMMON.CHANGEMENUITEMALLOCATION": "मेनू आइटम एलोकेशन",
   "COMMON.CHANGEALLOCATESUPLIER": "एलोकेट सप्लायर",
-"USER.MASTER.VENUE_TYPE_MASTER": "वेन्यू मास्टर",
+  "USER.MASTER.VENUE_TYPE_MASTER": "वेन्यू मास्टर",
 
   "USER.MASTER.LABOUR_SHIFT_MASTER": "लेबर शिफ्ट मास्टर",
   "USER.MASTER.SEARCH_SHIFT": "शिफ्ट खोजें",
@@ -56,7 +54,7 @@
   "ALERT.DELETE_CANCEL": "रद्द करें",
   "ALERT.DELETED_TITLE": "हटाया गया!",
   "ALERT.DELETED_TEXT": "शिफ्ट सफलतापूर्वक हटा दी गई है।",
-  
+
   "TABLE.SR_NO": "#",
   "TABLE.SHIFT_NAME": "शिफ्ट का नाम",
   "TABLE.SHIFT_TIME": "शिफ्ट समय",
@@ -68,19 +66,19 @@
   "TABLE.EDIT": "संपादित करें",
   "TABLE.DELETE": "हटाएँ",
 
-"COMMON.DEPARTMENT_MASTER": "डिपार्टमेंट मास्टर",
-"COMMON.RAW_MATERIAL_ITEM_MASTER": "रॉ मटेरियल आइटम मास्टर",
+  "COMMON.DEPARTMENT_MASTER": "डिपार्टमेंट मास्टर",
+  "COMMON.RAW_MATERIAL_ITEM_MASTER": "रॉ मटेरियल आइटम मास्टर",
 
   "COMMON.RAW_MATERIAL_SEARCH": "रॉ मटेरियल सर्च...",
   "COMMON.ALL_CATEGORIES": "सभी कैटेगरीज",
   "COMMON.GENERAL_FIX": "जनरल फिक्स",
   "COMMON.SHOW_ALL": "सभी दिखाएं",
   "USER.MASTER.ADD_CONTACT_CATEGORY": "नया बनाएं",
-  
+
   "COMMON.LOADING": "लोड हो रहा है...",
   "COMMON.SHOWING_CATEGORIES": "{shown} में से {total} कैटेगरीज दिखा रहा है",
   "COMMON.MENU_ITEM_RECIPE_MASTER": "मेनू आइटम रेसिपी मास्टर",
-  
+
   "RAW_MATERIAL.CHANGE_CATEGORY": "रॉ मटेरियल कैटेगरी बदलें",
   "FROM_CATEGORY": "फ्रॉम कैटेगरी",
   "TO_CATEGORY": "टू कैटेगरी",
@@ -93,13 +91,11 @@
   "COMMON.LOADING": "लोड हो रहा है...",
   "COMMON.SELECT_CATEGORY": "कैटेगरी सेलेक्ट करें",
   "COMMON.ALL_CATEGORIES": "सभी कैटेगरीज",
-  "MENUITEM.CHANGE_CATEGORY":"चेंज मेनू आइटम कैटेगरी",
-  "MENUITEM.LIST":"मेनू आइटम लिस्ट",
-  "ALLOCATE_SUPPLIER":"एलोकेट सप्लायर",
-  "FORM.FROM_TYPE":"फ्रॉम टाइप",
-  "FORM.TO_TYPE":"टू टाइप",
-
-
+  "MENUITEM.CHANGE_CATEGORY": "चेंज मेनू आइटम कैटेगरी",
+  "MENUITEM.LIST": "मेनू आइटम लिस्ट",
+  "ALLOCATE_SUPPLIER": "एलोकेट सप्लायर",
+  "FORM.FROM_TYPE": "फ्रॉम टाइप",
+  "FORM.TO_TYPE": "टू टाइप",
 
   "USER.DASHBOARD.DASHBOARD_LANGUAGE": "डैशबोर्ड",
   "USER.DASHBOARD.DASHBOARD_DESCRIPTION": "पर्सनल कस्टमाइजेशन के लिए सेंट्रल हब",
@@ -228,7 +224,7 @@
   "COMMON.NAME_HINDI": "नाम (हिंदी)",
   "COMMON.UPDATE": "अपडेट करें",
   "USER.MASTER.ADD_CONTACT_TYPE": "कॉन्टैक्ट टाइप ऐड करें",
-"USER.MASTER.ADD_CONTACT_CATEGORY": "क्रिएट न्यू",
+  "USER.MASTER.ADD_CONTACT_CATEGORY": "क्रिएट न्यू",
   "USER.MASTER.NEW_CONTACT_CATEGORY": "नई कॉन्टैक्ट कैटेगरी",
   "USER.MASTER.EDIT_CONTACT_CATEGORY": "कॉन्टैक्ट कैटेगरी एडिट करें",
   "USER.MASTER.SELECT_CONTACT_TYPE": "-- कॉन्टैक्ट टाइप चुनें --",
@@ -564,6 +560,7 @@
   "EVENT_MENU_ALLOCATION.ADJUST_PERSON": "व्यक्ति एडजस्ट करें",
   "EVENT_MENU_ALLOCATION.SEARCH_ITEM": "आइटम खोजें",
   "EVENT_MENU_ALLOCATION.REPORT": "रिपोर्ट",
+  "EVENT_MENU_ALLOCATION.AGENCY": "एजेंसी एलोकेशन",
   "EVENT_MENU_ALLOCATION.NO_ITEMS_AVAILABLE": "कोई मेन्यू आइटम उपलब्ध नहीं है।",
   "SIDEBAR_MODAL.AGENCY_ORDER": "एजेंसी ऑर्डर",
   "COMMON.CLOSE": "बंद करें",
@@ -819,7 +816,7 @@
 
   "USER.PRICE_PLAN.TITLE": "योजनाएँ और मूल्य निर्धारण",
   "USER.PRICE_PLAN.SUBTITLE": "चाहे आपकी समय-बचत ऑटोमेशन की ज़रूरतें बड़ी हों या छोटी, हम आपको बढ़ने में मदद करने के लिए यहाँ हैं।",
-  
+
   "COMMON.SR_NO": "क्रमांक",
   "PACKAGE.NAME": "नाम",
   "PACKAGE.PRICE": "कीमत",
@@ -829,32 +826,31 @@
   "COMMON.EDIT": "पैकेज संपादित करें",
   "COMMON.DELETE": "हटाएँ",
 
-
   "RAW_MATERIAL.NAME": " रॉ मटीरियल",
   "RAW_MATERIAL.CATEGORY": "रॉ मटीरियल कैटेगरी",
   "RAW_MATERIAL.SUPPLIER": " सप्लायर",
-  
+
   "TOTAL.OUTSTANDING_RECEIVABLE": " टोटल आउटस्टैंडिंग रिसीवेबल",
   "TOTAL.REMAINING": " टोटल रिमेनिंग",
   "TOTAL.AMOUNT": " टोटल अमाउंट",
 
   "INVOICE.SR_NO": " एस.आर. नंबर",
   "INVOICE.CUSTOMER_NAME": " कस्टमर नेम",
-  "INVOICE.EVENT_NAME":" इवेंट नेम",
+  "INVOICE.EVENT_NAME": " इवेंट नेम",
   "INVOICE.EVENT_DATE": " इवेंट तारीख",
   "INVOICE.INVOICE_DATE": "इनवॉइस तारीख",
   "INVOICE.TOTAL_PAID": " टोटल पेड",
   "INVOICE.BALANCE_DUE": " बैलेंस ड्यू",
   "COMMON.STATUS": " स्टेटस",
   "COMMON.VIEW": " व्यू",
-  
+
   "INVOICE.OVERVIEW": " इनवॉइस ओवरव्यू",
   "INVOICE.SEARCH": " सर्च इनवॉइस",
   "INVOICE.ALL": "ऑल इनवॉइस",
   "INVOICE.LAST_3_MONTHS": " लास्ट 3 मंथ्स",
   "INVOICE.LAST_6_MONTHS": " लास्ट 6 मंथ्स",
   "INVOICE.CUSTOM_DATE": "कस्टम डेट",
-  
+
   "COMMON.DASHBOARD": "डैशबोर्ड",
   "DASHBOARD.TOTAL_EVENTS": "टोटल इवेंट्स",
   "DASHBOARD.GENERATE_INVOICE": "जनरेट इनवॉइस",
@@ -876,7 +872,6 @@
   "COMMON.CONTACT_WHATSAPP": " व्हाट्सએप पर संपर्क करें",
   "COMMON.REQUEST_CALLBACK": " कॉलबैक रिक्वेस्ट",
 
-
   "CHART.QUOTATION": " कोटेशन चार्ट",
   "CHART.INVOICE": " इनवॉइस चार्ट",
   "DASHBOARD.MOST_SELLING_ITEM": " मोस्ट सेलिंग आइटम",
@@ -891,7 +886,6 @@
   "HELP.CONTACT_WHATSAPP": " व्हाट्सएप पर संपर्क करें",
   "HELP.REQUEST_CALLBACK": "कॉल बैक का अनुरोध करें",
 
-
   "INVOICE.SR_NO": "एसआर नं#",
   "INVOICE.CUSTOMER_NAME": "कस्टमर नेम",
   "INVOICE.EVENT_NAME": "इवेंट नेम",
@@ -899,26 +893,64 @@
   "INVOICE.BALANCE_DUE": "बैलेंस ड्यू",
   "FORM.FROM_TYPE": "फ्रॉम टाइप",
   "FORM.TO_TYPE": "टू टाइप",
-  
+
   "TABLE.SR_NO": "सीरियल नंबर",
   "TABLE.CLIENT_NAME": "क्लाइंट नेम",
   "TABLE.EVENT_NAME": "इवेंट नेम",
   "TABLE.EVENT_DATE_TIME": "इवेंट डेट और टाइम",
   "TABLE.VENUE": "वेन्यू",
   "TABLE.STATUS": "स्टेटस",
-"REPORTS.SELECT_REPORT_TYPE": "रिपोर्ट टाइप चुनें",
-"REPORTS.GENERATE_REPORT": "रिपोर्ट जनरेट करें"
+  "REPORTS.SELECT_REPORT_TYPE": "रिपोर्ट टाइप चुनें",
+  "REPORTS.GENERATE_REPORT": "रिपोर्ट जनरेट करें",
+  
+  "ADMIN.REPORT.MENU_REPORT_THEMES": "मेनू रिपोर्ट थीम्स",
+  "ADMIN.REPORT.THEMES": "थीम्स",
+  "ADMIN.REPORT.NAMEPLATES": "नेमप्लेट्स",
+  "ADMIN.REPORT.NO_THEMES_FOUND": "कोई थीम उपलब्ध नहीं है",
+  "ADMIN.REPORT.NO_NAMEPLATES_FOUND": "कोई नेमप्लेट उपलब्ध नहीं है",
 
+  "COMMON.LOADING_TEMPLATES": "टेम्पलेट लोड हो रहे हैं...",
+  "COMMON.NO_PDF_AVAILABLE": "पीडीएफ उपलब्ध नहीं है",
+  "COMMON.SHOW_MORE": "और दिखाएं",
+  "COMMON.SHOW_LESS": "कम दिखाएं",
+  "COMMON.LOADING_PDF": "पीडीएफ लोड हो रही है...",
+  "COMMON.NO_PDF_TITLE": "पीडीएफ उपलब्ध नहीं है",
+  "COMMON.NO_PDF_TEXT": "इस टेम्पलेट के लिए डमी पीडीएफ उपलब्ध नहीं है",
 
+  "INVOICE.TAX_INVOICE": "टैक्स इनवॉइस",
 
+  "INVOICE.EVENT_NAME": "इवेंट नेम",
+  "INVOICE.PARTY_NAME": "पार्टी नेम",
+  "INVOICE.VENUE_NAME": "वेन्यू नेम",
 
+  "INVOICE.INVOICE_DATE": "इनवॉइस डेट",
+  "INVOICE.EVENT_DATE": "इवेंट डेट",
+  "INVOICE.DUE_DATE": "ड्यू डेट",
+  "INVOICE.SELECT_DUE_DATE": "ड्यू डेट सिलेक्ट करें",
 
+  "COMMON.PRINT": "प्रिंट",
+  "COMMON.SHARE": "शेयर",
+  "COMMON.EDIT": "एडिट",
+  "COMMON.DONE": "डन",
 
+  "INVOICE.CATERING_DETAILS": "केटरिंग डिटेल्स",
+  "INVOICE.BILLING_TO": "बिलिंग टू",
+  "INVOICE.BILLING_ADDRESS": "बिलिंग एड्रेस",
+  "INVOICE.SHIPPING_ADDRESS": "शिपिंग एड्रेस",
+  "INVOICE.BILLING_NAME": "बिलिंग नेम",
+  "INVOICE.GST_NUMBER": "जीएसटी नंबर",
+  "INVOICE.ADD_NEW_ADDRESS": "नया एड्रेस जोड़ें",
 
+  "PLACEHOLDER.ENTER_BILLING_ADDRESS": "बिलिंग एड्रेस एंटर करें",
+  "PLACEHOLDER.ENTER_SHIPPING_ADDRESS": "शिपिंग एड्रेस एंटर करें",
+  "PLACEHOLDER.ENTER_SHIPPING_NAME": "शिपिंग नेम एंटर करें",
+  "PLACEHOLDER.ENTER_BILLING_NAME": "बिलिंग नेम एंटर करें",
+  "PLACEHOLDER.ENTER_GST_NUMBER": "जीएसटी नंबर एंटर करें",
 
-
-
-
+  "COMMON.EDIT": "एडिट",
+  "COMMON.SAVE": "सेव",
+  "COMMON.CANCEL": "कैंसिल",
+  "COMMON.NA": "एन/ए"
 
 
 

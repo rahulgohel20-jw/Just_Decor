@@ -4,6 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddVendor from "../../add-vendor/AddVendor";
 import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
+
 import { FormattedMessage } from "react-intl";
 
 const AddGrossary = ({
@@ -103,7 +104,7 @@ const AddGrossary = ({
                 type="button"
                 onClick={() => {
                   setIsVendorModalOpen(true);
-                  setIsModalOpen(false); // hide supplier modal
+                  setIsModalOpen(false);
                 }}
                 className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full"
                 title="Add Vendor"
@@ -123,7 +124,6 @@ const AddGrossary = ({
               </button>
             </div>
 
-            {/* Place - Using PlaceSelect component */}
             <div className="flex items-end gap-2">
               <div className="w-[200px]">
                 <PlaceSelect

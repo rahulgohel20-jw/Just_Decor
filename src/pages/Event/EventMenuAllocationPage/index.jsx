@@ -25,6 +25,120 @@ import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 
+// ============= LANGUAGE HELPER FUNCTIONS =============
+/**
+ * Get the current language from localStorage
+ * @returns {string} - Language code (e.g., 'en', 'gu', 'hi')
+ */
+const getCurrentLanguage = () => {
+  return localStorage.getItem("lang") || "en"; // Default to English
+};
+
+/**
+ * Get localized value from an object
+ * @param {Object} obj - Object containing the data
+ * @param {string} baseFieldName - Base field name
+ * @param {string} fallbackValue - Fallback value if field not found
+ * @returns {string} - Localized value
+ */
+const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
+  if (!obj) return fallbackValue;
+
+  const lang = getCurrentLanguage();
+
+  // Try language-specific field first
+  if (lang !== "en") {
+    const languageMap = {
+      gu: "Gujarati",
+      hi: "Hindi",
+    };
+
+    const suffix = languageMap[lang];
+    if (suffix) {
+      const localizedField = `${baseFieldName}${suffix}`;
+
+      if (obj[localizedField]) {
+        return obj[localizedField];
+      }
+    }
+  }
+
+  // Fallback to base field (English) or fallback value
+  return obj[baseFieldName] || fallbackValue;
+};
+
+/**
+ * Get display name based on current language
+ * @param {Object} row - Row data
+ * @param {string} fieldType - 'categoryName' or 'itemName'
+ * @returns {string} - Localized name
+ */
+const getDisplayName = (row, fieldType) => {
+  const lang = getCurrentLanguage();
+  const langMap = {
+    en: fieldType + "En",
+    gu: fieldType + "Gu",
+    hi: fieldType + "Hi",
+  };
+  return row[langMap[lang]] || row[fieldType] || "";
+};
+
+// Add these helper functions at the top with your other helper functions
+
+/**
+ * Get localized party name
+ */
+const getPartyName = (party) => {
+  if (!party) return "-";
+  const lang = getCurrentLanguage();
+
+  if (lang === "hi") return party.nameHindi || party.nameEnglish || "-";
+  if (lang === "gu") return party.nameGujarati || party.nameEnglish || "-";
+  return party.nameEnglish || "-";
+};
+
+/**
+ * Get localized event type name
+ */
+const getEventTypeName = (eventType) => {
+  if (!eventType) return "N/A";
+  const lang = getCurrentLanguage();
+
+  if (lang === "hi")
+    return eventType.nameHindi || eventType.nameEnglish || "N/A";
+  if (lang === "gu")
+    return eventType.nameGujarati || eventType.nameEnglish || "N/A";
+  return eventType.nameEnglish || "N/A";
+};
+
+/**
+ * Get localized venue name
+ */
+const getVenueName = (venue) => {
+  if (!venue) return "-";
+  const lang = getCurrentLanguage();
+
+  if (lang === "hi") return venue.nameHindi || venue.nameEnglish || "-";
+  if (lang === "gu") return venue.nameGujarati || venue.nameEnglish || "-";
+  return venue.nameEnglish || "-";
+};
+
+/**
+ * Get localized function name
+ */
+const getFunctionName = (functionObj) => {
+  if (!functionObj) return "Unnamed";
+  const lang = getCurrentLanguage();
+
+  if (lang === "hi")
+    return functionObj.nameHindi || functionObj.nameEnglish || "Unnamed";
+  if (lang === "gu")
+    return functionObj.nameGujarati || functionObj.nameEnglish || "Unnamed";
+  return functionObj.nameEnglish || "Unnamed";
+};
+
+// ============= COMPONENTS =============
+
 const TopTabs = ({ value, onChange, functions }) => {
   return (
     <div className="flex gap-3 overflow-x-auto">
@@ -47,7 +161,7 @@ const TopTabs = ({ value, onChange, functions }) => {
             }
           >
             <p className="font-semibold">
-              {item.function?.nameEnglish || "Unnamed"}
+              {getFunctionName(item.function)} {/* ✅ Updated */}
             </p>
 
             <p
@@ -74,7 +188,6 @@ const TopTabs = ({ value, onChange, functions }) => {
     </div>
   );
 };
-
 const OrderSummary = ({
   groups,
   onItemClick,
@@ -83,6 +196,21 @@ const OrderSummary = ({
   groupedByFunction,
   rows,
 }) => {
+  // Helper function to get localized names
+  console.log(groups, groupedByFunction);
+
+  const getItemName = (item) => {
+    return getLocalizedValue(item, "menuItemName", item.menuItemName);
+  };
+
+  const getCategoryName = (category) => {
+    return getLocalizedValue(
+      category,
+      "menuCategoryName",
+      category.menuCategoryName
+    );
+  };
+
   // Helper function to calculate item price based on row configuration
   const calculateItemPrice = (item, matchingRow) => {
     if (!matchingRow) return item.totalPrice || 0;
@@ -153,6 +281,8 @@ const OrderSummary = ({
   }, [groups, groupedByFunction, rows]);
 
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
+  let totalChefPrice = groups[0]?.totalChefPrice || 0;
+  let totalOutSidePrice = groups[0]?.totalOutSidePrice || 0;
 
   return (
     <div className="flex flex-col gap-2 no-scrollbar">
@@ -221,6 +351,8 @@ const OrderSummary = ({
                     ? Math.round(functionTotal / functionGroup.pax)
                     : 0;
 
+                const totalChefPrice = functionGroup?.totalChefPrice || 0;
+                const totalOutSidePrice = functionGroup?.totalOutSidePrice || 0;
                 return (
                   <div
                     key={`function-summary-${functionGroup.eventFunctionId}-${fIdx}`}
@@ -253,7 +385,7 @@ const OrderSummary = ({
                         <div className="mb-2 flex items-center gap-2">
                           <Badge color="#22c55e" />
                           <span className="font-medium text-gray-900">
-                            {category.menuCategoryName}
+                            {getCategoryName(category)}
                           </span>
                         </div>
                         <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
@@ -280,7 +412,7 @@ const OrderSummary = ({
                                     className="col-span-9 pl-6 hover:text-primary"
                                     onClick={() => onItemClick(item, category)}
                                   >
-                                    {item.menuItemName}
+                                    {getItemName(item)}
                                     <span className="ml-1 text-primary font-bold">
                                       - {item.typeName}
                                     </span>
@@ -319,6 +451,27 @@ const OrderSummary = ({
                           </span>
                           <span className="font-semibold text-primary">
                             ₹{Math.round(functionTotal).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                      <div className="flex justify-between text-sm">
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            Total Chef Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            {totalChefPrice}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          <span className="font-medium text-gray-700">
+                            Total OutSide Price:
+                          </span>
+                          <span className="font-semibold text-primary">
+                            {totalOutSidePrice}
                           </span>
                         </div>
                       </div>
@@ -401,6 +554,28 @@ const OrderSummary = ({
                 </span>
               </div>
             </div>
+
+            <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+              <div className="flex justify-between text-sm">
+                <div className="flex gap-1">
+                  <span className="font-medium text-gray-700">
+                    Total Chef Price:
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {totalChefPrice}
+                  </span>
+                </div>
+
+                <div className="flex gap-1">
+                  <span className="font-medium text-gray-700">
+                    Total OutSide Price:
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {totalOutSidePrice}
+                  </span>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </Card>
@@ -456,8 +631,10 @@ const TableRow = ({ row, onChange, disabled }) => {
     <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
       <div className="col-span-2 font-medium text-gray-800">
         <div className="flex flex-col">
-          <span className="text-xs text-gray-500">{row.categoryName}</span>
-          <span>{row.itemName}</span>
+          <span className="text-xs text-gray-500">
+            {getDisplayName(row, "categoryName")}
+          </span>
+          <span>{getDisplayName(row, "itemName")}</span>
         </div>
       </div>
 
@@ -548,7 +725,7 @@ const TableRow = ({ row, onChange, disabled }) => {
   );
 };
 
-// NEW COMPONENT: Function Section Label
+// Function Section Label
 const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
   return (
     <div
@@ -561,7 +738,7 @@ const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
             <i className="ki-filled ki-calendar text-primary text-xl"></i>
             <div>
               <h3 className="text-lg font-bold text-gray-800 uppercase">
-                {functionName}
+                {functionName} {/* This will now show localized name */}
               </h3>
               <p className="text-sm text-gray-600">{functionDateTime}</p>
             </div>
@@ -613,8 +790,36 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [initialRows, setInitialRows] = useState([]);
   const [chefModalData, setChefModalData] = useState(null);
   const [tableLoading, setTableLoading] = useState(false);
-
   const [allMenuData, setAllMenuData] = useState([]);
+
+  // ============= LANGUAGE STATE =============
+  const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
+
+  // ============= LISTEN FOR LANGUAGE CHANGES =============
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLang) {
+        setCurrentLang(newLang);
+      }
+    };
+
+    // Listen for storage changes from other tabs
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also check on interval (in case same tab changes it)
+    const interval = setInterval(() => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLang) {
+        setCurrentLang(newLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [currentLang]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -649,7 +854,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       });
 
       if (result.isConfirmed) {
-        // Save first, then navigate
         await handleMainSave();
         if (state) {
           navigate(path, { state });
@@ -657,16 +861,13 @@ const EventMenuAllocationPage = ({ mode }) => {
           navigate(path);
         }
       } else if (result.isDenied) {
-        // Navigate without saving
         if (state) {
           navigate(path, { state });
         } else {
           navigate(path);
         }
       }
-      // If cancelled, do nothing (stay on page)
     } else {
-      // No unsaved changes, navigate directly
       if (state) {
         navigate(path, { state });
       } else {
@@ -692,24 +893,26 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const isAllFunctions = activeFunction?.id === -1;
 
-  // NEW: Group data by function when "All Functions" is selected
   const groupedByFunction = useMemo(() => {
     if (activeFunction?.id !== -1 || !allMenuData.length) return null;
 
     return allMenuData.map((detail) => {
       const firstItem = detail.menuAllocation[0];
+      const totalChefPrice = detail.totalChefPrice;
+      const totalOutSidePrice = detail.totalOutSidePrice;
       return {
         eventFunctionId: firstItem?.eventFunctionId,
         functionName: firstItem?.eventFunctionName,
-        functionDateTime: "", // We'll get this from eventData
-        pax: 0, // We'll get this from eventData
+        functionDateTime: "",
+        pax: 0,
         menuAllocation: detail.menuAllocation,
         selectedItemDetails: detail.selectedItemDetails,
+        totalChefPrice: totalChefPrice,
+        totalOutSidePrice: totalOutSidePrice,
       };
     });
   }, [allMenuData, activeFunction]);
 
-  // NEW: Enrich grouped data with function details from eventData
   const enrichedGroupedByFunction = useMemo(() => {
     if (!groupedByFunction || !eventData?.eventFunctions) return null;
 
@@ -751,15 +954,12 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (item, group) => {
     try {
-      // Determine the correct eventFunctionId based on context
       let eventFunctionId;
 
       if (isAllFunctions) {
-        // In "All Functions" view, get the function ID from the item itself
         const matchingRow = rows.find((r) => r.menuItemId === item.menuItemId);
         eventFunctionId = matchingRow?.eventFunctionId;
       } else {
-        // In single function view, use the active function's ID
         eventFunctionId = getEventFunctionId(activeFunction);
       }
 
@@ -774,8 +974,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         return;
       }
 
-      // NEW: Determine the type based on the matching row's checkboxes
-      let allocationType = "inside"; // default
+      let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
       } else if (matchingRow?.outside) {
@@ -784,14 +983,13 @@ const EventMenuAllocationPage = ({ mode }) => {
         allocationType = "inside";
       }
 
-      // IMPORTANT: Set the eventFunctionId AND type here before opening the modal
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
         menuItemId: menuItemId,
-        eventFunctionId: eventFunctionId, // Store the specific function ID
+        eventFunctionId: eventFunctionId,
         eventId: eventId,
-        allocationType: allocationType, // NEW: Store the allocation type
+        allocationType: allocationType,
       });
 
       setIsCategoryModal(true);
@@ -815,9 +1013,9 @@ const EventMenuAllocationPage = ({ mode }) => {
           "MenuItem RawMaterial Details": rawMaterials,
           menuItemName: item.menuItemName || apiData.menuItemName || "-",
           menuItemId: menuItemId,
-          eventFunctionId: eventFunctionId, // Keep the specific function ID
+          eventFunctionId: eventFunctionId,
           eventId: eventId,
-          allocationType: allocationType, // NEW: Keep the allocation type
+          allocationType: allocationType,
         });
       }
     } catch (error) {
@@ -827,7 +1025,6 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
-  // Replace the entire fetchMenuAllocation function with this updated version
   const fetchMenuAllocation = async (eventFunctionId) => {
     try {
       setMenuLoading(true);
@@ -869,81 +1066,91 @@ const EventMenuAllocationPage = ({ mode }) => {
         (d) => d.menuAllocation || []
       );
 
-      const transformedRows =
-        mergedMenuAllocation.map((item) => ({
-          key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
-          id: item.id,
-          categoryName: item.menuCategoryName || "",
-          itemName: item.menuItemName || "",
-          chefLabour: item.chefLabour || false,
-          inside: item.inside || false,
-          outside: item.outside || false,
-          personCount: item.personCount || 0,
-          place: item.place || "venue",
-          instructions: item.instructions || "",
-          eventId: item.eventId,
-          eventFunctionId: item.eventFunctionId,
-          menuCategoryId: item.menuCategoryId,
-          menuItemId: item.menuItemId,
-          eventFunctionMenuAllocations:
-            item.eventFunctionMenuAllocations?.map((alloc) => {
-              const isChefLabour =
-                item.chefLabour && !item.outside && !item.inside;
-              const isOutside = item.outside;
-              const isInside = item.inside;
+      // ============= UPDATED: Store all language variants =============
+      const transformedRows = mergedMenuAllocation.map((item) => ({
+        key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
+        id: item.id,
+        // Store all language variants
+        categoryName: getLocalizedValue(item, "menuCategoryName", ""),
+        categoryNameEn: item.menuCategoryName,
+        categoryNameGu: item.menuCategoryNameGujarati,
+        categoryNameHi: item.menuCategoryNameHindi,
 
-              let allocationTotal = 0;
+        itemName: getLocalizedValue(item, "menuItemName", ""),
+        itemNameEn: item.menuItemName,
+        itemNameGu: item.menuItemNameGujarati,
+        itemNameHi: item.menuItemNameHindi,
 
-              if (isChefLabour) {
-                allocationTotal =
-                  (Number(alloc.counterPrice) || 0) *
-                    (Number(alloc.counterQuantity) || 0) +
-                  (Number(alloc.helperPrice) || 0) *
-                    (Number(alloc.helperQuantity) || 0);
-              } else {
-                allocationTotal =
-                  (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
-              }
+        chefLabour: item.chefLabour || false,
+        inside: item.inside || false,
+        outside: item.outside || false,
+        personCount: item.personCount || 0,
+        place: item.place || "venue",
+        instructions: item.instructions || "",
+        eventId: item.eventId,
+        eventFunctionId: item.eventFunctionId,
+        menuCategoryId: item.menuCategoryId,
+        menuItemId: item.menuItemId,
+        eventFunctionMenuAllocations:
+          item.eventFunctionMenuAllocations?.map((alloc) => {
+            const isChefLabour =
+              item.chefLabour && !item.outside && !item.inside;
+            const isOutside = item.outside;
+            const isInside = item.inside;
 
-              return {
-                id: alloc.id || null,
-                partyId: alloc.partyId,
-                partyName: alloc.partyName,
-                menuAllocationId: item.id,
-                price: Number(alloc.price) || 0,
-                quantity: Number(alloc.quantity) || 0,
-                unitId: alloc.unitId ?? null,
-                unitName: alloc.unitName ?? null,
-                serviceType: alloc.serviceType || "",
-                counterQuantity: alloc.counterQuantity || 0,
-                helperQuantity: alloc.helperQuantity || 0,
-                counterPrice: alloc.counterPrice || 0,
-                helperPrice: alloc.helperPrice || 0,
-                totalPrice: allocationTotal,
-                isOutside,
-                isChefLabour,
-                isInside,
-                number: alloc.number ?? null,
-                remarks: alloc.remarks ?? null,
-                pax: alloc.pax ?? null,
-              };
-            }) || [],
+            let allocationTotal = 0;
 
-          menuItemRawMaterials: [],
-        })) || [];
+            if (isChefLabour) {
+              allocationTotal =
+                (Number(alloc.counterPrice) || 0) *
+                  (Number(alloc.counterQuantity) || 0) +
+                (Number(alloc.helperPrice) || 0) *
+                  (Number(alloc.helperQuantity) || 0);
+            } else {
+              allocationTotal =
+                (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
+            }
+
+            return {
+              id: alloc.id || null,
+              partyId: alloc.partyId,
+              partyName: alloc.partyName,
+              menuAllocationId: item.id,
+              price: Number(alloc.price) || 0,
+              quantity: Number(alloc.quantity) || 0,
+              unitId: alloc.unitId ?? null,
+              unitName: alloc.unitName ?? null,
+              serviceType: alloc.serviceType || "",
+              counterQuantity: alloc.counterQuantity || 0,
+              helperQuantity: alloc.helperQuantity || 0,
+              counterPrice: alloc.counterPrice || 0,
+              helperPrice: alloc.helperPrice || 0,
+              totalPrice: allocationTotal,
+              isOutside,
+              isChefLabour,
+              isInside,
+              number: alloc.number ?? null,
+              remarks: alloc.remarks ?? null,
+              pax: alloc.pax ?? null,
+            };
+          }) || [],
+
+        menuItemRawMaterials: [],
+      }));
 
       setRows(transformedRows);
 
-      // ============= NEW: Calculate order summary based on view mode =============
       if (isAllFunctions) {
-        // For "All Functions" view, don't create aggregated summary
-        // The OrderSummary component will handle function-wise grouping
         setOrderSummaryGroups([]);
       } else {
-        // For single function view, create the summary as before
+        console.log(allMenuDataResponse, "all");
+
         const allSelectedItems = allMenuDataResponse.flatMap(
           (detail) => detail?.selectedItemDetails || []
         );
+
+        const totalChefPrice = allMenuDataResponse[0].totalChefPrice;
+        const totalOutSidePrice = allMenuDataResponse[0].totalOutSidePrice;
 
         const categoryMap = new Map();
 
@@ -971,6 +1178,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           Array.from(categoryMap.values())?.map((category) => ({
             categoryId: category.categoryId,
             categoryName: category.categoryName,
+            totalChefPrice,
+            totalOutSidePrice,
             items:
               Array.from(category.itemsMap.values())?.map((summaryItem) => {
                 const matchingRows = transformedRows.filter(
@@ -1010,6 +1219,8 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ...summaryItem,
                   originalTotalPrice: basePrice,
                   totalPrice: finalPrice,
+                  totalChefPrice,
+                  totalOutSidePrice,
                 };
               }) || [],
           })) || [];
@@ -1168,24 +1379,22 @@ const EventMenuAllocationPage = ({ mode }) => {
       if (!searchTerm) return true;
       const term = searchTerm.toLowerCase();
       return (
-        r.itemName.toLowerCase().includes(term) ||
-        r.categoryName?.toLowerCase().includes(term)
+        getDisplayName(r, "itemName").toLowerCase().includes(term) ||
+        getDisplayName(r, "categoryName")?.toLowerCase().includes(term)
       );
     });
 
     return filteredRows.map((r) => ({
       ...r,
-      // ... other handlers
       openChefSidebar: () => {
         setOpen(false);
         setIsChefModal(false);
         setIsInsideModal(false);
 
-        // Prepare chef modal data from current row
         setChefModalData({
           menuItemId: r.menuItemId,
           menuCategoryId: r.menuCategoryId,
-          itemName: r.itemName,
+          itemName: getDisplayName(r, "itemName"),
           personCount: r.personCount,
           eventFunctionMenuAllocations: r.eventFunctionMenuAllocations || [],
           chefLabour: r.chefLabour,
@@ -1198,9 +1407,28 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
         setTimeout(() => setIsChefModal(true), 0);
       },
-      // ... rest of handlers
+      openSidebar: () => {
+        setOpen(true);
+        setIsChefModal(false);
+        setIsInsideModal(false);
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: getEventFunctionId(activeFunction),
+        });
+      },
+      openInsideSidebar: () => {
+        setOpen(false);
+        setIsChefModal(false);
+        setIsInsideModal(true);
+        setSelectedRow({
+          ...r,
+          eventId,
+          eventFunctionId: getEventFunctionId(activeFunction),
+        });
+      },
     }));
-  }, [rows, eventId, activeFunction, searchTerm]);
+  }, [rows, eventId, activeFunction, searchTerm, currentLang]); // Add currentLang as dependency
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1255,7 +1483,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         items: group.items.map((item) => {
           if (item.menuItemId !== menuItemId) return item;
 
-          // Find matching row(s) - if specificFunctionId is provided, filter by it
           const matchingRows = currentRows.filter(
             (row) =>
               row.menuItemId === menuItemId &&
@@ -1266,7 +1493,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
           if (matchingRows.length === 0) return item;
 
-          // Calculate total price from all matching rows
           const totalPrice = matchingRows.reduce((total, matchingRow) => {
             const basePrice = item.originalTotalPrice || 0;
 
@@ -1305,7 +1531,6 @@ const EventMenuAllocationPage = ({ mode }) => {
     );
   };
 
-  // Add this new function to calculate prices for all functions view
   const calculateAllFunctionsPrices = () => {
     if (!enrichedGroupedByFunction) return;
 
@@ -1313,14 +1538,12 @@ const EventMenuAllocationPage = ({ mode }) => {
       prevGroups.map((group) => ({
         ...group,
         items: group.items.map((item) => {
-          // Find all rows for this menu item across all functions
           const matchingRows = rows.filter(
             (row) => row.menuItemId === item.menuItemId
           );
 
           if (matchingRows.length === 0) return item;
 
-          // Calculate total price from all matching rows across all functions
           const totalPrice = matchingRows.reduce((total, matchingRow) => {
             const basePrice = item.originalTotalPrice || 0;
 
@@ -1441,8 +1664,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       });
 
       updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
-
-      // ADD THESE TWO LINES - they were missing!
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
       return updatedRows;
@@ -1828,7 +2049,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {eventData?.party?.nameEnglish || "-"}
+                  {getPartyName(eventData?.party)}
                 </span>
               </div>
             </div>
@@ -1843,7 +2064,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventType?.nameEnglish || "N/A"}
+                  {getEventTypeName(eventData?.eventType)} {/* ✅ Updated */}
                 </span>
               </div>
             </div>
@@ -1858,7 +2079,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {eventData?.venue?.nameEnglish || "-"}
+                  {getVenueName(eventData?.venue)}
                 </span>
               </div>
             </div>
@@ -2002,7 +2223,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                     title="Agency Allocation"
                   >
                     <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      id="EVENT_MENU_ALLOCATION.AGENCY"
                       defaultMessage="Agency Allocation"
                     />
                   </button>
@@ -2012,7 +2233,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                     title="Chef Labour"
                   >
                     <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      id="COMMON.CHEF_LABOUR"
                       defaultMessage="Chef Labour"
                     />
                   </button>
@@ -2022,7 +2243,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                     title="Outsource Agency"
                   >
                     <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      id="COMMON.OUTSIDE"
                       defaultMessage="Outsource Agency"
                     />
                   </button>
@@ -2032,7 +2253,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                     title="Inside Kitchen"
                   >
                     <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.REPORT"
+                      id="COMMON.INSIDE"
                       defaultMessage="Inside Kitchen"
                     />
                   </button>
@@ -2053,13 +2274,11 @@ const EventMenuAllocationPage = ({ mode }) => {
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
               <TableHeader />
 
-              {/* Table Body with Loading State */}
               {tableLoading ? (
                 <div className="flex items-center justify-center p-8">
                   <Spin />
                 </div>
               ) : isAllFunctions && enrichedGroupedByFunction ? (
-                // ALL FUNCTIONS VIEW - GROUPED BY FUNCTION
                 enrichedGroupedByFunction.map((functionGroup, idx) => {
                   const functionRows = filtered.filter(
                     (row) =>
@@ -2092,7 +2311,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                   );
                 })
               ) : (
-                // SINGLE FUNCTION VIEW
                 (() => {
                   const currentFunctionRows = filtered.filter(
                     (row) =>
@@ -2117,7 +2335,6 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
           </div>
 
-          {/* Right side - Order Summary (Sticky) */}
           <div className="w-[30%]">
             <div className="sticky bg-white " style={{ top: "70px" }}>
               <div className="max-h-[calc(100vh-100px)] overflow-y-auto">
@@ -2153,7 +2370,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventId={selectedRow?.eventId}
           eventFunctionId={selectedRow?.eventFunctionId}
           row={selectedRow}
-          functionName={activeFunction?.function?.nameEnglish}
+          functionName={getFunctionName(activeFunction?.function)}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleOutsideSave}
           personCount={selectedRow?.personCount}
@@ -2162,13 +2379,13 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isChefModal}
           onClose={() => {
             setIsChefModal(false);
-            setChefModalData(null); // Clear data on close
+            setChefModalData(null);
           }}
           eventId={selectedRow?.eventId}
           eventFunctionId={selectedRow?.eventFunctionId}
           row={selectedRow}
-          chefModalData={chefModalData} // Pass the prepared data
-          functionName={activeFunction?.function?.nameEnglish}
+          chefModalData={chefModalData}
+          functionName={getFunctionName(activeFunction?.function)}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleChefLabourSave}
         />
@@ -2178,7 +2395,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventId={selectedRow?.eventId}
           eventFunctionId={selectedRow?.eventFunctionId}
           row={selectedRow}
-          functionName={activeFunction?.function?.nameEnglish}
+          functionName={getFunctionName(activeFunction?.function)}
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleInsideSave}
           personCount={selectedRow?.personCount}
@@ -2187,7 +2404,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isCategoryModal}
           onClose={() => setIsCategoryModal(false)}
           selectedRowData={selectedRow}
-          eventFunctionId={selectedRow?.eventFunctionId} // Use from selectedRow instead of activeFunction
+          eventFunctionId={selectedRow?.eventFunctionId}
           eventId={eventId}
           onSave={handleCategorySave}
           allocationType={selectedRow?.allocationType}
@@ -2215,16 +2432,25 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           chefsummary={chefsummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"chef"}
         />
         <SummaryItemModalOutsideAgency
           open={isOutsideAgencyModalOpen}
           onClose={() => setIsOutsideAgencyModalOpen(false)}
           outsidesummary={outsidesummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"outside"}
         />
         <SummaryItemModalInHousecook
           open={isInHouseCookModalOpen}
           onClose={() => setIsInHouseCookModalOpen(false)}
           insidesummary={insidesummary}
+          eventFunctionId={selectedRow?.eventFunctionId}
+          eventId={eventId}
+          type={"inside"}
         />
         <AgencyAllocationSidebar
           open={isAgencyAllocationModal}

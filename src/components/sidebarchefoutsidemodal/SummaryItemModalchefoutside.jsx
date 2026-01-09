@@ -18,9 +18,17 @@ export default function SummaryItemModalchefoutside({
   open,
   onClose,
   chefsummary,
+  eventFunctionId,
+  eventId,
+  type,
 }) {
   const [activeTab, setActiveTab] = useState("dinner");
   const [expandedItems, setExpandedItems] = useState({});
+  const [apiData, setApiData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  let eventFunctionid = eventFunctionId || -1;
 
   useEffect(() => {
     if (!open) return;
@@ -32,27 +40,43 @@ export default function SummaryItemModalchefoutside({
   }, [open, onClose]);
 
   useEffect(() => {
+    if (!open) return;
+
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const response = await GetOutsideSummary(
-          eventFunctionId,
+          eventFunctionid,
           eventId,
           type
         );
-        const data =
-          response.data.data["Menu Allocation Details"].agencyResponse;
+
+        // Extract the data from the response
+        const menuAllocationDetails =
+          response.data.data["Menu Allocation Details"];
+
+        if (menuAllocationDetails && menuAllocationDetails.length > 0) {
+          setApiData(menuAllocationDetails[0]);
+        }
       } catch (error) {
         console.error("Error fetching summary data:", error);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchData();
-  }, [open]);
 
-  // Extract data from the API response
-  const eventFunction = chefsummary?.eventFunction || {};
+    fetchData();
+  }, [open, eventFunctionid, eventId, type]);
+
+  // Use apiData if available, otherwise fall back to chefsummary prop
+  const eventFunction =
+    apiData?.eventFunction || chefsummary?.eventFunction || {};
   const functionName = eventFunction?.function?.nameEnglish || "N/A";
   const functionDateTime = eventFunction?.functionStartDateTime || "N/A";
-  const agencyResponse = chefsummary?.agencyResponse || [];
+  const agencyResponse =
+    apiData?.agencyResponse || chefsummary?.agencyResponse || [];
 
   const toggleItems = (index) => {
     setExpandedItems((prev) => ({
@@ -111,250 +135,280 @@ export default function SummaryItemModalchefoutside({
 
               <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
                 <div className="p-6">
-                  <div className="flex items-center gap-6">
-                    <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
-                      {functionName}
-                    </button>
-
-                    <div className="flex flex-col mb-4">
-                      <div className="text-[12px] text-gray-600">
-                        <FormattedMessage
-                          id="SIDEBAR_MODAL.DATE_TIME"
-                          defaultMessage="Date and Time"
-                        />
-                      </div>
-                      <div>
-                        <input
-                          className="input"
-                          type="text"
-                          value={functionDateTime}
-                          readOnly
-                        />
-                      </div>
+                  {loading && (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-gray-600">Loading...</div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                    {/* Table Header */}
-                    <div className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] mt-3 items-center">
-                      <div className="text-sm font-semibold text-gray-700 text-center">
-                        #
-                      </div>
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
-                        Contact Name
-                      </div>
-                      <div className="text-sm font-semibold text-gray-700 ps-3">
-                        Type
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Counter
-                        </span>
-                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Quantity</span>
-                          <span>Price</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Helper
-                        </span>
-                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                          <span>Quantity</span>
-                          <span>Price</span>
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold text-gray-700 text-center">
-                        Total Pax
-                      </div>
-                      <div className="text-sm font-semibold text-gray-700 text-center">
-                        Total Price
-                      </div>
-                      <div className="text-sm font-semibold text-gray-700 text-center">
-                        Action
-                      </div>
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                      <p className="text-red-600">{error}</p>
                     </div>
+                  )}
 
-                    {/* Data Rows */}
-                    {agencyResponse.map((item, index) => (
-                      <div key={index}>
-                        <div className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] mt-3 items-center bg-white p-3 rounded-lg shadow-sm border">
-                          {/* No. */}
-                          <div className="text-sm text-gray-800 text-center flex justify-start ps-1">
-                            {index + 1}
+                  {!loading && !error && (
+                    <>
+                      <div className="flex items-center gap-6">
+                        <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
+                          {functionName}
+                        </button>
+
+                        <div className="flex flex-col mb-4">
+                          <div className="text-[12px] text-gray-600">
+                            <FormattedMessage
+                              id="SIDEBAR_MODAL.DATE_TIME"
+                              defaultMessage="Date and Time"
+                            />
                           </div>
-
-                          {/* Contact Name */}
-                          <div className="text-sm font-medium text-gray-900">
-                            {item.contactName || "N/A"}
+                          <div>
+                            <input
+                              className="input"
+                              type="text"
+                              value={functionDateTime}
+                              readOnly
+                            />
                           </div>
+                        </div>
+                      </div>
 
-                          {/* Type */}
-                          <div className="text-sm text-gray-800">
-                            {item.type || "N/A"}
+                      <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] mt-3 items-center">
+                          <div className="text-sm font-semibold text-gray-700 text-center">
+                            #
                           </div>
-
-                          {/* Quantity */}
-                          <div className="flex justify-center space-x-2 gap-9 text-gray-700">
-                            <span>{item.totalCounterQty || 0}</span>
-                            <span>{item.totalHelperQty || 0}</span>
+                          <div className="text-sm font-semibold text-gray-700 ps-3">
+                            Contact Name
                           </div>
-
-                          {/* Price */}
-                          <div className="flex justify-center space-x-2 gap-9 text-gray-700">
-                            <span>{item.totalCounterPrice || 0}</span>
-                            <span>{item.totalHeplerPrice || 0}</span>
+                          <div className="text-sm font-semibold text-gray-700 ps-3">
+                            Type
                           </div>
-
-                          {/* Pax */}
-                          <div className="text-gray-700 text-center">
-                            {item.totalPax || 0}
+                          <div className="flex flex-col items-center">
+                            <span className="text-sm font-semibold text-gray-700">
+                              Counter
+                            </span>
+                            <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                              <span>Quantity</span>
+                              <span>Price</span>
+                            </div>
                           </div>
-
-                          {/* Total Price */}
-                          <div className="text-sm font-semibold text-gray-900 text-center ps-7">
-                            {item.totalPrice || 0}
+                          <div className="flex flex-col items-center">
+                            <span className="text-sm font-semibold text-gray-700">
+                              Helper
+                            </span>
+                            <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                              <span>Quantity</span>
+                              <span>Price</span>
+                            </div>
                           </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center justify-center space-x-2">
-                            <button className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white">
-                              <WhatsAppIcon />
-                            </button>
-
-                            <button className="p-2 flex items-center justify-center">
-                              <img
-                                src={toAbsoluteUrl("/media/icons/PDFIcon.png")}
-                                className="w-6 h-6 object-contain"
-                                alt="PDF Icon"
-                              />
-                            </button>
-
-                            <button
-                              onClick={() => toggleItems(index)}
-                              className="text-blue-600 hover:text-gray-600 transition-transform"
-                            >
-                              <motion.svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                animate={{
-                                  rotate: expandedItems[index] ? 180 : 0,
-                                }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </motion.svg>
-                            </button>
+                          <div className="text-sm font-semibold text-gray-700 text-center">
+                            Total Pax
+                          </div>
+                          <div className="text-sm font-semibold text-gray-700 text-center">
+                            Total Price
+                          </div>
+                          <div className="text-sm font-semibold text-gray-700 text-center">
+                            Action
                           </div>
                         </div>
 
-                        {/* Expandable Items Section */}
-                        <AnimatePresence>
-                          {expandedItems[index] && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
-                            >
-                              {/* Items Table Header */}
-                              <div className="grid grid-cols-7 gap-4 bg-gray-50 px-5 py-3 border-[#ffffff]">
-                                <div className="text-sm font-semibold text-gray-700">
-                                  #
+                        {/* Data Rows */}
+                        {agencyResponse.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500">
+                            No data available
+                          </div>
+                        ) : (
+                          agencyResponse.map((item, index) => (
+                            <div key={index}>
+                              <div className="grid grid-cols-[40px_1.5fr_1.5fr_2fr_2fr_1fr_1.5fr_140px] mt-3 items-center bg-white p-3 rounded-lg shadow-sm border">
+                                {/* No. */}
+                                <div className="text-sm text-gray-800 text-center flex justify-start ps-1">
+                                  {index + 1}
                                 </div>
-                                <div className="text-sm font-semibold text-gray-700 col-span-2">
-                                  Menu Item Name
-                                </div>
-                                <div className="flex flex-col items-center justify-start">
-                                  <span className="text-sm font-semibold text-gray-700">
-                                    Quantity
-                                  </span>
-                                  <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                                    <span>Counter</span>
-                                    <span>Helper</span>
-                                  </div>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <span className="text-sm font-semibold text-gray-700">
-                                    Price
-                                  </span>
-                                  <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
-                                    <span>Counter</span>
-                                    <span>Helper</span>
-                                  </div>
-                                </div>
-                                <div className="text-sm font-semibold text-gray-700 flex justify-center">
-                                  Pax
-                                </div>
-                                <div className="text-sm font-semibold text-gray-700 flex justify-center">
-                                  Notes
-                                </div>
-                              </div>
 
-                              {/* Items List */}
-                              <div
-                                style={{
-                                  maxHeight:
-                                    item.allocationItems?.length > 3
-                                      ? "150px"
-                                      : "auto",
-                                  overflowY: "auto",
-                                  scrollbarWidth: "none",
-                                  msOverflowStyle: "none",
-                                }}
-                                className="scroll-hidden"
-                              >
-                                {item.allocationItems?.map(
-                                  (allocItem, allocIndex) => (
-                                    <motion.div
-                                      key={allocIndex}
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      exit={{ opacity: 0, y: 10 }}
-                                      transition={{ delay: allocIndex * 0.05 }}
-                                      className="grid grid-cols-7 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                {/* Contact Name */}
+                                <div className="text-sm font-medium text-gray-900">
+                                  {item.contactName || "N/A"}
+                                </div>
+
+                                {/* Type */}
+                                <div className="text-sm text-gray-800">
+                                  {item.type || "N/A"}
+                                </div>
+
+                                {/* Counter Quantity & Price */}
+                                <div className="flex justify-center space-x-2 gap-9 text-gray-700">
+                                  <span>{item.totalCounterQty || 0}</span>
+                                  <span>{item.totalCounterPrice || 0}</span>
+                                </div>
+
+                                {/* Helper Quantity & Price */}
+                                <div className="flex justify-center space-x-2 gap-9 text-gray-700">
+                                  <span>{item.totalHelperQty || 0}</span>
+                                  <span>{item.totalHeplerPrice || 0}</span>
+                                </div>
+
+                                {/* Total Pax */}
+                                <div className="text-gray-700 text-center">
+                                  {item.totalPax || 0}
+                                </div>
+
+                                {/* Total Price */}
+                                <div className="text-sm font-semibold text-gray-900 text-center ps-7">
+                                  {item.totalPrice || 0}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center justify-center space-x-2">
+                                  <button className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white">
+                                    <WhatsAppIcon />
+                                  </button>
+
+                                  <button className="p-2 flex items-center justify-center">
+                                    <img
+                                      src={toAbsoluteUrl(
+                                        "/media/icons/PDFIcon.png"
+                                      )}
+                                      className="w-6 h-6 object-contain"
+                                      alt="PDF Icon"
+                                    />
+                                  </button>
+
+                                  <button
+                                    onClick={() => toggleItems(index)}
+                                    className="text-blue-600 hover:text-gray-600 transition-transform"
+                                  >
+                                    <motion.svg
+                                      className="w-6 h-6"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                      animate={{
+                                        rotate: expandedItems[index] ? 180 : 0,
+                                      }}
+                                      transition={{ duration: 0.2 }}
                                     >
-                                      <div className="text-sm text-gray-700">
-                                        {allocIndex + 1}
-                                      </div>
-                                      <div className="text-sm font-medium text-gray-900 col-span-2">
-                                        {allocItem.itemName || "N/A"}
-                                      </div>
-                                      <div className="flex justify-center space-x-2 gap-9 text-gray-700">
-                                        <span>{allocItem.counterQty || 0}</span>
-                                        <span>{allocItem.helperQty || 0}</span>
-                                      </div>
-                                      <div className="flex justify-center space-x-2 gap-9 text-gray-700">
-                                        <span>
-                                          {allocItem.counterPrice || 0}
-                                        </span>
-                                        <span>
-                                          {allocItem.helperPrice || 0}
-                                        </span>
-                                      </div>
-                                      <div className="text-sm text-gray-700 flex justify-center">
-                                        {allocItem.pax || 0}
-                                      </div>
-                                      <div className="text-sm text-gray-700 flex justify-center">
-                                        {allocItem.notes || "N/A"}
-                                      </div>
-                                    </motion.div>
-                                  )
-                                )}
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 9l-7 7-7-7"
+                                      />
+                                    </motion.svg>
+                                  </button>
+                                </div>
                               </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+
+                              {/* Expandable Items Section */}
+                              <AnimatePresence>
+                                {expandedItems[index] && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-7"
+                                  >
+                                    {/* Items Table Header */}
+                                    <div className="grid grid-cols-7 gap-4 bg-gray-50 px-5 py-3 border-[#ffffff]">
+                                      <div className="text-sm font-semibold text-gray-700">
+                                        #
+                                      </div>
+                                      <div className="text-sm font-semibold text-gray-700 col-span-2">
+                                        Menu Item Name
+                                      </div>
+                                      <div className="flex flex-col items-center justify-start">
+                                        <span className="text-sm font-semibold text-gray-700">
+                                          Quantity
+                                        </span>
+                                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                                          <span>Counter</span>
+                                          <span>Helper</span>
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-col items-center">
+                                        <span className="text-sm font-semibold text-gray-700">
+                                          Price
+                                        </span>
+                                        <div className="grid grid-cols-2 gap-4 mt-1 text-xs text-gray-600">
+                                          <span>Counter</span>
+                                          <span>Helper</span>
+                                        </div>
+                                      </div>
+                                      <div className="text-sm font-semibold text-gray-700 flex justify-center">
+                                        Pax
+                                      </div>
+                                      <div className="text-sm font-semibold text-gray-700 flex justify-center">
+                                        Notes
+                                      </div>
+                                    </div>
+
+                                    {/* Items List */}
+                                    <div
+                                      style={{
+                                        maxHeight:
+                                          item.allocationItems?.length > 3
+                                            ? "150px"
+                                            : "auto",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "none",
+                                        msOverflowStyle: "none",
+                                      }}
+                                      className="scroll-hidden"
+                                    >
+                                      {item.allocationItems?.map(
+                                        (allocItem, allocIndex) => (
+                                          <motion.div
+                                            key={allocIndex}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            transition={{
+                                              delay: allocIndex * 0.05,
+                                            }}
+                                            className="grid grid-cols-7 gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                          >
+                                            <div className="text-sm text-gray-700">
+                                              {allocIndex + 1}
+                                            </div>
+                                            <div className="text-sm font-medium text-gray-900 col-span-2">
+                                              {allocItem.itemName || "N/A"}
+                                            </div>
+                                            <div className="flex justify-center space-x-2 gap-9 text-gray-700">
+                                              <span>
+                                                {allocItem.counterQty || 0}
+                                              </span>
+                                              <span>
+                                                {allocItem.helperQty || 0}
+                                              </span>
+                                            </div>
+                                            <div className="flex justify-center space-x-2 gap-9 text-gray-700">
+                                              <span>
+                                                {allocItem.counterPrice || 0}
+                                              </span>
+                                              <span>
+                                                {allocItem.helperPrice || 0}
+                                              </span>
+                                            </div>
+                                            <div className="text-sm text-gray-700 flex justify-center">
+                                              {allocItem.pax || 0}
+                                            </div>
+                                            <div className="text-sm text-gray-700 flex justify-center">
+                                              {allocItem.notes || "N/A"}
+                                            </div>
+                                          </motion.div>
+                                        )
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          ))
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

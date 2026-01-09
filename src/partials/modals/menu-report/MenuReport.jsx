@@ -50,10 +50,11 @@ const MenuReport = ({
     categoryImage: false,
     itemSlogan: false,
     itemInstruction: false,
-    companyDetails: true,
+    companyProfile: false,
     companyLogo: true,
     itemImage: true,
     partyDetails: true,
+    isWithQty: true,
   });
 
   /* ---------------- FETCH CONFIG ---------------- */
@@ -72,21 +73,21 @@ const MenuReport = ({
           categoryImage: config.isCategoryImage === 0,
           itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
-          companyDetails: config.isCompanyDetails === 0,
+          companyProfile: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 0,
           itemImage: config.isItemImage === 0,
           partyDetails: config.isPartyDetails === 0,
-          isWithQty: config.isWithQty === 0,
+          isWithQty: config.isWithQty === 1,
         });
 
         setVisibleOptions(
           Object.entries({
+            companyProfile: config.isCompanyDetails,
             categorySlogan: config.isCategorySlogan,
             categoryInstruction: config.isCategoryInstruction,
             categoryImage: config.isCategoryImage,
             itemSlogan: config.isItemSlogan,
             itemInstruction: config.isItemInstruction,
-            companyDetails: config.isCompanyDetails,
             companyLogo: config.isCompanyLogo,
             itemImage: config.isItemImage,
             partyDetails: config.isPartyDetails,
@@ -152,7 +153,7 @@ const MenuReport = ({
       isItemImage: options.categoryImage,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
-      isCompanyDetails: options.companyDetails,
+      isCompanyDetails: options.companyProfile,
       isCompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
@@ -204,7 +205,6 @@ const MenuReport = ({
       alert("Mobile number not available");
       return;
     }
-    console.log(mobile);
 
     const message = `Hi ${name},\nHope you're doing well!\nPlease find attached the PDF as requested. Let me know if you have any questions or need any adjustments.\n\nThanks!\n${pdfUrl}`;
 

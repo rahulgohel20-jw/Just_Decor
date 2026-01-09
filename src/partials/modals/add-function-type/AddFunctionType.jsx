@@ -60,12 +60,19 @@ const AddFunctionType = ({
         };
 
         let res;
+
         if (selectedFunction) {
           res = await EditFunctionById(selectedFunction.id, payload);
+
           if (res?.data?.success === false) {
-            Swal.fire("Error", res.msg || "Something went wrong", "error");
+            Swal.fire(
+              "Error",
+              res?.data?.msg || "Something went wrong",
+              "error"
+            );
             return;
           }
+
           Swal.fire("Success", "Function updated successfully!", "success");
         } else {
           res = await AddFunction(payload);
@@ -78,14 +85,13 @@ const AddFunctionType = ({
             );
             return;
           }
+
           Swal.fire("Success", "Function added successfully!", "success");
-          onClose(false);
-          if (onSuccess) onSuccess(true);
         }
 
-        // GetAllFunctionsByUserId();
+        // ✅ SINGLE place for close + refresh
         onClose(false);
-        if (onSuccess) onSuccess();
+        onSuccess(); // ✅ just refresh dropdown
       } catch (err) {
         console.error("Error saving function:", err);
         Swal.fire("Error", "Failed to save function", "error");

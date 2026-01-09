@@ -9,19 +9,49 @@ import useStyles from "./style";
 import { GetMealType, Fetchmanager } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import dayjs from "dayjs";
+import { useLanguage } from "@/i18n";
 
 const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const classes = useStyles();
+  const { isRTL, locale } = useLanguage();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [options, setOptions] = useState([]);
   const [manager, setManager] = useState([]);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
+  // ✅ Get language from localStorage
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
   const dateFormat = "DD/MM/YYYY";
+  let Id = localStorage.getItem("userId");
+
+  // ✅ Update lang state when language changes
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+    console.log("[OtherInfoStep] Language changed:", storedLang);
+  }, [isRTL, locale]);
+
+  // ✅ Simplified function to get localized field based on localStorage lang
+  const getLocalizedField = (item, fieldName) => {
+    if (!item) return "";
+
+    switch (lang) {
+      case "hi":
+        return item[`${fieldName}Hindi`] || item[`${fieldName}English`] || "";
+      case "gu":
+        return (
+          item[`${fieldName}Gujarati`] || item[`${fieldName}English`] || ""
+        );
+      default:
+        return item[`${fieldName}English`] || "";
+    }
+  };
 
   const handleAddClick = () => {
     setShowCustomerModal(true);
   };
+
   const handleInputChange = ({ target: { value, name } }) => {
     setFormData({ ...formData, [name]: value });
   };
@@ -29,13 +59,14 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const handleMealTypeChange = (value) => {
     setFormData({ ...formData, mealTypeId: value });
   };
-
+  const handleMangerNameChange = (value) => {
+    setFormData({ ...formData, managerId: value });
+  };
   const handleGroomBirthDateChange = (date) => {
     const formattedDate = date ? dayjs(date).format(dateFormat) : "";
     setFormData({ ...formData, groomBirthDate: formattedDate });
   };
 
-  // ✅ Handle date change for bride birthdate
   const handleBrideBirthDateChange = (date) => {
     const formattedDate = date ? dayjs(date).format(dateFormat) : "";
     setFormData({ ...formData, brideBirthDate: formattedDate });
@@ -44,34 +75,35 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
   const handleCommunityChange = (e) => {
     const { name, value } = e.target;
 
-    // Count digits only
     const digitCount = (value.match(/\d/g) || []).length;
 
-    // Allow max 10 digits only
     if (digitCount > 10) return;
 
     setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    FetchMealtype();
-    FetchManager();
-  }, []);
-  let Id = localStorage.getItem("userId");
-
-  useEffect(() => {}, [formData]);
-
-  const FetchMealtype = () => {
+  // ✅ Modified FetchMealtype with language support and auto-select
+  const FetchMealtype = (autoSelectLatest = false) => {
     GetMealType(Id)
       .then((res) => {
         const mealdata = res?.data?.data?.["MealType Details"] || [];
 
-        const mealOptions = mealdata.map((item) => ({
-          label: item.nameEnglish,
-          value: item.id,
-        }));
+        // ✅ Map meal options with localized names
+        const mealOptions = mealdata.map((item) => {
+          const localizedName = getLocalizedField(item, "name");
 
+          return {
+            label: localizedName,
+            value: item.id,
+            nameEnglish: item.nameEnglish,
+            nameHindi: item.nameHindi,
+            nameGujarati: item.nameGujarati,
+          };
+        });
+
+        console.log("Fetched Meal Types with lang:", lang, mealOptions);
         setOptions(mealOptions);
+
         if (autoSelectLatest && mealOptions.length > 0) {
           const latestMeal = mealOptions[mealOptions.length - 1];
           setFormData((prev) => ({
@@ -85,14 +117,21 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
       });
   };
 
-  const FetchManager = () => {
+  // ✅ Modified FetchManager with auto-select support
+  const FetchManager = (autoSelectLatest = false) => {
     Fetchmanager(Id).then((res) => {
       const managerList = res.data.data["userDetails"].map((man, index) => ({
         sr_no: index + 1,
         value: man.id,
         label: man.firstName || "-",
+        nameEnglish: man.nameEnglish,
+        nameHindi: man.nameHindi,
+        nameGujarati: man.nameGujarati,
       }));
+
+      console.log("Fetched Managers:", managerList);
       setManager(managerList);
+
       if (autoSelectLatest && managerList.length > 0) {
         const latestManager = managerList[managerList.length - 1];
         setFormData((prev) => ({
@@ -102,6 +141,23 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
       }
     });
   };
+
+  // ✅ Fetch data on mount and when language changes
+  useEffect(() => {
+    FetchMealtype();
+    FetchManager();
+  }, [lang]); // Added lang dependency
+
+  // ✅ Handler for when a new meal type is added
+  const handleMealTypeAdded = () => {
+    FetchMealtype(true); // Auto-select the newly added meal type
+  };
+
+  // ✅ Handler for when a new manager is added
+  const handleManagerAdded = () => {
+    FetchManager(true); // Auto-select the newly added manager
+  };
+
   return (
     <>
       <div className={`flex flex-col gap-3 lg:gap-4 ${classes.customStyle}`}>
@@ -117,7 +173,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </p>
             </div>
             <div className="flex flex-wrap justify-between items-center border-t border-gray-200 rounded-b-xl gap-3 p-4 grid grid-cols-1 md:grid-cols-3">
-              <div className="sg__inner  ssssssssssssss flex flex-col w-full gap-1">
+              <div className="sg__inner flex flex-col w-full gap-1">
                 <label className="form-label">
                   <FormattedMessage
                     id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_TYPE"
@@ -156,12 +212,12 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
               </div>
 
               <div className="flex flex-col">
-                <label className="form-label"></label>
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_NOTES"
-                  defaultMessage="Notes"
-                />
-
+                <label className="form-label">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_OTHER_INFO_MEAL_AND_NOTES_MEAL_NOTES"
+                    defaultMessage="Notes"
+                  />
+                </label>
                 <div className="input">
                   <input
                     className="h-full"
@@ -176,6 +232,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
+
         <div className="card w-full">
           <div className="p-4">
             {/* Title */}
@@ -194,13 +251,11 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <div className="w-[330px]">
-                  {" "}
-                  {/* Adjust width here (56 ≈ 224px) */}
                   <ManagerDropdown
-                    value={formData.managerId}
+                    value={formData.managerId || ""}
+                    name="managerId"
                     onChange={onInputChange}
                     options={manager}
-                    name="managerId"
                     className="w-full"
                   />
                 </div>
@@ -409,6 +464,7 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
+
         <div className="card min-w-full">
           <div className="flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2 p-4">
@@ -521,15 +577,16 @@ const OtherInfoStep = ({ formData, setFormData, onInputChange, errors }) => {
             </div>
           </div>
         </div>
+
         <AddMeal
           isOpen={showCustomerModal}
           onClose={() => setShowCustomerModal(false)}
-          refreshData={FetchMealtype}
+          refreshData={handleMealTypeAdded}
         />
         <AddMember
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
-          refreshData={FetchManager}
+          refreshData={handleManagerAdded}
         />
       </div>
     </>

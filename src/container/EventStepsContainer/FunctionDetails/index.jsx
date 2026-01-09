@@ -65,7 +65,7 @@ const FunctionsDetails = ({
   eventEndDateTime,
   errors = {},
 }) => {
-  const { locale } = useLanguage();
+  const { isRTL, locale } = useLanguage();
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [options, setOptions] = useState([]);
@@ -73,16 +73,32 @@ const FunctionsDetails = ({
   const [venueList, setVenueList] = useState([]);
   const [selectedVenueName, setSelectedVenueName] = useState("");
 
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang") || "en";
+    setLang(storedLang);
+    console.log("[FunctionsDetails] Language changed:", storedLang);
+  }, [isRTL, locale]);
+
+  const getLocalizedField = (item, fieldName) => {
+    if (!item) return "";
+
+    switch (lang) {
+      case "hi":
+        return item[`${fieldName}Hindi`] || item[`${fieldName}English`] || "";
+      case "gu":
+        return (
+          item[`${fieldName}Gujarati`] || item[`${fieldName}English`] || ""
+        );
+      default:
+        return item[`${fieldName}English`] || "";
+    }
+  };
+
   const getLocalizedVenueName = (venue) => {
     if (!venue) return "";
-
-    const localeMap = {
-      en: venue.nameEnglish,
-      gu: venue.nameGujarati,
-      hi: venue.nameHindi,
-    };
-
-    return localeMap[locale] || venue.nameEnglish || "";
+    return getLocalizedField(venue, "name");
   };
 
   useEffect(() => {
@@ -109,7 +125,7 @@ const FunctionsDetails = ({
     };
 
     fetchVenues();
-  }, [formData.venueId, locale]);
+  }, [formData.venueId, lang]); // ✅ Added lang dependency
 
   useEffect(() => {
     if (selectedVenueName && formData?.eventFunction?.length > 0) {
@@ -185,19 +201,28 @@ const FunctionsDetails = ({
     );
   };
 
-  // Modified FetchFunction with auto-select support
   const FetchFunction = (autoSelectLatest = false) => {
     const Id = localStorage.getItem("userId");
     GetAllFunctionsByUserId(Id)
       .then((res) => {
         const data = res?.data?.data?.["Function Details"] || [];
-        const functionOptions = data.map((item) => ({
-          label: item.nameEnglish,
-          value: item.id,
-          functionstartTime: item.startTime,
-          functionendTime: item.endTime,
-        }));
 
+        // ✅ Map function options with localized names
+        const functionOptions = data.map((item) => {
+          const localizedName = getLocalizedField(item, "name");
+
+          return {
+            label: localizedName,
+            value: item.id,
+            functionstartTime: item.startTime,
+            functionendTime: item.endTime,
+            nameEnglish: item.nameEnglish,
+            nameHindi: item.nameHindi,
+            nameGujarati: item.nameGujarati,
+          };
+        });
+
+        console.log("Fetched Functions with lang:", lang, functionOptions);
         setOptions(functionOptions);
 
         // Auto-select the latest function if flag is true
@@ -225,7 +250,6 @@ const FunctionsDetails = ({
               eventFunction: updatedFunctions,
             });
 
-            // Select the function in the new row after a short delay
             setTimeout(() => {
               handleFunctionSelect(
                 updatedFunctions.length - 1,
@@ -246,7 +270,7 @@ const FunctionsDetails = ({
       }
       return prev;
     });
-  }, [selectedVenueName]);
+  }, [selectedVenueName, lang]); // ✅ Added lang dependency
 
   const handleAddClick = () => setShowFunctionModal(true);
 
@@ -479,15 +503,31 @@ const FunctionsDetails = ({
     }
   };
 
+  // ✅ Handler for when a new function type is added
+  const handleFunctionTypeAdded = () => {
+    FetchFunction(true); // Auto-select the newly added function
+  };
+
   return (
     <div className="rounded-md border border-gray-200 bg-white">
       <div className="p-3 flex justify-end items-center">
-        <Tooltip title="Add Function">
+        <Tooltip
+          title={
+            <FormattedMessage
+              id="USER.DASHBOARD.ADD_FUNCTION"
+              defaultMessage="Add Function"
+            />
+          }
+        >
           <button
             className="btn btn-primary btn-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Create New Function
+            <Plus size={16} />{" "}
+            <FormattedMessage
+              id="USER.DASHBOARD.CREATE_NEW_FUNCTION"
+              defaultMessage="Create New Function"
+            />
           </button>
         </Tooltip>
       </div>
@@ -809,7 +849,8 @@ const FunctionsDetails = ({
       <AddFunctionType
         isOpen={showFunctionModal}
         onClose={() => setShowFunctionModal(false)}
-        oonSuccess={FetchFunction}
+        onSuccess={FetchFunction}
+        refreshData={() => FetchFunction(true)}
       />
       <AddNotes
         isOpen={showNoteModal}
