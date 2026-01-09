@@ -166,7 +166,7 @@ const CalendarPage = () => {
                   isRMenu: item?.isRMenu,
 
                   // ✅ MULTI-LANGUAGE ADDRESS & EVENT TYPE
-                  address: getLocalizedText(item.party, "name"),
+                  address: getLocalizedText(item.venue, "name"),
                   event: getLocalizedText(item.eventType, "name"),
 
                   color: color,
