@@ -26,7 +26,7 @@
   "COMMON.SIDEBAR_USERS": "यूज़र्स",
   "COMMON.USERSIDEBAR_MASTER": "यूज़र मास्टर",
   "COMMON.DEPARTMENTSIDEBAR": "डिपार्टमेंट",
-
+"COMMON.GODOWNSIDEBAR_MASTER":"गोदाम",
   "COMMON.RAW_MATERIALSIDEBAR_TYPE": "टाइप",
   "COMMON.RAW_MATERIALSIDEBAR_CATEGORY": "कैटेगरी",
   "COMMON.RAWSIDEBAR_MATERIAL": "आइटम्स",
@@ -901,5 +901,20 @@
   "TABLE.VENUE": "वेन्यू",
   "TABLE.STATUS": "स्टेटस",
   "REPORTS.SELECT_REPORT_TYPE": "रिपोर्ट टाइप चुनें",
-  "REPORTS.GENERATE_REPORT": "रिपोर्ट जनरेट करें"
+  "REPORTS.GENERATE_REPORT": "रिपोर्ट जनरेट करें",
+  
+  "ADMIN.REPORT.MENU_REPORT_THEMES": "मेनू रिपोर्ट थीम्स",
+  "ADMIN.REPORT.THEMES": "थीम्स",
+  "ADMIN.REPORT.NAMEPLATES": "नेमप्लेट्स",
+  "ADMIN.REPORT.NO_THEMES_FOUND": "कोई थीम उपलब्ध नहीं है",
+  "ADMIN.REPORT.NO_NAMEPLATES_FOUND": "कोई नेमप्लेट उपलब्ध नहीं है",
+
+  "COMMON.LOADING_TEMPLATES": "टेम्पलेट लोड हो रहे हैं...",
+  "COMMON.NO_PDF_AVAILABLE": "पीडीएफ उपलब्ध नहीं है",
+  "COMMON.SHOW_MORE": "और दिखाएं",
+  "COMMON.SHOW_LESS": "कम दिखाएं",
+  "COMMON.LOADING_PDF": "पीडीएफ लोड हो रही है...",
+  "COMMON.NO_PDF_TITLE": "पीडीएफ उपलब्ध नहीं है",
+  "COMMON.NO_PDF_TEXT": "इस टेम्पलेट के लिए डमी पीडीएफ उपलब्ध नहीं है"
+
 }
