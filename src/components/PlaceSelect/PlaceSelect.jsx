@@ -56,7 +56,7 @@ const PlaceSelect = ({ value, onChange, className }) => {
 
   return (
     <Select
-      size="small"
+      size="medium"
       value={value}
       onChange={handleChange}
       className="w-full h-10"

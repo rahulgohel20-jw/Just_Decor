@@ -208,20 +208,21 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   useEffect(() => {
-    const fetchAgencies = async () => {
-      setLoading(true);
-      try {
-        const response = await GetAllSupllierVendors(userId);
-        const list = response?.data?.data?.["Party Details"] || [];
-        setAgencies(list);
-      } catch (error) {
-        console.error("Error fetching agencies:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAgencies();
   }, []);
+
+  const fetchAgencies = async () => {
+    setLoading(true);
+    try {
+      const response = await GetAllSupllierVendors(userId);
+      const list = response?.data?.data?.["Party Details"] || [];
+      setAgencies(list);
+    } catch (error) {
+      console.error("Error fetching agencies:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ✅ UPDATED: Store units object and prioritize it for unit display
   const fetchRawMaterialItems = async (categoryId) => {
@@ -608,27 +609,39 @@ const RawMaterialAllocation = ({ mode }) => {
                         {item.material}
                       </td>
 
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          className="border px-2 py-1 w-full"
+                      <td>
+                        <select
+                          className="select w-[200px]"
                           value={item.agency || ""}
                           onChange={(e) =>
                             handleAgencyChange(index, e.target.value)
                           }
-                        />
+                        >
+                          <option value="">Select Agency</option>
+                          {agencies.map((agency) => (
+                            <option
+                              key={agency.id}
+                              value={agency.nameEnglish || agency.name}
+                            >
+                              {agency.nameEnglish || agency.name}
+                            </option>
+                          ))}
+                        </select>
                       </td>
 
                       <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          className="border px-2 py-1 "
+                        <PlaceSelect
                           value={item.place || ""}
-                          onChange={(e) =>
-                            handleAgencyChange(index, e.target.value)
-                          }
+                          onChange={(value, placeId) => {
+                            const updated = [...data];
+                            updated[index].place = value;
+                            updated[index].placeId = placeId || 0;
+                            setData(updated);
+                            setHasUnsavedChanges(true);
+                          }}
                         />
                       </td>
+
                       <td className="px-4 py-3 whitespace-nowrap">
                         <DatePicker
                           selected={
@@ -1049,6 +1062,7 @@ const RawMaterialAllocation = ({ mode }) => {
           onAllocateAgency={handleAllocateAgency}
           onAllocatePlace={handleAllocatePlace}
           onAllocateDate={handleAllocateDate}
+          FetchSuplier={fetchAgencies}
         />
 
         <SidebarRawMaterial
