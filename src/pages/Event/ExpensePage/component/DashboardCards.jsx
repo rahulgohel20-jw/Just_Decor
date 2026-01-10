@@ -1,4 +1,5 @@
 import { toAbsoluteUrl } from "@/utils";
+import { FormattedMessage } from "react-intl";
 
 export default function DashboardCards({ activeTab, totals = {} }) {
   const {
@@ -17,18 +18,29 @@ export default function DashboardCards({ activeTab, totals = {} }) {
 
   return (
     <div
-      className={`grid gap-8 ${activeTab === "manager" ? "grid-cols-3" : "grid-cols-1"}`}
+      className={`grid gap-8 ${
+        activeTab === "manager" ? "grid-cols-3" : "grid-cols-1"
+      }`}
     >
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
         <div>
           <p className="text-sm text-gray-500 mb-2">
-            {activeTab === "manager" ? "Total Given" : "Total Expenses"}
+            {activeTab === "manager" ? (
+              <FormattedMessage
+                id="DASHBOARD.TOTAL_GIVEN"
+                defaultMessage="Total Given"
+              />
+            ) : (
+              <FormattedMessage
+                id="DASHBOARD.TOTAL_EXPENSES"
+                defaultMessage="Total Expenses"
+              />
+            )}
           </p>
 
-          <p className="text-4xl font-bold text-gray-900">
-            {totalGiven} {/* Always use totalGiven */}
-          </p>
+          <p className="text-4xl font-bold text-gray-900">{totalGiven}</p>
         </div>
+
         <img
           src={toAbsoluteUrl(
             activeTab === "manager" ? icons.totalGiven : icons.totalExpenses
@@ -42,7 +54,12 @@ export default function DashboardCards({ activeTab, totals = {} }) {
         <>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
             <div>
-              <p className="text-sm text-gray-500 mb-2">Used Amount</p>
+              <p className="text-sm text-gray-500 mb-2">
+                <FormattedMessage
+                  id="DASHBOARD.USED_AMOUNT"
+                  defaultMessage="Used Amount"
+                />
+              </p>
               <p className="text-4xl font-bold text-gray-900">{totalUsed}</p>
             </div>
             <img
@@ -54,7 +71,12 @@ export default function DashboardCards({ activeTab, totals = {} }) {
 
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
             <div>
-              <p className="text-sm text-gray-500 mb-2">Remaining</p>
+              <p className="text-sm text-gray-500 mb-2">
+                <FormattedMessage
+                  id="DASHBOARD.REMAINING"
+                  defaultMessage="Remaining"
+                />
+              </p>
               <p className="text-4xl font-bold text-gray-900">{remaining}</p>
             </div>
             <img

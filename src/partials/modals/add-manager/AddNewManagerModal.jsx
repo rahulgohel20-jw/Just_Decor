@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FormattedMessage } from "react-intl";
+
 import {
   Fetchmanager,
   fetchStatesByCountry,
@@ -297,7 +299,12 @@ export default function AddNewManagerModal({
             >
               <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Add New Manager
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    <FormattedMessage
+                      id="MANAGER.ADD.TITLE"
+                      defaultMessage="Add New Manager"
+                    />
+                  </h2>
                 </h2>
                 <button
                   onClick={onClose}
@@ -323,7 +330,10 @@ export default function AddNewManagerModal({
                 <div className="grid grid-cols-2 gap-6">
                   <div className="relative">
                     <label className="text-sm font-medium text-gray-600">
-                      Manager Name
+                      <FormattedMessage
+                        id="MANAGER.NAME"
+                        defaultMessage="Manager Name"
+                      />
                     </label>
                     <select
                       name="manager"
@@ -331,7 +341,12 @@ export default function AddNewManagerModal({
                       onChange={handleManagerChange}
                       className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2"
                     >
-                      <option value="">Select a manager</option>
+                      <option value="">
+                        <FormattedMessage
+                          id="COMMON.SELECT_MANAGER"
+                          defaultMessage="Select a manager"
+                        />
+                      </option>
                       {managers.map((mgr) => (
                         <option key={mgr.value} value={mgr.value}>
                           {mgr.label}
@@ -355,8 +370,12 @@ export default function AddNewManagerModal({
 
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Role
+                      <FormattedMessage
+                        id="COMMON.ROLE"
+                        defaultMessage="Role"
+                      />
                     </label>
+
                     <input
                       name="role"
                       type="text"
@@ -371,8 +390,12 @@ export default function AddNewManagerModal({
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Mobile Number
+                      <FormattedMessage
+                        id="COMMON.MOBILE_NUMBER"
+                        defaultMessage="Mobile Number"
+                      />
                     </label>
+
                     <input
                       name="mobile"
                       type="text"
@@ -385,8 +408,13 @@ export default function AddNewManagerModal({
 
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Date<span className="text-red-500">*</span>
+                      <FormattedMessage
+                        id="COMMON.DATE"
+                        defaultMessage="Date"
+                      />
+                      <span className="text-red-500">*</span>
                     </label>
+
                     <input
                       name="date"
                       type="date"
@@ -400,8 +428,12 @@ export default function AddNewManagerModal({
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Amount
+                      <FormattedMessage
+                        id="COMMON.AMOUNT"
+                        defaultMessage="Amount"
+                      />
                     </label>
+
                     <input
                       name="amount"
                       type="number"
@@ -414,18 +446,42 @@ export default function AddNewManagerModal({
 
                   <div className="relative">
                     <label className="text-sm font-medium text-gray-600">
-                      Payment Type
+                      <FormattedMessage
+                        id="COMMON.PAYMENT_TYPE"
+                        defaultMessage="Payment Type"
+                      />
                     </label>
+
                     <select
                       name="paymentType"
                       value={form.paymentType}
                       onChange={handleInput}
                       className="input mt-1"
                     >
-                      <option value="">Select payment type</option>
-                      <option value="cash">Cash</option>
-                      <option value="online">Online</option>
-                      <option value="upi">UPI</option>
+                      <option value="">
+                        <FormattedMessage
+                          id="COMMON.SELECT_PAYMENT_TYPE"
+                          defaultMessage="Select payment type"
+                        />
+                      </option>
+                      <option value="cash">
+                        <FormattedMessage
+                          id="PAYMENT.CASH"
+                          defaultMessage="Cash"
+                        />
+                      </option>
+                      <option value="online">
+                        <FormattedMessage
+                          id="PAYMENT.ONLINE"
+                          defaultMessage="Online"
+                        />
+                      </option>
+                      <option value="upi">
+                        <FormattedMessage
+                          id="PAYMENT.UPI"
+                          defaultMessage="UPI"
+                        />
+                      </option>
                     </select>
                     <svg
                       className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -445,7 +501,10 @@ export default function AddNewManagerModal({
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Description
+                    <FormattedMessage
+                      id="COMMON.DESCRIPTION"
+                      defaultMessage="Description"
+                    />
                   </label>
                   <textarea
                     name="description"
@@ -458,7 +517,10 @@ export default function AddNewManagerModal({
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Remarks
+                    <FormattedMessage
+                      id="COMMON.REMARKS"
+                      defaultMessage="Remarks"
+                    />
                   </label>
                   <textarea
                     name="remarks"
@@ -473,18 +535,28 @@ export default function AddNewManagerModal({
                   <button
                     type="button"
                     className="text-blue-600 text-sm underline"
-                    onClick={() => setShowGST(!showGST)}
                   >
-                    {showGST
-                      ? "Hide GST & Address"
-                      : "Add GST & Address (Optional)"}
+                    {showGST ? (
+                      <FormattedMessage
+                        id="GST.HIDE"
+                        defaultMessage="Hide GST & Address"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="GST.ADD_OPTIONAL"
+                        defaultMessage="Add GST & Address (Optional)"
+                      />
+                    )}
                   </button>
 
                   {showGST && (
                     <div className="mt-4 space-y-6">
                       <div>
                         <label className="text-sm font-medium text-gray-600">
-                          GSTIN
+                          <FormattedMessage
+                            id="GST.GSTIN"
+                            defaultMessage="GSTIN"
+                          />
                         </label>
                         <input
                           type="text"
@@ -498,7 +570,10 @@ export default function AddNewManagerModal({
 
                       <div>
                         <label className="text-sm font-medium text-gray-600">
-                          Billing address
+                          <FormattedMessage
+                            id="ADDRESS.BILLING"
+                            defaultMessage="Billing Address"
+                          />
                         </label>
 
                         <div className="grid grid-cols-2 gap-4 mt-2">
@@ -588,9 +663,12 @@ export default function AddNewManagerModal({
                             }));
                           }}
                         />
-                        <span className="text-sm text-gray-700">
-                          Shipping address same as billing address?
-                        </span>
+                        <label className="text-sm font-medium text-gray-600">
+                          <FormattedMessage
+                            id="ADDRESS.BILLING"
+                            defaultMessage="Billing Address"
+                          />
+                        </label>
                       </div>
                     </div>
                   )}
@@ -598,7 +676,10 @@ export default function AddNewManagerModal({
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Image
+                    <FormattedMessage
+                      id="COMMON.IMAGE"
+                      defaultMessage="Image"
+                    />
                   </label>
 
                   <div className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition">
@@ -627,10 +708,16 @@ export default function AddNewManagerModal({
                       </svg>
 
                       <p className="text-blue-600 font-medium mt-2">
-                        Upload a file or drag and drop
+                        <FormattedMessage
+                          id="UPLOAD.DRAG_DROP"
+                          defaultMessage="Upload a file or drag and drop"
+                        />
                       </p>
                       <p className="text-xs text-gray-500">
-                        PNG, JPG, GIF up to 10MB
+                        <FormattedMessage
+                          id="UPLOAD.FORMAT_INFO"
+                          defaultMessage="PNG, JPG, GIF up to 10MB"
+                        />
                       </p>
 
                       {form.image && (
@@ -648,7 +735,10 @@ export default function AddNewManagerModal({
                   className="btn btn-primary w-half py-3"
                   onClick={handleSubmit}
                 >
-                  Add Manager
+                  <FormattedMessage
+                    id="MANAGER.ADD.BUTTON"
+                    defaultMessage="Add Manager"
+                  />
                 </button>
               </div>
             </motion.div>
