@@ -688,7 +688,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                   icon="ki-calendar-tick"
                   label={
                     <FormattedMessage
-                      id="EVENT_INFO.PARTY_NAME"
+                      id="EVENT_MENU_ALLOCATION.PARTY_NAME"
                       defaultMessage="Party Name"
                     />
                   }
@@ -699,7 +699,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                   icon="ki-user"
                   label={
                     <FormattedMessage
-                      id="EVENT_INFO.EVENT_NAME"
+                      id="EVENT_MENU_ALLOCATION.EVENT_NAME"
                       defaultMessage="Event Name"
                     />
                   }
@@ -721,7 +721,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                   icon="ki-calendar-tick"
                   label={
                     <FormattedMessage
-                      id="EVENT_INFO.EVENT_VENUE"
+                      id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
                       defaultMessage="Event Venue"
                     />
                   }
@@ -732,7 +732,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                   icon="ki-calendar-tick"
                   label={
                     <FormattedMessage
-                      id="EVENT_INFO.EVENT_DATE_TIME"
+                      id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
                       defaultMessage="Event Date Time"
                     />
                   }
@@ -785,7 +785,10 @@ const LabourOtherManagementPage = ({ mode }) => {
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-users text-primary"></i>
                 <span className="text-2sm font-medium text-gray-700">
-                  Person
+                  <FormattedMessage
+                    id="COMMON.PERSON"
+                    defaultMessage="Person"
+                  />
                 </span>
                 <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
                   {selectedFunctionPax || "-"}
@@ -798,7 +801,10 @@ const LabourOtherManagementPage = ({ mode }) => {
                   className="btn btn-success btn-sm h-10"
                 >
                   <i className="ki-filled ki-document"></i>
-                  Report
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.REPORT"
+                    defaultMessage="Report"
+                  />
                 </button>
 
                 <input
@@ -1008,39 +1014,78 @@ const LabourTable = ({
         <table className="table-auto w-full text-sm text-gray-700">
           <thead className="bg-gray-100">
             <tr>
-              <th className="text-center px-3 py-2 w-12">#</th>
+              <th className="text-center px-3 py-2 w-12">
+                <FormattedMessage id="table.index" defaultMessage="#" />
+              </th>
+
               <th className="px-3 py-2">
                 <div className="flex items-center gap-2">
-                  Categories
+                  <FormattedMessage
+                    id="table.categories"
+                    defaultMessage="Categories"
+                  />
                   <button onClick={onOpenAddLabourModal}>
-                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                    <Plus className="w-6 h-6 text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
+
               <th className="px-3 py-2 w-24">
                 <div className="flex items-center gap-2">
-                  Vendors
+                  <FormattedMessage
+                    id="table.vendors"
+                    defaultMessage="Vendors"
+                  />
                   <button onClick={onOpenAddVendor}>
-                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                    <Plus className="w-6 h-6 text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
+
               <th className="px-3 py-2 w-36">
                 <div className="flex items-center gap-2">
-                  Labour Shift
+                  <FormattedMessage
+                    id="table.labourShift"
+                    defaultMessage="Labour Shift"
+                  />
                   <button onClick={onOpenAddLabourShift}>
-                    <Plus className="w-6 h-6   text-white bg-blue-700 rounded-full p-1" />
+                    <Plus className="w-6 h-6 text-white bg-blue-700 rounded-full p-1" />
                   </button>
                 </div>
               </th>
-              <th className="px-3 py-2 w-40">Date & Time</th>
-              <th className="px-3 py-2 w-24">Price</th>
-              <th className="px-3 py-2 w-24">Qty</th>
-              <th className="px-3 py-2 w-28">Total Price</th>
-              <th className="px-3 py-2 w-32">Place</th>
-              <th className="px-3 py-2 text-center w-28">Actions</th>
+
+              <th className="px-3 py-2 w-40">
+                <FormattedMessage
+                  id="table.dateTime"
+                  defaultMessage="Date & Time"
+                />
+              </th>
+
+              <th className="px-3 py-2 w-24">
+                <FormattedMessage id="table.price" defaultMessage="Price" />
+              </th>
+
+              <th className="px-3 py-2 w-24">
+                <FormattedMessage id="table.qty" defaultMessage="Qty" />
+              </th>
+
+              <th className="px-3 py-2 w-28">
+                <FormattedMessage
+                  id="table.totalPrice"
+                  defaultMessage="Total Price"
+                />
+              </th>
+
+              <th className="px-3 py-2 w-32">
+                <FormattedMessage id="table.place" defaultMessage="Place" />
+              </th>
+
+              <th className="px-3 py-2 text-center w-28">
+                <FormattedMessage id="table.actions" defaultMessage="Actions" />
+              </th>
             </tr>
           </thead>
+
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((row, index) => (
               <LabourRow
@@ -1069,7 +1114,10 @@ const LabourTable = ({
           className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
         >
           <i className="ki-filled ki-plus text-white"></i>
-          Add Another Labour Type
+          <FormattedMessage
+            id="LABOUR.ADD_ANOTHER_TYPE"
+            defaultMessage="Add Another Labour Type"
+          />
         </button>
 
         <button
@@ -1082,7 +1130,7 @@ const LabourTable = ({
         : "bg-gray-300 text-gray-500 cursor-not-allowed"
     }`}
         >
-          Save
+          <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
         </button>
       </div>
     </div>

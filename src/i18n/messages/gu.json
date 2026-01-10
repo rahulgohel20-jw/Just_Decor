@@ -932,7 +932,108 @@
   "COMMON.EDIT": "એડિટ",
   "COMMON.SAVE": "સેવ",
   "COMMON.CANCEL": "કેનસલ",
-  "COMMON.NA": "એન/એ"
+  "COMMON.NA": "એન/એ",
+  
+  "table.index": "#",
+
+  "table.categories": "કેટેગરીઝ",
+  "table.vendors": "વેન્ડર્સ",
+  "table.labourShift": "લેબર શિફ્ટ",
+
+  "table.dateTime": "ડેટ એન્ડ ટાઈમ",
+  "table.price": "પ્રાઈસ",
+  "table.qty": "ક્વોન્ટિટી",
+  "table.totalPrice": "ટોટલ પ્રાઈસ",
+
+  "table.place": "પ્લેસ",
+  "table.actions": "એક્શનસ",
+
+  "LABOUR.ADD_ANOTHER_TYPE": "એડ અનધર લેબર ટાઈપ",
+  
+  "FUNCTION_WISE.DESCRIPTION": "સિલેક્ટેડ ફંકશન માટે ચાર્જિસ અને પર્સન્સ બતાવે છે",
+  
+  "FUNCTION_WISE.TITLE": "फंक्शन वाइज़",
+  
+  "FUNCTION_WISE.SUMMARY": "બધા પર્સન્સ અને બધા ચાર્જિસનો ટોટલ",
+  
+  "TOTAL_WISE.TITLE": "ટોટલ વાઈઝ",
+  
+  "FUNCTION.DATE_TIME": "ફંકશન ડેટ એન્ડ ટાઈમ",
+  
+  "DASHBOARD.TOTAL_GIVEN": "टोटल गिवन",
+  "DASHBOARD.TOTAL_EXPENSES": "टोटल एक्सपेंसेस",
+  "DASHBOARD.USED_AMOUNT": "यूज़्ड अमाउंट",
+  "DASHBOARD.REMAINING": "रिमेनिंग",
+  
+  "EXPENSE.TABLE.MANAGER_NAME": "મેનેજર નેમ",
+  "EXPENSE.TABLE.NAME": "નેમ",
+  "EXPENSE.TABLE.ROLE": "રોલ",
+  "EXPENSE.TABLE.MOBILE": "મોબાઇલ",
+  "EXPENSE.TABLE.DATE": "ડેટ",
+  "EXPENSE.TABLE.AMOUNT": "અમાઉન્ટ",
+  "EXPENSE.TABLE.PAYMENT_TYPE": "પેમેન્ટ ટાઈપ",
+  "EXPENSE.TABLE.ACTION": "એક્શન",
+  
+  "MANAGER.ADD.TITLE": "એડ ન્યૂ મેનેજર",
+  "MANAGER.NAME": "મેનેજર નેમ",
+  "COMMON.SELECT_MANAGER": "સિલેક્ટ મેનેજર",
+  "COMMON.ROLE": "રોલ",
+  "COMMON.MOBILE_NUMBER": "મોબાઇલ નંબર",
+  "COMMON.DATE": "ડેટ",
+  "COMMON.AMOUNT": "અમાઉન્ટ",
+  "COMMON.PAYMENT_TYPE": "પેમેન્ટ ટાઈપ",
+  "COMMON.SELECT_PAYMENT_TYPE": "સિલેક્ટ પેમેન્ટ ટાઈપ",
+  "PAYMENT.CASH": "કેશ",
+  "PAYMENT.ONLINE": "ઓનલાઇન",
+  "PAYMENT.UPI": "યુપીઆઈ",
+  "COMMON.DESCRIPTION": "ડિસ્ક્રિપ્શન",
+  "COMMON.REMARKS": "રિમાર્ક્સ",
+  "GST.HIDE": "હાઇડ GST અને એડ્રેસ",
+  "GST.ADD_OPTIONAL": "એડ GST અને એડ્રેસ (ઓપ્શનલ)",
+  "GST.GSTIN": "GSTIN",
+  "ADDRESS.BILLING": "બિલિંગ એડ્રેસ",
+  "ADDRESS.SAME_AS_BILLING": "શિપિંગ એડ્રેસ બિલિંગ જેવું જ?",
+  "COMMON.IMAGE": "ઇમેજ",
+  "UPLOAD.DRAG_DROP": "ફાઇલ અપલોડ કરો અથવા ડ્રેગ કરો",
+  "UPLOAD.FORMAT_INFO": "PNG, JPG, GIF – 10MB સુધી",
+  "MANAGER.ADD.BUTTON": "એડ મેનેજર",
+
+  "CONTACT.ADD.TITLE": "નવો સંપર્ક ઉમેરો",
+  "CONTACT.TYPE": "પ્રકાર",
+  "CONTACT.TYPE.SUPPLIER": "સપ્લાયર",
+  "CONTACT.TYPE.CUSTOMER": "ગ્રાહક",
+  "CONTACT.SELECT_EXISTING": "મોજૂદા સંપર્ક પસંદ કરો",
+  "CONTACT.SELECT_PLACEHOLDER": "પસંદ કરો",
+  "CONTACT.ADD.BUTTON": "ઉમેરો",
+  "COMMON.AMOUNT": "રાશી",
+  "COMMON.COUNTRY_CODE": "દેશ કોડ",
+  "COMMON.MOBILE_NUMBER": "મોબાઇલ નંબર",
+  "COMMON.PAYMENT_TYPE": "ચુકવણી પ્રકાર",
+  "COMMON.SELECT_PAYMENT_TYPE": "ચુકવણી પ્રકાર પસંદ કરો",
+  "PAYMENT.CASH": "કેશ",
+  "PAYMENT.ONLINE": "ઓનલાઇન",
+  "COMMON.REMARKS": "ટિપ્પણીઓ",
+  "GST.HIDE": "GST અને સરનામું છુપાવો",
+  "GST.ADD_OPTIONAL": "GST અને સરનામું ઉમેરો (વૈકલ્પિક)",
+  "GST.GSTIN": "GSTIN",
+  "ADDRESS.BILLING": "બિલિંગ સરનામું",
+  "ADDRESS.SAME_AS_BILLING": "શિપિંગ સરનામું બિલિંગ જેવું જ છે?"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

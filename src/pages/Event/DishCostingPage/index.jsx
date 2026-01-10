@@ -327,7 +327,10 @@ const DishCostingPage = () => {
                   onClick={handleTotalWiseClick}
                   title="" // prevent default browser tooltip
                 >
-                  Total Wise
+                  <FormattedMessage
+                    id="TOTAL_WISE.TITLE"
+                    defaultMessage="Total Wise"
+                  />
                 </button>
 
                 {/* Tooltip */}
@@ -337,7 +340,10 @@ const DishCostingPage = () => {
                   opacity-0 group-hover:opacity-100 transition-opacity
                   pointer-events-none shadow-lg z-50"
                 >
-                  Sum of all persons and all charges
+                  <FormattedMessage
+                    id="FUNCTION_WISE.SUMMARY"
+                    defaultMessage="Sum of all persons and all charges"
+                  />
                 </div>
               </div>
 
@@ -351,7 +357,10 @@ const DishCostingPage = () => {
                   onClick={() => setViewType("Function Wise")}
                   title=""
                 >
-                  Function Wise
+                  <FormattedMessage
+                    id="FUNCTION_WISE.TITLE"
+                    defaultMessage="Function Wise"
+                  />
                 </button>
 
                 {/* Tooltip */}
@@ -361,8 +370,11 @@ const DishCostingPage = () => {
                opacity-0 group-hover:opacity-100 transition-opacity
                pointer-events-none shadow-lg z-50"
                 >
-                  Shows charges and persons for the <br />
-                  selected function
+                  <FormattedMessage
+                    id="FUNCTION_WISE.DESCRIPTION"
+                    defaultMessage="Shows charges and persons for the <br />
+                  selected function"
+                  />
                 </div>
               </div>
             </div>
@@ -409,7 +421,7 @@ const DishCostingPage = () => {
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-500">
                     <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.FUNCTION_DATE_TIME"
+                      id="FUNCTION.DATE_TIME"
                       defaultMessage="Function Date & Time"
                     />
                   </span>
