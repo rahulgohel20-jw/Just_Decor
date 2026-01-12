@@ -15,12 +15,12 @@ import Swal from "sweetalert2";
 
 const Allocatesupplier = () => {
   const intl = useIntl();
-  const [activeCategory, setActiveCategory] = useState("");
+  const [activeCategory, setActiveCategory] = useState([]);
   const [supplierList, setSupplierList] = useState([]);
   const [supplierLoading, setSupplierLoading] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [fromCategory, setFromCategory] = useState("");
+  const [fromCategory, setFromCategory] = useState([]);
   const [toCategory, setToCategory] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -91,21 +91,20 @@ const Allocatesupplier = () => {
 
   useEffect(() => {
     const fetchRawMaterials = async () => {
-      if (!activeCategory) {
+      if (!activeCategory.length) {
         setTableData([]);
         return;
       }
 
-      if (activeCategory === "all" && categoryList.length === 0) return;
+      if (categoryList.length === 0) return;
 
       setLoading(true);
       try {
         const userId = localStorage.getItem("userId");
 
-        let cat_id_list =
-          activeCategory === "all"
-            ? categoryList.map((cat) => cat.id)
-            : [activeCategory];
+        const cat_id_list = activeCategory.includes("all")
+          ? categoryList.map((cat) => cat.id)
+          : activeCategory;
 
         const response = await Getrawmaterialitembycat(cat_id_list, userId);
 
@@ -121,6 +120,7 @@ const Allocatesupplier = () => {
 
         setTableData(formattedData);
       } catch (error) {
+        console.error("❌ Error fetching raw materials", error);
         setTableData([]);
       } finally {
         setLoading(false);
@@ -144,9 +144,12 @@ const Allocatesupplier = () => {
       return;
     }
 
-    const fromCategoryName =
-      combinedCategories.find((c) => String(c.id) === String(fromCategory))
-        ?.name || "Selected Category";
+    const fromCategoryName = fromCategory.includes("all")
+      ? "All Categories"
+      : fromCategory
+          .map((id) => combinedCategories.find((c) => c.id === id)?.name)
+          .filter(Boolean)
+          .join(", ");
 
     const supplierName =
       supplierList.find((s) => String(s.id) === String(selectedSupplier))
@@ -206,9 +209,9 @@ const Allocatesupplier = () => {
 
       // 🔄 Reset
       setSelectedRows([]);
-      setFromCategory("");
+      setFromCategory([]);
       setSelectedSupplier("");
-      // setActiveCategory("");
+      setActiveCategory([]);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -239,12 +242,11 @@ const Allocatesupplier = () => {
         {/* Breadcrumb */}
         <div className="gap-2 mb-3">
           <h1 className="text-xl text-gray-900">
-         
-                  <FormattedMessage
-                    id="ALLOCATE_SUPPLIER"
-                    defaultMessage="Allocate Supplier"
-                  />
-               </h1>
+            <FormattedMessage
+              id="ALLOCATE_SUPPLIER"
+              defaultMessage="Allocate Supplier"
+            />
+          </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}
