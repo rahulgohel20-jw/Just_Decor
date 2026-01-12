@@ -5,7 +5,7 @@ import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import { useNavigate } from "react-router-dom";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
-
+import { useParams } from "react-router-dom";
 import { GetUnitData } from "@/services/apiServices";
 import {
   GetAllRawMaterialAllocationCategory,
@@ -14,8 +14,7 @@ import {
   RawMaterialallocation,
   GetEventMasterById,
 } from "@/services/apiServices";
-import { useLocation } from "react-router-dom";
-import { Select, Spin } from "antd";
+import { Spin } from "antd";
 
 import Swal from "sweetalert2";
 import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
@@ -24,8 +23,7 @@ import dayjs from "dayjs";
 import DatePicker from "react-datepicker";
 
 const RawMaterialAllocation = ({ mode }) => {
-  const location = useLocation();
-  let { eventId, eventTypeId } = location.state || {};
+  let { eventId } = useParams();
   const navigate = useNavigate();
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -42,7 +40,6 @@ const RawMaterialAllocation = ({ mode }) => {
   const [unit, setUnit] = useState([]);
   const [eventData, setEventData] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const isInitialLoad = useRef(true);
   const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [originalData, setOriginalData] = useState([]);
@@ -169,10 +166,8 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   useEffect(() => {
-    if (eventTypeId) {
-      fetchCategories();
-    }
-  }, [eventTypeId]);
+    fetchCategories();
+  }, []);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -180,6 +175,7 @@ const RawMaterialAllocation = ({ mode }) => {
       const res = await GetAllRawMaterialAllocationCategory(eventId);
       const categories =
         res?.data?.data?.["Raw Material Category Details"] || [];
+      console.log(categories);
 
       if (!Array.isArray(categories) || categories.length === 0) {
         console.warn("No categories found");
@@ -230,8 +226,8 @@ const RawMaterialAllocation = ({ mode }) => {
     setTableLoading(true);
     try {
       const response = await GetAllRawMaterialAllocationItems(
-        categoryId,
-        eventId
+        eventId,
+        categoryId
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];

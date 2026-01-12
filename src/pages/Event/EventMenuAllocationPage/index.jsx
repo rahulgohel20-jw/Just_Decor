@@ -1996,12 +1996,9 @@ const EventMenuAllocationPage = ({ mode }) => {
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 onClick={() =>
-                  handleNavigateWithWarning("/raw-material-allocation", {
-                    state: {
-                      eventId: eventId,
-                      eventTypeId: eventData?.eventType?.id,
-                    },
-                  })
+                  handleNavigateWithWarning(
+                    `/raw-material-allocation/${eventId}`
+                  )
                 }
               >
                 <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}

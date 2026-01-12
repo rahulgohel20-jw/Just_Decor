@@ -31,8 +31,6 @@ const CalendarPage = () => {
   useEffect(() => {
     const storedLang = localStorage.getItem("lang") || "en";
     setLang(storedLang);
-
-    console.log("[CalendarPage] Language changed:", storedLang);
   }, [isRTL]);
 
   const getLocalizedText = (obj, field) => {
@@ -130,6 +128,7 @@ const CalendarPage = () => {
     GetEventMaster(Id)
       .then((res) => {
         const eventdata = res?.data?.data?.["Event Details"] || [];
+        console.log(eventdata);
 
         setData(
           eventdata
