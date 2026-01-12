@@ -971,12 +971,7 @@ const EventPlanningPage = ({ mode }) => {
                 <button
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                   onClick={() =>
-                    navigate("/raw-material-allocation", {
-                      state: {
-                        eventId: eventId,
-                        eventTypeId: eventData?.eventType?.id,
-                      },
-                    })
+                    navigate(`/raw-material-allocation/${eventId}`)
                   }
                 >
                   <i

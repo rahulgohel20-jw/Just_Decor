@@ -214,7 +214,7 @@ export const GetAllRawMaterialAllocationCategory = (eventId) => {
   return GET(`/rawmaterialcategory/getbyeventid?eventId=${eventId}`);
 };
 
-export const GetAllRawMaterialAllocationItems = (categoryId, eventId) => {
+export const GetAllRawMaterialAllocationItems = (eventId, categoryId) => {
   return GET(
     `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
   );
@@ -950,7 +950,6 @@ export const GetDishCostingbyRawmaterial = (eventId, eventFunctionId) => {
     `/dish-costing/raw-material-category-wise?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
   );
 };
-
 
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
   return GET(

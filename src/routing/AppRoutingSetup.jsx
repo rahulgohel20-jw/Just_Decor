@@ -275,7 +275,7 @@ const AppRoutingSetup = () => {
             element={<RawMaterialAllocationPage mode="raw" />}
           />
           <Route
-            path="/raw-material-allocation/:eventId"
+            path="/raw-material-allocation/:eventId/"
             element={<RawMaterialAllocationPage mode="raw" />}
           />
           <Route path="/custom-package" element={<CustomPackage />} />

@@ -29,6 +29,7 @@ const EventViewModal = ({
 
   const eventFunctionId = 108;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
+  console.log(eventDataAll);
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
@@ -133,15 +134,6 @@ const EventViewModal = ({
     setIsModalOpen(false);
   };
 
-  const openMenuReport = (eventId) => {
-    if (!eventId) {
-      errorMsgPopup("Event ID missing.");
-      return;
-    }
-    setMenuReportEventId(eventId);
-    setIsMenuReport(true);
-  };
-
   const handleStatusChange = () => {
     if (!safeEventId) {
       errorMsgPopup("Event ID missing.");
@@ -213,8 +205,6 @@ const EventViewModal = ({
       }
     });
   };
-
-  const { isRTL } = useLanguage();
 
   return (
     isModalOpen && (
@@ -362,12 +352,7 @@ const EventViewModal = ({
                 ),
                 icon: "/media/eventviewicon/rawmaterial.png",
                 onClick: () =>
-                  navigate("/raw-material-allocation", {
-                    state: {
-                      eventId: safeEventId,
-                      eventTypeId: eventTypeId,
-                    },
-                  }),
+                  navigate(`/raw-material-allocation/${safeEventId}`),
               },
               {
                 label: (
