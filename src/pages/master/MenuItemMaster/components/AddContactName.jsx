@@ -17,7 +17,7 @@ const AddContactName = ({
   selectedCustomer,
   concatId,
   contactTypeId,
-  refreshData = () => {},
+  refreshData,
 }) => {
   if (!isModalOpen) return null;
   const intl = useIntl();
@@ -297,8 +297,9 @@ const AddContactName = ({
             timer: 2000,
             showConfirmButton: false,
           });
-          setIsModalOpen(false);
           refreshData();
+
+          setIsModalOpen(false);
           setFormData(initialFormState);
           setImagePreview(null);
           setSelectedFile(null);
@@ -323,8 +324,9 @@ const AddContactName = ({
             timer: 2000,
             showConfirmButton: false,
           });
-          setIsModalOpen(false);
           refreshData();
+          setIsModalOpen(false);
+
           setFormData(initialFormState);
           setImagePreview(null);
           setSelectedFile(null);

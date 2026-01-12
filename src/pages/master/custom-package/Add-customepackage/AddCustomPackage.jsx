@@ -36,6 +36,7 @@ function AddCustomPackage() {
   const [isLoadingPackage, setIsLoadingPackage] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState(null);
   const debounceRef = useRef(null);
+  const [menuRefreshKey, setMenuRefreshKey] = useState(0);
 
   const [notesModal, setNotesModal] = useState({
     isOpen: false,
@@ -253,7 +254,9 @@ function AddCustomPackage() {
     }
   };
 
-  const refreshMenuItems = () => {};
+  const refreshMenuItems = () => {
+    setMenuRefreshKey((prev) => prev + 1);
+  };
 
   const handleOpenNotes = (index) => {
     const item = selectedItems[index];
@@ -630,6 +633,7 @@ function AddCustomPackage() {
           />
 
           <MenuItemGridPackage
+            key={menuRefreshKey}
             selectedCategory={selectedCategory}
             onToggleItem={handleToggleItem}
             selectedItemIds={selectedItemIds}

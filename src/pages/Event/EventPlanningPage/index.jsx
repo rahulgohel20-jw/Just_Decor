@@ -1,4 +1,11 @@
-import { Fragment, useEffect, useState, useCallback, useMemo } from "react";
+import {
+  Fragment,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { toAbsoluteUrl } from "@/utils";
 import MenuItemGrid from "./components/MenuItemGrid";
 import SelectedItems from "./components/SelectedItems";
@@ -23,6 +30,7 @@ import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
 import EditPaxModal from "./components/EditPaxModal";
 const EventPlanningPage = ({ mode }) => {
+  const selectedItemsPanelRef = useRef(null);
   let { eventId } = useParams();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState(null);
@@ -100,13 +108,33 @@ const EventPlanningPage = ({ mode }) => {
         await handleSaveOrUpdate();
         setSelectedFunction(newFunctionId);
         setIsDirty(false);
+        resetViewState();
       } else if (result.isDenied) {
         setSelectedFunction(newFunctionId);
         setIsDirty(false);
+        resetViewState();
       }
     } else {
       setSelectedFunction(newFunctionId);
+      resetViewState();
     }
+  };
+
+  const resetViewState = () => {
+    setTimeout(() => {
+      if (selectedItemsPanelRef.current) {
+        selectedItemsPanelRef.current.scrollTop = 0;
+      }
+
+      const activeElement = document.activeElement;
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA")
+      ) {
+        activeElement.blur();
+      }
+    }, 0);
   };
 
   const fetchEventData = async () => {
@@ -1329,6 +1357,7 @@ const EventPlanningPage = ({ mode }) => {
 
             {/* Selected items panel */}
             <div
+              ref={selectedItemsPanelRef}
               className="border rounded flex flex-col bg-gray-100 overflow-auto no-scrollbar"
               style={{ maxHeight: "calc(100vh - 80px)" }}
             >
@@ -1349,6 +1378,7 @@ const EventPlanningPage = ({ mode }) => {
               </div>
 
               <SelectedItems
+                key={selectedFunction}
                 functionId={selectedFunction}
                 data={
                   selectedByFunction[selectedFunction] || {
