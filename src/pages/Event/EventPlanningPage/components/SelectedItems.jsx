@@ -35,6 +35,13 @@ const SelectedItems = ({
   const hasLoadedInitialDataRef = useRef(false);
 
   useEffect(() => {
+    setManuallyOpenItems({});
+    setAutoOpenItemId(null);
+    previousItemIdsRef.current = new Set();
+    hasLoadedInitialDataRef.current = false;
+  }, [functionId]);
+
+  useEffect(() => {
     const currentItemIds = new Set();
     let newItemId = null;
     let newItemCategory = null;

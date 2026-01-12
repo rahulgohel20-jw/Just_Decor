@@ -15,9 +15,9 @@ import NoData from "../../../components/Nodata";
 
 const ChangeRawMaterialCategoryPage = () => {
   const intl = useIntl();
-  const [activeCategory, setActiveCategory] = useState("");
+  const [activeCategory, setActiveCategory] = useState([]);
 
-  const [fromCategory, setFromCategory] = useState("");
+  const [fromCategory, setFromCategory] = useState([]);
   const [toCategory, setToCategory] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -57,21 +57,20 @@ const ChangeRawMaterialCategoryPage = () => {
 
   useEffect(() => {
     const fetchRawMaterials = async () => {
-      if (!activeCategory) {
+      if (!activeCategory.length) {
         setTableData([]);
         return;
       }
 
-      if (activeCategory === "all" && categoryList.length === 0) return;
+      if (categoryList.length === 0) return;
 
       setLoading(true);
       try {
         const userId = localStorage.getItem("userId");
 
-        let cat_id_list =
-          activeCategory === "all"
-            ? categoryList.map((cat) => cat.id)
-            : [activeCategory];
+        const cat_id_list = activeCategory.includes("all")
+          ? categoryList.map((cat) => cat.id)
+          : activeCategory;
 
         const response = await Getrawmaterialitembycat(cat_id_list, userId);
 
@@ -86,6 +85,7 @@ const ChangeRawMaterialCategoryPage = () => {
 
         setTableData(formattedData);
       } catch (error) {
+        console.error("❌ Error fetching raw materials", error);
         setTableData([]);
       } finally {
         setLoading(false);
@@ -128,7 +128,7 @@ const ChangeRawMaterialCategoryPage = () => {
       setActiveCategory(toCategory);
 
       setSelectedRows([]);
-      setFromCategory("");
+      setFromCategory([]);
       setToCategory("");
     } catch (error) {
       const errorMsg =
@@ -161,14 +161,12 @@ const ChangeRawMaterialCategoryPage = () => {
       <Container>
         {/* Breadcrumb */}
         <div className=" mb-3">
-                    <h1 className="test-xxl text-gray-900">
-
-        
-                  <FormattedMessage
-                    id="RAW_MATERIAL.CHANGE_CATEGORY"
-                    defaultMessage="Change Raw Material Category"
-                  />
-               </h1>
+          <h1 className="test-xxl text-gray-900">
+            <FormattedMessage
+              id="RAW_MATERIAL.CHANGE_CATEGORY"
+              defaultMessage="Change Raw Material Category"
+            />
+          </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}
@@ -302,7 +300,8 @@ const ChangeRawMaterialCategoryPage = () => {
             className="btn btn-light"
             onClick={() => {
               setSelectedRows([]);
-              setFromCategory("");
+              setFromCategory([]);
+              setActiveCategory([]);
               setToCategory("");
             }}
           >

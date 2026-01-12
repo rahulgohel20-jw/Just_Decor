@@ -1,10 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const FromCategoryDropdown = ({
-  value = [], // array of selected ids
-  onChange,
-  options = [],
-}) => {
+const FromCategoryDropdown = ({ value = [], onChange, options = [] }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef(null);
@@ -21,19 +17,40 @@ const FromCategoryDropdown = ({
   }, []);
 
   const toggleValue = (id) => {
-    if (value.includes(id)) {
-      onChange(value.filter((v) => v !== id));
-    } else {
-      onChange([...value, id]);
+    if (id === "all") {
+      if (value.includes("all")) {
+        onChange([]);
+      } else {
+        onChange([
+          "all",
+          ...options.filter((o) => o.id !== "all").map((o) => o.id),
+        ]);
+      }
+      return;
     }
-  };
 
+    let newValue = value.includes(id)
+      ? value.filter((v) => v !== id && v !== "all")
+      : [...value.filter((v) => v !== "all"), id];
+
+    // auto add "all" if everything selected
+    const allCategoryIds = options
+      .filter((o) => o.id !== "all")
+      .map((o) => o.id);
+    if (allCategoryIds.every((cid) => newValue.includes(cid))) {
+      newValue = ["all", ...newValue];
+    }
+
+    onChange(newValue);
+  };
   const selectedLabel =
     value.length === 0
       ? "Select category"
-      : value.length === 1
-        ? options.find((o) => o.id === value[0])?.name
-        : `${value.length} categories selected`;
+      : value.includes("all")
+        ? "All Categories"
+        : value.length === 1
+          ? options.find((o) => o.id === value[0])?.name
+          : `${value.length} categories selected`;
 
   const filteredOptions = options.filter((opt) =>
     opt.name.toLowerCase().includes(search.toLowerCase())

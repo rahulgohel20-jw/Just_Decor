@@ -679,6 +679,20 @@ const LabourOtherManagementPage = ({ mode }) => {
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-7">
+                <div className="flex items-center gap-3">
+                  <i className="ki-filled ki-calendar-tick text-success"></i>
+                  <div className="flex flex-col">
+                    <span className="text-sm">
+                      <FormattedMessage
+                        id="COMMON.EVENT_ID"
+                        defaultMessage="Event ID:"
+                      />
+                    </span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {eventData?.eventNo}
+                    </span>
+                  </div>
+                </div>
                 <EventInfoItem
                   icon="ki-calendar-tick"
                   label={
@@ -696,17 +710,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.EVENT_NAME"
                       defaultMessage="Event Name"
-                    />
-                  }
-                  value={eventData?.eventType?.nameEnglish}
-                />
-
-                <EventInfoItem
-                  icon="ki-geolocation-home"
-                  label={
-                    <FormattedMessage
-                      id="EVENT_INFO.FUNCTION_NAME"
-                      defaultMessage="Function Name"
                     />
                   }
                   value={eventData?.eventType?.nameEnglish}
