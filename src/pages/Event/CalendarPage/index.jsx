@@ -116,7 +116,6 @@ const CalendarPage = () => {
     }
   };
 
-  // helper: add +1 day to make FullCalendar end date inclusive
   const addOneDay = (dateStr) => {
     const date = new Date(dateStr);
     date.setDate(date.getDate() + 1);
@@ -150,7 +149,6 @@ const CalendarPage = () => {
                   eventid: item.id,
                   eventTypeId: item.eventType?.id || null,
 
-                  // ✅ MULTI-LANGUAGE TITLE
                   title:
                     (item.prefix || "") +
                     getLocalizedText(item.party, "name") +
@@ -165,7 +163,6 @@ const CalendarPage = () => {
                   statusCode: item.status,
                   isRMenu: item?.isRMenu,
 
-                  // ✅ MULTI-LANGUAGE ADDRESS & EVENT TYPE
                   address: getLocalizedText(item.venue, "name"),
                   event: getLocalizedText(item.eventType, "name"),
 
