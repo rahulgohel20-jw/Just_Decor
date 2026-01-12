@@ -30,6 +30,7 @@ export default function DatabaseAssign({ open, onClose, selectedRow }) {
 
   const fetchCustomers = async () => {
     try {
+      const res = await GetUsersByRoleId();
       const users = Array.isArray(res.data.data["User Details"])
         ? res.data.data["User Details"]
         : [];
