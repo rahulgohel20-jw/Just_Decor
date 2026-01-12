@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GetAllCustomer, AddExpensemanagement } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
 
 export default function AddSupplierCustomerModal({
   open,
@@ -179,8 +180,12 @@ export default function AddSupplierCustomerModal({
             >
               <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Add New Contact
+                  <FormattedMessage
+                    id="CONTACT.ADD.TITLE"
+                    defaultMessage="Add New Contact"
+                  />
                 </h2>
+
                 <button
                   onClick={onClose}
                   className="text-gray-500 hover:text-gray-700"
@@ -202,7 +207,10 @@ export default function AddSupplierCustomerModal({
               </div>
 
               <div className="overflow-y-auto p-6 space-y-6">
-                <div className="ps-3">Type</div>
+                <div className="ps-3">
+                  {" "}
+                  <FormattedMessage id="CONTACT.TYPE" defaultMessage="Type" />
+                </div>
                 <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-2xl w-fit">
                   {["Supplier", "Customer"].map((t) => (
                     <button
@@ -225,7 +233,8 @@ export default function AddSupplierCustomerModal({
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Select Existing {form.type}
+                    <FormattedMessage id="CONTACT.TYPE" defaultMessage="Type" />{" "}
+                    {form.type}
                   </label>
 
                   <select
@@ -233,7 +242,12 @@ export default function AddSupplierCustomerModal({
                     onChange={handlePartySelect}
                     className="input mt-1 w-full"
                   >
-                    <option value="">Select {form.type}</option>
+                    <option value="">
+                      <FormattedMessage
+                        id="CONTACT.SELECT_PLACEHOLDER"
+                        defaultMessage={`Select ${form.type}`}
+                      />
+                    </option>
 
                     {partyList.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -246,7 +260,10 @@ export default function AddSupplierCustomerModal({
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Amount
+                    <FormattedMessage
+                      id="COMMON.AMOUNT"
+                      defaultMessage="Amount"
+                    />
                   </label>
                   <input
                     type="number"
@@ -261,7 +278,10 @@ export default function AddSupplierCustomerModal({
                 <div className="grid grid-cols-[200px_1fr_1fr] gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Country Code
+                      <FormattedMessage
+                        id="COMMON.COUNTRY_CODE"
+                        defaultMessage="Country Code"
+                      />
                     </label>
                     <input
                       type="text"
@@ -273,7 +293,10 @@ export default function AddSupplierCustomerModal({
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-600">
-                      Mobile Number
+                      <FormattedMessage
+                        id="COMMON.MOBILE_NUMBER"
+                        defaultMessage="Mobile Number"
+                      />
                     </label>
                     <input
                       type="text"
@@ -286,7 +309,10 @@ export default function AddSupplierCustomerModal({
                   </div>
                   <div className="relative">
                     <label className="text-sm font-medium text-gray-600">
-                      Payment Type
+                      <FormattedMessage
+                        id="COMMON.PAYMENT_TYPE"
+                        defaultMessage="Payment Type"
+                      />
                     </label>
                     <select
                       name="paymentType"
@@ -294,9 +320,25 @@ export default function AddSupplierCustomerModal({
                       onChange={handleInput}
                       className="input mt-1"
                     >
-                      <option value="">Select payment type</option>
-                      <option value="cash">Cash</option>
-                      <option value="online">Online</option>
+                      <option value="">
+                        <FormattedMessage
+                          id="COMMON.SELECT_PAYMENT_TYPE"
+                          defaultMessage="Select payment type"
+                        />
+                      </option>
+                      <option value="cash">
+                        {" "}
+                        <FormattedMessage
+                          id="PAYMENT.CASH"
+                          defaultMessage="Cash"
+                        />
+                      </option>
+                      <option value="online">
+                        <FormattedMessage
+                          id="PAYMENT.ONLINE"
+                          defaultMessage="Online"
+                        />
+                      </option>
                     </select>
                     <svg
                       className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -315,7 +357,10 @@ export default function AddSupplierCustomerModal({
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">
-                    Remarks
+                    <FormattedMessage
+                      id="COMMON.REMARKS"
+                      defaultMessage="Remarks"
+                    />
                   </label>
                   <textarea
                     name="remarks"
@@ -332,16 +377,27 @@ export default function AddSupplierCustomerModal({
                     className="text-blue-600 text-sm underline"
                     onClick={() => setShowGST(!showGST)}
                   >
-                    {showGST
-                      ? "Hide GST & Address"
-                      : "Add GST & Address (Optional)"}
+                    {showGST ? (
+                      <FormattedMessage
+                        id="GST.HIDE"
+                        defaultMessage="Hide GST & Address"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="GST.ADD_OPTIONAL"
+                        defaultMessage="Add GST & Address (Optional)"
+                      />
+                    )}
                   </button>
 
                   {showGST && (
                     <div className="mt-4 space-y-6">
                       <div>
                         <label className="text-sm font-medium text-gray-600">
-                          GSTIN
+                          <FormattedMessage
+                            id="GST.GSTIN"
+                            defaultMessage="GSTIN"
+                          />
                         </label>
                         <input
                           type="text"
@@ -355,7 +411,10 @@ export default function AddSupplierCustomerModal({
 
                       <div>
                         <label className="text-sm font-medium text-gray-600">
-                          Billing address
+                          <FormattedMessage
+                            id="ADDRESS.BILLING"
+                            defaultMessage="Billing Address"
+                          />
                         </label>
 
                         <div className="grid grid-cols-2 gap-4 mt-2">
@@ -429,7 +488,10 @@ export default function AddSupplierCustomerModal({
                           }}
                         />
                         <span className="text-sm text-gray-700">
-                          Shipping address same as billing address?
+                          <FormattedMessage
+                            id="ADDRESS.SAME_AS_BILLING"
+                            defaultMessage="Shipping address same as billing address?"
+                          />
                         </span>
                       </div>
                     </div>

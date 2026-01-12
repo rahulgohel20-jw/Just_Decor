@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import AddVendor from "../../add-vendor/AddVendor";
+
 import AddGodown from "@/partials/modals/add-godown/AddGodown";
 import PlaceSelect from "../../../../components/PlaceSelect/PlaceSelect";
 

@@ -75,11 +75,11 @@ const ChangeMenuItemCategoryPage = () => {
         const response = await Getmenuitemsusingcatidconfig(
           menu_cat_ids,
           userId,
-          null
+          { type: null }
         );
 
         const menuItemsData =
-          response?.data?.data || response?.data?.darta || []; // handle typo
+          response?.data?.data || response?.data?.darta || [];
 
         const formattedData = menuItemsData.map((item) => ({
           id: item.id,
@@ -114,6 +114,7 @@ const ChangeMenuItemCategoryPage = () => {
 
       params.append("new_cat_id", toCategory);
       params.append("user_id", userId);
+      params.append("type", null);
 
       selectedRows.forEach((id) => {
         params.append("menu_item_ids", id);
@@ -167,12 +168,12 @@ const ChangeMenuItemCategoryPage = () => {
       <Container>
         {/* Breadcrumb */}
         <div className="gap-2 mb-3">
-         <h1 className="text-xl text-gray-900">
-                  <FormattedMessage
-                    id="MENUITEM.CHANGE_CATEGORY"
-                    defaultMessage="Change Menu Item Category"
-                  />
-                </h1>
+          <h1 className="text-xl text-gray-900">
+            <FormattedMessage
+              id="MENUITEM.CHANGE_CATEGORY"
+              defaultMessage="Change Menu Item Category"
+            />
+          </h1>
         </div>
 
         {/* FROM / TO CATEGORY CARD */}
