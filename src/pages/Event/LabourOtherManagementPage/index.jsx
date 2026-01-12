@@ -1,6 +1,5 @@
 import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Select } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -52,7 +51,8 @@ const parseDate = (date, fallbackDate) => {
 };
 
 const createEmptyLabourRow = (labourType = "") => ({
-  id: Date.now(),
+  id: `local-${Date.now()}`,
+  isSaved: false,
   labourType,
   contactId: null,
   contact: "",
@@ -79,6 +79,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isAddLabourModalOpen, setIsAddLabourModalOpen] = useState(false);
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [activeRowId, setActiveRowId] = useState(null);
 
   const [contactTypeId, setContactTypeId] = useState(2);
   const [concatId, setConcatId] = useState(2);
@@ -144,25 +145,25 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   const handleVendorAdded = async () => {
-    if (!selectedRow) return;
+    if (!activeRowId) return;
 
-    const categoryId = rowCategoryMap[selectedRow.id];
+    const categoryId = rowCategoryMap[activeRowId];
     if (!categoryId) return;
 
-    // 1️⃣ Refetch vendors for that category
+    // Refetch vendors for that category
     const res = await GetPartyMasterByCatId(categoryId, userId);
     const updatedContacts = res?.data?.data?.["Party Details"] || [];
 
-    // 2️⃣ Update master contacts
+    // Update master contacts
     setAllContacts((prev) => ({
       ...prev,
       [categoryId]: updatedContacts,
     }));
 
-    // 3️⃣ Update row-specific dropdown
+    // 🔥 Update dropdown ONLY for active row
     setFilteredContacts((prev) => ({
       ...prev,
-      [selectedRow.id]: updatedContacts,
+      [activeRowId]: updatedContacts,
     }));
   };
 
@@ -287,8 +288,9 @@ const LabourOtherManagementPage = ({ mode }) => {
         const res = await GetEventLaborDetails(activeFunction.id, eventData.id);
         const laborData = res?.data?.data?.eventLabor || [];
 
-        const formattedRows = laborData.map((item, index) => ({
-          id: index + 1,
+        const formattedRows = laborData.map((item) => ({
+          id: `server-${item.id}`,
+          isSaved: true,
           labourType:
             labourCategories
               .find((c) => c.id === item.labortypeid)
@@ -313,7 +315,10 @@ const LabourOtherManagementPage = ({ mode }) => {
           notesHindi: item.notesHindi || "",
         }));
 
-        setLabourData(formattedRows);
+        setLabourData((prev) => {
+          const unsavedRows = prev.filter((r) => !r.isSaved);
+          return [...formattedRows, ...unsavedRows];
+        });
       } catch (error) {
         console.error("Error fetching labour details:", error);
       }
@@ -328,6 +333,18 @@ const LabourOtherManagementPage = ({ mode }) => {
       fetchLaborDetails();
     }
   }, [eventData, activeTab, labourCategories, allContacts, activeFunction]);
+
+  useEffect(() => {
+    setFilteredContacts((prev) => {
+      const updated = { ...prev };
+
+      Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
+        updated[rowId] = allContacts[catId] || [];
+      });
+
+      return updated;
+    });
+  }, [allContacts]);
 
   const handleRowChange = useCallback((id, field, value) => {
     setHasUnsavedChanges(true);
@@ -480,7 +497,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           const laborData = laborRes?.data?.data?.eventLabor || [];
 
           const formattedRows = laborData.map((item, index) => ({
-            id: index + 1,
+            id: `server-${item.id}`,
             labourType:
               labourCategories
                 .find((c) => c.id === item.labortypeid)
@@ -861,7 +878,12 @@ const LabourOtherManagementPage = ({ mode }) => {
             setSelectedRow={setSelectedRow}
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
-            onOpenAddVendor={() => setIsMemberModalOpen(true)}
+            onOpenAddVendor={() => {
+              if (!activeRowId && labourData.length) {
+                setActiveRowId(labourData[labourData.length - 1].id);
+              }
+              setIsMemberModalOpen(true);
+            }}
             onOpenAddLabourShift={handleOpenAddLabourShift}
           />
         )}
@@ -999,6 +1021,7 @@ const LabourTable = ({
   onAddRow,
   onViewDetails,
   onAddNotes,
+  setActiveRowId,
   onSave,
   isSaving,
   hasUnsavedChanges,
@@ -1098,6 +1121,7 @@ const LabourTable = ({
                 onLabourTypeChange={onLabourTypeChange}
                 onContactChange={onContactChange}
                 onDelete={onDelete}
+                setActiveRowId={setActiveRowId}
                 onViewDetails={onViewDetails}
                 onAddNotes={onAddNotes}
               />
@@ -1146,6 +1170,7 @@ const LabourRow = ({
   onLabourTypeChange,
   onContactChange,
   onDelete,
+  setActiveRowId,
   onViewDetails,
   onAddNotes,
 }) => {
@@ -1179,6 +1204,7 @@ const LabourRow = ({
         <Select
           className="custom-select-sm"
           showSearch
+          onFocus={() => setActiveRowId(row.id)}
           placeholder="Select Labour Type"
           value={row.labourType || undefined}
           onChange={(value) => onLabourTypeChange(row.id, value)}
@@ -1196,15 +1222,9 @@ const LabourRow = ({
       <td className="!px-[3px]">
         <Select
           className="custom-select-sm"
+          onFocus={() => setActiveRowId(row.id)}
           showSearch
           placeholder="Select Contact"
-          // value={
-          //   (filteredContacts[row.id] || []).some(
-          //     (c) => c.nameEnglish === row.contact
-          //   )
-          //     ? row.contact
-          //     : undefined
-          // }
           value={row.contact || undefined}
           onChange={(value) => onContactChange(row.id, value)}
           style={{ width: "100%" }}
