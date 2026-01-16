@@ -27,7 +27,17 @@ export const columns = (onEdit, onDelete, onstatus) => [
       cellClassName: "w-[8%]",
     },
   },
+  {
+    accessorKey: "namePlate",
 
+    header: (
+      <FormattedMessage id="COMMON.NAME" defaultMessage="Name Plate Type" />
+    ),
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
