@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import NamePlateReport from "./NamePlateReport";
+
 import { toAbsoluteUrl } from "@/utils";
 import {
   GetEventMasterById,
@@ -38,6 +40,9 @@ export default function SelectMenureport({
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
+const [openNamePlate, setOpenNamePlate] = useState(false);
+
+
   const userId = localStorage.getItem("userId");
 
   const intl = useIntl();
@@ -64,6 +69,10 @@ export default function SelectMenureport({
         return obj[`${baseKey}English`] || "";
     }
   };
+const handleOpenNamePlate = () => {
+  setIsNamePlateTheme(true); // important
+  setIsModalOpen(true); // open MenuReport modal
+};
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -216,6 +225,11 @@ export default function SelectMenureport({
 
   const handleGenerateReport = (template) => {
     setSelectedCard(template.id);
+    // ✅ IF NAME PLATE TEMPLATE
+    if (isNamePlateTheme || template.isNamePlate) {
+      setOpenNamePlate(true); // open name plate
+      return; // ❌ DO NOT open MenuReport
+    }
     setSelectedTemplateId(template.id);
     setSelectedTemplateName(template.name);
     setmappingId(template.mappingId);
@@ -530,6 +544,16 @@ export default function SelectMenureport({
         PartyNumber={PartyNumber}
         isNamePlateTheme={isNamePlateTheme} // NEW PROP
       />
+      {openNamePlate && (
+        <CustomModal
+          open={openNamePlate}
+          onClose={() => setOpenNamePlate(false)}
+          width={900}
+          footer={null}
+        >
+          <NamePlateReport onClose={() => setOpenNamePlate(false)} />
+        </CustomModal>
+      )}
     </>
   );
 }

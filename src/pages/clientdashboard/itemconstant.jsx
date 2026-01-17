@@ -1,4 +1,6 @@
 import { DataGridColumnHeader } from "@/components";
+import { FormattedMessage } from "react-intl";
+
 
 // Status Badge Component with Amount and Arrow
 const StatusBadge = ({ status, amount }) => {
@@ -41,25 +43,42 @@ export const itemcolumns = [
   {
     accessorKey: "no",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Sr No#" column={column} />
+      <DataGridColumnHeader
+        title={<FormattedMessage id="ITEM.SR_NO" defaultMessage="Sr No#" />}
+        column={column}
+      />
     ),
   },
   {
     accessorKey: "item",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Item" column={column} />
+      <DataGridColumnHeader
+        title={<FormattedMessage id="ITEM.ITEM_NAME" defaultMessage="Item" />}
+        column={column}
+      />
     ),
   },
   {
     accessorKey: "quantity",
     header: ({ column }) => (
-      <DataGridColumnHeader title=" Current Quantity" column={column} />
+      <DataGridColumnHeader
+        title={
+          <FormattedMessage
+            id="ITEM.CURRENT_QUANTITY"
+            defaultMessage="Current Quantity"
+          />
+        }
+        column={column}
+      />
     ),
   },
   {
     accessorKey: "selling",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Status" column={column} />
+      <DataGridColumnHeader
+        title={<FormattedMessage id="ITEM.STATUS" defaultMessage="Status" />}
+        column={column}
+      />
     ),
     cell: ({ row }) => {
       const status = row.original?.selling;

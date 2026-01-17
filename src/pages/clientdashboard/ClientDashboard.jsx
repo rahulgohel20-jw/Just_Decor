@@ -7,7 +7,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import { Search, RefreshCcw, Phone } from "lucide-react";
 import { invoicecolumns } from "./invoiceconstant";
-import { itemcolumns, defaultitemData } from "./itemconstant";
+import { itemcolumns, } from "./itemconstant";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import VideoTutorial from "@/components/videoTutorial/VideoTutorial";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -34,13 +34,13 @@ const debounce = (fn, delay = 300) => {
   };
 };
 
-const formatDate = (date) => dayjs(date).format("DD/MM/YYYY");
+// const formatDate = (date) => dayjs(date).format("DD/MM/YYYY");
 
 const ClientDashboard = () => {
   const intl = useIntl();
 
   const [dashboarddata, setDashboarddata] = useState([]);
-  const [salesPiechart, setSalesPiechart] = useState(null);
+  // const [salesPiechart, setSalesPiechart] = useState(null);
 
   // separate periods for each chart
   const [selectedExpensePeriod, setSelectedExpensePeriod] = useState("today");
@@ -580,7 +580,7 @@ const ClientDashboard = () => {
                         handlePeriodChange(e.target.value, chart.type)
                       }
                     >
-                      <option value="today">Today's</option>
+                      <option value="today">Todays</option>
                       <option value="week">This Week</option>
                       <option value="month">This Month</option>
                     </select>
