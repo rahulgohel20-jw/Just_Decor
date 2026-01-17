@@ -347,6 +347,20 @@ export const GetUsersByRoleId = (roleId = 2) => {
   return GET(`/user/getallbyroleid?roleId=${roleId}`);
 };
 
+export const GetNamePlatedata = (eventFunctionId, eventId, lang, userID) => {
+  return GET(
+    `/nameplate/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}&lang=${lang}&userId=${userID}`
+  );
+};
+
+export const GenerateNamePlateReport = (fromData) => {
+  return POST(`/report/generate-name-plate/`, fromData);
+};
+
+export const AddNamePlate = (data) => {
+  return POST(`/nameplate/addorupdate`, data);
+};
+
 // Add Role
 
 export const Addrole = (data) => {
