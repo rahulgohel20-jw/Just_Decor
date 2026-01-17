@@ -60,6 +60,8 @@ const Dashboard = () => {
             id: user.id,
             name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
             phone: user.contactNo || user.userBasicDetails?.officeNo || "N/A",
+            company_name: user["userBasicDetails"]?.companyName || "N/A",
+            city: user["userBasicDetails"]?.city.name || "N/A",
             is_active: user.isActive ?? false,
             created_at:
               user.createdAt || user.userBasicDetails?.createdAt || "N/A",

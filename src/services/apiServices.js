@@ -1429,3 +1429,27 @@ export const AddUtility = (data) => {
 export const GetUtility = (userId) => {
   return GET(`/user-config/getUserConfig/${userId}`);
 };
+
+export const AddExtraPayment = (data) => {
+  return POST(`/extrapayment/add-update`, data);
+};
+
+export const GetExtraPayment = () => {
+  return GET(`/extrapayment/getall`);
+};
+
+export const DeleteExtraPayment = (id) => {
+  return DELETE(`/extrapayment/deletebyid?id=${id}`);
+};
+
+export const AddCoupon = (data) => {
+  return POST(`/coupenmaster/addorupdate`, data);
+};
+
+export const GetCoupons = () => {
+  return GET(`/coupenmaster/getall`);
+};
+
+export const DeleteCoupon = (id) => {
+  return DELETE(`/coupenmaster/delete?id=${id}`);
+};

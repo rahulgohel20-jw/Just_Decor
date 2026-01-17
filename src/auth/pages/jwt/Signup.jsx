@@ -171,7 +171,7 @@ export default function Signup() {
         if (!value) {
           error = "Password required";
         } else if (
-          !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/.test(
+          !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#_])[A-Za-z\d@$!%*?&#_]{6,}$/.test(
             value
           )
         ) {
@@ -316,7 +316,7 @@ export default function Signup() {
         Swal.fire({
           icon: "error",
           title: "Registration Failed",
-          text: res?.data?.message || "Something went wrong.",
+          text: res?.data?.msg || "Something went wrong.",
           confirmButtonColor: "#d33",
         });
       }

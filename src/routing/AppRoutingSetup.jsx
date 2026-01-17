@@ -209,6 +209,8 @@ import AllReportsConfig from "../pages/super-admin/master/super-report-config";
 import RightsModule from "../pages/super-admin/master/RightsModule";
 import GodownMaster from "../pages/master/Godown-master";
 import PageMaster from "../pages/super-admin/master/pages-master";
+import ExtraPaymentMaster from "../pages/super-admin/master/ExtraPayment-master";
+import CouponMaster from "../pages/super-admin/master/Coupon-master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -377,6 +379,8 @@ const AppRoutingSetup = () => {
           />
 
           <Route path="/pages-master" element={<PageMaster />} />
+          <Route path="/extrapayment" element={<ExtraPaymentMaster />} />
+          <Route path="/coupon" element={<CouponMaster />} />
 
           <Route
             path="/super-raw-material-type-master"
