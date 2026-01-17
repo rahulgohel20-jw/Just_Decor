@@ -86,7 +86,7 @@ const MemberProfile = () => {
     fetchTickets();
   }, [showTickets, id]);
 
-  const handleDeleteAssignedTheme = async (themeId, themeName) => {
+  const handleDeleteAssignedTheme = async (Id, themeName) => {
     try {
       const result = await Swal.fire({
         title: "Are you sure?",
@@ -111,7 +111,7 @@ const MemberProfile = () => {
         });
 
         // Call delete API
-        const response = await DeleteAssignedTheme(themeId);
+        const response = await DeleteAssignedTheme(Id);
 
         if (response?.data?.success) {
           // Success message
@@ -474,7 +474,7 @@ const MemberProfile = () => {
                               <button
                                 onClick={() =>
                                   handleDeleteAssignedTheme(
-                                    theme.themeId,
+                                    theme.id,
                                     theme.themeName
                                   )
                                 }

@@ -580,6 +580,21 @@ export const superAdminMenuItems = [
         ),
         path: "/ModuleRights",
       },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.EXTRA_PAYMENTS"
+            defaultMessage="Extra Payments"
+          />
+        ),
+        path: "/extrapayment",
+      },
+      {
+        title: (
+          <FormattedMessage id="COMMON.COUPONS" defaultMessage="Coupons" />
+        ),
+        path: "/coupon",
+      },
     ],
   },
   {

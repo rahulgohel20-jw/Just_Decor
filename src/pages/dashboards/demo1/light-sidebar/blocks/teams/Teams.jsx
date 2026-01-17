@@ -26,7 +26,7 @@ const Teams = ({ data }) => {
         accessorFn: (row, index) => index + 1,
         id: "srNo",
         header: () =>
-          intl.formatMessage({ id: "TEAMS.SR_NO", defaultMessage: "Sr. no." }),
+          intl.formatMessage({ id: "TEAMS.SR_NO", defaultMessage: "Sr No." }),
         enableSorting: false,
         cell: ({ row, table }) => {
           const pageIndex = table.getState().pagination.pageIndex;
@@ -56,6 +56,26 @@ const Teams = ({ data }) => {
         meta: { headerClassName: "min-w-[180px]" },
       },
       {
+        accessorFn: (row) => row.company_name,
+        id: "company_name",
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title={intl.formatMessage({
+              id: "TEAMS.COMPANY_NAME",
+              defaultMessage: "Company Name",
+            })}
+            column={column}
+          />
+        ),
+        enableSorting: true,
+        cell: (info) => (
+          <span className="text-sm text-gray-900">
+            {info.row.original.company_name}
+          </span>
+        ),
+        meta: { headerClassName: "min-w-[180px]" },
+      },
+      {
         accessorFn: (row) => row.phone,
         id: "phone",
         header: ({ column }) => (
@@ -70,6 +90,25 @@ const Teams = ({ data }) => {
         cell: (info) => (
           <span className="text-sm text-gray-700">
             {info.row.original.phone}
+          </span>
+        ),
+        meta: { className: "min-w-[150px]" },
+      },
+      {
+        accessorFn: (row) => row.city,
+        id: "city",
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title={intl.formatMessage({
+              id: "TEAMS.CITY",
+              defaultMessage: "City",
+            })}
+            column={column}
+          />
+        ),
+        cell: (info) => (
+          <span className="text-sm text-gray-700">
+            {info.row.original.city}
           </span>
         ),
         meta: { className: "min-w-[150px]" },

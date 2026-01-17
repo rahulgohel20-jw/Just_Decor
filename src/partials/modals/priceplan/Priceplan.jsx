@@ -10,6 +10,8 @@ import {
   CreatePaymentOrder,
   FetchAllUser,
   GetPlansByBillingCycle,
+  GetCoupons,
+  GetExtraPayment,
 } from "@/services/apiServices";
 import { useAutoTranslation } from "../../../utils/useAutoTranslation";
 import PaymentSuccess from "../successmodal/paymentsuccess";
@@ -34,8 +36,6 @@ const parseJwt = (token) => {
   }
 };
 
-// PaymentSuccess component will be imported from your actual component
-
 const Priceplan = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,13 +57,15 @@ const Priceplan = () => {
     transactionId: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [customTheme, setCustomTheme] = useState(true);
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [extraPayments, setExtraPayments] = useState([]);
+  const [selectedExtraPayments, setSelectedExtraPayments] = useState({});
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
 
   const stored =
     typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
   const token = stored;
-  const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
@@ -104,53 +106,29 @@ const Priceplan = () => {
       });
     };
     loadLabels();
-  }, []);
-
-  useEffect(() => {
-    const loadLabels = async () => {
-      setLabels({
-        quarterly: await translate("Quarterly"),
-        annually: await translate("Annually"),
-      });
-    };
-    loadLabels();
   }, [language]);
-
-  useEffect(() => {
-    if (!token) return;
-    const decoded = parseJwt(token);
-
-    const idFromToken = decoded?.userId ?? decoded?.userId ?? decoded?.userId;
-    if (idFromToken) {
-      setUserId(idFromToken);
-    } else if (stored?.id) {
-      setUserId(stored.id);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (!userId) return;
-    const fetchUserDetails = async () => {
-      try {
-        const res = await FetchAllUser(userId);
-        const fetched = res?.data?.data?.["User Details"]?.[0] ?? null;
-        if (fetched) {
-          setUser(fetched);
-        } else {
-          console.warn("FetchAllUser returned no data:", res);
-        }
-      } catch (err) {
-        console.error("Error fetching user details:", err);
-      }
-    };
-    fetchUserDetails();
-  }, [userId]);
 
   useEffect(() => {
     if (!activeCycle) return;
     setTranslatedPlans([]);
     fetchPlans();
   }, [activeCycle, language]);
+
+  useEffect(() => {
+    fetchExtraPayments();
+  }, []);
+
+  const fetchExtraPayments = async () => {
+    try {
+      const res = await GetExtraPayment();
+      const payments = res?.data?.data?.["Extra Payment Details"] || [];
+      // Ensure it's always an array
+      setExtraPayments(Array.isArray(payments) ? payments : []);
+    } catch (error) {
+      console.error("Error fetching extra payments:", error);
+      setExtraPayments([]);
+    }
+  };
 
   const fetchPlans = async () => {
     try {
@@ -162,7 +140,7 @@ const Priceplan = () => {
       const langPlans = await Promise.all(
         result.map(async (p) => ({
           ...p,
-          originalName: p.name, // keep English
+          originalName: p.name,
           name: await translate(p.name),
           originalDescription: p.description,
           description: await translate(p.description),
@@ -190,7 +168,6 @@ const Priceplan = () => {
   useEffect(() => {
     if (!translatedPlans.length) return;
 
-    // Prefer popular plan, fallback to first plan
     const defaultPlan =
       translatedPlans.find((p) => p.isPopular) || translatedPlans[0];
 
@@ -207,6 +184,91 @@ const Priceplan = () => {
     }
     return [...others, ...popular];
   })();
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Coupon",
+        text: "Please enter a coupon code",
+      });
+      return;
+    }
+
+    try {
+      const res = await GetCoupons();
+      const coupons = res?.data?.data || [];
+
+      const validCoupon = coupons.find(
+        (c) => c.coupenCode?.toLowerCase() === couponCode.toLowerCase()
+      );
+
+      if (!validCoupon) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Coupon",
+          text: "The coupon code you entered is not valid",
+        });
+        return;
+      }
+
+      // Check expiry date
+      const today = new Date();
+      const expiryDate = validCoupon.expireDate
+        ? parseDate(validCoupon.expireDate)
+        : null;
+
+      if (expiryDate && today > expiryDate) {
+        Swal.fire({
+          icon: "error",
+          title: "Expired Coupon",
+          text: "This coupon has expired",
+        });
+        return;
+      }
+
+      // Check max user limit if applicable
+      if (validCoupon.maxUser && validCoupon.usedCount >= validCoupon.maxUser) {
+        Swal.fire({
+          icon: "error",
+          title: "Coupon Limit Reached",
+          text: "This coupon has reached its maximum usage limit",
+        });
+        return;
+      }
+
+      setAppliedCoupon(validCoupon);
+      Swal.fire({
+        icon: "success",
+        title: "Coupon Applied!",
+        text: `You saved ₹${validCoupon.price}`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to apply coupon. Please try again.",
+      });
+    }
+  };
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const parts = dateStr.split("/");
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      return new Date(year, month - 1, day);
+    }
+    return null;
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
 
   const handlePayment = async (plan) => {
     if (!userId) {
@@ -324,17 +386,35 @@ const Priceplan = () => {
   };
 
   const userHasPlan = !!user?.plan;
-
-  // All features list for left sidebar
   const displayedFeatures = selectedPlan?.features || [];
 
-  const planPrice = translatedPlans.find((p) => p.isPopular)?.price || 24000;
-  const customThemePrice = 6000;
+  const planPrice = selectedPlan?.price || 24000;
 
-  const finalTotal = planPrice + (customTheme ? customThemePrice : 0);
+  // Separate extra payments into different categories
+  const activeExtraPayments = Array.isArray(extraPayments)
+    ? extraPayments.filter((ep) => !ep.isDelete)
+    : [];
+
+  // Calculate discount
+  const couponDiscount = appliedCoupon?.price || 0;
+
+  // Calculate subtotal with all selected extra payments
+  const extraPaymentsTotal = activeExtraPayments
+    .filter((ep) => selectedExtraPayments[ep.id])
+    .reduce((sum, ep) => sum + (ep.price || 0), 0);
+
+  const subtotal = planPrice + extraPaymentsTotal;
+  const finalTotal = subtotal - couponDiscount;
 
   const handlePlanSelect = (plan) => {
     setSelectedPlan(plan);
+  };
+
+  const handleExtraPaymentToggle = (paymentId) => {
+    setSelectedExtraPayments((prev) => ({
+      ...prev,
+      [paymentId]: !prev[paymentId],
+    }));
   };
 
   return (
@@ -392,7 +472,6 @@ const Priceplan = () => {
 
                       return (
                         <div key={plan.id} className="relative">
-                          {/* Best choice badge */}
                           {isPopular && (
                             <div className="w-auto absolute -top-3 left-3/4 -translate-x-1/7 z-10">
                               <div className="bg-white text-gray-900 text-xs px-3 py-2 rounded-full font-medium shadow-md border border-gray-400">
@@ -413,8 +492,6 @@ const Priceplan = () => {
                               {plan.billingCycle} Plan
                             </h3>
 
-                            {/* Original Price (strikethrough) */}
-
                             <div
                               className={`text-3xl font-bold mb-1 ${isPopular ? "text-white" : "text-gray-900"} line-through`}
                             >
@@ -424,12 +501,10 @@ const Priceplan = () => {
                               ).toLocaleString("en-IN")}
                             </div>
 
-                            {/* Discounted Price */}
                             <div className="text-6xl font-bold mb-2">
                               ₹{plan.price.toLocaleString("en-IN")}/-
                             </div>
 
-                            {/* AMC and Period */}
                             <div className="flex items-center justify-between mb-6">
                               <span
                                 className={`text-lg font-semibold ${isPopular ? "text-white" : "text-gray-700"}`}
@@ -443,9 +518,7 @@ const Priceplan = () => {
                                   {isPopular ? "Annually" : "Per 3 month"}
                                 </div>
                                 <div className="text-xs">
-                                  {isPopular
-                                    ? "For Next Year On-ward"
-                                    : "For Next Year On-ward"}
+                                  For Next Year On-ward
                                 </div>
                               </div>
                             </div>
@@ -469,42 +542,43 @@ const Priceplan = () => {
                     })}
                 </div>
 
-                {/* Custom Themes */}
-                <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Custom Themes
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Personalize the software with brand-matched, premium
-                        interface themes
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xl font-bold text-gray-900">
-                        + ₹6000
-                      </span>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={customTheme}
-                          onChange={(e) => setCustomTheme(e.target.checked)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setThemeModalOpen(true)}
-                      className="mt-4 border border-[#005BA8] rounded-lg px-5 py-3 text-[#005BA8] text-sm font-medium hover:bg-[#005BA8] hover:text-white"
+                {/* Dynamic Extra Payments */}
+                {activeExtraPayments.length > 0 &&
+                  activeExtraPayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="bg-white rounded-lg p-6 shadow-sm"
                     >
-                      View Available Themes
-                    </button>
-                  </div>
-                </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {payment.name}
+                          </h3>
+                          {payment.description && (
+                            <p className="text-sm text-gray-600 mt-1">
+                              {payment.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-xl font-bold text-gray-900">
+                            + ₹{payment.price.toLocaleString()}
+                          </span>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!selectedExtraPayments[payment.id]}
+                              onChange={() =>
+                                handleExtraPaymentToggle(payment.id)
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                 {/* Coupon */}
                 <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -517,15 +591,36 @@ const Priceplan = () => {
                       placeholder="Enter coupon code"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={!!appliedCoupon}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                     />
-                    <button className="px-6 py-2 bg-[#005BA8] text-white rounded font-medium hover:bg-[#005BA8]">
-                      Apply
-                    </button>
+                    {appliedCoupon ? (
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="px-6 py-2 bg-red-500 text-white rounded font-medium hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleApplyCoupon}
+                        className="px-6 py-2 bg-[#005BA8] text-white rounded font-medium hover:bg-[#004a8a]"
+                      >
+                        Apply
+                      </button>
+                    )}
                   </div>
+                  {appliedCoupon && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-green-600 font-medium">
+                      <Check className="w-4 h-4" />
+                      <span>
+                        Coupon "{appliedCoupon.coupenCode}" applied! You saved ₹
+                        {appliedCoupon.price.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                   <div className="mt-3 flex items-center gap-2 text-sm text-[#005BA8]">
                     <span className="text-lg">
-                      {" "}
                       <img
                         src={toAbsoluteUrl("/media/brand-logos/coupon.png")}
                         className="dark:hidden max-h-[20px]"
@@ -545,13 +640,26 @@ const Priceplan = () => {
                         ₹{planPrice.toLocaleString()}
                       </span>
                     </div>
-                    {customTheme && (
-                      <div className="flex justify-between text-gray-700">
+                    {activeExtraPayments
+                      .filter((ep) => selectedExtraPayments[ep.id])
+                      .map((payment) => (
+                        <div
+                          key={payment.id}
+                          className="flex justify-between text-gray-700"
+                        >
+                          <span>{payment.name}</span>
+                          <span className="font-semibold">
+                            ₹{payment.price.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-green-600">
                         <span>
-                          Custom Theme Price (Exclusive Your Custom Report)
+                          Coupon Discount ({appliedCoupon.coupenCode})
                         </span>
                         <span className="font-semibold">
-                          ₹{customThemePrice.toLocaleString()}
+                          - ₹{couponDiscount.toLocaleString()}
                         </span>
                       </div>
                     )}
@@ -563,12 +671,9 @@ const Priceplan = () => {
                   </div>
                   <button
                     onClick={() => {
-                      const selectedPlan = translatedPlans.find(
-                        (p) => p.isPopular
-                      );
                       if (selectedPlan) handlePayment(selectedPlan);
                     }}
-                    className="w-full mt-6 py-3 bg-[#005BA8] text-white rounded-lg font-semibold hover:bg-[#005BA8] transition-colors"
+                    className="w-full mt-6 py-3 bg-[#005BA8] text-white rounded-lg font-semibold hover:bg-[#004a8a] transition-colors"
                   >
                     Pay Now
                   </button>
@@ -581,11 +686,33 @@ const Priceplan = () => {
           open={themeModalOpen}
           onClose={() => setThemeModalOpen(false)}
           onAddTheme={() => {
-            setCustomTheme(true); // ✅ +6000 ON
+            // Find the theme payment and toggle it
+            const themePayment = activeExtraPayments.find(
+              (ep) =>
+                ep.name?.toLowerCase().includes("theme") ||
+                ep.name?.toLowerCase().includes("custom")
+            );
+            if (themePayment) {
+              setSelectedExtraPayments((prev) => ({
+                ...prev,
+                [themePayment.id]: true,
+              }));
+            }
             setThemeModalOpen(false);
           }}
           onSkipTheme={() => {
-            setCustomTheme(false); // ❌ +6000 OFF
+            // Find the theme payment and disable it
+            const themePayment = activeExtraPayments.find(
+              (ep) =>
+                ep.name?.toLowerCase().includes("theme") ||
+                ep.name?.toLowerCase().includes("custom")
+            );
+            if (themePayment) {
+              setSelectedExtraPayments((prev) => ({
+                ...prev,
+                [themePayment.id]: false,
+              }));
+            }
             setThemeModalOpen(false);
           }}
         />
