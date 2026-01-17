@@ -23,6 +23,7 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
     nameGujarati: rawdata?.nameGujarati || "",
     nameHindi: rawdata?.nameHindi || "",
     sequence: rawdata?.sortorder || "",
+    namePlateType: rawdata?.namePlateType || "",
   };
 
   const validationSchema = Yup.object().shape({
@@ -68,6 +69,7 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
         nameHindi: values.nameHindi,
         templateModuleId: Number(values.templateModuleId),
         sortorder: Number(values.sequence),
+        namePlateType: values.namePlateType,
       };
 
       const response = await AddThemeType(payload);
@@ -196,6 +198,11 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
                   name="sequence"
                   component="div"
                   className="text-red-500 text-sm"
+                />
+                <label className="block mt-4 mb-1">Name Plate Type</label>
+                <Field
+                  name="namePlateType"
+                  className="border rounded-lg p-2 w-full"
                 />
 
                 <div className="flex justify-end gap-3 mt-6">

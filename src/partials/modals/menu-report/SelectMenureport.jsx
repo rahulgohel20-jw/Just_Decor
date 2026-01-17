@@ -10,7 +10,7 @@ import {
   GetAllCustomThemeByUserIdAndModuleId,
 } from "@/services/apiServices";
 import { useMemo } from "react";
-
+import CounterNameplate from "../counter-nameplate/CounterNameplate";
 import MenuReport from "./MenuReport";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -44,8 +44,23 @@ const [openNamePlate, setOpenNamePlate] = useState(false);
 
 
   const userId = localStorage.getItem("userId");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const intl = useIntl();
+  const lang = localStorage.getItem("lang");
+
+  const currentlang = useMemo(() => {
+    switch (lang) {
+      case "en":
+        return 0;
+      case "hi":
+        return 1;
+      case "gu":
+        return 2;
+      default:
+        return 0;
+    }
+  }, [lang]);
 
   const selectedEventFunction = useMemo(() => {
     if (selectedFunctionId === -1) return null;
@@ -148,6 +163,7 @@ const handleOpenNamePlate = () => {
           userId,
           activeTab
         );
+        console.log(res);
 
         let dynamicTemplates = [];
 
@@ -172,6 +188,7 @@ const handleOpenNamePlate = () => {
             namePlateBg: item.templateMaster.namePlateBg,
             isStatic: false,
             mappingId: item.templateMappingResponseDto?.id || item.id,
+            namePlateType: item.templateMappingResponseDto?.namePlateType || "",
           }));
         }
 
@@ -235,7 +252,15 @@ const handleOpenNamePlate = () => {
     setmappingId(template.mappingId);
     setSelectedModuleId(activeTab);
 
-    // ✅ OPEN MenuReport modal
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate === true &&
+      template.namePlateType === "Counter Name Plate"
+    ) {
+      setIsModalOpen(true);
+      return;
+    }
+
     setIsMenuReportOpen(true);
   };
 
@@ -542,7 +567,17 @@ const handleOpenNamePlate = () => {
         eventName={eventName}
         selectedTemplateName={selectedTemplateName}
         PartyNumber={PartyNumber}
-        isNamePlateTheme={isNamePlateTheme} // NEW PROP
+        isNamePlateTheme={isNamePlateTheme}
+      />
+
+      <CounterNameplate
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        eventId={finalEventId}
+        eventFunctionId={selectedFunctionId}
+        currentlang={currentlang}
+        adminTemplatemoduleId={selectedModuleId || activeTab}
+        selectedTemplateId={selectedTemplateId}
       />
       {openNamePlate && (
         <CustomModal

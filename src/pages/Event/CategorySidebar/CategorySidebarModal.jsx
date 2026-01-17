@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip } from "antd"; // Keep only Tooltip from antd
-import DatePicker from "react-datepicker"; // Add react-datepicker
-import "react-datepicker/dist/react-datepicker.css"; // Add CSS
+import { Tooltip } from "antd";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
 import AddContactName from "../../master/MenuItemMaster/components/AddContactName";
 import { Plus } from "lucide-react";
@@ -62,15 +62,14 @@ export default function CategorySidebarModal({
   useEffect(() => {
     if (!selectedRowData) return;
 
-    // Priority: inside > chefLabour > outside (default)
     if (selectedRowData.allocationType === "inside") {
-      setContactType(7); // Inside contact type
+      setContactType(3);
       setContactTypeName("Inside Kitchen");
     } else if (selectedRowData.allocationType === "chef") {
-      setContactType(5); // Chef Labour contact type
+      setContactType(3);
       setContactTypeName("Chef Labour");
     } else if (selectedRowData.allocationType === "outsource") {
-      setContactType(6); // Outside/Outsource contact type
+      setContactType(3);
       setContactTypeName("Outside");
     }
   }, [selectedRowData]);
