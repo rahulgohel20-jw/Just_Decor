@@ -659,9 +659,9 @@ export const updatestatusmneuitem = (id, isActive = true) => {
   return PUT(`/menuitems/updatestatus?id=${id}&isActive=${isActive}`);
 };
 
-export const SyncRawmaterialMenuallocation = (id) => {
+export const SyncRawmaterialMenuallocation = (id, eventId) => {
   return DELETE(`
-menuallocation/syncrawmaterialitems?eventFunctionid=${id}`);
+menuallocation/syncrawmaterialitems?eventFunctionid=${id}&eventId=${eventId}`);
 };
 
 // Change Password
@@ -1442,4 +1442,28 @@ export const AddUtility = (data) => {
 
 export const GetUtility = (userId) => {
   return GET(`/user-config/getUserConfig/${userId}`);
+};
+
+export const AddExtraPayment = (data) => {
+  return POST(`/extrapayment/add-update`, data);
+};
+
+export const GetExtraPayment = () => {
+  return GET(`/extrapayment/getall`);
+};
+
+export const DeleteExtraPayment = (id) => {
+  return DELETE(`/extrapayment/deletebyid?id=${id}`);
+};
+
+export const AddCoupon = (data) => {
+  return POST(`/coupenmaster/addorupdate`, data);
+};
+
+export const GetCoupons = () => {
+  return GET(`/coupenmaster/getall`);
+};
+
+export const DeleteCoupon = (id) => {
+  return DELETE(`/coupenmaster/delete?id=${id}`);
 };
