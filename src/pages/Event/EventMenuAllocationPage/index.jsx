@@ -1943,7 +1943,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         },
       });
 
-      const res = await SyncRawmaterialMenuallocation(eventFunctionId);
+      const res = await SyncRawmaterialMenuallocation(eventFunctionId, eventId);
 
       Swal.close();
 
