@@ -1,26 +1,130 @@
-import { useState } from "react";
+import { useState ,useEffect } from "react";
 import { CheckSquare, Square, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import RichTextEditor from "./RichTextEditor";
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
-export default function NamePlateReport({ onClose }) {
+import RichTextEditor from "./RichTextEditor";
+import Swal from "sweetalert2";
+import {
+  AddNamePlate,
+  GenerateNamePlateReport,
+  GetNamePlatedata,
+} from "@/services/apiServices";
+
+
+export default function NamePlateReport({
+  onClose,
+  eventId,
+  eventFunctionId,
+  selectedTemplateId,
+}) {
+  const pdfPlugin = defaultLayoutPlugin();
+
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [showPdfViewer, setShowPdfViewer] = useState(false);
+
   const [menuFontSize, setMenuFontSize] = useState(10);
   const [itemFontSize, setItemFontSize] = useState(15);
   const [activeTab, setActiveTab] = useState("menu");
   const [selectedLanguage, setSelectedLanguage] = useState("english");
+const userId = Number(localStorage.getItem("userId")) || null;
+  const [currentlang, setCurrentLang] = useState(0);
 
+const langMap = {
+  english: 0,
+  hindi: 1,
+  gujarati: 2,
+};
+
+useEffect(() => {
+  if (!eventId || userId == null) {
+    console.warn("Cannot fetch NamePlate: missing eventId or userId", {
+      eventId,
+      eventFunctionId,
+      currentlang,
+    });
+    return;
+  }
+
+  // Default to -1 if undefined
+  const efId = eventFunctionId ;
+  console.log("eventfunction", efId);
+  
+  fetchItemData(efId);
+}, [eventId, eventFunctionId, currentlang,userId]);
+
+
+const fetchItemData = async (efId) => {
+  try {
+    console.log("Fetching Name Plate Data...", {
+      eventFunctionId,
+      eventId,
+      userId,   
+      currentlang,
+    });
+
+    const res = await GetNamePlatedata(
+      efId,
+      eventId,
+      userId,
+      currentlang
+    );
+
+    console.log("Raw API Response:", res);
+
+    const data = res?.data?.data?.data || [];
+    console.log("Formatted API Data (before mapping):", data);
+
+    setItems(
+      data
+        .sort((a, b) => a.sequence - b.sequence)
+        .map((item) => ({
+          id: item.id,
+          name: item.itemNameEnglish,
+          itemNameEnglish: item.itemNameEnglish,
+          itemNameHindi: item.itemNameHindi,
+          itemNameGujarati: item.itemNameGujarati,
+          checked: item.isChecked === 1,
+        }))
+    );
+  } catch (err) {
+    console.error("Failed to fetch items:", err);
+  }
+};
+
+
+
+   const handleNameChange = (id, value) => {
+     setCounters((prev) =>
+       prev.map((item) => {
+         if (item.id !== id) return item;
+
+         if (currentlang === 0)
+           return { ...item, name: value, itemNameEnglish: value };
+         if (currentlang === 1)
+           return { ...item, name: value, itemNameHindi: value };
+         if (currentlang === 2)
+           return { ...item, name: value, itemNameGujarati: value };
+
+         return item;
+       })
+     );
+   };
   const [items, setItems] = useState([
     { id: 1, name: "STRAWBERRY BLACK GREAPS", checked: true },
     { id: 2, name: "MINERAL WATER BOTTLE 200ML", checked: true },
     { id: 3, name: "LEMON MINT SODA", checked: false },
   ]);
-
+  
   const [headerNotes, setHeaderNotes] = useState({
     english: "",
     hindi: "",
     gujarati: "",
   });
-
+  
   const [footerNotes, setFooterNotes] = useState({
     english: "",
     hindi: "",
@@ -57,6 +161,87 @@ export default function NamePlateReport({ onClose }) {
       ))}
     </div>
   );
+
+  const handleSave = async ({ printAfterSave = false } = {}) => {
+    Swal.fire({
+      title: "Saving...",
+      text: "Please wait",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const payload = {
+        categoryFontSize: menuFontSize,
+        itemFontSize: itemFontSize,
+        eventFunctionId: Number(eventFunctionId),
+        eventId: Number(eventId),
+        userId: Number(userId),
+
+        namePlateRequests: items.map((item, index) => ({
+          id: item.id || -1,
+          menuItemId: item.id,
+          isChecked: item.checked ? 1 : 0,
+          itemCount: 1,
+          itemNameEnglish: item.name,
+          itemNameHindi: item.name,
+          itemNameGujarati: item.name,
+          sequence: index + 1,
+        })),
+
+        headerNotesEnglish: headerNotes.english,
+        headerNotesHindi: headerNotes.hindi,
+        headerNotesGujarati: headerNotes.gujarati,
+
+        footerNotesEnglish: footerNotes.english,
+        footerNotesHindi: footerNotes.hindi,
+        footerNotesGujarati: footerNotes.gujarati,
+      };
+
+      console.log("payload",payload);
+      
+      const res = await AddNamePlate(payload);
+      console.log("post",res);
+      
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.msg || "Save failed");
+      }
+
+      Swal.close();
+
+      if (printAfterSave) {
+        await handlePrint();
+      } else {
+        Swal.fire("Saved Successfully", res?.data?.msg, "success");
+        onClose();
+      }
+    } catch (err) {
+      Swal.fire("Save Failed", err.message, "error");
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("adminTemplateModuleId", selectedTemplateId);
+      formData.append("eventFunctionId", eventFunctionId);
+      formData.append("eventId", eventId);
+      formData.append("isCompanyDetails", 0);
+      formData.append("lang", langMap[selectedLanguage]);
+      formData.append("userId", userId);
+
+      const res = await GenerateNamePlateReport(formData);
+
+      const url = res?.data?.report_path;
+      if (!url) throw new Error("PDF not generated");
+
+      setPdfUrl(url);
+      setShowPdfViewer(true);
+    } catch (err) {
+      Swal.fire("Print Failed", err.message, "error");
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border shadow-md mx-auto max-w-5xl">
@@ -251,8 +436,14 @@ export default function NamePlateReport({ onClose }) {
 
       {/* Footer Buttons */}
       <div className="flex flex-wrap justify-end gap-3 px-6 py-4 border-t bg-gray-50">
-        <button className="px-4 py-2 rounded-lg border text-gray-600 font-semibold hover:bg-gray-100">
+        <button
+          onClick={() => handleSave()}
+          className="px-4 py-2 rounded-lg border text-gray-600 font-semibold hover:bg-gray-100"
+        >
           Save
+        </button>
+        <button className="btn btn-primary" onClick={handlePrint}>
+          Print
         </button>
         {["PDF 1", "Word 1", "PDF 2", "Word 2"].map((label, i) => (
           <button
@@ -263,6 +454,24 @@ export default function NamePlateReport({ onClose }) {
           </button>
         ))}
       </div>
+      {showPdfViewer && pdfUrl && (
+        <CustomModal
+          open={showPdfViewer}
+          onClose={() => setShowPdfViewer(false)}
+          title="Name Plate Report Preview"
+          width={1000}
+        >
+          <div style={{ height: "80vh" }}>
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+              <Viewer
+                fileUrl={pdfUrl}
+                plugins={[pdfPlugin]}
+                defaultScale={1.0}
+              />
+            </Worker>
+          </div>
+        </CustomModal>
+      )}
     </div>
   );
 }

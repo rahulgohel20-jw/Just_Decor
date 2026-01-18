@@ -14,7 +14,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 const initialCounters = [];
 
-const CounterNameplate = ({
+const MainStandyMenuReport = ({
   isModalOpen,
   setIsModalOpen,
   eventId,
@@ -45,11 +45,11 @@ const CounterNameplate = ({
 
   useEffect(() => {
     if (eventId && eventFunctionId && userId) {
-       console.warn("Cannot fetch NamePlate: missing eventId or userId", {
-         eventId,
-         eventFunctionId,
-         currentlang,
-       });
+      console.warn("Cannot fetch NamePlate: missing eventId or userId", {
+        eventId,
+        eventFunctionId,
+        currentlang,
+      });
 
       fetchItemdata();
     }
@@ -65,8 +65,7 @@ const CounterNameplate = ({
       );
 
       const res = data?.data?.data?.data || [];
-      console.log("resposen",res);
-      
+      console.log("resposen", res);
 
       const formattedCounters = res
         .sort((a, b) => a.sequence - b.sequence)
@@ -205,7 +204,7 @@ const CounterNameplate = ({
     <CustomModal
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-      title="Counter Name Plate Report"
+      title="Main Standy"
       width={1000}
       footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
         <button
@@ -314,16 +313,7 @@ const CounterNameplate = ({
                         />
 
                         {/* Copies */}
-                        <div className="flex flex-col items-end">
-                          <input
-                            type="number"
-                            value={item.copies}
-                            onChange={(e) =>
-                              handleCopiesChange(item.id, e.target.value)
-                            }
-                            className="w-16 text-center border rounded-md"
-                          />
-                        </div>
+                       
                       </div>
                     )}
                   </Draggable>
@@ -359,4 +349,4 @@ const CounterNameplate = ({
   );
 };
 
-export default CounterNameplate;
+export default MainStandyMenuReport;

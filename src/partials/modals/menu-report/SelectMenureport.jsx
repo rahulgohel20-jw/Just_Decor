@@ -13,6 +13,7 @@ import { useMemo } from "react";
 import CounterNameplate from "../counter-nameplate/CounterNameplate";
 import MenuReport from "./MenuReport";
 import { FormattedMessage, useIntl } from "react-intl";
+import MainStandyMenuReport from "./MainStandyMenuReport";
 
 export default function SelectMenureport({
   eventId,
@@ -41,6 +42,9 @@ export default function SelectMenureport({
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
 const [openNamePlate, setOpenNamePlate] = useState(false);
+const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
+
+
 
 
   const userId = localStorage.getItem("userId");
@@ -88,6 +92,11 @@ const handleOpenNamePlate = () => {
   setIsNamePlateTheme(true); // important
   setIsModalOpen(true); // open MenuReport modal
 };
+
+const handleOpenMainStandy = ()=>{
+  setIsNamePlateTheme(true);
+  setIsModalOpen(true);
+}
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -240,29 +249,54 @@ const handleOpenNamePlate = () => {
     }
   }, [eventData, setEventFunctionId, isSelectMenureport]);
 
-  const handleGenerateReport = (template) => {
-    setSelectedCard(template.id);
-    // ✅ IF NAME PLATE TEMPLATE
-    if (isNamePlateTheme || template.isNamePlate) {
-      setOpenNamePlate(true); // open name plate
-      return; // ❌ DO NOT open MenuReport
-    }
-    setSelectedTemplateId(template.id);
-    setSelectedTemplateName(template.name);
-    setmappingId(template.mappingId);
-    setSelectedModuleId(activeTab);
+const handleGenerateReport = (template) => {
+  console.log("Clicked template:", {
+    name: template.name,
+    isNamePlate: template.isNamePlate,
+    type: template.namePlateType,
+    isNamePlateTheme,
+  });
 
-    if (
-      isNamePlateTheme &&
-      template.isNamePlate === true &&
-      template.namePlateType === "Counter Name Plate"
-    ) {
-      setIsModalOpen(true);
-      return;
-    }
+  setSelectedCard(template.id);
+  setSelectedTemplateId(template.id);
+  setSelectedTemplateName(template.name);
+  setmappingId(template.mappingId);
+  setSelectedModuleId(activeTab);
 
-    setIsMenuReportOpen(true);
-  };
+  // Counter Name Plate
+  if (
+    isNamePlateTheme &&
+    template.isNamePlate &&
+    template.namePlateType === "Counter Name Plate"
+  ) {
+    console.log("Opening Counter Name Plate");
+    setIsModalOpen(true);
+    return;
+  }
+
+  // Test Name Plate
+  if (
+    isNamePlateTheme &&
+    template.isNamePlate &&
+    template.namePlateType === "Main Standy"
+  ) {
+    console.log("Opening MainStandyMenuReport");
+    setOpenNamePlateTest(true);
+    return;
+  }
+
+  // Normal Name Plate
+  if (isNamePlateTheme && template.isNamePlate) {
+    console.log("Opening NamePlateReport");
+    setOpenNamePlate(true);
+    return;
+  }
+
+  console.log("Opening MenuReport");
+  setIsMenuReportOpen(true);
+};
+
+
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
@@ -579,6 +613,16 @@ const handleOpenNamePlate = () => {
         adminTemplatemoduleId={selectedModuleId || activeTab}
         selectedTemplateId={selectedTemplateId}
       />
+      {openNamePlateTest && (
+        <MainStandyMenuReport
+          isModalOpen={openNamePlateTest}
+          setIsModalOpen={setOpenNamePlateTest}
+          eventId={finalEventId}
+          eventFunctionId={selectedFunctionId}
+          selectedTemplateId={selectedTemplateId}
+        />
+      )}
+
       {openNamePlate && (
         <CustomModal
           open={openNamePlate}
@@ -586,7 +630,12 @@ const handleOpenNamePlate = () => {
           width={900}
           footer={null}
         >
-          <NamePlateReport onClose={() => setOpenNamePlate(false)} />
+          <NamePlateReport
+            onClose={() => setOpenNamePlate(false)}
+            eventId={finalEventId}
+            eventFunctionId={selectedFunctionId}
+            selectedTemplateId={selectedTemplateId}
+          />
         </CustomModal>
       )}
     </>
