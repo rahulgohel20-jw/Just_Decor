@@ -27,7 +27,7 @@ const parseJwt = (token) => {
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
@@ -151,9 +151,9 @@ const Priceplan = () => {
               ...f,
               originalFeatureText: f.featureText,
               featureText: await translate(f.featureText),
-            }))
+            })),
           ),
-        }))
+        })),
       );
 
       setTranslatedPlans(langPlans);
@@ -200,7 +200,7 @@ const Priceplan = () => {
       const coupons = res?.data?.data || [];
 
       const validCoupon = coupons.find(
-        (c) => c.coupenCode?.toLowerCase() === couponCode.toLowerCase()
+        (c) => c.coupenCode?.toLowerCase() === couponCode.toLowerCase(),
       );
 
       if (!validCoupon) {
@@ -342,7 +342,7 @@ const Priceplan = () => {
                 if (refreshedUser) setUser(refreshedUser);
               })
               .catch((err) =>
-                console.warn("Could not refresh user after payment:", err)
+                console.warn("Could not refresh user after payment:", err),
               );
           } catch (err) {
             Swal.fire({
@@ -690,7 +690,7 @@ const Priceplan = () => {
             const themePayment = activeExtraPayments.find(
               (ep) =>
                 ep.name?.toLowerCase().includes("theme") ||
-                ep.name?.toLowerCase().includes("custom")
+                ep.name?.toLowerCase().includes("custom"),
             );
             if (themePayment) {
               setSelectedExtraPayments((prev) => ({
@@ -705,7 +705,7 @@ const Priceplan = () => {
             const themePayment = activeExtraPayments.find(
               (ep) =>
                 ep.name?.toLowerCase().includes("theme") ||
-                ep.name?.toLowerCase().includes("custom")
+                ep.name?.toLowerCase().includes("custom"),
             );
             if (themePayment) {
               setSelectedExtraPayments((prev) => ({

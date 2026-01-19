@@ -45,11 +45,11 @@ const CounterNameplate = ({
 
   useEffect(() => {
     if (eventId && eventFunctionId && userId) {
-       console.warn("Cannot fetch NamePlate: missing eventId or userId", {
-         eventId,
-         eventFunctionId,
-         currentlang,
-       });
+      console.warn("Cannot fetch NamePlate: missing eventId or userId", {
+        eventId,
+        eventFunctionId,
+        currentlang,
+      });
 
       fetchItemdata();
     }
@@ -61,12 +61,11 @@ const CounterNameplate = ({
         eventFunctionId,
         eventId,
         currentlang,
-        userId
+        userId,
       );
 
       const res = data?.data?.data?.data || [];
-      console.log("resposen",res);
-      
+      console.log("resposen", res);
 
       const formattedCounters = res
         .sort((a, b) => a.sequence - b.sequence)
@@ -112,7 +111,7 @@ const CounterNameplate = ({
           return { ...item, name: value, itemNameGujarati: value };
 
         return item;
-      })
+      }),
     );
   };
 
@@ -121,8 +120,8 @@ const CounterNameplate = ({
 
     setCounters((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, copies: cleanedValue } : item
-      )
+        item.id === id ? { ...item, copies: cleanedValue } : item,
+      ),
     );
   };
 

@@ -41,11 +41,8 @@ export default function SelectMenureport({
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
-const [openNamePlate, setOpenNamePlate] = useState(false);
-const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
-
-
-
+  const [openNamePlate, setOpenNamePlate] = useState(false);
+  const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,7 +67,7 @@ const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
     if (selectedFunctionId === -1) return null;
 
     return eventData?.eventFunctions?.find(
-      (item) => item.id === selectedFunctionId
+      (item) => item.id === selectedFunctionId,
     );
   }, [eventData, selectedFunctionId]);
 
@@ -88,15 +85,15 @@ const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
         return obj[`${baseKey}English`] || "";
     }
   };
-const handleOpenNamePlate = () => {
-  setIsNamePlateTheme(true); // important
-  setIsModalOpen(true); // open MenuReport modal
-};
+  const handleOpenNamePlate = () => {
+    setIsNamePlateTheme(true); // important
+    setIsModalOpen(true); // open MenuReport modal
+  };
 
-const handleOpenMainStandy = ()=>{
-  setIsNamePlateTheme(true);
-  setIsModalOpen(true);
-}
+  const handleOpenMainStandy = () => {
+    setIsNamePlateTheme(true);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -105,14 +102,14 @@ const handleOpenMainStandy = ()=>{
 
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
-            (module) => module.isActive && !module.isDelete
+            (module) => module.isActive && !module.isDelete,
           );
 
           if (mode === "menu") {
             modules = modules.filter((module) =>
               ["Exclusive Theme", "Back Office Theme"].includes(
-                module.nameEnglish
-              )
+                module.nameEnglish,
+              ),
             );
           } else if (mode === "allocation") {
             modules = modules.filter((module) =>
@@ -121,15 +118,15 @@ const handleOpenMainStandy = ()=>{
                 "Chef Agency Theme",
                 "Outside Agency Theme",
                 "Name Plate Theme",
-              ].includes(module.nameEnglish)
+              ].includes(module.nameEnglish),
             );
           } else if (mode === "raw") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Raw Material Theme"
+              (module) => module.nameEnglish === "Raw Material Theme",
             );
           } else if (mode === "labour") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Labour Agency Theme"
+              (module) => module.nameEnglish === "Labour Agency Theme",
             );
           }
 
@@ -147,7 +144,7 @@ const handleOpenMainStandy = ()=>{
             setActiveTab(formattedModules[0].key);
             // CHECK IF FIRST TAB IS NAME PLATE THEME
             setIsNamePlateTheme(
-              formattedModules[0].nameEnglish === "Name Plate Theme"
+              formattedModules[0].nameEnglish === "Name Plate Theme",
             );
           }
         }
@@ -170,7 +167,7 @@ const handleOpenMainStandy = ()=>{
 
         const res = await GetAllCustomThemeByUserIdAndModuleId(
           userId,
-          activeTab
+          activeTab,
         );
         console.log(res);
 
@@ -249,54 +246,52 @@ const handleOpenMainStandy = ()=>{
     }
   }, [eventData, setEventFunctionId, isSelectMenureport]);
 
-const handleGenerateReport = (template) => {
-  console.log("Clicked template:", {
-    name: template.name,
-    isNamePlate: template.isNamePlate,
-    type: template.namePlateType,
-    isNamePlateTheme,
-  });
+  const handleGenerateReport = (template) => {
+    console.log("Clicked template:", {
+      name: template.name,
+      isNamePlate: template.isNamePlate,
+      type: template.namePlateType,
+      isNamePlateTheme,
+    });
 
-  setSelectedCard(template.id);
-  setSelectedTemplateId(template.id);
-  setSelectedTemplateName(template.name);
-  setmappingId(template.mappingId);
-  setSelectedModuleId(activeTab);
+    setSelectedCard(template.id);
+    setSelectedTemplateId(template.id);
+    setSelectedTemplateName(template.name);
+    setmappingId(template.mappingId);
+    setSelectedModuleId(activeTab);
 
-  // Counter Name Plate
-  if (
-    isNamePlateTheme &&
-    template.isNamePlate &&
-    template.namePlateType === "Counter Name Plate"
-  ) {
-    console.log("Opening Counter Name Plate");
-    setIsModalOpen(true);
-    return;
-  }
+    // Counter Name Plate
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Counter Name Plate"
+    ) {
+      console.log("Opening Counter Name Plate");
+      setIsModalOpen(true);
+      return;
+    }
 
-  // Test Name Plate
-  if (
-    isNamePlateTheme &&
-    template.isNamePlate &&
-    template.namePlateType === "Main Standy"
-  ) {
-    console.log("Opening MainStandyMenuReport");
-    setOpenNamePlateTest(true);
-    return;
-  }
+    // Test Name Plate
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Main Standy"
+    ) {
+      console.log("Opening MainStandyMenuReport");
+      setOpenNamePlateTest(true);
+      return;
+    }
 
-  // Normal Name Plate
-  if (isNamePlateTheme && template.isNamePlate) {
-    console.log("Opening NamePlateReport");
-    setOpenNamePlate(true);
-    return;
-  }
+    // Normal Name Plate
+    if (isNamePlateTheme && template.isNamePlate) {
+      console.log("Opening NamePlateReport");
+      setOpenNamePlate(true);
+      return;
+    }
 
-  console.log("Opening MenuReport");
-  setIsMenuReportOpen(true);
-};
-
-
+    console.log("Opening MenuReport");
+    setIsMenuReportOpen(true);
+  };
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
@@ -366,7 +361,7 @@ const handleGenerateReport = (template) => {
                     ? getLangValue(
                         selectedEventFunction.function,
                         "name",
-                        activeLang
+                        activeLang,
                       )
                     : activeLang === "hi"
                       ? "सभी फंक्शन"

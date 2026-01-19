@@ -132,6 +132,14 @@
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.14",
     "vite": "^5.4.18",
-    "vite-plugin-checker": "^0.10.3"
-  }
+    "vite-plugin-checker": "^0.10.3",
+    "@types/react": "18.2.66",
+"@types/react-dom": "18.2.22"
+
+  },
+  "overrides": {
+  "@types/react": "18.2.66",
+  "@types/react-dom": "^18.2.22"
+}
+
 }

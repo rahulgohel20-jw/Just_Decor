@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -8,6 +8,8 @@ import { Link } from "@tiptap/extension-link";
 import { TextAlign } from "@tiptap/extension-text-align";
 
 export default function RichTextEditor({ value, onChange }) {
+  const isInternalUpdate = useRef(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -20,13 +22,27 @@ export default function RichTextEditor({ value, onChange }) {
       }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: value,
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    content: value || "",
+    onUpdate: ({ editor }) => {
+      isInternalUpdate.current = true;
+      onChange(editor.getHTML());
+    },
   });
 
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+    if (!editor || !value) return;
+
+    // Skip update if this change came from the editor itself
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false;
+      return;
+    }
+
+    const currentHTML = editor.getHTML();
+
+    // Only update when value comes from external source and is different
+    if (value !== currentHTML) {
+      editor.commands.setContent(value, false);
     }
   }, [value, editor]);
 

@@ -1,4 +1,4 @@
-import { useState ,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { CheckSquare, Square, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -13,7 +13,6 @@ import {
   GenerateNamePlateReport,
   GetNamePlatedata,
 } from "@/services/apiServices";
-
 
 export default function NamePlateReport({
   onClose,
@@ -30,113 +29,113 @@ export default function NamePlateReport({
   const [itemFontSize, setItemFontSize] = useState(15);
   const [activeTab, setActiveTab] = useState("menu");
   const [selectedLanguage, setSelectedLanguage] = useState("english");
-const userId = Number(localStorage.getItem("userId")) || null;
   const [currentlang, setCurrentLang] = useState(0);
+  const storedUserId = localStorage.getItem("userId");
+  const userId =
+    storedUserId && Number(storedUserId) > 0 ? Number(storedUserId) : null;
 
-const langMap = {
-  english: 0,
-  hindi: 1,
-  gujarati: 2,
-};
+  const langMap = {
+    english: 0,
+    hindi: 1,
+    gujarati: 2,
+  };
 
-useEffect(() => {
-  if (!eventId || userId == null) {
-    console.warn("Cannot fetch NamePlate: missing eventId or userId", {
-      eventId,
-      eventFunctionId,
-      currentlang,
-    });
-    return;
-  }
+  useEffect(() => {
+    // Default to -1 if undefined
+    const efId = eventFunctionId;
+    console.log("eventfunction", efId);
 
-  // Default to -1 if undefined
-  const efId = eventFunctionId ;
-  console.log("eventfunction", efId);
-  
-  fetchItemData(efId);
-}, [eventId, eventFunctionId, currentlang,userId]);
+    fetchItemData(efId);
+  }, [eventId, eventFunctionId, currentlang, userId]);
 
+  const fetchItemData = async (efId) => {
+    try {
+      console.log("Fetching Name Plate Data...", {
+        eventFunctionId,
+        eventId,
+        userId,
+        currentlang,
+      });
 
-const fetchItemData = async (efId) => {
-  try {
-    console.log("Fetching Name Plate Data...", {
-      eventFunctionId,
-      eventId,
-      userId,   
-      currentlang,
-    });
+      const res = await GetNamePlatedata(
+        eventFunctionId,
+        eventId,
+        currentlang, // ✅ lang
+        userId,
+      );
 
-    const res = await GetNamePlatedata(
-      efId,
-      eventId,
-      userId,
-      currentlang
+      console.log("Raw API Response:", res);
+
+      const data = res?.data?.data?.data || [];
+      console.log("Formatted API Data (before mapping):", data);
+
+      setItems(
+        data
+          .sort((a, b) => a.sequence - b.sequence)
+          .map((item) => ({
+            id: item.id,
+            name: item.itemNameEnglish,
+            menuid: item.menuItemId,
+            itemNameEnglish: item.itemNameEnglish,
+            itemNameHindi: item.itemNameHindi,
+            itemNameGujarati: item.itemNameGujarati,
+            checked: item.isChecked === 1,
+          })),
+      );
+    } catch (err) {
+      console.error("Failed to fetch items:", err);
+    }
+  };
+
+  const handleNameChange = (id, value) => {
+    setCounters((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+
+        if (currentlang === 0)
+          return { ...item, name: value, itemNameEnglish: value };
+        if (currentlang === 1)
+          return { ...item, name: value, itemNameHindi: value };
+        if (currentlang === 2)
+          return { ...item, name: value, itemNameGujarati: value };
+
+        return item;
+      }),
     );
-
-    console.log("Raw API Response:", res);
-
-    const data = res?.data?.data?.data || [];
-    console.log("Formatted API Data (before mapping):", data);
-
-    setItems(
-      data
-        .sort((a, b) => a.sequence - b.sequence)
-        .map((item) => ({
-          id: item.id,
-          name: item.itemNameEnglish,
-          itemNameEnglish: item.itemNameEnglish,
-          itemNameHindi: item.itemNameHindi,
-          itemNameGujarati: item.itemNameGujarati,
-          checked: item.isChecked === 1,
-        }))
-    );
-  } catch (err) {
-    console.error("Failed to fetch items:", err);
-  }
-};
-
-
-
-   const handleNameChange = (id, value) => {
-     setCounters((prev) =>
-       prev.map((item) => {
-         if (item.id !== id) return item;
-
-         if (currentlang === 0)
-           return { ...item, name: value, itemNameEnglish: value };
-         if (currentlang === 1)
-           return { ...item, name: value, itemNameHindi: value };
-         if (currentlang === 2)
-           return { ...item, name: value, itemNameGujarati: value };
-
-         return item;
-       })
-     );
-   };
+  };
   const [items, setItems] = useState([
     { id: 1, name: "STRAWBERRY BLACK GREAPS", checked: true },
     { id: 2, name: "MINERAL WATER BOTTLE 200ML", checked: true },
     { id: 3, name: "LEMON MINT SODA", checked: false },
   ]);
-  
+
   const [headerNotes, setHeaderNotes] = useState({
     english: "",
     hindi: "",
     gujarati: "",
   });
-  
+
   const [footerNotes, setFooterNotes] = useState({
     english: "",
     hindi: "",
     gujarati: "",
   });
+  const getItemNameByLang = (item) => {
+    if (currentlang === 1) return item.itemNameHindi || item.itemNameEnglish;
+    if (currentlang === 2) return item.itemNameGujarati || item.itemNameEnglish;
+    return item.itemNameEnglish;
+  };
 
-  const toggleItem = (id) =>
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
+  const toggleItem = (id) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id === id) {
+          return { ...item, checked: !item.checked };
+        }
+        return item;
+      }),
     );
+  };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -180,12 +179,12 @@ const fetchItemData = async (efId) => {
 
         namePlateRequests: items.map((item, index) => ({
           id: item.id || -1,
-          menuItemId: item.id,
+          menuItemId: item.menuid, // ✅ Changed from item.menuItemId to item.menuid
           isChecked: item.checked ? 1 : 0,
           itemCount: 1,
-          itemNameEnglish: item.name,
-          itemNameHindi: item.name,
-          itemNameGujarati: item.name,
+          itemNameEnglish: item.itemNameEnglish || item.name, // ✅ Use proper field
+          itemNameHindi: item.itemNameHindi || item.name, // ✅ Use proper field
+          itemNameGujarati: item.itemNameGujarati || item.name, // ✅ Use proper field
           sequence: index + 1,
         })),
 
@@ -198,11 +197,10 @@ const fetchItemData = async (efId) => {
         footerNotesGujarati: footerNotes.gujarati,
       };
 
-      console.log("payload",payload);
-      
+      console.log("payload", payload);
+
       const res = await AddNamePlate(payload);
-      console.log("post",res);
-      
+      console.log("post", res);
 
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
@@ -229,6 +227,7 @@ const fetchItemData = async (efId) => {
       formData.append("eventId", eventId);
       formData.append("isCompanyDetails", 0);
       formData.append("lang", langMap[selectedLanguage]);
+      formData.append("twoLanugage", 0);
       formData.append("userId", userId);
 
       const res = await GenerateNamePlateReport(formData);
@@ -244,7 +243,7 @@ const fetchItemData = async (efId) => {
   };
 
   return (
-    <div className="bg-white rounded-xl border shadow-md mx-auto max-w-5xl">
+    <div className=" rounded-xl border shadow-md mx-auto max-w-5xl">
       {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b">
         <div>
@@ -270,7 +269,10 @@ const fetchItemData = async (efId) => {
           {["english", "hindi", "gujarati"].map((lang) => (
             <button
               key={lang}
-              onClick={() => setSelectedLanguage(lang)}
+              onClick={() => {
+                setSelectedLanguage(lang);
+                setCurrentLang(langMap[lang]);
+              }}
               className={`flex-1 py-2 text-sm font-semibold transition ${
                 selectedLanguage === lang
                   ? "btn btn-primary text-white"
@@ -351,14 +353,14 @@ const fetchItemData = async (efId) => {
               <Droppable droppableId="menu-items">
                 {(provided) => (
                   <div
-                    className="space-y-3"
+                    className="space-y-3 max-h-[150px] overflow-y-auto pr-2"
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
                     {items.map((item, index) => (
                       <Draggable
-                        key={item.id}
-                        draggableId={item.id.toString()}
+                        key={item.id ?? `temp-${index}`}
+                        draggableId={(item.id ?? `temp-${index}`).toString()}
                         index={index}
                       >
                         {(provided, snapshot) => (
@@ -369,10 +371,9 @@ const fetchItemData = async (efId) => {
                               item.checked
                                 ? "bg-white"
                                 : "bg-gray-100 opacity-70"
-                            } ${
-                              snapshot.isDragging ? "shadow-lg bg-blue-50" : ""
-                            }`}
+                            } ${snapshot.isDragging ? "shadow-lg bg-blue-50" : ""}`}
                           >
+                            {/* Drag handle */}
                             <span
                               {...provided.dragHandleProps}
                               className="cursor-move text-gray-400 text-lg"
@@ -380,6 +381,7 @@ const fetchItemData = async (efId) => {
                               ⋮⋮
                             </span>
 
+                            {/* Checkbox */}
                             <button onClick={() => toggleItem(item.id)}>
                               {item.checked ? (
                                 <CheckSquare className="text-blue-600" />
@@ -388,6 +390,7 @@ const fetchItemData = async (efId) => {
                               )}
                             </button>
 
+                            {/* Item Name */}
                             <div>
                               <p className="text-xs text-gray-400 font-semibold">
                                 NAME
@@ -400,13 +403,14 @@ const fetchItemData = async (efId) => {
                                 }`}
                                 style={{ fontSize: `${itemFontSize}px` }}
                               >
-                                {item.name}
+                                {getItemNameByLang(item)}
                               </p>
                             </div>
                           </div>
                         )}
                       </Draggable>
                     ))}
+
                     {provided.placeholder}
                   </div>
                 )}

@@ -61,7 +61,7 @@ const MainStandyMenuReport = ({
         eventFunctionId,
         eventId,
         currentlang,
-        userId
+        userId,
       );
 
       const res = data?.data?.data?.data || [];
@@ -111,7 +111,7 @@ const MainStandyMenuReport = ({
           return { ...item, name: value, itemNameGujarati: value };
 
         return item;
-      })
+      }),
     );
   };
 
@@ -120,8 +120,8 @@ const MainStandyMenuReport = ({
 
     setCounters((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, copies: cleanedValue } : item
-      )
+        item.id === id ? { ...item, copies: cleanedValue } : item,
+      ),
     );
   };
 
@@ -180,6 +180,8 @@ const MainStandyMenuReport = ({
       formData.append("eventId", eventId);
       formData.append("isCompanyDetails", 0);
       formData.append("lang", currentlang);
+      formData.append("twoLanugage", 0);
+
       formData.append("userId", userId);
 
       const res = await GenerateNamePlateReport(formData);
@@ -313,7 +315,6 @@ const MainStandyMenuReport = ({
                         />
 
                         {/* Copies */}
-                       
                       </div>
                     )}
                   </Draggable>
