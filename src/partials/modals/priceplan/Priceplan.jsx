@@ -57,11 +57,16 @@ const Priceplan = () => {
     transactionId: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
+  const [couponCode, setCouponCode] = useState("FIRST50");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [extraPayments, setExtraPayments] = useState([]);
   const [selectedExtraPayments, setSelectedExtraPayments] = useState({});
   const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const [couponsLoaded, setCouponsLoaded] = useState(false);
+
+  // Tax state
+  const [cgstRate, setCgstRate] = useState(9); // Default 9%
+  const [sgstRate, setSgstRate] = useState(9); // Default 9%
 
   const stored =
     typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
@@ -118,12 +123,63 @@ const Priceplan = () => {
     fetchExtraPayments();
   }, []);
 
+  // Auto-apply FIRST50 coupon on component mount
+  useEffect(() => {
+    const autoApplyCoupon = async () => {
+      try {
+        const res = await GetCoupons();
+        const coupons = res?.data?.data || [];
+        setCouponsLoaded(true);
+
+        const first50Coupon = coupons.find(
+          (c) => c.coupenCode?.toUpperCase() === "FIRST50",
+        );
+
+        if (first50Coupon) {
+          const today = new Date();
+          const expiryDate = first50Coupon.expireDate
+            ? parseDate(first50Coupon.expireDate)
+            : null;
+
+          const isExpired = expiryDate && today > expiryDate;
+          const isLimitReached =
+            first50Coupon.maxUser &&
+            first50Coupon.usedCount >= first50Coupon.maxUser;
+
+          if (!isExpired && !isLimitReached) {
+            setAppliedCoupon(first50Coupon);
+            console.log("FIRST50 coupon auto-applied successfully");
+          } else {
+            console.log("FIRST50 coupon is invalid (expired or limit reached)");
+            setCouponCode("");
+          }
+        } else {
+          console.log("FIRST50 coupon not found");
+          setCouponCode("");
+        }
+      } catch (error) {
+        console.error("Error auto-applying FIRST50 coupon:", error);
+        setCouponsLoaded(true);
+      }
+    };
+
+    autoApplyCoupon();
+  }, []);
+
   const fetchExtraPayments = async () => {
     try {
       const res = await GetExtraPayment();
       const payments = res?.data?.data?.["Extra Payment Details"] || [];
-      // Ensure it's always an array
-      setExtraPayments(Array.isArray(payments) ? payments : []);
+      const paymentsArray = Array.isArray(payments) ? payments : [];
+      setExtraPayments(paymentsArray);
+
+      const defaultSelected = {};
+      paymentsArray.forEach((payment) => {
+        if (!payment.isDelete) {
+          defaultSelected[payment.id] = true;
+        }
+      });
+      setSelectedExtraPayments(defaultSelected);
     } catch (error) {
       console.error("Error fetching extra payments:", error);
       setExtraPayments([]);
@@ -136,7 +192,6 @@ const Priceplan = () => {
       const res = await GetAllPlans();
       const result = res?.data?.data?.["Plan Details"] || [];
 
-      // Translate all plan data
       const langPlans = await Promise.all(
         result.map(async (p) => ({
           ...p,
@@ -212,7 +267,6 @@ const Priceplan = () => {
         return;
       }
 
-      // Check expiry date
       const today = new Date();
       const expiryDate = validCoupon.expireDate
         ? parseDate(validCoupon.expireDate)
@@ -227,7 +281,6 @@ const Priceplan = () => {
         return;
       }
 
-      // Check max user limit if applicable
       if (validCoupon.maxUser && validCoupon.usedCount >= validCoupon.maxUser) {
         Swal.fire({
           icon: "error",
@@ -270,7 +323,7 @@ const Priceplan = () => {
     setCouponCode("");
   };
 
-  const handlePayment = async (plan) => {
+  const handlePayment = async (plan, customAmount = null) => {
     if (!userId) {
       Swal.fire({
         icon: "warning",
@@ -281,12 +334,44 @@ const Priceplan = () => {
     }
 
     try {
+      // Use the final total with GST included
+      const amountToCharge =
+        customAmount !== null ? customAmount : finalTotalWithGST;
+
+      // Calculate GST amounts from the amount to charge
+      const totalGSTRate = cgstRate + sgstRate;
+      const baseAmount = amountToCharge / (1 + totalGSTRate / 100);
+      const cgstAmount = (baseAmount * cgstRate) / 100;
+      const sgstAmount = (baseAmount * sgstRate) / 100;
+
+      // Get selected extra payment IDs that are toggled ON
+      const selectedExtraPaymentIds = activeExtraPayments
+        .filter((ep) => selectedExtraPayments[ep.id] === true)
+        .map((ep) => ep.id);
+
+      // Determine extraPayId value
+      let extraPayIdValue = 0;
+      if (selectedExtraPaymentIds.length > 0) {
+        extraPayIdValue =
+          selectedExtraPaymentIds.length === 1
+            ? selectedExtraPaymentIds[0]
+            : selectedExtraPaymentIds.join(",");
+      }
+
       const orderPayload = {
         planId: plan.id,
         userId: userId,
-        amount: plan.price,
-        currency: "INR",
+        finalTotal: parseFloat(amountToCharge.toFixed(2)),
+        cgst: `${cgstRate}%`,
+        cgstAmt: parseFloat(cgstAmount.toFixed(2)),
+        sgst: `${sgstRate}%`,
+        sgstAmt: parseFloat(sgstAmount.toFixed(2)),
+        coupenId: appliedCoupon?.id || 0,
+        extraPayId: extraPayIdValue,
+        paymentData: null,
       };
+
+      console.log("Order Payload:", orderPayload);
 
       const res = await CreatePaymentOrder(orderPayload);
       const backendOrder = res.data?.data;
@@ -304,11 +389,11 @@ const Priceplan = () => {
         return;
       }
 
-      const razorpayKey = "rzp_live_RnS3PAVZPas6yI";
+      const razorpayKey = "rzp_live_S5dgGJ3fEPa3fO";
 
       const options = {
         key: razorpayKey,
-        amount: plan.price * 100,
+        amount: Math.round(amountToCharge * 100),
         currency: "INR",
         name: "Automate Business",
         description: `${plan.name} Plan Purchase`,
@@ -317,50 +402,67 @@ const Priceplan = () => {
           const paymentPayload = {
             planId: plan.id,
             userId: userId,
+            finalTotal: parseFloat(amountToCharge.toFixed(2)),
+            cgst: `${cgstRate}%`,
+            cgstAmt: parseFloat(cgstAmount.toFixed(2)),
+            sgst: `${sgstRate}%`,
+            sgstAmt: parseFloat(sgstAmount.toFixed(2)),
+            coupenId: appliedCoupon?.id || 0,
+            extraPayId: extraPayIdValue,
             paymentData: {
               payid: response.razorpay_payment_id,
               paymentdone: true,
               paymentorderid: response.razorpay_order_id,
+              paymentresponse: JSON.stringify(response),
               paysignature: response.razorpay_signature,
             },
           };
+
+          console.log("Payment Payload:", paymentPayload);
 
           try {
             await AddUserPlan(paymentPayload);
 
             setPaymentData({
-              amount: plan.price,
+              amount: amountToCharge,
               transactionId: response.razorpay_payment_id,
             });
             setUnderVerification(true);
             setModalOpen(true);
 
-            FetchAllUser(userId)
-              .then((refresh) => {
-                const refreshedUser =
-                  refresh?.data?.data ?? refresh?.data ?? null;
-                if (refreshedUser) setUser(refreshedUser);
-              })
-              .catch((err) =>
-                console.warn("Could not refresh user after payment:", err),
-              );
+            try {
+              const refresh = await FetchAllUser(userId);
+              const refreshedUser =
+                refresh?.data?.data ?? refresh?.data ?? null;
+              if (refreshedUser) setUser(refreshedUser);
+            } catch (err) {
+              console.warn("Could not refresh user after payment:", err);
+            }
           } catch (err) {
+            console.error("Plan activation error:", err);
             Swal.fire({
               icon: "error",
               title: "Activation Failed",
               text:
                 err.response?.data?.message ||
-                "Payment completed but failed to activate plan.",
+                "Payment completed but failed to activate plan. Please contact support.",
             });
           }
         },
         prefill: {
-          name: `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim(),
+          name:
+            `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() ||
+            "Guest",
           email: user?.email ?? stored?.email ?? "test@example.com",
-          contact: user?.contactNo ?? user?.contactNo ?? "9999999999",
+          contact: user?.contactNo ?? "9999999999",
         },
         theme: {
           color: "#3399cc",
+        },
+        modal: {
+          ondismiss: function () {
+            console.log("Payment modal dismissed by user");
+          },
         },
       };
 
@@ -368,6 +470,7 @@ const Priceplan = () => {
       rzp.open();
 
       rzp.on("payment.failed", function (response) {
+        console.error("Payment failed:", response.error);
         Swal.fire({
           icon: "error",
           title: "Payment Failed",
@@ -377,10 +480,13 @@ const Priceplan = () => {
         });
       });
     } catch (error) {
+      console.error("Payment initiation error:", error);
       Swal.fire({
         icon: "error",
         title: "Unexpected Error",
-        text: "Something went wrong while initiating payment. Please try again.",
+        text:
+          error.response?.data?.message ||
+          "Something went wrong while initiating payment. Please try again.",
       });
     }
   };
@@ -390,21 +496,29 @@ const Priceplan = () => {
 
   const planPrice = selectedPlan?.price || 24000;
 
-  // Separate extra payments into different categories
   const activeExtraPayments = Array.isArray(extraPayments)
     ? extraPayments.filter((ep) => !ep.isDelete)
     : [];
 
-  // Calculate discount
   const couponDiscount = appliedCoupon?.price || 0;
 
-  // Calculate subtotal with all selected extra payments
   const extraPaymentsTotal = activeExtraPayments
     .filter((ep) => selectedExtraPayments[ep.id])
     .reduce((sum, ep) => sum + (ep.price || 0), 0);
 
   const subtotal = planPrice + extraPaymentsTotal;
-  const finalTotal = subtotal - couponDiscount;
+
+  // Calculate amounts after coupon discount
+  const amountAfterDiscount = subtotal - couponDiscount;
+
+  // Calculate GST on the discounted amount
+  const totalGSTRate = cgstRate + sgstRate;
+  const cgstAmount = (amountAfterDiscount * cgstRate) / 100;
+  const sgstAmount = (amountAfterDiscount * sgstRate) / 100;
+  const totalGSTAmount = cgstAmount + sgstAmount;
+
+  // Final total including GST
+  const finalTotalWithGST = amountAfterDiscount + totalGSTAmount;
 
   const handlePlanSelect = (plan) => {
     setSelectedPlan(plan);
@@ -470,6 +584,8 @@ const Priceplan = () => {
                       const disabledBecauseSamePlan =
                         user?.plan?.id === plan.id;
 
+                      const displayPrice = planPrice + extraPaymentsTotal;
+
                       return (
                         <div key={plan.id} className="relative">
                           {isPopular && (
@@ -497,12 +613,17 @@ const Priceplan = () => {
                             >
                               {(plan.billingCycle === "Quarterly"
                                 ? 35000
-                                : 45000
+                                : 50000
                               ).toLocaleString("en-IN")}
                             </div>
 
                             <div className="text-6xl font-bold mb-2">
-                              ₹{plan.price.toLocaleString("en-IN")}/-
+                              ₹
+                              {(selectedPlan?.id === plan.id
+                                ? displayPrice
+                                : plan.price
+                              ).toLocaleString("en-IN")}
+                              /-
                             </div>
 
                             <div className="flex items-center justify-between mb-6">
@@ -524,7 +645,15 @@ const Priceplan = () => {
                             </div>
 
                             <button
-                              onClick={() => handlePayment(plan)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePayment(
+                                  plan,
+                                  selectedPlan?.id === plan.id
+                                    ? finalTotalWithGST
+                                    : plan.price,
+                                );
+                              }}
                               disabled={!userId || disabledBecauseSamePlan}
                               className={`w-full py-3 rounded-full font-semibold transition-all text-sm ${
                                 isPopular
@@ -542,43 +671,104 @@ const Priceplan = () => {
                     })}
                 </div>
 
+                {/* Tax Configuration */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Tax Configuration
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        CGST Rate (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="50"
+                        disabled
+                        step="0.1"
+                        value={cgstRate}
+                        onChange={(e) =>
+                          setCgstRate(parseFloat(e.target.value) || 0)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SGST Rate (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.1"
+                        value={sgstRate}
+                        disabled
+                        onChange={(e) =>
+                          setSgstRate(parseFloat(e.target.value) || 0)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Total GST: {cgstRate + sgstRate}% ({cgstRate}% CGST +{" "}
+                    {sgstRate}% SGST)
+                  </p>
+                </div>
+
                 {/* Dynamic Extra Payments */}
                 {activeExtraPayments.length > 0 &&
-                  activeExtraPayments.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="bg-white rounded-lg p-6 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {payment.name}
-                          </h3>
-                          {payment.description && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              {payment.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-xl font-bold text-gray-900">
-                            + ₹{payment.price.toLocaleString()}
-                          </span>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!selectedExtraPayments[payment.id]}
-                              onChange={() =>
-                                handleExtraPaymentToggle(payment.id)
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                          </label>
+                  activeExtraPayments.map((payment) => {
+                    const isThemePayment =
+                      payment.name?.toLowerCase().includes("theme") ||
+                      payment.name?.toLowerCase().includes("custom");
+
+                    return (
+                      <div
+                        key={payment.id}
+                        className="bg-white rounded-lg p-6 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {payment.name}
+                            </h3>
+                            {payment.description && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                {payment.description}
+                              </p>
+                            )}
+                            {isThemePayment && (
+                              <button
+                                onClick={() => setThemeModalOpen(true)}
+                                className="mt-3 text-sm border border-lg border-[005BA8] p-3 text-[#005BA8] hover:text-[#004a8a] font-medium "
+                              >
+                                View Theme Details
+                              </button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-xl font-bold text-gray-900">
+                              + ₹{payment.price.toLocaleString()}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedExtraPayments[payment.id]}
+                                onChange={() =>
+                                  handleExtraPaymentToggle(payment.id)
+                                }
+                                className="sr-only peer"
+                              />
+                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                 {/* Coupon */}
                 <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -653,6 +843,14 @@ const Priceplan = () => {
                           </span>
                         </div>
                       ))}
+
+                    <div className="flex justify-between text-gray-700">
+                      <span>Subtotal</span>
+                      <span className="font-semibold">
+                        ₹{subtotal.toLocaleString()}
+                      </span>
+                    </div>
+
                     {appliedCoupon && (
                       <div className="flex justify-between text-green-600">
                         <span>
@@ -664,14 +862,26 @@ const Priceplan = () => {
                       </div>
                     )}
 
+                    <div className="border-t pt-3 space-y-2">
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>CGST ({cgstRate}%)</span>
+                        <span>₹{cgstAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>SGST ({sgstRate}%)</span>
+                        <span>₹{sgstAmount.toFixed(2)}</span>
+                      </div>
+                    </div>
+
                     <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-900">
-                      <span>Final Total</span>
-                      <span>₹{finalTotal.toLocaleString()}</span>
+                      <span>Final Total (incl. GST)</span>
+                      <span>₹{finalTotalWithGST.toFixed(2)}</span>
                     </div>
                   </div>
                   <button
                     onClick={() => {
-                      if (selectedPlan) handlePayment(selectedPlan);
+                      if (selectedPlan)
+                        handlePayment(selectedPlan, finalTotalWithGST);
                     }}
                     className="w-full mt-6 py-3 bg-[#005BA8] text-white rounded-lg font-semibold hover:bg-[#004a8a] transition-colors"
                   >
@@ -686,7 +896,6 @@ const Priceplan = () => {
           open={themeModalOpen}
           onClose={() => setThemeModalOpen(false)}
           onAddTheme={() => {
-            // Find the theme payment and toggle it
             const themePayment = activeExtraPayments.find(
               (ep) =>
                 ep.name?.toLowerCase().includes("theme") ||
@@ -701,7 +910,6 @@ const Priceplan = () => {
             setThemeModalOpen(false);
           }}
           onSkipTheme={() => {
-            // Find the theme payment and disable it
             const themePayment = activeExtraPayments.find(
               (ep) =>
                 ep.name?.toLowerCase().includes("theme") ||
