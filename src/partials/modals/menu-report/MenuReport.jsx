@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { CustomModal } from "../../../components/custom-modal/CustomModal";
-import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
+import NamePlateReport from "./NamePlateReport";
 import {
   AddExclusiveReport,
   GetReportConfiguration,
 } from "@/services/apiServices";
-import { useIntl } from "react-intl";
-
-// PDF Viewer
+import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
@@ -26,16 +24,7 @@ const MenuReport = ({
   selectedTemplateName,
   isNamePlateTheme,
 }) => {
-  const intl = useIntl();
-
-  const pdfPlugin = defaultLayoutPlugin({
-    toolbarPlugin: {
-      zoomPlugin: {
-        enableShortcuts: true,
-      },
-    },
-  });
-
+  const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
 
   const [visibleOptions, setVisibleOptions] = useState([]);
@@ -43,19 +32,8 @@ const MenuReport = ({
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
-
-  const [options, setOptions] = useState({
-    categorySlogan: false,
-    categoryInstruction: false,
-    categoryImage: false,
-    itemSlogan: false,
-    itemInstruction: false,
-    CompanyInfo: false,
-    companyLogo: false,
-    itemImage: false,
-    partyDetails: false,
-    isWithQty: false,
-  });
+  const [options, setOptions] = useState({});
+  const [showNamePlateUI, setShowNamePlateUI] = useState(false);
 
   /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
@@ -69,17 +47,16 @@ const MenuReport = ({
 
         setReportType(config.type);
 
-        // ✅ FIX: Backend 1 = true, 0 = false
         setOptions({
-          categorySlogan: config.isCategorySlogan === 0,
-          categoryInstruction: config.isCategoryInstruction === 0,
-          categoryImage: config.isCategoryImage === 0,
-          itemSlogan: config.isItemSlogan === 0,
+          categorySlogan: config.isCategorySlogan === 1,
+          categoryInstruction: config.isCategoryInstruction === 1,
+          categoryImage: config.isCategoryImage === 1,
+          itemSlogan: config.isItemSlogan === 1,
           itemInstruction: config.isItemInstruction === 1,
           CompanyInfo: config.isCompanyDetails === 1,
-          companyLogo: config.isCompanyLogo === 0,
-          itemImage: config.isItemImage === 0,
-          // partyDetails: config.isPartyDetails === 0,
+          companyLogo: config.isCompanyLogo === 1,
+          itemImage: config.isItemImage === 1,
+          partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
         });
 
@@ -117,27 +94,19 @@ const MenuReport = ({
     });
   };
 
-  const Toggle = ({ checked, onChange }) => (
-    <button
-      type="button"
-      onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-        checked ? "bg-blue-600" : "bg-gray-300"
-      }`}
-    >
-      <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-          checked ? "translate-x-5" : "translate-x-1"
-        }`}
-      />
-    </button>
-  );
+  const toggleOne = (key) =>
+    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const isCheckAll =
     visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
-  /* ---------------- SUBMIT ---------------- */
+  /* ---------------- HANDLE REPORT ---------------- */
   const handleReport = async () => {
+    if (isNamePlateTheme) {
+      setShowNamePlateUI(true); // 🔥 OPEN NamePlate UI
+      return;
+    }
+
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
@@ -150,16 +119,15 @@ const MenuReport = ({
           : selectedLanguage === "hindi"
             ? 1
             : 2,
-
       isCategoryImage: options.categoryImage,
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
-      isItemImage: options.itemImage, // ✅ FIXED
+      isItemImage: options.itemImage,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
       isCompanyDetails: options.CompanyInfo,
       isCompanyLogo: options.companyLogo,
-      isPartyDetails: 0,
+      isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
     };
 
@@ -169,12 +137,9 @@ const MenuReport = ({
     }
 
     const formData = new FormData();
-    Object.entries(payload).forEach(([key, value]) => {
-      formData.append(
-        key,
-        value === true ? "1" : value === false ? "0" : value
-      );
-    });
+    Object.entries(payload).forEach(([key, value]) =>
+      formData.append(key, value === true ? "1" : value === false ? "0" : value)
+    );
 
     setLoading(true);
     try {
@@ -194,28 +159,37 @@ const MenuReport = ({
 
   const handleClose = () => {
     setPdfUrl(null);
+    setShowNamePlateUI(false);
     setIsModalOpen(false);
   };
-
-  const toggleOne = (key) =>
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const handleWhatsAppShare = (pdfUrl) => {
     const name = eventName || "there";
     const mobile = PartyNumber || "";
-
-    if (!mobile) {
-      alert("Mobile number not available");
-      return;
-    }
+    if (!mobile) return alert("Mobile number not available");
 
     const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
-    const url = `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(
-      message
-    )}`;
-
-    window.open(url, "_blank");
+    window.open(
+      `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
   };
+
+  const Toggle = ({ checked, onChange }) => (
+    <button
+      type="button"
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+        checked ? "bg-blue-600" : "bg-gray-300"
+      }`}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+          checked ? "translate-x-5" : "translate-x-1"
+        }`}
+      />
+    </button>
+  );
 
   return (
     <CustomModal
@@ -252,8 +226,11 @@ const MenuReport = ({
         )
       }
     >
-      {!pdfUrl ? (
+      {showNamePlateUI ? (
+        <NamePlateReport onClose={() => setShowNamePlateUI(false)} />
+      ) : !pdfUrl ? (
         <>
+          {/* Language Selector */}
           <div className="mb-4">
             <label className="block font-medium mb-2">Select Language</label>
             <div className="flex border rounded overflow-hidden">
@@ -272,6 +249,8 @@ const MenuReport = ({
               ))}
             </div>
           </div>
+
+          {/* Check All / Options */}
           {!isNamePlateTheme && (
             <div className="flex justify-between border-b pb-3 mb-3">
               <span className="font-semibold">Check All</span>

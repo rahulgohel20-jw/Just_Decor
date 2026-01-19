@@ -34,7 +34,7 @@ dayjs.extend(customParseFormat);
 const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
 const SHIFTS = [];
-const PLACES = ["At Venue", "At Godown"];
+
 
 // Utility functions
 const parseDate = (date, fallbackDate) => {
@@ -279,60 +279,58 @@ const LabourOtherManagementPage = ({ mode }) => {
 
     fetchEventData();
   }, [eventId]);
+useEffect(() => {
+  const fetchLaborDetails = async () => {
+    if (!eventData || !activeTab) return;
 
-  useEffect(() => {
-    const fetchLaborDetails = async () => {
-      if (!activeFunction || !eventData) return;
+    const functionObj = eventData.eventFunctions.find(
+      (fn) => fn.id === activeTab
+    );
 
-      try {
-        const res = await GetEventLaborDetails(activeFunction.id, eventData.id);
-        const laborData = res?.data?.data?.eventLabor || [];
+    if (!functionObj) return;
 
-        const formattedRows = laborData.map((item) => ({
-          id: `server-${item.id}`,
-          isSaved: true,
-          labourType:
-            labourCategories
-              .find((c) => c.id === item.labortypeid)
-              ?.nameEnglish?.trim() || "",
-          contact:
-            Object.values(allContacts)
-              .flat()
-              .find((c) => c.id === item.contactid)
-              ?.nameEnglish?.trim() || "",
-          contactId: item.contactid,
-          shift: item.laborshift || "",
-          dateTime: parseDate(
-            item.labordatetime,
-            eventData?.eventStartDateTime
-          ),
-          price: item.price || "",
-          quantity: item.qty || "",
-          total: item.totalprice || "",
-          place: item.place || "",
-          notesEnglish: item.notesEnglish || "",
-          notesGujarati: item.notesGujarati || "",
-          notesHindi: item.notesHindi || "",
-        }));
+    try {
+      const res = await GetEventLaborDetails(functionObj.id, eventData.id);
+      const laborData = res?.data?.data?.eventLabor || [];
 
-        setLabourData((prev) => {
-          const unsavedRows = prev.filter((r) => !r.isSaved);
-          return [...formattedRows, ...unsavedRows];
-        });
-      } catch (error) {
-        console.error("Error fetching labour details:", error);
-      }
-    };
+      const formattedRows = laborData.map((item) => ({
+        id: `server-${item.id}`,
+        isSaved: true,
+        labourType:
+          labourCategories.find((c) => c.id === item.labortypeid)
+            ?.nameEnglish || "",
+        contact:
+          Object.values(allContacts)
+            .flat()
+            .find((c) => c.id === item.contactid)?.nameEnglish || "",
+        contactId: item.contactid,
+        shift: item.laborshift || "",
+        dateTime: parseDate(item.labordatetime, eventData?.eventStartDateTime),
+        price: item.price || "",
+        quantity: item.qty || "",
+        total: item.totalprice || "",
+        place: item.place || "",
+        notesEnglish: item.notesEnglish || "",
+        notesGujarati: item.notesGujarati || "",
+        notesHindi: item.notesHindi || "",
+      }));
 
-    if (
-      eventData &&
-      activeTab &&
-      labourCategories.length &&
-      Object.keys(allContacts).length
-    ) {
-      fetchLaborDetails();
+      setLabourData(formattedRows);
+    } catch (err) {
+      console.error("Error fetching labour details:", err);
     }
-  }, [eventData, activeTab, labourCategories, allContacts, activeFunction]);
+  };
+
+  if (
+    eventData &&
+    activeTab &&
+    labourCategories.length &&
+    Object.keys(allContacts).length
+  ) {
+    fetchLaborDetails();
+  }
+}, [eventData, activeTab, labourCategories, allContacts]);
+
 
   useEffect(() => {
     setFilteredContacts((prev) => {

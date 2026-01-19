@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import SpeechToText from "@/components/form-inputs/SpeechToText";
 import { Translateapi } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useRef } from "react";
 
 const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
   const [notes, setNotes] = useState(
@@ -17,29 +18,39 @@ const AddNotes = ({ isOpen, onClose, initialNotes, onSave }) => {
     );
   }, [initialNotes, isOpen]);
 
-  // ✅ Translation Effect
-  useEffect(() => {
-    if (!notes.notesEnglish?.trim()) return;
 
-    if (debounceTimer) clearTimeout(debounceTimer);
+const debounceRef = useRef(null);
 
-    const timer = setTimeout(() => {
-      Translateapi(notes.notesEnglish)
-        .then((res) => {
-          s;
-          setNotes((prev) => ({
-            ...prev,
-            notesGujarati: res.data.gujarati || "",
-            notesHindi: res.data.hindi || "",
-          }));
-        })
-        .catch((err) => console.error("Translation error:", err));
-    }, 500);
+useEffect(() => {
+  if (!notes.notesEnglish?.trim()) return;
 
-    setDebounceTimer(timer);
+  // clear previous debounce
+  if (debounceRef.current) {
+    clearTimeout(debounceRef.current);
+  }
 
-    return () => clearTimeout(timer);
-  }, [notes.notesEnglish]);
+  debounceRef.current = setTimeout(async () => {
+    try {
+      const res = await Translateapi(notes.notesEnglish);
+
+      const data = res?.data?.data || res?.data || {};
+
+      setNotes((prev) => ({
+        ...prev,
+        notesGujarati: data.gujarati || "",
+        notesHindi: data.hindi || "",
+      }));
+    } catch (err) {
+      console.error("Translation error:", err);
+    }
+  }, 600);
+
+  return () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+  };
+}, [notes.notesEnglish]);
 
   if (!isOpen) return null;
 

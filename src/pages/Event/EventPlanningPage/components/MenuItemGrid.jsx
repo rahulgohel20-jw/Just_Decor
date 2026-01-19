@@ -269,11 +269,12 @@ const MenuItemGrid = ({
     };
   }, [onToggleSelect, category, getLocalizedCategoryName, currentLanguage]);
 
-  const handleViewDetails = (item) => {
-    const itemWithSlogan = getItemWithSlogan(item);
-    setSelectedItem(itemWithSlogan);
-    setIsModalOpen(true);
-  };
+const handleViewDetails = (item) => {
+  const itemWithSlogan = getItemWithSlogan(item);
+  console.log("Opening modal for item:", itemWithSlogan);
+  setSelectedItem(itemWithSlogan);
+  setIsModalOpen(true);
+};
 
   if (loading && allMenuItems.length === 0) {
     return (

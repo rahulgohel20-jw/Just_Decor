@@ -14,7 +14,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 const initialCounters = [];
 
-const CounterNameplate = ({
+const MainStandyMenuReport = ({
   isModalOpen,
   setIsModalOpen,
   eventId,
@@ -125,17 +125,14 @@ const CounterNameplate = ({
     );
   };
 
-  const handleSave = async ({
-    printAfterSave = false,
-    twoLanugage = 0,
-  } = {}) => {
+  const handleSave = async ({ printAfterSave = false } = {}) => {
     Swal.fire({
       title: "Saving...",
       text: "Please wait while we save name plate data",
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
-  
+
     try {
       const payload = {
         categoryFontSize: 0,
@@ -143,6 +140,7 @@ const CounterNameplate = ({
         eventFunctionId: Number(eventFunctionId),
         eventId: Number(eventId),
         userId: Number(userId),
+
         namePlateRequests: counters.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
@@ -154,16 +152,17 @@ const CounterNameplate = ({
           sequence: index + 1,
         })),
       };
-  
+
       const res = await AddNamePlate(payload);
+
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
       }
-  
+
       Swal.close();
-  
+
       if (printAfterSave) {
-        await callPrintApi({ twoLanugage });
+        await callPrintApi();
       } else {
         Swal.fire("Saved Successfully", res?.data?.msg, "success");
         setIsModalOpen(false);
@@ -172,9 +171,8 @@ const CounterNameplate = ({
       Swal.fire("Save Failed", error.message, "error");
     }
   };
-  
 
-  const callPrintApi = async ({ twoLanugage = 0 } = {}) => {
+  const callPrintApi = async () => {
     try {
       const formData = new FormData();
       formData.append("adminTemplateModuleId", selectedTemplateId);
@@ -182,16 +180,19 @@ const CounterNameplate = ({
       formData.append("eventId", eventId);
       formData.append("isCompanyDetails", 0);
       formData.append("lang", currentlang);
+      formData.append("twoLanugage", 0);
+
       formData.append("userId", userId);
-      formData.append("twoLanugage", twoLanugage);
-  
+
       const res = await GenerateNamePlateReport(formData);
       const url = res.data?.report_path;
-  
-      if (!url) throw new Error("PDF URL not received");
-  
+
+      if (!url) {
+        throw new Error("PDF URL not received");
+      }
+
       setPdfUrl(url);
-      setShowPdfViewer(true);
+      setShowPdfViewer(true); // Show the viewer
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -200,48 +201,32 @@ const CounterNameplate = ({
       });
     }
   };
-  
 
   return (
     <CustomModal
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-      title="Counter Name Plate Report"
+      title="Main Standy"
       width={1000}
       footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-       <button
+        <button
           className="btn btn-light flex items-center gap-2"
           onClick={() => handleSave()}
         >
           <Save size={16} /> Save
         </button>
 
-
         <div className="flex gap-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => callPrintApi({ twoLanugage: 0 })}
-        >
-          Print
-      </button>
-        <button
+          <button className="btn btn-primary" onClick={callPrintApi}>
+            Print
+          </button>
+          <button
             className="btn btn-primary flex items-center gap-2"
-            onClick={() =>
-              handleSave({ printAfterSave: true, twoLanugage: 0 })
-            }
+            onClick={() => handleSave({ printAfterSave: true })}
           >
             <Printer size={16} /> Save & Print
           </button>
-
-          <button
-            className="btn btn-primary"
-            onClick={() =>
-              handleSave({ printAfterSave: true, twoLanugage: 1 })
-            }
-          >
-            Two Language PDF
-          </button>
-
+          <button className="btn btn-primary">Two Language PDF</button>
         </div>
       </div>
     >
@@ -330,16 +315,6 @@ const CounterNameplate = ({
                         />
 
                         {/* Copies */}
-                        <div className="flex flex-col items-end">
-                          <input
-                            type="number"
-                            value={item.copies}
-                            onChange={(e) =>
-                              handleCopiesChange(item.id, e.target.value)
-                            }
-                            className="w-16 text-center border rounded-md"
-                          />
-                        </div>
                       </div>
                     )}
                   </Draggable>
@@ -375,4 +350,4 @@ const CounterNameplate = ({
   );
 };
 
-export default CounterNameplate;
+export default MainStandyMenuReport;

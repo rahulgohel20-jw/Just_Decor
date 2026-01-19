@@ -1,16 +1,65 @@
+import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { toAbsoluteUrl } from "@/utils";
+import { GetRawmaterialItemByRecipe } from "@/services/apiServices";
 
 const ShowMenuItems = ({ isOpen, onClose, item }) => {
-  console.log(item);
+  const [rawMaterials, setRawMaterials] = useState([]);
 
-  const handleModalClose = () => onClose();
+  console.log("ShowMenuItems rendered for item:", item);
+
+useEffect(() => {
+  const menuItemId = item?.menuItemId; // this is correct
+  if (menuItemId) {
+    fetchRawMaterials(menuItemId);
+  } else {
+    setRawMaterials([]);
+  }
+}, [item]);
+
+
+const fetchRawMaterials = async (menuItemId) => {
+  try {
+    const userId = localStorage.getItem("userId") || 1;
+    const isSync = false;
+
+    const response = await GetRawmaterialItemByRecipe(
+      menuItemId,
+      userId,
+      isSync
+    );
+
+    console.log("API Response:", response);
+
+    const rawMaterialsArray = response?.data?.data?.menuItemRawMaterials || [];
+
+    if (rawMaterialsArray.length > 0) {
+      setRawMaterials(rawMaterialsArray);
+      console.log("Raw materials set:", rawMaterialsArray);
+    } else {
+      setRawMaterials([]);
+      console.warn("No raw materials found in response");
+    }
+  } catch (error) {
+    console.error("Error fetching raw materials:", error);
+    setRawMaterials([]);
+  }
+};
+
+
+
+
+
+  const handleModalClose = () => {
+    console.log("Closing modal for item:", item?.menuItemName);
+    onClose();
+  };
 
   return (
     <CustomModal
       open={isOpen}
       onClose={handleModalClose}
-      title="Items details"
+      title="Item details"
       width={650}
       footer={[]}
     >
@@ -40,6 +89,20 @@ const ShowMenuItems = ({ isOpen, onClose, item }) => {
         <p className="mt-1 text-gray-600 text-center text-sm sm:text-base">
           {item?.itemSlogan}
         </p>
+
+        {rawMaterials.length > 0 && (
+          <div className="mt-4 w-full max-w-[520px]">
+            <h3 className="text-lg font-semibold mb-2">Raw Materials:</h3>
+            <ul className="list-disc list-inside">
+              {rawMaterials.map((rm) => (
+                <li key={rm.id}>
+                  {rm.rawMaterial?.nameEnglish} - {rm.weight}{" "}
+                  {rm.unit?.symbolEnglish} - ₹{rm.rate}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </CustomModal>
   );

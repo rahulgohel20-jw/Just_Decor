@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import NamePlateReport from "./NamePlateReport";
+
 import { toAbsoluteUrl } from "@/utils";
 import {
   GetEventMasterById,
@@ -11,6 +13,7 @@ import { useMemo } from "react";
 import CounterNameplate from "../counter-nameplate/CounterNameplate";
 import MenuReport from "./MenuReport";
 import { FormattedMessage, useIntl } from "react-intl";
+import MainStandyMenuReport from "./MainStandyMenuReport";
 
 export default function SelectMenureport({
   eventId,
@@ -38,6 +41,9 @@ export default function SelectMenureport({
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
+  const [openNamePlate, setOpenNamePlate] = useState(false);
+  const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
+
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -61,7 +67,7 @@ export default function SelectMenureport({
     if (selectedFunctionId === -1) return null;
 
     return eventData?.eventFunctions?.find(
-      (item) => item.id === selectedFunctionId
+      (item) => item.id === selectedFunctionId,
     );
   }, [eventData, selectedFunctionId]);
 
@@ -79,6 +85,15 @@ export default function SelectMenureport({
         return obj[`${baseKey}English`] || "";
     }
   };
+  const handleOpenNamePlate = () => {
+    setIsNamePlateTheme(true); // important
+    setIsModalOpen(true); // open MenuReport modal
+  };
+
+  const handleOpenMainStandy = () => {
+    setIsNamePlateTheme(true);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchTemplateModules = async () => {
@@ -87,14 +102,14 @@ export default function SelectMenureport({
 
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
-            (module) => module.isActive && !module.isDelete
+            (module) => module.isActive && !module.isDelete,
           );
 
           if (mode === "menu") {
             modules = modules.filter((module) =>
               ["Exclusive Theme", "Back Office Theme"].includes(
-                module.nameEnglish
-              )
+                module.nameEnglish,
+              ),
             );
           } else if (mode === "allocation") {
             modules = modules.filter((module) =>
@@ -103,15 +118,15 @@ export default function SelectMenureport({
                 "Chef Agency Theme",
                 "Outside Agency Theme",
                 "Name Plate Theme",
-              ].includes(module.nameEnglish)
+              ].includes(module.nameEnglish),
             );
           } else if (mode === "raw") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Raw Material Theme"
+              (module) => module.nameEnglish === "Raw Material Theme",
             );
           } else if (mode === "labour") {
             modules = modules.filter(
-              (module) => module.nameEnglish === "Labour Agency Theme"
+              (module) => module.nameEnglish === "Labour Agency Theme",
             );
           }
 
@@ -129,7 +144,7 @@ export default function SelectMenureport({
             setActiveTab(formattedModules[0].key);
             // CHECK IF FIRST TAB IS NAME PLATE THEME
             setIsNamePlateTheme(
-              formattedModules[0].nameEnglish === "Name Plate Theme"
+              formattedModules[0].nameEnglish === "Name Plate Theme",
             );
           }
         }
@@ -152,7 +167,7 @@ export default function SelectMenureport({
 
         const res = await GetAllCustomThemeByUserIdAndModuleId(
           userId,
-          activeTab
+          activeTab,
         );
         console.log(res);
 
@@ -232,21 +247,49 @@ export default function SelectMenureport({
   }, [eventData, setEventFunctionId, isSelectMenureport]);
 
   const handleGenerateReport = (template) => {
+    console.log("Clicked template:", {
+      name: template.name,
+      isNamePlate: template.isNamePlate,
+      type: template.namePlateType,
+      isNamePlateTheme,
+    });
+
     setSelectedCard(template.id);
     setSelectedTemplateId(template.id);
     setSelectedTemplateName(template.name);
     setmappingId(template.mappingId);
     setSelectedModuleId(activeTab);
 
+    // Counter Name Plate
     if (
       isNamePlateTheme &&
-      template.isNamePlate === true &&
+      template.isNamePlate &&
       template.namePlateType === "Counter Name Plate"
     ) {
+      console.log("Opening Counter Name Plate");
       setIsModalOpen(true);
       return;
     }
 
+    // Test Name Plate
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Main Standy"
+    ) {
+      console.log("Opening MainStandyMenuReport");
+      setOpenNamePlateTest(true);
+      return;
+    }
+
+    // Normal Name Plate
+    if (isNamePlateTheme && template.isNamePlate) {
+      console.log("Opening NamePlateReport");
+      setOpenNamePlate(true);
+      return;
+    }
+
+    console.log("Opening MenuReport");
     setIsMenuReportOpen(true);
   };
 
@@ -318,7 +361,7 @@ export default function SelectMenureport({
                     ? getLangValue(
                         selectedEventFunction.function,
                         "name",
-                        activeLang
+                        activeLang,
                       )
                     : activeLang === "hi"
                       ? "सभी फंक्शन"
@@ -565,6 +608,31 @@ export default function SelectMenureport({
         adminTemplatemoduleId={selectedModuleId || activeTab}
         selectedTemplateId={selectedTemplateId}
       />
+      {openNamePlateTest && (
+        <MainStandyMenuReport
+          isModalOpen={openNamePlateTest}
+          setIsModalOpen={setOpenNamePlateTest}
+          eventId={finalEventId}
+          eventFunctionId={selectedFunctionId}
+          selectedTemplateId={selectedTemplateId}
+        />
+      )}
+
+      {openNamePlate && (
+        <CustomModal
+          open={openNamePlate}
+          onClose={() => setOpenNamePlate(false)}
+          width={900}
+          footer={null}
+        >
+          <NamePlateReport
+            onClose={() => setOpenNamePlate(false)}
+            eventId={finalEventId}
+            eventFunctionId={selectedFunctionId}
+            selectedTemplateId={selectedTemplateId}
+          />
+        </CustomModal>
+      )}
     </>
   );
 }
