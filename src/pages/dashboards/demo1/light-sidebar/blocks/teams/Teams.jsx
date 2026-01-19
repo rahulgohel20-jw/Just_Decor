@@ -173,7 +173,7 @@ const Teams = ({ data }) => {
       data={data} // ✅ use data prop here
       rowSelection={false}
       getRowId={(row) => row.id}
-      pagination={{ size: 5 }}
+      pagination={{ size: 50 }}
       layout={{ card: true }}
     />
   );
